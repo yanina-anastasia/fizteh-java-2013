@@ -5,6 +5,7 @@
 
 ## Лекции
 Презентации прошедших лекций:
+
 1. [JVM, JLS, примитивные типы, стек и куча.](http://yadi.sk/d/GwdopKUI9JLnY)
 2. [Массивы, операции с примитивными типами, Object, String, equals.](http://yadi.sk/d/2rGRP3Cy9JMiM)
 
