@@ -5,7 +5,7 @@ package ru.fizteh.fivt.students.test.calculator;
  */
 public class CalculatorMain 
 {
-    InputStream inputStream = System.in;
+	InputStream inputStream = System.in;
 	PrintStream outputStream = System.out;
 	private Stack <Integer> numberStack = new Stack <Integer> ();
 	private Stack <Character> operandStack = new Stack <Character> ();
