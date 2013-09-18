@@ -14,7 +14,7 @@ import static java.lang.String.valueOf;
 
 public class Calculator
 {
-    public static int MyBase = 17;
+    public static int MyBase = 19;
     private static boolean shouldUseArgsInsteadOfSTDIN = true;
 
     public static void main(String[] args)
