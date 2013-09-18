@@ -5,6 +5,8 @@
  * Created by Vladimir Mishatkin on 9/14/13
  */
 
+package ru.fizteh.fivt.students.Mishatkin.Vladimir;
+
 import java.util.NoSuchElementException;
 import java.util.Vector;
 

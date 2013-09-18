@@ -5,6 +5,8 @@
  * Created by Vladimir Mishatkin on 9/17/13
  */
 
+package ru.fizteh.fivt.students.Mishatkin.Vladimir;
+
 public class ArgumentsSource implements InputSource {
 
     private int nextArgumentIndex = 0;
