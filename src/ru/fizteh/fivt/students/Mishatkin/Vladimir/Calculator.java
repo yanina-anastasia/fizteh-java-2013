@@ -17,7 +17,7 @@ public class Calculator
     public static int MyBase = 19;
     private static boolean shouldUseArgsInsteadOfSTDIN = true;
 
-    public static void main(String[] args)
+    public static int main(String[] args)
     {
         InputStream inputStream = System.in;
         OutputStream outputStream = System.out;
@@ -25,8 +25,9 @@ public class Calculator
         InputSource in = shouldUseArgsInsteadOfSTDIN ? new ArgumentsSource(args) :
                          new StandartInputSource(new Scanner(inputStream));
         Task solver = new Task(in, out);
-        solver.solve();
+        int retValue = solver.solve();
         out.close();
+        return retValue;
     }
 }
 
@@ -61,7 +62,7 @@ class Task
         out.println(toPrint);
     }
 
-    public void solve()
+    public int solve()
     {
         ReversePolishNoteEncoder encoder = new ReversePolishNoteEncoder();
         boolean isValidInput = true;
@@ -75,7 +76,10 @@ class Task
         }
         if (isValidInput) {
             printInNumericSystem(calculationResultDecimal, Calculator.MyBase);
+        } else {
+            return 1;
         }
+        return 0;
     }
 
 }
