@@ -14,3 +14,4 @@
 * Brian Goetz &mdash; Java Concurrency in Practive (продвинутая книжка
 по многопоточности в Java)
 * [Спецификации по JVM и JLS](http://docs.oracle.com/javase/specs/index.html)
+* [Code Conventions](http://www.oracle.com/technetwork/java/codeconv-138413.html)
