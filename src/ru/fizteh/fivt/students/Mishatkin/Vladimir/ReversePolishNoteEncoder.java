@@ -10,8 +10,7 @@ package ru.fizteh.fivt.students.Mishatkin.Vladimir;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-public class ReversePolishNoteEncoder
-{
+public class ReversePolishNoteEncoder {
     private Vector<Integer> st;     //  operands stack
     private Vector<Character> op;   //  operators stack
 
@@ -46,8 +45,10 @@ public class ReversePolishNoteEncoder
         int r;
         int l;
         try {
-            r = st.lastElement();  st.removeElementAt(st.size() - 1);
-            l = st.lastElement();  st.removeElementAt(st.size() - 1);
+            r = st.lastElement();
+            st.removeElementAt(st.size() - 1);
+            l = st.lastElement();
+            st.removeElementAt(st.size() - 1);
         } catch (NoSuchElementException e) {
             System.err.println("Wrong input format: not enough operands for operator \'" + op + "\'.");
             throw(e);
@@ -74,8 +75,7 @@ public class ReversePolishNoteEncoder
                     op.removeElementAt(op.size() - 1);
                 }
                 op.removeElementAt(op.size() - 1);
-            }
-            else if (isOperator(s.charAt(i))) {
+            } else if (isOperator(s.charAt(i))) {
                 char currentOperation = s.charAt(i);
                 while (!op.isEmpty() && priorityForOperation(op.lastElement()) >= priorityForOperation(s.charAt(i))) {
                     processOperation(st, op.lastElement());
@@ -91,8 +91,7 @@ public class ReversePolishNoteEncoder
                 --i;
                 try {
                     st.add(Integer.valueOf(operand, Calculator.MyBase));
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     System.err.println(e.getMessage());
                     System.err.println("Wrong input format: numbers should match " + Calculator.MyBase + "-based numeric system.");
                     throw(e);
