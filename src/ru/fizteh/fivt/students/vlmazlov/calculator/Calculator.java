@@ -1,4 +1,4 @@
-package calculator;
+package ru.fizteh.fivt.students.vlmazlov.calculator;
 import java.util.Vector;
 import java.util.Scanner;
 import java.io.ByteArrayInputStream;
