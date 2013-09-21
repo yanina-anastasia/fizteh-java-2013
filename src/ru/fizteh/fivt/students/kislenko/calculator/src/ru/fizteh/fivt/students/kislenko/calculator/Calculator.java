@@ -62,7 +62,7 @@ public class Calculator {
                         s = s + stack.pop() + " ";
                     }
                     if (stack.isEmpty()) {
-                            throw new IOException("Expression not complied with the bracket balance.");
+                        throw new IOException("Expression not complied with the bracket balance.");
                     }
                     stack.pop();
                 }
