@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.calculator;
-import java.lang.String;
+
+import java.math.BigInteger;
 
 class errorFormula extends Exception {
     public errorFormula(String text) {
@@ -7,19 +8,21 @@ class errorFormula extends Exception {
     }
 }
 
-class myCalc {
+class MyCalc {
 
     private enum lex {FIRST, NUM, PLUS, MUL, OPEN, CLOSE, END, MINUS, DEL}
     private lex curlex;
-    private int it, value, VARIANT;
+    private int it;
+    private BigInteger value;
+    private int variant;
     private String formula, resFormula;
 
-    public myCalc(String s) {
+    public MyCalc(String s) {
         formula = s;
         curlex = lex.FIRST;
         it = 0;
-        value = 0;
-        VARIANT = 17;
+        value = BigInteger.valueOf(0);
+        variant = 17;
     }
 
     public boolean isSuitableSymbol(char c) {
@@ -35,16 +38,15 @@ class myCalc {
     }
 
     private void nextLexem() throws errorFormula {
+        while (it < formula.length() && formula.charAt(it) == ' ') {
+            it += 1;
+        }
+
         if (it >= formula.length()) {
             curlex = lex.END;
             return;
         }
-
         char c = formula.charAt(it);
-        while (c == ' '){
-            it += 1;
-            c = formula.charAt(it);
-        }
 
         switch (c) {
             case '(':
@@ -75,54 +77,56 @@ class myCalc {
                 if (isSuitableSymbol(c)) {
                     int digit;
                     curlex = lex.NUM;
-                    value = 0;
+                    value = BigInteger.valueOf(0);
                     while (it < formula.length() && isSuitableSymbol(formula.charAt(it))) {
                         digit = convertToInt(formula.charAt((it)));
-                        value = value * VARIANT + digit;
+                        value = value.multiply(BigInteger.valueOf(variant));
+                        value = value.add(BigInteger.valueOf(digit));
                         it += 1;
                     }
                 } else {
-                    throw new errorFormula(String.format("Неизвестный символ = %c, номер %d", c, it));
+                    String error = String.format("Неизвестный символ '%c' в \"%s\"= , номер %d", c, formula, it);
+                    throw new errorFormula(error);
                 }
         }
     }
 
-    private int expression() throws errorFormula {
-        int first = item();
+    private BigInteger expression() throws errorFormula {
+        BigInteger first = item();
         while (curlex == lex.PLUS || curlex == lex.MINUS){
             lex tmp = curlex;
             nextLexem();
-            int second = item();
+            BigInteger second = item();
             if (tmp == lex.PLUS) {
-                first = first + second;
+                first = first.add(second);
             } else {
-                first = first - second;
+                first = first.subtract(second);
             }
         }
         return first;
     }
 
-    private int item() throws errorFormula {
-        int first = multiplier();
+    private BigInteger item() throws errorFormula {
+        BigInteger first = multiplier();
         while (curlex == lex.MUL || curlex == lex.DEL){
             lex tmp = curlex;
             nextLexem();
-            int second = multiplier();
+            BigInteger second = multiplier();
             if (tmp == lex.MUL) {
-                first = first * second;
+                first = first.multiply(second);
             } else {
-                if (second == 0) {
-                    throw new errorFormula("Деление на ноль");
+                if (second.equals(BigInteger.valueOf(0))) {
+                    throw new errorFormula(String.format("Деление на ноль в \"%s\", номер %d ", formula, it));
                 }
-                first = first / second;
+                first = first.divide(second);
 
             }
         }
         return first;
     }
 
-    private int multiplier() throws errorFormula {
-        int factorRes;
+    private BigInteger multiplier() throws errorFormula {
+        BigInteger factorRes;
         switch (curlex) {
             case NUM:
                 factorRes = value;
@@ -134,13 +138,8 @@ class myCalc {
                 if (curlex == lex.CLOSE) {
                     nextLexem();
                 } else {
-                    char c;
-                    if (it < formula.length()) {
-                        c = formula.charAt(it);
-                    } else {
-                        c = '?';
-                    }
-                    throw new errorFormula(String.format("Нарушен балланс скобок, номер = %d, символ %c", it, c));
+                    String error = String.format("Нарушен балланс скобок в \"%s\", номер %d", formula, it);
+                    throw new errorFormula(error);
                 }
                 break;
             default:
@@ -150,31 +149,33 @@ class myCalc {
                 } else {
                     c = formula.charAt(it-1);
                 }
-                throw new errorFormula(String.format("Неверная последовательность символов, номер %d, символ %c", it, c));
+                String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
+                throw new errorFormula(error);
         }
         return factorRes;
     }
 
-    public String castNumeralSystem(int n) {
-        if (n == 0) {
+    public String castNumeralSystem(BigInteger n) {
+        if (n.equals(BigInteger.valueOf(0))) {
             return "0";
         }
         int sign = 1;
-        if (n < 0) {
+        if (n.compareTo(BigInteger.valueOf(0)) < 0) {
             sign = -1;
+            n = n.negate();
         }
-        n *= sign;
+
         String res = "";
-        while (n != 0) {
-            int modulo = n % VARIANT;
+        while (!n.equals(BigInteger.valueOf(0))) {
+            int modulo = n.remainder(BigInteger.valueOf(variant)).intValue();
             if (modulo <= 9) {
                 res += (char) ('0' + modulo);
             } else {
                 res += (char) ('A' + modulo - 10);
             }
-            n = n / VARIANT;
+            n = n.divide(BigInteger.valueOf(variant));
         }
-        String reverse = new StringBuffer(res).reverse().toString();
+        String reverse = new StringBuilder(res).reverse().toString();
         if (sign < 0) {
             return '-' + reverse;
         } else {
@@ -189,7 +190,14 @@ class myCalc {
         nextLexem();
         String res = castNumeralSystem(expression());
         if (curlex != lex.END){
-            throw new errorFormula("Проблема с концом");
+            char c;
+            if (it < formula.length()) {
+                c = formula.charAt(it);
+            } else {
+                c = formula.charAt(it-1);
+            }
+            String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
+            throw new errorFormula(error);
         }
         resFormula = res;
         return resFormula;
@@ -198,25 +206,26 @@ class myCalc {
 
 public class Calculator {
 
-    public static void main(String[] args) {
-        //String query = "1+5+8";
+    public static int main(String[] args) {
         StringBuilder builder = new StringBuilder();
         for (String arg : args) {
             builder.append(arg);
+            builder.append(' ');
         }
         String query = builder.toString();
         if (query.equals("")) {
             System.out.println("Пустой ввод");
-            return;
+            return 1;
         }
         try {
-            myCalc calculator = new myCalc(query);
+            MyCalc calculator = new MyCalc(query);
             String res = calculator.result();
             System.out.println(res);
         } catch (errorFormula e) {
             System.out.println(e);
         }
 
+        return 0;
     }
 
 }
