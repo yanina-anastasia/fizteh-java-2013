@@ -9,9 +9,9 @@ import java.lang.String;
 public class Main {
     public static final int RADIX = 17;
 
-    public static String ToRPN(String[] args) {
-        String simbols = new String();
-        Stack<String> simbols_stack = new Stack();
+    public static String ReversePolishNotationConversation(String[] args) {
+        String symbols = "";
+        Stack<String> symbolStack = new Stack();
         boolean minus = true;
         boolean sign = false;
         for (int i = 0; i < args.length; ++i) {
@@ -28,7 +28,7 @@ public class Main {
                         number = -number;
                         sign = false;
                     }
-                    simbols += number + " ";
+                    symbols += number + " ";
                     minus = false;
                     j += k - j - 1;
                 } else if (args[i].charAt(j) == '(') { // (
@@ -40,7 +40,7 @@ public class Main {
                         ++k;
                     }
                     for (int p = 0; p < count; ++p) {
-                        simbols_stack.push("(");
+                        symbolStack.push("(");
                     }
                     minus = true;
                     j += count - 1;
@@ -49,46 +49,46 @@ public class Main {
                         if (args[i].charAt(j) == ' ') {
                             ++j;
                         } else {
-                            while (!simbols_stack.empty() && !simbols_stack.peek().equals("(")) {
-                                simbols += simbols_stack.pop() + " ";
+                            while (!symbolStack.empty() && !symbolStack.peek().equals("(")) {
+                                symbols += symbolStack.pop() + " ";
                             }
-                            if (simbols_stack.empty()) {
+                            if (symbolStack.empty()) {
                                 System.err.println("Incorrect bracket balance!");
                                 System.exit(1);
                             }
-                            simbols_stack.pop();
+                            symbolStack.pop();
                             ++j;
                         }
                     }
                     minus = false;
                     --j;
                 } else if (args[i].charAt(j) == '+') {
-                    while (!simbols_stack.empty() && !simbols_stack.peek().equals("(")) {
-                        simbols += simbols_stack.pop() + " ";
+                    while (!symbolStack.empty() && !symbolStack.peek().equals("(")) {
+                        symbols += symbolStack.pop() + " ";
                     }
                     minus = false;
-                    simbols_stack.push("+");
+                    symbolStack.push("+");
                 } else if (args[i].charAt(j) == '-') {
                     if (minus) {
                         sign = true;
                     } else {
-                        while (!simbols_stack.empty() && !simbols_stack.peek().equals("(")) {
-                            simbols += simbols_stack.pop() + " ";
+                        while (!symbolStack.empty() && !symbolStack.peek().equals("(")) {
+                            symbols += symbolStack.pop() + " ";
                         }
-                        simbols_stack.push("-");
+                        symbolStack.push("-");
                     }
                 } else if (args[i].charAt(j) == '*') {
-                    while (!simbols_stack.empty() && (simbols_stack.peek().equals("*") || simbols_stack.peek().equals("/"))) {
-                        simbols += simbols_stack.pop() + " ";
+                    while (!symbolStack.empty() && (symbolStack.peek().equals("*") || symbolStack.peek().equals("/"))) {
+                        symbols += symbolStack.pop() + " ";
                     }
                     minus = false;
-                    simbols_stack.push("*");
+                    symbolStack.push("*");
                 } else if (args[i].charAt(j) == '/') {
-                    while (!simbols_stack.empty() && (simbols_stack.peek().equals("*") || simbols_stack.peek().equals("/"))) {
-                        simbols += simbols_stack.pop() + " ";
+                    while (!symbolStack.empty() && (symbolStack.peek().equals("*") || symbolStack.peek().equals("/"))) {
+                        symbols += symbolStack.pop() + " ";
                     }
                     minus = false;
-                    simbols_stack.push("/");
+                    symbolStack.push("/");
                 } else if (args[i].charAt(j) == ' ') {
                 } else {
                     System.err.println("Bad symbol: " + args[i].charAt(j));
@@ -96,14 +96,14 @@ public class Main {
                 }
             }
         }
-        while (!simbols_stack.isEmpty()) {
-            if (simbols_stack.peek().equals("(")) {
+        while (!symbolStack.isEmpty()) {
+            if (symbolStack.peek().equals("(")) {
                 System.err.println("Incorrect bracket balance!");
                 System.exit(1);
             }
-            simbols += simbols_stack.pop() + " ";
+            symbols += symbolStack.pop() + " ";
         }
-        return simbols;
+        return symbols;
     }
 
     public static Integer Calcs(String expression) {
@@ -153,6 +153,10 @@ public class Main {
                 values.push(Integer.parseInt(symbol));
             }
         }
+        if (values.size() > 1) {
+            System.err.println("Too many variables");
+            System.exit(1);
+        }
         return values.peek();
     }
 
@@ -164,7 +168,7 @@ public class Main {
         }
         String expression = new String();
         try {
-            expression = ToRPN(args);
+            expression = ReversePolishNotationConversation(args);
         } catch (NumberFormatException e) {
             System.err.println("Invalid number: " + e);
             System.exit(1);
@@ -172,7 +176,6 @@ public class Main {
         try {
             Integer result = Calcs(expression);
             System.out.println(Integer.toString(result, RADIX));
-            System.exit(0);
         } catch (ArithmeticException e) {
             System.err.println(e);
             System.exit(1);
