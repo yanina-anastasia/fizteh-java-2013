@@ -170,7 +170,7 @@ public class Calculator {
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
                 if (oper2 == 0) {
-                    throw new IOException("Dividing by zero.");
+                    throw new RuntimeException("Dividing by zero.");
                 }
                 operandStack.push(oper1 / oper2);
             } else {
@@ -178,7 +178,10 @@ public class Calculator {
             }
         }
 
-        int answer = operandStack.peek();
+        int answer = operandStack.pop();
+        if(!operandStack.isEmpty()) {
+            throw new IOException("Too many operands.");
+        }
         ps.print(answer);
         System.exit(0);
     }
