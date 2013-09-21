@@ -2,10 +2,10 @@
  * Task.java
  * Caclulator
  *
- * Created by Sane on 9/20/13
+ * Created by Vladimir Mishatkin on 9/20/13
  */
 
-package ru.fizteh.fivt.students.Mishatkin.Vladimir;
+package ru.fizteh.fivt.students.Mishatkin.Calculator;
 
 import java.io.PrintWriter;
 
