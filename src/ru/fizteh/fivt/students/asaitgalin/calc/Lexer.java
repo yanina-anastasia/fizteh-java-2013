@@ -5,18 +5,29 @@ public class Lexer {
     private char[] input;
     private int len;
 
+    private boolean wasOperator;
+    private char prevOperator;
+
     public Lexer(String s) {
         input = s.toCharArray();
         len = s.length();
     }
 
-    public Token getNext() throws IllegalArgumentException {
-        Token ret = null;
+    public Token getNext() throws IllegalExpressionException {
+        Token ret;
         skipSpaces();
         if (cursor == len) {
             return null;
         }
         if (isOperator(input[cursor])) {
+            if (wasOperator) {
+                if ((prevOperator == '*' && input[cursor] == '*') || (prevOperator == '/' && input[cursor] == '/') ||
+                        (prevOperator == '*' && input[cursor] == '/') || (prevOperator == '/' && input[cursor] == '*')) {
+                    throw new IllegalExpressionException();
+                }
+            }
+            wasOperator = true;
+            prevOperator = input[cursor];
             ret = new Operator(input[cursor++]);
         } else {
             StringBuilder sb = new StringBuilder();
@@ -27,8 +38,9 @@ public class Lexer {
             if (out.matches("^[0-9A-I]+$")) {
                 ret = new Number(out);
             } else {
-                throw new IllegalArgumentException("Illegal input string");
+                throw new IllegalExpressionException();
             }
+            wasOperator = false;
         }
         return ret;
     }

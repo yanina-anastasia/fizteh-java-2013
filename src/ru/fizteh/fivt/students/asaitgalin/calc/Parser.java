@@ -5,17 +5,17 @@ public class Parser {
     private Token look;
     private boolean endOfStream;
 
-    public Parser(Lexer lexer) {
+    public Parser(Lexer lexer) throws IllegalExpressionException {
         scanner = lexer;
         move();
     }
 
-    public void move() {
+    public void move() throws IllegalExpressionException {
         look = scanner.getNext();
         endOfStream = look == null;
     }
 
-    public int parseExpr() {
+    public int parseExpr() throws IllegalExpressionException {
         int x = parseTerm();
         Operator op = (Operator)look;
         while (!endOfStream && (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
@@ -31,7 +31,7 @@ public class Parser {
         return x;
     }
 
-    public int parseTerm() {
+    public int parseTerm() throws IllegalExpressionException {
         int x = parseUnary();
         Operator op = (Operator)look;
         while (!endOfStream && (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
@@ -47,7 +47,10 @@ public class Parser {
         return x;
     }
 
-    public int parseUnary() {
+    public int parseUnary() throws IllegalExpressionException {
+        if (endOfStream) {
+            throw new IllegalExpressionException();
+        }
         if (look.type == Token.TokenType.OPERATOR) {
             if (((Operator)look).opType == Operator.OperatorType.SUBTRACTION) {
                 move();
@@ -57,7 +60,7 @@ public class Parser {
         return parseFactor();
     }
 
-    public int parseFactor() {
+    public int parseFactor() throws IllegalExpressionException {
         int ret = 0;
         if (look.type == Token.TokenType.NUMBER) {
             ret = ((Number)look).value;
@@ -69,7 +72,7 @@ public class Parser {
             if (look != null && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
                 move();
             } else {
-                throw new IllegalArgumentException("Wrong bracket balance");
+                throw new IllegalExpressionException("Missing matching bracket");
             }
         }
         return ret;
