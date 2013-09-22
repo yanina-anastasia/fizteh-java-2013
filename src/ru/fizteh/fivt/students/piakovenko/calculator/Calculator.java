@@ -1,12 +1,5 @@
 package ru.fizteh.fivt.students.piakovenko.calculator;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Pavel
- * Date: 21.09.13
- * Time: 12:06
- * To change this template use File | Settings | File Templates.
- */
 public class Calculator {
 
     private static boolean bracketsSum(String s) {
@@ -23,25 +16,31 @@ public class Calculator {
     }
 
     public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Error: No program arguments!");
+            return;
+        }
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < args.length; ++i) {
             s.append(args[i]);
         }
-        if (s.toString() == "") {
-            System.out.println("No program arguments!");
-            System.exit(-1);
-        }
         if (!bracketsSum (s.toString())) {
-            System.out.println("Wrong brackets!");
-            System.exit(-1);
+            System.out.println("Error: Wrong brackets!");
+            return;
         }
-        Tree t = new Tree();
-        Node p = t.parser(s.toString());
+        Node p;
+        try{
+            Tree t = new Tree();
+            p = t.parser(s.toString());
+        } catch ( RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+            return;
+        }
         if ( p.getString().equals("")) {
-            System.out.println('0');
+           System.out.println('0');
         }
         else {
-            System.out.println(p.getString());
+           System.out.println(p.getString());
         }
     }
 }

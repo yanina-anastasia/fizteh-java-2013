@@ -2,13 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.calculator;
 
 import static java.lang.Math.pow;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Pavel
- * Date: 21.09.13
- * Time: 12:07
- * To change this template use File | Settings | File Templates.
- */
 public class Node {
     private String s;
     private boolean isSymbol;
@@ -67,8 +60,7 @@ public class Node {
         }
         else if (s.equals("/")) {
             if (toNumber(rightNode.getString(), dec) == 0 ) {
-                System.out.println("Programm tried to divide by zero");
-                System.exit(-1);
+                throw(new RuntimeException("Trying divide by zero"));
             }
             return (toNumber(leftNode.getString(), dec) / toNumber(rightNode.getString(), dec));
         }
