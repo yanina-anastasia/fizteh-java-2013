@@ -49,7 +49,6 @@ public class StackCalculator {
     }
 
     private void handleOperand ( char operand ) throws IOException {
-        System.out.println("Operand: " + operand);
         while ( !operandStack.empty ()
                 && ( priority ( operandStack.peek () ) >= priority ( operand ) ) ) {
             moveTheLastOperation ();
