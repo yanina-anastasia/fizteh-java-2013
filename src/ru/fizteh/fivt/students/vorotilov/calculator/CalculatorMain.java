@@ -27,7 +27,10 @@ public class CalculatorMain {
         }
     }
 
-    static void calculationStep(Stack<Integer> st, char op) {
+    static void calculationStep(Stack<Integer> st, char op) throws Exception {
+        if (st.size() < 2) {
+            throw new Exception("Wrong number of arguments");
+        }
         Integer r = st.pop();
         Integer l = st.pop();
         switch (op) {
@@ -68,12 +71,15 @@ public class CalculatorMain {
                         ++i;
                     }
                     --i;
-                    st.push ( NumberWithBase.numberToInt(operand.toString()) );
+                    st.push( NumberWithBase.numberToInt(operand.toString()) );
                 }
             }
         }
         while (!op.empty()) {
             calculationStep(st, op.pop());
+        }
+        if (st.size() != 1) {
+            throw new Exception("Wrong expression");
         }
         return NumberWithBase.intToNumber(st.peek());
     }
@@ -88,6 +94,7 @@ public class CalculatorMain {
             System.out.println(calculate(theWholeArgument.toString())  );
         } catch (Exception e) {
             System.out.println(e);
+            System.exit(1);
         }
     }
 
@@ -168,3 +175,4 @@ class NumberWithBase {
     }
 
 }
+
