@@ -51,22 +51,21 @@ public class CalculatorMain {
                 if (inputString.charAt(i) == '(') {
                     op.push ('(');
                 } else if (inputString.charAt(i) == ')') {
-                    while (op.peek() != '(') {
+                    while (!op.empty() && op.peek() != '(') {
                         calculationStep(st, op.pop());
-                        op.pop();
                     }
                     op.pop();
                 } else if (isOperator(inputString.charAt(i))) {
-                    char currentOperator = inputString.charAt(i);
                     while (!op.empty() && operatorPriority(op.peek()) >= operatorPriority(inputString.charAt(i))) {
                         calculationStep(st, op.pop());
                     }
-                    op.push(currentOperator);
+                    op.push(inputString.charAt(i));
                 }
                 else {
                     StringBuilder operand = new StringBuilder();
-                    while (i < inputString.length() && NumberWithBase.isAllFromAlphabet( inputString.charAt(i) ) ) {
-                        operand.append(inputString.charAt(i++));
+                    while (i < inputString.length() && NumberWithBase.isFromAlphabet(inputString.charAt(i)) ) {
+                        operand.append(inputString.charAt(i));
+                        ++i;
                     }
                     --i;
                     st.push ( NumberWithBase.numberToInt(operand.toString()) );
@@ -86,8 +85,7 @@ public class CalculatorMain {
                 theWholeArgument.append(arg);
                 theWholeArgument.append(' ');
             }
-            System.out.println(theWholeArgument);
-            System.out.println(calculate( theWholeArgument.toString() )  );
+            System.out.println(calculate(theWholeArgument.toString())  );
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -145,10 +143,7 @@ class NumberWithBase {
         return result.toString();
     }
 
-    static boolean isAllFromAlphabet (char c) {
-        if (c == '-') {
-            return true;
-        }
+    static boolean isFromAlphabet(char c) {
         for (int i = 0; i < NUMBER_BASE; ++i) {
             if (c == NUMBER_SYMBOLS.charAt(i)) {
                 return true;
