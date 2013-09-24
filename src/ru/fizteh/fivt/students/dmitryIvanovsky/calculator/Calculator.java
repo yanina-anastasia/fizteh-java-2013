@@ -2,26 +2,27 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.calculator;
 
 import java.math.BigInteger;
 
-class errorFormula extends Exception {
-    public errorFormula(String text) {
+class ErrorFormula extends Exception {
+    public ErrorFormula(String text) {
         super(text);
     }
 }
 
 class MyCalc {
 
-    private enum lex {FIRST, NUM, PLUS, MUL, OPEN, CLOSE, END, MINUS, DEL}
-    private lex curlex;
+    private enum Lex {FIRST, NUM, PLUS, MUL, OPEN, CLOSE, END, MINUS, DEL}
+    private Lex curlex;
     private int it;
     private BigInteger value;
     private int variant;
-    private String formula, resFormula;
+    private String formula;
+    private String resFormula;
 
     public MyCalc(String s) {
         formula = s;
-        curlex = lex.FIRST;
+        curlex = Lex.FIRST;
         it = 0;
-        value = BigInteger.valueOf(0);
+        value = BigInteger.ZERO;
         variant = 17;
     }
 
@@ -37,47 +38,47 @@ class MyCalc {
         }
     }
 
-    private void nextLexem() throws errorFormula {
+    private void nextLexem() throws ErrorFormula {
         while (it < formula.length() && formula.charAt(it) == ' ') {
             it += 1;
         }
 
         if (it >= formula.length()) {
-            curlex = lex.END;
+            curlex = Lex.END;
             return;
         }
         char c = formula.charAt(it);
 
         switch (c) {
             case '(':
-                curlex = lex.OPEN;
+                curlex = Lex.OPEN;
                 it += 1;
                 break;
             case ')':
-                curlex = lex.CLOSE;
+                curlex = Lex.CLOSE;
                 it += 1;
                 break;
             case '+':
-                curlex = lex.PLUS;
+                curlex = Lex.PLUS;
                 it += 1;
                 break;
             case '-':
-                curlex = lex.MINUS;
+                curlex = Lex.MINUS;
                 it += 1;
                 break;
             case '*':
-                curlex = lex.MUL;
+                curlex = Lex.MUL;
                 it += 1;
                 break;
             case '/':
-                curlex = lex.DEL;
+                curlex = Lex.DEL;
                 it += 1;
                 break;
             default:
                 if (isSuitableSymbol(c)) {
                     int digit;
-                    curlex = lex.NUM;
-                    value = BigInteger.valueOf(0);
+                    curlex = Lex.NUM;
+                    value = BigInteger.ZERO;
                     while (it < formula.length() && isSuitableSymbol(formula.charAt(it))) {
                         digit = convertToInt(formula.charAt((it)));
                         value = value.multiply(BigInteger.valueOf(variant));
@@ -86,18 +87,18 @@ class MyCalc {
                     }
                 } else {
                     String error = String.format("Неизвестный символ '%c' в \"%s\"= , номер %d", c, formula, it);
-                    throw new errorFormula(error);
+                    throw new ErrorFormula(error);
                 }
         }
     }
 
-    private BigInteger expression() throws errorFormula {
+    private BigInteger expression() throws ErrorFormula {
         BigInteger first = item();
-        while (curlex == lex.PLUS || curlex == lex.MINUS){
-            lex tmp = curlex;
+        while (curlex == Lex.PLUS || curlex == Lex.MINUS) {
+            Lex tmp = curlex;
             nextLexem();
             BigInteger second = item();
-            if (tmp == lex.PLUS) {
+            if (tmp == Lex.PLUS) {
                 first = first.add(second);
             } else {
                 first = first.subtract(second);
@@ -106,17 +107,17 @@ class MyCalc {
         return first;
     }
 
-    private BigInteger item() throws errorFormula {
+    private BigInteger item() throws ErrorFormula {
         BigInteger first = multiplier();
-        while (curlex == lex.MUL || curlex == lex.DEL){
-            lex tmp = curlex;
+        while (curlex == Lex.MUL || curlex == Lex.DEL) {
+            Lex tmp = curlex;
             nextLexem();
             BigInteger second = multiplier();
-            if (tmp == lex.MUL) {
+            if (tmp == Lex.MUL) {
                 first = first.multiply(second);
             } else {
-                if (second.equals(BigInteger.valueOf(0))) {
-                    throw new errorFormula(String.format("Деление на ноль в \"%s\", номер %d ", formula, it));
+                if (second.equals(BigInteger.ZERO)) {
+                    throw new ErrorFormula(String.format("Деление на ноль в \"%s\", номер %d ", formula, it));
                 }
                 first = first.divide(second);
 
@@ -125,7 +126,7 @@ class MyCalc {
         return first;
     }
 
-    private BigInteger multiplier() throws errorFormula {
+    private BigInteger multiplier() throws ErrorFormula {
         BigInteger factorRes;
         switch (curlex) {
             case NUM:
@@ -135,11 +136,11 @@ class MyCalc {
             case OPEN:
                 nextLexem();
                 factorRes = expression();
-                if (curlex == lex.CLOSE) {
+                if (curlex == Lex.CLOSE) {
                     nextLexem();
                 } else {
-                    String error = String.format("Нарушен балланс скобок в \"%s\", номер %d", formula, it);
-                    throw new errorFormula(error);
+                    String error = String.format("Нарушен баланс скобок в \"%s\", номер %d", formula, it);
+                    throw new ErrorFormula(error);
                 }
                 break;
             default:
@@ -150,23 +151,23 @@ class MyCalc {
                     c = formula.charAt(it-1);
                 }
                 String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
-                throw new errorFormula(error);
+                throw new ErrorFormula(error);
         }
         return factorRes;
     }
 
     public String castNumeralSystem(BigInteger n) {
-        if (n.equals(BigInteger.valueOf(0))) {
+        if (n.equals(BigInteger.ZERO)) {
             return "0";
         }
         int sign = 1;
-        if (n.compareTo(BigInteger.valueOf(0)) < 0) {
+        if (n.compareTo(BigInteger.ZERO) < 0) {
             sign = -1;
             n = n.negate();
         }
 
         String res = "";
-        while (!n.equals(BigInteger.valueOf(0))) {
+        while (!n.equals(BigInteger.ZERO)) {
             int modulo = n.remainder(BigInteger.valueOf(variant)).intValue();
             if (modulo <= 9) {
                 res += (char) ('0' + modulo);
@@ -183,13 +184,13 @@ class MyCalc {
         }
     }
 
-    public String result() throws errorFormula {
-        if (curlex == lex.END){
+    public String result() throws ErrorFormula {
+        if (curlex == Lex.END){
             return resFormula;
         }
         nextLexem();
         String res = castNumeralSystem(expression());
-        if (curlex != lex.END){
+        if (curlex != Lex.END){
             char c;
             if (it < formula.length()) {
                 c = formula.charAt(it);
@@ -197,7 +198,7 @@ class MyCalc {
                 c = formula.charAt(it-1);
             }
             String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
-            throw new errorFormula(error);
+            throw new ErrorFormula(error);
         }
         resFormula = res;
         return resFormula;
@@ -209,20 +210,21 @@ public class Calculator {
     public static int main(String[] args) {
         StringBuilder builder = new StringBuilder();
         for (String arg : args) {
-            builder.append(arg);
+            builder.append(arg.toUpperCase());
             builder.append(' ');
         }
         String query = builder.toString();
         if (query.equals("")) {
-            System.out.println("Пустой ввод");
+            System.err.println("Пустой ввод");
             return 1;
         }
         try {
             MyCalc calculator = new MyCalc(query);
             String res = calculator.result();
             System.out.println(res);
-        } catch (errorFormula e) {
-            System.out.println(e);
+        } catch (ErrorFormula e) {
+            System.err.println(e);
+            return 1;
         }
 
         return 0;
