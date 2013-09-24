@@ -58,10 +58,13 @@ public class Calculator {
 			System.out.println("Please, input expression, that you want to know\nAcceptable symbols: +, -, *, /\nRadix: 18");
 			return;
 		}
-		String str = "";
+		StringBuffer s = new StringBuffer();
+		s.append("(");
 		for (int i = 0; i < args.length; ++i) {
-			str += args[i];
+			s.append(args[i]);
 		}
+		s.append(")");
+		String str = s.toString();
 		str = str.replace(" ", "");
 		if (!checkBrackets(str)) {
 			System.out.println("Incorrect bracket sequance");
@@ -73,7 +76,6 @@ public class Calculator {
 		str = str.replace("-", " - ");
 		str = str.replace("*", " * ");
 		str = str.replace("/", " / ");
-		str = "( " + str + " )";
 		Scanner sc = new Scanner(str);
 		sc.useRadix(18);
 		sc.useDelimiter(" ");
@@ -114,7 +116,7 @@ public class Calculator {
 		}
 		int result = digitStack.pop();
 		if (digitStack.empty()) {
-			System.out.println("Result: " + result);			
+			System.out.println("Result: " + Integer.toString(result, 18));			
 		} else {
 			System.out.println("Incorrect num of operators and operands");
 		}
