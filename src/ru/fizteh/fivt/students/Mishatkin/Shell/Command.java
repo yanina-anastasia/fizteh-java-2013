@@ -59,9 +59,9 @@ public abstract class Command {
 //			case MKDIR:
 //				retValue = new MakeDirectoryCommand(receiver);
 //				break;
-//			case PWD:
-//				retValue = new PrintWorkingDirectoryCommand(receiver);
-//				break;
+			case PWD:
+				retValue = new PrintWorkingDirectoryCommand(receiver);
+				break;
 //			case RM:
 //				retValue = new RemoveCommand(receiver);
 //				break;

@@ -49,7 +49,8 @@ public class ShellReceiver {
 
 	public void showPrompt() {
 		if (out != null) {
-			System.out.print(shellPath.getAbsolutePath() + " " + simplePrompt() + " ");
+			print(simplePrompt() + " ");
+//			System.out.print(shellPath.getAbsolutePath() + " " + simplePrompt() + " ");
 		}
 	}
 
@@ -99,5 +100,9 @@ public class ShellReceiver {
 		for (File file : files) {
 			println(file.getName());
 		}
+	}
+
+	public void printWorkingDirectoryCommand() {
+		println(shellPath.getAbsolutePath());
 	}
 }
