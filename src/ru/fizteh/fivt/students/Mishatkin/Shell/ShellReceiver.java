@@ -24,6 +24,18 @@ public class ShellReceiver {
 		out = Shell.initialOutput;
 	}
 
+	private void print(String s) {
+		if (out != null) {
+			System.out.print(s);
+		}
+	}
+
+	private void println(String s) {
+		if (out != null) {
+			System.out.println(s);
+		}
+	}
+
 	public synchronized static ShellReceiver sharedInstance() {
 		if (sharedInstance == null) {
 			sharedInstance = new ShellReceiver();
@@ -51,7 +63,6 @@ public class ShellReceiver {
 		String separatorRegularExpression = (File.separator.equals("/")) ? File.separator : "\\\\";
 		String[] sequence = arg.split(separatorRegularExpression);
 		for (String simpleArg : sequence) {
-
 			try {
 				simpleChangeDirectory(simpleArg);
 			} catch (FileNotFoundException e) {
@@ -81,5 +92,12 @@ public class ShellReceiver {
 
 	public void exitCommand() throws TimeToExitException {
 		throw new TimeToExitException();
+	}
+
+	public void directoryCommand() {
+		File[] files = shellPath.listFiles();
+		for (File file : files) {
+			println(file.getName());
+		}
 	}
 }

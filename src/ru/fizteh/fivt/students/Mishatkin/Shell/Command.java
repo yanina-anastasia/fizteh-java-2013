@@ -66,14 +66,14 @@ public abstract class Command {
 //				retValue = new RemoveCommand(receiver);
 //				break;
 //			case CP:
-//				retValue = new CopyCommand();
+//				retValue = new CopyCommand(receiver);
 //				break;
 //			case MV:
-//				retValue = new MoveCommand();
+//				retValue = new MoveCommand(receiver);
 //				break;
-//			case DIR:
-//				retValue = new DirectoryCommand();
-//				break;
+			case DIR:
+				retValue = new DirectoryCommand(receiver);
+				break;
 			case EXIT:
 				retValue = new ExitCommand(receiver);
 				break;
