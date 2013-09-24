@@ -105,4 +105,11 @@ public class ShellReceiver {
 	public void printWorkingDirectoryCommand() {
 		println(shellPath.getAbsolutePath());
 	}
+
+	public void makeDirectoryCommand(String arg) {
+		File directoryToCreate = new File(shellPath, arg);
+		if (!directoryToCreate.exists()) {
+			directoryToCreate.mkdir();
+		}
+	}
 }

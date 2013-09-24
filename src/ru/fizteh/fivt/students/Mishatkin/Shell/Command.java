@@ -56,9 +56,9 @@ public abstract class Command {
 			case CD:
 				retValue = new ChangeDirectoryCommand(receiver);
 				break;
-//			case MKDIR:
-//				retValue = new MakeDirectoryCommand(receiver);
-//				break;
+			case MKDIR:
+				retValue = new MakeDirectoryCommand(receiver);
+				break;
 			case PWD:
 				retValue = new PrintWorkingDirectoryCommand(receiver);
 				break;
