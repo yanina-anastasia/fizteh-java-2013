@@ -1,12 +1,17 @@
 package ru.fizteh.fivt.students.asaitgalin.calc;
 
 public class Lexer {
+    private enum LexerPrevState {
+        OPERATOR,
+        NUMBER
+    }
+
     private int cursor;
     private char[] input;
     private int len;
 
-    private boolean wasOperator;
-    private char prevOperator;
+    private LexerPrevState prevState;
+    private Token prevToken;
 
     public Lexer(String s) {
         input = s.toCharArray();
@@ -20,15 +25,16 @@ public class Lexer {
             return null;
         }
         if (isOperator(input[cursor])) {
-            if (wasOperator) {
-                if ((prevOperator == '*' && input[cursor] == '*') || (prevOperator == '/' && input[cursor] == '/') ||
-                        (prevOperator == '*' && input[cursor] == '/') || (prevOperator == '/' && input[cursor] == '*')) {
+            if (prevState == LexerPrevState.OPERATOR) {
+                Operator op = (Operator)prevToken;
+                if ((op.lexeme == '*' && input[cursor] == '*') || (op.lexeme == '/' && input[cursor] == '/') ||
+                        (op.lexeme == '*' && input[cursor] == '/') || (op.lexeme == '/' && input[cursor] == '*')) {
                     throw new IllegalExpressionException();
                 }
             }
-            wasOperator = true;
-            prevOperator = input[cursor];
+            prevState = LexerPrevState.OPERATOR;
             ret = new Operator(input[cursor++]);
+            prevToken = ret;
         } else {
             StringBuilder sb = new StringBuilder();
             while (cursor < len && !isOperator(input[cursor]) && !isSpace(input[cursor])) {
@@ -36,11 +42,15 @@ public class Lexer {
             }
             String out = sb.toString();
             if (out.matches("^[0-9A-I]+$")) {
+                if (prevState == LexerPrevState.NUMBER) {
+                    throw new IllegalExpressionException();
+                }
                 ret = new Number(out);
+                prevToken = ret;
             } else {
                 throw new IllegalExpressionException();
             }
-            wasOperator = false;
+            prevState = LexerPrevState.NUMBER;
         }
         return ret;
     }

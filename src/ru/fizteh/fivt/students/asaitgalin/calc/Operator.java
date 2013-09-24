@@ -12,9 +12,11 @@ public class Operator extends Token {
     }
 
     public OperatorType opType;
+    public char lexeme;
 
     public Operator(char c) {
         super(TokenType.OPERATOR);
+        lexeme = c;
         switch (c) {
             case '+':
                 opType = OperatorType.ADDITION;
