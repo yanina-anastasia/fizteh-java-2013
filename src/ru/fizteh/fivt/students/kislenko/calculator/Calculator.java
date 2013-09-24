@@ -1,4 +1,5 @@
-package ru.fizteh.fivt.students.kislenko.calculator; /**
+package ru.fizteh.fivt.students.kislenko.calculator;
+/**
  * Created with IntelliJ IDEA.
  * User: Александр
  * Date: 14.09.13
@@ -28,6 +29,7 @@ public class Calculator {
         }
         Scanner scan = new Scanner(inputString);
         Stack<String> stack = new Stack();
+        StringBuilder polandBuilder = new StringBuilder();
         String s = "";
         scan.useRadix(RADIX);
         boolean minus = false;
@@ -36,13 +38,12 @@ public class Calculator {
         while (scan.hasNext()) {
             if (scan.hasNext("[0-9A-G][0-9A-G\\s\\(\\)\\+\\-\\*\\/]*")) {
                 scan.useDelimiter("[\\s\\(\\)\\+\\-\\*\\/]");
-                BigInteger buf = scan.nextBigInteger();
-                int value = buf.intValue();
+                int value = scan.nextInt();
                 if (changeSign) {
                     value = -value;
                     changeSign = false;
                 }
-                s = s + value + " ";
+                polandBuilder.append(value).append(" ");
                 minus = true;
                 scan.useDelimiter("\\s");
             } else if (scan.hasNext("\\([0-9A-G\\s\\(\\)\\+\\-\\*\\/]*")) {
@@ -59,7 +60,7 @@ public class Calculator {
                 String brackets = scan.next("\\)*");
                 for (int i = 0; i < brackets.length(); ++i) {
                     while (!stack.isEmpty() && !stack.peek().equals("(")) {
-                        s = s + stack.pop() + " ";
+                        polandBuilder.append(stack.pop()).append(" ");
                     }
                     if (stack.isEmpty()) {
                         throw new IOException("Expression not complied with the bracket balance.");
@@ -75,7 +76,7 @@ public class Calculator {
                 }
                 minus = false;
                 while (!stack.isEmpty() && !stack.peek().equals("(")) {
-                    s = s + stack.pop() + " ";
+                    polandBuilder.append(stack.pop()).append(" ");
                 }
                 stack.push("+");
                 scan.useDelimiter("\\s");
@@ -97,7 +98,7 @@ public class Calculator {
                 }
                 if (minus) {
                     while (!stack.isEmpty() && !stack.peek().equals("(")) {
-                        s = s + stack.pop() + " ";
+                        polandBuilder.append(stack.pop()).append(" ");
                     }
                     stack.push("-");
                 }
@@ -110,7 +111,7 @@ public class Calculator {
                 }
                 minus = false;
                 while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
-                    s = s + stack.pop() + " ";
+                    polandBuilder.append(stack.pop()).append(" ");
                 }
                 stack.push("*");
                 scan.useDelimiter("\\s");
@@ -122,7 +123,7 @@ public class Calculator {
                 }
                 minus = false;
                 while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
-                    s = s + stack.pop() + " ";
+                    polandBuilder.append(stack.pop()).append(" ");
                 }
                 stack.push("/");
                 scan.useDelimiter("\\s");
@@ -134,8 +135,9 @@ public class Calculator {
             if (stack.peek().equals("(")) {
                 throw new IOException("Expression not complied with the bracket balance.");
             }
-            s = s + stack.pop() + " ";
+            polandBuilder.append(stack.pop()).append(" ");
         }
+        s=polandBuilder.toString();
 
         String[] symbols = s.split(" ");
         Stack<Integer> operandStack = new Stack();
