@@ -62,9 +62,9 @@ public abstract class Command {
 			case PWD:
 				retValue = new PrintWorkingDirectoryCommand(receiver);
 				break;
-//			case RM:
-//				retValue = new RemoveCommand(receiver);
-//				break;
+			case RM:
+				retValue = new RemoveCommand(receiver);
+				break;
 //			case CP:
 //				retValue = new CopyCommand(receiver);
 //				break;

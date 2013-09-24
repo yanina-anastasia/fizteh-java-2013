@@ -2,10 +2,7 @@ package ru.fizteh.fivt.students.Mishatkin.Shell;
 
 import javafx.scene.effect.ReflectionBuilder;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.regex.Pattern;
 
 /**
@@ -111,5 +108,13 @@ public class ShellReceiver {
 		if (!directoryToCreate.exists()) {
 			directoryToCreate.mkdir();
 		}
+	}
+
+	public void removeCommand(String arg) throws IOException {
+		File fileToDelete = new File(shellPath, arg);
+		if (!fileToDelete.exists()) {
+			throw new IOException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
+		}
+		fileToDelete.delete();
 	}
 }
