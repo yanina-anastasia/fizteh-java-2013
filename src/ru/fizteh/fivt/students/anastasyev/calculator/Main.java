@@ -176,7 +176,7 @@ public class Main {
             System.out.println("Usage: numbers in 17-th system <[0..9, A..G]> \n operations: +, -, *, /\n brackets: (, )");
             System.exit(1);
         }
-        String expression = new String();
+        String expression = "";
         try {
             expression = reversePolishNotationConversation(args);
         } catch (NumberFormatException e) {
