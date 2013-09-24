@@ -27,6 +27,8 @@ public class ShellRunner {
 				if (aCommand != null) {
 					aCommand.execute();
 				}
+			} catch (TimeToExitException e) {
+				break;
 			} catch (MissingFormatArgumentException e) {
 				System.err.println(e.getMessage());
 			} catch (IllegalArgumentException e) {

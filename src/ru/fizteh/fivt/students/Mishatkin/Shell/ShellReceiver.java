@@ -78,4 +78,8 @@ public class ShellReceiver {
 			}
 		}
 	}
+
+	public void exitCommand() throws TimeToExitException {
+		throw new TimeToExitException();
+	}
 }

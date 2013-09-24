@@ -74,9 +74,9 @@ public abstract class Command {
 //			case DIR:
 //				retValue = new DirectoryCommand();
 //				break;
-//			case EXIT:
-//				retValue = new ExitCommand();
-//				break;
+			case EXIT:
+				retValue = new ExitCommand(receiver);
+				break;
 		}
 		if (retValue != null) {
 			readArgs(retValue, in);
