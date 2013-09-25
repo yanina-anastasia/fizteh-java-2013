@@ -6,42 +6,43 @@ import java.util.InputMismatchException;
 
 public class Main {
 
+    static Stack <String> polskaRecord;
+
     private static String getExpression(String[] args) {
         StringBuilder expression = new StringBuilder();
 
-        for(int i = 0; i < args.length; ++i)
+        for(int i = 0; i < args.length; ++i) {
             expression.append(args[i]);
+        }
 
         return expression.toString();
     }
 
-    private static boolean CheckSymbol(char c) {
-        return ((c == '(') || (c == ')') || (c == '*') || (c == '-') || (c == '+') || (c == '/'));
-    }
-
-    private static boolean CheckSymbolBracket(char c) {
+    private static boolean checkSymbolBracket(char c) {
         return ((c == '*') || (c == '-') || (c == '+') || (c == '/'));
     }
 
-    private static int getNumbersCount(String expression) {
-        int count = 0;
-        for(int i = 0; i < expression.length(); ++i) {
-            if (CheckSymbol(expression.charAt(i))) {
-                ++count;
-            }
-        }
-        return count;
+    private static boolean checkSymbol(char c) {
+        return ((c == '(') || (c == ')') || (checkSymbolBracket(c)));
     }
+
+
 
     private static int getPriority(char c) {
-        if (c == '(') return 0;
-        if (c == ')') return 1;
-        if ((c == '+') || (c == '-')) return 2;
-        if ((c == '/') || (c == '*')) return 3;
+        if (c == '(') {
+            return 0;
+        }
+        if (c == ')') {
+            return 1;
+        }
+        if ((c == '+') || (c == '-')) {
+            return 2;
+        }
+        if ((c == '/') || (c == '*')) {
+            return 3;
+        }
         return 4;
     }
-
-    static Stack <String> polskaRecord;
 
     private static void makePolskaRecord(String expression) {
 
@@ -50,7 +51,7 @@ public class Main {
         Stack <String> digitStack = new Stack <String> ();
 
         for(int i = 0; i < str.length; ++i) {
-            if (CheckSymbol(str[i])) {
+            if (checkSymbol(str[i])) {
                 int priority = getPriority((str[i]));
                 if (str[i] == ')') {
                     while (digitStack.lastElement().charAt(0) != '(') {
@@ -63,8 +64,7 @@ public class Main {
                 if ((digitStack.empty()) || (str[i] == '(')) {
                     digitStack.push(Character.toString(str[i]));
                 } else {
-                    while ((digitStack.size() > 0) &&
-                          (priority <= getPriority(digitStack.lastElement().charAt(0)))) {
+                    while ((digitStack.size() > 0) && (priority <= getPriority(digitStack.lastElement().charAt(0)))) {
                         polskaRecord.push(digitStack.pop());
                     }
                     digitStack.push(Character.toString(str[i]));
@@ -75,15 +75,15 @@ public class Main {
             int left = i;
             int right = i;
 
-            while ((right < str.length) && (!CheckSymbol(str[right]))) {
+            while ((right < str.length) && (!checkSymbol(str[right]))) {
                 ++right;
             }
 
-            if ((right == str.length) || (CheckSymbol(str[right]))) {
+            if ((right == str.length) || (checkSymbol(str[right]))) {
                 --right;
             }
 
-            polskaRecord.push(expression.substring(left,right + 1));
+            polskaRecord.push(expression.substring(left, right + 1));
             i = right;
         }
         while (!digitStack.empty()) {
@@ -91,27 +91,57 @@ public class Main {
         }
     }
 
-    private static long PolskaCalculator(int Radix) {
-        if (!CheckSymbol(polskaRecord.lastElement().charAt(0))) {
+    private static long polskaCalculator(int scale) {
+        if (!checkSymbol(polskaRecord.lastElement().charAt(0))) {
             Scanner scanner = new Scanner(polskaRecord.pop());
-            return scanner.nextLong(Radix);
+            return scanner.nextLong(scale);
         }
         char c = polskaRecord.pop().charAt(0);
         if (c == '+') {
-            return PolskaCalculator(Radix) + PolskaCalculator(Radix);
+            long argument2 = polskaCalculator(scale);
+            long argument1 = polskaCalculator(scale);
+
+            if (((argument1 >= 0) && (Long.MAX_VALUE - argument1 < argument2))
+                        || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > argument2))) {
+                throw new ArithmeticException("Overflow while adding numbers.");
+            }
+            return  argument1 + argument2;
         }
 
         if (c == '-') {
-            return - PolskaCalculator(Radix) + PolskaCalculator(Radix);
+            long argument2 = polskaCalculator(scale);
+            long argument1 = polskaCalculator(scale);
+
+            if (((argument1 >= 0) && (Long.MAX_VALUE - argument1 < - argument2))
+                        || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > - argument2))) {
+                throw new ArithmeticException("Overflow while subtracting numbers.");
+            }
+
+            return argument1 - argument2;
         }
 
         if (c == '*') {
-            return PolskaCalculator(Radix) * PolskaCalculator(Radix);
+            long argument2 = polskaCalculator(scale);
+            long argument1 = polskaCalculator(scale);
+
+            if (((((argument1 > 0) && (argument2 > 0)) || ((argument1 < 0) && (argument2 < 0)))
+                        && ((Long.MAX_VALUE / argument1) < argument2))
+                        || ((((argument1 < 0) && (argument2 > 0)) || ((argument1 > 0) && (argument2 < 0)))
+                        && ((Long.MIN_VALUE / argument1) > argument2))) {
+                throw new ArithmeticException("Overflow while multiplication numbers.");
+            }
+
+            return argument1 * argument2;
         }
 
         if (c == '/') {
-            long argument2 = PolskaCalculator(Radix);
-            long argument1 = PolskaCalculator(Radix);
+            long argument2 = polskaCalculator(scale);
+            long argument1 = polskaCalculator(scale);
+
+            if (argument2 == 0) {
+                throw new ArithmeticException("Division by zero!");
+            }
+
             return argument1 / argument2;
         }
 
@@ -143,19 +173,19 @@ public class Main {
         }
 
         for(int i = 0; i < str.length; ++i) {
-            if ((i > 0) && (str[i] == '(') && (!CheckSymbol(str[i - 1]))) {
+            if ((i > 0) && (str[i] == '(') && (!checkSymbol(str[i - 1]))) {
                 System.err.println("Brackets are in incorrect place.");
                 return false;
             }
-            if ((i + 1 < str.length) && (str[i] == ')') && (!CheckSymbol(str[i + 1]))) {
+            if ((i + 1 < str.length) && (str[i] == ')') && (!checkSymbol(str[i + 1]))) {
                 System.err.println("Brackets are in incorrect place.");
                 return false;
             }
-            if ((i > 0) && (str[i] == ')') && (CheckSymbolBracket(str[i - 1]))) {
+            if ((i > 0) && (str[i] == ')') && (checkSymbolBracket(str[i - 1]))) {
                 System.err.println("Brackets are in incorrect place.");
                 return false;
             }
-            if ((i + 1 < str.length) && (str[i] == '(') && (CheckSymbolBracket(str[i + 1]))) {
+            if ((i + 1 < str.length) && (str[i] == '(') && (checkSymbolBracket(str[i + 1]))) {
                 System.err.println("Brackets are in incorrect place.");
                 return false;
             }
@@ -169,7 +199,7 @@ public class Main {
         boolean numberBefore = false;
 
         for(int i = 0; i < str.length; ++i) {
-            if (CheckSymbol(str[i])) {
+            if (checkSymbol(str[i])) {
                 if (!numberBefore) {
                     System.err.println("Wrong argument.");
                     return false;
@@ -181,11 +211,11 @@ public class Main {
 
             int right = i;
 
-            while ((right < str.length) && (!CheckSymbol(str[right]))) {
+            while ((right < str.length) && (!checkSymbol(str[right]))) {
                 ++right;
             }
 
-            if ((right == str.length) || (CheckSymbol(str[right]))) {
+            if ((right == str.length) || (checkSymbol(str[right]))) {
                 --right;
             }
 
@@ -204,8 +234,10 @@ public class Main {
     public static void main(String[] args) {
         try {
             if (args.length == 0) {
-                System.out.println("Calculator!\n Input an arithmetic expression!\n");
-                System.out.println("17-radix [0..9,A..G] [+,-,*,/,(,)] \n Without unary minus!");
+                System.out.println("Calculator!");
+                System.out.println("Input an arithmetic expression!");
+                System.out.println("17-radix [0..9,A..G] [+,-,*,/,(,)]");
+                System.out.println("Without unary minus!");
                 System.exit(1);
             }
 
@@ -218,14 +250,14 @@ public class Main {
 
             makePolskaRecord(expression);
 
-            System.out.println(PolskaCalculator(17));
+            System.out.println(polskaCalculator(10));
 
         } catch (InputMismatchException exception) {
             System.err.println("Incorrect number!");
             System.err.println(exception.getMessage());
             System.exit(1);
         } catch (ArithmeticException exception) {
-            System.err.println("Invalid operation: " + exception.getMessage());
+            System.err.println(exception.getMessage());
             System.exit(1);
         }
     }
