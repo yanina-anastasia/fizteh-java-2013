@@ -4,6 +4,7 @@ import javafx.scene.effect.ReflectionBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 /**
@@ -150,5 +151,25 @@ public class ShellReceiver {
 //		} catch (IOException e) {
 //
 //		}
+	}
+
+	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws Exception {
+		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
+		if (!sourceFileOrDirectory.isAbsolute()) {
+			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
+		}
+		if (!sourceFileOrDirectory.exists()) {
+			throw new Exception("mv: \'" + sourceFileOrDirectory + "\' : No such file or directory");
+		}
+		File destinationDirectory = new File(destinationFileOrDirectoryName);
+		if (!destinationDirectory.isAbsolute()) {
+			destinationDirectory = new File(shellPath, destinationFileOrDirectoryName);
+		}
+		try {
+			Files.move(sourceFileOrDirectory.toPath(), destinationDirectory.toPath());
+		} catch (IOException e) {
+			throw new Exception("mv: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationFileOrDirectoryName +
+			                    "\' : Cannot move file or directory");
+		}
 	}
 }

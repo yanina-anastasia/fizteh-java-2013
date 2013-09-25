@@ -76,9 +76,9 @@ public abstract class Command {
 			case CP:
 				retValue = new CopyCommand(receiver);
 				break;
-//			case MV:
-//				retValue = new MoveCommand(receiver);
-//				break;
+			case MV:
+				retValue = new MoveCommand(receiver);
+				break;
 			case DIR:
 				retValue = new DirectoryCommand(receiver);
 				break;
