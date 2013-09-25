@@ -207,7 +207,7 @@ class MyCalc {
 
 public class Calculator {
 
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         StringBuilder builder = new StringBuilder();
         for (String arg : args) {
             builder.append(arg.toUpperCase());
@@ -216,7 +216,7 @@ public class Calculator {
         String query = builder.toString();
         if (query.equals("")) {
             System.err.println("Пустой ввод");
-            return 1;
+            System.exit(1);
         }
         try {
             MyCalc calculator = new MyCalc(query);
@@ -224,10 +224,9 @@ public class Calculator {
             System.out.println(res);
         } catch (ErrorFormula e) {
             System.err.println(e);
-            return 1;
+            System.exit(1);
         }
 
-        return 0;
     }
 
 }
