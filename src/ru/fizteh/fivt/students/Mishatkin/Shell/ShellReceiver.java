@@ -52,7 +52,11 @@ public class ShellReceiver {
 
 	public void changeDirectory(String arg) throws FileNotFoundException {
 		String previousStatePath = shellPath.getAbsolutePath();
+		FileNotFoundException notFoundException = new FileNotFoundException("cd: \'" + arg + "\': No such file or directory");
 		if (arg.charAt(0) == File.separatorChar) {
+			if (shellPath.getParent() == null) {
+				throw notFoundException;
+			}
 			while (shellPath.getParent() != null) {
 				shellPath = shellPath.getParentFile();
 			}
@@ -65,7 +69,7 @@ public class ShellReceiver {
 			} catch (FileNotFoundException e) {
 				//  reverse transaction sequence
 				shellPath = new File(previousStatePath);
-				throw (e);
+				throw notFoundException;
 			}
 		}
 	}
