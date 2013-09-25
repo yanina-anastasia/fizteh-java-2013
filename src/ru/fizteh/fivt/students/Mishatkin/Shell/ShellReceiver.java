@@ -138,19 +138,28 @@ public class ShellReceiver {
 		fileToDelete.delete();
 	}
 
-	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) {
-//		File sourceFileOrDirecotry = new File(sourceFileOrDirectoryName);
-//		File destinationFile = new File(destinationDirectoryName + sourceFileOrDirectoryName);
-//		try {
-//			removeCommand(destinationDirectoryName);
-//		} catch (Exception e) {
-//			// do nothing
-//		}
-//		try {
-//			destinationFile.createNewFile();
-//		} catch (IOException e) {
-//
-//		}
+	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws Exception {
+		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
+		if (!sourceFileOrDirectory.isAbsolute()) {
+			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
+		}
+		if (!sourceFileOrDirectory.exists()) {
+			throw new Exception("cp: \'" + sourceFileOrDirectory + "\' : No such file or directory");
+		}
+		File destinationDirectory = new File(destinationDirectoryName);
+		if (!destinationDirectory.isAbsolute()) {
+			destinationDirectory = new File(shellPath, destinationDirectoryName);
+		}
+		File destinationFileOrDirectory = new File(destinationDirectory, sourceFileOrDirectory.getName());
+		while (destinationFileOrDirectory.exists()) {
+			destinationFileOrDirectory = new File(destinationFileOrDirectory.getAbsoluteFile() + " (copy)");
+		}
+		try {
+			Files.copy(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
+		} catch (IOException e) {
+			throw new Exception("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
+			                    "\' : Cannot copy file or directory");
+		}
 	}
 
 	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws Exception {
@@ -161,12 +170,15 @@ public class ShellReceiver {
 		if (!sourceFileOrDirectory.exists()) {
 			throw new Exception("mv: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
-		File destinationDirectory = new File(destinationFileOrDirectoryName);
-		if (!destinationDirectory.isAbsolute()) {
-			destinationDirectory = new File(shellPath, destinationFileOrDirectoryName);
+		File destinationFileOrDirectory = new File(destinationFileOrDirectoryName);
+		if (!destinationFileOrDirectory.isAbsolute()) {
+			destinationFileOrDirectory = new File(shellPath, destinationFileOrDirectoryName);
+		}
+		if (destinationFileOrDirectory.exists()) {
+			removeCommand(destinationFileOrDirectory.getAbsolutePath());
 		}
 		try {
-			Files.move(sourceFileOrDirectory.toPath(), destinationDirectory.toPath());
+			Files.move(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
 		} catch (IOException e) {
 			throw new Exception("mv: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationFileOrDirectoryName +
 			                    "\' : Cannot move file or directory");
