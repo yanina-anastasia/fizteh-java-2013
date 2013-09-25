@@ -12,20 +12,13 @@ import java.util.*;
  */
 public class Shell {
 	public static CommandSource initialCommandSource;
-	public static PrintWriter initialOutput;
 	public static boolean isArgumentsMode;
 	public static void main(String args[]) {
 		InputStream inputStream = System.in;
-		OutputStream outputStream = System.out;
 		isArgumentsMode = (args.length > 0);
 		initialCommandSource = isArgumentsMode ? new ArgumentsCommandSource(args) :
 				new StandardInputCommandSource(new Scanner(inputStream));
-		initialOutput = isArgumentsMode ? null : new PrintWriter(outputStream);
-
-		ShellRunner runner = new ShellRunner(initialCommandSource, initialOutput);
+		ShellRunner runner = new ShellRunner(initialCommandSource);
 		runner.run();
-		if (initialOutput != null) {
-			initialOutput.close();
-		}
 	}
 }

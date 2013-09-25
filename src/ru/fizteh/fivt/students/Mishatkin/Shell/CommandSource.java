@@ -1,11 +1,45 @@
 package ru.fizteh.fivt.students.Mishatkin.Shell;
 
+import java.util.Collections;
+import java.util.Vector;
+
 /**
  * CommandSource.java
  * Created by Vladimir Mishatkin on 9/23/13
  */
-public interface CommandSource {
-	public boolean hasMoreData();
-	public String nextWord();
-	public Command nextCommand();
+public abstract class CommandSource {
+	private Vector<String> commandsStringsBuffer = new Vector<>();
+	private Vector<String> commandArgumentsBuffer = new Vector<>();
+
+	public abstract boolean hasMoreData();
+	public abstract String nextLine();
+
+	public Command nextCommand() throws Exception {
+		if (commandsStringsBuffer.isEmpty()) {
+			if (!hasMoreData()) {
+				throw new TimeToExitException();
+			}
+			String line = nextLine();
+			String[] commandsSequence = line.split(";");
+			Collections.addAll(commandsStringsBuffer, commandsSequence);
+		}
+		Collections.addAll(commandArgumentsBuffer, commandsStringsBuffer.firstElement().split(" "));
+		commandsStringsBuffer.removeElementAt(0);
+
+		// removing white spaces
+		while (commandArgumentsBuffer.remove("")) {
+		}
+		Command theCommand = null;
+		try {
+			theCommand = Command.createCommand(commandArgumentsBuffer);
+		} catch (IllegalArgumentException e) {
+			commandsStringsBuffer.clear();
+		}
+		commandArgumentsBuffer.clear();
+		return theCommand;
+	}
+
+	public boolean hasUnexecutedCommands() {
+		return !commandsStringsBuffer.isEmpty();
+	}
 }

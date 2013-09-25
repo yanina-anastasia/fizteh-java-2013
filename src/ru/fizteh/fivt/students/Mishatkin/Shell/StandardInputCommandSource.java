@@ -5,10 +5,14 @@ package ru.fizteh.fivt.students.Mishatkin.Shell;
  *
  */
 
+import java.util.Collections;
 import java.util.Scanner;
+import java.util.Vector;
 
-public class StandardInputCommandSource implements CommandSource {
-	Scanner in;
+public class StandardInputCommandSource extends CommandSource {
+	private Scanner in;
+
+
 	public StandardInputCommandSource(Scanner _in) {
 		in = _in;
 	}
@@ -19,13 +23,8 @@ public class StandardInputCommandSource implements CommandSource {
 	}
 
 	@Override
-	public String nextWord() {
-		return in.next();
+	public String nextLine() {
+		return in.nextLine();
 	}
 
-	@Override
-	public Command nextCommand() {
-		Command fullCommand = Command.readCommand(this);
-		return fullCommand;
-	}
 }

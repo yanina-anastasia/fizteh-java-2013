@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.Mishatkin.Shell;
 import javafx.scene.effect.ReflectionBuilder;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.regex.Pattern;
 
 /**
@@ -13,22 +14,20 @@ import java.util.regex.Pattern;
 
 public class ShellReceiver {
 	private static ShellReceiver sharedInstance = null;
-	private PrintWriter out;
 	private File shellPath;
 
 	private ShellReceiver() {
 		shellPath = File.listRoots()[0];
-		out = Shell.initialOutput;
 	}
 
 	private void print(String s) {
-		if (out != null) {
+		if (!Shell.isArgumentsMode) {
 			System.out.print(s);
 		}
 	}
 
 	private void println(String s) {
-		if (out != null) {
+		if (!Shell.isArgumentsMode) {
 			System.out.println(s);
 		}
 	}
@@ -45,7 +44,7 @@ public class ShellReceiver {
 	}
 
 	public void showPrompt() {
-		if (out != null) {
+		if (!Shell.isArgumentsMode) {
 			print(simplePrompt() + " ");
 //			System.out.print(shellPath.getAbsolutePath() + " " + simplePrompt() + " ");
 		}
@@ -116,5 +115,20 @@ public class ShellReceiver {
 			throw new IOException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
 		}
 		fileToDelete.delete();
+	}
+
+	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) {
+//		File sourceFileOrDirecotry = new File(sourceFileOrDirectoryName);
+//		File destinationFile = new File(destinationDirectoryName + sourceFileOrDirectoryName);
+//		try {
+//			removeCommand(destinationDirectoryName);
+//		} catch (Exception e) {
+//			// do nothing
+//		}
+//		try {
+//			destinationFile.createNewFile();
+//		} catch (IOException e) {
+//
+//		}
 	}
 }
