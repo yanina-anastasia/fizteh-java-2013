@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  */
 
-public class ShellReceiver {
+public class ShellReceiver implements CommandReceiver {
 	private static ShellReceiver sharedInstance = null;
 	private File shellPath;
 
@@ -51,7 +51,8 @@ public class ShellReceiver {
 		}
 	}
 
-	public void changeDirectory(String arg) throws FileNotFoundException {
+	@Override
+	public void changeDirectoryCommand(String arg) throws FileNotFoundException {
 		String previousStatePath = shellPath.getAbsolutePath();
 		File destinationFile = new File(arg);
 		FileNotFoundException notFoundException = new FileNotFoundException("cd: \'" + arg + "\': No such file or directory");
@@ -94,10 +95,12 @@ public class ShellReceiver {
 		}
 	}
 
+	@Override
 	public void exitCommand() throws TimeToExitException {
 		throw new TimeToExitException();
 	}
 
+	@Override
 	public void directoryCommand() {
 		File[] files = shellPath.listFiles();
 		for (File file : files) {
@@ -105,10 +108,12 @@ public class ShellReceiver {
 		}
 	}
 
+	@Override
 	public void printWorkingDirectoryCommand() {
 		println(shellPath.getAbsolutePath());
 	}
 
+	@Override
 	public void makeDirectoryCommand(String arg) {
 		File absolutePathFile = new File(arg);
 		if (absolutePathFile.isAbsolute() && !absolutePathFile.exists()) {
@@ -121,6 +126,7 @@ public class ShellReceiver {
 		}
 	}
 
+	@Override
 	public void removeCommand(String arg) throws IOException {
 		File absolutePathFile = new File(arg);
 		if (absolutePathFile.isAbsolute()) {
@@ -138,6 +144,7 @@ public class ShellReceiver {
 		fileToDelete.delete();
 	}
 
+	@Override
 	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws Exception {
 		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.isAbsolute()) {
@@ -162,6 +169,7 @@ public class ShellReceiver {
 		}
 	}
 
+	@Override
 	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws Exception {
 		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.isAbsolute()) {

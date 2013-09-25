@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.Mishatkin.Shell;
 
-import java.io.File;
-
 /**
  * ChangeDirectoryCommand.java
  * Created by Vladimir Mishatkin on 9/24/13
@@ -15,6 +13,6 @@ public class ChangeDirectoryCommand extends Command {
 
 	@Override
 	public void execute() throws Exception{
-		receiver.changeDirectory(args[0]);
+		receiver.changeDirectoryCommand(args[0]);
 	}
 }
