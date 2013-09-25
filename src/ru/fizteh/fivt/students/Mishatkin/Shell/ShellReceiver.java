@@ -52,24 +52,26 @@ public class ShellReceiver {
 
 	public void changeDirectory(String arg) throws FileNotFoundException {
 		String previousStatePath = shellPath.getAbsolutePath();
+		File destinationFile = new File(arg);
 		FileNotFoundException notFoundException = new FileNotFoundException("cd: \'" + arg + "\': No such file or directory");
-		if (arg.charAt(0) == File.separatorChar) {
-			if (shellPath.getParent() == null) {
+		if (destinationFile.isAbsolute()) {
+			if (!destinationFile.exists()) {
 				throw notFoundException;
 			}
-			while (shellPath.getParent() != null) {
-				shellPath = shellPath.getParentFile();
-			}
+			shellPath = destinationFile;
+			return;
 		}
 		String separatorRegularExpression = (File.separator.equals("/")) ? File.separator : "\\\\";
 		String[] sequence = arg.split(separatorRegularExpression);
-		for (String simpleArg : sequence) {
-			try {
-				simpleChangeDirectory(simpleArg);
-			} catch (FileNotFoundException e) {
-				//  reverse transaction sequence
-				shellPath = new File(previousStatePath);
-				throw notFoundException;
+		synchronized (shellPath) {
+			for (String simpleArg : sequence) {
+				try {
+					simpleChangeDirectory(simpleArg);
+				} catch (FileNotFoundException e) {
+					//  reverse transaction sequence
+					shellPath = new File(previousStatePath);
+					throw notFoundException;
+				}
 			}
 		}
 	}
@@ -107,14 +109,28 @@ public class ShellReceiver {
 	}
 
 	public void makeDirectoryCommand(String arg) {
-		File directoryToCreate = new File(shellPath, arg);
-		if (!directoryToCreate.exists()) {
-			directoryToCreate.mkdir();
+		File absolutePathFile = new File(arg);
+		if (absolutePathFile.isAbsolute() && !absolutePathFile.exists()) {
+			absolutePathFile.mkdir();
+		} else {
+			File directoryToCreate = new File(shellPath, arg);
+			if (!directoryToCreate.exists()) {
+				directoryToCreate.mkdir();
+			}
 		}
 	}
 
 	public void removeCommand(String arg) throws IOException {
-		File fileToDelete = new File(shellPath, arg);
+		File absolutePathFile = new File(arg);
+		if (absolutePathFile.isAbsolute()) {
+			deleteFile(absolutePathFile);
+		} else {
+			File fileToDelete = new File(shellPath, arg);
+			deleteFile(fileToDelete);
+		}
+	}
+
+	private void deleteFile(File fileToDelete) throws IOException {
 		if (!fileToDelete.exists()) {
 			throw new IOException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
 		}
