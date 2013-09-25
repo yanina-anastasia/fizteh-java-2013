@@ -11,14 +11,13 @@ import java.util.*;
  *
  */
 public class Shell {
-	public static CommandSource initialCommandSource;
 	public static boolean isArgumentsMode;
 	public static void main(String args[]) {
 		InputStream inputStream = System.in;
 		isArgumentsMode = (args.length > 0);
-		initialCommandSource = isArgumentsMode ? new ArgumentsCommandSource(args) :
+		CommandSource in = isArgumentsMode ? new ArgumentsCommandSource(args) :
 				new StandardInputCommandSource(new Scanner(inputStream));
-		ShellRunner runner = new ShellRunner(initialCommandSource);
+		ShellRunner runner = new ShellRunner(in);
 		runner.run();
 	}
 }
