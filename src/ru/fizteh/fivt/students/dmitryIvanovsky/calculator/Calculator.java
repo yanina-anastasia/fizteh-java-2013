@@ -39,7 +39,7 @@ class MyCalc {
     }
 
     private void nextLexem() throws ErrorFormula {
-        while (it < formula.length() && formula.charAt(it) == ' ') {
+        while (it < formula.length() && Character.isWhitespace(formula.charAt(it))) {
             it += 1;
         }
 
@@ -148,7 +148,7 @@ class MyCalc {
                 if (it < formula.length()) {
                     c = formula.charAt(it);
                 } else {
-                    c = formula.charAt(it-1);
+                    c = formula.charAt(it - 1);
                 }
                 String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
                 throw new ErrorFormula(error);
@@ -195,7 +195,7 @@ class MyCalc {
             if (it < formula.length()) {
                 c = formula.charAt(it);
             } else {
-                c = formula.charAt(it-1);
+                c = formula.charAt(it - 1);
             }
             String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
             throw new ErrorFormula(error);
