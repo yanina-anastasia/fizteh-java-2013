@@ -34,7 +34,7 @@ public abstract class Command {
 
 	protected COMMAND_TYPE type;
 	protected String[] args = new String[2];
-	protected ShellReceiver receiver;
+	protected CommandReceiver receiver;
 
 	public COMMAND_TYPE getType() {
 		return type;
