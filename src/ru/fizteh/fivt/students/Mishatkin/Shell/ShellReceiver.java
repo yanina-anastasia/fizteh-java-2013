@@ -158,6 +158,14 @@ public class ShellReceiver implements CommandReceiver {
 		}
 		try {
 			Files.copy(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
+			File[] subFilesAndDirectories = sourceFileOrDirectory.listFiles();
+			if (subFilesAndDirectories != null) {
+				for (File subFile : subFilesAndDirectories) {
+					String destinationSubFileOwnerName = new File(destinationDirectory.getAbsolutePath(),
+					                                              sourceFileOrDirectory.getName()).getAbsolutePath();
+					copyCommand(subFile.getAbsolutePath(), destinationSubFileOwnerName);
+				}
+			}
 		} catch (IOException e) {
 			throw new Exception("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
 			                    "\' : Cannot copy file or directory");
