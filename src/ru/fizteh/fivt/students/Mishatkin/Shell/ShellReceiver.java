@@ -61,17 +61,16 @@ public class ShellReceiver implements CommandReceiver {
 		}
 		String separatorRegularExpression = (File.separator.equals("/")) ? File.separator : "\\\\";
 		String[] sequence = arg.split(separatorRegularExpression);
-		synchronized (shellPath) {
-			for (String simpleArg : sequence) {
-				try {
-					simpleChangeDirectory(simpleArg);
-				} catch (FileNotFoundException e) {
-					//  reverse transaction sequence
-					shellPath = new File(previousStatePath);
-					throw notFoundException;
-				}
+		for (String simpleArg : sequence) {
+			try {
+				simpleChangeDirectory(simpleArg);
+			} catch (FileNotFoundException e) {
+				//  reverse transaction sequence
+				shellPath = new File(previousStatePath);
+				throw notFoundException;
 			}
 		}
+
 	}
 
 	private void simpleChangeDirectory(String arg) throws FileNotFoundException {
