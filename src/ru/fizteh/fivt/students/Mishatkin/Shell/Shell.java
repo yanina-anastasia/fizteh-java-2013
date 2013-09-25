@@ -24,6 +24,8 @@ public class Shell {
 
 		ShellRunner runner = new ShellRunner(initialCommandSource, initialOutput);
 		runner.run();
-		initialOutput.close();
+		if (initialOutput != null) {
+			initialOutput.close();
+		}
 	}
 }
