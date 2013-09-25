@@ -20,15 +20,9 @@ class Calculator {
         currentIndexInExpression++;
     }
 
-    private void thereIsAnError(String errorType) {
-        System.err.println("Your expression is incorrect: " + errorType);
-        System.exit(1);
-    }
-
     private boolean isDigit(char character) {
         if (base != 17) {
-            System.err.println("This feature is currently not available: base is not 17");
-            System.exit(1);
+            throw new IllegalArgumentException("base is not valid");
         }
         return Character.isDigit(character) || ('A' <= character && character <= 'G') || ('a' <= character && character <= 'g');
     }
@@ -60,7 +54,7 @@ class Calculator {
             char buf = currentToken.charAt(0);
             getNextToken();
             if ((!isDigit(currentToken.charAt(0))) && (!currentToken.equals("(") && (!currentToken.equals("-"))))
-                thereIsAnError("a digit expected; symbol " + Character.toString(currentToken.charAt(0)) + " found;");
+                throw new IllegalArgumentException("a digit expected; symbol " + Character.toString(currentToken.charAt(0)) + " found");
             int add = readAdd();
             if (buf == '+') res += add;
             if (buf == '-') res -= add;
@@ -68,7 +62,7 @@ class Calculator {
         return res;
     }
 
-    int readAdd()
+    private int readAdd()
     {
         int res = readMul();
         while (currentToken.equals("*")||currentToken.equals("/"))
@@ -80,14 +74,14 @@ class Calculator {
                 res *= mul;
             } else {
                 if (mul == 0)
-                    thereIsAnError("division by zero;");
+                    throw new ArithmeticException("division by zero;");
                 res /= mul;
             }
         }
         return res;
     }
 
-    int readMul()
+    private int readMul()
     {
         int res;
         if (currentToken.equals("("))
@@ -95,7 +89,7 @@ class Calculator {
             getNextToken();
             res = readExpr();
             if (!currentToken.equals(")"))
-                thereIsAnError("A closing bracket expected;");
+                throw new IllegalArgumentException("a closing bracket expected");
             getNextToken();
         }
         else
@@ -106,7 +100,7 @@ class Calculator {
                 getNextToken();
             }
             if (!isDigit(currentToken.charAt(0)))
-                thereIsAnError("A valid digit expected; ");
+                throw new IllegalArgumentException("a valid digit expected");
             res = sign*Integer.parseInt(currentToken, base);
             getNextToken();
         }
@@ -146,6 +140,10 @@ class Calculator {
         catch(ArithmeticException e) {
             System.err.println("Invalid operation: " + e.getMessage());
             System.exit(1);
+        }
+        catch(IllegalArgumentException e) {
+            System.err.println("Invalid input: " + e.getMessage());
+
         }
 
     }
