@@ -15,7 +15,7 @@ enum COMMAND_TYPE {
 	MV,
 	DIR,
 	EXIT
-};
+}
 
 public abstract class Command {
 	private static  final Map<COMMAND_TYPE, Integer> inputArgumentsCount;
