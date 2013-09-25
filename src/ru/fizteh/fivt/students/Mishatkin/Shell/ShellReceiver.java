@@ -1,11 +1,7 @@
 package ru.fizteh.fivt.students.Mishatkin.Shell;
 
-import javafx.scene.effect.ReflectionBuilder;
-
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.regex.Pattern;
 
 /**
  * ShellReceiver.java

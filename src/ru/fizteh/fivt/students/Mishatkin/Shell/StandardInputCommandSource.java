@@ -5,9 +5,7 @@ package ru.fizteh.fivt.students.Mishatkin.Shell;
  *
  */
 
-import java.util.Collections;
 import java.util.Scanner;
-import java.util.Vector;
 
 public class StandardInputCommandSource extends CommandSource {
 	private Scanner in;
