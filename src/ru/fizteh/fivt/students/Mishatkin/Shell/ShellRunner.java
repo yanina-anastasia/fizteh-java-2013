@@ -32,6 +32,8 @@ public class ShellRunner {
 					break;
 				} catch (Exception e) {
 					System.err.println(e.getMessage());
+					shouldBreakRunLoop = true;
+					break;
 				}
 			} while (in.hasUnexecutedCommands());
 			if (!shouldBreakRunLoop) {
