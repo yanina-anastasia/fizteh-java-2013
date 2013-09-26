@@ -25,6 +25,7 @@ public class Main {
         Stack<String> symbolStack = new Stack();
         boolean minus = true;
         boolean sign = false;
+        boolean emptyBrackets = false;
         for (int i = 0; i < args.length; ++i) {
             for (int j = 0; j < args[i].length(); ++j) {
                 if (numberChecker(args, i, j)) {
@@ -40,7 +41,11 @@ public class Main {
                     wholeString.append(number).append(" ");
                     minus = false;
                     j += k - j - 1;
+                    if (emptyBrackets) {
+                        emptyBrackets = false;
+                    }
                 } else if (args[i].charAt(j) == '(') { // (
+                    emptyBrackets = true;
                     int k = j + 1;
                     int count = 1;
                     while (k < args[i].length() && (args[i].charAt(k) == '(' || args[i].charAt(k) == ' ')) {
@@ -54,6 +59,10 @@ public class Main {
                     minus = true;
                     j += count - 1;
                 } else if (args[i].charAt(j) == ')') {
+                    if (emptyBrackets) {
+                        System.err.println("Empty brackets");
+                        System.exit(1);
+                    }
                     while (j < args[i].length() && (args[i].charAt(j) == ')' || args[i].charAt(j) == ' ')) {
                         if (args[i].charAt(j) == ' ') {
                             ++j;
@@ -77,6 +86,9 @@ public class Main {
                     }
                     minus = false;
                     symbolStack.push("+");
+                    if (emptyBrackets) {
+                        emptyBrackets = false;
+                    }
                 } else if (args[i].charAt(j) == '-') {
                     if (minus) {
                         sign = true;
@@ -86,18 +98,27 @@ public class Main {
                         }
                         symbolStack.push("-");
                     }
+                    if (emptyBrackets) {
+                        emptyBrackets = false;
+                    }
                 } else if (args[i].charAt(j) == '*') {
                     while (!symbolStack.empty() && (symbolStack.peek().equals("*") || symbolStack.peek().equals("/"))) {
                         wholeString.append(symbolStack.pop()).append(" ");
                     }
                     minus = false;
                     symbolStack.push("*");
+                    if (emptyBrackets) {
+                        emptyBrackets = false;
+                    }
                 } else if (args[i].charAt(j) == '/') {
                     while (!symbolStack.empty() && (symbolStack.peek().equals("*") || symbolStack.peek().equals("/"))) {
                         wholeString.append(symbolStack.pop()).append(" ");
                     }
                     minus = false;
                     symbolStack.push("/");
+                    if (emptyBrackets) {
+                        emptyBrackets = false;
+                    }
                 } else if (args[i].charAt(j) == ' ') {
                 } else {
                     System.err.println("Bad symbol: " + args[i].charAt(j));
