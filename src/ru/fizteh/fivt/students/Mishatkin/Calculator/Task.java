@@ -45,6 +45,7 @@ class Task {
             try {
                 calculationResultDecimal = encoder.calculate(in.nextLine());
             } catch (Exception e) {
+                System.err.println(e.getMessage());
                 isValidInput = false;
             }
         }

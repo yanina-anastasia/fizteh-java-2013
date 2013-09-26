@@ -12,8 +12,8 @@ public class ArgumentsSource implements InputSource {
     private int nextArgumentIndex = 0;
     private String[] args;
 
-    public ArgumentsSource(String[] _args) {
-        args = _args;
+    public ArgumentsSource(String[] args) {
+        this.args = args;
     }
 
     @Override

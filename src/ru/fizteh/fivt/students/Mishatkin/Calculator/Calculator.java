@@ -18,18 +18,18 @@ public class Calculator {
     private static boolean shouldUseArgsInsteadOfSTDIN = true;
 
     public static void main(String[] args) {
+        if (args.length == 0) {
+            System.err.println("Should run with positive number of arguments.");
+            System.exit(1);
+        }
         InputStream inputStream = System.in;
         OutputStream outputStream = System.out;
         PrintWriter out = new PrintWriter(outputStream);
         InputSource in = shouldUseArgsInsteadOfSTDIN ? new ArgumentsSource(args) :
                          new StandartInputSource(new Scanner(inputStream));
         Task solver = new Task(in, out);
-        try {
-            solver.solve();
-
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-        }
+        int retValue = solver.solve();
         out.close();
+        System.exit(retValue);
     }
 }

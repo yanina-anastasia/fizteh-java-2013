@@ -7,6 +7,7 @@
 
 package ru.fizteh.fivt.students.mishatkin.calculator;
 
+import java.math.BigInteger;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -41,7 +42,7 @@ public class ReversePolishNoteEncoder {
                -1;
     }
 
-    private void processOperation(Vector<Integer> st, char op) {
+    private void processOperation(Vector<Integer> st, char op) throws Exception {
         int r;
         int l;
         try {
@@ -53,12 +54,34 @@ public class ReversePolishNoteEncoder {
             System.err.println("Wrong input format: not enough operands for operator \'" + op + "\'.");
             throw(e);
         }
+        BigInteger bigLeft = BigInteger.valueOf(l);
+        BigInteger bigRight = BigInteger.valueOf(r);
+        Exception overflowException = new Exception("Overflow.");
         switch (op) {
-            case '+':  st.add(l + r);  break;
-            case '-':  st.add(l - r);  break;
-            case '*':  st.add(l * r);  break;
-            case '/':  st.add(l / r);  break;
-            case '%':  st.add(l % r);  break;
+            case '+':
+                if (!bigLeft.add(bigRight).equals(BigInteger.valueOf(l + r))) {
+                    throw overflowException;
+                }
+                st.add(l + r);
+                break;
+            case '-':
+                if (!bigLeft.subtract(bigRight).equals(BigInteger.valueOf(l - r))) {
+                    throw overflowException;
+                }
+                st.add(l - r);
+                break;
+            case '*':
+                if (!bigLeft.multiply(bigRight).equals(BigInteger.valueOf(l * r))) {
+                    throw overflowException;
+                }
+                st.add(l * r);
+                break;
+            case '/':
+                st.add(l / r);
+                break;
+            case '%':
+                st.add(l % r);
+                break;
         }
     }
 
@@ -85,9 +108,9 @@ public class ReversePolishNoteEncoder {
             } else {
                 StringBuilder operandBuilder = new StringBuilder();
                 while (i < s.length() && isValidAlpha(s.charAt(i))) {
-					operandBuilder.append(s.charAt(i++));
+                    operandBuilder.append(s.charAt(i++));
                 }
-				String operand = new String(operandBuilder);
+                String operand = new String(operandBuilder);
                 --i;
                 try {
                     st.add(Integer.valueOf(operand, Calculator.MyBase));
