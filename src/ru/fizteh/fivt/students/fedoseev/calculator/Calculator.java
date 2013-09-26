@@ -31,8 +31,8 @@ public class Calculator {
         List<String> output = new ArrayList<String>();
         Stack<String> opStack = new Stack<String>();
 
-        final Pattern P1 = Pattern.compile("[A-G0-9\\+\\-\\*/ \\(\\)]*");
-        final Pattern P2 = Pattern.compile("(.*)([A-G0-9]+( )+[A-G0-9]+)(.*)");
+        final Pattern P1 = Pattern.compile("[A-H0-9\\+\\-\\*/ \\(\\)]*");
+        final Pattern P2 = Pattern.compile("(.*)([A-H0-9]+( )+[A-H0-9]+)(.*)");
         Matcher m1 = P1.matcher(expr);
         boolean b1 = m1.matches();
         Matcher m2 = P2.matcher(expr);
