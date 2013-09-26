@@ -185,12 +185,12 @@ class MyCalc {
     }
 
     public String result() throws ErrorFormula {
-        if (curlex == Lex.END){
+        if (curlex == Lex.END) {
             return resFormula;
         }
         nextLexem();
         String res = castNumeralSystem(expression());
-        if (curlex != Lex.END){
+        if (curlex != Lex.END) {
             char c;
             if (it < formula.length()) {
                 c = formula.charAt(it);
