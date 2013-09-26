@@ -9,13 +9,14 @@ package ru.fizteh.fivt.students.kislenko.calculator;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Stack;
 
 public class Calculator {
     private static final int RADIX = 17;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InputMismatchException {
         StringBuilder sb = new StringBuilder();
         for (String arg : args) {
             sb.append(arg);
@@ -36,7 +37,12 @@ public class Calculator {
         while (scan.hasNext()) {
             if (scan.hasNext("[0-9A-G][0-9A-G\\s\\(\\)\\+\\-\\*\\/]*")) {
                 scan.useDelimiter("[\\s\\(\\)\\+\\-\\*\\/]");
-                int value = scan.nextInt();
+                int value;
+                try {
+                    value = scan.nextInt();
+                } catch (InputMismatchException e) {
+                    throw new IOException("Too big value in input.");
+                }
                 if (changeSign) {
                     value = -value;
                     changeSign = false;
@@ -135,7 +141,7 @@ public class Calculator {
             }
             polandBuilder.append(stack.pop()).append(" ");
         }
-        s=polandBuilder.toString();
+        s = polandBuilder.toString();
         if (s.equals("")) {
             throw new IOException("Empty input.");
         }
@@ -151,6 +157,9 @@ public class Calculator {
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
+                if (Integer.MAX_VALUE - oper1 < oper2) {
+                    throw new ArithmeticException("Too big values in expression.");
+                }
                 operandStack.push(oper1 + oper2);
             } else if (symbol.equals("-")) {
                 if (operandStack.size() < 2) {
@@ -166,6 +175,9 @@ public class Calculator {
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
                 operandStack.push(oper1 * oper2);
+                if (Integer.MAX_VALUE / oper2 < oper1) {
+                    throw new ArithmeticException("Too big values in expression.");
+                }
             } else if (symbol.equals("/")) {
                 if (operandStack.size() < 2) {
                     throw new IOException("Too many operations in this expression.");
@@ -182,7 +194,7 @@ public class Calculator {
         }
 
         int answer = operandStack.pop();
-        if(!operandStack.isEmpty()) {
+        if (!operandStack.isEmpty()) {
             throw new IOException("Too many operands.");
         }
         ps.print(answer);
