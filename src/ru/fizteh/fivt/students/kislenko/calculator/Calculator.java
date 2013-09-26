@@ -27,7 +27,7 @@ public class Calculator {
             throw new IOException("Empty input.");
         }
         Scanner scan = new Scanner(inputString);
-        Stack<String> stack = new Stack();
+        Stack<String> stack = new Stack<String>();
         StringBuilder polandBuilder = new StringBuilder();
         String s = "";
         scan.useRadix(RADIX);
@@ -147,7 +147,7 @@ public class Calculator {
         }
 
         String[] symbols = s.split(" ");
-        Stack<Integer> operandStack = new Stack();
+        Stack<Integer> operandStack = new Stack<Integer>();
         int oper1, oper2;
 
         for (String symbol : symbols) {
