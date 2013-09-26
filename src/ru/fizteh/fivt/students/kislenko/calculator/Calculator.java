@@ -9,7 +9,6 @@ package ru.fizteh.fivt.students.kislenko.calculator;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -24,8 +23,7 @@ public class Calculator {
         String inputString = sb.toString();
         PrintStream ps = new PrintStream(System.out);
         if (inputString.length() == 0) {
-            ps.print(0);
-            System.exit(0);
+            throw new IOException("Empty input.");
         }
         Scanner scan = new Scanner(inputString);
         Stack<String> stack = new Stack();
@@ -138,6 +136,9 @@ public class Calculator {
             polandBuilder.append(stack.pop()).append(" ");
         }
         s=polandBuilder.toString();
+        if (s.equals("")) {
+            throw new IOException("Empty input.");
+        }
 
         String[] symbols = s.split(" ");
         Stack<Integer> operandStack = new Stack();
