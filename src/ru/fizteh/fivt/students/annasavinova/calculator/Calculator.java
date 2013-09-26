@@ -43,7 +43,7 @@ public class Calculator {
                 res =  firstVal / secondVal;
             } else {
                 System.err.println("Dividing by zero");
-                System.exit(2);
+                System.exit(1);
             }
             return res;
         }
@@ -92,10 +92,10 @@ public class Calculator {
     
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println("Please, input expression, that you want to know");
-            System.out.println("Acceptable symbols: +, -, *, /");
-            System.out.println("Radix: " + BASE);
-            return;
+            System.err.println("Please, input expression, that you want to know");
+            System.err.println("Acceptable symbols: +, -, *, /");
+            System.err.println("Radix: " + BASE);
+            System.exit(1);
         }
         StringBuffer s = new StringBuffer();
         s.append("(");
@@ -107,16 +107,16 @@ public class Calculator {
         String workingStr = s.toString();
         if (!checkSpaces(workingStr)) {
             System.out.println("Incorrect expression: two operands without operator");
-            System.exit(3);
+            System.exit(1);
         }
         workingStr = workingStr.replace(" ", "");
         if (!checkBrackets(workingStr)) {
             System.err.println("Incorrect bracket sequance");
-            System.exit(4);
+            System.exit(1);
         }
         if (!checkSymbols(workingStr)) {
             System.err.println("Incorrect symbol");
-            System.exit(5);
+            System.exit(1);
         }
         workingStr = workingStr.replace("(", "( ");
         workingStr = workingStr.replace(")", " )");
@@ -158,17 +158,17 @@ public class Calculator {
                 } else {
                     sc.close();
                     System.err.println("Too big operand");
-                    System.exit(6);
+                    System.exit(1);
                 }
             }
         }
         long result = digitStack.pop();
         if (digitStack.empty()) {
-            System.out.println("Result: " + Long.toString(result, BASE));
+            System.out.println(Long.toString(result, BASE));
         } else {
             System.err.println("Incorrect num of operators and operands" + digitStack.peek());
             sc.close();
-            System.exit(7);
+            System.exit(1);
         }
         sc.close();
     }
