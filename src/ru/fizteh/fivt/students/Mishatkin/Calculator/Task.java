@@ -5,23 +5,20 @@
  * Created by Vladimir Mishatkin on 9/20/13
  */
 
-package ru.fizteh.fivt.students.Mishatkin.Calculator;
+package ru.fizteh.fivt.students.mishatkin.calculator;
 
 import java.io.PrintWriter;
 
-class Task
-{
+class Task {
     private InputSource in;
     private PrintWriter out;
 
-    Task(InputSource _in, PrintWriter _out)
-    {
-        in = _in;
-        out =_out;
+    Task(InputSource in, PrintWriter out) {
+        this.in = in;
+        this.out = out;
     }
 
-    private void printInNumericSystem(int decimalResult, int base)
-    {
+    private void printInNumericSystem(int decimalResult, int base) {
         boolean negative = (decimalResult < 0);
         decimalResult = Math.abs(decimalResult);
         String toPrint = "";

@@ -1,11 +1,11 @@
 /**
  * ReversePolishNoteEncoder.java
- * Calculator
+ * calculator
  *
  * Created by Vladimir Mishatkin on 9/14/13
  */
 
-package ru.fizteh.fivt.students.Mishatkin.Calculator;
+package ru.fizteh.fivt.students.mishatkin.calculator;
 
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -62,7 +62,7 @@ public class ReversePolishNoteEncoder {
         }
     }
 
-    public int calculate(String s) {
+    public int calculate(String s) throws Exception {
         for (int i = 0; i < s.length(); ++i) {
             if (isSeparator(s.charAt(i))) {
                 continue;
@@ -82,19 +82,18 @@ public class ReversePolishNoteEncoder {
                     op.removeElementAt(op.size() - 1);
                 }
                 op.add(currentOperation);
-            }
-            else {
-                String operand = "";
+            } else {
+                StringBuilder operandBuilder = new StringBuilder();
                 while (i < s.length() && isValidAlpha(s.charAt(i))) {
-                    operand += String.valueOf(s.charAt(i++));
+					operandBuilder.append(s.charAt(i++));
                 }
+				String operand = new String(operandBuilder);
                 --i;
                 try {
                     st.add(Integer.valueOf(operand, Calculator.MyBase));
                 } catch (NumberFormatException e) {
                     System.err.println(e.getMessage());
-                    System.err.println("Wrong input format: numbers should match " + Calculator.MyBase + "-based numeric system.");
-                    throw(e);
+                    throw new Exception("Wrong input format: numbers should match " + Calculator.MyBase + "-based numeric system.");
                 }
             }
         }

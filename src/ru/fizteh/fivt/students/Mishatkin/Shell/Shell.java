@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.Mishatkin.Shell;
+package ru.fizteh.fivt.students.mishatkin.shell;
 
 import java.io.*;
 import java.util.*;
 
 /**
- * Shell.java
- * Shell
+ * shell.java
+ * shell
  *
  * Created by Vladimir Mishatkin on 9/21/13
  *

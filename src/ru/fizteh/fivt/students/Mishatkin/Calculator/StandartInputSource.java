@@ -1,11 +1,11 @@
 /**
  * StandardInputSource.java
- * Calculator
+ * calculator
  *
  * Created by Vladimir Mishatkin on 9/17/13
  */
 
-package ru.fizteh.fivt.students.Mishatkin.Calculator;
+package ru.fizteh.fivt.students.mishatkin.calculator;
 
 import java.util.Scanner;
 

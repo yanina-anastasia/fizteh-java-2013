@@ -1,11 +1,11 @@
 /**
- * Calculator.java
- * Calculator
+ * calculator.java
+ * calculator
  *
  * Created by Vladimir Mishatkin on 9/14/13
  */
 
-package ru.fizteh.fivt.students.Mishatkin.Calculator;
+package ru.fizteh.fivt.students.mishatkin.calculator;
 
 import java.io.*;
 import java.lang.*;
@@ -24,7 +24,12 @@ public class Calculator {
         InputSource in = shouldUseArgsInsteadOfSTDIN ? new ArgumentsSource(args) :
                          new StandartInputSource(new Scanner(inputStream));
         Task solver = new Task(in, out);
-        solver.solve();
+        try {
+            solver.solve();
+
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+        }
         out.close();
     }
 }

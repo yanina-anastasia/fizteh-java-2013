@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.Mishatkin.Shell;
+package ru.fizteh.fivt.students.mishatkin.shell;
 
 /**
  * ShellRunner.java
