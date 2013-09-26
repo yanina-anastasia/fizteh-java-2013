@@ -6,7 +6,7 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 public class Calculator {
-    
+
     static Stack<Long> operands = new Stack<>();
     static Stack<String> operators = new Stack<>();
     
@@ -37,14 +37,14 @@ public class Calculator {
             result = firstOperand + secondOperand;
             realRes = firstBig.add(secondBig);
         } else if (operator.equals("-")) {
-        	result = firstOperand - secondOperand;
-        	realRes = firstBig.subtract(secondBig);
+            result = firstOperand - secondOperand;
+            realRes = firstBig.subtract(secondBig);
         } else if (operator.equals("*")) {
-        	result = firstOperand * secondOperand;
-        	realRes = firstBig.multiply(secondBig);
+            result = firstOperand * secondOperand;
+            realRes = firstBig.multiply(secondBig);
         } else if (operator.equals("/")) {
-        	if (secondOperand == 0) {
-        		System.err.println("Dividing by zero");
+            if (secondOperand == 0) {
+                System.err.println("Dividing by zero");
                 return false;
             }
             result = firstOperand / secondOperand;
@@ -53,8 +53,8 @@ public class Calculator {
         
         myRes = BigInteger.valueOf(result);
         if (!realRes.equals(myRes)) {
-        	System.out.println("Too large values.");
-        	return false;
+            System.out.println("Too large values.");
+            return false;
         }
         operands.push(result);
         return true;
@@ -162,16 +162,16 @@ public class Calculator {
                 } else if (currOperator.equals(")")) {
                     // получили ) -
                     // пока не наткнемся на открывающую скобку, достаем из стека операции и тут же вычисляем
-                	while (!operators.isEmpty() && !operators.peek().equals("(")) {
-                		if (!makeCalculation()) {
-                			myScan.close();
+                    while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                        if (!makeCalculation()) {
+                            myScan.close();
                             System.exit(1);
                         }
                     }
                     if (!operators.isEmpty()) {
                         operators.pop();  // достали последнюю открывающую скобку
                     } else {
-                    	System.err.println("Wrong expression: '(' not found"); // хотя такого не должно быть, 
+                        System.err.println("Wrong expression: '(' not found"); // хотя такого не должно быть, 
                         myScan.close();                            // т.к. мы проверили скобочную последовательность на правильность
                         System.exit(1);
                     }
@@ -185,13 +185,13 @@ public class Calculator {
                     }
                     operators.push(currOperator);
                 } else {
-                	System.err.println("Too large number.");
-                	myScan.close();
-                	System.exit(1);
+                    System.err.println("Too large number.");
+                    myScan.close();
+                    System.exit(1);
                 }
-                	// для других операций достаем из стека все с приоритетом не меньше нашего 
+                    // для других операций достаем из стека все с приоритетом не меньше нашего 
                     // и производим вычисления, потом добавляем операцию в стек
-                	 
+                     
             }
         }
         
