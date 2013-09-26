@@ -123,6 +123,10 @@ public class Main {
     }
 
     private static Integer calcs(String expression) {
+        if (expression.length() == 0) {
+            System.err.println("Invalid expression");
+            System.exit(1);
+        }
         Stack<Integer> values = new Stack<Integer>();
         String[] symbols = expression.split(" ");
         int value1;
