@@ -249,8 +249,8 @@ public class Main {
             }
 
             makePolskaRecord(expression);
-
-            System.out.println(polskaCalculator(10));
+            Long answer = polskaCalculator(17);
+            System.out.println(Long.toString(answer, 17));
 
         } catch (InputMismatchException exception) {
             System.err.println("Incorrect number!");
