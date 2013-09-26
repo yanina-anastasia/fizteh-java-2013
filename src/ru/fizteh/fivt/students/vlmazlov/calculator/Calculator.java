@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vlmazlov.calculator;
+package calculator;
 import java.util.Vector;
 import java.util.Scanner;
 import java.io.ByteArrayInputStream;
@@ -67,27 +67,28 @@ public class Calculator {
 		int curRes;
 		Calculator calc = new Calculator();
 
-		//while (input.hasNextLine()) {
-			//arg = input.nextLine();
-			for (String tmp: args) {
-				arg += tmp;
-			}
+		StringBuilder argBuilder = new StringBuilder();
 
-			if (arg.equals("quit")) {
-				System.exit(0);
-			} else {
-				calc.expression = new ByteArrayInputStream(arg.getBytes()); 
-				try {
-					System.out.println(calc.countExpression());
-				} catch (WrongArithmeticExpressionException ex) {
-					System.out.println(ex.getMessage() + ". Please try again.");
-				} catch (ArithmeticException ex) {
-					System.out.println("Division by zero inside the expression. Please try again.");
-				} catch (NoSuchElementException ex) {
-					System.out.println(ex.getMessage() + ". Please try again.");
-				}
+		for (String tmp : args) {
+			argBuilder.append(tmp);
+		}
+
+		arg = argBuilder.toString();
+
+		if (arg.equals("quit")) {
+			System.exit(0);
+		} else {
+			calc.expression = new ByteArrayInputStream(arg.getBytes()); 
+			try {
+				System.out.println(calc.countExpression());
+			} catch (WrongArithmeticExpressionException ex) {
+				System.out.println(ex.getMessage() + ". Please try again.");
+			} catch (ArithmeticException ex) {
+				System.out.println("Division by zero inside the expression. Please try again.");
+			} catch (NoSuchElementException ex) {
+				System.out.println(ex.getMessage() + ". Please try again.");
 			}
-		//}
+		}
 	}
 
 	private boolean isNumber(String toCheck) {
