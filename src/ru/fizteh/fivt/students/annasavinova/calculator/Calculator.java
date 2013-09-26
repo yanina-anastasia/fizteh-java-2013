@@ -6,6 +6,7 @@ import java.util.Stack;
 public class Calculator {
     static Stack<String> signStack = new Stack<>();
     static Stack<Integer> digitStack = new Stack<>();
+    
     public static int priority(String c) {
         if (c.equals("+") || c.equals("-")) {
             return 0;
@@ -15,6 +16,7 @@ public class Calculator {
                 return -1;
             }
     }
+    
     public static int getVal() {
         String sign = signStack.pop();
         int secondVal = digitStack.pop();
@@ -22,44 +24,45 @@ public class Calculator {
         int res = 0;
         long tmp = 0;
         switch (sign) {
-            case "+":
-                tmp = firstVal + secondVal;
-                if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
-                    System.err.println("IntOverflow");
-                    System.exit(1);
-                } else {
-                    res = (int) tmp;
-                }
-                break;
-            case "-":
-                tmp = firstVal - secondVal;
-                if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
-                    System.err.println("IntOverflow");
-                    System.exit(1);
-                } else {
-                    res = (int) tmp;
-                }
-                break;
-            case "*":
-                tmp = firstVal * secondVal;
-                if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
-                    System.err.println("IntOverflow");
-                    System.exit(1);
-                } else {
-                    res = (int) tmp;
-                }
-                break;
-            case "/":
-                if (secondVal != 0) {
-                    res =  firstVal / secondVal;
-                } else {
-                    System.err.println("Dividing by zero");
-                    System.exit(2);
-                }
-                break;
+        case "+":
+            tmp = firstVal + secondVal;
+            if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
+                System.err.println("IntOverflow");
+                System.exit(1);
+            } else {
+                res = (int) tmp;
+            }
+            break;
+        case "-":
+            tmp = firstVal - secondVal;
+            if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
+                System.err.println("IntOverflow");
+                System.exit(1);
+            } else {
+                res = (int) tmp;
+            }
+            break;
+        case "*":
+            tmp = firstVal * secondVal;
+            if (tmp * Long.signum(tmp) > Integer.MAX_VALUE) {
+                System.err.println("IntOverflow");
+                System.exit(1);
+            } else {
+                res = (int) tmp;
+            }
+            break;
+        case "/":
+            if (secondVal != 0) {
+                res =  firstVal / secondVal;
+            } else {
+                System.err.println("Dividing by zero");
+                System.exit(2);
+            }
+            break;
         }
         return res;
     }
+    
     public static boolean checkBrackets(String input) {
         int count = 0;
         for (int i = 0; i < input.length(); ++i) {
@@ -77,6 +80,7 @@ public class Calculator {
         }
         return true;
     }
+    
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Please, input expression, that you want to know");
