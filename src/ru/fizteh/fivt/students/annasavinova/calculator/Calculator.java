@@ -3,9 +3,10 @@ package ru.fizteh.fivt.students.annasavinova.calculator;
 import java.math.BigInteger;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 public class Calculator {
-    static int BASE = 10;
+    static int BASE = 18;
     static Stack<String> signStack = new Stack<>();
     static Stack<Long> digitStack = new Stack<>();
     
@@ -77,21 +78,15 @@ public class Calculator {
     }
     
     public static boolean checkSpaces(String str) {
-        Scanner scanner = new Scanner(str);
-        scanner.useRadix(BASE);
-        scanner.useDelimiter("[\\s/+/-/*//]+");
-        while (scanner.hasNext()) {
-            if (scanner.hasNextLong()) {
-                scanner.nextInt();
-                if (scanner.hasNextLong()) {
-                    scanner.close();
-                    return false;
-                }
-            } else {
-                scanner.next();
-            }
+        if (Pattern.matches("[\\s0-9A-Ga-g/+-/*///(/)]*[0-9A-Ga-g]+[ ]+[0-9A-Ga-g]+[\\s0-9A-Ga-g/+-/*///(/)]*", str)) {
+            return false;
         }
-        scanner.close();
+        return true;
+    }
+    public static boolean checkSymbols(String str) {
+        if (!Pattern.matches("[\\s0-9A-Ga-g/+-/*///(/)]*", str)) {
+            return false;
+        }
         return true;
     }
     
@@ -118,6 +113,10 @@ public class Calculator {
         if (!checkBrackets(workingStr)) {
             System.err.println("Incorrect bracket sequance");
             System.exit(4);
+        }
+        if (!checkSymbols(workingStr)) {
+            System.err.println("Incorrect symbol");
+            System.exit(5);
         }
         workingStr = workingStr.replace("(", "( ");
         workingStr = workingStr.replace(")", " )");
@@ -157,9 +156,9 @@ public class Calculator {
                     long currentDigit = sc.nextInt();
                     digitStack.push(currentDigit);
                 } else {
-                    System.err.println("Incorrect expression");
                     sc.close();
-                    System.exit(5);
+                    System.err.println("Too big operand");
+                    System.exit(6);
                 }
             }
         }
@@ -169,7 +168,7 @@ public class Calculator {
         } else {
             System.err.println("Incorrect num of operators and operands" + digitStack.peek());
             sc.close();
-            System.exit(6);
+            System.exit(7);
         }
         sc.close();
     }
