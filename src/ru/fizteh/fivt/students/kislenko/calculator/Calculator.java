@@ -19,7 +19,7 @@ public class Calculator {
     public static void main(String[] args) throws IOException, InputMismatchException {
         StringBuilder sb = new StringBuilder();
         for (String arg : args) {
-            sb.append(arg);
+            sb.append(arg).append(" ");
         }
         String inputString = sb.toString();
         PrintStream ps = new PrintStream(System.out);
