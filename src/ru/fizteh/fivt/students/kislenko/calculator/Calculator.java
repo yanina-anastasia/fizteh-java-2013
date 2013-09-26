@@ -193,11 +193,12 @@ public class Calculator {
             }
         }
 
-        int answer = operandStack.pop();
+        Integer answer = operandStack.pop();
         if (!operandStack.isEmpty()) {
             throw new IOException("Too many operands.");
         }
-        ps.print(answer);
+
+        ps.print(Integer.toString(answer, RADIX));
         System.exit(0);
     }
 }
