@@ -10,6 +10,16 @@ import java.lang.Integer;
 public class Main {
     private static final int RADIX = 17;
 
+    private static Boolean numberChecker(String[] args, int i, int j) {
+        if ((args[i].charAt(j) >= '0' && args[i].charAt(j) <= '9')
+                || (args[i].charAt(j) >= 'A' && args[i].charAt(j) <= 'G') || (args[i].charAt(j) >= 'a'
+                && args[i].charAt(j) <= 'g')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private static String reversePolishNotationConversation(String[] args) {
         StringBuilder wholeString = new StringBuilder();
         Stack<String> symbolStack = new Stack();
@@ -17,13 +27,9 @@ public class Main {
         boolean sign = false;
         for (int i = 0; i < args.length; ++i) {
             for (int j = 0; j < args[i].length(); ++j) {
-                if (args[i].charAt(j) >= '0' && args[i].charAt(j) <= '9'
-                        || args[i].charAt(j) >= 'A' && args[i].charAt(j) <= 'G' || args[i].charAt(j) >= 'a'
-                        && args[i].charAt(j) <= 'g') {
+                if (numberChecker(args, i, j)) {
                     int k = j + 1;
-                    while (k < args[i].length() && (args[i].charAt(k) >= '0' && args[i].charAt(k) <= '9'
-                            || args[i].charAt(k) >= 'A' && args[i].charAt(k) <= 'G' || args[i].charAt(k) >= 'a'
-                            && args[i].charAt(k) <= 'g')) {
+                    while (k < args[i].length() && numberChecker(args, i, k)) {
                         ++k;
                     }
                     int number = Integer.parseInt(args[i].substring(j, k), RADIX);
@@ -127,7 +133,8 @@ public class Main {
                 operationsChecker(values);
                 value2 = values.pop();
                 value1 = values.pop();
-                if (Integer.MAX_VALUE - value1 <= value2) {
+                if ((value1 > 0 && value2 > 0 && Integer.MAX_VALUE - value1 <= value2)
+                        || (value1 < 0 && value2 < 0 && Integer.MIN_VALUE - value2 >= value1)) {
                     System.err.println("Integer overflow: " + value1 + "+" + value2);
                     System.exit(1);
                 }
@@ -136,7 +143,8 @@ public class Main {
                 operationsChecker(values);
                 value2 = values.pop();
                 value1 = values.pop();
-                if (Integer.MIN_VALUE + value2 >= value1) {
+                if ((value2 > 0 && Integer.MIN_VALUE + value2 >= value1)
+                        || (value2 < 0 && Integer.MAX_VALUE + value2 <= value1)) {
                     System.err.println("Integer overflow: " + value1 + "-" + value2);
                     System.exit(1);
                 }
@@ -145,7 +153,8 @@ public class Main {
                 operationsChecker(values);
                 value2 = values.pop();
                 value1 = values.pop();
-                if (Integer.MAX_VALUE / value2 <= value1) {
+                if (((value1 > 0 && value2 > 0 || value1 < 0 && value2 < 0) && Integer.MAX_VALUE / value2 <= value1)
+                        || ((value1 < 0 && value2 > 0 || value1 > 0 && value2 < 0) && Integer.MIN_VALUE / value2 >= value1)) {
                     System.err.println("Integer overflow: " + value1 + "*" + value2);
                     System.exit(1);
                 }
@@ -173,7 +182,9 @@ public class Main {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println("Usage: numbers in 17-th system <[0..9, A..G]> \n operations: +, -, *, /\n brackets: (, )");
+            System.out.println("Usage: numbers in 17-th system <[0..9, A..G, a..g]>");
+            System.out.println("Operations: +, -, *, /");
+            System.out.println("Brackets: (, )");
             System.exit(1);
         }
         String expression = "";
