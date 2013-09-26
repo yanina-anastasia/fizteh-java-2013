@@ -171,7 +171,7 @@ public class Calculator {
     public static void main(String[] args) throws IOException {
         StringBuilder sb = new StringBuilder();
         for (String s : args) {
-            sb.append(s);
+            sb.append(s).append(" ");
         }
         String expression = sb.toString();
 
