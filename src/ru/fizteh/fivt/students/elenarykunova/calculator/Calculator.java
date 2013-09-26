@@ -110,7 +110,7 @@ public class Calculator {
             System.exit(1);
         }
     
-        int base = 10; 
+        int base = 17; 
 
         StringBuffer s = new StringBuffer();
         for (int i = 0; i < args.length; i++) {
