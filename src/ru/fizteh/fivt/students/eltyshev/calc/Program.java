@@ -4,6 +4,11 @@ public class Program
 {
     public static void main(String[] Args)
     {
+        if (Args.length == 0)
+        {
+            System.out.println("Usage: calc \"1+2\"");
+            System.exit(-1);
+        }
         StringBuilder sb = new StringBuilder();
         for(String arg: Args)
         {
@@ -11,21 +16,18 @@ public class Program
         }
         try
         {
-            double result = ExpressionSolver.Execute(sb.toString());
+            String result = ExpressionSolver.execute(sb.toString());
             System.out.print(result);
         }
         catch(IllegalArgumentException e)
         {
-            System.out.println("String input error!");
+            System.err.println("Error: " + e.getMessage());
+            System.exit(-1);
         }
-        catch(InvalidCharacterException e)
+        catch (ArithmeticException e)
         {
-            System.out.println("Invalid character: " + e.getExpression());
+            System.err.println("Error: " + e.getMessage());
+            System.exit(-1);
         }
-        catch(BadBracketBalanceException e)
-        {
-            System.out.println("Check your brackets!");
-        }
-
     }
 }
