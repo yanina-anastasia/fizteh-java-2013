@@ -3,6 +3,8 @@
 package ru.fizteh.students.kochetovnicolai.calculator;
 
 import java.util.Stack;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class Calculator {
     
@@ -21,21 +23,29 @@ public class Calculator {
         System.err.println();
     }
     
+    private static void terminate(String error) {
+        System.err.println(error);
+        System.exit(1);
+    }
+    
     private static int calculate(String operations, String[] numbers) {
-        Stack values = new Stack();
+        Stack<Integer> values = new Stack<>();
         values.push(0);
         char operation = '+';
         position++;
         while (true) {
             if (!" (".contains(operations.subSequence(position, position + 1))) {
                 printSubExpression(operations, numbers);
-                System.err.print("Expected constant or (, ");
-                System.err.println("but \'" + operations.charAt(position) + "\' found");
-                System.exit(1);
+                terminate("Expected constant or (, but \'" + operations.charAt(position) + "\' found");
             }
-            int value;
+            int value = 0;
             if (operations.charAt(position) == ' ') {
-                value = Integer.valueOf(numbers[nextNumber++], 18);
+                try {
+                    value = Integer.valueOf(numbers[nextNumber++], 18);
+                } catch(NumberFormatException e) {
+                    System.err.println("Error: Too long number");
+                    terminate(e.getMessage());
+                }
             } else {
                 value = calculate(operations, numbers);
             }
@@ -45,13 +55,15 @@ public class Calculator {
             } else if (operation == '-') {
                 values.push(-value);
             } else if (operation == '*') {
-                Integer previos = (Integer) values.pop();
-                values.push(previos * value);
+                Long multiplication = values.pop().longValue() * value;
+                if (multiplication > Integer.MAX_VALUE || multiplication < Integer.MIN_VALUE) {
+                    terminate("result of an expression out of range");
+                }
+                values.push(multiplication.intValue());
             } else if (operation == '/') {
                 if (value == 0) {
                     printSubExpression(operations, numbers);
-                    System.err.println("Division by zero");
-                    System.exit(1);
+                    terminate("Division by zero");
                 }
                 Integer previos = (Integer) values.pop();
                 values.push(previos / value);
@@ -59,9 +71,7 @@ public class Calculator {
             
             position++;
             if (position == operations.length()) {
-                System.err.print("Unexpected end of expression. ");
-                System.err.println("Expected +, -, *, / or )");
-                System.exit(1);
+                terminate("Unexpected end of expression. Expected +, -, *, / or )");
             }
             if (operations.charAt(position) == ')') {
                 break;
@@ -69,24 +79,24 @@ public class Calculator {
             
             if (!"-+*/".contains(operations.subSequence(position, position + 1))) {
                 printSubExpression(operations, numbers);
-                System.err.print("Expected operation +, -, * or / after constant, ");
-                System.err.println("but \'" + operations.charAt(position) + "\' found");
-                System.exit(1);
+                terminate("Expected operation +, -, * or / after constant, but \'" + 
+                        operations.charAt(position) + "\' found");
             }
             operation = operations.charAt(position);
             
             position++;
             if (position == operations.length()) {
-                System.err.print("Unexpected end of expression. ");
-                System.err.println("Expected constant or (");
-                System.exit(1);
+                terminate("Unexpected end of expression. Expected constant or (");
             }
         }
-        int result = 0;
+        Long result = new Long(0);
         while (!values.empty()) {
-            result += (Integer) values.pop();
+            result += values.pop();
+            if (result > Integer.MAX_VALUE || result < Integer.MIN_VALUE) {
+                terminate("result of an expression out of range");
+            }
         }
-        return result;
+        return result.intValue();
     }
         
     public static void main(String[] args) {
@@ -95,7 +105,17 @@ public class Calculator {
             builder.append(args[i]);
         }
         builder.append(")");
-        String expression = builder.toString().replace(" ", "");
+        String expression = builder.toString();
+        
+        Matcher matcher = Pattern.compile("[0-9A-Ha-h][ ]+[0-9A-Ha-h]").matcher(expression);
+        if(matcher.find()) {
+            System.err.println(expression.substring(1, matcher.start() + 4));
+            System.err.print("Expected operation +, -, * or / after constant, ");
+            System.err.println("but \' \' found");
+            System.exit(1);
+        }
+                
+        expression = expression.replace(" ", "");
         String[] numbers = expression.split("[^0-9A-Ha-h]+");
         String operations = expression.replaceAll("[0-9a-hA-H]+", " ");
         
