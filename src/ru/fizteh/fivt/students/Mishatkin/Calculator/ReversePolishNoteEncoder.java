@@ -123,6 +123,9 @@ public class ReversePolishNoteEncoder {
             processOperation (st, op.lastElement());
             op.removeElementAt(op.size() - 1);
         }
+		if (st.size() != 1) {
+			throw new Exception("Invalid input.");
+		}
         return st.lastElement();
     }
 }
