@@ -118,7 +118,6 @@ public class Calculator {
             s.append(" ");
         }
         String str = s.toString();
-        System.out.println(str);
         
         // проверка на корректность входа
         // 1) проверка на соответствие символов
