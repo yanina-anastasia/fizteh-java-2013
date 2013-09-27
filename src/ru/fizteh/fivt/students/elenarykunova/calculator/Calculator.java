@@ -81,9 +81,9 @@ public class Calculator {
     }
     
     private static boolean isCorrectSpaceSeq(String str) {
-        if (Pattern.matches("[0-9a-gA-G\\s/(/)/+-/*//]*" +
-                "([0-9a-zA-Z]([\\s]+)[0-9a-zA-Z])+" +
-                "[0-9a-gA-G\\s/(/)/+-/*//]*", str)) {
+        if (Pattern.matches("[0-9a-gA-G\\s/(/)/+-/*//]*"
+                + "([0-9a-zA-Z]([\\s]+)[0-9a-zA-Z])+"
+                + "[0-9a-gA-G\\s/(/)/+-/*//]*", str)) {
             return false;
         }
         return true;
@@ -135,9 +135,9 @@ public class Calculator {
         Scanner myScan = new Scanner(str);
         myScan.useRadix(base);
 
-        myScan.useDelimiter("((?<=[0-9a-gA-G])(?=[/(/)/+-/*//]))" +
-                "|((?<=[/(/)/+-/*//])(?=[0-9a-gA-G]))" +
-                "|((?<=[/(/)/+-/*//])(?=[/(/)/+-/*//]))");         
+        myScan.useDelimiter("((?<=[0-9a-gA-G])(?=[/(/)/+-/*//]))"
+                + "|((?<=[/(/)/+-/*//])(?=[0-9a-gA-G]))"
+                + "|((?<=[/(/)/+-/*//])(?=[/(/)/+-/*//]))");         
 
         int currPriority = 0;
         String currOperator;
