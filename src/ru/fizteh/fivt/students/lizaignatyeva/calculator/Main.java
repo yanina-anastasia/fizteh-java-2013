@@ -24,7 +24,9 @@ class Calculator {
         if (base != 17) {
             throw new IllegalArgumentException("base is not valid");
         }
-        return Character.isDigit(character) || ('A' <= character && character <= 'G') || ('a' <= character && character <= 'g');
+        return Character.isDigit(character) 
+                || ('A' <= character && character <= 'G') 
+                    || ('a' <= character && character <= 'g');
     }
 
     private boolean isSyntaxSymbol(char character) {
