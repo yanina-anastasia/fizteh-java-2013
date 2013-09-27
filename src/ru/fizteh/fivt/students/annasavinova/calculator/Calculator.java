@@ -78,13 +78,13 @@ public class Calculator {
     }
     
     public static boolean checkSpaces(String str) {
-        if (Pattern.matches("[\\s0-9A-Ga-g/+-/*///(/)]*[0-9A-Ga-g]+[ ]+[0-9A-Ga-g]+[\\s0-9A-Ga-g/+-/*///(/)]*", str)) {
+        if (Pattern.matches("[\\s0-9A-H-h/+-/*///(/)]*[0-9A-Ha-h]+[ ]+[0-9A-Ha-h]+[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
     }
     public static boolean checkSymbols(String str) {
-        if (!Pattern.matches("[\\s0-9A-Ga-g/+-/*///(/)]*", str)) {
+        if (!Pattern.matches("[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
