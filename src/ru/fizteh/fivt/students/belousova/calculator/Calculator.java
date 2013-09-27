@@ -50,7 +50,7 @@ public class Calculator {
             if (!countStack.isEmpty) {
                 throw new IllegalArgumentException("Некорректное выражение");
             }
-            return Integer.toString(result, 18);
+            return Integer.toString(res, 18);
         }
         catch (EmptyStackException e) {
             throw new IllegalArgumentException("Некорректное выражение");
