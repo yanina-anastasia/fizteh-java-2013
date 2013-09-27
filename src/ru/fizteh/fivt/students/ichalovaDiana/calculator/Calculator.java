@@ -9,12 +9,12 @@ public class Calculator {
     static final int RADIX = 19;
     
     public static void main(String[] args) {
-        //args = new String[]{"3 * (4 + 5) * (3 + 7) + 1 * 2"};
+        //args = new String[]{"3 * (4E + 5) * (3 + 7) + 1 * 2"};
         StringBuilder concatArgs = new StringBuilder();
         for (String item : args) {
             concatArgs.append(item).append(" ");
         }
-        String expression = new String(concatArgs);
+        String expression = concatArgs.toString();
         
         try {
             StringParser parser = new StringParser(expression, RADIX);
@@ -24,7 +24,8 @@ public class Calculator {
             }
             System.out.println(result.toString(RADIX));            
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
     
@@ -73,8 +74,7 @@ public class Calculator {
             if (currentLexeme != LexemeType.CLOSING_BRACKET) {
                 throw new Exception("Unexpected lexeme: should be closing bracket");
             }
-        }
-        else {
+        } else {
             throw new Exception("Unexpected lexeme");
         }
         parser.getNextLexemeType();
