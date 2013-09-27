@@ -6,8 +6,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  */
 public class ChangeDirectoryCommand extends Command {
 
-	ChangeDirectoryCommand(ShellReceiver _receiver) {
-		super(_receiver);
+	ChangeDirectoryCommand(ShellReceiver receiver) {
+		super(receiver);
 		type = COMMAND_TYPE.CD;
 	}
 

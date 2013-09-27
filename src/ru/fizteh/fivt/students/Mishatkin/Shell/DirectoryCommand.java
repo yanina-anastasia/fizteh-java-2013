@@ -5,8 +5,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  * Created by Vladimir Mishatkin on 9/25/13
  */
 public class DirectoryCommand extends Command {
-	DirectoryCommand(ShellReceiver _receiver) {
-		super(_receiver);
+	DirectoryCommand(ShellReceiver receiver) {
+		super(receiver);
 		type = COMMAND_TYPE.DIR;
 	}
 

@@ -5,8 +5,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  * Created by Vladimir Mishatkin on 9/25/13
  */
 public class ExitCommand extends Command {
-	ExitCommand(ShellReceiver _receiver) {
-		super(_receiver);
+	ExitCommand(ShellReceiver receiver) {
+		super(receiver);
 		type = COMMAND_TYPE.EXIT;
 	}
 

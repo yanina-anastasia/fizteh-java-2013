@@ -5,8 +5,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  * Created by Vladimir Mishatkin on 9/25/13
  */
 public class CopyCommand extends Command {
-	CopyCommand(ShellReceiver _receiver) {
-		super(_receiver);
+	CopyCommand(ShellReceiver receiver) {
+		super(receiver);
 		type = COMMAND_TYPE.CP;
 	}
 

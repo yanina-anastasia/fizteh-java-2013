@@ -40,8 +40,8 @@ public abstract class Command {
 		return type;
 	}
 
-	Command(ShellReceiver _receiver) {
-		receiver = _receiver;
+	Command(ShellReceiver receiver) {
+		this.receiver = receiver;
 	}
 
 	public static Command createCommand(Vector<String> buffer) throws Exception {

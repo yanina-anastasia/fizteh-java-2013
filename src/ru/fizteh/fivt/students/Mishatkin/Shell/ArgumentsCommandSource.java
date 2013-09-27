@@ -8,8 +8,8 @@ public class ArgumentsCommandSource extends CommandSource {
 	private int nextArgumentIndex = 0;
 	private String[] args;
 
-	public ArgumentsCommandSource(String[] _args) {
-		args = _args;
+	public ArgumentsCommandSource(String[] args) {
+		this.args = args;
 	}
 
 	@Override

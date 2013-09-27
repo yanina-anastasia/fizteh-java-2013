@@ -4,8 +4,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  * Created by Vladimir Mishatkin on 9/25/13
  */
 public class RemoveCommand extends Command {
-	RemoveCommand(ShellReceiver _receiver) {
-		super(_receiver);
+	RemoveCommand(ShellReceiver receiver) {
+		super(receiver);
 		type = COMMAND_TYPE.RM;
 	}
 

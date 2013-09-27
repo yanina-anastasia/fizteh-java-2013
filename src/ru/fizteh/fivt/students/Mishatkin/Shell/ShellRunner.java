@@ -9,8 +9,8 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class ShellRunner {
 	private CommandSource in;
 
-	public ShellRunner(CommandSource _in) {
-		in = _in;
+	public ShellRunner(CommandSource in) {
+		this.in = in;
 	}
 
 	public void run() {
