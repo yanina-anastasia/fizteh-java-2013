@@ -16,17 +16,22 @@ import java.util.Stack;
 public class Calculator {
     private static final int RADIX = 17;
 
-    public static void main(String[] args) throws IOException, InputMismatchException {
+    private static String buildInputString(String[] parameters) throws IOException {
         StringBuilder sb = new StringBuilder();
-        for (String arg : args) {
-            sb.append(arg).append(" ");
+        for (String parameter : parameters) {
+            sb.append(parameter).append(" ");
         }
         String inputString = sb.toString();
-        PrintStream ps = new PrintStream(System.out);
         if (inputString.length() == 0) {
-            throw new IOException("Empty input.");
+            System.err.println("Empty input.");
+            System.exit(1);
         }
-        Scanner scan = new Scanner(inputString);
+        return inputString;
+    }
+
+    public static String toPolandNotation(String input) throws IOException {
+
+        Scanner scan = new Scanner(input);
         Stack<String> stack = new Stack<String>();
         StringBuilder polandBuilder = new StringBuilder();
         String s = "";
@@ -41,7 +46,7 @@ public class Calculator {
                 try {
                     value = scan.nextInt();
                 } catch (InputMismatchException e) {
-                    throw new IOException("Too big value in input.");
+                    throw new NumberFormatException("Too big value in input.");
                 }
                 if (changeSign) {
                     value = -value;
@@ -67,7 +72,8 @@ public class Calculator {
                         polandBuilder.append(stack.pop()).append(" ");
                     }
                     if (stack.isEmpty()) {
-                        throw new IOException("Expression not complied with the bracket balance.");
+                        System.err.println("Expression not complied with the bracket balance.");
+                        System.exit(2);
                     }
                     stack.pop();
                 }
@@ -76,7 +82,8 @@ public class Calculator {
                 scan.useDelimiter("[0-9A-G\\s\\(\\)\\-\\*\\/]");
                 String buf = scan.next("\\+*");
                 if (buf.length() > 1) {
-                    throw new IOException("Two or more pluses in succession.");
+                    System.err.println("Two or more pluses in succession.");
+                    System.exit(3);
                 }
                 minus = false;
                 while (!stack.isEmpty() && !stack.peek().equals("(")) {
@@ -111,7 +118,8 @@ public class Calculator {
                 scan.useDelimiter("[0-9A-G\\s\\(\\)\\+\\-\\/]");
                 String buf = scan.next("\\**");
                 if (buf.length() > 1) {
-                    throw new IOException("Two or more multiples in succession.");
+                    System.err.println("Two or more multiples in succession.");
+                    System.exit(3);
                 }
                 minus = false;
                 while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
@@ -123,7 +131,8 @@ public class Calculator {
                 scan.useDelimiter("[0-9A-G\\s\\(\\)\\+\\-\\*]");
                 String buf = scan.next("\\/*");
                 if (buf.length() > 1) {
-                    throw new IOException("Two or more divides in succession.");
+                    System.err.println("Two or more divides in succession.");
+                    System.exit(3);
                 }
                 minus = false;
                 while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
@@ -132,20 +141,28 @@ public class Calculator {
                 stack.push("/");
                 scan.useDelimiter("\\s");
             } else {
-                throw new IOException("Some bad symbol in input text.");
+                System.err.println("Some bad symbol in input text.");
+                System.exit(4);
             }
         }
+
         while (!stack.isEmpty()) {
             if (stack.peek().equals("(")) {
-                throw new IOException("Expression not complied with the bracket balance.");
+                System.err.println("Expression not complied with the bracket balance.");
+                System.exit(5);
             }
             polandBuilder.append(stack.pop()).append(" ");
         }
         s = polandBuilder.toString();
         if (s.equals("")) {
-            throw new IOException("Empty input.");
+            System.err.println("Empty input.");
+            System.exit(1);
         }
 
+        return s;
+    }
+
+    private static Integer calculate(String s) throws IOException {
         String[] symbols = s.split(" ");
         Stack<Integer> operandStack = new Stack<Integer>();
         int oper1, oper2;
@@ -153,41 +170,48 @@ public class Calculator {
         for (String symbol : symbols) {
             if (symbol.equals("+")) {
                 if (operandStack.size() < 2) {
-                    throw new IOException("Too many operations in this expression.");
+                    System.err.println("Too many operations in this expression.");
+                    System.exit(6);
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
                 if (Integer.MAX_VALUE - oper1 < oper2) {
-                    throw new ArithmeticException("Too big values in expression.");
+                    System.err.println("Too big values in expression.");
+                    System.exit(7);
                 }
                 operandStack.push(oper1 + oper2);
             } else if (symbol.equals("-")) {
                 if (operandStack.size() < 2) {
-                    throw new IOException("Too many operations in this expression.");
+                    System.err.println("Too many operations in this expression.");
+                    System.exit(6);
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
                 operandStack.push(oper1 - oper2);
             } else if (symbol.equals("*")) {
                 if (operandStack.size() < 2) {
-                    throw new IOException("Too many operations in this expression.");
+                    System.err.println("Too many operations in this expression.");
+                    System.exit(6);
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
                 operandStack.push(oper1 * oper2);
                 if (Integer.MAX_VALUE / oper2 < oper1) {
-                    throw new ArithmeticException("Too big values in expression.");
+                    System.err.println("Too big values in expression.");
+                    System.exit(7);
                 }
             } else if (symbol.equals("/")) {
                 if (operandStack.size() < 2) {
-                    throw new IOException("Too many operations in this expression.");
+                    System.err.println("Too many operations in this expression.");
+                    System.exit(6);
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
-                if (oper2 == 0) {
-                    throw new RuntimeException("Dividing by zero.");
+                try {
+                    operandStack.push(oper1 / oper2);
+                } catch (ArithmeticException e) {
+                    throw new ArithmeticException("Dividing by zero.");
                 }
-                operandStack.push(oper1 / oper2);
             } else {
                 operandStack.push(Integer.parseInt(symbol));
             }
@@ -195,10 +219,30 @@ public class Calculator {
 
         Integer answer = operandStack.pop();
         if (!operandStack.isEmpty()) {
-            throw new IOException("Too many operands.");
+            System.err.println("Too many operands.");
+            System.exit(8);
         }
 
-        ps.print(Integer.toString(answer, RADIX));
-        System.exit(0);
+        return answer;
+    }
+
+    public static void outputResult(Integer result) {
+        PrintStream ps = new PrintStream(System.out);
+        ps.print(Integer.toString(result, RADIX));
+    }
+
+    public static void main(String[] args) throws IOException, InputMismatchException {
+        try {
+            String inputString = buildInputString(args);
+            String s = toPolandNotation(inputString);
+            Integer result = calculate(s);
+            outputResult(result);
+        } catch (NumberFormatException e) {
+            System.err.println(e.getMessage());
+            System.exit(9);
+        } catch (ArithmeticException e) {
+            System.err.println(e.getMessage());
+            System.exit(10);
+        }
     }
 }
