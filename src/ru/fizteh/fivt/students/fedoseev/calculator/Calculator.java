@@ -119,11 +119,13 @@ public class Calculator {
             String t = tr.nextToken();
 
             if (!MATH_OPERATIONS.keySet().contains(t)) {
-                if (Integer.valueOf(t) > Integer.MAX_VALUE) {
-                    throw new StackOverflowError();
+                try {
+                    Integer a = Integer.valueOf(t, RADIX);
+                    rpnStack.push(a);
+                } catch (NumberFormatException e) {
+                    System.err.println("ERROR: Out of range");
+                    System.exit(1);
                 }
-                Integer a = Integer.valueOf(t, RADIX);
-                rpnStack.push(a);
             } else {
                 if (rpnStack.empty()) {
                     throw new IOException();
@@ -188,8 +190,11 @@ public class Calculator {
             System.err.println("ERROR: Incorrect expression");
             System.exit(1);
         } catch (IllegalArgumentException e) {
-            System.err.println("ERROR: Out of range");
+            System.err.println("ERROR: Unmatched brackets");
            System.exit(1);
+        } catch (StackOverflowError e) {
+            System.err.println("ERROR: Out of range");
+            System.exit(1);
         } catch (ArithmeticException e) {
             System.err.println("ERROR: Divide by zero");
             System.exit(1);
