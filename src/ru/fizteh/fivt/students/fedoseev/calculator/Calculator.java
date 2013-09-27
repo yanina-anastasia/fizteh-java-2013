@@ -1,13 +1,5 @@
 package ru.fizteh.fivt.students.fedoseev.calculator;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Кирилл
- * Date: 22.09.13
- * Time: 21:19
- * To change this template use File | Settings | File Templates.
- */
-
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -127,35 +119,47 @@ public class Calculator {
             String t = tr.nextToken();
 
             if (!MATH_OPERATIONS.keySet().contains(t)) {
+                if (Integer.valueOf(t) > Integer.MAX_VALUE) {
+                    throw new StackOverflowError();
+                }
                 Integer a = Integer.valueOf(t, RADIX);
                 rpnStack.push(a);
             } else {
-                Integer o2;
-                Integer o1;
+                if (rpnStack.empty()) {
+                    throw new IOException();
+                }
+
+                Integer o2 = rpnStack.pop();
 
                 if (rpnStack.empty()) {
                     throw new IOException();
                 }
 
-                o2 = rpnStack.pop();
-
-                if (rpnStack.empty()) {
-                    throw new IOException();
-                }
-
-                o1 = rpnStack.pop();
+                Integer o1 = rpnStack.pop();
 
                 if (t.equals("*")) {
+                    if (o1 * o2 > Integer.MAX_VALUE) {
+                        throw new StackOverflowError();
+                    }
+
                     rpnStack.push(o1 * o2);
                 } else if (t.equals("/")) {
                     if (o2 == 0) {
-                        throw new RuntimeException();
+                        throw new ArithmeticException();
                     }
 
                     rpnStack.push(o1 / o2);
                 } else if (t.equals("+")) {
+                    if (o1 + o2 > Integer.MAX_VALUE) {
+                        throw new StackOverflowError();
+                    }
+
                     rpnStack.push(o1 + o2);
                 } else if (t.equals("-")) {
+                    if (o1 - o2 > Integer.MAX_VALUE) {
+                        throw new StackOverflowError();
+                    }
+
                     rpnStack.push(o1 - o2);
                 }
             }
@@ -184,9 +188,9 @@ public class Calculator {
             System.err.println("ERROR: Incorrect expression");
             System.exit(1);
         } catch (IllegalArgumentException e) {
-            System.err.println("ERROR: Unmatched brackets");
-            System.exit(1);
-        } catch (RuntimeException e) {
+            System.err.println("ERROR: Out of range");
+           System.exit(1);
+        } catch (ArithmeticException e) {
             System.err.println("ERROR: Divide by zero");
             System.exit(1);
         }
