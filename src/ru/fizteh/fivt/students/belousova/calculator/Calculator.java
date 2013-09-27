@@ -15,16 +15,21 @@ public class Calculator {
     private static boolean unarFlag = true;
     private static int[][] priority = {{4, 1, 1, 1, 5},
             {2, 2, 1, 1, 2},{2, 2, 2, 1, 2},{5, 1, 1, 1, 3}};
+    private static boolean atLeastOneNumber = false;
 
     public static void main(String[] args) {
         String s;
         StringBuilder sb = new StringBuilder();
         for (String si : args){
             sb.append(si);
+            sb.append(" ");
         }
         s = sb.toString();
         try {
-            if (!s.equals("")) System.out.println(calculate(s));
+            if (s.isEmpty()) {
+                throw new IllegalArgumentException("Пустой ввод");
+            }
+            System.out.println(calculate(s));
         }
         catch (IllegalArgumentException e)
         {
@@ -38,7 +43,10 @@ public class Calculator {
             operatorStack.push("&");
             s = s + '&';
             parse(s);
-            return convertRadix(countStack.pop());
+            if (!atLeastOneNumber) {
+                throw new IllegalArgumentException("Некорректное выражение");
+            }
+            return Integer.toString(countStack.pop(), 18);
         }
         catch (EmptyStackException e) {
             throw new IllegalArgumentException("Некорректное выражение");
@@ -74,7 +82,11 @@ public class Calculator {
                     }
                     else unarFlag = false;
                     break;
-                case ' ': break;
+                case ' ':
+                    if (!numberStack.empty()) {
+                        countStack.push(calculateNumber());
+                    }
+                    break;
                 case '1':
                 case '2':
                 case '3':
@@ -124,6 +136,7 @@ public class Calculator {
     private static int calculateNumber() {
         int result = 0;
         int k = 1;
+        atLeastOneNumber = true;
 
         if (!numberStack.empty()) {
             while (!numberStack.empty()) {
@@ -185,79 +198,6 @@ public class Calculator {
 
             }
         }
-    }
-
-    private static String convertRadix (int a) {
-
-        String result = "";
-        int digit;
-        boolean negative = (a < 0);
-        a = Math.abs(a);
-
-        if (a == 0) return "0";
-
-        while (a != 0) {
-            digit = a%18;
-            a /= 18;
-            switch (digit) {
-                case 0:
-                    result = '0' + result;
-                    break;
-                case 1:
-                    result = '1' + result;
-                    break;
-                case 2:
-                    result = '2' + result;
-                    break;
-                case 3:
-                    result = '3' + result;
-                    break;
-                case 4:
-                    result = '4' + result;
-                    break;
-                case 5:
-                    result = '5' + result;
-                    break;
-                case 6:
-                    result = '6' + result;
-                    break;
-                case 7:
-                    result = '7' + result;
-                    break;
-                case 8:
-                    result = '8' + result;
-                    break;
-                case 9:
-                    result = '9' + result;
-                    break;
-                case 10:
-                    result = 'A' + result;
-                    break;
-                case 11:
-                    result = 'B' + result;
-                    break;
-                case 12:
-                    result = 'C' + result;
-                    break;
-                case 13:
-                    result = 'D' + result;
-                    break;
-                case 14:
-                    result = 'E' + result;
-                    break;
-                case 15:
-                    result = 'F' + result;
-                    break;
-                case 16:
-                    result = 'G' + result;
-                    break;
-                case 17:
-                    result = 'H' + result;
-                    break;
-            }
-        }
-        if (negative) result = '-' + result;
-        return  result;
     }
 }
 
