@@ -27,6 +27,12 @@ class Calculator {
         return Character.isDigit(character) || ('A' <= character && character <= 'G') || ('a' <= character && character <= 'g');
     }
 
+    private boolean isSyntaxSymbol(char character) {
+        return (character == '(') || (character == ')') || 
+                    (character == '*') || (character == '-') || 
+                        (character == '+') || (character == '/');
+    }
+
     private void getNextToken() {
         if (isDigit(nextChar)) {
             StringBuilder number = new StringBuilder();
@@ -47,8 +53,15 @@ class Calculator {
         while (currentToken.equals("+") || currentToken.equals("-")) {
             char buf = currentToken.charAt(0);
             getNextToken();
-            if ((!isDigit(currentToken.charAt(0))) && (!currentToken.equals("(") && (!currentToken.equals("-"))))
-                throw new IllegalArgumentException("a digit expected; symbol " + Character.toString(currentToken.charAt(0)) + " found");
+            if ((!isDigit(currentToken.charAt(0))) && 
+                    (!currentToken.equals("(") && (!currentToken.equals("-")))) {
+                String mistake = "symbol " + Character.toString(currentToken.charAt(0));
+                if (currentToken.charAt(0) == '.') {
+                    mistake = "EOLN";
+                }
+                throw new IllegalArgumentException("a digit expected; " + mistake + " found");
+            }
+                
             int add = readAdd();
             if (buf == '+') {
                 res += add;
@@ -62,7 +75,7 @@ class Calculator {
 
     private int readAdd() {
         int res = readMul();
-        while (currentToken.equals("*")||currentToken.equals("/")) {
+        while (currentToken.equals("*") || currentToken.equals("/")) {
             char buf = currentToken.charAt(0);
             getNextToken();
             int mul = readMul();
@@ -124,18 +137,30 @@ class Calculator {
         return cleanFromSpaces(s.toString());
     }
 
+    private void checkString() {
+        for (int i = 0; i < expression.length(); ++i) {
+            char currChar = expression.charAt(i);
+            if (!(isDigit(currChar) || isSyntaxSymbol(currChar))) {
+                throw new IllegalArgumentException("invalid symbol found");
+            }
+        }
+    }
+
 
     public void run(String[] args, int ourBase) {
-        base = ourBase;
-        expression = concatenateStrings(args);
-        expression += ".";
-        //System.out.println(expression); //debug output
-
-        getNextChar();
-        getNextToken();
-
         try {
+            base = ourBase;
+            expression = concatenateStrings(args);
+            
+            //System.out.println(expression); //debug output
+            checkString();
+            expression += ".";
+            getNextChar();
+            getNextToken();
             int ans = readExpr();
+            if (!currentToken.equals(".")) {
+                throw new IllegalArgumentException("symbols after expected end");
+            }
             System.out.println(Integer.toString(ans, base));
         } catch(ArithmeticException e) {
             System.err.println("Invalid operation: " + e.getMessage());
