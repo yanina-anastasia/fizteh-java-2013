@@ -51,8 +51,7 @@ public class ReversePolishNoteEncoder {
             l = st.lastElement();
             st.removeElementAt(st.size() - 1);
         } catch (NoSuchElementException e) {
-            System.err.println("Wrong input format: not enough operands for operator \'" + op + "\'.");
-            throw(e);
+            throw new Exception("Wrong input format: not enough operands for operator \'" + op + "\'.");
         }
         BigInteger bigLeft = BigInteger.valueOf(l);
         BigInteger bigRight = BigInteger.valueOf(r);

@@ -12,8 +12,8 @@ import java.util.Scanner;
 public class StandartInputSource implements InputSource {
     private Scanner in;
 
-    StandartInputSource(Scanner _in) {
-        in = _in;
+    StandartInputSource(Scanner in) {
+        this.in = in;
     }
 
     @Override
