@@ -6,6 +6,7 @@ class Constants {
     public static final int PRECISION = 8;
     public static final int RADIX = 19;
     public static final String BUG = "Program contains a bug.";
+    public static final char LASTLETTER = 'A' + RADIX - 10 - 1;
 }
 
 class Pair<L, R> {
@@ -30,9 +31,6 @@ class StringOperations {
             result += data[i];
         }
         return result;
-    }
-    public static String removeWhitespaces(String data) {
-        return data.replaceAll("\\s", "");
     }
 }
 

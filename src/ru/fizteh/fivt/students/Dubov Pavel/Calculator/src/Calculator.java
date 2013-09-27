@@ -45,14 +45,14 @@ class Calculator {
                 lexems.add(new Pair<Lexem, Integer>(Lexem.OBRACKET, pointer));
             else if(currentSymbol == ')')
                 lexems.add(new Pair<Lexem, Integer>(Lexem.CBRACKET, pointer));
-            else if('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= 'I') {
+            else if('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= Constants.LASTLETTER) {
                 do {
                     pointer++;
                     if(pointer < expression.length())
                         currentSymbol = expression.charAt(pointer);
                     else
                         break;
-                } while('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= 'I');
+                } while('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= Constants.LASTLETTER);
                 pointer--;
                 lexems.add(new Pair<Lexem, Integer>(Lexem.NUMBER, pointer));
             } else
