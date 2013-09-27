@@ -46,7 +46,11 @@ public class Calculator {
             if (!atLeastOneNumber) {
                 throw new IllegalArgumentException("Некорректное выражение");
             }
-            return Integer.toString(countStack.pop(), 18);
+            Integer res = countStack.pop();
+            if (!countStack.isEmpty) {
+                throw new IllegalArgumentException("Некорректное выражение");
+            }
+            return Integer.toString(result, 18);
         }
         catch (EmptyStackException e) {
             throw new IllegalArgumentException("Некорректное выражение");
