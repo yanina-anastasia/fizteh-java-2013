@@ -141,7 +141,7 @@ public class Calculator {
 
                 if (t.equals("*")) {
                     if (Integer.MAX_VALUE / o1 > o2) {
-                        throw new StackOverflowError();
+                        throw new NumberFormatException();
                     }
 
                     rpnStack.push(o1 * o2);
@@ -153,13 +153,13 @@ public class Calculator {
                     rpnStack.push(o1 / o2);
                 } else if (t.equals("+")) {
                     if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
-                        throw new StackOverflowError();
+                        throw new NumberFormatException();
                     }
 
                     rpnStack.push(o1 + o2);
                 } else if (t.equals("-")) {
                     if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
-                        throw new StackOverflowError();
+                        throw new NumberFormatException();
                     }
 
                     rpnStack.push(o1 - o2);
@@ -188,12 +188,12 @@ public class Calculator {
         } catch (IOException e) {
             System.err.println("ERROR: Incorrect expression");
             System.exit(1);
+        } catch (NumberFormatException e) {
+            System.err.println("ERROR: Out of range");
+            System.exit(1);
         } catch (IllegalArgumentException e) {
             System.err.println("ERROR: Unmatched brackets");
            System.exit(1);
-        } catch (StackOverflowError e) {
-            System.err.println("ERROR: Out of range");
-            System.exit(1);
         } catch (ArithmeticException e) {
             System.err.println("ERROR: Divide by zero");
             System.exit(1);
