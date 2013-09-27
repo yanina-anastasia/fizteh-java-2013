@@ -24,7 +24,7 @@ public class Main {
             expression.append(" ");
         }
 
-        for(int i = 0; i < expression.length(); ++i) {
+        for (int i = 0; i < expression.length(); ++i) {
             if ((i > 0) && (i < expression.length() - 1) && (expression.charAt(i) == ' ')
                     && (!checkSymbol(expression.charAt(i - 1)) && !checkSymbol(expression.charAt(i + 1)))) {
                 throw  new InputMismatchException();
@@ -52,9 +52,9 @@ public class Main {
 
     private static void makePolskaRecord(String expression) {
 
-        polskaRecord = new Stack<String> ();
+        polskaRecord = new Stack<String>();
         char str[] = expression.toCharArray();
-        Stack<String> digitStack = new Stack<String> ();
+        Stack<String> digitStack = new Stack<String>();
 
         for (int i = 0; i < str.length; ++i) {
             if (checkSymbol(str[i])) {
@@ -158,7 +158,7 @@ public class Main {
         char[] str = expression.toCharArray();
 
         int openBracket = 0;
-        for(int i = 0; i < str.length; ++i) {
+        for (int i = 0; i < str.length; ++i) {
             if (str[i] == '(') {
                 ++openBracket;
                 continue;
@@ -178,7 +178,7 @@ public class Main {
             return false;
         }
 
-        for(int i = 0; i < str.length; ++i) {
+        for (int i = 0; i < str.length; ++i) {
             if ((i > 0) && (str[i] == '(') && (!checkSymbol(str[i - 1]))) {
                 System.err.println("Brackets are in incorrect place.");
                 return false;
@@ -201,16 +201,14 @@ public class Main {
         expression = expression.replace(")", "");
 
         str = expression.toCharArray();
-        int operationCounter = 0;
         boolean numberBefore = false;
 
-        for(int i = 0; i < str.length; ++i) {
+        for (int i = 0; i < str.length; ++i) {
             if (checkSymbol(str[i])) {
                 if (!numberBefore) {
                     System.err.println("Wrong argument.");
                     return false;
                 }
-                ++operationCounter;
                 numberBefore = false;
                 continue;
             }
@@ -248,7 +246,7 @@ public class Main {
             }
 
             String expression = getExpression(args);
-            expression = expression.replace(" ","");
+            expression = expression.replace(" ", "");
 
             if (!ifCorrectExpression(expression)) {
                 System.exit(1);
