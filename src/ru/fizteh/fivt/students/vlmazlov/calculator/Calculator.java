@@ -1,4 +1,4 @@
-package calculator;
+package ru.fizteh.fivt.students.vlmazlov.calculator;
 import java.util.Vector;
 import java.util.Scanner;
 import java.io.ByteArrayInputStream;
@@ -7,62 +7,64 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.lang.StringBuilder;
 
-class WrongArithmeticExpressionException extends Exception{
+class WrongArithmeticExpressionException extends Exception {
 	public WrongArithmeticExpressionException() { 
 		super(); 
 	}
-  	public WrongArithmeticExpressionException(String message) { 
-  		super(message); 
-  	}
-  	public WrongArithmeticExpressionException(String message, Throwable cause) { 
-  		super(message, cause); 
-  	}
-  	public WrongArithmeticExpressionException(Throwable cause) { 
-  		super(cause); 
-  	}
+	public WrongArithmeticExpressionException(String message) { 
+		super(message); 
+	}
+	public WrongArithmeticExpressionException(String message, Throwable cause) { 
+		super(message, cause); 
+	}
+	public WrongArithmeticExpressionException(Throwable cause) { 
+		super(cause); 
+	}
 };
 
-enum OperationType {
-	sum("+"),
-	sub("-"),
-	mult("*"),
-	div("/"),
-	end("."),
-	close(")");
+public class Calculator {
 
-	private String operationType;
+	private enum OperationType {
+		sum("+"),
+		sub("-"),
+		mult("*"),
+		div("/"),
+		end("."),
+		close(")");
 
-	private OperationType(String type) {
-		operationType = type;
-	}
+		private String operationType;
 
-	public static OperationType getByType(String type) {
-		
-		for (OperationType operation: OperationType.values()) {
-			if (operation.operationType.equals(type)) {
-				return operation;
-			}
+		private OperationType(String type) {
+			operationType = type;
 		}
 
-		throw new NoSuchElementException("Operation " + type + " is of unknown type");
+		public static OperationType getByType(String type) {
+			
+			for (OperationType operation: OperationType.values()) {
+				if (operation.operationType.equals(type)) {
+					return operation;
+				}
+			}
+
+			throw new NoSuchElementException("Operation " + type + " is of unknown type");
+		}
+
+		public String getType() {
+			return operationType;
+		}
 	}
 
-	public String getType() {
-		return operationType;
-	}
-}
-
-public class Calculator {
 	private final static int radix = 17;
 	private String curToken;
 	private char curChar;
+	private boolean spaceSkipped; //vital for detecting spaces inside an integer
 	private InputStream expression;
 
 	Calculator() {
 		curToken = "";
 	}
 
-	public static void main(String[] args) {
+	public static void	 main(String[] args) {
 		String arg = "";
 		int curRes;
 		Calculator calc = new Calculator();
@@ -74,20 +76,25 @@ public class Calculator {
 		}
 
 		arg = argBuilder.toString();
+		System.out.println(arg);
+		if (arg.equals("")) {
+			System.out.println("Usage: valid aritmetic expression, possibly divided in several strings");
+			System.exit(1);
+		}
 
-		if (arg.equals("quit")) {
-			System.exit(0);
-		} else {
-			calc.expression = new ByteArrayInputStream(arg.getBytes()); 
-			try {
-				System.out.println(calc.countExpression());
-			} catch (WrongArithmeticExpressionException ex) {
-				System.out.println(ex.getMessage() + ". Please try again.");
-			} catch (ArithmeticException ex) {
-				System.out.println("Division by zero inside the expression. Please try again.");
-			} catch (NoSuchElementException ex) {
-				System.out.println(ex.getMessage() + ". Please try again.");
-			}
+		calc.expression = new ByteArrayInputStream(arg.getBytes()); 
+		
+		try {
+			System.out.println(calc.countExpression());
+		} catch (WrongArithmeticExpressionException ex) {
+			System.out.println(ex.getMessage() + ". Please try again.");
+			System.exit(2);
+		} catch (ArithmeticException ex) {
+			System.out.println("Division by zero inside the expression. Please try again.");
+			System.exit(3);
+		} catch (NoSuchElementException ex) {
+			System.out.println(ex.getMessage() + ". Please try again.");
+			System.exit(4);
 		}
 	}
 
@@ -97,7 +104,7 @@ public class Calculator {
 		} catch (NumberFormatException ex) {
 			return false;
 		}
-		return true;
+		return true;	
 	}
 
 	private boolean isValid() {
@@ -139,12 +146,20 @@ public class Calculator {
 				
 				res += parseSummator();
 				
+				if (res == Double.POSITIVE_INFINITY) {
+					parseFail("Arithmetic overflow"); 
+				}
+
 				break;
 			case sub:
 				nextToken();
 
 				res -= parseSummator();
 				
+				if (res == Double.NEGATIVE_INFINITY) {
+					parseFail("Arithmetic overflow"); 
+				}
+
 				break;
 			case end:
 			case mult:
@@ -177,14 +192,30 @@ public class Calculator {
 				nextToken();
 				
 				res *= parseMultiplier();
-				
+
+				if (res == Double.POSITIVE_INFINITY) {
+					parseFail("Arithmetic overflow"); 
+				} else if (res == Double.NEGATIVE_INFINITY) {
+					parseFail("Arithmetic overflow"); 
+				}
+
+
 				break;
 			case div:
 				nextToken();
 				
 				double tmpRes = parseMultiplier();
 				if (Math.abs(tmpRes) >= 1e-7) { //!= 0
-					res /= tmpRes;
+					if (Math.abs(res) >= 1e-7) { //!= 0
+						res /= tmpRes;
+
+						if (Math.abs(res) < 1e-7) {//== 0
+							parseFail("Arithmetic underflow");
+						}
+					} else {
+						res = 0;
+					}
+
 				} else throw new ArithmeticException();	
 
 				break;
@@ -250,6 +281,7 @@ public class Calculator {
 			curChar = '.';
 		}
 		if (' ' == curChar) {
+			spaceSkipped = true;
 			nextChar();
 		}
 	}
@@ -259,6 +291,9 @@ public class Calculator {
 	//. - end of expression
 
 	private void nextToken() throws WrongArithmeticExpressionException {
+		//nextToken is never called recursively, therefore, it's valid
+		spaceSkipped = false;
+		
 		switch (curChar) {
 		case '(':
 		case ')':
@@ -278,10 +313,12 @@ public class Calculator {
 			
 			StringBuilder curTokenBuilder = new StringBuilder();
 
-			while (isValid()) {
+			while ((isValid()) && (!spaceSkipped)) {
 				curTokenBuilder.append(curChar);
 				nextChar();
 			}
+			
+			spaceSkipped = false;
 
 			curToken = curTokenBuilder.toString();
 		}
