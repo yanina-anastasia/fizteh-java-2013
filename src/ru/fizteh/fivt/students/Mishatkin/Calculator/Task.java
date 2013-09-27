@@ -19,7 +19,22 @@ class Task {
     }
 
     private void printInNumericSystem(int decimalResult, int base) {
-        out.println(Integer.valueOf(String.valueOf(decimalResult), base));
+        boolean negative = (decimalResult < 0);
+        decimalResult = Math.abs(decimalResult);
+        String toPrint = "";
+        while (decimalResult > 0) {
+            int radixValue = decimalResult % base;
+            char charValue = (char)((radixValue >= 10) ? ('A' + radixValue - 10) : '0' + radixValue);
+            toPrint = charValue + toPrint;
+            decimalResult /= base;
+        }
+        if (toPrint.length() == 0) {
+            toPrint = "0";
+        }
+        if (negative) {
+            toPrint = "-" + toPrint;
+        }
+        out.println(toPrint);
     }
 
     public int solve() {
