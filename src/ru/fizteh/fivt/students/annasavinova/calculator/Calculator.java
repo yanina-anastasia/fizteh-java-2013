@@ -83,6 +83,7 @@ public class Calculator {
         }
         return true;
     }
+    
     public static boolean checkSymbols(String str) {
         if (!Pattern.matches("[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
@@ -153,7 +154,7 @@ public class Calculator {
                 }
             } else {
                 if (sc.hasNextLong()) {
-                    long currentDigit = sc.nextInt();
+                    long currentDigit = sc.nextLong();
                     digitStack.push(currentDigit);
                 } else {
                     sc.close();
