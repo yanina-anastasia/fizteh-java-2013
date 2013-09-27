@@ -6,6 +6,7 @@
 package ru.fizteh.fivt.students.belousova.calculator;
 import java.util.EmptyStackException;
 import java.util.Stack;
+import java.io.IOException;
 
 public class Calculator {
 
@@ -30,34 +31,32 @@ public class Calculator {
                 throw new IllegalArgumentException("Пустой ввод");
             }
             System.out.println(calculate(s));
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
     }
 
-    public static String calculate(String s) {
+    public static String calculate(String s) throws IOException {
         try {
             operatorStack.push("&");
             s = s + '&';
             parse(s);
             if (!atLeastOneNumber) {
-                throw new IllegalArgumentException("Некорректное выражение");
+                throw new IOException("Некорректное выражение");
             }
             Integer res = countStack.pop();
             if (!countStack.isEmpty()) {
-                throw new IllegalArgumentException("Некорректное выражение");
+                throw new IOException("Некорректное выражение");
             }
             return Integer.toString(res, 18);
         }
         catch (EmptyStackException e) {
-            throw new IllegalArgumentException("Некорректное выражение");
+            throw new IOException("Некорректное выражение");
         }
     }
 
-    private static void parse(String s) {
+    private static void parse(String s) throws IOException {
         char[] number = {' '};
 
         for (char c : s.toCharArray()) {
@@ -114,38 +113,54 @@ public class Calculator {
                     unarFlag = false;
                     break;
                 default:
-                    throw new IllegalArgumentException("Недопустимые символы в выражении");
+                    throw new IOException("Недопустимые символы в выражении");
 
             }
         }
     }
 
-    public static int operate(char op, Integer b, Integer a) {
+    public static int operate(char op, Integer b, Integer a) throws IOException {
         switch (op) {
             case '+':
+                if (((a > 0 && b > 0) || (a < 0 && b < 0))
+                        && (Math.abs(a) > Math.abs(Integer.MAX_VALUE - b))) {
+                    throw new IOException("Ошибка переполнения");
+                }
                 return  a+b;
             case '-':
+                if (((a > 0 && b < 0) || (a > 0 && b < 0))
+                        && (Math.abs(a) > Math.abs(Integer.MAX_VALUE - b))) {
+                    throw new IOException("Ошибка переполнения");
+                }
                 return  a-b;
             case '*':
+                if (Math.abs(a) > Math.abs(Integer.MAX_VALUE / b)) {
+                    throw new IOException("Ошибка переполнения");
+                }
                 return  a*b;
             case '/':
                 if (b.equals(0)) {
-                    throw new IllegalArgumentException("Деление на ноль");
+                    throw new IOException("Деление на ноль");
                 }
                 return  a/b;
         }
         return 0;
     }
 
-    private static int calculateNumber() {
+    private static int calculateNumber() throws IOException {
         int result = 0;
         int k = 1;
+        int digits = 0;
         atLeastOneNumber = true;
 
         if (!numberStack.empty()) {
             while (!numberStack.empty()) {
                 result += numberStack.pop() * k;
                 k *= 18;
+                digits ++;
+                if (digits > 7) {
+                    throw new IOException("Переполнение - слишком большое число");
+                }
             }
 
         }
@@ -170,7 +185,7 @@ public class Calculator {
         }
     }
 
-    private static void unwindOpStack(char newOperation) {
+    private static void unwindOpStack(char newOperation) throws IOException {
         if (!operatorStack.empty()) {
 
             char[] newOp = {' '};
@@ -197,7 +212,7 @@ public class Calculator {
                 case 4:
                     break;
                 case 5:
-                    throw new IllegalArgumentException("Нарушен баланс скобок");
+                    throw new IOException("Нарушен баланс скобок");
 
 
             }
