@@ -140,7 +140,7 @@ public class Calculator {
                 Integer o1 = rpnStack.pop();
 
                 if (t.equals("*")) {
-                    if (o1 * o2 > Integer.MAX_VALUE) {
+                    if (Integer.MAX_VALUE / o1 > o2) {
                         throw new StackOverflowError();
                     }
 
@@ -152,13 +152,13 @@ public class Calculator {
 
                     rpnStack.push(o1 / o2);
                 } else if (t.equals("+")) {
-                    if (o1 + o2 > Integer.MAX_VALUE) {
+                    if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
                         throw new StackOverflowError();
                     }
 
                     rpnStack.push(o1 + o2);
                 } else if (t.equals("-")) {
-                    if (o1 - o2 > Integer.MAX_VALUE) {
+                    if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
                         throw new StackOverflowError();
                     }
 
@@ -180,7 +180,6 @@ public class Calculator {
             sb.append(s).append(" ");
         }
         String expression = sb.toString();
-
         try {
             System.out.println(calculateValueOfExpression(expression));
         } catch (IllegalStateException e) {
