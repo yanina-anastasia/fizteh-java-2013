@@ -1,11 +1,9 @@
 package ru.fizteh.fivt.students.anastasyev.calculator;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.InputStream;
 import java.util.Stack;
 import java.lang.String;
 import java.lang.Integer;
+import java.lang.Character;
 
 public class Main {
     private static final int RADIX = 17;
@@ -119,7 +117,7 @@ public class Main {
                     if (emptyBrackets) {
                         emptyBrackets = false;
                     }
-                } else if (args[i].charAt(j) == ' ') {
+                } else if (Character.isWhitespace(args[i].charAt(j))) {
                 } else {
                     System.err.println("Bad symbol: " + args[i].charAt(j));
                     System.exit(1);
@@ -204,7 +202,6 @@ public class Main {
         return values.peek();
     }
 
-
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Usage: numbers in 17-th system <[0..9, A..G, a..g]>");
@@ -216,7 +213,7 @@ public class Main {
         try {
             expression = reversePolishNotationConversation(args);
         } catch (NumberFormatException e) {
-            System.err.println("Invalid number: " + e);
+            System.err.println(e.getLocalizedMessage() + " - Invalid number");
             System.exit(1);
         }
         try {
