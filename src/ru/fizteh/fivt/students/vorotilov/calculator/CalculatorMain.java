@@ -22,7 +22,7 @@ public class CalculatorMain {
 
     static void calculationStep(Stack<Integer> st, char op) throws Exception {
         if (st.size() < 2) {
-            throw new Exception("Wrong number of arguments");
+            throw new Exception("Operator: " + op + " need two arguments" );
         }
         Integer r = st.pop();
         Integer l = st.pop();
@@ -40,7 +40,7 @@ public class CalculatorMain {
                 st.push(l / r);
                 break;
             default:
-                break;
+                throw new Exception("Unknown operator: " + op);
         }
     }
 
