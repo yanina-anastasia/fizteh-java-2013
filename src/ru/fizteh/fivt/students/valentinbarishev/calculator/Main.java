@@ -6,17 +6,7 @@ import java.util.InputMismatchException;
 
 public class Main {
 
-    static Stack <String> polskaRecord;
-
-    private static String getExpression(String[] args) {
-        StringBuilder expression = new StringBuilder();
-
-        for(int i = 0; i < args.length; ++i) {
-            expression.append(args[i]);
-        }
-
-        return expression.toString();
-    }
+    static Stack<String> polskaRecord;
 
     private static boolean checkSymbolBracket(char c) {
         return ((c == '*') || (c == '-') || (c == '+') || (c == '/'));
@@ -26,7 +16,23 @@ public class Main {
         return ((c == '(') || (c == ')') || (checkSymbolBracket(c)));
     }
 
+    private static String getExpression(String[] args) {
+        StringBuilder expression = new StringBuilder();
 
+        for (int i = 0; i < args.length; ++i) {
+            expression.append(args[i].replace(" ", ""));
+            expression.append(" ");
+        }
+
+        for(int i = 0; i < expression.length(); ++i) {
+            if ((i > 0) && (i < expression.length() - 1) && (expression.charAt(i) == ' ')
+                    && (!checkSymbol(expression.charAt(i - 1)) && !checkSymbol(expression.charAt(i + 1)))) {
+                throw  new InputMismatchException();
+            }
+        }
+
+        return expression.toString();
+    }
 
     private static int getPriority(char c) {
         if (c == '(') {
@@ -46,11 +52,11 @@ public class Main {
 
     private static void makePolskaRecord(String expression) {
 
-        polskaRecord = new Stack <String>();
+        polskaRecord = new Stack<String> ();
         char str[] = expression.toCharArray();
-        Stack <String> digitStack = new Stack <String> ();
+        Stack<String> digitStack = new Stack<String> ();
 
-        for(int i = 0; i < str.length; ++i) {
+        for (int i = 0; i < str.length; ++i) {
             if (checkSymbol(str[i])) {
                 int priority = getPriority((str[i]));
                 if (str[i] == ')') {
@@ -102,10 +108,10 @@ public class Main {
             long argument1 = polskaCalculator(scale);
 
             if (((argument1 >= 0) && (Long.MAX_VALUE - argument1 < argument2))
-                        || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > argument2))) {
+                    || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > argument2))) {
                 throw new ArithmeticException("Overflow while adding numbers.");
             }
-            return  argument1 + argument2;
+            return argument1 + argument2;
         }
 
         if (c == '-') {
@@ -113,7 +119,7 @@ public class Main {
             long argument1 = polskaCalculator(scale);
 
             if (((argument1 >= 0) && (Long.MAX_VALUE - argument1 < - argument2))
-                        || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > - argument2))) {
+                    || ((argument1 < 0) && (Long.MIN_VALUE - argument1 > - argument2))) {
                 throw new ArithmeticException("Overflow while subtracting numbers.");
             }
 
@@ -125,9 +131,9 @@ public class Main {
             long argument1 = polskaCalculator(scale);
 
             if (((((argument1 > 0) && (argument2 > 0)) || ((argument1 < 0) && (argument2 < 0)))
-                        && ((Long.MAX_VALUE / argument1) < argument2))
-                        || ((((argument1 < 0) && (argument2 > 0)) || ((argument1 > 0) && (argument2 < 0)))
-                        && ((Long.MIN_VALUE / argument1) > argument2))) {
+                    && ((Long.MAX_VALUE / argument1) < argument2))
+                    || ((((argument1 < 0) && (argument2 > 0)) || ((argument1 > 0) && (argument2 < 0)))
+                    && ((Long.MIN_VALUE / argument1) > argument2))) {
                 throw new ArithmeticException("Overflow while multiplication numbers.");
             }
 
@@ -191,8 +197,8 @@ public class Main {
             }
         }
 
-        expression = expression.replace("(","");
-        expression = expression.replace(")","");
+        expression = expression.replace("(", "");
+        expression = expression.replace(")", "");
 
         str = expression.toCharArray();
         int operationCounter = 0;
@@ -254,7 +260,6 @@ public class Main {
 
         } catch (InputMismatchException exception) {
             System.err.println("Incorrect number!");
-            System.err.println(exception.getMessage());
             System.exit(1);
         } catch (ArithmeticException exception) {
             System.err.println(exception.getMessage());
