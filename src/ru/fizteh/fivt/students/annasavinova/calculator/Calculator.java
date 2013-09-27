@@ -125,9 +125,10 @@ public class Calculator {
         workingStr = workingStr.replace("-", " - ");
         workingStr = workingStr.replace("*", " * ");
         workingStr = workingStr.replace("/", " / ");
+        System.out.println(workingStr);
         Scanner sc = new Scanner(workingStr);
         sc.useRadix(BASE);
-        sc.useDelimiter(" ");
+        sc.useDelimiter("[ ]+");
         while (sc.hasNext()) {
             if (sc.hasNext("[/(/)/+-/*//]")) {
                 String currentSymbol = sc.next();
@@ -152,8 +153,7 @@ public class Calculator {
                         signStack.push(currentSymbol);
                     }
                 }
-            } else {
-                if (sc.hasNextLong()) {
+            } else if (sc.hasNextLong()) {
                     long currentDigit = sc.nextLong();
                     digitStack.push(currentDigit);
                 } else {
@@ -161,13 +161,12 @@ public class Calculator {
                     System.err.println("Too big operand");
                     System.exit(1);
                 }
-            }
         }
-        long result = digitStack.pop();
-        if (digitStack.empty()) {
+        if (digitStack.size() == 1) {
+            long result = digitStack.pop();
             System.out.println(Long.toString(result, BASE));
         } else {
-            System.err.println("Incorrect num of operators and operands" + digitStack.peek());
+            System.err.println("Incorrect num of operators and operands");
             sc.close();
             System.exit(1);
         }
