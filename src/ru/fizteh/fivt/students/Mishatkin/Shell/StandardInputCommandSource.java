@@ -11,8 +11,8 @@ public class StandardInputCommandSource extends CommandSource {
 	private Scanner in;
 
 
-	public StandardInputCommandSource(Scanner _in) {
-		in = _in;
+	public StandardInputCommandSource(Scanner in) {
+		this.in = in;
 	}
 
 	@Override
