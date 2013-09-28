@@ -9,7 +9,7 @@ public class Calculator {
     static int BASE = 18;
     static Stack<String> signStack = new Stack<>();
     static Stack<Long> digitStack = new Stack<>();
-
+    
     public static int priority(String c) {
         if (c.equals("+") || c.equals("-")) {
             return 0;
@@ -19,7 +19,7 @@ public class Calculator {
             return -1;
         }
     }
-
+    
     public static long getVal() {
         String sign = signStack.pop();
         long secondVal = digitStack.pop();
@@ -58,7 +58,7 @@ public class Calculator {
         res = tmpRes.longValue();
         return res;
     }
-
+    
     public static boolean checkBrackets(String input) {
         int count = 0;
         for (int i = 0; i < input.length(); ++i) {
@@ -76,23 +76,22 @@ public class Calculator {
         }
         return true;
     }
-
+    
     public static boolean checkSpaces(String str) {
-        if (Pattern.matches("[\\s0-9A-H-h/+-/*///(/)]*"
-                + "[0-9A-Ha-h]+[ ]+[0-9A-Ha-h]+"
-                + "[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
+        if (Pattern.matches(
+                "[\\s0-9A-H-h/+-/*///(/)]*[0-9A-Ha-h]+[ ]+[0-9A-Ha-h]+[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
     }
-
+    
     public static boolean checkSymbols(String str) {
         if (!Pattern.matches("[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
     }
-
+    
     public static void main(String[] args) {
         if (args.length == 0) {
             System.err.println("Please, input expression, that you want to know");
@@ -109,7 +108,7 @@ public class Calculator {
         s.append(")");
         String workingStr = s.toString();
         if (!checkSpaces(workingStr)) {
-            System.out.println("Incorrect expression: two operands without operator");
+            System.err.println("Incorrect expression: two operands without operator");
             System.exit(1);
         }
         workingStr = workingStr.replace(" ", "");
@@ -144,8 +143,7 @@ public class Calculator {
                     signStack.pop();
                     break;
                 default:
-                    if (signStack.empty()
-                            || priority(signStack.peek()) < priority(currentSymbol)) {
+                    if (signStack.empty() || priority(signStack.peek()) < priority(currentSymbol)) {
                         signStack.push(currentSymbol);
                     } else {
                         while (priority(signStack.peek()) >= priority(currentSymbol)) {
