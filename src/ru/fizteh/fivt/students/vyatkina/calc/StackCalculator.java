@@ -136,7 +136,8 @@ public class StackCalculator {
     public static void main (String [] args) {
         StringBuilder sb = new StringBuilder ();
         for (String s : args) {
-            sb.append(s);
+            sb.append (s);
+            sb.append (" ");
         }
         String expression = sb.toString ();
         ExpressionCheck.bracketBalanceCheck (expression);
