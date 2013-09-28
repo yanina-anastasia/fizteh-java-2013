@@ -64,7 +64,7 @@ class Calculator {
         if ((x == -Integer.MIN_VALUE) && (y == -1)) {
             throw new ArithmeticException("integer overflow");
         }
-        return x/y;
+        return x / y;
     }
 
     private void getNextToken() {
@@ -100,7 +100,7 @@ class Calculator {
                 res = safeAddition(res, add);
             }
             if (buf == '-') {
-                res = safeAddition(res, -1*add);
+                res = safeAddition(res, -1 * add);
             }
         }
         return res;
@@ -203,10 +203,10 @@ class Calculator {
                 throw new IllegalArgumentException("symbols after expected end");
             }
             System.out.println(Integer.toString(ans, base));
-        } catch(ArithmeticException e) {
+        } catch (ArithmeticException e) {
             System.err.println("Invalid operation: " + e.getMessage());
             System.exit(1);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             System.err.println("Invalid input: " + e.getMessage());
             System.exit(1);
         }
