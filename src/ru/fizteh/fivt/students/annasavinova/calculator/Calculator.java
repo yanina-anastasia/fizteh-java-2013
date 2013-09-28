@@ -125,7 +125,6 @@ public class Calculator {
         workingStr = workingStr.replace("-", " - ");
         workingStr = workingStr.replace("*", " * ");
         workingStr = workingStr.replace("/", " / ");
-        System.out.println(workingStr);
         Scanner sc = new Scanner(workingStr);
         sc.useRadix(BASE);
         sc.useDelimiter("[ ]+");
