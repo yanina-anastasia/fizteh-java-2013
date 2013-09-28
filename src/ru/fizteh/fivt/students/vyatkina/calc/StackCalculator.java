@@ -7,39 +7,39 @@ import java.util.Stack;
 public class StackCalculator {
 
     private Stack<Integer> numberStack = new Stack<Integer> ();
-    private Stack<Character> operandStack = new Stack<Character> ();
-    private final int RADIX = 19;
+    private Stack<Character> operantionStack = new Stack<Character> ();
+    static final int RADIX = 19;
 
     boolean nextIsNumber = true;
 
-    int calculateExpression ( String expression ) throws IOException {
-        Scanner scanner = new Scanner ( "(" + expression.replace (" ", "") + ")" );
+    int calculateExpression (String expression) throws IllegalArgumentException {
+        Scanner scanner = new Scanner ("(" + expression.replace (" ", "") + ")");
 
         String bracket = "\\(|\\)";
         String operand = "\\+|\\-|\\*|\\/";
         String minus = "\\-";
 
         scanner.useDelimiter ( "((?<=\\w)(?=\\p{Punct})|(?<=\\p{Punct})(?=\\w)|(?<=\\p{Punct})(?=\\p{Punct}))" );
-        scanner.useRadix ( RADIX );
+        scanner.useRadix (RADIX);
 
-        while ( scanner.hasNext () ) {
-            if ( scanner.hasNext ( bracket ) ) {
-                handleBrackets ( scanner.next ( bracket ).charAt (0) );
-            } else if ( expectedNumber () ) {
+        while (scanner.hasNext ()) {
+            if (scanner.hasNext (bracket)) {
+                handleBrackets (scanner.next (bracket).charAt (0));
+            } else if (expectedNumber ()) {
                 int sign = 1;
-                if ( scanner.hasNext ( minus ) ) {
-                    scanner.next ( minus );
+                if (scanner.hasNext (minus)) {
+                    scanner.next (minus);
                     sign = -1;
                 }
-                if ( scanner.hasNextInt () ) {
-                    handleNumber( scanner.nextInt () * sign );
+                if (scanner.hasNextInt ()) {
+                    handleNumber (scanner.nextInt () * sign);
                     changeExpectation ();
                 }
-            } else if ( expectedOperand () && scanner.hasNext ( operand ) ) {
-                handleOperand ( scanner.next ( operand ).charAt (0) );
+            } else if (expectedOperand () && scanner.hasNext (operand)) {
+                handleOperand (scanner.next (operand).charAt (0));
                 changeExpectation ();
             } else {
-                throw new IOException ( "Unexpected token: [" + scanner.next ()
+                throw new IllegalArgumentException ( "Unexpected token: [" + scanner.next ()
                         + "]");
             }
         }
@@ -48,48 +48,50 @@ public class StackCalculator {
         return getResult ();
     }
 
-    private void handleOperand ( char operand ) throws IOException {
-        while ( !operandStack.empty ()
-                && ( priority ( operandStack.peek () ) >= priority ( operand ) ) ) {
+    private void handleOperand (char operand) {
+        while (!operantionStack.empty ()
+                && (priority (operantionStack.peek () ) >= priority (operand))) {
             moveTheLastOperation ();
         }
-        operandStack.push ( operand );
+        operantionStack.push (operand);
     }
 
-    private int priority ( char operand ) {
+    private int priority (char operand) {
         int result = -1;
 
-        if ( ( operand == '+' ) || ( operand == '-' ) ) {
+        if ((operand == '+') || (operand == '-')) {
             result = 0;
-        } else if ( ( operand == '*' ) || ( operand == '/' ) ) {
+        } else if (( operand == '*') || (operand == '/')) {
             result = 1;
         }
         return result;
     }
 
-    private void handleNumber ( int number ) {
-        numberStack.push ( number );
+    private void handleNumber (int number) {
+        numberStack.push (number);
     }
 
-    private void handleBrackets ( char operand ) throws IOException {
-        if ( operand == '(' )
-            operandStack.push ( operand );
-        else if ( operand == ')' ) {
+    private void handleBrackets (char operand)  {
+        if (operand == '(')
+            operantionStack.push (operand);
+        else if (operand == ')') {
             // pop everything out of stack until find the '('
-            while ( operandStack.peek () != '(' ) {
+            while (operantionStack.peek () != '(') {
                 moveTheLastOperation ();
             }
-            operandStack.pop ();
+            operantionStack.pop ();
         }
     }
 
-    private void moveTheLastOperation () throws IOException {
+    private void moveTheLastOperation () throws IllegalArgumentException {
         int a = numberStack.pop ();
         int b = numberStack.pop ();
 
         int result = 0;
-        char operand = operandStack.pop ();
-        switch ( operand ) {
+        char operand = operantionStack.pop ();
+        ExpressionCheck.operationOverflowCheck (b,a,operand);
+
+        switch (operand) {
             case '+' : {
                 result = b + a;
                 break;
@@ -107,11 +109,11 @@ public class StackCalculator {
                 break;
             }
             default: {
-                throw new IOException("Unexpected token [" + operand + "]");
+                throw new IllegalArgumentException("Unexpected token [" + operand + "]");
             }
         }
 
-        numberStack.push ( result );
+        numberStack.push (result);
 
     }
 
@@ -131,18 +133,22 @@ public class StackCalculator {
         return numberStack.pop ();
     }
 
-    public static void main ( String [] args ) {
-        StringBuilder sb = new StringBuilder();
-        for ( String s : args ) {
+    public static void main (String [] args) {
+        StringBuilder sb = new StringBuilder ();
+        for (String s : args) {
             sb.append(s);
         }
+        String expression = sb.toString ();
+        ExpressionCheck.bracketBalanceCheck (expression);
+        ExpressionCheck.invalidExpressionCheck (expression);
 
         StackCalculator sc = new StackCalculator ();
         try {
-            int result = sc.calculateExpression ( sb.toString() );
-            System.out.println ( result );
-        } catch (IOException ioe) {
-            System.err.println(ioe.getMessage());
+            int result = sc.calculateExpression (expression);
+            System.out.println (Integer.toString (result,sc.RADIX));
+        } catch (IllegalArgumentException iae) {
+            System.err.println (iae.getMessage());
+            System.exit (1);
         }
         System.exit (0);
     }
