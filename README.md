@@ -8,6 +8,8 @@
 
 1. [JVM, JLS, примитивные типы, стек и куча.](http://yadi.sk/d/GwdopKUI9JLnY)
 2. [Массивы, операции с примитивными типами, Object, String, equals.](http://yadi.sk/d/2rGRP3Cy9JMiM)
+3. [Исключения, Stream, Reader, Writer](http://yadi.sk/d/4qdRI4fOA3THz)
+4. [Наследование, обобщения, коллекции](http://yadi.sk/d/0kYMQiNhA3TWo)
 
 ## Список литературы
 * Брюс Эккель &mdash; Философия Java  (Thinking in Java)
