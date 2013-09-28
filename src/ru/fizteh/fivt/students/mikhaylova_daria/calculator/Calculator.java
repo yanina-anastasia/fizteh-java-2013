@@ -4,25 +4,40 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class Calculator {
-	
+
     public static void main(String[] arg) {
         StringBuilder builderArgument = new StringBuilder();
-        for (int i = 0; i < arg.length; ++i) {
-            builderArgument.append(arg[i]);
-            builderArgument.append(' ');
+        if (arg.length == 0) {
+            System.out.println("Калькулятор, позволяющий вычислять числовые выражения в 17-речиной системе счисления\n" +
+                    "\nВозможные операции:\n" +
+                    "1) сложение\n" +
+                    "2) вычитание\n" +
+                    "3) умножение\n" +
+                    "4) целочисленное деление\n" +
+                    "\n" +
+                    "Диапазон возможных значений: целые числа из промежутка от" + Integer.MIN_VALUE +
+                    " до " + Integer.MAX_VALUE  + "\n\n" +
+                    "Пример корректного выражения:\n" +
+                    "\"1 + A\" \"+ c - (4 * 5 / 2)\n"
+            );
+        } else {
+            for (int i = 0; i < arg.length; ++i) {
+                builderArgument.append(arg[i]);
+                builderArgument.append(' ');
+            }
+            try {
+                String answer = calculatorReversePolishNotation(converterToReversePolishNotation(builderArgument));
+                System.out.println(answer);
+            } catch (Exception exp) {
+                System.err.println(exp.getLocalizedMessage());
+                System.exit(1);
+            }
         }
-        System.out.println(builderArgument.toString());
-        try {
-            String answer = calculatorReversePolishNotation(converterToReversePolishNotation(builderArgument));
-            System.out.println(answer);
-        } catch (Exception exp){
-            System.err.println(exp.getLocalizedMessage());
-        }
-            return;
-       }
+        return;
+    }
 
 
-    private static Vector <String> converterToReversePolishNotation(StringBuilder arg) throws Exception {
+    private static Vector<String> converterToReversePolishNotation(StringBuilder arg) throws Exception {
         Stack<String> stack = new Stack<String>(); 
         Vector<String> vectorReversePolishNotation = new Vector<String>();
         StringBuilder number = new StringBuilder();
@@ -43,8 +58,8 @@ public class Calculator {
                     ++i;
             }
             if (!number.toString().isEmpty()) {
-                if (lastCharWasNumber == true) {
-                    throw (new Exception ("Пропущен оператор!"));
+                if (lastCharWasNumber) {
+                    throw new Exception("Пропущен оператор!");
                 }
                 vectorReversePolishNotation.add(number.toString());
                 number = new StringBuilder();
@@ -55,10 +70,10 @@ public class Calculator {
             if (i < arg.length()) {
                 if (arg.charAt(i) == '(') {
                     if (operatorOrNum > 0) {
-                        throw (new Exception("Пропущен оператор!"));
+                        throw new Exception("Пропущен оператор!");
                     }
                     if (operatorOrNum < 0) {
-                        throw (new Exception("Пропущено число!"));
+                        throw new Exception("Пропущено число!");
                     }
                     stack.push("(");
                     ++bracketBalance;
@@ -67,13 +82,13 @@ public class Calculator {
                     if (arg.charAt(i) == ')') {
                         --bracketBalance;
                         if (bracketBalance < 0) {
-                            throw (new Exception("Нарушен баланс скобок!"));
+                            throw new Exception("Нарушен баланс скобок!");
                         }
                         if (operatorOrNum < 1) {
-                            throw (new Exception("Некорректный ввод. Возможно, пропущено число!"));
+                            throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                         }
                         if (operatorOrNum > 1) {
-                            throw (new Exception("Некорректный ввод. Возможно, пропущен оператор!"));
+                            throw new Exception("Некорректный ввод. Возможно, пропущен оператор!");
                         }
                         while (stack.peek() != "(") {
                             vectorReversePolishNotation.add(stack.pop());
@@ -85,7 +100,7 @@ public class Calculator {
                             case '+':
                                 --operatorOrNum;
                                 if (operatorOrNum != 0) {
-                                    throw (new Exception("Некорректный ввод. Возможно, пропущено число!"));
+                                    throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
                                 while ((!stack.empty()) && stack.peek() != "("
                                         && (stack.peek() == "-" || stack.peek() == "+"
@@ -105,7 +120,7 @@ public class Calculator {
                                 } else {
                                     --operatorOrNum;
                                     if (operatorOrNum != 0) {
-                                        throw (new Exception("Некорректный ввод. Возможно, пропущено число!"));
+                                        throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                     }
                                     while ((!stack.empty()) && (stack.peek() != "("
                                             && (stack.peek() == "+" || stack.peek() == "-"
@@ -119,7 +134,7 @@ public class Calculator {
                             case '*':
                                 --operatorOrNum;
                                 if (operatorOrNum != 0) {
-                                    throw (new Exception("Некорректный ввод. Возможно, пропущено число!"));
+                                    throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
                                 while ((!stack.empty())
                                         && (stack.peek() == "/" || stack.peek() == "*")
@@ -132,7 +147,7 @@ public class Calculator {
                             case '/':
                                 --operatorOrNum;
                                 if (operatorOrNum != 0) {
-                                    throw (new Exception("Некорректный ввод. Возможно, пропущено число!"));
+                                    throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
                                 while ((!stack.empty())
                                         && (stack.peek() == "*" || stack.peek() == "/")
@@ -142,10 +157,10 @@ public class Calculator {
                                 stack.push("/");
                                 lastCharWasNumber = false;
                                 break;
-                            case' ':
+                            case ' ':
                                 break;
                             default:
-                                throw (new Exception("Неизвестный символ:" + arg.charAt(i)));
+                                throw new Exception("Неизвестный символ:" + arg.charAt(i));
                         }
                     }
                 }
@@ -153,13 +168,13 @@ public class Calculator {
                 ++i;
         }
         if (bracketBalance != 0) {
-            throw (new Exception("Нарушен баланс скобок!"));
+            throw new Exception("Нарушен баланс скобок!");
         }
         if (!number.toString().isEmpty()) {
             vectorReversePolishNotation.add(number.toString());
             if (stack.empty()) {
                 if (vectorReversePolishNotation.size() != 1) {
-                    throw (new Exception("Некорректный ввод. Возможно, пропущен оператор!"));
+                    throw new Exception("Некорректный ввод. Возможно, пропущен оператор!");
                 }
             }
         }
@@ -171,7 +186,7 @@ public class Calculator {
 
     private static String calculatorReversePolishNotation(Vector<String> argument) throws Exception {
         int i = 0;
-        Stack<Integer> stack = new Stack<Integer> ();
+        Stack<Integer> stack = new Stack<Integer>();
         while (i < argument.size()) {
             if (argument.elementAt(i).equals("+")
                     || argument.elementAt(i).equals("-")
@@ -183,12 +198,12 @@ public class Calculator {
                     operand2 = stack.pop();
                     operand1 = stack.pop();
                 } catch (Throwable e) {
-                    throw (new Exception ("Непредвиденная ошибка"));
+                    throw new Exception ("Непредвиденная ошибка");
                 }
                 if (argument.elementAt(i).equals("+")) {
                     Long result = operand1.longValue() + operand2.longValue();
                     if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
-                        throw (new Exception("Произошло переполнение"));
+                        throw new Exception("Произошло переполнение");
                     } else {
                         stack.push(operand1 + operand2);
                     }
@@ -196,7 +211,7 @@ public class Calculator {
                 if (argument.elementAt(i).equals("-")) {
                     Long result = operand1.longValue() - operand2.longValue();
                     if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
-                        throw (new Exception("Произошло переполнение"));
+                        throw new Exception("Произошло переполнение");
                     } else {
                         stack.push(operand1 - operand2);
                     }
@@ -204,7 +219,7 @@ public class Calculator {
                 if (argument.elementAt(i).equals("*")) {
                     Long result = operand1.longValue() * operand2.longValue();
                     if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
-                        throw (new Exception("Произошло переполнение"));
+                        throw new Exception("Произошло переполнение");
                     } else {
                         stack.push(operand1 * operand2);
                     }
@@ -212,7 +227,7 @@ public class Calculator {
                 if (argument.elementAt(i).equals("/")) {
                     Long result = operand1.longValue() / operand2.longValue();
                     if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
-                        throw (new Exception("Произошло переполнение"));
+                        throw new Exception("Произошло переполнение");
                     } else {
                         stack.push(operand1 / operand2);
                     }
@@ -222,7 +237,7 @@ public class Calculator {
                 try {
                     number = Integer.parseInt(argument.elementAt(i), 17);
                 } catch (Exception e) {
-                    throw (new Exception ("Непредвиденная ошибка"));
+                    throw new Exception ("Непредвиденная ошибка");
                 }
                 stack.push(number);
             }
@@ -233,4 +248,5 @@ public class Calculator {
     }
 
 }
+
 
