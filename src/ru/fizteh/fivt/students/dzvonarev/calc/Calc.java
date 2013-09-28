@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dzvonarev.calc;
 
 import java.util.Stack;
+import java.math.BigInteger;
 
 class Calc {
 
@@ -21,109 +22,35 @@ class Calc {
         }
         return 0;
     }
-
-    public static boolean noOverFlowAdd(long num1, long num2) {
-        if (num2 <= 0) {
-            if (Long.MIN_VALUE - num2 <= num1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        if (num2 > 0) {
-            if (Long.MAX_VALUE - num2 >= num1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean noOverFlowMinus(long num1, long num2) {
-        if (num2 <= 0) {
-            if (Long.MAX_VALUE + num2 >= num1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        if (num2 > 0) {
-            if (Long.MIN_VALUE + num2 <= num1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean noOverFlowMul(long num1, long num2) {
-        if (num1 == 0 || num2 == 0) {
-            return true;
-        }
-        if (num1 > 0 && num2 > 0 || num1 < 0 && num2 < 0 || num1 < 0) {
-            if ((Long.MIN_VALUE / num2 <= num1)
-                    && (num1 <= Long.MAX_VALUE / num2)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        if (num2 < 0) {
-            if ((Long.MIN_VALUE / num2 >= num1)
-                    && (num1 >= Long.MAX_VALUE / num2)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static long doOp(long num1, String op, long num2) {
+    
+    public static BigInteger doOp(BigInteger num1, String op, BigInteger num2) {
         if (op.equals("+")) {
-            if (noOverFlowAdd(num1, num2)) {
-                return num1 + num2;
-            } else {
-                System.err.println("Too big numbers plus");
-                System.exit(1);
-            }
+            return num1.add(num2);
         }
         if (op.equals("*")) {
-            if (noOverFlowMul(num1, num2)) {
-                return num1 * num2;
-            } else {
-                System.err.println("Too big numbers mul");
-                System.exit(1);
-            }
+            return num1.multiply(num2);
         }
         if (op.equals("-")) {
-            if (noOverFlowMinus(num1, num2)) {
-                return num1 - num2;
-            } else {
-                System.err.println("Too big numbers min");
-                System.exit(1);
-            }
+            return num1.subtract(num2);
         }
-        if (op.equals("/") && num2 != 0) {
-            return num1 / num2;
+        if (op.equals("/") && !num2.equals(0)) {
+            return num1.divide(num2);
         } else {
             System.err.println("Dividing by zero");
             System.exit(1);
         }
-        return 0;
+        return BigInteger.valueOf(0);
     }
 
     private static Stack<String> number = new Stack();
     private static Stack<String> operation = new Stack();
 
     public static void currentOperation() {
-        long num1 = Integer.parseInt(number.pop(), 19);
-        long num2 = Integer.parseInt(number.pop(), 19);
+        BigInteger num1 = new BigInteger(number.pop(), 19);
+        BigInteger num2 = new BigInteger(number.pop(), 19);
         String op = operation.pop();
-        long num = doOp(num2, op, num1);
-        String newStr = Long.toString(num, 19);
+        BigInteger num = doOp(num2, op, num1);
+        String newStr = num.toString(19);
         number.push(newStr);
     }
 
@@ -158,7 +85,8 @@ class Calc {
                 }
 
                 if (!str.equals("+") && !str.equals("-") && !str.equals("*")
-                        && !str.equals("/") && !str.equals("(") && !str.equals(")")) {
+                        && !str.equals("/") && !str.equals("(")
+                        && !str.equals(")")) {
                     System.err.println("Unknown symbol =  " + str);
                     System.exit(1);
                 }
