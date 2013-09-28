@@ -16,9 +16,9 @@ public class Calculator {
                     + "4) целочисленное деление\n"
                     + "\n"
                     + "Диапазон возможных значений: целые числа из промежутка от"
-                    + Integer.MIN_VALUE + " до " + Integer.MAX_VALUE  + "\n\n"
+                    + Integer.MIN_VALUE.toString(17) + " до " + Integer.MAX_VALUE.toString(17)  + "\n\n"
                     + "Пример корректного выражения:\n"
-                    + "\"1 + A\" \"+ c - (4 * 5 / 2)\n"
+                    + "1 + A + c - (4 * 5 / 2)\n"
             );
             System.exit(1);
         } else {
@@ -166,7 +166,7 @@ public class Calculator {
                     }
                 }
             }
-                ++i;
+            ++i;
         }
         if (bracketBalance != 0) {
             throw new Exception("Нарушен баланс скобок!");
