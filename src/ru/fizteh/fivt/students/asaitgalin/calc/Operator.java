@@ -1,8 +1,10 @@
 package ru.fizteh.fivt.students.asaitgalin.calc;
 
+import java.io.IOException;
+
 public class Operator extends Token {
 
-    enum OperatorType {
+    public static enum OperatorType {
         ADDITION,
         SUBTRACTION,
         MULTIPLICATION,
@@ -14,7 +16,7 @@ public class Operator extends Token {
     public OperatorType opType;
     public char lexeme;
 
-    public Operator(char c) {
+    public Operator(char c) throws IOException {
         super(TokenType.OPERATOR);
         lexeme = c;
         switch (c) {
@@ -36,6 +38,8 @@ public class Operator extends Token {
             case ')':
                 opType = OperatorType.RBRACKET;
                 break;
+            default:
+                throw new IOException("Wrong operation lexeme");
         }
     }
 }

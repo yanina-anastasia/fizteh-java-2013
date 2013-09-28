@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.asaitgalin.calc;
 
 public class Token {
 
-    enum TokenType {
+    public static enum TokenType {
         OPERATOR,
         NUMBER
     }

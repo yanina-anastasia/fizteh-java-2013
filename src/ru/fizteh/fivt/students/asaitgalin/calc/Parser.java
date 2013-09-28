@@ -15,16 +15,48 @@ public class Parser {
         endOfStream = look == null;
     }
 
+    int safeAdd(int a, int b) throws ArithmeticException {
+        if (a > 0 && b > 0) {
+            if (a > (Integer.MAX_VALUE - b)) {
+                throw new ArithmeticException("Integer overflow error");
+            }
+        } else if (a < 0 && b < 0) {
+            if (a < Integer.MIN_VALUE - b) {
+                throw new ArithmeticException("Integer overflow error");
+            }
+        }
+        return a + b;
+    }
+
+    int safeSubtract(int a, int b) throws ArithmeticException {
+        if ((a > 0 && b < 0) || (a < 0 && b > 0)) {
+            if (Math.abs(a) > Math.abs(Integer.MAX_VALUE - b)) {
+                throw  new ArithmeticException("Integer overflow");
+            }
+        }
+        return a - b;
+    }
+
+    int safeMultiply(int a, int b) throws ArithmeticException {
+        if (a == 0) {
+            return 0;
+        }
+        if (Math.abs(b) > (Integer.MAX_VALUE / Math.abs(a))) {
+            throw new ArithmeticException("Integer overflow error");
+        }
+        return a * b;
+    }
+
     public int parseExpr() throws IllegalExpressionException {
         int x = parseTerm();
         Operator op = (Operator)look;
         while (!endOfStream && (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
             if (op.opType == Operator.OperatorType.ADDITION) {
                 move();
-                x = x + parseTerm();
+                x = safeAdd(x, parseTerm());
             } else {
                 move();
-                x = x - parseTerm();
+                x = safeSubtract(x, parseTerm());
             }
             op = (Operator)look;
         }
@@ -37,10 +69,14 @@ public class Parser {
         while (!endOfStream && (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
             if (op.opType == Operator.OperatorType.MULTIPLICATION) {
                 move();
-                x = x * parseUnary();
+                x = safeMultiply(x, parseUnary());
             } else {
                 move();
-                x = x / parseUnary();
+                int y = parseUnary();
+                if (y == 0) {
+                    throw new ArithmeticException("Division by zero");
+                }
+                x = x / y;
             }
             op = (Operator)look;
         }
@@ -74,6 +110,8 @@ public class Parser {
             } else {
                 throw new IllegalExpressionException("Missing matching bracket");
             }
+        } else if (look.type == Token.TokenType.OPERATOR && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
+            throw  new IllegalExpressionException("No expression between brackets");
         }
         return ret;
     }

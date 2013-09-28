@@ -5,10 +5,11 @@ public class Main {
         StringBuilder input = new StringBuilder();
         for (String s: args) {
             input.append(s);
+            input.append(' ');
         }
         if (args.length == 0) {
             System.out.println("No arguments\nUsage example: calc \"2+2*2\"");
-            System.exit(0);
+            System.exit(1);
         }
         Lexer lexer = new Lexer(input.toString());
         try {
@@ -16,6 +17,12 @@ public class Main {
             System.out.println(Integer.toString(parser.parseExpr(), 19).toUpperCase());
         } catch (IllegalExpressionException iee) {
             System.err.println(iee.getMessage());
+        } catch (ArithmeticException ae) {
+            System.err.println(ae.getMessage());
+        } catch (NumberFormatException nfe) {
+            System.err.println("Integer overflow error");
         }
+
+
     }
 }

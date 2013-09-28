@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.asaitgalin.calc;
 
+import java.io.IOException;
+
 public class Lexer {
-    private enum LexerPrevState {
+    private static enum LexerPrevState {
         OPERATOR,
         NUMBER
     }
@@ -19,7 +21,7 @@ public class Lexer {
     }
 
     public Token getNext() throws IllegalExpressionException {
-        Token ret;
+        Token ret = null;
         skipSpaces();
         if (cursor == len) {
             return null;
@@ -33,11 +35,15 @@ public class Lexer {
                 }
             }
             prevState = LexerPrevState.OPERATOR;
-            ret = new Operator(input[cursor++]);
+            try {
+                ret = new Operator(input[cursor++]);
+            } catch (IOException ioe) {
+                // This can not occure
+            }
             prevToken = ret;
         } else {
             StringBuilder sb = new StringBuilder();
-            while (cursor < len && !isOperator(input[cursor]) && !isSpace(input[cursor])) {
+            while (cursor < len && !isOperator(input[cursor]) && !Character.isWhitespace(input[cursor])) {
                 sb.append(input[cursor++]);
             }
             String out = sb.toString();
@@ -59,12 +65,8 @@ public class Lexer {
         return (c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')');
     }
 
-    private boolean isSpace(char c) {
-        return (c == ' ' || c == '\t');
-    }
-
     private void skipSpaces() {
-        while (cursor != len && isSpace(input[cursor])) {
+        while (cursor != len && Character.isWhitespace(input[cursor])) {
             ++cursor;
         }
     }
