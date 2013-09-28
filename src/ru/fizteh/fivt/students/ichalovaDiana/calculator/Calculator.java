@@ -10,13 +10,18 @@ public class Calculator {
 
     public static void main(String[] args) {
         //args = new String[]{"1/2 + "};
-        StringBuilder concatArgs = new StringBuilder();
-        for (String item : args) {
-            concatArgs.append(item).append(" ");
-        }
-        String expression = concatArgs.toString();
-
+        String usage = "usage: Calculator <arithmetic expression>";
         try {
+            if (args.length == 0) {
+                throw new Exception(usage);
+            }
+
+            StringBuilder concatArgs = new StringBuilder();
+            for (String item : args) {
+                concatArgs.append(item).append(" ");
+            }
+            String expression = concatArgs.toString();
+
             StringParser parser = new StringParser(expression, RADIX);
             BigInteger result = calculateExpression(parser);
             LexemeType currentLexeme = parser.getCurrentLexemeType();
