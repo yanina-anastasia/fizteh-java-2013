@@ -1,3 +1,4 @@
+
 package ru.fizteh.fivt.students.mikhaylova_daria.calculator;
 
 import java.util.Stack;
@@ -8,18 +9,19 @@ public class Calculator {
     public static void main(String[] arg) {
         StringBuilder builderArgument = new StringBuilder();
         if (arg.length == 0) {
-            System.out.println("Калькулятор, позволяющий вычислять числовые выражения в 17-речиной системе счисления\n" +
-                    "\nВозможные операции:\n" +
-                    "1) сложение\n" +
-                    "2) вычитание\n" +
-                    "3) умножение\n" +
-                    "4) целочисленное деление\n" +
-                    "\n" +
-                    "Диапазон возможных значений: целые числа из промежутка от" + Integer.MIN_VALUE +
-                    " до " + Integer.MAX_VALUE  + "\n\n" +
-                    "Пример корректного выражения:\n" +
-                    "\"1 + A\" \"+ c - (4 * 5 / 2)\n"
+            System.out.println("Калькулятор, позволяющий вычислять числовые выражения в 17-речиной системе счисления\n"
+                    + "\nВозможные операции:\n"
+                    + "1) сложение\n"
+                    + "2) вычитание\n"
+                    + "3) умножение\n"
+                    + "4) целочисленное деление\n"
+                    + "\n"
+                    + "Диапазон возможных значений: целые числа из промежутка от"
+                    + Integer.MIN_VALUE + " до " + Integer.MAX_VALUE  + "\n\n"
+                    + "Пример корректного выражения:\n"
+                    + "\"1 + A\" \"+ c - (4 * 5 / 2)\n"
             );
+            System.exit(1);
         } else {
             for (int i = 0; i < arg.length; ++i) {
                 builderArgument.append(arg[i]);
@@ -90,7 +92,7 @@ public class Calculator {
                         if (operatorOrNum > 1) {
                             throw new Exception("Некорректный ввод. Возможно, пропущен оператор!");
                         }
-                        while (stack.peek() != "(") {
+                        while (stack.peek().equals("(")) {
                             vectorReversePolishNotation.add(stack.pop());
                         }
                         stack.pop();
@@ -102,9 +104,9 @@ public class Calculator {
                                 if (operatorOrNum != 0) {
                                     throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
-                                while ((!stack.empty()) && stack.peek() != "("
-                                        && (stack.peek() == "-" || stack.peek() == "+"
-                                        || stack.peek() == "/" || stack.peek() == "*")) {
+                                while ((!stack.empty()) && !stack.peek().equals("(")
+                                        && (stack.peek().equals("-") || stack.peek().equals("+")
+                                        || stack.peek().equals("/") || stack.peek().equals("*"))) {
                                     vectorReversePolishNotation.add(stack.pop());
                                 }
                                 stack.push("+");
@@ -122,9 +124,9 @@ public class Calculator {
                                     if (operatorOrNum != 0) {
                                         throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                     }
-                                    while ((!stack.empty()) && (stack.peek() != "("
-                                            && (stack.peek() == "+" || stack.peek() == "-"
-                                            || stack.peek() == "/" || stack.peek() == "*"))) {
+                                    while ((!stack.empty()) && (!stack.peek().equals("(")
+                                            && (stack.peek().equals("+") || stack.peek().equals("-")
+                                            || stack.peek().equals("/") || stack.peek().equals("*")))) {
                                         vectorReversePolishNotation.add(stack.pop());
                                     }
                                     stack.push("-");
@@ -137,8 +139,8 @@ public class Calculator {
                                     throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
                                 while ((!stack.empty())
-                                        && (stack.peek() == "/" || stack.peek() == "*")
-                                        && stack.peek() != "(") {
+                                        && (stack.peek().equals("/") || stack.peek().equals("*"))
+                                        && !stack.peek().equals("(")) {
                                     vectorReversePolishNotation.add(stack.pop());
                                 }
                                 stack.push("*");
@@ -150,8 +152,8 @@ public class Calculator {
                                     throw new Exception("Некорректный ввод. Возможно, пропущено число!");
                                 }
                                 while ((!stack.empty())
-                                        && (stack.peek() == "*" || stack.peek() == "/")
-                                        && stack.peek() != "(") {
+                                        && (stack.peek().equals("*") || stack.peek().equals("/"))
+                                        && !stack.peek().equals("(")) {
                                     vectorReversePolishNotation.add(stack.pop());
                                 }
                                 stack.push("/");
@@ -248,5 +250,4 @@ public class Calculator {
     }
 
 }
-
 
