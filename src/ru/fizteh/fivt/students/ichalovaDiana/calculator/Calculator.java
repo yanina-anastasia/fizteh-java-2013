@@ -9,7 +9,7 @@ public class Calculator {
     static final int RADIX = 19;
 
     public static void main(String[] args) {
-        args = new String[]{"1/2 + "};
+        //args = new String[]{"1/2 + "};
         StringBuilder concatArgs = new StringBuilder();
         for (String item : args) {
             concatArgs.append(item).append(" ");
