@@ -209,6 +209,7 @@ class MySystem {
 public class Shell {
 
     public static void main(String[] args) {
+        //args = new String[]{"cd ..  ;  pwd; cp ..; pwd"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
