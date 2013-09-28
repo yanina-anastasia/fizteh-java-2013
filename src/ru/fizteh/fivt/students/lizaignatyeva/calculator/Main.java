@@ -139,7 +139,7 @@ class Calculator {
             if (!isDigit(currentToken.charAt(0))) {
                 throw new IllegalArgumentException("a valid digit expected");
             }
-            res = sign*Integer.parseInt(currentToken, base);
+            res = sign * Integer.parseInt(currentToken, base);
             getNextToken();
         }
         return res;
