@@ -39,7 +39,7 @@ class MyCalc {
     }
 
     private void nextLexem() throws ErrorFormula {
-        while (it < formula.length() && formula.charAt(it) == ' ') {
+        while (it < formula.length() && Character.isWhitespace(formula.charAt(it))) {
             it += 1;
         }
 
@@ -148,7 +148,7 @@ class MyCalc {
                 if (it < formula.length()) {
                     c = formula.charAt(it);
                 } else {
-                    c = formula.charAt(it-1);
+                    c = formula.charAt(it - 1);
                 }
                 String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
                 throw new ErrorFormula(error);
@@ -185,17 +185,17 @@ class MyCalc {
     }
 
     public String result() throws ErrorFormula {
-        if (curlex == Lex.END){
+        if (curlex == Lex.END) {
             return resFormula;
         }
         nextLexem();
         String res = castNumeralSystem(expression());
-        if (curlex != Lex.END){
+        if (curlex != Lex.END) {
             char c;
             if (it < formula.length()) {
                 c = formula.charAt(it);
             } else {
-                c = formula.charAt(it-1);
+                c = formula.charAt(it - 1);
             }
             String error = String.format("Неверное выражение \"%s\", номер %d, символ \'%c\'", formula, it, c);
             throw new ErrorFormula(error);
@@ -207,7 +207,7 @@ class MyCalc {
 
 public class Calculator {
 
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         StringBuilder builder = new StringBuilder();
         for (String arg : args) {
             builder.append(arg.toUpperCase());
@@ -216,7 +216,7 @@ public class Calculator {
         String query = builder.toString();
         if (query.equals("")) {
             System.err.println("Пустой ввод");
-            return 1;
+            System.exit(1);
         }
         try {
             MyCalc calculator = new MyCalc(query);
@@ -224,10 +224,9 @@ public class Calculator {
             System.out.println(res);
         } catch (ErrorFormula e) {
             System.err.println(e);
-            return 1;
+            System.exit(1);
         }
 
-        return 0;
     }
 
 }
