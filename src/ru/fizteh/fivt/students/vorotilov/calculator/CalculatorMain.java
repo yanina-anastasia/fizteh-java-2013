@@ -82,7 +82,7 @@ public class CalculatorMain {
                     StringBuilder operand = new StringBuilder();
                     while (i < inputString.length()
                             && (Character.isAlphabetic(inputString.charAt(i))
-                                    || Character.isDigit(inputString.charAt(i)))) {
+                            || Character.isDigit(inputString.charAt(i)))) {
                         operand.append(inputString.charAt(i));
                         ++i;
                     }
