@@ -9,7 +9,7 @@ public class Calculator {
 
     static Stack<Long> operands = new Stack<>();
     static Stack<String> operators = new Stack<>();
-    
+
     private static boolean isCorrectExpression() {
         if (operands.size() < 2 || operators.size() < 1) {
             System.err.println("Wrong expression.");
@@ -17,7 +17,7 @@ public class Calculator {
         }
         return true;
     }
-    
+
     private static boolean makeCalculation() {
         if (!isCorrectExpression()) {
             return false;
@@ -25,12 +25,12 @@ public class Calculator {
         long secondOperand = operands.pop();
         long firstOperand = operands.pop();
         String operator = operators.pop();
-        
+
         long result = 0;
         BigInteger firstBig = BigInteger.valueOf(firstOperand);
         BigInteger secondBig = BigInteger.valueOf(secondOperand);
         BigInteger realRes = null, myRes = null;
-        
+
         if (operator.equals("+")) {
             result = firstOperand + secondOperand;
             realRes = firstBig.add(secondBig);
@@ -48,7 +48,7 @@ public class Calculator {
             result = firstOperand / secondOperand;
             realRes = BigInteger.valueOf(result);
         }
-        
+
         myRes = BigInteger.valueOf(result);
         if (!realRes.equals(myRes)) {
             System.out.println("Too large values.");
@@ -57,29 +57,27 @@ public class Calculator {
         operands.push(result);
         return true;
     }
-    
+
     private static boolean isCorrectBracketSeq(String str) {
         long count = 0;
-        
+
         for (int i = 0; i < str.length(); i++) {
             if (count < 0) {
                 return false;
             }
             if (str.charAt(i) == '(') {
                 count++;
+            } else if (str.charAt(i) == ')') {
+                count--;
             }
-            else
-                if (str.charAt(i) == ')') {
-                    count--;
-                }
         }
-    
+
         if (count != 0) {
             return false;
         }
         return true;
     }
-    
+
     private static boolean isCorrectSpaceSeq(String str) {
         if (Pattern.matches("[0-9a-gA-G\\s/(/)/+-/*//]*"
                 + "([0-9a-zA-Z]([\\s]+)[0-9a-zA-Z])+"
@@ -88,7 +86,7 @@ public class Calculator {
         }
         return true;
     }
-    
+
     private static int getPriority(String str) {
         if (str.equals("(") || str.equals(")")) {
             return 1;
@@ -101,14 +99,14 @@ public class Calculator {
         }
         return -1;
     }
-    
-    public static void main(String [] args) {
+
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.err.println("No expression is found.");
             System.exit(1);
         }
-    
-        int base = 17; 
+
+        int base = 17;
 
         StringBuffer s = new StringBuffer();
         for (int i = 0; i < args.length; i++) {
@@ -116,9 +114,10 @@ public class Calculator {
             s.append(" ");
         }
         String str = s.toString();
-        
+
         if (!Pattern.matches("[0-9a-gA-G\\s/(/)/+-/*//]*", str)) {
-            System.err.println("Unexpected symbol. Use 0-9, A-G, a-g, +, -, *, /, (, ).");
+            System.err
+                    .println("Unexpected symbol. Use 0-9, A-G, a-g, +, -, *, /, (, ).");
             System.exit(1);
         }
         if (!isCorrectBracketSeq(str)) {
@@ -129,15 +128,15 @@ public class Calculator {
             System.err.println("Wrong expression: too many spaces.");
             System.exit(1);
         }
-        
+
         str = str.replace(" ", "");
-        
+
         Scanner myScan = new Scanner(str);
         myScan.useRadix(base);
 
         myScan.useDelimiter("((?<=[0-9a-gA-G])(?=[/(/)/+-/*//]))"
                 + "|((?<=[/(/)/+-/*//])(?=[0-9a-gA-G]))"
-                + "|((?<=[/(/)/+-/*//])(?=[/(/)/+-/*//]))");         
+                + "|((?<=[/(/)/+-/*//])(?=[/(/)/+-/*//]))");
 
         int currPriority = 0;
         String currOperator;
@@ -150,7 +149,8 @@ public class Calculator {
                 if (currOperator.equals("(")) {
                     operators.push(currOperator);
                 } else if (currOperator.equals(")")) {
-                    while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                    while (!operators.isEmpty()
+                            && !operators.peek().equals("(")) {
                         if (!makeCalculation()) {
                             myScan.close();
                             System.exit(1);
@@ -159,16 +159,15 @@ public class Calculator {
                     if (!operators.isEmpty()) {
                         operators.pop();
                     } else {
-                        System.err.println("Wrong expression: '(' not found");  
-                        myScan.close();                            
+                        System.err.println("Wrong expression: '(' not found");
+                        myScan.close();
                         System.exit(1);
                     }
-                } else if (currOperator.equals("+") 
-                            || currOperator.equals("-") 
-                            || currOperator.equals("*") 
-                            || currOperator.equals("/")) {
+                } else if (currOperator.equals("+") || currOperator.equals("-")
+                        || currOperator.equals("*") || currOperator.equals("/")) {
                     currPriority = getPriority(currOperator);
-                    while (!operators.isEmpty() && getPriority(operators.peek()) >= currPriority) {
+                    while (!operators.isEmpty()
+                            && getPriority(operators.peek()) >= currPriority) {
                         if (!makeCalculation()) {
                             myScan.close();
                             System.exit(1);
@@ -179,17 +178,17 @@ public class Calculator {
                     System.err.println("Too large number.");
                     myScan.close();
                     System.exit(1);
-                }                     
+                }
             }
         }
-        
+
         while (!operators.isEmpty()) {
             if (!makeCalculation()) {
                 myScan.close();
                 System.exit(1);
-            }        
+            }
         }
-        
+
         if (operands.size() != 1) {
             System.err.println("Wrong expression.");
             myScan.close();
