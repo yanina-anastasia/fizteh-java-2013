@@ -8,7 +8,7 @@ public class Calculator {
     public static void main(String[] arg) {
         StringBuilder builderArgument = new StringBuilder();
         if (arg.length == 0) {
-            System.out.println("Калькулятор, позволяющий вычислять числовые выражения в 17-речиной системе счисления\n"
+            System.out.println("Калькулятор, позволяющий вычислять числовые выражения в 17-ричной системе счисления\n"
                     + "\nВозможные операции:\n"
                     + "1) сложение\n"
                     + "2) вычитание\n"
