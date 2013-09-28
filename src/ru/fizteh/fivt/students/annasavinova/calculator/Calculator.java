@@ -21,6 +21,10 @@ public class Calculator {
     }
     
     public static long getVal() {
+        if (signStack.size() == 0 || digitStack.size() < 2) {
+            System.err.println("Incorrect num of operators and operands");
+            System.exit(1);
+        }
         String sign = signStack.pop();
         long secondVal = digitStack.pop();
         long firstVal = digitStack.pop();
@@ -139,6 +143,10 @@ public class Calculator {
                 case ")":
                     while (!(signStack.peek()).equals("(")) {
                         digitStack.push(getVal());
+                    }
+                    if (signStack.size() == 0) {
+                        System.err.println("Incorrect num of operators and operands");
+                        System.exit(1);
                     }
                     signStack.pop();
                     break;
