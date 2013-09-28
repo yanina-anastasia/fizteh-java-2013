@@ -9,7 +9,7 @@ public class Calculator {
     static final int RADIX = 19;
 
     public static void main(String[] args) {
-        //args = new String[]{"3 * (4E + 5) * (3 + 7) + 1 * 2"};
+        args = new String[]{"1/2 + "};
         StringBuilder concatArgs = new StringBuilder();
         for (String item : args) {
             concatArgs.append(item).append(" ");
@@ -19,12 +19,13 @@ public class Calculator {
         try {
             StringParser parser = new StringParser(expression, RADIX);
             BigInteger result = calculateExpression(parser);
-            if (parser.getCurrentLexemeType() != LexemeType.END) {
-                throw new Exception("Unexpected lexeme");
+            LexemeType currentLexeme = parser.getCurrentLexemeType();
+            if (currentLexeme != LexemeType.END) {
+                throw new Exception("Unexpected lexeme: " + currentLexeme);
             }
             System.out.println(result.toString(RADIX));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
             System.exit(1);
         }
     }
@@ -75,7 +76,7 @@ public class Calculator {
                 throw new Exception("Unexpected lexeme: should be closing bracket");
             }
         } else {
-            throw new Exception("Unexpected lexeme");
+            throw new Exception("Unexpected lexeme: " + currentLexeme);
         }
         parser.getNextLexemeType();
 
@@ -124,7 +125,7 @@ class StringParser {
        }
 
        char currentChar = expression.charAt(currentPosition);
-       
+
        if (currentChar == '(') {
            currentPosition += 1;
            currentState = LexemeType.OPENING_BRACKET;
@@ -156,11 +157,11 @@ class StringParser {
            currentNumber = new BigInteger(expression.substring(startPosition, endPosition), radix);
            currentState = LexemeType.NUMBER;
        } else {
-           throw new Exception("Unknown character");
+           throw new Exception("Unknown character " + currentChar);
        }
        return currentState;
     }
-    
+
     BigInteger getCurrentNumber() {
         //assert (currentState == LexemeType.NUMBER);
         return currentNumber;
