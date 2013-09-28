@@ -25,14 +25,46 @@ class Calculator {
             throw new IllegalArgumentException("base is not valid");
         }
         return Character.isDigit(character) 
-                || ('A' <= character && character <= 'G') 
-                    || ('a' <= character && character <= 'g');
+               || ('A' <= character && character <= 'G') 
+               || ('a' <= character && character <= 'g');
     }
 
     private boolean isSyntaxSymbol(char character) {
-        return (character == '(') || (character == ')') || 
-                    (character == '*') || (character == '-') || 
-                        (character == '+') || (character == '/');
+        return (character == '(') || (character == ')') 
+               || (character == '*') || (character == '-') 
+               || (character == '+') || (character == '/');
+    }
+
+    private boolean canBeAnInteger(long value) {
+        return (Integer.MIN_VALUE <= value) && (value <= Integer.MAX_VALUE);
+    }
+
+    private int safeAddition(int x, int y) {
+        long result = (long) x + (long) y;
+        if (canBeAnInteger(result)) {
+            return (int) result;
+        } else {
+            throw new ArithmeticException("integer overflow");
+        }
+    }
+
+    private int safeMultiplication(int x, int y) {
+        long result = (long) x * (long) y;
+        if (canBeAnInteger(result)) {
+            return (int) result;
+        } else {
+            throw new ArithmeticException("integer overflow");
+        }
+    }
+
+    private int safeDivision(int x, int y) {
+        if (y == 0) {
+            throw new ArithmeticException("division by zero");
+        }
+        if ((x == -Integer.MIN_VALUE) && (y == -1)) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return x/y;
     }
 
     private void getNextToken() {
@@ -49,8 +81,7 @@ class Calculator {
         }
     }
 
-    private int readExpr()
-    {
+    private int readExpr() {
         int res = readAdd();
         while (currentToken.equals("+") || currentToken.equals("-")) {
             char buf = currentToken.charAt(0);
@@ -66,10 +97,10 @@ class Calculator {
                 
             int add = readAdd();
             if (buf == '+') {
-                res += add;
+                res = safeAddition(res, add);
             }
             if (buf == '-') {
-                res -= add;
+                res = safeAddition(res, -1*add);
             }
         }
         return res;
@@ -82,12 +113,9 @@ class Calculator {
             getNextToken();
             int mul = readMul();
             if (buf == '*') {
-                res *= mul;
+                res = safeMultiplication(res, mul);
             } else {
-                if (mul == 0) {
-                    throw new ArithmeticException("division by zero;");
-                }
-                res /= mul;
+                res = safeDivision(res, mul);
             }
         }
         return res;
