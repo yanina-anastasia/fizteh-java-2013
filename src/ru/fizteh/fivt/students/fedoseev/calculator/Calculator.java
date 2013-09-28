@@ -38,9 +38,12 @@ public class Calculator {
         }
         expr = expr.replace("(-", "(0-").replace("---", "-").replace("--", "+0+").replace("+-", "+0-");
 
+        String[] symbols = new String[]{"*", "/", "+", "-", L_PAR, R_PAR};
+        /*
         Set<String> symbols = new HashSet<String>(ops.keySet());
         symbols.add(L_PAR);
         symbols.add(R_PAR);
+        */
 
         int opIndex = 0;
         boolean read = true;
@@ -140,7 +143,7 @@ public class Calculator {
                 Integer o1 = rpnStack.pop();
 
                 if (t.equals("*")) {
-                    if (Integer.MAX_VALUE / o1 > o2) {
+                    if (Integer.MAX_VALUE / Math.abs(o1) > Math.abs(o2)) {
                         throw new NumberFormatException();
                     }
 
@@ -152,14 +155,16 @@ public class Calculator {
 
                     rpnStack.push(o1 / o2);
                 } else if (t.equals("+")) {
-                    if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
+                    if (Integer.MAX_VALUE - Math.abs(o1) < Math.abs(o2)) {
                         throw new NumberFormatException();
                     }
 
                     rpnStack.push(o1 + o2);
                 } else if (t.equals("-")) {
-                    if (Integer.MAX_VALUE - Math.abs(o1) > Math.abs(o2)) {
-                        throw new NumberFormatException();
+                    if (Integer.signum(o1) != Integer.signum(o2)) {
+                        if (Integer.MAX_VALUE - Math.abs(o1) < Math.abs(o2)) {
+                            throw new NumberFormatException();
+                        }
                     }
 
                     rpnStack.push(o1 - o2);
@@ -193,7 +198,7 @@ public class Calculator {
             System.exit(1);
         } catch (IllegalArgumentException e) {
             System.err.println("ERROR: Unmatched brackets");
-           System.exit(1);
+            System.exit(1);
         } catch (ArithmeticException e) {
             System.err.println("ERROR: Divide by zero");
             System.exit(1);
