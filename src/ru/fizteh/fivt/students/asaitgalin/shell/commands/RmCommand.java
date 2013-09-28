@@ -1,11 +1,36 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
-/**
- * Created with IntelliJ IDEA.
- * User: DuXeN0N
- * Date: 9/22/13
- * Time: 12:41 AM
- * To change this template use File | Settings | File Templates.
- */
-public class RmCommand {
+import java.io.File;
+import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
+
+public class RmCommand implements Command {
+    private FilesystemController controller;
+
+    public RmCommand(FilesystemController controller) {
+        this.controller = controller;
+    }
+
+    @Override
+    public String getName() {
+        return "rm";
+    }
+
+    @Override
+    public void execute(String params) {
+        String[] args = params.split("\\s+");
+        for (String s: args) {
+            deleteRecursively(controller.getFileFromName(s));
+        }
+    }
+
+    private void deleteRecursively(File file) {
+        if (file.isDirectory()) {
+            for (File f: file.listFiles()) {
+                deleteRecursively(f);
+            }
+        }
+        if (!file.delete()) {
+            System.err.println("rm: cannot remove \"" + file.getName() + "\": No such file or directory");
+        }
+    }
 }

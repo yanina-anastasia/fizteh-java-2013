@@ -1,11 +1,32 @@
 package ru.fizteh.fivt.students.asaitgalin.shell;
 
-/**
- * Created with IntelliJ IDEA.
- * User: DuXeN0N
- * Date: 9/21/13
- * Time: 9:18 PM
- * To change this template use File | Settings | File Templates.
- */
+import ru.fizteh.fivt.students.asaitgalin.shell.commands.Command;
+
+import java.util.Hashtable;
+
 public class CommandTable {
+    private Hashtable<String, Command> table = new Hashtable<String, Command>();
+
+    public void appendCommand(Command cmd) {
+        table.put(cmd.getName(), cmd);
+    }
+
+    public void executeCommands(String commandsLine) throws UnknownCommandException {
+        String[] commands = commandsLine.split(";");
+        for (String s: commands) {
+            s = s.trim();
+            String[] cmdArgs = s.split("\\s+", 2);
+            Command cmd = table.get(cmdArgs[0]);
+            if (cmd != null) {
+                if (cmdArgs.length == 2) {
+                    cmd.execute(cmdArgs[1]);
+                } else {
+                    cmd.execute(null);
+                }
+            } else {
+                throw new UnknownCommandException(cmdArgs[0]);
+            }
+        }
+    }
+
 }

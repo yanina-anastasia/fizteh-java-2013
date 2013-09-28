@@ -1,15 +1,14 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.shell.Command;
-
 public class ExitCommand implements Command {
 
+    @Override
     public String getName() {
         return "exit";
     }
 
-    public int execute(String[] args) {
+    @Override
+    public void execute(String params) {
         System.exit(0);
-        return 0;
     }
 }

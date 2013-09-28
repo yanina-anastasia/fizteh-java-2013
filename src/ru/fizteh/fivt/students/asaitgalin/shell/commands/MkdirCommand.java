@@ -1,11 +1,30 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
-/**
- * Created with IntelliJ IDEA.
- * User: DuXeN0N
- * Date: 9/21/13
- * Time: 11:13 PM
- * To change this template use File | Settings | File Templates.
- */
-public class MkdirCommand {
+import java.io.File;
+
+import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
+
+public class MkdirCommand implements Command {
+    private FilesystemController controller;
+
+    public MkdirCommand(FilesystemController controller) {
+        this.controller = controller;
+    }
+
+    @Override
+    public String getName() {
+        return "mkdir";
+    }
+
+    @Override
+    public void execute(String params) {
+        String[] args = params.split("\\s+");
+        for (String s: args) {
+            File f = controller.getFileFromName(s);
+            if (!f.mkdirs()) {
+                System.err.println("mkdir: \"" + s + "\": Failed to create directory");
+            }
+        }
+    }
 }
+
