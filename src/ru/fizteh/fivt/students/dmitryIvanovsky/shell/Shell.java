@@ -25,7 +25,6 @@ class MySystem {
         }
     }
 
-
     public Code cd(String newDir) {
         try {
             File tmpFile = new File(newDir);
@@ -142,29 +141,29 @@ class MySystem {
     public Code runCommand(String query) {
         query = query.trim();
         StringTokenizer token = new StringTokenizer(query);
-        int number = token.countTokens();
+        int countTokens = token.countTokens();
         String command = token.nextToken().toLowerCase();
-        if (command.equals("exit") && number == 1) {
+        if (command.equals("exit") && countTokens == 1) {
             return Code.EXIT;
-        } else if (command.equals("dir") && number == 1) {
+        } else if (command.equals("dir") && countTokens == 1) {
             return dir();
-        } else if (command.equals("mv") && number == 3) {
+        } else if (command.equals("mv") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
             return mv(sourse, destination);
-        } else if (command.equals("cp") && number == 3) {
+        } else if (command.equals("cp") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
             return cp(sourse, destination);
-        } else if (command.equals("rm") && number == 2) {
+        } else if (command.equals("rm") && countTokens == 2) {
             String file = token.nextToken();
             return rm(file);
-        } else if (command.equals("pwd") && number == 1) {
+        } else if (command.equals("pwd") && countTokens == 1) {
             return pwd();
-        } else if (command.equals("mkdir") && number == 2) {
+        } else if (command.equals("mkdir") && countTokens == 2) {
             String dirname = token.nextToken();
             return mkdir(dirname);
-        } else if (command.equals("cd") && number == 2) {
+        } else if (command.equals("cd") && countTokens == 2) {
             String path = token.nextToken();
             return cd(path);
         } else {
