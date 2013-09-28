@@ -7,25 +7,20 @@ import java.io.IOException;
 
 public class DirCommand extends Command {
 
-    public void executeCommand(String params) throws IOException
-    {
-        if (params.length() > 0)
-        {
+    public void executeCommand(String params) throws IOException {
+        if (params.length() > 0) {
             throw new IllegalArgumentException("Too many arguments!");
         }
         String[] files = FileSystem.getInstance().listWorkingDirectory();
-        if (files == null)
-        {
+        if (files == null) {
             return;
         }
-        for(final String file: files)
-        {
+        for (final String file : files) {
             System.out.println(file);
         }
     }
 
-    protected void initCommand()
-    {
+    protected void initCommand() {
         commandName = "dir";
         helpString = "dir";
     }

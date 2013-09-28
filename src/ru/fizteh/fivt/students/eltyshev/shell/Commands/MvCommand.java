@@ -6,18 +6,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MvCommand extends Command {
-    public void executeCommand(String params) throws IOException
-    {
+    public void executeCommand(String params) throws IOException {
         ArrayList<String> parameters = CommandParser.parseParams(params);
-        if (parameters.size() > 2)
-        {
+        if (parameters.size() > 2) {
             throw new IllegalArgumentException("Too many arguments!");
         }
         FileSystem.getInstance().moveFiles(parameters.get(0), parameters.get(1));
     }
 
-    protected void initCommand()
-    {
+    protected void initCommand() {
         commandName = "mv";
         helpString = "mv <source> <destination>";
     }

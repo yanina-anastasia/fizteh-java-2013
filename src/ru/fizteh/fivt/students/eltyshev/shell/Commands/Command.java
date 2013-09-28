@@ -5,24 +5,22 @@ import ru.fizteh.fivt.students.eltyshev.shell.Shell;
 import java.io.IOException;
 import java.util.HashMap;
 
-public abstract class  Command {
+public abstract class Command {
 
-    public Command()
-    {
+    public Command() {
         initCommand();
     }
 
-    public String getCommandName()
-    {
+    public String getCommandName() {
         return commandName;
     }
 
-    public String getHelpString()
-    {
+    public String getHelpString() {
         return helpString;
     }
 
     public abstract void executeCommand(String params) throws IOException;
+
     protected abstract void initCommand();
 
     protected String commandName;

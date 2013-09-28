@@ -6,8 +6,7 @@ import java.io.File;
 import java.nio.file.*;
 
 public class Program {
-    public static void main(String[] Args) throws IOException
-    {
+    public static void main(String[] Args) throws IOException {
         Shell shell = new Shell(Args);
         shell.start();
     }

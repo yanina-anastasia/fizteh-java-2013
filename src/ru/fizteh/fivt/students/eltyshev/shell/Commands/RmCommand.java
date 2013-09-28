@@ -6,14 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class RmCommand extends Command {
-    public void executeCommand(String params) throws IOException
-    {
+    public void executeCommand(String params) throws IOException {
         ArrayList<String> parameters = CommandParser.parseParams(params);
         FileSystem.getInstance().remove(parameters.get(0));
     }
 
-    protected void initCommand()
-    {
+    protected void initCommand() {
         commandName = "rm";
         helpString = "rm <file|directory>";
     }

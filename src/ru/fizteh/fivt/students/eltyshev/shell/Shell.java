@@ -7,84 +7,68 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.eltyshev.shell.Commands.*;
 
 public class Shell {
-    public Shell(String[] Args)
-    {
+    private HashMap<String, Command> commands;
+    private String[] args;
+    private String prompt = "$ ";
+
+    public Shell(String[] Args) {
         this.args = Args;
         initCommands();
     }
 
-    public void start() throws IOException
-    {
-        if (args.length == 0)
-        {
+    public void start() throws IOException {
+        if (args.length == 0) {
             startInteractive();
-        }
-        else
-        {
+        } else {
             packageMode();
         }
     }
 
-    private void startInteractive() throws IOException
-    {
+    private void startInteractive() throws IOException {
         Scanner scanner = new Scanner(System.in);
         printPrompt();
-        while(scanner.hasNext())
-        {
+        while (scanner.hasNext()) {
             String command = scanner.nextLine();
             String[] commands = CommandParser.parseCommands(command);
-            for(final String com: commands)
-            {
+            for (final String com : commands) {
                 processCommand(com);
             }
             printPrompt();
         }
     }
 
-    private void packageMode()
-    {
+    private void packageMode() {
         StringBuilder sb = new StringBuilder();
-        for(final String st: args)
-        {
+        for (final String st : args) {
             sb.append(st + " ");
         }
         String[] commands = CommandParser.parseCommands(sb.toString());
-        for(final String command: commands)
-        {
+        for (final String command : commands) {
             processCommand(command);
         }
     }
 
-    private void printPrompt()
-    {
+    private void printPrompt() {
         System.out.print(prompt);
     }
 
-    private void processCommand(String command)
-    {
+    private void processCommand(String command) {
         String commandName = CommandParser.getCommandName(command);
         String params = CommandParser.getParameters(command);
-        if (!commands.containsKey(commandName))
-        {
+        if (!commands.containsKey(commandName)) {
             System.err.println(String.format("%s: command not found. Type help to get help", commandName));
             return;
         }
-        try
-        {
+        try {
             commands.get(commandName).executeCommand(params);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             System.err.println(commandName + ": " + e.getMessage());
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             System.err.println(commandName + ": " + e.getMessage());
         }
     }
 
-    private void initCommands()
-    {
+    private void initCommands() {
         commands = new HashMap<String, Command>();
 
         // putting MakeDirCommand
@@ -123,8 +107,4 @@ public class Shell {
         command = new HelpCommand(commands);
         commands.put(command.getCommandName(), command);
     }
-
-    private HashMap<String, Command> commands;
-    private String[] args;
-    private String prompt = "$ ";
 }
