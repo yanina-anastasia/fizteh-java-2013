@@ -106,12 +106,12 @@ public class Calculator {
         
         StringBuilder builder = new StringBuilder("(");
         for (int i = 0; i < args.length; i++) {
-            builder.append(args[i]);
+            builder.append(args[i] + ' ');
         }
         builder.append(")");
         String expression = builder.toString();
         
-        Matcher matcher = Pattern.compile("[0-9A-Ha-h][ ]+[0-9A-Ha-h]").matcher(expression);
+        Matcher matcher = Pattern.compile(".*[0-9A-Ha-h] +[0-9A-Ha-h].*").matcher(expression);
         if (matcher.find()) {
             System.err.println(expression.substring(1, matcher.start() + 4));
             terminate("Expected operation +, -, * or / after constant, but \' \' found");
