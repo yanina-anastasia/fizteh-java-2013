@@ -9,10 +9,6 @@ public class Calculator {
         return c == '+' || c == '-' || c == '*' || c == '/';
     }
 
-    public static boolean isDelimeter(char c) {
-        return c == ' ';
-    }
-
     public static int priority(char operation) {
         switch(operation) {
             case '+':
@@ -29,9 +25,9 @@ public class Calculator {
     public static void processOperator(LinkedList<Integer> st, char operation) {
         int right = st.removeLast();
         int left = st.removeLast();
-        if ((left > 0) && (right > 0) && (Integer.MAX_VALUE - left <= right)) {
+        if ((left > 0) && (right > 0) && ((Integer.MAX_VALUE - left <= right) || (right * left >= Integer.MAX_VALUE) || (left / right >= Integer.MAX_VALUE))) {
             System.err.println("Error: integer overflow");
-            System.exit(-1);
+            System.exit(1);
         }
         switch (operation) {
             case '+':
@@ -46,7 +42,7 @@ public class Calculator {
             case '/':
                 if (right == 0) {
                     System.err.println("Error: dividing by zero");
-                    System.exit(-1);
+                    System.exit(1);
                 }
                 st.add(left / right);
                 break;
@@ -60,7 +56,7 @@ public class Calculator {
         int bracketBalance = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (isDelimeter(c)) {
+            if (Character.isWhitespace(c)) {
                 continue;
             }
             else if (c == '(') {
@@ -75,7 +71,7 @@ public class Calculator {
                 }
                 if (prevSym == 3) {
                     System.err.println("Error: empty brackets");
-                    System.exit(-1);
+                    System.exit(1);
                 }
                 op.removeLast();
             }
@@ -83,7 +79,7 @@ public class Calculator {
                 while (!op.isEmpty() && priority(op.getLast()) >= priority(c)) {
                     if (prevSym == 1) {
                         System.err.println("Error: too many operators without numbers");
-                        System.exit(-1);
+                        System.exit(1);
                     }
                     processOperator(st, op.removeLast());
                 }
@@ -95,18 +91,18 @@ public class Calculator {
                 while (i < s.length() && isDigit(s.charAt(i))) {
                     if (prevSym == 2) {
                         System.err.println("Error: too many numbers without operators");
-                        System.exit(-1);
+                        System.exit(1);
                     }
                     sb.append(s.charAt(i++));
                 }
                 --i;
                 if (sb.length() == 0) {
                     System.err.println("Error: unknown symbol(s)");
-                    System.exit(-1);
+                    System.exit(1);
                 }
                 if (BigInteger.valueOf(Long.parseLong(sb.toString())).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) == 1) {
                     System.err.println("Error: integer overflow");
-                    System.exit(-1);
+                    System.exit(1);
                 }
                 st.add(Integer.parseInt(sb.toString(), 19));
                 prevSym = 2;
@@ -115,7 +111,7 @@ public class Calculator {
         while (!op.isEmpty()) {
             if (bracketBalance != 0) {
                 System.err.println("Error: wrong bracket balance");
-                System.exit(-1);
+                System.exit(1);
             }
             processOperator(st, op.removeLast());
         }
