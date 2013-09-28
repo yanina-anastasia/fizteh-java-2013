@@ -1,4 +1,3 @@
-
 package ru.fizteh.fivt.students.mikhaylova_daria.calculator;
 
 import java.util.Stack;
@@ -92,7 +91,7 @@ public class Calculator {
                         if (operatorOrNum > 1) {
                             throw new Exception("Некорректный ввод. Возможно, пропущен оператор!");
                         }
-                        while (stack.peek().equals("(")) {
+                        while (!stack.peek().equals("(")) {
                             vectorReversePolishNotation.add(stack.pop());
                         }
                         stack.pop();
