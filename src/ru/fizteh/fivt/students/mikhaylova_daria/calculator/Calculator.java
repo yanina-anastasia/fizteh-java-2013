@@ -52,11 +52,11 @@ public class Calculator {
                 number.append('-');
             }
             while ((i < arg.length())
-                && (('0' <= arg.charAt(i) && arg.charAt(i) <= '9')
-                || ('a' <= arg.charAt(i) && arg.charAt(i) <= 'g')
-                || ('A' <= arg.charAt(i) && arg.charAt(i) <= 'G'))) {
-                    number.append(arg.charAt(i));
-                    ++i;
+                    && (('0' <= arg.charAt(i) && arg.charAt(i) <= '9')
+                    || ('a' <= arg.charAt(i) && arg.charAt(i) <= 'g')
+                    || ('A' <= arg.charAt(i) && arg.charAt(i) <= 'G'))) {
+                number.append(arg.charAt(i));
+                ++i;
             }
             if (!number.toString().isEmpty()) {
                 if (lastCharWasNumber) {
@@ -238,7 +238,7 @@ public class Calculator {
                 try {
                     number = Integer.parseInt(argument.elementAt(i), 17);
                 } catch (Exception e) {
-                    throw new Exception ("Непредвиденная ошибка");
+                    throw new Exception("Непредвиденная ошибка");
                 }
                 stack.push(number);
             }
