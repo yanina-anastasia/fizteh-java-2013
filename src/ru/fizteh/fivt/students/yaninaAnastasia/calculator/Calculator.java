@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.calculator;
 
-import java.math.BigInteger;
 import java.util.LinkedList;
 
 
@@ -25,26 +24,29 @@ public class Calculator {
     public static void processOperator(LinkedList<Integer> st, char operation) {
         int right = st.removeLast();
         int left = st.removeLast();
-        if ((left > 0) && (right > 0) && ((Integer.MAX_VALUE - left <= right) || (right * left >= Integer.MAX_VALUE) || (left / right >= Integer.MAX_VALUE))) {
-            System.err.println("Error: integer overflow");
-            System.exit(1);
-        }
         switch (operation) {
             case '+':
+                if (Integer.MAX_VALUE - left <= right) {
+                    System.err.println("Error: integer overflow");
+                    System.exit(1);
+                }
                 st.add(left + right);
                 break;
             case '-':
                 st.add(left - right);
                 break;
             case '*':
+                if (Integer.MAX_VALUE / Math.abs(left) <= Math.abs(right)) {
+                    System.err.println("Error: integer overflow");
+                    System.exit(1);
+                }
                 st.add(left * right);
                 break;
             case '/':
-                if (right == 0) {
-                    System.err.println("Error: dividing by zero");
-                    System.exit(1);
-                }
                 st.add(left / right);
+            default:
+                System.err.println("Unknown operator");
+                System.exit(1);
                 break;
         }
     }
@@ -58,13 +60,11 @@ public class Calculator {
             char c = s.charAt(i);
             if (Character.isWhitespace(c)) {
                 continue;
-            }
-            else if (c == '(') {
+            } else if (c == '(') {
                 op.add('(');
                 prevSym = 3;
                 bracketBalance++;
-            }
-            else if (c == ')') {
+            } else if (c == ')') {
                 bracketBalance--;
                 while (op.getLast() != '(') {
                     processOperator(st, op.removeLast());
@@ -74,8 +74,7 @@ public class Calculator {
                     System.exit(1);
                 }
                 op.removeLast();
-            }
-            else if (isOperation(c)) {
+            } else if (isOperation(c)) {
                 while (!op.isEmpty() && priority(op.getLast()) >= priority(c)) {
                     if (prevSym == 1) {
                         System.err.println("Error: too many operators without numbers");
@@ -85,8 +84,7 @@ public class Calculator {
                 }
                 op.add(c);
                 prevSym = 1;
-            }
-            else {
+            } else {
                 StringBuilder sb = new StringBuilder();
                 while (i < s.length() && isDigit(s.charAt(i))) {
                     if (prevSym == 2) {
@@ -100,12 +98,13 @@ public class Calculator {
                     System.err.println("Error: unknown symbol(s)");
                     System.exit(1);
                 }
-                if (BigInteger.valueOf(Long.parseLong(sb.toString())).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) == 1) {
+                prevSym = 2;
+                try {
+                st.add(Integer.parseInt(sb.toString(), 19));
+                } catch (NumberFormatException e) {
                     System.err.println("Error: integer overflow");
                     System.exit(1);
                 }
-                st.add(Integer.parseInt(sb.toString(), 19));
-                prevSym = 2;
             }
         }
         while (!op.isEmpty()) {
@@ -124,13 +123,13 @@ public class Calculator {
     }
 
     public static void main (String[] args) {
-        StringBuilder ExpressionBuilder = new StringBuilder();
+        StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
-            ExpressionBuilder.append(args[i]);
-            ExpressionBuilder.append(" ");
+            expressionBuilder.append(args[i]);
+            expressionBuilder.append(" ");
         }
-        String Expression = ExpressionBuilder.toString();
-        int result = count(Expression);
+        String expression = expressionBuilder.toString();
+        int result = count(expression);
         System.out.print(Integer.toString(result, 19).toUpperCase());
     }
 }
