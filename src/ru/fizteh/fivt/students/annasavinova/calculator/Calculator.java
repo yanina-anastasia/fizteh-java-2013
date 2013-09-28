@@ -9,17 +9,17 @@ public class Calculator {
     static int BASE = 18;
     static Stack<String> signStack = new Stack<>();
     static Stack<Long> digitStack = new Stack<>();
-    
+
     public static int priority(String c) {
         if (c.equals("+") || c.equals("-")) {
             return 0;
         } else if (c.equals("*") || c.equals("/")) {
-                return 1;
-            } else {
-                return -1;
-            }
+            return 1;
+        } else {
+            return -1;
+        }
     }
-    
+
     public static long getVal() {
         String sign = signStack.pop();
         long secondVal = digitStack.pop();
@@ -40,7 +40,7 @@ public class Calculator {
             break;
         case "/":
             if (secondVal != 0) {
-                res =  firstVal / secondVal;
+                res = firstVal / secondVal;
             } else {
                 System.err.println("Dividing by zero");
                 System.exit(1);
@@ -58,7 +58,7 @@ public class Calculator {
         res = tmpRes.longValue();
         return res;
     }
-    
+
     public static boolean checkBrackets(String input) {
         int count = 0;
         for (int i = 0; i < input.length(); ++i) {
@@ -76,21 +76,23 @@ public class Calculator {
         }
         return true;
     }
-    
+
     public static boolean checkSpaces(String str) {
-        if (Pattern.matches("[\\s0-9A-H-h/+-/*///(/)]*[0-9A-Ha-h]+[ ]+[0-9A-Ha-h]+[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
+        if (Pattern.matches("[\\s0-9A-H-h/+-/*///(/)]*"
+                + "[0-9A-Ha-h]+[ ]+[0-9A-Ha-h]+"
+                + "[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
     }
-    
+
     public static boolean checkSymbols(String str) {
         if (!Pattern.matches("[\\s0-9A-Ha-h/+-/*///(/)]*", str)) {
             return false;
         }
         return true;
     }
-    
+
     public static void main(String[] args) {
         if (args.length == 0) {
             System.err.println("Please, input expression, that you want to know");
@@ -132,12 +134,12 @@ public class Calculator {
             if (sc.hasNext("[/(/)/+-/*//]")) {
                 String currentSymbol = sc.next();
                 switch (currentSymbol) {
-                case "(": 
+                case "(":
                     signStack.push(currentSymbol);
                     break;
                 case ")":
                     while (!(signStack.peek()).equals("(")) {
-                            digitStack.push(getVal());
+                        digitStack.push(getVal());
                     }
                     signStack.pop();
                     break;
@@ -147,19 +149,19 @@ public class Calculator {
                         signStack.push(currentSymbol);
                     } else {
                         while (priority(signStack.peek()) >= priority(currentSymbol)) {
-                                digitStack.push(getVal());
+                            digitStack.push(getVal());
                         }
                         signStack.push(currentSymbol);
                     }
                 }
             } else if (sc.hasNextLong()) {
-                    long currentDigit = sc.nextLong();
-                    digitStack.push(currentDigit);
-                } else {
-                    sc.close();
-                    System.err.println("Too big operand");
-                    System.exit(1);
-                }
+                long currentDigit = sc.nextLong();
+                digitStack.push(currentDigit);
+            } else {
+                sc.close();
+                System.err.println("Too big operand");
+                System.exit(1);
+            }
         }
         if (digitStack.size() == 1) {
             long result = digitStack.pop();
