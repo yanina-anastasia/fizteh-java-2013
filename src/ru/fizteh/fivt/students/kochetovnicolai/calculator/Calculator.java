@@ -106,7 +106,8 @@ public class Calculator {
         
         StringBuilder builder = new StringBuilder("(");
         for (int i = 0; i < args.length; i++) {
-            builder.append(args[i] + ' ');
+            builder.append(args[i]);
+            builder.append(" ");
         }
         builder.append(")");
         String expression = builder.toString();
