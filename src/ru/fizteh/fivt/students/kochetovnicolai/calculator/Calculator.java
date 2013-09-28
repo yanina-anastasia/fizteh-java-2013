@@ -1,6 +1,6 @@
 // Nicolai Kochetov, 294, calculator
 
-package ru.fizteh.students.kochetovnicolai.calculator;
+package ru.fizteh.fivt.students.kochetovnicolai.calculator;
 
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -42,7 +42,7 @@ public class Calculator {
             if (operations.charAt(position) == ' ') {
                 try {
                     value = Integer.valueOf(numbers[nextNumber++], 18);
-                } catch(NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     System.err.println("Error: Too long number");
                     terminate(e.getMessage());
                 }
@@ -86,7 +86,7 @@ public class Calculator {
             
             position++;
             if (position == operations.length()) {
-                terminate("Unexpected end of expression. Expected constant or (");
+                terminate("Unexpected end of expression. Expected constant or ( ");
             }
         }
         Long result = new Long(0);
@@ -100,6 +100,10 @@ public class Calculator {
     }
         
     public static void main(String[] args) {
+        
+        if(args.length == 0)
+            terminate("Usage: java Calculator [arithmetic expression]");
+        
         StringBuilder builder = new StringBuilder("(");
         for (int i = 0; i < args.length; i++) {
             builder.append(args[i]);
@@ -108,11 +112,9 @@ public class Calculator {
         String expression = builder.toString();
         
         Matcher matcher = Pattern.compile("[0-9A-Ha-h][ ]+[0-9A-Ha-h]").matcher(expression);
-        if(matcher.find()) {
+        if (matcher.find()) {
             System.err.println(expression.substring(1, matcher.start() + 4));
-            System.err.print("Expected operation +, -, * or / after constant, ");
-            System.err.println("but \' \' found");
-            System.exit(1);
+            terminate("Expected operation +, -, * or / after constant, but \' \' found");
         }
                 
         expression = expression.replace(" ", "");
