@@ -1,17 +1,12 @@
 package ru.fizteh.fivt.students.kislenko.calculator;
-/**
- * Created with IntelliJ IDEA.
- * User: Александр
- * Date: 14.09.13
- * Time: 20:00
- * To change this template use File | Settings | File Templates.
- */
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Stack;
+
+import static java.lang.Integer.MAX_VALUE;
 
 public class Calculator {
     private static final int RADIX = 17;
@@ -29,8 +24,7 @@ public class Calculator {
         return inputString;
     }
 
-    public static String toPolandNotation(String input) throws IOException {
-
+    private static String toPolandNotation(String input) throws IOException {
         Scanner scan = new Scanner(input);
         Stack<String> stack = new Stack<String>();
         StringBuilder polandBuilder = new StringBuilder();
@@ -175,9 +169,11 @@ public class Calculator {
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
-                if (Integer.MAX_VALUE - oper1 < oper2) {
-                    System.err.println("Too big values in expression.");
-                    System.exit(7);
+                if (Integer.signum(oper1) == Integer.signum(oper2)) {
+                    if (MAX_VALUE - StrictMath.abs(oper1) < StrictMath.abs(oper2)) {
+                        System.err.println("Too big values in expression.");
+                        System.exit(7);
+                    }
                 }
                 operandStack.push(oper1 + oper2);
             } else if (symbol.equals("-")) {
@@ -187,6 +183,12 @@ public class Calculator {
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
+                if (Integer.signum(oper1) != Integer.signum(oper2)) {
+                    if (MAX_VALUE - StrictMath.abs(oper1) < StrictMath.abs(oper2)) {
+                        System.err.println("Too big values in expression.");
+                        System.exit(7);
+                    }
+                }
                 operandStack.push(oper1 - oper2);
             } else if (symbol.equals("*")) {
                 if (operandStack.size() < 2) {
@@ -195,11 +197,11 @@ public class Calculator {
                 }
                 oper2 = operandStack.pop();
                 oper1 = operandStack.pop();
-                operandStack.push(oper1 * oper2);
-                if (Integer.MAX_VALUE / oper2 < oper1) {
+                if (oper2 != 0 && MAX_VALUE / StrictMath.abs(oper2) < StrictMath.abs(oper1)) {
                     System.err.println("Too big values in expression.");
                     System.exit(7);
                 }
+                operandStack.push(oper1 * oper2);
             } else if (symbol.equals("/")) {
                 if (operandStack.size() < 2) {
                     System.err.println("Too many operations in this expression.");
