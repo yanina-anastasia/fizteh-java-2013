@@ -176,9 +176,20 @@ class Calculator {
         }
     }
 
+    private void printUsage() {
+        System.out.println("It is a java-based calculator with base 17 numeral system");
+        System.out.println("A valid number: a sequence of [0-9a-gA-G]");
+        System.out.println("Valid operations: + - * /");
+        System.out.println("You can also use brackets to write longer expressions");
+    }
+
 
     public void run(String[] args, int ourBase) {
         try {
+            if (args.length == 0) {
+                printUsage();
+                throw new IllegalArgumentException("nothing to count :(");
+            }
             base = ourBase;
             expression = concatenateStrings(args);
             
