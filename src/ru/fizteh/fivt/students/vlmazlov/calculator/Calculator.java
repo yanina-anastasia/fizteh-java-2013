@@ -76,7 +76,7 @@ public class Calculator {
 		}
 
 		arg = argBuilder.toString();
-		System.out.println(arg);
+		
 		if (arg.equals("")) {
 			System.out.println("Usage: valid aritmetic expression, possibly divided in several strings");
 			System.exit(1);
@@ -85,7 +85,7 @@ public class Calculator {
 		calc.expression = new ByteArrayInputStream(arg.getBytes()); 
 		
 		try {
-			System.out.println(calc.countExpression());
+			System.out.println(Integer.toString(calc.countExpression(), radix).toUpperCase());
 		} catch (WrongArithmeticExpressionException ex) {
 			System.out.println(ex.getMessage() + ". Please try again.");
 			System.exit(2);
@@ -115,10 +115,10 @@ public class Calculator {
 		throw new WrongArithmeticExpressionException(errorMessage);
 	}
 
-	public double countExpression() throws WrongArithmeticExpressionException {
+	public int countExpression() throws WrongArithmeticExpressionException {
 		nextChar();
 		nextToken();
-		double res = parseExpression();
+		int res = parseExpression();
 
 		if (!curToken.equals(".")) {
 			throw new WrongArithmeticExpressionException(curToken + " out of place");
@@ -130,13 +130,15 @@ public class Calculator {
 	//In all following functions it is assumed that current token
 	//is the beginning of the parsed expression
 
-	private double parseExpression() throws WrongArithmeticExpressionException {
+	private int parseExpression() throws WrongArithmeticExpressionException {
 		//Expression is considered to be a sequence of summators,
 		//connected by + and -
 
-		double res = parseSummator();
+		int res = parseSummator();
 
 		while ((curToken.equals("+")) || (curToken.equals("-"))) {
+
+			int tmpRes;
 
 			OperationType operation = OperationType.getByType(curToken);
 
@@ -144,21 +146,27 @@ public class Calculator {
 			case sum:
 				nextToken();
 				
-				res += parseSummator();
+				tmpRes = parseSummator();
 				
-				if (res == Double.POSITIVE_INFINITY) {
+				if (((0 < tmpRes) && (Integer.MAX_VALUE - tmpRes < res)) || 
+					((0 > tmpRes) && (Integer.MIN_VALUE - tmpRes > res))) {
 					parseFail("Arithmetic overflow"); 
 				}
+
+				res += tmpRes;
 
 				break;
 			case sub:
 				nextToken();
 
-				res -= parseSummator();
+				tmpRes = parseSummator();
 				
-				if (res == Double.NEGATIVE_INFINITY) {
+				if (((0 > tmpRes) && (Integer.MAX_VALUE + tmpRes < res)) || 
+					((0 < tmpRes) && (Integer.MIN_VALUE + tmpRes > res))) {
 					parseFail("Arithmetic overflow"); 
 				}
+
+				res -= tmpRes;
 
 				break;
 			case end:
@@ -177,11 +185,12 @@ public class Calculator {
 		return res;
  	}
 
-	private double parseSummator() throws WrongArithmeticExpressionException {
+	private int parseSummator() throws WrongArithmeticExpressionException {
 		//Summator is a sequence of multipliers
 		//connected with * or /
 
-		double res = parseMultiplier();
+		int tmpRes;
+		int res = parseMultiplier();
 
 		while ((curToken.equals("*")) || (curToken.equals("/"))) {
 
@@ -191,30 +200,23 @@ public class Calculator {
 			case mult:
 				nextToken();
 				
-				res *= parseMultiplier();
+				tmpRes = parseMultiplier();	
 
-				if (res == Double.POSITIVE_INFINITY) {
-					parseFail("Arithmetic overflow"); 
-				} else if (res == Double.NEGATIVE_INFINITY) {
-					parseFail("Arithmetic overflow"); 
+				if (Integer.MAX_VALUE / Math.abs(tmpRes) < Math.abs(res))  {
+					parseFail("Arithmetic overflow");
 				}
 
+				res *= tmpRes;
 
 				break;
 			case div:
 				nextToken();
 				
-				double tmpRes = parseMultiplier();
-				if (Math.abs(tmpRes) >= 1e-7) { //!= 0
-					if (Math.abs(res) >= 1e-7) { //!= 0
-						res /= tmpRes;
-
-						if (Math.abs(res) < 1e-7) {//== 0
-							parseFail("Arithmetic underflow");
-						}
-					} else {
-						res = 0;
-					}
+				tmpRes = parseMultiplier();
+				
+				if (0 != tmpRes) { //!= 0
+					
+					res /= tmpRes;
 
 				} else throw new ArithmeticException();	
 
@@ -235,10 +237,10 @@ public class Calculator {
 		return res;
 	}
 
-	private double parseMultiplier() throws WrongArithmeticExpressionException {
+	private int parseMultiplier() throws WrongArithmeticExpressionException {
 		//Multiplier is either a number or an expression in brackets
 
-		double res = 0;
+		int res = 0;
 
 		if (curToken.equals("(")) {
 			nextToken();
@@ -293,7 +295,7 @@ public class Calculator {
 	private void nextToken() throws WrongArithmeticExpressionException {
 		//nextToken is never called recursively, therefore, it's valid
 		spaceSkipped = false;
-		
+
 		switch (curChar) {
 		case '(':
 		case ')':
