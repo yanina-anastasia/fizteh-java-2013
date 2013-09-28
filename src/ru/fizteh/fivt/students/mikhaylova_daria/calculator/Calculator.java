@@ -16,7 +16,7 @@ public class Calculator {
                     + "4) целочисленное деление\n"
                     + "\n"
                     + "Диапазон возможных значений: целые числа из промежутка от"
-                    + Integer.MIN_VALUE.toString(17) + " до " + Integer.MAX_VALUE.toString(17)  + "\n\n"
+                    + Integer.toString(Integer.MIN_VALUE, 17) + " до " + Integer.toString(Integer.MAX_VALUE, 17) + "\n\n"
                     + "Пример корректного выражения:\n"
                     + "1 + A + c - (4 * 5 / 2)\n"
             );
