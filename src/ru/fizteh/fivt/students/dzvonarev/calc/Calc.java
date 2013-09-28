@@ -5,53 +5,51 @@ import java.math.BigInteger;
 
 class Calc {
 
-    public static int priority(String str) {
-        if (str.equals("+") || str.equals("-")) {
+    public static int priority(Character str) {
+        if (str.equals('+') || str.equals('-')) {
             return 1;
         }
-        if (str.equals("*") || str.equals("/")) {
+        if (str.equals('*') || str.equals('/')) {
             return 2;
         }
-        if (str.equals("(")) {
+        if (str.equals('(')) {
             return 0;
         }
-        if (!str.equals("*") && !str.equals("-") && !str.equals("/")
-                && !str.equals("+") && !str.equals("(")) {
+        if (!str.equals('*') && !str.equals('-') && !str.equals('/')
+                && !str.equals('+') && !str.equals('(')) {
             System.err.println("Wrong operation");
             System.exit(1);
         }
         return 0;
     }
-    
-    public static BigInteger doOp(BigInteger num1, String op, BigInteger num2) {
-        if (op.equals("+")) {
+
+    public static BigInteger doOp(BigInteger num1, Character op, BigInteger num2) {
+        if (op.equals('+')) {
             return num1.add(num2);
         }
-        if (op.equals("*")) {
+        if (op.equals('*')) {
             return num1.multiply(num2);
         }
-        if (op.equals("-")) {
+        if (op.equals('-')) {
             return num1.subtract(num2);
         }
-        if (op.equals("/") && !num2.equals(0)) {
+        if (op.equals('/') && !num2.equals(BigInteger.ZERO)) {
             return num1.divide(num2);
         } else {
             System.err.println("Dividing by zero");
             System.exit(1);
         }
-        return BigInteger.valueOf(0);
+        return BigInteger.ZERO;
     }
 
-    private static Stack<String> number = new Stack();
-    private static Stack<String> operation = new Stack();
+    private static Stack<BigInteger> number = new Stack();
+    private static Stack<Character> operation = new Stack();
 
     public static void currentOperation() {
-        BigInteger num1 = new BigInteger(number.pop(), 19);
-        BigInteger num2 = new BigInteger(number.pop(), 19);
-        String op = operation.pop();
-        BigInteger num = doOp(num2, op, num1);
-        String newStr = num.toString(19);
-        number.push(newStr);
+        BigInteger num1 = number.pop();
+        BigInteger num2 = number.pop();
+        Character op = operation.pop();
+        number.push(doOp(num2, op, num1));
     }
 
     public static void main(String[] args) {
@@ -75,33 +73,35 @@ class Calc {
                                                        * number symbol
                                                        */
                 if (!str.isEmpty()) { /* we've found number */
-                    number.push(str);
+                    BigInteger n = new BigInteger(str, 19);
+                    number.push(n);
                     continue;
                 }
-                str = "" + args[i].charAt(j);
-                if (str.equals(" ")) {
+                Character ch = args[i].charAt(j);
+                if (ch.equals(' ')) {
                     ++j;
                     continue;
                 }
 
-                if (!str.equals("+") && !str.equals("-") && !str.equals("*")
-                        && !str.equals("/") && !str.equals("(")
-                        && !str.equals(")")) {
-                    System.err.println("Unknown symbol =  " + str);
+                if (!ch.equals('+') && !ch.equals('-') && !ch.equals('*')
+                        && !ch.equals('/') && !ch.equals('(')
+                            && !ch.equals(')')) {
+                    System.err.println("Unknown symbol =  " + ch);
                     System.exit(1);
                 }
 
-                if (str.equals("+") || str.equals("-") || str.equals("*")
-                        || str.equals("/")) { /* we've found operation */
+                if (ch.equals('+') || ch.equals('-') || ch.equals('*')
+                        || ch.equals('/')) { /* we've found operation */
                     if (operation.isEmpty()) {
-                        operation.push(str);
+                        operation.push(ch);
                     } else {
-                        if (priority(operation.peek()) < priority(str)) {
-                            operation.push(str);
-                        } else { /* now we do if op's bigger priority then now */                            
-                            while (priority(operation.peek()) >= priority(str)) {
+                        if (priority(operation.peek()) < priority(ch)) {
+                            operation.push(ch);
+                        } else { /* now we do if op's bigger priority then now */
+                            while (priority(operation.peek()) >= priority(ch)) {
                                 if (number.size() < 2) {
-                                    System.err.print("I can't do " + str + " operation");
+                                    System.err.println("I can't do " + ch
+                                            + " operation");
                                     System.exit(1);
                                 }
                                 currentOperation();
@@ -109,22 +109,22 @@ class Calc {
                                     break;
                                 }
                             }
-                            operation.push(str);
+                            operation.push(ch);
                         }
                     }
                     ++j;
                     continue;
                 }
 
-                if (str.equals("(")) {
-                    operation.push(str);
+                if (ch.equals('(')) {
+                    operation.push(ch);
                     ++j;
                     continue;
                 }
 
-                if (str.equals(")")) {
+                if (ch.equals(')')) {
                     if (!operation.isEmpty()) {
-                        while (!operation.peek().equals("(")) {
+                        while (!operation.peek().equals('(')) {
                             currentOperation();
                             if (operation.isEmpty()) {
                                 System.err.println("Wrong bracket sequence");
@@ -144,11 +144,12 @@ class Calc {
 
         while (!operation.isEmpty()) {
             if (number.size() < 2) {
-                System.err.print("I can't do " + operation.peek() + " operation");
+                System.err.println("I can't do " + operation.peek()
+                        + " operation");
                 System.exit(1);
             }
-            if (operation.peek().equals("(")) {
-                System.err.print("Wrong bracket sequence");
+            if (operation.peek().equals('(')) {
+                System.err.println("Wrong bracket sequence");
                 System.exit(1);
             }
             currentOperation();
@@ -157,6 +158,6 @@ class Calc {
             System.err.println("Wrong expression");
             System.exit(1);
         }
-        System.out.println(number.pop());
+        System.out.println(number.pop().toString(19));
     }
 }
