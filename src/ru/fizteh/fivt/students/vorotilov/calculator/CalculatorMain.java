@@ -11,7 +11,7 @@ public class CalculatorMain {
     }
 
     static int operatorPriority(char op) {
-        if(op == '+' || op == '-') {
+        if (op == '+' || op == '-') {
             return 1;
         } else if (op == '*' || op == '/') {
             return 2;
@@ -20,24 +20,40 @@ public class CalculatorMain {
         }
     }
 
+    public static void checkIntegerOverflow(long a) throws Exception {
+        if (a > Integer.MAX_VALUE) {
+            throw new Exception("Integer Overflow");
+        } else if (a < Integer.MIN_VALUE) {
+            throw new Exception("Integer Underflow");
+        }
+    }
+
     static void calculationStep(Stack<Integer> st, char op) throws Exception {
         if (st.size() < 2) {
-            throw new Exception("Operator: " + op + " need two arguments" );
+            throw new Exception("Operator: " + op + " need two arguments");
         }
         Integer r = st.pop();
         Integer l = st.pop();
         switch (op) {
             case '+':
-                st.push(l + r);
+                long add = ((long) l) + r;
+                checkIntegerOverflow(add);
+                st.push((int) add);
                 break;
             case '-':
-                st.push(l - r);
+                long min = ((long) l) - r;
+                checkIntegerOverflow(min);
+                st.push((int) min);
                 break;
             case '*':
-                st.push(l * r);
+                long mul = ((long) l) * r;
+                checkIntegerOverflow(mul);
+                st.push((int) mul);
                 break;
             case '/':
-                st.push(l / r);
+                long div = ((long) l) / r;
+                checkIntegerOverflow(div);
+                st.push((int) div);
                 break;
             default:
                 throw new Exception("Unknown operator: " + op);
@@ -48,7 +64,7 @@ public class CalculatorMain {
         Stack<Integer> st = new Stack<>();
         Stack<Character> op = new Stack<>();
         for (int i = 0; i < inputString.length(); ++i) {
-            if (!Character.isWhitespace(inputString.charAt(i)) ) {
+            if (!Character.isWhitespace(inputString.charAt(i))) {
                 if (inputString.charAt(i) == '(') {
                     op.push('(');
                 } else if (inputString.charAt(i) == ')') {
@@ -62,8 +78,7 @@ public class CalculatorMain {
                         calculationStep(st, op.pop());
                     }
                     op.push(inputString.charAt(i));
-                }
-                else {
+                } else {
                     StringBuilder operand = new StringBuilder();
                     while (i < inputString.length()
                             && (Character.isAlphabetic(inputString.charAt(i))
@@ -88,7 +103,7 @@ public class CalculatorMain {
     public static void main(String[] args) {
         try {
             StringBuilder theWholeArgument = new StringBuilder();
-            for (String arg: args) {
+            for (String arg : args) {
                 theWholeArgument.append(arg);
                 theWholeArgument.append(' ');
             }
