@@ -73,6 +73,7 @@ public class Calculator {
 
 		for (String tmp : args) {
 			argBuilder.append(tmp);
+			argBuilder.append(' ');
 		}
 
 		arg = argBuilder.toString();
@@ -202,7 +203,8 @@ public class Calculator {
 				
 				tmpRes = parseMultiplier();	
 
-				if (Integer.MAX_VALUE / Math.abs(tmpRes) < Math.abs(res))  {
+				if ((0 != tmpRes) //if tmpRes == 0, overflow is impossible anyway
+					&& (Integer.MAX_VALUE / Math.abs(tmpRes) < Math.abs(res)))  { 
 					parseFail("Arithmetic overflow");
 				}
 
@@ -214,7 +216,7 @@ public class Calculator {
 				
 				tmpRes = parseMultiplier();
 				
-				if (0 != tmpRes) { //!= 0
+				if (0 != tmpRes) {
 					
 					res /= tmpRes;
 
