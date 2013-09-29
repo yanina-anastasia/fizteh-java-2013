@@ -1,101 +1,53 @@
 package ru.fizteh.fivt.students.piakovenko.calculator;
 
-import static java.lang.Math.pow;
+import java.io.IOException;
 
 public class Node {
     private String s;
-    private boolean isSymbol;
     private Node rightNode;
     private Node leftNode;
 
-    private int toNumber(String s, int dec) {
-        int p = 0;
-        for (int i = s.length() -1; i >= 0; --i) {
-            if (s.charAt(i) >= 'A') {
-                p += (s.charAt(i) - 'A' + 10) * pow((double)dec, s.length() - i - 1  );
-            }
-            else if (s.charAt(i) >= '0') {
-                p += (s.charAt(i) - '0') * pow((double)dec, (s.length() - i - 1));
-            }
-        }
-        if (!s.isEmpty() && s.charAt(0) == '-') {
-            p *= -1;
-        }
-        return p;
-    }
-
-    private String toString(int n, int dec) {
-        StringBuilder t = new StringBuilder();
-        if (n < 0) {
-            n *= -1;
-            while (n > 0) {
-                int temp = n % dec;
-                if (temp < 10) {
-                    t.insert(0, (char)(temp + '0'));
-                }
-                else {
-                    t.insert(0, (char)(temp - 10 + 'A'));
-                }
-                n /= dec;
-            }
-            t.insert(0, "-");
-            return t.toString();
-        }
-        while (n > 0) {
-            int temp = n % dec;
-            if (temp < 10) {
-                t.insert(0,(char) (temp + '0'));
-            }
-            else {
-                t.insert(0,(char)(temp - 10 + 'A'));
-            }
-            n /= dec;
-        }
-        return t.toString();
-    }
-
-    private int calculation(int dec) {
+   //"("  "((A*A" ")+ B" ")" "-C)" "/2"
+    private int calculation(int dec) throws IOException {
         if (s.equals("*")) {
-            return toNumber(leftNode.getString(), dec) * toNumber(rightNode.getString(), dec);
-        }
-        else if (s.equals("/")) {
-            if (toNumber(rightNode.getString(), dec) == 0 ) {
-                throw(new RuntimeException("Trying divide by zero"));
+            if (Integer.MAX_VALUE /Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+                throw(new IOException("Ovefflow of integer"));
             }
-            return (toNumber(leftNode.getString(), dec) / toNumber(rightNode.getString(), dec));
-        }
-        else if (s.equals("-")) {
-            return toNumber(leftNode.getString(), dec) - toNumber(rightNode.getString(), dec);
-        }
-        else {
-            return toNumber(leftNode.getString(), dec) + toNumber(rightNode.getString(), dec);
+            return Integer.parseInt(leftNode.getString(), dec) * Integer.parseInt(rightNode.getString(), dec);
+        } else if (s.equals("/")) {
+            if (Integer.parseInt(rightNode.getString(), dec) == 0 ) {
+                throw(new IOException("Trying divide by zero"));
+            }
+            return Integer.parseInt(leftNode.getString(), dec) / Integer.parseInt(rightNode.getString(), dec);
+        } else if (s.equals("-")) {
+            if ( Integer.signum(Integer.parseInt(leftNode.getString(), dec)) == Integer.signum(Integer.parseInt(rightNode.getString(), dec)) ) {
+                if (Integer.MAX_VALUE - Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+                    throw(new IOException("Ovefflow of integer"));
+                }
+            }
+            return Integer.parseInt(leftNode.getString(), dec) - Integer.parseInt(rightNode.getString(), dec);
+        } else {
+            if ( Integer.signum(Integer.parseInt(leftNode.getString(), dec)) == Integer.signum(Integer.parseInt(rightNode.getString(), dec)) ) {
+                   if (Integer.MAX_VALUE - Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+                        throw(new IOException("Ovefflow of integer"));
+                   }
+            }
+            return Integer.parseInt(leftNode.getString(), dec) + Integer.parseInt(rightNode.getString(), dec);
         }
     }
 
     public Node(String s1) {
         this.s = s1;
-        this.isSymbol = false;
         this.leftNode = new Node();
         this.rightNode = new Node();
     }
 
     public Node() {
         this.s = "";
-        this.isSymbol = false;
-    }
-
-    public Node(String s1, boolean flag) {
-        this.s = s1;
-        this.isSymbol = flag;
-        this.leftNode = new Node();
-        this.rightNode = new Node();
     }
 
     public boolean isEmpty() {
-        if (s ==  "") {
-            return true;
-        }
-        return false;
+        return s.isEmpty();
     }
 
     public void addRightNode(Node n) {
@@ -113,17 +65,17 @@ public class Node {
         return this.s.equals(t);
     }
 
-    public void Calculate() {
+    public void calculate() throws IOException {
         if (this.leftNode.isEmpty() && this.rightNode.isEmpty()){
             return;
         }
         if (!this.leftNode.isEmpty()) {
-            leftNode.Calculate();
+            leftNode.calculate();
         }
         if ( !this.rightNode.isEmpty()) {
-            rightNode.Calculate();
+            rightNode.calculate();
         }
-        this.s = toString(calculation(19), 19);
+        this.s = Integer.toString(calculation(19), 19);
         leftNode.s = "";
         rightNode.s = "";
     }

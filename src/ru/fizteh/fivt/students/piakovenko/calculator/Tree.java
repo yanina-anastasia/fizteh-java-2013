@@ -2,25 +2,17 @@ package ru.fizteh.fivt.students.piakovenko.calculator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
 
 
 public class Tree {
-
-    private String copyString(String s, int from, int to) {
-        StringBuilder t  = new StringBuilder(5);
-        for (int i = from; i <= to; ++i) {
-            t.append(s.charAt(i));
-        }
-        return t.toString();
-    }
 
     private int findBracket(String s, int from) {
         int bracketsSum = 0;
         for (int i = from; i < s.length(); ++i) {
             if (s.charAt(i) == '(') {
                 ++bracketsSum;
-            }
-            else if (s.charAt(i) == ')') {
+            } else if (s.charAt(i) == ')') {
                 --bracketsSum;
             }
             if (bracketsSum == 0) {
@@ -30,26 +22,15 @@ public class Tree {
         return -1;
     }
 
-    private String deleteString(String s, int from, int to) {
-        StringBuilder temp = new StringBuilder();
-        for (int i = 0; i < from; ++i) {
-            temp.append(s.charAt(i));
-        }
-        for (int i = to +1; i < s.length(); ++i ) {
-            temp.append(s.charAt(i));
-        }
-        return temp.toString();
-    }
-
-    public List <Node> firstTime(String s) {
+    public List <Node> parseExpressionNodes(String s) throws IOException {
         List <Node> l =  new ArrayList<Node>();
-        StringBuilder temp = new StringBuilder();
-        boolean isSymbol = false;
+        boolean isSymbol = false, isNumber = true;
         for (int i = 0; i < s.length(); ++i){
+            StringBuilder temp = new StringBuilder();
             if (s.charAt(i) == '('){
                 int tp = findBracket(s, i);
-                l.add(parser( copyString (s, i + 1,tp - 1)));
-                s = deleteString(s, i, tp);
+                l.add(parseCalculationTree(s.substring(i + 1, tp)));
+                s = s.substring(0, i) + s.substring(tp + 1);
                 --i;
                 isSymbol = false;
                 continue;
@@ -57,41 +38,40 @@ public class Tree {
             if (s.charAt(i) == '\t' || s.charAt(i) == '\n' || s.charAt(i) == ' ') {
                 continue;
             }
-            while (i < s.length() && s.charAt(i) != '+' &&  s.charAt(i) != '*' && s.charAt(i) != '/') {
-                if (s.charAt(i) == '-' && i == 0) {
-                    temp.append(s.charAt(i));
-                    isSymbol = false;
-                    ++i;
-                    continue;
-                }
-                else if (s.charAt(i) == '-') {
-                    break;
-                }
+            while (i < s.length() && s.charAt(i) != '+' &&  s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/') {
                 if (s.charAt(i) == '\t' || s.charAt(i) == '\n' || s.charAt(i) == ' ') {
+                    if (!temp.toString().isEmpty()) {
+                        isNumber = false;
+                    }
                     ++i;
                     continue;
                 }
+                if (!isNumber && !temp.toString().isEmpty()) {
+                    throw new IOException("No arifmetic symbol between two number!");
+                }
+                isNumber = true;
                 temp.append(s.charAt(i));
                 ++i;
             }
-            if (!temp.toString().equals("")) {
+            if (!temp.toString().isEmpty()) {
                 l.add(new Node(temp.toString()));
                 isSymbol = false;
-                temp.delete(0, temp.length());
+                isNumber = false;
             }
             if (i < s.length() - 1) {
-                if (isSymbol)
-                    throw (new RuntimeException("Two symbols together (++, --, */, etc)"));
-                temp.append(s.charAt(i));
+                if (isSymbol) {
+                    throw (new IOException("Two symbols together (++, --, */, etc)"));
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append(s.charAt(i));
                 isSymbol = true;
-                l.add(new Node(temp.toString(), true));
-                temp.delete(0, temp.length());
+                l.add(new Node(sb.toString()));
             }
         }
         return l;
     }
 
-    public Node secondTime(List <Node> l) {
+    public Node buildCalculationTree(List <Node> l) {
         for (int i =0; i < l.size(); ++i) {
             if (l.get(i).equal("*") || l.get(i).equal("/")) {
                 l.get(i).addLeftNode(l.remove(i - 1));
@@ -107,10 +87,10 @@ public class Tree {
         return l.get(0);
     }
 
-    public Node parser(String s) {
-        List <Node> l =  firstTime(s);
-        Node f = secondTime(l);
-        f.Calculate();
+    public Node parseCalculationTree(String s) throws IOException {
+        List <Node> l =  parseExpressionNodes(s);
+        Node f = buildCalculationTree(l);
+        f.calculate();
         return f;
     }
 }

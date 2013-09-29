@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.piakovenko.calculator;
 
+import java.io.IOException;
+
 public class Calculator {
 
     private static boolean bracketsSum(String s) {
@@ -17,26 +19,26 @@ public class Calculator {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println("Error: No program arguments!");
-            return;
+            System.err.println("Error: No program arguments!");
+            System.exit(1);
         }
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < args.length; ++i) {
-            s.append(args[i]);
+            s.append(' ' + args[i]);
         }
         if (!bracketsSum (s.toString())) {
-            System.out.println("Error: Wrong brackets!");
-            return;
+            System.err.println("Error: Wrong brackets!");
+            System.exit(2);
         }
-        Node p;
+        Node p = new Node();
         try{
             Tree t = new Tree();
-            p = t.parser(s.toString());
-        } catch ( RuntimeException e) {
-            System.out.println("Error: " + e.getMessage());
-            return;
+            p = t.parseCalculationTree(s.toString());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(3);
         }
-        if ( p.getString().equals("")) {
+        if ( p.getString().isEmpty()) {
            System.out.println('0');
         }
         else {
