@@ -144,8 +144,7 @@ public class Calculator {
 
                 if (t.equals("*")) {
                     if (o1 != 0 && o2 != 0) {
-                        if (Integer.MAX_VALUE / Math.abs(o1) <= Math.abs(o2)) {
-                        } else {
+                        if (Integer.MAX_VALUE / Math.abs(o1) < Math.abs(o2)) {
                             throw new NumberFormatException();
                         }
                     }
