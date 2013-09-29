@@ -1,3 +1,5 @@
+package ru.fizteh.fivt.students.dubovpavel.calculator;
+
 class Token<L, R> {
     private L l;
     private R r;

@@ -1,3 +1,5 @@
+package ru.fizteh.fivt.students.dubovpavel.calculator;
+
 class SafeInteger {
     private static String getOverflowExceptionText() {
         return "Integer overflow.";

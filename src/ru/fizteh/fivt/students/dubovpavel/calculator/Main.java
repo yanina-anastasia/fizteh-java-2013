@@ -1,3 +1,5 @@
+package ru.fizteh.fivt.students.dubovpavel.calculator;
+
 public class Main {
     public static void main(String[] args) {
         try {

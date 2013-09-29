@@ -1,11 +1,13 @@
+package ru.fizteh.fivt.students.dubovpavel.calculator;
+
 import java.util.EmptyStackException;
 import java.util.ArrayList;
 import java.util.Stack;
 
 class Calculator {
-    public static final int RADIX = 19;
-    public static final char LASTLETTER = 'A' + RADIX - 10 - 1;
-    public static final String BUG = "Program contains a bug.";
+    private static final int RADIX = 19;
+    private static final char LASTLETTER = 'A' + RADIX - 10 - 1;
+    private static final String BUG = "Program contains a bug.";
 
     class InappropriateSymbolException extends Exception {
         InappropriateSymbolException(String message) {
