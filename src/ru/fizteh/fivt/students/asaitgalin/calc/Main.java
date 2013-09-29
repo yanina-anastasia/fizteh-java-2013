@@ -17,10 +17,13 @@ public class Main {
             System.out.println(Integer.toString(parser.parseExpr(), 19).toUpperCase());
         } catch (IllegalExpressionException iee) {
             System.err.println(iee.getMessage());
+            System.exit(1);
         } catch (ArithmeticException ae) {
             System.err.println(ae.getMessage());
+            System.exit(1);
         } catch (NumberFormatException nfe) {
             System.err.println("Integer overflow error");
+            System.exit(1);
         }
 
 

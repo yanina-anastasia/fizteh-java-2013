@@ -101,18 +101,22 @@ public class Parser {
         if (look.type == Token.TokenType.NUMBER) {
             ret = ((Number)look).value;
             move();
-        } else if (look.type == Token.TokenType.OPERATOR && ((Operator)look).opType == Operator.OperatorType.LBRACKET) {
-            move();
-            ret = parseExpr();
-            // Check matching bracket
-            if (look != null && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
+        } else if (look.type == Token.TokenType.OPERATOR) {
+            Operator op = (Operator)look;
+            if (op.opType == Operator.OperatorType.LBRACKET) {
                 move();
+                ret = parseExpr();
+                // Check matching bracket
+                if (look != null && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
+                    move();
+                } else {
+                    throw new IllegalExpressionException("Missing matching bracket");
+                }
             } else {
-                throw new IllegalExpressionException("Missing matching bracket");
+                throw new IllegalExpressionException();
             }
-        } else if (look.type == Token.TokenType.OPERATOR && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
-            throw  new IllegalExpressionException("No expression between brackets");
         }
         return ret;
     }
+
 }

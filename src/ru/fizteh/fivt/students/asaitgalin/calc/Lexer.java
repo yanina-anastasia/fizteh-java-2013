@@ -13,7 +13,6 @@ public class Lexer {
     private int len;
 
     private LexerPrevState prevState;
-    private Token prevToken;
 
     public Lexer(String s) {
         input = s.toCharArray();
@@ -27,20 +26,12 @@ public class Lexer {
             return null;
         }
         if (isOperator(input[cursor])) {
-            if (prevState == LexerPrevState.OPERATOR) {
-                Operator op = (Operator)prevToken;
-                if ((op.lexeme == '*' && input[cursor] == '*') || (op.lexeme == '/' && input[cursor] == '/') ||
-                        (op.lexeme == '*' && input[cursor] == '/') || (op.lexeme == '/' && input[cursor] == '*')) {
-                    throw new IllegalExpressionException();
-                }
-            }
             prevState = LexerPrevState.OPERATOR;
             try {
                 ret = new Operator(input[cursor++]);
             } catch (IOException ioe) {
                 // This can not occure
             }
-            prevToken = ret;
         } else {
             StringBuilder sb = new StringBuilder();
             while (cursor < len && !isOperator(input[cursor]) && !Character.isWhitespace(input[cursor])) {
@@ -52,7 +43,6 @@ public class Lexer {
                     throw new IllegalExpressionException();
                 }
                 ret = new Number(out);
-                prevToken = ret;
             } else {
                 throw new IllegalExpressionException();
             }
