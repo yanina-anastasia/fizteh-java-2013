@@ -44,31 +44,23 @@ public class Calculator {
 			for (int i = 0; i < s.length(); ++i) {
 				char token = s.charAt(i);
 				if (isFigure(token)) {
-					if (prev == FIGURE && wasSpace) {
-						return false;
-					} else if (prev == RIGHT_BRACKET) {
+					if ((prev == FIGURE && wasSpace) || prev == RIGHT_BRACKET) {
 						return false;
 					}
 					wasSpace = false;
 					prev = FIGURE;
 				} else if (isOperator(token)) {
-					if (prev == OPERATOR) {
-						return false;
-					} else if (prev == LEFT_BRACKET) {
+					if (prev == OPERATOR || prev == LEFT_BRACKET) {
 						return false;
 					}
 					prev = OPERATOR;
 				} else if (token == '(') {
-					if (prev == FIGURE) { 
-						return false;
-					} else if (prev == RIGHT_BRACKET) {
+					if (prev == FIGURE || prev == RIGHT_BRACKET) { 
 						return false;
 					}
 					prev = LEFT_BRACKET;
 				} else if (token == ')') {
-					if (prev == OPERATOR) {
-						return false;
-					} else if (prev == LEFT_BRACKET) {
+					if (prev == OPERATOR || prev == LEFT_BRACKET) {
 						return false;
 					}
 					prev = RIGHT_BRACKET;
@@ -158,9 +150,8 @@ public class Calculator {
 				int op2 = numbers.pop();
 				if (op1 != 0 && Integer.MAX_VALUE / op1 < op2) {
 					throw new IOException("Too big value");
-				} else {
-					numbers.push (op1 * op2);
 				}
+				numbers.push (op1 * op2);
 			} else if (token == '-') {
 				if (numbers.size() < 2) {
 					throw new IOException("Incorrect syntax");
@@ -169,9 +160,8 @@ public class Calculator {
 				int op2 = numbers.pop();
 				if (Integer.MIN_VALUE + op1 > op2) {
 					throw new IOException("Too small value");
-				} else {
-					numbers.push (op2 - op1);
 				}
+				numbers.push (op2 - op1);
 			} else if (token == '/') {
 				if (numbers.size() < 2) {
 					throw new IOException("Incorrect syntax");
