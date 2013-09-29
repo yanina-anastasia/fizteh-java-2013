@@ -2,10 +2,11 @@ package ru.fizteh.fivt.students.asaitgalin.shell;
 
 import ru.fizteh.fivt.students.asaitgalin.shell.commands.Command;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandTable {
-    private Hashtable<String, Command> table = new Hashtable<String, Command>();
+    private Map<String, Command> table = new HashMap<String, Command>();
 
     public void appendCommand(Command cmd) {
         table.put(cmd.getName(), cmd);
