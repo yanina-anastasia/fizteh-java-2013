@@ -104,11 +104,11 @@ public class Calculator {
         }
 
         StringBuilder outputString = new StringBuilder();
-        if (!output.isEmpty()) {
-            outputString.append(output.remove(0));
-        }
-        while (!output.isEmpty()) {
-            outputString.append(" ").append(output.remove(0));
+        for (int i = 0; i < output.size(); ++i) {
+            if (i != 0) {
+                outputString.append(" ");
+            }
+            outputString.append(output.get(i));
         }
 
         return outputString.toString();
@@ -121,7 +121,7 @@ public class Calculator {
         while (tr.hasMoreTokens()) {
             String t = tr.nextToken();
 
-            if (!MATH_OPERATIONS.keySet().contains(t)) {
+            if (!MATH_OPERATIONS.containsKey(t)) {
                 try {
                     Integer a = Integer.valueOf(t, RADIX);
                     rpnStack.push(a);
@@ -143,8 +143,11 @@ public class Calculator {
                 Integer o1 = rpnStack.pop();
 
                 if (t.equals("*")) {
-                    if (Integer.MAX_VALUE / Math.abs(o1) > Math.abs(o2)) {
-                        throw new NumberFormatException();
+                    if (o1 != 0 && o2 != 0) {
+                        if (Integer.MAX_VALUE / Math.abs(o1) <= Math.abs(o2)) {
+                        } else {
+                            throw new NumberFormatException();
+                        }
                     }
 
                     rpnStack.push(o1 * o2);
