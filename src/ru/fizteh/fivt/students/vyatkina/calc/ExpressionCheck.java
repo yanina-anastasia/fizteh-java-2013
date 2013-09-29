@@ -1,16 +1,8 @@
 package ru.fizteh.fivt.students.vyatkina.calc;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.util.Scanner;
+import java.lang.IllegalArgumentException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: ava_katushka
- * Date: 27.09.13
- * Time: 15:42
- * To change this template use File | Settings | File Templates.
- */
 public class ExpressionCheck {
 
    static void operationOverflowCheck (int a, int b, char operation) throws IllegalArgumentException {
@@ -78,6 +70,7 @@ public class ExpressionCheck {
 
     static void invalidExpressionCheck (String expression) throws IllegalArgumentException {
         //Let's think that we should have at list two operands and one operation
+        // or only one operand and no operations
         //Also the number of operations should be one less then the number of operands
         //We couldn't have two operands or two operations in a row
 
@@ -87,12 +80,8 @@ public class ExpressionCheck {
         boolean nextIsOperand = true;
         String operation = "\\+|\\-|\\*|\\/";
 
-        String whiteSpaceExpression = expression.replace ("+"," + ");
-        whiteSpaceExpression = whiteSpaceExpression.replace ("-"," - ");
-        whiteSpaceExpression = whiteSpaceExpression.replace ("*", " * ");
-        whiteSpaceExpression = whiteSpaceExpression.replace ("/", " / ");
-        whiteSpaceExpression = whiteSpaceExpression.replace ("(", " ( ");
-        whiteSpaceExpression = whiteSpaceExpression.replace (")", " ) ");
+        String whiteSpaceExpression = expression.replace ("+"," + ").replace ("-", " - ")
+                .replace ("*"," * ").replace ("/"," / ").replace ("("," ( ").replace (")"," ) ");
 
         Scanner scanner = new Scanner(whiteSpaceExpression);
         scanner.useRadix(StackCalculator.RADIX);
@@ -120,6 +109,7 @@ public class ExpressionCheck {
         }
 
         if ((numberOfOperands < 2) || (numberOfOperations < 1)) {
+            if (!(numberOfOperands == 1 && numberOfOperations == 0))
             throw new IllegalArgumentException ("InvalidExpressionCheck: too few operations or operands");
         }
 
