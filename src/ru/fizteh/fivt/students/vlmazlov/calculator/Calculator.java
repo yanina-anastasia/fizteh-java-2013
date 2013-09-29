@@ -7,22 +7,22 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.lang.StringBuilder;
 
-class WrongArithmeticExpressionException extends Exception {
-	public WrongArithmeticExpressionException() { 
-		super(); 
-	}
-	public WrongArithmeticExpressionException(String message) { 
-		super(message); 
-	}
-	public WrongArithmeticExpressionException(String message, Throwable cause) { 
-		super(message, cause); 
-	}
-	public WrongArithmeticExpressionException(Throwable cause) { 
-		super(cause); 
-	}
-};
-
 public class Calculator {
+
+	private class WrongArithmeticExpressionException extends Exception {
+		public WrongArithmeticExpressionException() { 
+			super(); 
+		}
+		public WrongArithmeticExpressionException(String message) { 
+			super(message); 
+		}
+		public WrongArithmeticExpressionException(String message, Throwable cause) { 
+			super(message, cause); 
+		}
+		public WrongArithmeticExpressionException(Throwable cause) { 
+			super(cause); 
+		}
+	}
 
 	private enum OperationType {
 		sum("+"),
