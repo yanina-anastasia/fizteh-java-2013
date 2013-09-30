@@ -1,0 +1,305 @@
+package ru.fizteh.fivt.students.irinaGoltsman.calculator;
+
+import java.util.ArrayList;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Calculator {
+
+    private static boolean isItArithmeticSign(String c) {
+        if (c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/"))
+            return true;
+        else return false;
+    }
+
+    private static boolean isItFigure(char c) {
+        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'G'))
+            return true;
+        else return false;
+    }
+
+    private static boolean isNumber(String number) {
+        switch (number.length()) {
+            case 0:
+                return false;
+            case 1:
+                return isItFigure(number.charAt(0));
+            default: {
+                for (int i = 1; i < number.length(); i++)
+                    if (!isItFigure(number.charAt(i)))
+                        return false;
+                return true;
+            }
+        }
+    }
+
+    private static ArrayList<String> divideNumberMinusNumber(String string) {
+        char c;
+        ArrayList<String> result = new ArrayList<String>();
+        int flag = 0;
+        StringBuilder tmp = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            c = string.charAt(i);
+            if (isItFigure(c)) {
+                tmp.append(c);
+                flag = 0;
+                continue;
+            } else if (c == '-') {
+                if (flag == 0) {
+                    flag++;
+                    result.add(tmp.toString());
+                    tmp.delete(0, tmp.length());
+                    result.add("-");
+                } else {
+                    result.clear();
+                    return result;
+                }
+            } else {
+                result.clear();
+                return result;
+            }
+        }
+        if (tmp.length() != 0)
+            result.add(tmp.toString());
+        return result;
+    }
+
+    //Проверка введённого выражения на корректность.
+    private static void checkExpression(ArrayList<String> list) {
+        if (list.size() == 0) {
+            System.err.println("You have tried to run the program 'Calculator'");
+            System.err.println("Please, restart it with expression that you want to count");
+            System.err.println("Use symbols: '-', '+', '/', '*', ')', '(',");
+            System.err.println("numbers : [0..9], and letters: [A..G]");
+            System.exit(1);
+        } else {
+            //Тип последнего рассмотренного символа
+            //0 - '('
+            //1 - ')'
+            //2 - '+' || '-' || '/' || '*'
+            //3 - число
+            int status;
+            //Разница между количеством открывающих и закрывающих скобок
+            int brackets = 0;
+            //Рассматриваемый символ
+            int start = 0;
+            if (list.get(start).equals("(")) {
+                brackets++;
+                status = 0;
+            } else if (isNumber(list.get(start))) {
+                status = 3;
+            } else {
+                ArrayList<String> buf = new ArrayList<String>();
+                buf = divideNumberMinusNumber(list.get(start));
+                if (buf.size() == 0) {
+                    status = -1;
+                    System.err.println("Incorrect input:" + list.get(start) + " Check the begin of the formula.");
+                    System.exit(1);
+                }
+                list.remove(start);
+                list.addAll(start, buf);
+                start = buf.size()-1;
+                if (list.get(start).equals("-"))
+                    status = 2;
+                else status = 3;
+            }
+            for (int i = start+1; i < list.size(); i++) {
+                if (isNumber(list.get(i))) {
+                    if (status == 1) {
+                        System.err.println("Incorrect input: after ')' can not be a number.");
+                        System.exit(1);
+                    }
+                    if (status == 3) {
+                        System.err.println("Incorrect input: after a number can not be another number.");
+                        System.exit(1);
+                    }
+                    status = 3;
+                } else if (list.get(i).equals("(")) {
+                    brackets++;
+                    if (status == 1) {
+                        System.err.println("Incorrect input: after ')' can not be '('.");
+                        System.exit(1);
+                    }
+                    if (status == 3) {
+                        System.err.println("Incorrect input: after a number can not be '('  .");
+                        System.exit(1);
+                    }
+                    status = 0;
+                } else if (list.get(i).equals(")")) {
+                    brackets--;
+                    if (status == 0) {
+                        System.err.println("Incorrect input: after '(' can not be ')'.");
+                        System.exit(1);
+                    }
+                    if (status == 2) {
+                        System.err.println("Incorrect input: after an arithmetic sign can not be ')'.");
+                        System.exit(1);
+                    }
+                    status = 1;
+                } else if (isItArithmeticSign(list.get(i))) {
+                    if (status == 0) {
+                        System.err.println("Incorrect input: after '(' can not be an arithmetic sign.");
+                        System.exit(1);
+                    }
+                    if (status == 2) {
+                        System.err.println("Incorrect input: there can not be two arithmetic signs together.");
+                        System.exit(1);
+                    }
+                    status = 2;
+                } else {
+                    ArrayList<String> buf = new ArrayList<String>();
+                    buf = divideNumberMinusNumber(list.get(i));
+                    if (buf.size() == 0) {
+                        System.err.println("Incorrect input:" + list.get(i));
+                        System.exit(1);
+                    }
+                    list.addAll(start, buf);
+                    i = buf.size() - 1;
+                    if (list.get(i).equals("-"))
+                        status = 2;
+                    else status = 3;
+                }
+            }
+            if (status == 2) {
+                System.err.println("Incorrect input: the expression can not end on an arithmetic sign ");
+                System.exit(1);
+            }
+            if (brackets != 0) {
+                System.err.println("Incorrect input: there is a wrong number of brackets");
+                System.exit(1);
+            }
+        }
+    }
+
+    //Приоритет операций
+    private static int priority(String a) {
+        int p;
+        if (a.equals("("))
+            p = 0;
+        else if (a.equals(")"))
+            p = 1;
+        else if (a.equals("+") || a.equals("-"))
+            p = 2;
+        else if (a.equals("*") || a.equals("/"))
+            p = 3;
+        else p = -1;
+        return p;
+    }
+
+    private static void polishRecord(ArrayList<String> list) {
+        ArrayList<String> result = new ArrayList<String>();
+        Stack stack = new Stack();
+        int priorPrev;
+        int prior;
+        for (String string : list) {
+            if (isNumber(string)) {
+                result.add(string);
+            } else {
+                if (stack.size() == 0)
+                    priorPrev = 0;
+                else
+                    priorPrev = priority(stack.peek().toString());      //приоритет последнего элемента в стеке
+                prior = priority(string);        //приоритет текущего элемента
+
+                if ((stack.size() == 0 || priorPrev == 0) && prior!= 1) {    //если в стеке нет операций или верхним элементом стека является открывающая скобка, операции кладётся в стек;
+                    stack.push(string);
+                    continue;
+                }
+                if (prior == 0) {                    //открвающая скобка кладется в стек
+                    stack.push(string);
+                    continue;
+                }
+                if (prior == 1) {   //До тех пор, пока верхним элементом стека не станет открывающая скобка, выталкиваем элементы из стека в выходную строку
+                    while (priorPrev != 0) {
+                        result.add(stack.pop().toString());
+                        if (stack.size() == 0)
+                            priorPrev = 0;
+                        else
+                            priorPrev = priority(stack.peek().toString());
+                    }
+                    stack.pop();            //delete last elem
+                    continue;
+                }
+                if (prior > priorPrev) {          //если новая операции имеет больший* приоритет, чем верхняя операции в стеке, то новая операции кладётся в стек;
+                    stack.push(string);
+                    continue;
+                }
+                if (prior <= priorPrev) {                                        //если новая операция имеет меньший или равный приоритет,
+                    while (prior <= priorPrev && stack.size() != 0) {        //чем верхняя операции в стеке, то операции, находящиеся в стеке,
+                        result.add(stack.pop().toString());                    //до ближайшей открывающей скобки или до операции с приоритетом меньшим,
+                        //чем у новой операции, перекладываются в формируемую запись,
+                        if (stack.size() == 0)
+                            priorPrev = 0;
+                        else
+                            priorPrev = priority(stack.peek().toString());
+                    }
+                    stack.push(string);                            // а новая операции кладётся в стек.
+                }
+            }
+        }
+        while (stack.size() != 0) {
+            result.add(stack.pop().toString());
+        }
+        list.clear();
+        list.addAll(result);
+    }
+
+    public static String countPolishRecord(ArrayList<String> formula) {
+        int i = 0;
+        while (formula.size() != 1) {
+            String first = formula.get(i);
+            String second = formula.get(i + 1);
+            String third = formula.get(i + 2);
+            if (isNumber(third))
+                i++;
+            else {
+                int a = Integer.parseInt(first, 17);
+                int b = Integer.parseInt(second, 17);
+                int res;
+                if (third.equals("+"))
+                    res = a + b;
+                else if (third.equals("-"))
+                    res = a - b;
+                else if (third.equals("*"))
+                    res = a * b;
+                else if (third.equals("/"))
+                    res = a / b;
+                else {
+                    res = -1;
+                    System.err.println("There are the error in the function 'countPolishRecord'");
+                    System.exit(1);
+                }
+                String resultNumber = Integer.toString(res, 17);
+                resultNumber = resultNumber.toUpperCase();
+                formula.remove(i + 2);
+                formula.remove(i + 1);
+                formula.remove(i);
+                formula.add(i, resultNumber);
+                i = 0;
+            }
+        }
+        return formula.get(0);
+    }
+
+    public static void main(String[] args) {
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < args.length; i++) {
+            str.append(args[i]);
+            str.append(" ");
+        }
+        String string = str.toString().toUpperCase();
+        StringTokenizer st = new StringTokenizer(string, "+/*() ", true);
+        ArrayList<String> list = new ArrayList<String>();
+        while (st.hasMoreElements()) {
+            String tmp = (String) st.nextElement();
+            if (!tmp.equals(" ")) {
+                String tmp2 = tmp.replaceAll(" ", "");
+                list.add(tmp2);
+            }
+        }
+        checkExpression(list);
+        polishRecord(list);
+        String result = countPolishRecord(list);
+        System.out.println(result);
+    }
+}
