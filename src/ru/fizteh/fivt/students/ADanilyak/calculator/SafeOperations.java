@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ADanilyak.calculator;
+package ru.fizteh.fivt.students.adanilyak.calculator;
 
 /**
  * User: Alexander

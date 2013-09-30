@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ADanilyak.calculator;
+package ru.fizteh.fivt.students.adanilyak.calculator;
 
 /**
  * User: Alexander
@@ -18,8 +18,12 @@ class Calculator {
     }
 
     // Бьем строку в лист токенов
-    public ArrayList<String> stringIntoTokens() {
-        ArrayList<String> tokens = new ArrayList<String>();
+    public List<String> stringIntoTokens() {
+        if (this.equation.matches("\\s*")) {
+            System.err.println("empty input");
+            System.exit(3);
+        }
+        List<String> tokens = new ArrayList<String>();
         Scanner tokenize = new Scanner(this.equation);
         String currentToken = "";
         while (tokenize.hasNext()) {
@@ -33,9 +37,9 @@ class Calculator {
     }
 
     // Переводим лист токенов в обратную польскую нотацию
-    public ArrayDeque<String> intoReversePolishNotation(ArrayList<String> tokens) {
+    public Deque<String> intoReversePolishNotation(List<String> tokens) {
         boolean lastTokenWasNumber = false;
-        ArrayDeque<String> reversePolishNotation = new ArrayDeque<String>();
+        Deque<String> reversePolishNotation = new ArrayDeque<String>();
         Stack<String> operators = new Stack<String>();
         String tempToken;
         while (!tokens.isEmpty()) {
@@ -44,7 +48,7 @@ class Calculator {
 
             if (tempToken.matches("-[0-9A-Z]+|[0-9A-Z]+")) {
                 if (lastTokenWasNumber) {
-                    System.err.print("wrong equation");
+                    System.err.println("wrong equation");
                     System.exit(1);
                 }
                 reversePolishNotation.add(tempToken);
@@ -63,6 +67,10 @@ class Calculator {
                             }
                         }
                         operators.push("+");
+                        if (!lastTokenWasNumber) {
+                            System.err.println("wrong equation");
+                            System.exit(1);
+                        }
                         lastTokenWasNumber = false;
                         break;
                     case MINUS:
@@ -74,6 +82,10 @@ class Calculator {
                             }
                         }
                         operators.push("-");
+                        if (!lastTokenWasNumber) {
+                            System.err.println("wrong equation");
+                            System.exit(1);
+                        }
                         lastTokenWasNumber = false;
                         break;
                     case MULT:
@@ -86,6 +98,10 @@ class Calculator {
                             }
                         }
                         operators.push("*");
+                        if (!lastTokenWasNumber) {
+                            System.err.println("wrong equation");
+                            System.exit(1);
+                        }
                         lastTokenWasNumber = false;
                         break;
                     case DIV:
@@ -98,6 +114,10 @@ class Calculator {
                             }
                         }
                         operators.push("/");
+                        if (!lastTokenWasNumber) {
+                            System.err.println("wrong equation");
+                            System.exit(1);
+                        }
                         lastTokenWasNumber = false;
                         break;
                     case OBRCKT:
@@ -114,7 +134,7 @@ class Calculator {
                             }
                         }
                         if (!correctEquation) {
-                            System.err.print("wrong equation");
+                            System.err.println("wrong equation");
                             System.exit(1);
                         }
 
@@ -126,7 +146,7 @@ class Calculator {
 
         while (!operators.empty()) {
             if (operators.peek().equals("(")) {
-                System.err.print("wrong equation");
+                System.err.println("wrong equation");
                 System.exit(1);
             }
             reversePolishNotation.add(operators.pop());
@@ -137,7 +157,7 @@ class Calculator {
 
     // Проводим вычисления
     public String calculate(Integer radix) {
-        ArrayDeque<String> reversePolishNotation = this.intoReversePolishNotation(this.stringIntoTokens());
+        Deque<String> reversePolishNotation = this.intoReversePolishNotation(this.stringIntoTokens());
         String tempToken;
         Integer firstTerm, secondTerm;
         Stack<Integer> forCalculation = new Stack<Integer>();
@@ -150,7 +170,7 @@ class Calculator {
                 try {
                     forCalculation.add(Integer.parseInt(tempToken, radix));
                 } catch (NumberFormatException ex) {
-                    System.err.print("wrong equation");
+                    System.err.println("wrong equation");
                     System.exit(1);
                 }
             } else {
@@ -174,6 +194,10 @@ class Calculator {
                     case DIV:
                         secondTerm = forCalculation.pop();
                         firstTerm = forCalculation.pop();
+                        if (secondTerm == 0) {
+                            System.err.println("wrong operation, division by zero");
+                            System.exit(1);
+                        }
                         forCalculation.push(firstTerm / secondTerm);
                         break;
                 }
