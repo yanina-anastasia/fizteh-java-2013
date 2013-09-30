@@ -11,13 +11,18 @@ public class Calculator {
 		String res = "";
 		try {
 			if (!isCorrect(argv)) {
-				throw new IOException("Incorrect syntax");
+				System.err.println("Incorrect syntax");
+				System.exit(1);
 			}
 			String postfixForm = dijkstraSortStation(argv);
 			res = Integer.toString(calc(postfixForm), RADIX);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
+		} catch (NumberFormatException f) {
+			System.err.println(f.getMessage());
+			System.err.println("Can't convert to Integer, probably value is too big");
+			System.exit(2);
 		}
 		System.out.println(res);
 		System.exit(0);
@@ -130,7 +135,6 @@ public class Calculator {
 				}
 				String numberStr = postfixForm.substring(t, i);
 				numbers.push(Integer.parseInt(numberStr, RADIX));
-
 			} else if (token == '+') {
 				if (numbers.size() < 2) {
 					throw new IOException("Incorrect syntax");
@@ -139,9 +143,8 @@ public class Calculator {
 				int op2 = numbers.pop();
 				if (Integer.MAX_VALUE - op1 < op2) {
 					throw new IOException("Too big value");
-				} else {
-					numbers.push (op1 + op2);
 				}
+				numbers.push (op1 + op2);
 			} else if (token == '*') {
 				if (numbers.size() < 2) {
 					throw new IOException("Incorrect syntax");
