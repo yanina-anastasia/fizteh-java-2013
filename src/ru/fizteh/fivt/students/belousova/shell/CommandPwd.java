@@ -4,6 +4,7 @@ import java.io.IOException;
 
 public class CommandPwd implements Command {
     private static final String name = "pwd";
+
     public String getName() {
         return name;
     }
