@@ -1,6 +1,7 @@
-package ru.fizteh.fivt.students.Vishnevskiy_Ivan;
+package ru.fizteh.fivt.students.Vishnevskiy_Ivan.calculator;
 
 import java.io.*;
+import java.text.ParseException;
 
 public class Calc {
 
@@ -11,10 +12,13 @@ public class Calc {
     private static String tokenType;    // тип лексемы (number, operation, braces, end)
 
     protected static boolean isDigit(char c) {
-        return (((c >= '0') && (c <= '9')) || (c == '.'));
+        return (Character.isDigit(c) || (c == '.'));
     }
 
     protected static void getToken() {
+        while (position < expression.length() && Character.isSpaceChar(expression.charAt(position))) {
+            ++position;
+        }
         if (position == expression.length()) {
             tokenType = "end";
             return;
@@ -45,7 +49,7 @@ public class Calc {
         }
     }
 
-    protected static double prim() throws ArithmeticException, IOException {
+    protected static double prim() throws IOException, ParseException {
         if (tokenType.equals("number")) {
             double tempNumber = number;
             getToken();
@@ -65,10 +69,10 @@ public class Calc {
             getToken();
             return exprValue;
         }
-        throw new IOException("Primary expected");
+        throw new ParseException("Primary expected", position);
     }
 
-    protected static double term() throws ArithmeticException, IOException {
+    protected static double term() throws ArithmeticException, IOException, ParseException {
         double leftPrim = prim();
         while (true) {
             if (tokenType.equals("operation") && token.equals("*")) {
@@ -94,7 +98,7 @@ public class Calc {
         }
     }
 
-    protected static double expr() throws ArithmeticException, IOException {
+    protected static double expr() throws ArithmeticException, IOException, ParseException {
         double leftTerm = term();
         while (true) {
             if (tokenType.equals("operation") && token.equals("+")) {
@@ -115,23 +119,24 @@ public class Calc {
         }
     }
 
-    protected static double calculate() throws ArithmeticException, IOException {
+    protected static double calculate() throws ArithmeticException, IOException, ParseException {
         position = 0;
         getToken();
-        return expr();
+        double answer = expr();
+        if (!tokenType.equals("end")) {
+            throw new ParseException("Operation expected", position);
+        }
+        return answer;
     }
 
     protected static void analyzeCharacters(StringBuilder expression) throws IOException {
         int i = 0;
         while (i < expression.length())  {
             char c = expression.charAt(i);
-            if (c == ' ')
-                expression.delete(i, i + 1);
-            else {
-                if (!isDigit(c) && (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/'))
-                    throw new IOException("Incorrect input: invalid character \'" + c + "\'");
-                ++i;
+            if (!isDigit(c) && !Character.isSpaceChar(c) && (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/')) {
+                throw new IOException("Incorrect input: invalid character \'" + c + "\'");
             }
+            ++i;
         }
     }
 
@@ -153,12 +158,19 @@ public class Calc {
         } catch (IOException e) {
             System.err.println(e);
             System.out.println("Input \"help\" or start the program without parameters to get help.");
+            System.exit(1);
         } catch(NumberFormatException e) {
             System.err.println("Incorrect number input");
             System.out.println("Input \"help\" or start the program without parameters to get help.");
+            System.exit(1);
         } catch (ArithmeticException e) {
             System.err.println(e);
             System.out.println("Input \"help\" or start the program without parameters to get help.");
+            System.exit(1);
+        } catch (ParseException e) {
+            System.err.println(e);
+            System.out.println("Input \"help\" or start the program without parameters to get help.");
+            System.exit(1);
         }
     }
 }
