@@ -12,7 +12,7 @@ public class ChangeDirectoryCommand extends Command {
 	}
 
 	@Override
-	public void execute() throws Exception{
+	public void execute() throws ShellException{
 		receiver.changeDirectoryCommand(args[0]);
 	}
 }

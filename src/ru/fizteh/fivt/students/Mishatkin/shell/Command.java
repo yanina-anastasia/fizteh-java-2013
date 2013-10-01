@@ -44,7 +44,7 @@ public abstract class Command {
 		this.receiver = receiver;
 	}
 
-	public static Command createCommand(Vector<String> buffer) throws Exception {
+	public static Command createCommand(Vector<String> buffer) throws ShellException {
 		if (buffer.isEmpty()) {
 			return null;
 		}
@@ -58,7 +58,7 @@ public abstract class Command {
 			buffer.removeAllElements();
 			String enumName = "COMMAND_TYPE.";
 			String type = e.getMessage().substring( e.getMessage().indexOf(enumName) + enumName.length()).toLowerCase();
-			throw new Exception("Invalid command: \'" + type + "\'.");
+			throw new ShellException("Invalid command: \'" + type + "\'.");
 		}
 		switch (theType) {
 			case CD:
@@ -92,7 +92,7 @@ public abstract class Command {
 		return retValue;
 	}
 
-	public abstract void execute() throws Exception;
+	public abstract void execute() throws ShellException;
 
 	private static void readArgs(Command command, Vector<String> buffer) throws  MissingFormatArgumentException{
 		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {

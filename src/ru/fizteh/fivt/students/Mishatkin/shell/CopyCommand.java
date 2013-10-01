@@ -11,7 +11,7 @@ public class CopyCommand extends Command {
 	}
 
 	@Override
-	public void execute() throws Exception {
+	public void execute() throws ShellException {
 		receiver.copyCommand(args[0], args[1]);
 	}
 }

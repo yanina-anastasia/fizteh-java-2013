@@ -8,12 +8,12 @@ import java.io.IOException;
  * Created by Vladimir Mishatkin on 9/26/13
  */
 public interface CommandReceiver {
-	public void changeDirectoryCommand(String arg) throws FileNotFoundException;
+	public void changeDirectoryCommand(String arg) throws ShellException;
 	public void directoryCommand();
 	public void printWorkingDirectoryCommand();
 	public void makeDirectoryCommand(String arg);
-	public void removeCommand(String arg) throws IOException;
-	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws Exception;
-	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws Exception;
+	public void removeCommand(String arg) throws ShellException;
+	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws ShellException;
+	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws ShellException;
 	public void exitCommand() throws TimeToExitException;
 }

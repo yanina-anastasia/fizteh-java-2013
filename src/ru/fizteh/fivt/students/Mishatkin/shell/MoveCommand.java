@@ -11,7 +11,7 @@ public class MoveCommand extends Command {
 	}
 
 	@Override
-	public void execute() throws Exception {
+	public void execute() throws ShellException {
 		receiver.moveCommand(args[0], args[1]);
 	}
 }

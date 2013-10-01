@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
+import java.io.FileNotFoundException;
+
 /**
  * ShellRunner.java
  * Created by Vladimir Mishatkin on 9/23/13
@@ -26,11 +28,9 @@ public class ShellRunner {
 					}
 				} catch (TimeToExitException e) {
 					shouldBreakRunLoop = true;
-					break;
-				} catch (Exception e) {
+				} catch (ShellException e) {
 					System.err.println(e.getMessage());
 					shouldBreakRunLoop = true;
-					break;
 				}
 			} while (in.hasUnexecutedCommands());
 			if (!shouldBreakRunLoop) {

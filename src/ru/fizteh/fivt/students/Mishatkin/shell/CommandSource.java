@@ -14,7 +14,7 @@ public abstract class CommandSource {
 	public abstract boolean hasMoreData();
 	public abstract String nextLine();
 
-	public Command nextCommand() throws Exception {
+	public Command nextCommand() throws ShellException {
 		if (commandsStringsBuffer.isEmpty()) {
 			if (!hasMoreData()) {
 				throw new TimeToExitException();

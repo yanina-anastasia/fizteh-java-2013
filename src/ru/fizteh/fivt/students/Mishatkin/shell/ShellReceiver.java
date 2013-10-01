@@ -48,13 +48,12 @@ public class ShellReceiver implements CommandReceiver {
 	}
 
 	@Override
-	public void changeDirectoryCommand(String arg) throws FileNotFoundException {
+	public void changeDirectoryCommand(String arg) throws ShellException {
 		String previousStatePath = shellPath.getAbsolutePath();
 		File destinationFile = new File(arg);
-		FileNotFoundException notFoundException = new FileNotFoundException("cd: \'" + arg + "\': No such file or directory");
 		if (destinationFile.isAbsolute()) {
 			if (!destinationFile.exists()) {
-				throw notFoundException;
+				throw new ShellException("cd: \'" + arg + "\': No such file or directory");
 			}
 			shellPath = destinationFile;
 			return;
@@ -67,7 +66,7 @@ public class ShellReceiver implements CommandReceiver {
 			} catch (FileNotFoundException e) {
 				//  reverse transaction sequence
 				shellPath = new File(previousStatePath);
-				throw notFoundException;
+				throw new ShellException("cd: \'" + arg + "\': No such file or directory");
 			}
 		}
 
@@ -122,7 +121,7 @@ public class ShellReceiver implements CommandReceiver {
 	}
 
 	@Override
-	public void removeCommand(String arg) throws IOException {
+	public void removeCommand(String arg) throws ShellException {
 		File absolutePathFile = new File(arg);
 		if (absolutePathFile.isAbsolute()) {
 			deleteFile(absolutePathFile);
@@ -132,21 +131,21 @@ public class ShellReceiver implements CommandReceiver {
 		}
 	}
 
-	private void deleteFile(File fileToDelete) throws IOException {
+	private void deleteFile(File fileToDelete) throws ShellException {
 		if (!fileToDelete.exists()) {
-			throw new IOException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
+			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
 		}
 		fileToDelete.delete();
 	}
 
 	@Override
-	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws Exception {
+	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws ShellException {
 		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.isAbsolute()) {
 			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
 		}
 		if (!sourceFileOrDirectory.exists()) {
-			throw new Exception("cp: \'" + sourceFileOrDirectory + "\' : No such file or directory");
+			throw new ShellException("cp: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
 		File destinationDirectory = new File(destinationDirectoryName);
 		if (!destinationDirectory.isAbsolute()) {
@@ -167,31 +166,35 @@ public class ShellReceiver implements CommandReceiver {
 				}
 			}
 		} catch (IOException e) {
-			throw new Exception("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
+			throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
 			                    "\' : Cannot copy file or directory");
 		}
 	}
 
 	@Override
-	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws Exception {
+	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws ShellException {
 		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.isAbsolute()) {
 			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
 		}
 		if (!sourceFileOrDirectory.exists()) {
-			throw new Exception("mv: \'" + sourceFileOrDirectory + "\' : No such file or directory");
+			throw new ShellException("mv: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
 		File destinationFileOrDirectory = new File(destinationFileOrDirectoryName);
 		if (!destinationFileOrDirectory.isAbsolute()) {
 			destinationFileOrDirectory = new File(shellPath, destinationFileOrDirectoryName);
 		}
 		if (destinationFileOrDirectory.exists()) {
-			removeCommand(destinationFileOrDirectory.getAbsolutePath());
+			try {
+				removeCommand(destinationFileOrDirectory.getAbsolutePath());
+			} catch (IOException e) {
+
+			}
 		}
 		try {
 			Files.move(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
 		} catch (IOException e) {
-			throw new Exception("mv: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationFileOrDirectoryName +
+			throw new ShellException("mv: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationFileOrDirectoryName +
 			                    "\' : Cannot move file or directory");
 		}
 	}

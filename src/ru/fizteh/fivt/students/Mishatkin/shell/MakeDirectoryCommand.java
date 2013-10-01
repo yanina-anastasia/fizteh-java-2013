@@ -11,7 +11,7 @@ public class MakeDirectoryCommand extends Command {
 	}
 
 	@Override
-	public void execute() throws Exception {
+	public void execute() throws ShellException {
 		receiver.makeDirectoryCommand(args[0]);
 	}
 }

@@ -11,7 +11,7 @@ public class DirectoryCommand extends Command {
 	}
 
 	@Override
-	public void execute() throws Exception {
+	public void execute() throws ShellException {
 		receiver.directoryCommand();
 	}
 
