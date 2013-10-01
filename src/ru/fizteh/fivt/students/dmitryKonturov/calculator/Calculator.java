@@ -31,12 +31,19 @@ class MyCalculator {
     private BigInteger curNumber;
 
     enum Lexeme {
-        PLUS, MINUS, DIV, MUL, OPEN_BR, CLOSE_BR, NUMBER, END
+        PLUS,
+        MINUS,
+        DIV,
+        MUL,
+        OPEN_BR,
+        CLOSE_BR,
+        NUMBER,
+        END
     }
 
 
     private boolean isDigit(char c) {
-        return ('0' <= c && c <= '9') || ('A' <= c && c <= 'G');
+        return Character.isDigit(c) || ('A' <= c && c <= 'G');
     }
 
     private long getDigit(char c) {
@@ -132,7 +139,7 @@ class MyCalculator {
                     break;
 
                 default:
-                    throw new WrongExpression(String.format("Нельзя выделить слагаемое в %d.", curPosition));
+                    throw new WrongExpression(String.format("Нельзя выделить слагаемое в позиции %d.", curPosition));
 
             }
         }
@@ -200,23 +207,6 @@ class MyCalculator {
         }
     }
 
-    private char digitToChar(int digit) {
-        if (digit < 10) {
-            return (char) ('0' + digit);
-        } else {
-            return (char) ('A' + digit - 10);
-        }
-    }
-
-    private String changeBase(BigInteger bigNum) {
-        StringBuilder builder = new StringBuilder();
-        do {
-            builder.append(digitToChar(bigNum.mod(NUMBER_BASE).intValue()));
-            bigNum = bigNum.divide(NUMBER_BASE);
-        } while (!bigNum.equals(BigInteger.ZERO));
-        return builder.reverse().toString();
-    }
-
     public String calculate(String expr) throws WrongExpression {
         expression = expr;
         curPosition = 0;
@@ -224,12 +214,14 @@ class MyCalculator {
         if (curLexeme == Lexeme.END) {
             throw new WrongExpression("Пустое выражение.");
         }
-        String result = changeBase(calculateExpression(false));
+        BigInteger result = calculateExpression(false);
+
         if (curLexeme != Lexeme.END) {
             throw new WrongExpression(String.format("Несколько последних символов были проигнорированы.\n" +
-                                      "Результат без них равен: %s.", result));
+                                                    "Результат без них равен: %s.", result));
         }
-        return result;
+
+        return result.toString(NUMBER_BASE.intValue());
     }
 
 }
@@ -241,6 +233,7 @@ public class Calculator {
 
         for (String arg : args) {
             argsBuilder.append(arg);
+            argsBuilder.append(' ');
         }
 
         String argsString = argsBuilder.toString().toUpperCase();
@@ -251,10 +244,13 @@ public class Calculator {
             System.out.println(result);
         } catch (WrongExpression e) {
             System.err.println(e);
+            System.exit(1);
         } catch (ArithmeticException e) {
             System.err.println(e);
+            System.exit(2);
         } catch (Exception e) {
             System.err.println(e);
+            System.exit(3);
         }
     }
 }
