@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 class Calculator {
-    private static final int RADIX = 19;
+    public static final int RADIX = 19;
     private static final char LASTLETTER = 'A' + RADIX - 10 - 1;
     private static final String BUG = "Program contains a bug.";
 
@@ -74,7 +74,7 @@ class Calculator {
                 } while('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER);
                 pointer--;
                 lexems.add(new Token<Lexem, Integer>(Lexem.NUMBER, pointer));
-            } else {
+            } else if(!Character.isWhitespace(currentSymbol)) {
                 throw new InappropriateSymbolException(String.format("Inappropriate symbol '%c' found.", currentSymbol));
             }
             pointer++;
@@ -93,7 +93,7 @@ class Calculator {
     }
 
     private String getInvalidLexemMetExceptionText(int lexemNumber) {
-        return String.format("Lexem #%d is invalid.", lexemNumber - 1);
+        return String.format("Lexem #%d is invalid.", lexemNumber);
     }
 
     private void performOperation(Stack<Integer> numbers, Lexem lexem) throws ArithmeticException {

@@ -3,22 +3,24 @@ package ru.fizteh.fivt.students.dubovpavel.calculator;
 public class Main {
     public static void main(String[] args) {
         try {
-            // Writing numbers as 1 000 000 is allowed for user convenience.
             StringBuilder concatenator = new StringBuilder();
             for(String arg: args) {
                 concatenator.append(arg);
             }
-            Calculator ObjCalculator = new Calculator(concatenator.toString().replaceAll("\\s", "").toUpperCase());
-            //Note that result is presented in radix of 10.
-            System.out.println(ObjCalculator.calculate());
+            Calculator ObjCalculator = new Calculator(concatenator.toString().toUpperCase());
+            System.out.println(Integer.toString(ObjCalculator.calculate(), Calculator.RADIX).toUpperCase());
         } catch(Calculator.InappropriateSymbolException e) {
             System.err.println(e.getMessage());
+            System.exit(-1);
         } catch(Calculator.InvalidLexemMetException e) {
             System.err.println(e.getMessage());
+            System.exit(-2);
         } catch(ArithmeticException e) {
             System.err.println(e.getMessage());
+            System.exit(-3);
         } catch(NumberFormatException e) {
             System.err.println(e.getMessage());
+            System.exit(-4);
         }
     }
 }
