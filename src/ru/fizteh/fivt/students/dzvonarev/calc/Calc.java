@@ -42,8 +42,8 @@ class Calc {
         return BigInteger.ZERO;
     }
 
-    private static Stack<BigInteger> number = new Stack();
-    private static Stack<Character> operation = new Stack();
+    private static Stack<BigInteger> number = new Stack<BigInteger>();
+    private static Stack<Character> operation = new Stack<Character>();
 
     public static void currentOperation() {
         BigInteger num1 = number.pop();
