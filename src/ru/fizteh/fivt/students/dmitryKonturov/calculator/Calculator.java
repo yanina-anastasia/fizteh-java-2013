@@ -84,10 +84,11 @@ class MyCalculator {
 
             default:
                 int rightIndex = curPosition;
-                for (; isDigit(expression.charAt(rightIndex)); ++rightIndex) {
+                while (isDigit(expression.charAt(rightIndex))) {
                     if (expression.length() <= rightIndex) {
                         break;
                     }
+                    ++rightIndex;
                 }
                 try {
                     curNumber = new BigInteger(expression.substring(curPosition, rightIndex), NUMBER_BASE);
