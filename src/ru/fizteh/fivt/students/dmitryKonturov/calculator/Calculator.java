@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 /**
  *      Калькулятор, считающий в 17-ичной системе счисления.
- *      Все символы переводятся в верхний регистр.
+ *      Все символы переводятся в нижний регистр.
  *      Допустимые опереции:
  *          бинарные: +, -, *, /
  *          объединение операций круглами скобками.
@@ -24,7 +24,7 @@ class WrongExpression extends Exception {
 }
 
 class MyCalculator {
-    private final BigInteger NUMBER_BASE = BigInteger.valueOf(17);
+    private final int NUMBER_BASE = 17;
     private String expression;
     private int curPosition;
     private Lexeme curLexeme;
@@ -43,11 +43,7 @@ class MyCalculator {
 
 
     private boolean isDigit(char c) {
-        return Character.isDigit(c) || ('A' <= c && c <= 'G');
-    }
-
-    private long getDigit(char c) {
-        return ('0' <= c && c <= '9') ? (long) (c - '0') : (long) (c - 'A' + 10);
+        return Character.isDigit(c) || ('a' <= c && c <= 'g');
     }
 
     private Lexeme getLexeme() throws WrongExpression {
@@ -87,21 +83,20 @@ class MyCalculator {
                 return Lexeme.CLOSE_BR;
 
             default:
-                if (isDigit(c)) {
-                    curNumber = BigInteger.ZERO;
-                    while (isDigit(c)) {
-                        curNumber = curNumber.multiply(NUMBER_BASE);
-                        curNumber = curNumber.add(BigInteger.valueOf(getDigit(c)));
-                        ++curPosition;
-                        if (curPosition >= expression.length()) {
-                            break;
-                        }
-                        c = expression.charAt(curPosition);
+                int rightIndex = curPosition;
+                for (; isDigit(expression.charAt(rightIndex)); ++rightIndex) {
+                    if (expression.length() <= rightIndex) {
+                        break;
                     }
+                }
+                try {
+                    curNumber = new BigInteger(expression.substring(curPosition, rightIndex), NUMBER_BASE);
+                    curPosition = rightIndex;
                     return Lexeme.NUMBER;
-                } else {
-                    String error = String.format("Неизвестный символ %c в позиции %d.", c, curPosition);
-                    throw new WrongExpression(error);
+                } catch (Exception e) {
+                    throw new WrongExpression(String.format("Нельзя выделить число или операцию в выражении," +
+                                                            "начиная с позиции %d.", curPosition));
+
                 }
         }
 
@@ -221,7 +216,7 @@ class MyCalculator {
                                                     "Результат без них равен: %s.", result));
         }
 
-        return result.toString(NUMBER_BASE.intValue());
+        return result.toString(NUMBER_BASE);
     }
 
 }
@@ -236,7 +231,7 @@ public class Calculator {
             argsBuilder.append(' ');
         }
 
-        String argsString = argsBuilder.toString().toUpperCase();
+        String argsString = argsBuilder.toString().toLowerCase();
 
         try {
             MyCalculator calc = new MyCalculator();
