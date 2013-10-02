@@ -1,5 +1,3 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.calculator;
-
 import java.util.Stack;
 import java.lang.Character;
 import java.io.IOException;
@@ -20,14 +18,31 @@ public class Calculator {
         return 0;
     }
 
+    public static int max(final int arg1, final int arg2) {
+        return (arg1 > arg2) ? arg1: arg2;
+    }
+
+
     public static Integer calculate(final Integer arg1, final Integer arg2, final char operation) throws IOException {
         switch (operation) {
             case '*':
+                if ((Math.abs(Integer.MAX_VALUE / arg1)) < Math.abs(arg2)) {
+                    throw new IOException("Value of expression exceeds  MAX_INTEGER1");
+                }
                 return arg1 * arg2;
             case '/':
-                if (arg2 == 0) throw new IOException("Devision by zero");
+                if (arg2 == 0) throw new IOException("Division by zero");
                 return arg1/arg2;
             case '+':
+                if (max(arg1, arg2) > 0) {
+                    if ( (Integer.MAX_VALUE - arg1) < arg2 )  {
+                        throw new IOException("Value of expression exceeds  MAX_INTEGER");
+                    }
+                }   else {
+                    if ((Integer.MIN_VALUE + arg1) > arg2) {
+                        throw new IOException("Value of expression exceeds  MIN_INTEGER");
+                    }
+                }
                 return arg1 + arg2;
             case '-':
                 return arg1 - arg2;
@@ -38,109 +53,108 @@ public class Calculator {
 
     public static void main (String args[]) {
         try {
-            StringBuilder AlgExpression = new StringBuilder(args[0]);
+            StringBuilder algExpression = new StringBuilder(args[0]);
             for (int i = 1; i < args.length; ++i) {
-                AlgExpression.append(' ');
-                AlgExpression.append(args[i]);
+                algExpression.append(' ');
+                algExpression.append(args[i]);
             }
-            System.out.println(AlgExpression);
-            String Task = new String(AlgExpression);
-            int Radix = 17;
-            StringBuilder OutputString = new StringBuilder();
-            Stack<Character> DataStack = new Stack<Character>();
-            int IndexBegin;
-            int IndexEnd;
+            String task = new String(algExpression);
+            int radix = 17;
+            StringBuilder outputString = new StringBuilder();
+            Stack<Character> dataStack = new Stack<Character>();
+            int indexBegin;
+            int indexEnd;
             int i = 0;
             boolean flagOpen = false;//знака минус после скобки нет (для обработки отрицательных чисел)
             boolean flagClose = false;
-            int countOfBrackets = 0;
-            int PrevToken = 1;       //1 - арифметичесая операция;
+            int prevToken = 1;       //1 - арифметичесая операция;
             //2 - число;
             // 3 - скобка;
 
-            while (i < Task.length()) {
-                IndexBegin = i;
-
-                while ((i < Task.length()) && ((Character.isDigit(Task.charAt(i))) | ((Task.charAt(i) >= 'A') && (Task.charAt(i) <= 'G') ) ) ) {
+            while (i < task.length()) {
+                indexBegin = i;
+                while ((i < task.length()) && ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G') ) ) ) {
                     ++i;
                 }
-                if (IndexBegin != i) {
-                    if (PrevToken == 2){
-                        throw new IOException("numbers without operation");
+                if (indexBegin != i) {
+                    if (prevToken == 2){
+                        throw new IOException("Operation was missed");
                     } else {
-                        IndexEnd = i;
+                        indexEnd = i;
                         if (!flagClose) {
-                            OutputString.append(Task.substring(IndexBegin, IndexEnd));
-                            OutputString.append(' ');
+                            outputString.append(task.substring(indexBegin, indexEnd));
+                            outputString.append(' ');
                             --i;
                         } else {
-                            throw new IOException("have to be in brackets");
+                            throw new IOException("Minus have to be in brackets");
                         }
                         if (flagOpen) {
                             flagClose = true;
                         }
-                        PrevToken = 2;
+                        prevToken = 2;
                     }
                 } else {
-                    if (( Task.charAt(i) == '(')) {
-                        if (PrevToken != 2) {
+                    if (( task.charAt(i) == '(')) {
+                        if (prevToken != 2) {
                             flagClose = false;
-                            if (((i + 2) != Task.length()) && (Task.charAt(i + 1) == '-')) {
-                                if (Task.charAt(i + 2) == '(') {
-                                    DataStack.push('*');
-                                    OutputString.append("-1");
-                                    OutputString.append(' ');
+                            if (((i + 2) != task.length()) && (task.charAt(i + 1) == '-')) {
+                                if (task.charAt(i + 2) == '(') {
+                                    dataStack.push('*');
+                                    outputString.append("-1");
+                                    outputString.append(' ');
+                                    dataStack.push(task.charAt(i));
+                                    ++i;
                                 }   else {
-                                    OutputString.append('-');
-                                    DataStack.push(Task.charAt(i));
+                                    outputString.append('-');
+                                    dataStack.push(task.charAt(i));
                                     ++i;
                                     flagOpen = true;
                                 }
                             } else {
-                                DataStack.push(Task.charAt(i));
+                                dataStack.push(task.charAt(i));
                             }
                         }  else {
-                            throw new IOException("operation was missed");
+                            throw new IOException("Operation was missed");
                         }
-                        PrevToken = 3;
+                        prevToken = 3;
                     } else {
-                        if (Task.charAt(i) == ')') {
-                            if (PrevToken != 1) {
-                                char Top;
+                        if (task.charAt(i) == ')') {
+                            if (prevToken != 1) {
+                                char top;
                                 if (flagOpen && !flagClose) {
-                                    throw new IOException("not correct input");
+                                    throw new IOException("Number was missed");
                                 }
                                 flagClose = false;
                                 flagOpen = false;
-                                while ( (!(DataStack.empty())) && ( (Top = DataStack.peek()) != '(') ) {
-                                    OutputString.append(Top);
-                                    OutputString.append(' ');
-                                    DataStack.pop();
+                                while ( (!(dataStack.empty())) && ( (top = dataStack.peek()) != '(') ) {
+                                    outputString.append(top);
+                                    outputString.append(' ');
+                                    dataStack.pop();
                                 }
-                                if (!DataStack.empty())  {
-                                    DataStack.pop();
+                                if (!dataStack.empty())  {
+                                    dataStack.pop();
                                 } else {
-                                    throw new IOException("not enough brackets1");
+                                    throw new IOException("Not enough brackets");
                                 }
                             } else {
-                                throw new IOException("not correct expression");
+                                throw new IOException("Number was missed");
                             }
-                            PrevToken = 3;
+                            prevToken = 3;
                         } else {
-                            int pr = priority(Task.charAt(i));
+                            int pr = priority(task.charAt(i));
                             if (pr > 0) {
-                                if (PrevToken != 1) {
-                                    while ((!DataStack.empty()) && (pr <= (priority(DataStack.peek())))) {
-                                        OutputString.append(DataStack.pop());
-                                        OutputString.append(' ');
+                                if (prevToken != 1) {
+                                    while ((!dataStack.empty()) && (pr <= (priority(dataStack.peek())))) {
+                                        outputString.append(dataStack.pop());
+                                        outputString.append(' ');
                                     }
-                                    DataStack.push(Task.charAt(i));
+                                    dataStack.push(task.charAt(i));
                                 } else {
-                                    throw new IOException("not correct expression");
+                                    throw new IOException("Number was missed");
                                 }
-                                PrevToken = 1;
+                                prevToken = 1;
                             } else {
-                                if ((Task.charAt(i) != ' ') && (Task.charAt(i) != '\t')) {
+                                if ((task.charAt(i) != ' ') && (task.charAt(i) != '\t')) {
                                     throw new IOException("Undefined symbol");
                                 }
                             }
@@ -150,62 +164,64 @@ public class Calculator {
                 }
                 ++i;
             }
-
-            while (!DataStack.empty()) {
-                char Top = DataStack.peek();
-                if ((Top == '(') | (Top == ')')) {
-                    throw new IOException("not enough brackets2");
+            while (!dataStack.empty()) {
+                char top = dataStack.peek();
+                if ((top == '(') | (top == ')')) {
+                    throw new IOException("Not enough brackets");
                 } else {
-                    OutputString.append(DataStack.pop());
-                    OutputString.append(' ');
+                    outputString.append(dataStack.pop());
+                    outputString.append(' ');
                 }
 
             }
-
-            Stack<Integer> Result = new Stack<Integer>();
+            Stack<Integer> result = new Stack<Integer>();
             i = 0;
-
-            while (i < (OutputString.length() - 1)) {
-                if (OutputString.charAt(i + 1) == ' ') {
-                    if (Character.isDigit(OutputString.charAt(i))) {
-                        Result.push(Integer.parseInt(OutputString.substring(i, i + 1), Radix));
+            while (i < (outputString.length() - 1)) {
+                if (outputString.charAt(i + 1) == ' ') {
+                    if (Character.isDigit(outputString.charAt(i))) {
+                        result.push(Integer.parseInt(outputString.substring(i, i + 1), radix));
                     } else {
-                        if (!Result.empty()) {
-                            Integer arg2 = Result.pop();
+                        if (!result.empty()) {
+                            Integer arg2 = result.pop();
                             Integer arg1;
-                            if (!Result.empty()) {
-                                arg1 = Result.pop();
+                            if (!result.empty()) {
+                                arg1 = result.pop();
                             } else {
-                                throw new IOException("mistake in expression1");
+                                throw new IOException("Number was missed");
                             }
-                            Result.push(calculate(arg1, arg2, OutputString.charAt(i)));
+                            result.push(calculate(arg1, arg2, outputString.charAt(i)));
                         } else {
-                            throw new IOException("mistake in expression2");
+                            throw new IOException("Number was missed");
                         }
                     }
                     ++i;
                 } else {
-                    IndexBegin = i;
-                    while (OutputString.charAt(i) != ' ') {
+                    indexBegin = i;
+                    while (outputString.charAt(i) != ' ') {
                         ++i;
                     }
-                    IndexEnd = i;
-                    Result.push(Integer.parseInt(OutputString.substring(IndexBegin, IndexEnd), Radix));
+                    indexEnd = i;
+                    result.push(Integer.parseInt(outputString.substring(indexBegin, indexEnd), radix));
                 }
                 ++i;
             }
-            int res = Result.pop();
-            if (Result.empty()) {
-                System.out.println(Integer.toString(res, Radix));
+            if (result.empty()) {
+                throw new IOException("Number was missed");
+            }
+            int res = result.pop();
+            if (result.empty()) {
+                System.out.println(Integer.toString(res, radix));
             } else {
-                throw new IOException("mistake in expression");
+                throw new IOException("Operation was missed");
             }
         }
         catch(IOException e) {
             System.err.println("Exception was caught: " + e.getMessage());
-            int i = 2;
-            System.exit(i);
+            System.exit(1);
+        }
+        catch (NumberFormatException e) {
+            System.err.println("Exception was caught: " + e.getMessage());
+            System.exit(2);
         }
     }
 }
-
