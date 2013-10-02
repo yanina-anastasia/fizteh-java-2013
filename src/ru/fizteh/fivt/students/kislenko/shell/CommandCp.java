@@ -28,7 +28,7 @@ public class CommandCp implements Command {
         }
         String source = args[1];
         String dest = args[2];
-        Path absolutePath = Shell.absolutePath;
+        Path absolutePath = Location.getPath();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (destPath.toString().equals(sourcePath)) {

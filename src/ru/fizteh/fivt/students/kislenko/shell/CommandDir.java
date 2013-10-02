@@ -6,7 +6,7 @@ import java.io.PrintStream;
 public class CommandDir implements Command {
     public void run(String empty) {
         PrintStream ps = new PrintStream(System.out);
-        File currentDir = new File(Shell.absolutePath.toString());
+        File currentDir = new File(Location.getPath().toString());
         File[] entries = currentDir.listFiles();
         ps.println(".");
         ps.println("..");

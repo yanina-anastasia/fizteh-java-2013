@@ -12,7 +12,7 @@ public class CommandMkdir implements Command {
             throw new IOException("mkdir: Too few arguments.");
         }
         String dirName = args[1];
-        File newDir = new File(Shell.absolutePath.resolve(dirName).toString());
+        File newDir = new File(Location.getPath().resolve(dirName).toString());
         newDir.mkdir();
     }
 }

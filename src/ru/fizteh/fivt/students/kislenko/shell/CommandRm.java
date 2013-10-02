@@ -39,13 +39,13 @@ public class CommandRm implements Command {
             throw new IOException("rm: Too few arguments.");
         }
         String fileName = args[1];
-        Path absolutePath = Shell.absolutePath;
+        Path absolutePath = Location.getPath();
         Path target = absolutePath.resolve(fileName);
         try {
             removing(target);
         } catch (IOException e) {
             throw e;
         }
-        Shell.absolutePath = validatePath(absolutePath);
+        Location.changePath(validatePath(absolutePath));
     }
 }
