@@ -31,7 +31,14 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(String fileName) throws IOException {
+    public void run(String s) throws IOException {
+        String[] args = s.split("  *");
+        if (args.length > 2) {
+            throw new IOException("rm: Too many arguments.");
+        } else if (args.length < 2) {
+            throw new IOException("rm: Too few arguments.");
+        }
+        String fileName = args[1];
         Path absolutePath = Shell.absolutePath;
         Path target = absolutePath.resolve(fileName);
         try {

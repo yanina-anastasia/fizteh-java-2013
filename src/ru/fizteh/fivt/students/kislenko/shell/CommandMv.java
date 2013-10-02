@@ -29,10 +29,15 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(String args) throws IOException {
-        int endOfFirstArg = args.indexOf(' ');
-        String source = args.substring(0, endOfFirstArg);
-        String dest = args.substring(endOfFirstArg + 1);
+    public void run(String s) throws IOException {
+        String[] args = s.split("  *");
+        if (args.length > 3) {
+            throw new IOException("mv: Too many arguments.");
+        } else if (args.length < 3) {
+            throw new IOException("mv: Too few arguments.");
+        }
+        String source = args[1];
+        String dest = args[2];
         Path absolutePath = Shell.absolutePath;
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();

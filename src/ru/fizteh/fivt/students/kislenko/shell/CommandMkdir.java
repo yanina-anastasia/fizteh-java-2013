@@ -4,7 +4,14 @@ import java.io.File;
 import java.io.IOException;
 
 public class CommandMkdir implements Command {
-    public void run(String dirName) throws IOException {
+    public void run(String s) throws IOException {
+        String[] args = s.split("  *");
+        if (args.length > 2) {
+            throw new IOException("mkdir: Too many arguments.");
+        } else if (args.length < 2) {
+            throw new IOException("mkdir: Too few arguments.");
+        }
+        String dirName = args[1];
         File newDir = new File(Shell.absolutePath.resolve(dirName).toString());
         newDir.mkdir();
     }
