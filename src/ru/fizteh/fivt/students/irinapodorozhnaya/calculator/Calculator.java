@@ -10,25 +10,26 @@ public class Calculator {
 	public static void main(String[] argv) {
 		String res = "";
 		if (argv.length == 0) {
-			System.exit(0);
+			System.out.println("Usage: <program name> <calculating expression>");
+			System.exit(1);
 		}
 		try {
 			if (!isCorrect(argv)) {
 				System.err.println("Incorrect syntax");
-				System.exit(1);
+				System.exit(2);
 			}
 			String postfixForm = dijkstraSortStation(argv);
 			res = Integer.toString(calc(postfixForm), RADIX);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
-			System.exit(1);
+			System.exit(2);
 		} catch (NumberFormatException f) {
 			System.err.println(f.getMessage());
 			System.err.println("Can't convert to Integer, probably value is too big");
-			System.exit(2);
+			System.exit(3);
 		} catch (ArithmeticException e) {
 			System.err.println(e.getMessage());
-			System.exit(3);
+			System.exit(4);
 		}
 		System.out.println(res);
 		System.exit(0);
