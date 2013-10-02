@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.elenav.calc;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 public class Calculator {
 	
@@ -22,26 +23,34 @@ public class Calculator {
         StringBuilder sb = new StringBuilder();
         Deque<Character> operators = new LinkedList<>();
         int i = 0;
+        int lastNumberFlag = 0;
         while(i < inputString.length()) {
             char token = inputString.charAt(i);
             if((token >= '0' && token <='9') || (token >= 'A' && token <= 'G')) {
                 sb.append(token);
                 ++i;
+                if (lastNumberFlag == 1) {
+                	throw new IOException("Invalid input");
+                } 
+                lastNumberFlag = 1;
                 continue;
             }
             if(operators.isEmpty() && priority(token) != -1) {
                sb.append(' ');
                operators.push(token);
                ++i;
+               lastNumberFlag = 0;
                continue;
             }
             if(token == '(') {
                 operators.push(token);
                 ++i;
+                lastNumberFlag = 0;
                 continue;
             }
             if(token == ')') {
             	sb.append(' ');
+                lastNumberFlag = 1;
                 while(operators.getFirst() != '(' ) {
                     sb.append(operators.getFirst());
                     operators.pop();
@@ -52,19 +61,21 @@ public class Calculator {
             }
             if(priority(token) != -1) {
             	sb.append(' ');
+                lastNumberFlag = 0;
             	while(!operators.isEmpty() && (priority(operators.getFirst()) >= priority(token))) {
             		sb.append(operators.getFirst());
             		operators.pop();
             	}
             	operators.push(token);
             	++i;
-            } else
-            	throw new IOException("invalid input");
+            } else {
+            	++i;
+            }
         }
         sb.append(' ');
         while(!operators.isEmpty()) {
         	if(operators.getFirst() == '(' || operators.getFirst() == ')')
-        	   throw new IOException("invalid input");
+        	    throw new IOException("invalid input");
             sb.append(operators.pop());
         }   
         return sb.toString();
@@ -85,7 +96,7 @@ public class Calculator {
         for (int i = 0; i < convertString.length(); ++i) {
             char token = convertString.charAt(i);
             if((token >= '0' && token <='9') || (token >= 'A' && token <= 'G')) {
-                try {
+            	try {
                 	numbers.push(getNumber(convertString, i));
                 } catch (NumberFormatException e) {
                 	throw new IOException("Int overflow");
@@ -94,8 +105,9 @@ public class Calculator {
                 	++i;
                 continue;
             }
-            if(numbers.size() < 2 && priority(token) != -1)
+            if(numbers.size() < 2 && priority(token) != -1) {
             	throw new IOException("Invalid input");
+            }
             if(token == '+') {
             	int x1 = numbers.pop();
             	int x2 = numbers.pop();
@@ -120,7 +132,7 @@ public class Calculator {
             	if( Integer.MIN_VALUE + x1 > x2) {
             		throw new IOException("Int overflow");
             	}
-               numbers.push(x2 - x1);
+                numbers.push(x2 - x1);
                 continue;
             }
             if (token == '*') {
@@ -146,12 +158,19 @@ public class Calculator {
 		}
 		for (String s : args) {
 			sb.append(s);
+			sb.append(" ");
 		}
 		String expression = sb.toString();
 		
+		int result = 0;
 		try {
 			String convertString = toPostfix(expression);
-			int result = calculate(convertString);
+			try {
+				result = calculate(convertString);
+			} catch (NoSuchElementException e) {
+				System.out.println("Invalid input"); 
+				System.exit(1);
+			}
 			String outStr = Integer.toString(result, 17);
 			System.out.println(outStr);
 		} catch (IOException err) {
