@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.shell;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
@@ -33,6 +35,7 @@ class MySystem {
             }
             if (!tmpFile.isDirectory()) {
                 System.err.println(String.format("cd: \'%s\': нет такого пути", newDir));
+                return Code.ERROR;
             } else {
                 currentFile = tmpFile;
             }
@@ -43,36 +46,51 @@ class MySystem {
         }
     }
 
-    public Code cp(String source, String destination) {
+    public Code cp_mv(String source, String destination, boolean isCopy) {
         try {
-            File tmpFile = new File(joinDir(source));
-            String tmpName = tmpFile.getName();
-            Files.copy(Paths.get(joinDir(source)), Paths.get(joinDir(destination) + File.separator + tmpName), StandardCopyOption.REPLACE_EXISTING);
-            if (tmpFile.isDirectory()) {
-                for (File c : tmpFile.listFiles()) {
-                    cp(c.toString(), joinDir(destination) + File.separator + tmpName);
+            File fileSource = new File(joinDir(source));
+            String nameSource = fileSource.getName();
+            File fileDestination = new File(joinDir(destination));
+            if (fileSource.isDirectory()) {
+                Path pathDestination = Paths.get(joinDir(destination));
+                if (fileDestination.isDirectory()) {
+                    destination = destination + File.separator + nameSource;
+                    pathDestination = Paths.get(joinDir(destination));
+                }
+                if (isCopy) {
+                    Files.copy(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    Files.move(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
+                }
+                File[] listFiles = fileSource.listFiles();
+                if (listFiles != null) {
+                    for (File c : listFiles) {
+                        String nameFile = c.getName();
+                        cp_mv(c.toString(), joinDir(destination) + File.separator + nameFile, isCopy);
+                    }
+                }
+            } else {
+                Path pathDestination = Paths.get(joinDir(destination));
+                if (fileDestination.isDirectory()) {
+                    pathDestination = Paths.get(joinDir(destination) + File.separator + nameSource);
+                }
+                if (isCopy) {
+                    Files.copy(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    Files.move(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
             return Code.OK;
         } catch (Exception e) {
-            System.err.println(String.format("cp: \'%s %s\': не могу скопировать", source, destination));
-            return Code.ERROR;
-        }
-    }
-
-    public Code mv(String source, String destination) {
-        try {
-            File tmpFile = new File(joinDir(source));
-            String tmpName = tmpFile.getName();
-            Files.move(Paths.get(joinDir(source)), Paths.get(joinDir(destination) + File.separator + tmpName), StandardCopyOption.REPLACE_EXISTING);
-            if (tmpFile.isDirectory()) {
-                for (File c : tmpFile.listFiles()) {
-                    cp(c.toString(), joinDir(destination) + File.separator + tmpName);
-                }
+            String rusDescription = "переместить";
+            String command = "mv";
+            if (isCopy) {
+                rusDescription = "скопировать";
+                command = "cp";
             }
-            return Code.OK;
-        } catch (Exception e) {
-            System.err.println(String.format("rm: \'%s %s\': не могу переместить", source, destination));
+            e.printStackTrace();
+            String error = String.format("%s: \'%s %s\': не могу %s", command, source, destination, rusDescription);
+            System.err.println(error);
             return Code.ERROR;
         }
     }
@@ -80,9 +98,12 @@ class MySystem {
     public Code rm(String path) {
         try {
             File tmpFile = new File(joinDir(path));
-            if (tmpFile.isDirectory()) {
-                for (File c : tmpFile.listFiles()) {
-                    rm(c.toString());
+            File[] listFiles = tmpFile.listFiles();
+            if (listFiles != null) {
+                if (tmpFile.isDirectory()) {
+                    for (File c : listFiles) {
+                        rm(c.toString());
+                    }
                 }
             }
             if (!tmpFile.delete()) {
@@ -150,11 +171,11 @@ class MySystem {
         } else if (command.equals("mv") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
-            return mv(sourse, destination);
+            return cp_mv(sourse, destination, false);
         } else if (command.equals("cp") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
-            return cp(sourse, destination);
+            return cp_mv(sourse, destination, true);
         } else if (command.equals("rm") && countTokens == 2) {
             String file = token.nextToken();
             return rm(file);
@@ -207,8 +228,8 @@ class MySystem {
 
 public class Shell {
 
-    public static void main(String[] args) {
-        //args = new String[]{"cd ..  ;  pwd; cp ..; pwd"};
+    public static void main(String[] args) throws IOException {
+        //args = new String[]{"cd /home/deamoon/Music/dir2;", "dir"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
