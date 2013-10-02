@@ -9,13 +9,14 @@ public class ShellMain {
 
     private static File currentDirectory;
 
-    private static void recursiveDelete(File dir) {
-        if (!dir.isFile()) {
-            String[] listOfElements = dir.list();
-            if (listOfElements.length > 0) {
-                for (String i : listOfElements) {
-                    File currentElement = new File(i);
-                    recursiveDelete(currentElement);
+    private static void recursiveDelete(File dir) throws IOException {
+        File[] listOfElements = dir.listFiles();
+        if (listOfElements != null) {
+            for (File i : listOfElements) {
+                if (i.isDirectory()) {
+                    recursiveDelete(i);
+                } else {
+                    i.delete();
                 }
             }
         }
@@ -63,6 +64,9 @@ public class ShellMain {
                 File elementToDelete = convertPath(commandParts[1]);
                 if (elementToDelete.exists()) {
                     recursiveDelete(elementToDelete);
+                    if (elementToDelete.equals(currentDirectory)) {
+                        currentDirectory = elementToDelete.getParentFile();
+                    }
                 } else {
                     System.out.println("rm: cannot remove '" + elementToDelete + "': No such file or directory");
                 }
