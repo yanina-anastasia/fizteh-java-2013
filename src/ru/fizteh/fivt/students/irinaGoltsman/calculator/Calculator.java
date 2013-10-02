@@ -98,12 +98,12 @@ public class Calculator {
                 }
                 list.remove(start);
                 list.addAll(start, buf);
-                start = buf.size()-1;
+                start = buf.size() - 1;
                 if (list.get(start).equals("-"))
                     status = 2;
                 else status = 3;
             }
-            for (int i = start+1; i < list.size(); i++) {
+            for (int i = start + 1; i < list.size(); i++) {
                 if (isNumber(list.get(i))) {
                     if (status == 1) {
                         System.err.println("Incorrect input: after ')' can not be a number.");
@@ -201,7 +201,7 @@ public class Calculator {
                     priorPrev = priority(stack.peek().toString());      //приоритет последнего элемента в стеке
                 prior = priority(string);        //приоритет текущего элемента
 
-                if ((stack.size() == 0 || priorPrev == 0) && prior!= 1) {    //если в стеке нет операций или верхним элементом стека является открывающая скобка, операции кладётся в стек;
+                if ((stack.size() == 0 || priorPrev == 0) && prior != 1) {    //если в стеке нет операций или верхним элементом стека является открывающая скобка, операции кладётся в стек;
                     stack.push(string);
                     continue;
                 }
@@ -253,19 +253,54 @@ public class Calculator {
             if (isNumber(third))
                 i++;
             else {
-                int a = Integer.parseInt(first, 17);
-                int b = Integer.parseInt(second, 17);
-                int res;
-                if (third.equals("+"))
+                int a = 0;
+                try {
+                    a = Integer.parseInt(first, 17);
+                } catch (Exception e) {
+                    System.err.println(e);
+                    System.exit(1);
+                }
+                int b = 0;
+                try {
+                    b = Integer.parseInt(second, 17);
+                } catch (Exception e) {
+                    System.err.println(e);
+                    System.exit(1);
+                }
+                int res = -1;
+                if (third.equals("+")) {
+                    if (a > 0 ? b > Integer.MAX_VALUE - a
+                            : b < Integer.MIN_VALUE - a) {
+                        System.err.print("Integer overflow by adding the numbers " + a + " and " + b);
+                        System.exit(2);
+                    }
                     res = a + b;
-                else if (third.equals("-"))
+                } else if (third.equals("-")) {
+                    if (a > 0 ? b < Integer.MIN_VALUE + a
+                            : b > Integer.MAX_VALUE + a) {
+                        System.err.print("Integer overflow by subtracting the numbers " + a + " and " + b);
+                        System.exit(2);
+                    }
                     res = a - b;
-                else if (third.equals("*"))
+                } else if (third.equals("*")) {
+                    if (a > 0 ? b > Integer.MAX_VALUE / a
+                            || b < Integer.MIN_VALUE / a
+                            : (a < -1 ? b > Integer.MIN_VALUE / a
+                            || b < Integer.MAX_VALUE / a
+                            : a == -1
+                            && b == Integer.MIN_VALUE)) {
+                        System.err.print("Integer overflow by multiplying the numbers " + a + " and " + b);
+                        System.exit(2);
+                    }
                     res = a * b;
-                else if (third.equals("/"))
+                } else if (third.equals("/")) {
+                    if (b == 0) {
+                        System.err.println("Error: you can not divide by zero.");
+                        System.exit(1);
+                    }
                     res = a / b;
-                else {
-                    res = -1;
+                }
+                if (res == -1) {
                     System.err.println("There are the error in the function 'countPolishRecord'");
                     System.exit(1);
                 }
