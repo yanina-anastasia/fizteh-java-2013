@@ -7,6 +7,14 @@ public class Calculator {
     private static boolean bracketsSum(String s) {
         int count = 0;
         for (int i = 0; i < s.length(); ++i) {
+            if (!(s.charAt(i) == '+' || s.charAt(i) == '-'|| s.charAt(i) == '*' || s.charAt(i) == '/')) {
+                if (!(('a' <= s.charAt(i) && s.charAt(i) <= 'i') || ('I' <= s.charAt(i) && s.charAt(i) <= 'Z'))) {
+                    if (!(s.charAt(i) == ' ' || s.charAt(i) == '(' || s.charAt(i) == ')' || (s.charAt(i) >= '0' && s.charAt(i) <= '9'))) {
+                        System.err.println("Error! Forbidden symbol: " + s.charAt(i));
+                        System.exit(5);
+                    }
+                }
+            }
             if (s.charAt(i) == '('){
                 ++count;
             }
@@ -30,7 +38,7 @@ public class Calculator {
             System.err.println("Error: Wrong brackets!");
             System.exit(2);
         }
-        Node p = new Node();
+        Node p = null;
         try{
             Tree t = new Tree();
             p = t.parseCalculationTree(s.toString());

@@ -23,6 +23,10 @@ public class Tree {
     }
 
     public List <Node> parseExpressionNodes(String s) throws IOException {
+        if (s.isEmpty()) {
+            System.err.println("No numbers in brackets!");
+            System.exit(6);
+        }
         List <Node> l =  new ArrayList<Node>();
         boolean isSymbol = false, isNumber = true;
         for (int i = 0; i < s.length(); ++i){

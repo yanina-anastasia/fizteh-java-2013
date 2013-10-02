@@ -7,32 +7,40 @@ public class Node {
     private Node rightNode;
     private Node leftNode;
 
-   //"("  "((A*A" ")+ B" ")" "-C)" "/2"
     private int calculation(int dec) throws IOException {
+        int leftNodeNumber = 0;
+        int rightNodeNumber = 0;
+        try {
+            leftNodeNumber = Integer.parseInt(leftNode.getString(), dec);
+            rightNodeNumber = Integer.parseInt(rightNode.getString(), dec);
+        } catch (NumberFormatException e){
+            System.err.println(e.getMessage());
+            System.exit(4);
+        }
         if (s.equals("*")) {
-            if (Integer.MAX_VALUE /Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+            if (leftNodeNumber != 0  && Integer.MAX_VALUE /leftNodeNumber < rightNodeNumber) {
                 throw(new IOException("Ovefflow of integer"));
             }
-            return Integer.parseInt(leftNode.getString(), dec) * Integer.parseInt(rightNode.getString(), dec);
+            return leftNodeNumber * rightNodeNumber;
         } else if (s.equals("/")) {
-            if (Integer.parseInt(rightNode.getString(), dec) == 0 ) {
+            if (rightNodeNumber == 0 ) {
                 throw(new IOException("Trying divide by zero"));
             }
-            return Integer.parseInt(leftNode.getString(), dec) / Integer.parseInt(rightNode.getString(), dec);
+            return leftNodeNumber / rightNodeNumber;
         } else if (s.equals("-")) {
-            if ( Integer.signum(Integer.parseInt(leftNode.getString(), dec)) == Integer.signum(Integer.parseInt(rightNode.getString(), dec)) ) {
-                if (Integer.MAX_VALUE - Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+            if ( Integer.signum(leftNodeNumber) == Integer.signum(rightNodeNumber) ) {
+                if (Integer.MAX_VALUE - leftNodeNumber < rightNodeNumber) {
                     throw(new IOException("Ovefflow of integer"));
                 }
             }
-            return Integer.parseInt(leftNode.getString(), dec) - Integer.parseInt(rightNode.getString(), dec);
+            return leftNodeNumber - rightNodeNumber;
         } else {
-            if ( Integer.signum(Integer.parseInt(leftNode.getString(), dec)) == Integer.signum(Integer.parseInt(rightNode.getString(), dec)) ) {
-                   if (Integer.MAX_VALUE - Integer.parseInt(leftNode.getString(), dec) < Integer.parseInt(rightNode.getString(), dec )) {
+            if ( Integer.signum(leftNodeNumber) == Integer.signum(rightNodeNumber) ) {
+                   if (Integer.MAX_VALUE - leftNodeNumber < rightNodeNumber) {
                         throw(new IOException("Ovefflow of integer"));
                    }
             }
-            return Integer.parseInt(leftNode.getString(), dec) + Integer.parseInt(rightNode.getString(), dec);
+            return leftNodeNumber + rightNodeNumber;
         }
     }
 
