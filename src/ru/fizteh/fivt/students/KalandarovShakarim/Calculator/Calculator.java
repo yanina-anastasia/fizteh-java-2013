@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.KalndarovShakarim.Calculator;
+package ru.fizteh.fivt.students.KalandarovShakarim.Calculator;
 
 import java.io.IOException;
 import java.util.Stack;
