@@ -146,7 +146,7 @@ class Calculator {
     }
 
     private void pushOperation(Stack<Integer> numbers, Stack<Lexem> operations, Lexem operation) throws ArithmeticException {
-        while(!operations.empty() && getOperationPriority(operations.peek()) > getOperationPriority(operation))
+        while(!operations.empty() && getOperationPriority(operations.peek()) >= getOperationPriority(operation))
             performOperation(numbers, operations.pop());
         operations.push(operation);
     }
