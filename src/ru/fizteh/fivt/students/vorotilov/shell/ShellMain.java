@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
 import org.springframework.util.FileCopyUtils;
-
 import java.io.*;
 
 class ExitCommand extends Exception {}
@@ -10,15 +9,25 @@ public class ShellMain {
 
     private static File currentDirectory;
 
-    private static void recursiveDirDelete(File dir) {
+    private static void recursiveDelete(File dir) {
         if (!dir.isFile()) {
             String[] listOfElements = dir.list();
-            for (String i : listOfElements) {
-                File currentElement = new File(i);
-                recursiveDirDelete(currentElement);
+            if (listOfElements.length > 0) {
+                for (String i : listOfElements) {
+                    File currentElement = new File(i);
+                    recursiveDelete(currentElement);
+                }
             }
         }
         dir.delete();
+    }
+
+    private static File convertPath(String s) throws IOException {
+        File newElem = new File(s);
+        if (!newElem.isAbsolute()) {
+            newElem = new File(currentDirectory.getCanonicalPath() + File.separator + s);
+        }
+        return newElem;
     }
 
     private static void processCommand(String command) throws ExitCommand, IOException {
@@ -30,7 +39,7 @@ public class ShellMain {
                 System.out.println(currentDirectory.getCanonicalPath());
                 break;
             case "mkdir":
-                File newDir = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[1]);
+                File newDir = convertPath(commandParts[1]);
                 if (!newDir.mkdir()) {
                     //directory was not created;
                     //but we must ignore this
@@ -43,34 +52,38 @@ public class ShellMain {
                 }
                 break;
             case "cd":
-                File newCurrentDirectory = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[1]);
+                File newCurrentDirectory = convertPath(commandParts[1]);
                 if (newCurrentDirectory.exists()) {
                     currentDirectory = newCurrentDirectory;
                 } else {
-                    System.out.println("cd: '" + File.separator + commandParts[1] + "': No such file or directory");
+                    System.out.println("cd: '" + newCurrentDirectory + "': No such file or directory");
                 }
                 break;
             case "rm":
-                File elementToDelete = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[1]);
+                File elementToDelete = convertPath(commandParts[1]);
                 if (elementToDelete.exists()) {
-                    recursiveDirDelete(elementToDelete);
+                    recursiveDelete(elementToDelete);
                 } else {
-                    System.out.println("rm: cannot remove '" + commandParts[1] + "': No such file or directory");
+                    System.out.println("rm: cannot remove '" + elementToDelete + "': No such file or directory");
                 }
                 break;
             case "cp":
-                File sourceToCp = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[1]);
-                File destinationToCp = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[2]);
-                FileCopyUtils.copy(sourceToCp, destinationToCp);
+                File sourceToCp = convertPath(commandParts[1]);
+                File destinationToCp = convertPath(commandParts[2]);
+                if (sourceToCp.exists() && destinationToCp.exists()) {
+                    FileCopyUtils.copy(sourceToCp, destinationToCp);
+                }
                 break;
             case "mv":
-                File sourceToMv = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[1]);
-                File destinationToMv = new File(currentDirectory.getCanonicalPath() + File.separator + commandParts[2]);
-                if (sourceToMv == destinationToMv) {
-                    sourceToMv.renameTo(destinationToMv);
-                } else {
-                    FileCopyUtils.copy(sourceToMv, destinationToMv);
-                    recursiveDirDelete(sourceToMv);
+                File sourceToMv = convertPath(commandParts[1]);
+                File destinationToMv = convertPath(commandParts[2]);
+                if (sourceToMv.exists() && destinationToMv.exists()) {
+                    if (sourceToMv == destinationToMv) {
+                        sourceToMv.renameTo(destinationToMv);
+                    } else {
+                        FileCopyUtils.copy(sourceToMv, destinationToMv);
+                        recursiveDelete(sourceToMv);
+                    }
                 }
                 break;
             default:
@@ -97,8 +110,7 @@ public class ShellMain {
         } catch (ExitCommand e) {
             System.exit(0);
         } catch (IOException e) {
-            //we shall now print it
-            System.err.println(e);
+            System.exit(1);
         }
 
     }
