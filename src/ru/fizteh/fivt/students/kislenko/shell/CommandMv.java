@@ -13,6 +13,7 @@ public class CommandMv implements Command {
         } else {
             File[] sourceEntries = source.listFiles();
             target.toFile().mkdir();
+            assert sourceEntries != null;
             for (File sourceEntry : sourceEntries) {
                 moveFile(sourceEntry, target.toFile());
             }
@@ -41,7 +42,7 @@ public class CommandMv implements Command {
         Path absolutePath = Location.getPath();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
-        if (destPath.toString().equals(sourcePath)) {
+        if (destPath.toString().equals(sourcePath.toString())) {
             throw new IOException("mv: Cannot move file on itself.");
         }
         if (sourcePath.toFile().isFile() && !destPath.toFile().isDirectory()) {
@@ -60,7 +61,7 @@ public class CommandMv implements Command {
         } else if (sourcePath.toFile().isDirectory()) {
             File[] sourceEntries = sourcePath.toFile().listFiles();
             destPath.toFile().mkdir();
-            for (File sourceEntry : sourceEntries) {
+            for (File sourceEntry : sourceEntries != null ? sourceEntries : new File[0]) {
                 moveFile(sourceEntry, destPath.toFile());
             }
             sourcePath.toFile().delete();

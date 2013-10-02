@@ -41,11 +41,7 @@ public class CommandRm implements Command {
         String fileName = args[1];
         Path absolutePath = Location.getPath();
         Path target = absolutePath.resolve(fileName);
-        try {
-            removing(target);
-        } catch (IOException e) {
-            throw e;
-        }
+        removing(target);
         Location.changePath(validatePath(absolutePath));
     }
 }

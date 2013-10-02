@@ -31,7 +31,7 @@ public class CommandCp implements Command {
         Path absolutePath = Location.getPath();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
-        if (destPath.toString().equals(sourcePath)) {
+        if (destPath.toString().equals(sourcePath.toString())) {
             throw new IOException("cp: Cannot copy file on itself.");
         }
         if (sourcePath.toFile().isFile() && !destPath.toFile().isDirectory()) {
@@ -50,7 +50,7 @@ public class CommandCp implements Command {
         } else if (sourcePath.toFile().isDirectory()) {
             File[] sourceEntries = sourcePath.toFile().listFiles();
             destPath.toFile().mkdir();
-            for (File sourceEntry : sourceEntries) {
+            for (File sourceEntry : sourceEntries != null ? sourceEntries : new File[0]) {
                 copyFile(sourceEntry, destPath.toFile());
             }
         } else {
