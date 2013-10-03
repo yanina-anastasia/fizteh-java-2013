@@ -39,7 +39,8 @@ class Calculator {
         MULTIPLICATION,
         DIVISION,
         OBRACKET,
-        CBRACKET
+        CBRACKET,
+        UNARYMinus
     };
 
     private String expression;
@@ -184,6 +185,13 @@ class Calculator {
                     }
                 break;
                 case OBRACKET:
+                    if(lexemType == Lexem.SUBTRACTION) {
+                        numbers.push(-1);
+                        operations.push(Lexem.MULTIPLICATION);
+                        state = State.UNARYMinus;
+                        break;
+                    }
+                case UNARYMinus:
                     switch (lexemType) {
                         case NUMBER:
                             numbers.push(getNumber(i));
