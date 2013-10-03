@@ -24,14 +24,15 @@ public class Calculator {
         Deque<Character> operators = new LinkedList<>();
         int i = 0;
         int lastNumberFlag = 0;
+        int spaceFlag = 0;
         while(i < inputString.length()) {
             char token = inputString.charAt(i);
             if((token >= '0' && token <='9') || (token >= 'A' && token <= 'G')) {
                 sb.append(token);
                 ++i;
-                if (lastNumberFlag == 1) {
+                if (lastNumberFlag == 1 && spaceFlag == 1) {
                 	throw new IOException("Invalid input");
-                } 
+                }
                 lastNumberFlag = 1;
                 continue;
             }
@@ -69,6 +70,7 @@ public class Calculator {
             	operators.push(token);
             	++i;
             } else {
+            	spaceFlag = 1;
             	++i;
             }
         }
@@ -161,7 +163,6 @@ public class Calculator {
 			sb.append(" ");
 		}
 		String expression = sb.toString();
-		
 		int result = 0;
 		try {
 			String convertString = toPostfix(expression);
