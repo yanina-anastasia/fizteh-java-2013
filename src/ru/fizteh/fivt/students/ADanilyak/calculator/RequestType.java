@@ -3,10 +3,8 @@ package ru.fizteh.fivt.students.adanilyak.calculator;
 /**
  * User: Alexander
  * Date: 29.09.13
- * Time: 12:34
+ * Time: 15:00
  */
-
-import java.util.regex.Pattern;
 
 public enum RequestType {
 

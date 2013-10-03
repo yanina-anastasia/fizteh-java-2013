@@ -28,9 +28,19 @@ class Calculator {
         String currentToken = "";
         while (tokenize.hasNext()) {
             if (!tokens.isEmpty() && currentToken.matches("-[0-9A-Z]+|[0-9A-Z]+|\\)|\\s+")) {
-                tokens.add(currentToken = tokenize.findInLine(Pattern.compile("[0-9A-Z]+|-|\\+|\\*|/|\\(|\\)|\\s+")));
+                currentToken = tokenize.findInLine(Pattern.compile("[0-9A-Z]+|[a-z]+|-|\\+|\\*|/|\\(|\\)|\\s+"));
+                if (currentToken.matches("[a-z]+")) {
+                    System.err.println("wrong equation");
+                    System.exit(1);
+                }
+                tokens.add(currentToken);
             } else {
-                tokens.add(currentToken = tokenize.findInLine(Pattern.compile("-[0-9A-Z]+|[0-9A-Z]+|\\+|\\*|/|\\(|\\)|\\s+")));
+                currentToken = tokenize.findInLine(Pattern.compile("-[0-9A-Z]+|[0-9A-Z]+|-[a-z]+|[a-z]+|\\+|\\*|/|\\(|\\)|\\s+"));
+                if (currentToken.matches("[a-z]+|-[a-z]+")) {
+                    System.err.println("wrong equation");
+                    System.exit(1);
+                }
+                tokens.add(currentToken);
             }
         }
         return tokens;
