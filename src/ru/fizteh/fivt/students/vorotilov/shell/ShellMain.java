@@ -1,13 +1,24 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
-import org.springframework.util.FileCopyUtils;
 import java.io.*;
+import java.nio.channels.FileChannel;
 
 class ExitCommand extends Exception {}
 
 public class ShellMain {
 
     private static File currentDirectory;
+
+    private static String formatCommand (String badCommand) {
+        StringBuilder tempCommand = new StringBuilder(badCommand);
+        int i = 0;
+        while (i < tempCommand.length() && tempCommand.charAt(i) == ' ') {
+            ++i;
+        }
+        tempCommand.delete(0, i);
+        System.out.println(tempCommand);
+        return tempCommand.toString();
+    }
 
     private static void recursiveDelete(File dir) throws IOException {
         File[] listOfElements = dir.listFiles();
@@ -21,14 +32,45 @@ public class ShellMain {
             }
         }
         dir.delete();
+        if (dir.equals(currentDirectory)) {
+            currentDirectory = dir.getParentFile();
+        }
     }
 
     private static File convertPath(String s) throws IOException {
         File newElem = new File(s);
         if (!newElem.isAbsolute()) {
-            newElem = new File(currentDirectory.getCanonicalPath() + File.separator + s);
+            newElem = new File(currentDirectory, s);
         }
         return newElem;
+    }
+
+    private static void copy(File source, File destination) throws IOException {
+        if (source.isDirectory()) {
+            copyDirectory(source,new File (destination, source.getName()));
+        } else {
+            copyFile(source,new File(destination, source.getName()));
+        }
+    }
+
+    private static void copyDirectory(File source, File destination) throws IOException {
+        destination.mkdirs();
+        File[] files = source.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                copyDirectory(file, new File(destination, file.getName()));
+            } else {
+                copyFile(file, new File(destination, file.getName()));
+            }
+        }
+    }
+
+    private static void copyFile(File source, File destination) throws IOException {
+        FileChannel sourceChannel = new FileInputStream(source).getChannel();
+        FileChannel targetChannel = new FileOutputStream(destination).getChannel();
+        sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
+        sourceChannel.close();
+        targetChannel.close();
     }
 
     private static void processCommand(String command) throws ExitCommand, IOException {
@@ -53,7 +95,14 @@ public class ShellMain {
                 }
                 break;
             case "cd":
-                File newCurrentDirectory = convertPath(commandParts[1]);
+                File newCurrentDirectory;
+                if (commandParts[1] == "..") {
+                    newCurrentDirectory = currentDirectory.getParentFile();
+                } else if (commandParts[1] != ".") {
+                    newCurrentDirectory = currentDirectory;
+                } else {
+                    newCurrentDirectory = convertPath(commandParts[1]);
+                }
                 if (newCurrentDirectory.exists()) {
                     currentDirectory = newCurrentDirectory;
                 } else {
@@ -64,9 +113,6 @@ public class ShellMain {
                 File elementToDelete = convertPath(commandParts[1]);
                 if (elementToDelete.exists()) {
                     recursiveDelete(elementToDelete);
-                    if (elementToDelete.equals(currentDirectory)) {
-                        currentDirectory = elementToDelete.getParentFile();
-                    }
                 } else {
                     System.out.println("rm: cannot remove '" + elementToDelete + "': No such file or directory");
                 }
@@ -75,17 +121,17 @@ public class ShellMain {
                 File sourceToCp = convertPath(commandParts[1]);
                 File destinationToCp = convertPath(commandParts[2]);
                 if (sourceToCp.exists() && destinationToCp.exists()) {
-                    FileCopyUtils.copy(sourceToCp, destinationToCp);
+                    copy(sourceToCp, destinationToCp);
                 }
                 break;
             case "mv":
                 File sourceToMv = convertPath(commandParts[1]);
                 File destinationToMv = convertPath(commandParts[2]);
-                if (sourceToMv.exists() && destinationToMv.exists()) {
-                    if (sourceToMv == destinationToMv) {
+                if (sourceToMv.exists()) {
+                    if (!destinationToMv.exists()) {
                         sourceToMv.renameTo(destinationToMv);
                     } else {
-                        FileCopyUtils.copy(sourceToMv, destinationToMv);
+                        copy(sourceToMv, destinationToMv);
                         recursiveDelete(sourceToMv);
                     }
                 }
@@ -98,7 +144,7 @@ public class ShellMain {
     public static void main(String[] args) {
         final boolean interactiveMode = (args.length == 0);
         try {
-            currentDirectory = new java.io.File( "." );
+            currentDirectory = new java.io.File(".");
             if (interactiveMode) {
                 BufferedReader inputStream = new BufferedReader(new InputStreamReader(System.in));
                 while (true) {
@@ -108,7 +154,7 @@ public class ShellMain {
             } else {
                 String [] separateCommands = args[0].split(";");
                 for (String currentCommand : separateCommands) {
-                    processCommand(currentCommand);
+                    processCommand(formatCommand(currentCommand));
                 }
             }
         } catch (ExitCommand e) {
