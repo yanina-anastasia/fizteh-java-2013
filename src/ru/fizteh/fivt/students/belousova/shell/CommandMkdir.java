@@ -7,6 +7,11 @@ import java.util.Scanner;
 
 public class CommandMkdir implements Command {
     private static final String name = "mkdir";
+    private ShellState state;
+
+    public CommandMkdir(ShellState state) {
+        this.state = state;
+    }
 
     public String getName() {
         return name;
@@ -16,13 +21,8 @@ public class CommandMkdir implements Command {
         try {
             Scanner scanner = new Scanner(args);
             scanner.next();
-            String dirName = scanner.nextLine().substring(1);
-            File newDirectory = new File(dirName);
-
-            if (!newDirectory.isAbsolute()) {
-                newDirectory = new File(MainShell.currentDirectory, dirName);
-            }
-
+            String dirName = scanner.next();
+            File newDirectory = FileUtils.getFileFromString(dirName, state);
 
             boolean success = newDirectory.mkdirs();
             if (!success) {

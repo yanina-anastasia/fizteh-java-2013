@@ -1,47 +1,17 @@
 package ru.fizteh.fivt.students.belousova.shell;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Path;
 
 public class MainShell {
-    public static Map<String, Command> commandList = new HashMap<String, Command>();
-    public static File currentDirectory = new File("C:/");
 
     public static void main(String[] args) {
-        makeCommandList();
+        ShellState state = new ShellState();
 
         if (args.length == 0) {
-            InteractiveMode.work(System.in);
+            ShellUtils.interactiveMode(System.in, state);
         } else {
-            BatchMode.work(args);
+            ShellUtils.batchMode(args, state);
         }
-
-    }
-
-    public static void makeCommandList() {
-        CommandCd cd = new CommandCd();
-        commandList.put(cd.getName(), cd);
-
-        CommandPwd pwd = new CommandPwd();
-        commandList.put(pwd.getName(), pwd);
-
-        CommandDir dir = new CommandDir();
-        commandList.put(dir.getName(), dir);
-
-        CommandExit commandExit = new CommandExit();
-        commandList.put(commandExit.getName(), commandExit);
-
-        CommandMkdir mkdir = new CommandMkdir();
-        commandList.put(mkdir.getName(), mkdir);
-
-        CommandRm rm = new CommandRm();
-        commandList.put(rm.getName(), rm);
-
-        CommandCp cp = new CommandCp();
-        commandList.put(cp.getName(), cp);
-
-        CommandMv mv = new CommandMv();
-        commandList.put(mv.getName(), mv);
     }
 }

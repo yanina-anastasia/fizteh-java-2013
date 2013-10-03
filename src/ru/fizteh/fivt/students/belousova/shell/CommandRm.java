@@ -6,7 +6,12 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CommandRm implements Command {
-    private static final String name = "rm";
+    private final String name = "rm";
+    private ShellState state;
+
+    public CommandRm(ShellState state) {
+        this.state = state;
+    }
 
     public String getName() {
         return name;
@@ -16,16 +21,16 @@ public class CommandRm implements Command {
         try {
             Scanner scanner = new Scanner(args);
             scanner.next();
-            String dirName = scanner.nextLine().substring(1);
-            File directory = new File(dirName);
+            //String dirName = scanner.nextLine().substring(1);
+            String dirName = scanner.next();
+            File directory = FileUtils.getFileFromString(dirName, state);
 
-            if (!directory.isAbsolute()) {
-                directory = new File(MainShell.currentDirectory, dirName);
+            if (directory.equals(state.getCurrentDirectory())) {
+                throw new IOException("cannot remove '" + directory.getName() + "': it is a working directory");
             }
 
-
             if (directory.exists()) {
-                DeleteFunctions.deleteDirectory(directory);
+                FileUtils.deleteDirectory(directory);
             } else {
                 throw new IOException("cannot remove " + dirName + ": No such file or directory");
             }

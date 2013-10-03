@@ -1,0 +1,119 @@
+package ru.fizteh.fivt.students.belousova.shell;
+
+import java.io.*;
+
+public class FileUtils {
+
+    public static void copyFileToFile(File source, File destination) throws IOException{
+        if (destination.exists()) {
+            destination.delete();
+        }
+        try {
+            destination.createNewFile();
+            InputStream inputStream = new FileInputStream(source);
+            OutputStream outputStream = new FileOutputStream(destination);
+            try {
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, read);
+                }
+            } finally {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    //do nothing
+                }
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    //do nothing
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("cannot copy", e);
+        }
+    }
+
+    public static void copyFileToFolder(File source, File destination) throws IOException {
+        File copy = new File(destination, source.getName());
+        copyFileToFile(source, copy);
+
+    }
+
+    public static void copyFolderToFolder(File source, File destination) throws IOException {
+        File copy = new File(destination, source.getName());
+        if (copy.exists()) {
+            throw new IOException("omitting directory '" + copy.getName() + "'");
+        }
+        copy.mkdirs();
+        File[] files = source.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isFile()) {
+                    copyFileToFolder(f, copy);
+                }
+                if (f.isDirectory()) {
+                    copyFolderToFolder(f, copy);
+                }
+            }
+        }
+    }
+
+    public static void deleteDirectory(File directory) throws IOException {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                deleteDirectory(f);
+            }
+        }
+        boolean success = directory.delete();
+        if (!success) {
+            throw new IOException("cannot remove " + directory.getName() + ": unknown error");
+        }
+    }
+
+    public static File getFileFromString(String s, ShellState state) {
+        File file = new File(s);
+
+        if (!file.isAbsolute()) {
+            file = new File(state.getCurrentDirectory(), s);
+        }
+        return file;
+    }
+
+    public static void renameFile(File oldFile, File newFile) throws IOException {
+        if (newFile.equals(oldFile)) {
+            throw new IOException("cannot move '" + oldFile.getName() + "' to itself");
+        }
+        if (newFile.exists()) {
+            boolean successDelete = newFile.delete();
+            if (!successDelete) {
+                throw new IOException("cannot overwrite");
+            }
+        }
+
+        File parent = new File(newFile.getParent());
+
+        if (parent.exists() && !parent.equals(oldFile)) {
+            boolean successRename = oldFile.renameTo(newFile);
+            if (!successRename) {
+                throw new IOException("cannot rename");
+            }
+        } else {
+            String newName = parent.getName() + newFile.getName();
+            File newNewFile = new File(parent.getParent() + File.separator + newName);
+            renameFile(oldFile, newNewFile);
+        }
+    }
+
+    public static void moveToFolder(File source, File destination) throws IOException {
+        if (source.isFile()) {
+            copyFileToFolder(source, destination);
+        }
+        if (source.isDirectory()) {
+            copyFolderToFolder(source, destination);
+        }
+        deleteDirectory(source);
+    }
+}

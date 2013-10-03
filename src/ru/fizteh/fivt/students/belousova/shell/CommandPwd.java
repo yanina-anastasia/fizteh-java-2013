@@ -3,13 +3,18 @@ package ru.fizteh.fivt.students.belousova.shell;
 import java.io.IOException;
 
 public class CommandPwd implements Command {
-    private static final String name = "pwd";
+    private final String name = "pwd";
+    private ShellState state;
+
+    public CommandPwd(ShellState state) {
+        this.state = state;
+    }
 
     public String getName() {
         return name;
     }
 
     public void execute(String args) throws IOException {
-        System.out.println(MainShell.currentDirectory.getPath());
+        System.out.println(state.getCurrentDirectory().getPath());
     }
 }
