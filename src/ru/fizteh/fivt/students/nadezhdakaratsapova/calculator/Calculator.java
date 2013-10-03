@@ -20,14 +20,10 @@ public class Calculator {
         return 0;
     }
 
-    public static int max(final int arg1, final int arg2) {
-        return (arg1 > arg2) ? arg1: arg2;
-    }
-
-
     public static Integer calculate(final Integer arg1, final Integer arg2, final char operation) throws IOException {
         switch (operation) {
             case '*':
+                if ((arg1 == 0) | (arg2 == 0)) return 0;
                 if ((Math.abs(Integer.MAX_VALUE / arg1)) < Math.abs(arg2)) {
                     throw new IOException("Value of expression exceeds  MAX_INTEGER1");
                 }
@@ -36,17 +32,23 @@ public class Calculator {
                 if (arg2 == 0) throw new IOException("Division by zero");
                 return arg1/arg2;
             case '+':
-                if (max(arg1, arg2) > 0) {
+                if (Math.max(arg1, arg2) > 0) {
                     if ( (Integer.MAX_VALUE - arg1) < arg2 )  {
                         throw new IOException("Value of expression exceeds  MAX_INTEGER");
                     }
                 }   else {
                     if ((Integer.MIN_VALUE + arg1) > arg2) {
-                        throw new IOException("Value of expression exceeds  MIN_INTEGER");
+                        throw new IOException("Value of expression less than  MIN_INTEGER");
                     }
                 }
                 return arg1 + arg2;
             case '-':
+                if ((arg1 < 0) && (arg1 < (Integer.MIN_VALUE + arg2))) {
+                    throw new IOException("Value of expression less than MIN_INTEGER");
+                }
+                if ((arg2 < 0) && (arg1 > (Integer.MAX_VALUE + arg2))) {
+                    throw new IOException("Value of expression exceeds  MAX_INTEGER");
+                }
                 return arg1 - arg2;
         }
         return 0;
@@ -180,7 +182,7 @@ public class Calculator {
             i = 0;
             while (i < (outputString.length() - 1)) {
                 if (outputString.charAt(i + 1) == ' ') {
-                    if (Character.isDigit(outputString.charAt(i))) {
+                    if ((Character.isDigit(outputString.charAt(i))) | ((outputString.charAt(i) >= 'A') && (outputString.charAt(i) <= 'G'))) {
                         result.push(Integer.parseInt(outputString.substring(i, i + 1), radix));
                     } else {
                         if (!result.empty()) {
@@ -234,3 +236,5 @@ public class Calculator {
         }
     }
 }
+
+
