@@ -1,18 +1,19 @@
-package ru.fizteh.fivt.students.Vishnevskiy_Ivan.calculator;
+package ru.fizteh.fivt.students.vishnevskiy.calculator;
 
 import java.io.*;
 import java.text.ParseException;
 
 public class Calc {
 
+    protected static final int radix = 19;
     protected static String expression; // выражение
     private static int position;        // текущая обрабатываемая позиция
     private static String token;        // последняя обработанная лексема
-    private static double number;       // последнее обработанное число
+    private static int number;       // последнее обработанное число
     private static String tokenType;    // тип лексемы (number, operation, braces, end)
 
     protected static boolean isDigit(char c) {
-        return (Character.isDigit(c) || (c == '.'));
+        return (Character.isDigit(c) || ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + radix - 11)));
     }
 
     protected static void getToken() {
@@ -31,7 +32,7 @@ public class Calc {
                 ++position;
             }
             String numberString = numberTempString.toString();
-            number = Double.parseDouble(numberString);
+            number = Integer.parseInt(numberString, 19);
             tokenType = "number";
             return;
         }
@@ -49,9 +50,9 @@ public class Calc {
         }
     }
 
-    protected static double prim() throws IOException, ParseException {
+    protected static int prim() throws ParseException {
         if (tokenType.equals("number")) {
-            double tempNumber = number;
+            int tempNumber = number;
             getToken();
             return tempNumber;
         } else if (tokenType.equals("operation") && token.equals("-")) {
@@ -60,11 +61,11 @@ public class Calc {
         } else if (tokenType.equals("braces") && token.equals("(")) {
             getToken();
             if (tokenType.equals("end")) {
-                throw new IOException("\')\' expected");
+                throw new ParseException("\')\' expected", position);
             }
-            double exprValue = expr();
+            int exprValue = expr();
             if (!(tokenType.equals("braces") && token.equals(")"))) {
-                throw new IOException("\')\' expected");
+                throw new ParseException("\')\' expected", position);
             }
             getToken();
             return exprValue;
@@ -72,8 +73,8 @@ public class Calc {
         throw new ParseException("Primary expected", position);
     }
 
-    protected static double term() throws ArithmeticException, IOException, ParseException {
-        double leftPrim = prim();
+    protected static int term() throws ArithmeticException, ParseException {
+        int leftPrim = prim();
         while (true) {
             if (tokenType.equals("operation") && token.equals("*")) {
                 getToken();
@@ -86,7 +87,7 @@ public class Calc {
                 if (tokenType.equals("end")) {
                     return leftPrim;
                 }
-                double rightPrim = prim();
+                int rightPrim = prim();
                 if (rightPrim != 0) {
                     leftPrim /= rightPrim;
                 } else {
@@ -98,8 +99,8 @@ public class Calc {
         }
     }
 
-    protected static double expr() throws ArithmeticException, IOException, ParseException {
-        double leftTerm = term();
+    protected static int expr() throws ArithmeticException, ParseException {
+        int leftTerm = term();
         while (true) {
             if (tokenType.equals("operation") && token.equals("+")) {
                 getToken();
@@ -119,10 +120,10 @@ public class Calc {
         }
     }
 
-    protected static double calculate() throws ArithmeticException, IOException, ParseException {
+    protected static int calculate() throws ArithmeticException, ParseException {
         position = 0;
         getToken();
-        double answer = expr();
+        int answer = expr();
         if (!tokenType.equals("end")) {
             throw new ParseException("Operation expected", position);
         }
@@ -142,24 +143,26 @@ public class Calc {
 
     public static void main(String[] args) {
         if ((args.length == 0) || ((args.length == 1) && (args[0].toLowerCase().equals("help")))) {
-            System.out.println(" Input expression as a parameter for Calc. \n You can use both integer and real " +
-                    "(with \'.\' delimiter) numbers and operations + - * /. \n Use braces () to set the priority of operations.");
-            return;
+            System.out.println(" Input expression as a parameter for Calc. \n You can use integers in 19 radix " +
+                    "and operations + - * / (/ stands for integer division). \n Use braces () to set the priority of operations.");
+            System.exit(1);
         }
-        StringBuilder tempExpression = new StringBuilder("");
+        StringBuilder tempExpression = new StringBuilder();
         for (int i = 0; i < args.length; ++i) {
             tempExpression.append(args[i]);
+            tempExpression.append(' ');
         }
         try {
             analyzeCharacters(tempExpression);
             expression = tempExpression.toString();
-            double answer = calculate();
-            System.out.println("Calc: " + answer);
+            int answer = calculate();
+            String strAnswer = Integer.toString(answer, radix);
+            System.out.println("Calc: " + strAnswer);
         } catch (IOException e) {
             System.err.println(e);
             System.out.println("Input \"help\" or start the program without parameters to get help.");
             System.exit(1);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.err.println("Incorrect number input");
             System.out.println("Input \"help\" or start the program without parameters to get help.");
             System.exit(1);
