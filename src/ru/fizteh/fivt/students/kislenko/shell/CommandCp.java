@@ -13,21 +13,21 @@ public class CommandCp implements Command {
         } else {
             File[] sourceEntries = source.listFiles();
             target.toFile().mkdir();
-            for (File sourceEntry : sourceEntries) {
+            for (File sourceEntry : sourceEntries != null ? sourceEntries : new File[0]) {
                 copyFile(sourceEntry, target.toFile());
             }
         }
     }
 
     public void run(String s) throws IOException {
-        String[] args = s.split("  *");
-        if (args.length > 3) {
+        String[] args = s.trim().split("  *");
+        if (args.length > 2) {
             throw new IOException("cp: Too many arguments.");
-        } else if (args.length < 3) {
+        } else if (args.length < 2) {
             throw new IOException("cp: Too few arguments.");
         }
-        String source = args[1];
-        String dest = args[2];
+        String source = args[0];
+        String dest = args[1];
         Path absolutePath = Location.getPath();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();

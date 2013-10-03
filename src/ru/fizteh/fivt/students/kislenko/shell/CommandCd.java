@@ -7,13 +7,13 @@ import java.nio.file.Path;
 
 public class CommandCd implements Command {
     public void run(String s) throws IOException {
-        String[] args = s.split("  *");
-        if (args.length > 2) {
+        String[] args = s.trim().split("  *");
+        if (args.length > 1) {
             throw new IOException("cd: Too many arguments.");
-        } else if (args.length < 2) {
+        } else if (args.length < 1) {
             throw new IOException("cd: Too few arguments.");
         }
-        String path = args[1];
+        String path = args[0];
         Path absolutePath = Location.getPath();
         absolutePath = absolutePath.resolve(path);
         File newDir = new File(absolutePath.toString());

@@ -32,13 +32,13 @@ public class CommandRm implements Command {
     }
 
     public void run(String s) throws IOException {
-        String[] args = s.split("  *");
-        if (args.length > 2) {
+        String[] args = s.trim().split("  *");
+        if (args.length > 1) {
             throw new IOException("rm: Too many arguments.");
-        } else if (args.length < 2) {
+        } else if (args.length < 1) {
             throw new IOException("rm: Too few arguments.");
         }
-        String fileName = args[1];
+        String fileName = args[0];
         Path absolutePath = Location.getPath();
         Path target = absolutePath.resolve(fileName);
         removing(target);
