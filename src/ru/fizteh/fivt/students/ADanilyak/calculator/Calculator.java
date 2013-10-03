@@ -23,23 +23,25 @@ class Calculator {
             System.err.println("empty input");
             System.exit(3);
         }
+
+        char[] symbols = this.equation.toCharArray();
+        for (Character s : symbols) {
+            if (!(String.valueOf(s).matches("[0-9A-Z]|-|\\+|\\*|/|\\(|\\)|\\s"))) {
+                System.err.println("wrong equation");
+                System.exit(1);
+            }
+        }
+
         List<String> tokens = new ArrayList<String>();
         Scanner tokenize = new Scanner(this.equation);
         String currentToken = "";
+
         while (tokenize.hasNext()) {
             if (!tokens.isEmpty() && currentToken.matches("-[0-9A-Z]+|[0-9A-Z]+|\\)|\\s+")) {
-                currentToken = tokenize.findInLine(Pattern.compile("[0-9A-Z]+|[a-z]+|-|\\+|\\*|/|\\(|\\)|\\s+"));
-                if (currentToken.matches("[a-z]+")) {
-                    System.err.println("wrong equation");
-                    System.exit(1);
-                }
+                currentToken = tokenize.findInLine(Pattern.compile("[0-9A-Z]+|-|\\+|\\*|/|\\(|\\)|\\s+"));
                 tokens.add(currentToken);
             } else {
-                currentToken = tokenize.findInLine(Pattern.compile("-[0-9A-Z]+|[0-9A-Z]+|-[a-z]+|[a-z]+|\\+|\\*|/|\\(|\\)|\\s+"));
-                if (currentToken.matches("[a-z]+|-[a-z]+")) {
-                    System.err.println("wrong equation");
-                    System.exit(1);
-                }
+                currentToken = tokenize.findInLine(Pattern.compile("-[0-9A-Z]+|[0-9A-Z]+|\\+|\\*|/|\\(|\\)|\\s+"));
                 tokens.add(currentToken);
             }
         }
@@ -49,6 +51,7 @@ class Calculator {
     // Переводим лист токенов в обратную польскую нотацию
     public Deque<String> intoReversePolishNotation(List<String> tokens) {
         boolean lastTokenWasNumber = false;
+        boolean emptyBrackets = false;
         Deque<String> reversePolishNotation = new ArrayDeque<String>();
         Stack<String> operators = new Stack<String>();
         String tempToken;
@@ -63,6 +66,7 @@ class Calculator {
                 }
                 reversePolishNotation.add(tempToken);
                 lastTokenWasNumber = true;
+                emptyBrackets = false;
             } else if (tempToken.matches("\\s+")) {
                 continue;
             } else {
@@ -132,9 +136,14 @@ class Calculator {
                         break;
                     case OBRCKT:
                         operators.push("(");
+                        emptyBrackets = true;
                         break;
                     case CBRCKT:
                         Boolean correctEquation = false;
+                        if (emptyBrackets) {
+                            System.err.println("wrong equation");
+                            System.exit(1);
+                        }
                         while (!operators.empty()) {
                             if (!operators.peek().equals("(")) {
                                 reversePolishNotation.add(operators.pop());
@@ -168,6 +177,10 @@ class Calculator {
     // Проводим вычисления
     public String calculate(Integer radix) {
         Deque<String> reversePolishNotation = this.intoReversePolishNotation(this.stringIntoTokens());
+        if (reversePolishNotation.isEmpty()) {
+            System.err.println("wrong equation");
+            System.exit(1);
+        }
         String tempToken;
         Integer firstTerm, secondTerm;
         Stack<Integer> forCalculation = new Stack<Integer>();
