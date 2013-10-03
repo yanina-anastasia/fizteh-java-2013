@@ -20,7 +20,7 @@ public class Calculator {
         return 0;
     }
 
-    public static int max(final int arg1, final int arg2) {
+    public static int max(int arg1, int arg2) {
         return (arg1 > arg2) ? arg1: arg2;
     }
 
@@ -203,6 +203,17 @@ public class Calculator {
                         ++i;
                     }
                     indexEnd = i;
+                    String maxInteger = Integer.toString(Integer.MAX_VALUE);
+                    if ((indexEnd - indexBegin) > maxInteger.length()) {
+                        throw new IOException("Too big argument");
+                    }
+                    if ((indexEnd - indexBegin) == maxInteger.length()) {
+                        int k = 0;
+                        for (int j = indexBegin; j < indexEnd; ++j, ++k)
+                            if (outputString.charAt(j) > maxInteger.charAt(k)) {
+                                throw new IOException("Too big argument");
+                            }
+                    }
                     result.push(Integer.parseInt(outputString.substring(indexBegin, indexEnd), radix));
                 }
                 ++i;
@@ -220,10 +231,6 @@ public class Calculator {
         catch(IOException e) {
             System.err.println("Exception was caught: " + e.getMessage());
             System.exit(1);
-        }
-        catch (NumberFormatException e) {
-            System.err.println("Exception was caught: " + e.getMessage());
-            System.exit(2);
         }
     }
 }
