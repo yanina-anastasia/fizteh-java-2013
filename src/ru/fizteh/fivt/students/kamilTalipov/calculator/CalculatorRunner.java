@@ -1,4 +1,4 @@
-package ru.fizteh.students.kamilTalipov.calculator;
+package ru.fizteh.fivt.students.kamilTalipov.calculator;
 
 public class CalculatorRunner {
     public static void main(String[] args) {
@@ -13,7 +13,8 @@ public class CalculatorRunner {
 
         StringBuilder stringBuilder = new StringBuilder();
         for (String inputPart : args) {
-            stringBuilder.append(inputPart.replaceAll(" ", ""));
+            stringBuilder.append(inputPart);
+            stringBuilder.append (" ");
         }
         String expression = stringBuilder.toString();
         System.out.println(expression);

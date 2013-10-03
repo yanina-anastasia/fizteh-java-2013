@@ -1,4 +1,4 @@
-package ru.fizteh.students.kamilTalipov.calculator;
+package ru.fizteh.fivt.students.kamilTalipov.calculator;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -26,21 +26,18 @@ public class Calculator {
                         Long num1 = numberStack.pop();
                         if (nextLexeme.lexeme.equals("+")) {
                             Long num2 = numberStack.pop();
-                            numberStack.push(num2 + num1);
+                            numberStack.push(safeAdd(num2, num1));
                         } else if (nextLexeme.lexeme.equals("-")) {
                             Long num2 = numberStack.pop();
-                            numberStack.push(num2 - num1);
+                            numberStack.push(safeSubtract(num2, num1));
                         } else if (nextLexeme.lexeme.equals("*")) {
                             Long num2 = numberStack.pop();
-                            numberStack.push(num2 * num1);
+                            numberStack.push(safeMultiply(num2, num1));
                         } else if (nextLexeme.lexeme.equals("/")) {
                             Long num2 = numberStack.pop();
-                            if (num1 == 0) {
-                                throw new ArithmeticException("Divide by zero");
-                            }
-                            numberStack.push(num2 / num1);
+                            numberStack.push(safeDivide(num2, num1));
                         } else if (nextLexeme.lexeme.equals("#")) {
-                            numberStack.push(-num1);
+                            numberStack.push(safeNegate(num1));
                         }
                         break;
                 }
@@ -56,11 +53,58 @@ public class Calculator {
         return numberStack.peek();
     }
 
+    private static Long safeAdd (Long num1, Long num2) throws ArithmeticException {
+        if ((num2 > 0 && num1 > Long.MAX_VALUE - num2)
+                || (num2 <= 0 && num1 < Long.MIN_VALUE - num2)) {
+            throw new ArithmeticException("Calculation overflow");
+        }
+
+        return num1 + num2;
+    }
+
+    private static Long safeSubtract (Long num1, Long num2) throws ArithmeticException {
+        if ((num2 > 0 && num1 < Long.MIN_VALUE + num2)
+                || (num2 <= 0 && num1 > Long.MAX_VALUE + num2)) {
+            throw new ArithmeticException("Calculation overflow");
+        }
+
+        return num1 - num2;
+    }
+
+    private static Long safeMultiply (Long num1, Long num2) throws ArithmeticException {
+        if (((num2 > 0) && (num1 > Long.MAX_VALUE / num2 || num1 < Long.MIN_VALUE / num2))
+                || ((num2 < -1) && (num1 > Long.MIN_VALUE / num2 || num1 < Long.MAX_VALUE / num2))
+                || (num2 == -1 && num1 == Long.MIN_VALUE)) {
+            throw new ArithmeticException("Calculation overflow");
+        }
+
+        return num1 * num2;
+    }
+
+    private static Long safeDivide (Long num1, Long num2) throws ArithmeticException {
+        if (num2 == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        if (num1 == Long.MIN_VALUE && num2 == -1) {
+            throw new ArithmeticException("Calculation overflow");
+        }
+
+        return num1 / num2;
+    }
+
+    private static Long safeNegate (Long num) throws ArithmeticException {
+        if (num == Long.MIN_VALUE) {
+            throw new ArithmeticException("Calculation overflow");
+        }
+
+        return -num;
+    }
+
     private static Lexeme getNextLexeme(String expression, int pos) throws ParseException {
         Lexeme nextLexeme = new Lexeme(LexemeType.OPERATOR, "");
 
-        if (InputValidator.isMathOperator(expression.charAt(pos)) ||
-            expression.charAt(pos) == '#') {
+        if (InputValidator.isMathOperator(expression.charAt(pos))
+                || expression.charAt(pos) == '#') {
             nextLexeme.type = LexemeType.OPERATOR;
             nextLexeme.lexeme = expression.substring(pos, pos + 1);
         } else if (InputValidator.is19BaseDigit(expression.charAt(pos))) {
@@ -76,7 +120,10 @@ public class Calculator {
         return nextLexeme;
     }
 
-    private enum LexemeType {NUMBER, OPERATOR}
+    private enum LexemeType {
+        NUMBER,
+        OPERATOR
+    }
 
     public static int BASE = 19;
 

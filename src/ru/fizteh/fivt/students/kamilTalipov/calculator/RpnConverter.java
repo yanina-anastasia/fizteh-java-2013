@@ -1,4 +1,4 @@
-package ru.fizteh.students.kamilTalipov.calculator;
+package ru.fizteh.fivt.students.kamilTalipov.calculator;
 
 import java.util.LinkedList;
 
@@ -10,8 +10,8 @@ public class RpnConverter {
         for (int pos = 0; pos < expression.length(); ) {
             if (InputValidator.is19BaseDigit(expression.charAt(pos))) {
                 StringBuilder stringBuilder = new StringBuilder();
-                while (pos < expression.length() &&
-                        InputValidator.is19BaseDigit(expression.charAt(pos))) {
+                while (pos < expression.length()
+                       && InputValidator.is19BaseDigit(expression.charAt(pos))) {
                     stringBuilder.append(expression.charAt(pos));
                     ++pos;
                 }
@@ -20,8 +20,7 @@ public class RpnConverter {
                 isCanBeUnaryOperator = false;
             } else if (InputValidator.isMathOperator(expression.charAt(pos))) {
                 if (!operatorStack.isEmpty()) {
-                    if (getPriority(expression.charAt(pos)) <=
-                            getPriority(operatorStack.peek())) {
+                    if (getPriority(expression.charAt(pos)) <= getPriority(operatorStack.peek())) {
                         result.append(operatorStack.pop());
                         result.append(" ");
                     }
@@ -52,6 +51,8 @@ public class RpnConverter {
                         isCanBeUnaryOperator = false;
                         break;
                 }
+                ++pos;
+            } else if (Character.isWhitespace (expression.charAt (pos))) {
                 ++pos;
             }
         }
