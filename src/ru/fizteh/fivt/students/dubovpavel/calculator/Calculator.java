@@ -187,7 +187,7 @@ class Calculator {
                 case OBRACKET:
                     if(lexemType == Lexem.SUBTRACTION) {
                         numbers.push(-1);
-                        operations.push(Lexem.MULTIPLICATION);
+                        pushOperation(numbers, operations, Lexem.MULTIPLICATION);
                         state = State.UNARYMinus;
                         break;
                     }
