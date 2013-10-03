@@ -1,137 +1,203 @@
 package ru.fizteh.fivt.students.paulinMatavina;
-//java -classpath target ru.fizteh.students.paulinMatavina.Main
 
 import java.util.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.lang.*;
-
+import java.util.zip.DataFormatException;
+import java.util.regex.Pattern;
 
 public class Calculator {
+	
 	//get priority for an operator
-	private static int getPriority(char oper) {
+	private static int getPriority(String oper) {
 		switch (oper) {
-			case '(' : return -1;
-			//case ')' : some special case 
-			case '+' : return 2;
-			case '-' : return 2;
-			case '*' : return 1;
-			case '/' : return 1;
-			default: System.out.format("Failed. Wrong symbol %c\n");
-				 System.exit(1);
+			case "(" : 
+				return -1; 
+			case "+" : 
+				return 2;
+			case "-" : 
+				return 2;
+			case "*" : 
+				return 1;
+			case "/" : 
+				return 1;
 		}
 		return 0;
 	}
 	
-	private static int tryPopInt(Stack<Integer> numStack) {
+	private static boolean correctSymbolsOnly(String str) {
+        return Pattern.matches("[0-9a-gA-G\\s/(/)/+-/*//]*", str);
+    }
+	
+	private static boolean spaceBetweenNumbers(String str) {
+        return Pattern.matches("(.*[0-9a-gA-G]+([\\s]+)[0-9a-gA-G])+.*", str);
+    }
+	
+	private static int tryPopInt(Stack<Integer> numStack) 
+							throws DataFormatException {
 		if (numStack.empty()) {
-			System.out.println("Error: incorrect expression");
-			System.exit(1);
+			System.err.println("Error: incorrect expression");
+			throw new DataFormatException();
 		}
 		return numStack.pop();
 	}
 	//
-	private static void makeOperation(Stack<Character> operStack, Stack<Integer> numStack) {
+	private static void makeOperation(Stack<String> operStack, Stack<Integer> numStack) 
+														throws DataFormatException {
 		if (operStack.empty()) {
-			System.out.println("Error: incorrect expression");
-			System.exit(1);
+			System.err.println("Error: incorrect expression");
+			throw new DataFormatException();
 		}
-		char ch = operStack.pop();
-		if (ch == '(') {
-			operStack.push(ch);
+		
+		String operator = operStack.pop();
+		if (operator.equals("(")) {
+			operStack.push(operator);
 			return;
 		}
-		int a = tryPopInt(numStack);
-		//System.out.print(a);
-		//System.out.print(ch);
-		int b = tryPopInt(numStack);
-		//System.out.print(b);
-		switch (ch) {
-			case '+' : numStack.push(a + b);
-				   break;
-			case '-' : numStack.push(a - b);
-				   break;
-			case '*' : numStack.push(a * b);
-				   break;
-			case '/' : if (b == 0) {
-					System.out.println("Error: division by zero!");
-					System.exit(1);
-				   }
-				   numStack.push(a / b);
-				   break;
+		
+		int a, b;
+		try {
+			a = tryPopInt(numStack);
+			b = tryPopInt(numStack);
 		}
-		//System.out.print("=");
-		//System.out.println(numStack.peek());
+		catch (DataFormatException e) {
+			throw new DataFormatException();
+		}
+		
+		switch (operator) {
+			case "+" : 
+				if (((a > 0) && (Integer.MAX_VALUE - a < b)) 
+						|| ((a < 0) && (Integer.MIN_VALUE - a > b))) {
+					throw new ArithmeticException("integer overflow");
+				}
+				numStack.push(a + b);
+				break;
+			case "-" : 
+				if (((a > 0) && (Integer.MAX_VALUE - a < -b)) 
+						|| ((a < 0) && (Integer.MIN_VALUE - a > -b))) {
+					throw new ArithmeticException("integer overflow");
+				}
+				numStack.push(b - a);
+				break;
+			case "*" : 
+				int signA = a / Math.abs(a);
+				int signB = b / Math.abs(b);
+				if ((signA * signB == 1) && ((Integer.MAX_VALUE / a) < b) 
+						|| ((signA * signB == -1) && ((Integer.MIN_VALUE / a) > b))) {
+					throw new ArithmeticException("integer overflow");
+				}
+				numStack.push(a * b);
+				break;
+			case "/" : 
+				if (a == 0) {
+					throw new ArithmeticException("division by zero");
+				}
+				numStack.push(b / a);
+				break;
+		}
 	}
 
 	//main	
 	public static void main(String[] args) {
-		String exp = "(";
+		if (args.length == 0) {
+            System.out.println("Arithmetical expression is required as an argument.");
+            System.out.println("Use [0..9, a..g, A..G] [+, -, *, /, (, )]");
+            System.exit(1);
+        }
+		
+		int base = 17;
+		
+		StringBuilder exp = new StringBuilder();
+		exp.append('(');
 		for (int i = 0; i < args.length; i++) { 
-			String[] part = args[i].split(" ");
-			for (int j = 0; j < part.length; j++) {
-				exp += part[j];
-			}
+			exp.append(args[i]);
+			exp.append(" ");
 		}
-		exp += ')';
-		//System.out.println(exp);
-
+		exp.append(')');
+		String expString = exp.toString();
+		
+		if (!correctSymbolsOnly(expString)) {
+			System.err.println("Wrong symbols in expression");
+            System.exit(1);
+		}
+		
+		if (spaceBetweenNumbers(expString)) {
+			System.err.println("Spaces in wrong places");
+            System.exit(1);
+		}
+		
+		expString = expString.replace(" ", "");
+		
 		Stack<Integer> numStack = new Stack<Integer>();
-		Stack<Character> operStack = new Stack<Character>();
+		Stack<String> operStack = new Stack<String>();
 
-		int i = 0;
-		while (i < exp.length()) {
-			String number = "";
-			while ((i < exp.length()) &&
-					(Character.isDigit(exp.charAt(i)) || 
-					 	(exp.charAt(i) >= 'A' && exp.charAt(i) <= 'G'))) {
-				number += exp.charAt(i);
-				i++;
-			}
-			if (number != "") {
-				numStack.push(Integer.parseInt(number, 17));
-			}
-
-				
-			if (i >= exp.length()) 
-				break;
-			char ch = exp.charAt(i);
-			int prior;
-			switch (ch) {
-				case '(' :   
-					operStack.push(ch);
+		Scanner scanner = new Scanner(expString);
+		
+		scanner.useRadix(base);
+        scanner.useDelimiter("((?<=[0-9a-gA-G])(?=[/(/)/+-/*//]))"
+                + "|((?<=[/(/)/+-/*//])(?=[0-9a-gA-G]))"
+                + "|((?<=[/(/)/+-/*//])(?=[/(/)/+-/*//]))");
+        
+        String operator;
+        while (scanner.hasNext()) {
+            if (scanner.hasNextInt()) {
+                numStack.push(scanner.nextInt());
+            } 
+            else {
+                operator = scanner.next();
+                switch (operator) {
+				case "(" :   
+					operStack.push(operator);
 					break;
-				case ')' :   
-					prior = getPriority(operStack.peek());
+				case ")" :   
+					int prior = getPriority(operStack.peek());
 					while (prior > 0) {
 						prior = getPriority(operStack.peek());
-						makeOperation(operStack, numStack);
+						try {
+							makeOperation(operStack, numStack);
+						} 
+						catch (DataFormatException e) {
+							scanner.close();
+							System.exit(1);
+						}
+						catch (ArithmeticException e) {
+							scanner.close();
+							System.out.println("Arithmetic exception: " + e.getMessage());
+							System.exit(1);
+						}
 					}
 					operStack.pop();
 					break;
-				case '+':
-				case '-':
-				case '*':
-				case '/':	
+				case "+":
+				case "-":
+				case "*":
+				case "/":	
 					prior = getPriority(operStack.peek());
-					while (prior > 0 && prior <= getPriority(ch)) {
+					while (prior > 0 && prior <= getPriority(operator)) {
 						prior = getPriority(operStack.peek());
-						makeOperation(operStack, numStack);
+						try {
+							makeOperation(operStack, numStack);
+						} 
+						catch (DataFormatException e) {
+							scanner.close();
+							System.exit(1);
+						}
+						catch (ArithmeticException e) {
+							scanner.close();
+							System.out.println("Arithmetic exception: "
+												+ e.getMessage());
+							System.exit(1);
+						}
 					}
-					operStack.push(ch);
+					operStack.push(operator);
 					break;
-				default:	
-					System.out.format("Failed. Wrong symbol %c\n", ch); 
-					System.exit(1);
-			}
-			i++;
-		}
+                }
+            }   
+        }
+        scanner.close();
 		
-		if (!operStack.empty()) {
-			System.out.println("Error: incorrect expression!");
+		if (!operStack.empty() || numStack.size() != 1) {
+			System.err.println("Error: incorrect expression");
 			System.exit(1);
 		}
-		System.out.println(Integer.toString(numStack.pop(), 17).toUpperCase());
+		System.out.println(Integer.toString(numStack.pop(), base).toUpperCase());
 	}
 }
