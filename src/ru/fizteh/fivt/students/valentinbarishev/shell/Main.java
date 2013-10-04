@@ -1,16 +1,14 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.util.Scanner;
+
 
 public class Main {
     static final int END_OF_INPUT = -1;
     static final int END_OF_TRANCEMISSION = 4;
 
-    private static boolean isTremitarive(int character) {
+    private static boolean isTerminative(int character) {
         return ((character == END_OF_INPUT) || (character == END_OF_TRANCEMISSION));
     }
 
@@ -41,11 +39,11 @@ public class Main {
                         int character;
                         StringBuilder commands = new StringBuilder();
 
-                        while ((!isTremitarive(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
+                        while ((!isTerminative(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
                             commands.append((char)character);
                         }
 
-                        if (isTremitarive(character)) {
+                        if (isTerminative(character)) {
                             System.exit(0);
                         }
 
