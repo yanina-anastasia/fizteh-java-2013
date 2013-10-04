@@ -7,9 +7,11 @@ import java.util.StringTokenizer;
 public class Calculator {
 
     private static boolean isItArithmeticSign(String c) {
-        if (c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/"))
+        if (c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/")) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
 
     //Проверяет, является ли введённый символ цифрой.
@@ -30,8 +32,9 @@ public class Calculator {
                 return isItDigit(number.charAt(0));
             default: {
                 for (int i = 1; i < number.length(); i++)
-                    if (!isItDigit(number.charAt(i)))
+                    if (!isItDigit(number.charAt(i))) {
                         return false;
+                    }
                 return true;
             }
         }
@@ -63,8 +66,9 @@ public class Calculator {
                 return result;
             }
         }
-        if (tmp.length() != 0)
+        if (tmp.length() != 0) {
             result.add(tmp.toString());
+        }
         return result;
     }
 
@@ -104,9 +108,11 @@ public class Calculator {
                 list.remove(start);
                 list.addAll(start, buf);
                 start = buf.size() - 1;
-                if (list.get(start).equals("-"))
+                if (list.get(start).equals("-")) {
                     statusOfLastSymbol = status.arithmeticSymbol;
-                else statusOfLastSymbol = status.number;
+                } else {
+                    statusOfLastSymbol = status.number;
+                }
             }
             for (int i = start + 1; i < list.size(); i++) {
                 if (isNumber(list.get(i))) {
@@ -161,9 +167,11 @@ public class Calculator {
                     list.remove(i);
                     list.addAll(i, buf);
                     i += buf.size() - 1;
-                    if (list.get(i).equals("-"))
+                    if (list.get(i).equals("-")) {
                         statusOfLastSymbol = status.arithmeticSymbol;
-                    else statusOfLastSymbol = status.number;
+                    } else {
+                        statusOfLastSymbol = status.number;
+                    }
                 }
             }
             if (statusOfLastSymbol == status.arithmeticSymbol) {
@@ -180,15 +188,23 @@ public class Calculator {
     //Приоритет операций
     private static int priority(String a) {
         int p;
-        if (a.equals("("))
+        if (a.equals("(")) {
             p = 0;
-        else if (a.equals(")"))
-            p = 1;
-        else if (a.equals("+") || a.equals("-"))
-            p = 2;
-        else if (a.equals("*") || a.equals("/"))
-            p = 3;
-        else p = -1;
+        } else {
+            if (a.equals(")")) {
+                p = 1;
+            } else {
+                if (a.equals("+") || a.equals("-")) {
+                    p = 2;
+                } else {
+                    if (a.equals("*") || a.equals("/")) {
+                        p = 3;
+                    } else {
+                        p = -1;
+                    }
+                }
+            }
+        }
         return p;
     }
 
@@ -201,10 +217,12 @@ public class Calculator {
             if (isNumber(string)) {
                 result.add(string);
             } else {
-                if (stack.size() == 0)
+                if (stack.size() == 0) {
                     priorPrev = 0;
-                else
-                    priorPrev = priority(stack.peek().toString());      //приоритет последнего элемента в стеке
+                } else {
+                    priorPrev = priority(stack.peek().toString());
+                }
+                //приоритет последнего элемента в стеке
                 prior = priority(string);        //приоритет текущего элемента
 
                 if ((stack.size() == 0 || priorPrev == 0) && prior != 1) {    //если в стеке нет операций или верхним элементом стека является открывающая скобка, операции кладётся в стек;
@@ -218,10 +236,11 @@ public class Calculator {
                 if (prior == 1) {   //До тех пор, пока верхним элементом стека не станет открывающая скобка, выталкиваем элементы из стека в выходную строку
                     while (priorPrev != 0) {
                         result.add(stack.pop().toString());
-                        if (stack.size() == 0)
+                        if (stack.size() == 0) {
                             priorPrev = 0;
-                        else
+                        } else {
                             priorPrev = priority(stack.peek().toString());
+                        }
                     }
                     stack.pop();            //delete last elem
                     continue;
@@ -234,10 +253,11 @@ public class Calculator {
                     while (prior <= priorPrev && stack.size() != 0) {        //чем верхняя операции в стеке, то операции, находящиеся в стеке,
                         result.add(stack.pop().toString());                    //до ближайшей открывающей скобки или до операции с приоритетом меньшим,
                         //чем у новой операции, перекладываются в формируемую запись,
-                        if (stack.size() == 0)
+                        if (stack.size() == 0) {
                             priorPrev = 0;
-                        else
+                        } else {
                             priorPrev = priority(stack.peek().toString());
+                        }
                     }
                     stack.push(string);                            // а новая операции кладётся в стек.
                 }
@@ -256,9 +276,9 @@ public class Calculator {
             String first = formula.get(i);
             String second = formula.get(i + 1);
             String third = formula.get(i + 2);
-            if (isNumber(third))
+            if (isNumber(third)) {
                 i++;
-            else {
+            } else {
                 int a = 0;
                 try {
                     a = Integer.parseInt(first, 17);
