@@ -9,7 +9,7 @@ public class Calculator {
     }
 
     public static int priority(char operation) {
-        switch(operation) {
+        switch (operation) {
             case '+':
             case '-':
                 return 1;
@@ -36,7 +36,9 @@ public class Calculator {
                 st.add(left - right);
                 break;
             case '*':
-                if (Integer.MAX_VALUE / Math.abs(left) <= Math.abs(right)) {
+                if (left == 0) {
+                    st.add(0);
+                } else if (Integer.MAX_VALUE / Math.abs(left) <= Math.abs(right)) {
                     System.err.println("Error: integer overflow");
                     System.exit(1);
                 }
@@ -100,7 +102,7 @@ public class Calculator {
                 }
                 prevSym = 2;
                 try {
-                st.add(Integer.parseInt(sb.toString(), 19));
+                    st.add(Integer.parseInt(sb.toString(), 19));
                 } catch (NumberFormatException e) {
                     System.err.println("Error: integer overflow");
                     System.exit(1);
@@ -114,7 +116,6 @@ public class Calculator {
             }
             processOperator(st, op.removeLast());
         }
-
         return st.get(0);
     }
 
@@ -123,6 +124,10 @@ public class Calculator {
     }
 
     public static void main (String[] args) {
+        if (args.length == 0) {
+            System.err.print("The program has no arguments!");
+            System.exit(1);
+        }
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);
