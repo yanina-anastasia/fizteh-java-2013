@@ -94,10 +94,10 @@ public abstract class Command {
 
 	public abstract void execute() throws ShellException;
 
-	private static void readArgs(Command command, ArrayList<String> buffer) throws  MissingFormatArgumentException{
+	private static void readArgs(Command command, ArrayList<String> buffer) throws  ShellException {
 		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {
 			if (argumentIndex + 1 >= buffer.size()) {
-				throw new MissingFormatArgumentException("Not enough arguments for command \'"
+				throw new ShellException("Not enough arguments for command \'"
 						+ command.type.toString().toLowerCase() + "\'.");
 			}
 			command.args[argumentIndex] = buffer.get(argumentIndex + 1);
