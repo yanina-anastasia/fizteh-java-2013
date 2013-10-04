@@ -5,11 +5,11 @@ import java.nio.file.Path;
 public class Location {
     private static Path absolutePath;
 
-    public static Path getPath() {
+    public Path getPath() {
         return absolutePath;
     }
 
-    public static void changePath(Path path) {
+    public void changePath(Path path) {
         absolutePath = path;
     }
 }

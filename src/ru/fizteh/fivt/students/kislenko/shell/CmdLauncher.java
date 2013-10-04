@@ -3,33 +3,35 @@ package ru.fizteh.fivt.students.kislenko.shell;
 import java.io.IOException;
 
 public class CmdLauncher {
-    public static void Launch(String command) throws IOException {
+    public static void launch(String command) throws IOException {
         if (command.matches("cd .*")) {
-            String arg = command.substring(2);
+            String[] args = command.substring(2).trim().split("\\s+");
             CommandCd runner = new CommandCd();
-            runner.run(arg);
+            runner.run(args);
         } else if (command.matches("mkdir .*")) {
-            String arg = command.substring(5);
+            String[] args = command.substring(5).trim().split("\\s+");
             CommandMkdir runner = new CommandMkdir();
-            runner.run(arg);
+            runner.run(args);
         } else if (command.equals("pwd")) {
+            String[] args = new String[0];
             CommandPwd runner = new CommandPwd();
-            runner.run("");
+            runner.run(args);
         } else if (command.matches("rm .*")) {
-            String arg = command.substring(2);
+            String[] args = command.substring(2).trim().split("\\s+");
             CommandRm runner = new CommandRm();
-            runner.run(arg);
+            runner.run(args);
         } else if (command.matches("cp .*")) {
-            String arg = command.substring(2);
+            String[] args = command.substring(2).trim().split("\\s+");
             CommandCp runner = new CommandCp();
-            runner.run(arg);
+            runner.run(args);
         } else if (command.matches("mv .*")) {
-            String arg = command.substring(2);
+            String[] args = command.substring(2).trim().split("\\s+");
             CommandMv runner = new CommandMv();
-            runner.run(arg);
+            runner.run(args);
         } else if (command.equals("dir")) {
+            String[] args = new String[0];
             CommandDir runner = new CommandDir();
-            runner.run("");
+            runner.run(args);
         } else if (command.equals("")) {
             System.err.println("Empty command.");
         } else {

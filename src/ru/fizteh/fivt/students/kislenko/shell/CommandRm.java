@@ -31,17 +31,14 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(String s) throws IOException {
-        String[] args = s.trim().split("  *");
-        if (args.length > 1) {
-            throw new IOException("rm: Too many arguments.");
-        } else if (args.length < 1) {
-            throw new IOException("rm: Too few arguments.");
+    public void run(String[] args) throws IOException {
+        if (args.length != 1) {
+            throw new IOException("rm: Command \"rm\" takes one argument.");
         }
         String fileName = args[0];
-        Path absolutePath = Location.getPath();
+        Path absolutePath = Shell.loc.getPath();
         Path target = absolutePath.resolve(fileName);
         removing(target);
-        Location.changePath(validatePath(absolutePath));
+        Shell.loc.changePath(validatePath(absolutePath));
     }
 }

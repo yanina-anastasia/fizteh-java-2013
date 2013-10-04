@@ -30,25 +30,20 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(String s) throws IOException {
-        String[] args = s.trim().split("  *");
-        if (args.length > 2) {
-            throw new IOException("mv: Too many arguments.");
-        } else if (args.length < 2) {
-            throw new IOException("mv: Too few arguments.");
+    public void run(String[] args) throws IOException {
+        if (args.length != 2) {
+            throw new IOException("mv: Command \"mv\" takes one argument.");
         }
         String source = args[0];
         String dest = args[1];
-        Path absolutePath = Location.getPath();
+        Path absolutePath = Shell.loc.getPath();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (destPath.toString().equals(sourcePath.toString())) {
             throw new IOException("mv: Cannot move file on itself.");
         }
         if (sourcePath.toFile().isFile() && !destPath.toFile().isDirectory()) {
-            destPath.toFile().delete();
-            Files.copy(sourcePath, destPath);
-            sourcePath.toFile().delete();
+            throw new IOException("mv: Destination file is already exist.");
         } else if (sourcePath.toFile().isFile() && destPath.toFile().isDirectory()) {
             moveFile(sourcePath.toFile(), destPath.toFile());
         } else if (sourcePath.toFile().isDirectory() && destPath.toFile().isFile()) {
@@ -65,7 +60,7 @@ public class CommandMv implements Command {
                 moveFile(sourceEntry, destPath.toFile());
             }
             sourcePath.toFile().delete();
-            Location.changePath(validatePath(absolutePath));
+            Shell.loc.changePath(validatePath(absolutePath));
         } else {
             throw new IOException("mv: Incorrect file names.");
         }

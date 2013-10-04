@@ -4,14 +4,14 @@ import java.io.File;
 import java.io.PrintStream;
 
 public class CommandDir implements Command {
-    public void run(String empty) {
+    public void run(String[] empty) {
         PrintStream ps = new PrintStream(System.out);
-        File currentDir = new File(Location.getPath().toString());
+        File currentDir = new File(Shell.loc.getPath().toString());
         File[] entries = currentDir.listFiles();
-        ps.println(".");
-        ps.println("..");
-        for (File entry : entries != null ? entries : new File[0]) {
-            ps.println(entry.getName());
+        if (entries != null) {
+            for (File entry : entries) {
+                ps.println(entry.getName());
+            }
         }
     }
 }
