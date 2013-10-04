@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Stack;
 import java.util.Vector;
 
-public class Calculator1 {
+public class Calculator {
     public static int prior(String sign) {
         if (sign.equals("*") || sign.equals("/")) {
            return 3;
