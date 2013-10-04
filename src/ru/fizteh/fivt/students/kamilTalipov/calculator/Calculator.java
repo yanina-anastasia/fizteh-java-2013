@@ -8,7 +8,7 @@ public class Calculator {
         expression = RpnConverter.convert(expression);
         LinkedList<Long> numberStack = new LinkedList<Long>();
         for (int pos = 0; pos < expression.length(); ) {
-            while (pos < expression.length() && expression.charAt(pos) == ' ') {
+            while (pos < expression.length() && Character.isWhitespace(expression.charAt(pos))) {
                 ++pos;
             }
             if (pos == expression.length()) {
@@ -23,18 +23,18 @@ public class Calculator {
                         break;
 
                     case OPERATOR:
-                        Long num1 = numberStack.pop();
+                        long num1 = numberStack.pop();
                         if (nextLexeme.lexeme.equals("+")) {
-                            Long num2 = numberStack.pop();
+                            long num2 = numberStack.pop();
                             numberStack.push(safeAdd(num2, num1));
                         } else if (nextLexeme.lexeme.equals("-")) {
-                            Long num2 = numberStack.pop();
+                            long num2 = numberStack.pop();
                             numberStack.push(safeSubtract(num2, num1));
                         } else if (nextLexeme.lexeme.equals("*")) {
-                            Long num2 = numberStack.pop();
+                            long num2 = numberStack.pop();
                             numberStack.push(safeMultiply(num2, num1));
                         } else if (nextLexeme.lexeme.equals("/")) {
-                            Long num2 = numberStack.pop();
+                            long num2 = numberStack.pop();
                             numberStack.push(safeDivide(num2, num1));
                         } else if (nextLexeme.lexeme.equals("#")) {
                             numberStack.push(safeNegate(num1));
@@ -58,7 +58,7 @@ public class Calculator {
         return numberStack.peek();
     }
 
-    private static Long safeAdd(Long num1, Long num2) throws ArithmeticException {
+    private static long safeAdd(long num1, long num2) throws ArithmeticException {
         if ((num2 > 0 && num1 > Long.MAX_VALUE - num2)
                 || (num2 <= 0 && num1 < Long.MIN_VALUE - num2)) {
             throw new ArithmeticException("Calculation overflow");
@@ -67,7 +67,7 @@ public class Calculator {
         return num1 + num2;
     }
 
-    private static Long safeSubtract(Long num1, Long num2) throws ArithmeticException {
+    private static long safeSubtract(long num1, long num2) throws ArithmeticException {
         if ((num2 > 0 && num1 < Long.MIN_VALUE + num2)
                 || (num2 <= 0 && num1 > Long.MAX_VALUE + num2)) {
             throw new ArithmeticException("Calculation overflow");
@@ -76,7 +76,7 @@ public class Calculator {
         return num1 - num2;
     }
 
-    private static Long safeMultiply(Long num1, Long num2) throws ArithmeticException {
+    private static long safeMultiply(long num1, long num2) throws ArithmeticException {
         if (((num2 > 0) && (num1 > Long.MAX_VALUE / num2 || num1 < Long.MIN_VALUE / num2))
                 || ((num2 < -1) && (num1 > Long.MIN_VALUE / num2 || num1 < Long.MAX_VALUE / num2))
                 || (num2 == -1 && num1 == Long.MIN_VALUE)) {
@@ -86,7 +86,7 @@ public class Calculator {
         return num1 * num2;
     }
 
-    private static Long safeDivide(Long num1, Long num2) throws ArithmeticException {
+    private static long safeDivide(long num1, long num2) throws ArithmeticException {
         if (num2 == 0) {
             throw new ArithmeticException("Division by zero");
         }
@@ -97,7 +97,7 @@ public class Calculator {
         return num1 / num2;
     }
 
-    private static Long safeNegate(Long num) throws ArithmeticException {
+    private static long safeNegate(long num) throws ArithmeticException {
         if (num == Long.MIN_VALUE) {
             throw new ArithmeticException("Calculation overflow");
         }
