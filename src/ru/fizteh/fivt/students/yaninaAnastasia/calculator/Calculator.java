@@ -123,7 +123,7 @@ public class Calculator {
         return Character.toString(digit).matches("[0-9a-iA-I]");
     }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         if (args.length == 0) {
             System.err.print("The program has no arguments!");
             System.exit(1);
