@@ -34,9 +34,9 @@ public class Calculator {
     }
 
     private void calculate(String op) {
-        Integer second = numbers.pop();
-        Integer first = numbers.pop();
-        Integer result = 0;
+        int second = numbers.pop();
+        int first = numbers.pop();
+        int result = 0;
         long n1 = first;
         long n2 = second;
         switch (op) {
