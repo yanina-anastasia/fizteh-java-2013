@@ -15,6 +15,7 @@ public class Calculator {
             case '-': return 2;
             case '*': return 3;
             case '/': return 3;
+            case ' ': return -2;
             default: return -1;
         }
     }
@@ -33,20 +34,25 @@ public class Calculator {
                 if (lastNumberFlag == 1 && spaceFlag == 1) {
                 	throw new IOException("Invalid input");
                 }
+                else {
+                	spaceFlag = 0;
+                }
                 lastNumberFlag = 1;
                 continue;
             }
-            if(operators.isEmpty() && priority(token) != -1) {
+            if(operators.isEmpty() && priority(token) >= 0) {
                sb.append(' ');
                operators.push(token);
                ++i;
                lastNumberFlag = 0;
+               spaceFlag = 0;
                continue;
             }
             if(token == '(') {
                 operators.push(token);
                 ++i;
                 lastNumberFlag = 0;
+                spaceFlag = 0;
                 continue;
             }
             if(token == ')') {
@@ -60,7 +66,7 @@ public class Calculator {
                 ++i;
                 continue;
             }
-            if(priority(token) != -1) {
+            if(priority(token) >= 0) {
             	sb.append(' ');
                 lastNumberFlag = 0;
             	while(!operators.isEmpty() && (priority(operators.getFirst()) >= priority(token))) {
@@ -68,10 +74,16 @@ public class Calculator {
             		operators.pop();
             	}
             	operators.push(token);
+                spaceFlag = 0;
             	++i;
-            } else {
+            	continue;
+            } 
+            if (priority(token) == -2) {
             	spaceFlag = 1;
             	++i;
+            }
+            else {
+            	throw new IOException("You've entered a strange symbol '" + Character.toString(token) + "'. I would not work with him. Try again");
             }
         }
         sb.append(' ');
@@ -107,13 +119,13 @@ public class Calculator {
                 	++i;
                 continue;
             }
-            if(numbers.size() < 2 && priority(token) != -1) {
+            if(numbers.size() < 2 && priority(token) >= 0) {
             	throw new IOException("Invalid input");
             }
             if(token == '+') {
             	int x1 = numbers.pop();
             	int x2 = numbers.pop();
-            	if(Integer.MAX_VALUE - x1 < x2) {
+            	if(Integer.MAX_VALUE - Math.abs(x1) < Math.abs(x2)) {
             		throw new IOException("Int overflow");
             	}
                 numbers.push(x1 + x2);
@@ -131,7 +143,7 @@ public class Calculator {
             if (token == '-') {
             	int x1 = numbers.pop();
             	int x2 = numbers.pop();
-            	if( Integer.MIN_VALUE + x1 > x2) {
+            	if( Integer.MIN_VALUE + Math.abs(x1) > Math.abs(x2)) {
             		throw new IOException("Int overflow");
             	}
                 numbers.push(x2 - x1);
@@ -141,7 +153,7 @@ public class Calculator {
             	int x1 = numbers.pop();
             	int x2 = numbers.pop();
             	if (x1 != 0) {
-            		if (Integer.MAX_VALUE / x1 < x2) {
+            		if (Integer.MAX_VALUE / Math.abs(x1) < Math.abs(x2)) {
             		    throw new IOException("Int overflow");
             	    }
             	}
@@ -155,7 +167,7 @@ public class Calculator {
 	public static void main(String[] args) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		if (args.length == 0) {
-			System.out.println("Usage");
+			System.err.println("No args given. Try 2 + 3 ");
 			System.exit(1);
 		}
 		for (String s : args) {
@@ -169,13 +181,13 @@ public class Calculator {
 			try {
 				result = calculate(convertString);
 			} catch (NoSuchElementException e) {
-				System.out.println("Invalid input"); 
+				System.err.println("Invalid input"); 
 				System.exit(1);
 			}
 			String outStr = Integer.toString(result, 17);
-			System.out.println(outStr);
+			System.err.println(outStr);
 		} catch (IOException err) {
-			System.out.println(err); 
+			System.err.println(err); 
 			System.exit(1);
 		}
 		System.exit(0);
