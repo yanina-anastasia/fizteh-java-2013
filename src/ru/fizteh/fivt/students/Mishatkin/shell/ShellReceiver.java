@@ -51,42 +51,31 @@ public class ShellReceiver implements CommandReceiver {
 
 	@Override
 	public void changeDirectoryCommand(String arg) throws ShellException {
-		String previousStatePath = shellPath.getAbsolutePath();
+		File previousState = new File(shellPath, "");
 		File destinationFile = new File(arg);
-		if (destinationFile.isAbsolute()) {
-			if (!destinationFile.exists()) {
-				throw new ShellException("cd: \'" + arg + "\': No such file or directory");
-			}
-			shellPath = destinationFile;
-			return;
+		if (!destinationFile.isAbsolute()) {
+			destinationFile = new File(shellPath, arg);
+		}
+		if (!destinationFile.exists() || !destinationFile.exists()) {
+			throw new ShellException("cd: \'" + arg + "\' : No such directory");
 		}
 		String separatorRegularExpression = (File.separator.equals("/")) ? File.separator : "\\\\";
 		String[] sequence = arg.split(separatorRegularExpression);
 		for (String simpleArg : sequence) {
-			try {
-				simpleChangeDirectory(simpleArg);
-			} catch (FileNotFoundException e) {
-				//  reverse transaction sequence
-				shellPath = new File(previousStatePath);
-				throw new ShellException("cd: \'" + arg + "\': No such file or directory");
-			}
-		}
-
-	}
-
-	private void simpleChangeDirectory(String arg) throws FileNotFoundException {
-		if (arg.equals("..")) {
-			if (shellPath.getParent() != null) {
-				shellPath = shellPath.getParentFile();
+			File nextDirectory = new File(shellPath, simpleArg);
+			if (!nextDirectory.exists() || !nextDirectory.isDirectory()) {
+				shellPath = previousState;
+				throw new ShellException("cd: \'" + arg + "\' : No such directory");
 			} else {
-				throw new FileNotFoundException("No such directory.");
-			}
-		} else {
-			File destination = new File(shellPath, arg);
-			if (!(destination.exists() && destination.isDirectory()) || arg.length() == 0) {
-				throw new FileNotFoundException("No such directory.");
-			} else {
-				shellPath = destination;
+				if (simpleArg.equals("..")) {
+					if (shellPath.getParent() != null) {
+						shellPath = shellPath.getParentFile();
+					} else {
+						throw new ShellException("cd: \'" + arg +"\' :No such directory.");
+					}
+				} else {
+					shellPath = new File(nextDirectory, "");
+				}
 			}
 		}
 	}
