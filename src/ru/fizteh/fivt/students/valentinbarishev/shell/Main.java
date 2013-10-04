@@ -1,9 +1,18 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Scanner;
 
 public class Main {
+    static final int END_OF_INPUT = -1;
+    static final int END_OF_TRANCEMISSION = 4;
+
+    private static boolean isTremitarive(int character) {
+        return ((character == END_OF_INPUT) || (character == END_OF_TRANCEMISSION));
+    }
 
     public static void main(String[] args) {
         try {
@@ -25,14 +34,29 @@ public class Main {
                     shell.executeCommand(parser.getCommand());
                 }
             } else {
-                Scanner scanner = new Scanner(System.in);
+                InputStream input = System.in;
+                System.out.print("$ ");
                 while (true) {
-                    System.out.print("$ ");
                     try {
-                        CommandParser parser = new CommandParser(scanner.nextLine());
-                        shell.executeCommand(parser.getCommand());
+                        int character;
+                        StringBuilder commands = new StringBuilder();
+
+                        while ((!isTremitarive(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
+                            commands.append((char)character);
+                        }
+
+                        if (isTremitarive(character)) {
+                            System.exit(0);
+                        }
+
+                        CommandParser parser = new CommandParser(commands.toString());
+                        if (!parser.isEmpty()) {
+                            shell.executeCommand(parser.getCommand());
+                        }
                     } catch (InvalidCommandException e) {
                         System.err.println(e.getMessage());
+                    } finally {
+                        System.out.print("$ ");
                     }
                 }
 

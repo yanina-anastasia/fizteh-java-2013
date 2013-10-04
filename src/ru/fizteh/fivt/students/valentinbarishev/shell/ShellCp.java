@@ -2,13 +2,6 @@ package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Valik
- * Date: 04.10.13
- * Time: 1:04
- * To change this template use File | Settings | File Templates.
- */
 public class ShellCp implements ShellCommand {
     static String name = "cp";
 

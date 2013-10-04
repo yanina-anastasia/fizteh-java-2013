@@ -1,13 +1,5 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Valik
- * Date: 02.10.13
- * Time: 23:39
- * To change this template use File | Settings | File Templates.
- */
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,30 +24,11 @@ final class Context {
     }
 
     private String buildPath(String currentDir, String relativePath) throws IOException {
-        String[] steps = relativePath.split(Pattern.quote(File.separator));
-        for (int i = 0; i < steps.length; ++i) {
-            if (steps[i].equals(".")) {
-                continue;
-            }
-            if (steps[i].equals("..")) {
-                currentDir = new File(currentDir).getParent();
-                if (currentDir == null) {
-                    throw new IOException("Bad relative path.");
-                }
-                continue;
-            }
-
-            if (steps[i].charAt(0) == '.') {
-                throw new InvalidCommandException("Invalid path!");
-            }
-
-            currentDir += File.separator + steps[i];
-        }
-        return currentDir;
+        return new File(new File(currentDir).getAbsoluteFile(), relativePath).getAbsoluteFile().getCanonicalPath();
     }
 
     public String changePath(String currentDir, String path) throws IOException {
-        if (path.charAt(0) != '.') {
+    if (path.charAt(0) != '.') {
             if (!existsFile(path)) {
                 return buildPath(currentDir, path);
             }
@@ -85,7 +58,9 @@ final class Context {
 
     public void makeFullDir(String name) throws IOException {
         File dir = new File(name);
-        dir.mkdirs();
+        if (!dir.mkdirs()) {
+            throw new IOException("Cannot create dirs! " + name);
+        }
     }
 
     public String[] getDirContent() {
@@ -131,7 +106,9 @@ final class Context {
         if (file.exists()) {
             throw new IOException("File already exists " + dest);
         }
-        file.createNewFile();
+        if (!file.createNewFile()) {
+            throw new IOException("Cannot create file " + dest);
+        }
 
         FileChannel source = new FileInputStream(src).getChannel();
         FileChannel destination = new FileOutputStream(dest).getChannel();

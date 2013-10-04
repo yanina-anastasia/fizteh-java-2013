@@ -1,12 +1,5 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Valik
- * Date: 03.10.13
- * Time: 2:50
- * To change this template use File | Settings | File Templates.
- */
 public class ShellDir implements ShellCommand{
     static String name = "dir";
 
