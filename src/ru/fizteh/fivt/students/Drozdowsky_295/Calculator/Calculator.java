@@ -1,14 +1,14 @@
-package base.calculator;
+package ru.fizteh.fivt.students.Drozdowsky_295.Calculator;
 
 import java.math.BigInteger;
 
 public class Calculator {
     private enum OperationType {MULTIPLICATION_OR_DIVISION, ADDITION_OR_SUBTRACTION, NOT_AN_OPERATION }
     private final static String BAD_EXPRESSION = "Not valid Expression";
-    private final static int BASE = 10;
+    private final static int BASE = 19;
     private final static char BINARY_MINUS_REPLACEMENT = '~';
 
-    private static void printNotValidExpressionError() {        //Выводит сообщение об ошибке и заканчивает работу программы
+    private static void printNotValidExpressionError() {
         System.out.println(BAD_EXPRESSION);
         System.exit(0);
     }
@@ -19,7 +19,7 @@ public class Calculator {
         try {
             modifierAsInteger = new BigInteger(modifierAsString, BASE);
         }
-        catch (NumberFormatException e){
+        catch (NumberFormatException e) {
             printNotValidExpressionError();
         }
 
@@ -64,17 +64,17 @@ public class Calculator {
         BigInteger currentValueOfExpression = new BigInteger("0");
         boolean ableToAppend = true;
 
-        for(int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if(findOperationType(currentLetterInExpression) == operationType) {
+            if (findOperationType(currentLetterInExpression) == operationType) {
                 currentValueOfExpression = modifyValueWith(currentValueOfExpression, lastSign, lastNumber.toString());
                 lastSign = expression.charAt(currentPositionInExpression);
                 lastNumber.delete(0, lastNumber.length());
                 ableToAppend = true;
             }
             else {
-                if(currentLetterInExpression != ' ') {
-                    if(ableToAppend) {
+                if (currentLetterInExpression != ' ') {
+                    if (ableToAppend) {
                         lastNumber.append(currentLetterInExpression);
                     }
                     else {
@@ -82,7 +82,7 @@ public class Calculator {
                     }
                 }
                 else {
-                    if(lastNumber.length() != 0){
+                    if (lastNumber.length() != 0){
                         ableToAppend = false;
                     }
                 }
@@ -98,9 +98,9 @@ public class Calculator {
         StringBuilder finalExpression = new StringBuilder(expression.length());
         StringBuilder lastSubExpression = new StringBuilder(expression.length());
 
-        for(int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if(findOperationType(currentLetterInExpression) == OperationType.ADDITION_OR_SUBTRACTION) {
+            if (findOperationType(currentLetterInExpression) == OperationType.ADDITION_OR_SUBTRACTION) {
                 finalExpression.append(computeExpressionWithOperationType(lastSubExpression.toString(), OperationType.MULTIPLICATION_OR_DIVISION));
                 finalExpression.append(currentLetterInExpression);
                 lastSubExpression.delete(0, lastSubExpression.length());
@@ -125,31 +125,31 @@ public class Calculator {
         int firstOpenBracket = 0;
         StringBuilder finalExpression = new StringBuilder(expression.length());
 
-        for(int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
             switch (expression.charAt(currentPositionInExpression)) {
                 case '(':
-                    if(currentBalance == 0) {
+                    if (currentBalance == 0) {
                         firstOpenBracket = currentPositionInExpression;
                     }
                     currentBalance++;
                     break;
                 case ')':
-                    if(currentBalance == 0) {
+                    if (currentBalance == 0) {
                         printNotValidExpressionError();
                     }
                     currentBalance--;
-                    if(currentBalance == 0) {
+                    if (currentBalance == 0) {
                         finalExpression.append(computeExpression(expression.substring(firstOpenBracket + 1, currentPositionInExpression)));
                     }
                     break;
                 default:
-                    if(currentBalance == 0) {
+                    if (currentBalance == 0) {
                         finalExpression.append(expression.charAt(currentPositionInExpression));
                     }
                     break;
             }
         }
-        if(currentBalance != 0) {
+        if (currentBalance != 0) {
             printNotValidExpressionError();
         }
 
@@ -165,25 +165,25 @@ public class Calculator {
         StringBuilder signsAndBrackets = new StringBuilder(expression.length());
         int currentPositionInSignsAndBrackets = -1;
 
-        for(int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
             if(findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION || currentLetterInExpression == '(' || currentLetterInExpression == ')' || currentLetterInExpression == '-') {
                 signsAndBrackets.append(currentLetterInExpression);
             }
         }
 
-        for(int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if(findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION || currentLetterInExpression == '(' || currentLetterInExpression == ')' || currentLetterInExpression == '-') {
+            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION || currentLetterInExpression == '(' || currentLetterInExpression == ')' || currentLetterInExpression == '-') {
                 currentPositionInSignsAndBrackets++;
             }
-            if(currentLetterInExpression == '-') {
+            if (currentLetterInExpression == '-') {
                 char leftNeighbour = (currentPositionInSignsAndBrackets == 0 ? '=' : signsAndBrackets.charAt(currentPositionInSignsAndBrackets - 1));
                 char rightNeighbour = (currentPositionInSignsAndBrackets == signsAndBrackets.length() - 1 ? '=' : signsAndBrackets.charAt(currentPositionInSignsAndBrackets + 1));
                 String neighbourSymbols = "";
                 neighbourSymbols += leftNeighbour;
                 neighbourSymbols += rightNeighbour;
-                if(checkMinusForUnarity(neighbourSymbols)) {
+                if (checkMinusForUnarity(neighbourSymbols)) {
                     finalExpression.append('-');
                 }
                 else {
