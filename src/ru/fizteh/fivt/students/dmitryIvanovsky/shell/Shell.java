@@ -46,7 +46,13 @@ class MySystem {
         }
     }
 
-    public Code cp_mv(String source, String destination, boolean isCopy) {
+    public Code copyMove(String source, String destination, boolean isCopy) {
+        String rusDescription = "переместить";
+        String command = "mv";
+        if (isCopy) {
+            rusDescription = "скопировать";
+            command = "cp";
+        }
         try {
             File fileSource = new File(joinDir(source));
             String nameSource = fileSource.getName();
@@ -66,10 +72,13 @@ class MySystem {
                 if (listFiles != null) {
                     for (File c : listFiles) {
                         String nameFile = c.getName();
-                        cp_mv(c.toString(), joinDir(destination) + File.separator + nameFile, isCopy);
+                        copyMove(c.toString(), joinDir(destination) + File.separator + nameFile, isCopy);
                     }
                 }
             } else {
+                if (fileDestination.equals(fileSource)) {
+                    System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
+                }
                 Path pathDestination = Paths.get(joinDir(destination));
                 if (fileDestination.isDirectory()) {
                     pathDestination = Paths.get(joinDir(destination) + File.separator + nameSource);
@@ -82,13 +91,6 @@ class MySystem {
             }
             return Code.OK;
         } catch (Exception e) {
-            String rusDescription = "переместить";
-            String command = "mv";
-            if (isCopy) {
-                rusDescription = "скопировать";
-                command = "cp";
-            }
-            e.printStackTrace();
             String error = String.format("%s: \'%s %s\': не могу %s", command, source, destination, rusDescription);
             System.err.println(error);
             return Code.ERROR;
@@ -171,11 +173,11 @@ class MySystem {
         } else if (command.equals("mv") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
-            return cp_mv(sourse, destination, false);
+            return copyMove(sourse, destination, false);
         } else if (command.equals("cp") && countTokens == 3) {
             String sourse = token.nextToken();
             String destination = token.nextToken();
-            return cp_mv(sourse, destination, true);
+            return copyMove(sourse, destination, true);
         } else if (command.equals("rm") && countTokens == 2) {
             String file = token.nextToken();
             return rm(file);
@@ -229,7 +231,7 @@ class MySystem {
 public class Shell {
 
     public static void main(String[] args) throws IOException {
-        //args = new String[]{"cd /home/deamoon/Music/dir2;", "dir"};
+        //args = new String[]{"cd /home/deamoon/Music;", "cp 1.txt /home/deamoon/Music/1.txt"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
