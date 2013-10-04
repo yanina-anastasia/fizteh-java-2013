@@ -19,7 +19,11 @@ public class ArgumentsCommandSource extends CommandSource {
 
 	@Override
 	public String nextLine() {
-		return args[nextArgumentIndex++];
+		StringBuilder mergedArgumentBuilder = new StringBuilder();
+		while (hasMoreData()) {
+			mergedArgumentBuilder.append(args[nextArgumentIndex++]).append(" ");
+		}
+		return new String(mergedArgumentBuilder);
 	}
 
 }
