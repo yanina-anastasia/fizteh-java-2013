@@ -8,7 +8,7 @@ public class Calculator {
         int count = 0;
         for (int i = 0; i < s.length(); ++i) {
             if (!(s.charAt(i) == '+' || s.charAt(i) == '-'|| s.charAt(i) == '*' || s.charAt(i) == '/')) {
-                if (!(('a' <= s.charAt(i) && s.charAt(i) <= 'i') || ('I' <= s.charAt(i) && s.charAt(i) <= 'Z'))) {
+                if (!(('a' <= s.charAt(i) && s.charAt(i) <= 'i') || ('A' <= s.charAt(i) && s.charAt(i) <= 'I'))) {
                     if (!(s.charAt(i) == ' ' || s.charAt(i) == '(' || s.charAt(i) == ')' || (s.charAt(i) >= '0' && s.charAt(i) <= '9'))) {
                         System.err.println("Error! Forbidden symbol: " + s.charAt(i));
                         System.exit(5);
