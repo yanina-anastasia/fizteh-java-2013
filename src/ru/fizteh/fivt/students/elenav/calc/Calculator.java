@@ -143,7 +143,7 @@ public class Calculator {
             if (token == '-') {
             	int x1 = numbers.pop();
             	int x2 = numbers.pop();
-            	if( Integer.MIN_VALUE + Math.abs(x1) > Math.abs(x2)) {
+            	if( Integer.MIN_VALUE + x1 > x2) {
             		throw new IOException("Int overflow");
             	}
                 numbers.push(x2 - x1);
@@ -185,7 +185,7 @@ public class Calculator {
 				System.exit(1);
 			}
 			String outStr = Integer.toString(result, 17);
-			System.err.println(outStr);
+			System.out.println(outStr);
 		} catch (IOException err) {
 			System.err.println(err); 
 			System.exit(1);
