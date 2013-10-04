@@ -201,7 +201,12 @@ public class Calculator {
                         operand += str.charAt(i++);
                     }
                     i--;
-                    numbers.push(Integer.parseInt(operand.toString(), BASE));
+                    try {
+                        numbers.push(Integer.parseInt(operand.toString(), BASE));
+                    } catch (NumberFormatException exception) {
+                        System.err.println("Error: overflow");
+                        System.exit(1);
+                    }
                     mayUnary = false;
                 }
             }
@@ -210,7 +215,13 @@ public class Calculator {
             executeOperation(numbers, operations.pop());
         }
 
-        System.out.println(Integer.toString(numbers.pop(), BASE));
+
+        if (!numbers.isEmpty()) {
+            System.out.println(Integer.toString(numbers.pop(), BASE));
+        } else {
+            System.err.println("Incorrect expression.");
+        }
+
     }
 
 }
