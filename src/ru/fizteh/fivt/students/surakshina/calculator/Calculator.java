@@ -33,9 +33,12 @@ public class Calculator {
         return -1;
     }
 
-    private void checkOverflow(int num1, int num2, String op) {
-        long n1 = num1;
-        long n2 = num2;
+    private void calculate(String op) {
+        Integer second = numbers.pop();
+        Integer first = numbers.pop();
+        Integer result = 0;
+        long n1 = first;
+        long n2 = second;
         switch (op) {
         case "+":
             if (((n1 + n2) > Integer.MAX_VALUE)
@@ -43,6 +46,7 @@ public class Calculator {
                 System.err.println("Overflow!");
                 System.exit(1);
             }
+            result = second + first;
             break;
         case "-":
             if (((n1 - n2) > Integer.MAX_VALUE)
@@ -50,6 +54,7 @@ public class Calculator {
                 System.err.println("Overflow!");
                 System.exit(1);
             }
+            result = first - second;
             break;
         case "*":
             if (((n1 * n2) > Integer.MAX_VALUE)
@@ -57,6 +62,7 @@ public class Calculator {
                 System.err.println("Overflow!");
                 System.exit(1);
             }
+            result = first * second;
             break;
         case "/":
             if (n2 == 0) {
@@ -68,38 +74,11 @@ public class Calculator {
                 System.err.println("Overflow!");
                 System.exit(1);
             }
+            result = first / second;
             break;
         default:
             System.err.println(INVALID_OPERATION);
             System.exit(1);
-        }
-    }
-
-    private void calculate(String op) {
-        Integer second = numbers.pop();
-        Integer first = numbers.pop();
-        checkOverflow(first, second, op);
-        Integer result = 0;
-        switch (op) {
-        case "+":
-            result = second + first;
-            break;
-        case "-":
-            result = first - second;
-            break;
-        case "*":
-            result = first * second;
-            break;
-        case "/":
-            if (second != 0) {
-                result = first / second;
-            } else {
-                System.err.println("Divide by zero");
-                System.exit(1);
-            }
-            break;
-        default:
-            throw new RuntimeException(INVALID_OPERATION);
         }
         numbers.push(result);
     }
