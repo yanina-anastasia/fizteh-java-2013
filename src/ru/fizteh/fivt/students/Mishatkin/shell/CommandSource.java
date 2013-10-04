@@ -1,15 +1,15 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Vector;
 
 /**
  * CommandSource.java
  * Created by Vladimir Mishatkin on 9/23/13
  */
 public abstract class CommandSource {
-	private Vector<String> commandsStringsBuffer = new Vector<String>();
-	private Vector<String> commandArgumentsBuffer = new Vector<String>();
+	private ArrayList<String> commandsStringsBuffer = new ArrayList<>();
+	private ArrayList<String> commandArgumentsBuffer = new ArrayList<>();
 
 	public abstract boolean hasMoreData();
 	public abstract String nextLine();
@@ -23,8 +23,8 @@ public abstract class CommandSource {
 			String[] commandsSequence = line.split(";");
 			Collections.addAll(commandsStringsBuffer, commandsSequence);
 		}
-		Collections.addAll(commandArgumentsBuffer, commandsStringsBuffer.firstElement().split(" "));
-		commandsStringsBuffer.removeElementAt(0);
+		Collections.addAll(commandArgumentsBuffer, commandsStringsBuffer.get(0).split(" "));
+		commandsStringsBuffer.remove(0);
 
 		// removing white spaces
 		while (commandArgumentsBuffer.remove("")) {

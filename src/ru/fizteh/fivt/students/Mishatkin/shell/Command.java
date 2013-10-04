@@ -44,18 +44,18 @@ public abstract class Command {
 		this.receiver = receiver;
 	}
 
-	public static Command createCommand(Vector<String> buffer) throws ShellException {
+	public static Command createCommand(ArrayList<String> buffer) throws ShellException {
 		if (buffer.isEmpty()) {
 			return null;
 		}
 		Command retValue =  null;
-		String commandName = buffer.firstElement();
+		String commandName = buffer.get(0);
 		ShellReceiver receiver = ShellReceiver.sharedInstance();
 		COMMAND_TYPE theType;
 		try {
 			theType = COMMAND_TYPE.valueOf(commandName.toUpperCase());
 		} catch (IllegalArgumentException e) {
-			buffer.removeAllElements();
+			buffer.removeAll(buffer);
 			String enumName = "COMMAND_TYPE.";
 			String type = e.getMessage().substring( e.getMessage().indexOf(enumName) + enumName.length()).toLowerCase();
 			throw new ShellException("Invalid command: \'" + type + "\'.");
@@ -94,13 +94,13 @@ public abstract class Command {
 
 	public abstract void execute() throws ShellException;
 
-	private static void readArgs(Command command, Vector<String> buffer) throws  MissingFormatArgumentException{
+	private static void readArgs(Command command, ArrayList<String> buffer) throws  MissingFormatArgumentException{
 		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {
 			if (argumentIndex + 1 >= buffer.size()) {
 				throw new MissingFormatArgumentException("Not enough arguments for command \'"
 						+ command.type.toString().toLowerCase() + "\'.");
 			}
-			command.args[argumentIndex] = buffer.elementAt(argumentIndex + 1);
+			command.args[argumentIndex] = buffer.get(argumentIndex + 1);
 		}
 	}
 
