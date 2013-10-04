@@ -57,6 +57,17 @@ public class Calculator {
 
     public static void main (String args[]) {
         try {
+            if (args.length == 0) {
+                System.out.println("There are no arguments;");
+                System.out.println("Calculator supports four operations: + , - , * , /");
+                System.out.println("Minus number should be in brackets");
+                System.out.print(Integer.MAX_VALUE);
+                System.out.print(" <= number <= ");
+                System.out.print(Integer.MIN_VALUE);
+                System.out.println();
+                System.out.println("Example of correct expression: 4 + 5 * (6 - 7/(-3))");
+                System.exit(2);
+            }
             StringBuilder algExpression = new StringBuilder(args[0]);
             for (int i = 1; i < args.length; ++i) {
                 algExpression.append(' ');
@@ -236,5 +247,6 @@ public class Calculator {
         }
     }
 }
+
 
 
