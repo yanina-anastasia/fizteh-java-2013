@@ -78,6 +78,7 @@ class MySystem {
             } else {
                 if (fileDestination.equals(fileSource)) {
                     System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
+                    return Code.ERROR;
                 }
                 Path pathDestination = Paths.get(joinDir(destination));
                 if (fileDestination.isDirectory()) {
@@ -231,7 +232,7 @@ class MySystem {
 public class Shell {
 
     public static void main(String[] args) throws IOException {
-        //args = new String[]{"cd /home/deamoon/Music;", "cp 1.txt /home/deamoon/Music/1.txt"};
+        //args = new String[]{"cd /home/deamoon/Music;", "cp dir0 /home/deamoon/Music/1.txt"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
