@@ -18,15 +18,11 @@ public class ShellReceiver implements CommandReceiver {
 	}
 
 	private void print(String s) {
-		if (!Shell.isArgumentsMode) {
-			System.out.print(s);
-		}
+		System.out.print(s);
 	}
 
 	private void println(String s) {
-		if (!Shell.isArgumentsMode) {
-			System.out.println(s);
-		}
+		System.out.println(s);
 	}
 
 	public static ShellReceiver sharedInstance() {
@@ -158,8 +154,8 @@ public class ShellReceiver implements CommandReceiver {
 			destinationDirectory = new File(shellPath, destinationDirectoryName);
 		}
 		File destinationFileOrDirectory = new File(destinationDirectory, sourceFileOrDirectory.getName());
-		while (destinationFileOrDirectory.exists()) {
-			destinationFileOrDirectory = new File(destinationFileOrDirectory.getAbsoluteFile() + " (copy)");
+		if (destinationFileOrDirectory.exists()) {
+			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
 		}
 		try {
 			Files.copy(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
@@ -191,11 +187,7 @@ public class ShellReceiver implements CommandReceiver {
 			destinationFileOrDirectory = new File(shellPath, destinationFileOrDirectoryName);
 		}
 		if (destinationFileOrDirectory.exists()) {
-			try {
-				removeCommand(destinationFileOrDirectory.getAbsolutePath());
-			} catch (IOException e) {
-
-			}
+			throw new ShellException("mv : \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : destination file already exists.");
 		}
 		try {
 			Files.move(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
