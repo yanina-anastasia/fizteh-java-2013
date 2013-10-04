@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.calc;
 
+import java.io.IOException;
+
 public class Program
 {
     public static void main(String[] Args)
@@ -19,7 +21,7 @@ public class Program
             String result = ExpressionSolver.execute(sb.toString());
             System.out.print(result);
         }
-        catch(IllegalArgumentException e)
+        catch(IOException e)
         {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);

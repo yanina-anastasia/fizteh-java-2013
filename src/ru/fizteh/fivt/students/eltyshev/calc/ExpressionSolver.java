@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.calc;
 
+import java.io.IOException;
+
 public class ExpressionSolver {
     private static final int RADIX = 17;
     private static final String DIGIT_EXPRESSION = "^-?[0-9a-" + ((char) ('a' + RADIX - 11)) + "]+$";
@@ -11,17 +13,19 @@ public class ExpressionSolver {
         this.expression = expression;
     }
 
-    public static String execute(String expression) {
+    public static String execute(String expression) throws IOException{
         ExpressionSolver solver = new ExpressionSolver(expression);
-        if (!solver.calculate())
-            throw new IllegalArgumentException();
+        if (!solver.calculate()) {
+            throw new IOException();
+        }
         return Integer.toString(solver.result, RADIX);
     }
 
     public static String formatExpression(String expression) {
         expression = expression.trim();
-        if (expression.charAt(0) != '(')
+        if (expression.charAt(0) != '(') {
             return expression;
+        }
         int balance = 1;
         for (int index = 1; index < expression.length(); ++index) {
             if (expression.charAt(index) == ')') {
@@ -30,8 +34,9 @@ public class ExpressionSolver {
             if (expression.charAt(index) == '(') {
                 balance += 1;
             }
-            if (balance == 0 && index != expression.length() - 1)
+            if (balance == 0 && index != expression.length() - 1) {
                 return expression;
+            }
         }
         return expression.substring(1, expression.length() - 1);
     }
@@ -45,10 +50,12 @@ public class ExpressionSolver {
             int balance = 0;
             for (int j = expression.length() - 1; j >= 0; j--) {
                 char c = expression.charAt(j);
-                if (c == '(')
+                if (c == '(') {
                     balance++;
-                if (c == ')')
+                }
+                if (c == ')') {
                     balance--;
+                }
                 if (containsValue(signs[i], c) && balance == 0 && j > 0 && checkPrevious(expression.substring(j - 1, j))) {
                     return j;
                 }
@@ -58,9 +65,11 @@ public class ExpressionSolver {
     }
 
     private static boolean containsValue(char[] array, char value) {
-        for (char c : array)
-            if (c == value)
+        for (char c : array) {
+            if (c == value) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -71,10 +80,12 @@ public class ExpressionSolver {
     public static boolean checkBracets(String ex) {
         int balance = 0;
         for (int i = 0; i < ex.length() && balance > -1; i++) {
-            if (ex.charAt(i) == '(')
+            if (ex.charAt(i) == '(') {
                 balance++;
-            if (ex.charAt(i) == ')')
+            }
+            if (ex.charAt(i) == ')') {
                 balance--;
+            }
         }
         return balance == 0;
     }
@@ -95,10 +106,10 @@ public class ExpressionSolver {
         return result;
     }
 
-    public boolean calculate() {
+    public boolean calculate() throws IOException{
         expression = expression.toLowerCase();
         if (!checkBracets(expression)) {
-            throw new IllegalArgumentException("Bad bracket balance");
+            throw new IOException("Bad bracket balance");
         }
 
         expressionTree = makeTree(expression);
@@ -108,8 +119,9 @@ public class ExpressionSolver {
     }
 
     private void executeTree(Node tree) {
-        if (tree == null)
+        if (tree == null) {
             return;
+        }
 
         executeTree(tree.Left);
         executeTree(tree.Right);
@@ -128,7 +140,7 @@ public class ExpressionSolver {
         return Integer.parseInt(expression, RADIX);
     }
 
-    private Node makeTree(String ex) {
+    private Node makeTree(String ex) throws IOException{
         ex = formatExpression(ex);
         Node res = new Node();
         if (checkNumber(ex)) {
@@ -147,11 +159,10 @@ public class ExpressionSolver {
             res.Type = ExpressionType.OPERATION;
             return res;
         }
-        if (ex.equals(""))
-        {
-           throw new IllegalArgumentException("An empty expression has been found!");
+        if (ex.equals("")) {
+            throw new IOException("An empty expression has been found!");
         }
-        throw new IllegalArgumentException("Invalid character: " + ex);
+        throw new IOException("Invalid character: " + ex);
     }
 
     public boolean checkNumber(String expression) {
