@@ -12,21 +12,25 @@ public class Calculator {
         else return false;
     }
 
-    private static boolean isItFigure(char c) {
-        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'G'))
+    //Проверяет, является ли введённый символ цифрой.
+    private static boolean isItDigit(char c) {
+        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'G')) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
+
 
     private static boolean isNumber(String number) {
         switch (number.length()) {
             case 0:
                 return false;
             case 1:
-                return isItFigure(number.charAt(0));
+                return isItDigit(number.charAt(0));
             default: {
                 for (int i = 1; i < number.length(); i++)
-                    if (!isItFigure(number.charAt(i)))
+                    if (!isItDigit(number.charAt(i)))
                         return false;
                 return true;
             }
@@ -34,19 +38,19 @@ public class Calculator {
     }
 
     private static ArrayList<String> divideNumberMinusNumber(String string) {
-        char c;
         ArrayList<String> result = new ArrayList<String>();
-        int flag = 0;
+        boolean flag = false;
         StringBuilder tmp = new StringBuilder();
+        char c;
         for (int i = 0; i < string.length(); i++) {
             c = string.charAt(i);
-            if (isItFigure(c)) {
+            if (isItDigit(c)) {
                 tmp.append(c);
-                flag = 0;
+                flag = false;
                 continue;
             } else if (c == '-') {
-                if (flag == 0) {
-                    flag++;
+                if (flag == false) {
+                    flag = true;
                     result.add(tmp.toString());
                     tmp.delete(0, tmp.length());
                     result.add("-");
@@ -153,8 +157,9 @@ public class Calculator {
                         System.err.println("Incorrect input:" + list.get(i));
                         System.exit(1);
                     }
-                    list.addAll(start, buf);
-                    i = buf.size() - 1;
+                    list.remove(i);
+                    list.addAll(i, buf);
+                    i += buf.size() - 1;
                     if (list.get(i).equals("-"))
                         status = 2;
                     else status = 3;
@@ -271,15 +276,15 @@ public class Calculator {
                 if (third.equals("+")) {
                     if (a > 0 ? b > Integer.MAX_VALUE - a
                             : b < Integer.MIN_VALUE - a) {
-                        System.err.print("Integer overflow by adding the numbers " + a + " and " + b);
-                        System.exit(2);
+                        System.err.print("Integer overflow by adding the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.exit(1);
                     }
                     res = a + b;
                 } else if (third.equals("-")) {
                     if (a > 0 ? b < Integer.MIN_VALUE + a
                             : b > Integer.MAX_VALUE + a) {
-                        System.err.print("Integer overflow by subtracting the numbers " + a + " and " + b);
-                        System.exit(2);
+                        System.err.print("Integer overflow by subtracting the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.exit(1);
                     }
                     res = a - b;
                 } else if (third.equals("*")) {
@@ -289,8 +294,8 @@ public class Calculator {
                             || b < Integer.MAX_VALUE / a
                             : a == -1
                             && b == Integer.MIN_VALUE)) {
-                        System.err.print("Integer overflow by multiplying the numbers " + a + " and " + b);
-                        System.exit(2);
+                        System.err.print("Integer overflow by multiplying the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.exit(1);
                     }
                     res = a * b;
                 } else if (third.equals("/")) {
