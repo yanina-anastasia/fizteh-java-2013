@@ -29,9 +29,15 @@ public class ShellReceiver implements CommandReceiver {
 		}
 	}
 
-	public synchronized static ShellReceiver sharedInstance() {
+	public static ShellReceiver sharedInstance() {
 		if (sharedInstance == null) {
-			sharedInstance = new ShellReceiver();
+			synchronized (ShellReceiver.class)
+			{
+				if (sharedInstance == null)
+				{
+					sharedInstance = new ShellReceiver();
+				}
+			}
 		}
 		return sharedInstance;
 	}
