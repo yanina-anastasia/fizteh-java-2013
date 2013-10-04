@@ -55,17 +55,17 @@ public class Calculator {
             } else if (operation == '-') {
                 values.push(-value);
             } else if (operation == '*') {
-                Long multiplication = values.pop().longValue() * value;
+                long multiplication = values.pop().longValue() * value;
                 if (multiplication > Integer.MAX_VALUE || multiplication < Integer.MIN_VALUE) {
                     terminate("result of an expression out of range");
                 }
-                values.push(multiplication.intValue());
+                values.push((int) multiplication);
             } else if (operation == '/') {
                 if (value == 0) {
                     printSubExpression(operations, numbers);
                     terminate("Division by zero");
                 }
-                Integer previous = values.pop();
+                int previous = values.pop();
                 values.push(previous / value);
             }
 
@@ -79,8 +79,8 @@ public class Calculator {
 
             if (!"-+*/".contains(operations.subSequence(position, position + 1))) {
                 printSubExpression(operations, numbers);
-                terminate("Expected operation +, -, * or / after constant, but \'" +
-                        operations.charAt(position) + "\' found");
+                terminate("Expected operation +, -, * or / after constant, but \'"
+                        + operations.charAt(position) + "\' found");
             }
             operation = operations.charAt(position);
 
