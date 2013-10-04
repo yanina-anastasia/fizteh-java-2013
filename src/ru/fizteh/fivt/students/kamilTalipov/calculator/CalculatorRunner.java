@@ -20,7 +20,7 @@ public class CalculatorRunner {
         System.out.println(expression);
 
         try {
-            System.out.println(Calculator.calculate(expression));
+            System.out.println(Long.toString(Calculator.calculate(expression), Calculator.BASE));
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);

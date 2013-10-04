@@ -38,8 +38,13 @@ public class Calculator {
                             numberStack.push(safeDivide(num2, num1));
                         } else if (nextLexeme.lexeme.equals("#")) {
                             numberStack.push(safeNegate(num1));
+                        } else {
+                            throw new ParseException("Unknown operator");
                         }
                         break;
+
+                    default:
+                        throw new ParseException("Unknown lexeme");
                 }
             } catch (NoSuchElementException e) {
                 throw new ParseException("Incorrect expression");
@@ -53,7 +58,7 @@ public class Calculator {
         return numberStack.peek();
     }
 
-    private static Long safeAdd (Long num1, Long num2) throws ArithmeticException {
+    private static Long safeAdd(Long num1, Long num2) throws ArithmeticException {
         if ((num2 > 0 && num1 > Long.MAX_VALUE - num2)
                 || (num2 <= 0 && num1 < Long.MIN_VALUE - num2)) {
             throw new ArithmeticException("Calculation overflow");
@@ -62,7 +67,7 @@ public class Calculator {
         return num1 + num2;
     }
 
-    private static Long safeSubtract (Long num1, Long num2) throws ArithmeticException {
+    private static Long safeSubtract(Long num1, Long num2) throws ArithmeticException {
         if ((num2 > 0 && num1 < Long.MIN_VALUE + num2)
                 || (num2 <= 0 && num1 > Long.MAX_VALUE + num2)) {
             throw new ArithmeticException("Calculation overflow");
@@ -71,7 +76,7 @@ public class Calculator {
         return num1 - num2;
     }
 
-    private static Long safeMultiply (Long num1, Long num2) throws ArithmeticException {
+    private static Long safeMultiply(Long num1, Long num2) throws ArithmeticException {
         if (((num2 > 0) && (num1 > Long.MAX_VALUE / num2 || num1 < Long.MIN_VALUE / num2))
                 || ((num2 < -1) && (num1 > Long.MIN_VALUE / num2 || num1 < Long.MAX_VALUE / num2))
                 || (num2 == -1 && num1 == Long.MIN_VALUE)) {
@@ -81,7 +86,7 @@ public class Calculator {
         return num1 * num2;
     }
 
-    private static Long safeDivide (Long num1, Long num2) throws ArithmeticException {
+    private static Long safeDivide(Long num1, Long num2) throws ArithmeticException {
         if (num2 == 0) {
             throw new ArithmeticException("Division by zero");
         }
@@ -92,7 +97,7 @@ public class Calculator {
         return num1 / num2;
     }
 
-    private static Long safeNegate (Long num) throws ArithmeticException {
+    private static Long safeNegate(Long num) throws ArithmeticException {
         if (num == Long.MIN_VALUE) {
             throw new ArithmeticException("Calculation overflow");
         }
