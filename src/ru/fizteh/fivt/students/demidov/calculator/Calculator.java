@@ -4,18 +4,19 @@ import java.io.IOException;
 import java.util.Deque;
 import java.util.ArrayDeque;
 
-public class calculator {
+public class Calculator {
 	private static Deque<Integer> numbers = new ArrayDeque<Integer>();	
 	private static Deque<String> operations = new ArrayDeque<String>();
+	final static int Radix = 19;
 	
-	public static int GetOperand() throws IOException {
+	public static int getOperand() throws IOException {
 		if (numbers.isEmpty()) {
 			throw new IOException("wrong expression");
 		}
 		return numbers.pop();
 	}
 	
-	public static void CountOperation() throws IOException {
+	public static void countOperation() throws IOException {
 		String operation; 		
 		if (!(operations.isEmpty())) {
 			operation = operations.pop();
@@ -27,8 +28,8 @@ public class calculator {
 			throw new IOException("mismatched quotes");
 		}
 		
-		int secondOperand = GetOperand();
-		int firstOperand = GetOperand();
+		int secondOperand = getOperand();
+		int firstOperand = getOperand();
 		
 		if (operation.equals("+")) {
 			if (((secondOperand <= 0) && (firstOperand >= 0)) || ((secondOperand >= 0) && (firstOperand <= 0)) 
@@ -59,7 +60,7 @@ public class calculator {
 		}
 	}
 	
-	public static int GetPriority(String operation) {
+	public static int getPriority(String operation) {
 		if (operation.matches("[+-]")) {
 			return 1;
 		} else if (operation.matches("[*/]")) {
@@ -81,41 +82,41 @@ public class calculator {
 						++posInArgument;
 					}
 					try {					
-						numbers.push(Integer.parseInt(currentToken, 19));
+						numbers.push(Integer.parseInt(currentToken, Radix));
 					} catch(NumberFormatException catchedException) {
 						System.err.println(catchedException);
-						return;
+						System.exit(1);	
 					}
 				} else if (currentToken.equals("(")) {
 					operations.push("(");
 				} else if (currentToken.equals(")")) {
 					while (!(operations.isEmpty()) && !(operations.peek().equals("("))) {
 						try {
-							CountOperation();
+							countOperation();
 						} catch(IOException catchedException) {
 							System.err.println(catchedException);
-							return;
+							System.exit(1);	
 						}
 					}
 					if (!(operations.isEmpty())) {
 						operations.pop();
 					} else {
 						System.err.println("mismatched quotes");
-						return;
+						System.exit(1);	
 					}
 				} else if (currentToken.matches("[*/+-]")) {
-					while (!(operations.isEmpty()) && (GetPriority(operations.peek()) >= GetPriority(currentToken))) {
+					while (!(operations.isEmpty()) && (getPriority(operations.peek()) >= getPriority(currentToken))) {
 						try {
-							CountOperation();
+							countOperation();
 						} catch(IOException catchedException) {
 							System.err.println(catchedException);
-							return;
+							System.exit(1);	
 						}
 					}
 					operations.push(currentToken);
 				} else if (!currentToken.equals(" ")) {
 					System.err.println("wrong expression");
-					return;
+					System.exit(1);	
 				}
 				
 				++posInArgument;
@@ -124,23 +125,23 @@ public class calculator {
 		
 		while (!operations.isEmpty()) {
 			try {
-				CountOperation();
+				countOperation();
 			} catch(IOException catchedException) {
 				System.err.println(catchedException);
-				return;
+				System.exit(1);	
 			}
 		}
 		
 		if (numbers.isEmpty()) {
 			System.err.println("wrong expression");
-			return;	
+			System.exit(1);	
 		} else {
 			Integer result = numbers.pop();
 			if (!numbers.isEmpty()) {
 				System.err.println("wrong expression");
-				return;	
+				System.exit(1);	
 			} else {
-				System.out.println(Integer.toString(result, 19));	
+				System.out.println(Integer.toString(result, Radix));	
 			}			
 		}
 	}
