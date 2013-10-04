@@ -69,6 +69,11 @@ public class Calculator {
     }
 
     //Проверка введённого выражения на корректность.
+    public enum status {
+        openingBracket, closingBracket, arithmeticSymbol, number, error
+    }
+
+
     private static void checkExpression(ArrayList<String> list) {
         if (list.size() == 0) {
             System.err.println("You have tried to run the program 'Calculator'");
@@ -77,26 +82,22 @@ public class Calculator {
             System.err.println("numbers : [0..9], and letters: [A..G]");
             System.exit(1);
         } else {
-            //Тип последнего рассмотренного символа
-            //0 - '('
-            //1 - ')'
-            //2 - '+' || '-' || '/' || '*'
-            //3 - число
-            int status;
+            status statusOfLastSymbol;
             //Разница между количеством открывающих и закрывающих скобок
             int brackets = 0;
             //Рассматриваемый символ
             int start = 0;
             if (list.get(start).equals("(")) {
                 brackets++;
-                status = 0;
+                //Тип последнего рассмотренного символа
+                statusOfLastSymbol = status.openingBracket;
             } else if (isNumber(list.get(start))) {
-                status = 3;
+                statusOfLastSymbol = status.number;
             } else {
                 ArrayList<String> buf = new ArrayList<String>();
                 buf = divideNumberMinusNumber(list.get(start));
                 if (buf.size() == 0) {
-                    status = -1;
+                    statusOfLastSymbol = status.error;
                     System.err.println("Incorrect input:" + list.get(start) + " Check the begin of the formula.");
                     System.exit(1);
                 }
@@ -104,52 +105,52 @@ public class Calculator {
                 list.addAll(start, buf);
                 start = buf.size() - 1;
                 if (list.get(start).equals("-"))
-                    status = 2;
-                else status = 3;
+                    statusOfLastSymbol = status.arithmeticSymbol;
+                else statusOfLastSymbol = status.number;
             }
             for (int i = start + 1; i < list.size(); i++) {
                 if (isNumber(list.get(i))) {
-                    if (status == 1) {
+                    if (statusOfLastSymbol == status.closingBracket) {
                         System.err.println("Incorrect input: after ')' can not be a number.");
                         System.exit(1);
                     }
-                    if (status == 3) {
+                    if (statusOfLastSymbol == status.number) {
                         System.err.println("Incorrect input: after a number can not be another number.");
                         System.exit(1);
                     }
-                    status = 3;
+                    statusOfLastSymbol = status.number;
                 } else if (list.get(i).equals("(")) {
                     brackets++;
-                    if (status == 1) {
+                    if (statusOfLastSymbol == status.closingBracket) {
                         System.err.println("Incorrect input: after ')' can not be '('.");
                         System.exit(1);
                     }
-                    if (status == 3) {
+                    if (statusOfLastSymbol == status.number) {
                         System.err.println("Incorrect input: after a number can not be '('  .");
                         System.exit(1);
                     }
-                    status = 0;
+                    statusOfLastSymbol = status.openingBracket;
                 } else if (list.get(i).equals(")")) {
                     brackets--;
-                    if (status == 0) {
+                    if (statusOfLastSymbol == status.openingBracket) {
                         System.err.println("Incorrect input: after '(' can not be ')'.");
                         System.exit(1);
                     }
-                    if (status == 2) {
+                    if (statusOfLastSymbol == status.arithmeticSymbol) {
                         System.err.println("Incorrect input: after an arithmetic sign can not be ')'.");
                         System.exit(1);
                     }
-                    status = 1;
+                    statusOfLastSymbol = status.closingBracket;
                 } else if (isItArithmeticSign(list.get(i))) {
-                    if (status == 0) {
+                    if (statusOfLastSymbol == status.openingBracket) {
                         System.err.println("Incorrect input: after '(' can not be an arithmetic sign.");
                         System.exit(1);
                     }
-                    if (status == 2) {
+                    if (statusOfLastSymbol == status.arithmeticSymbol) {
                         System.err.println("Incorrect input: there can not be two arithmetic signs together.");
                         System.exit(1);
                     }
-                    status = 2;
+                    statusOfLastSymbol = status.arithmeticSymbol;
                 } else {
                     ArrayList<String> buf = new ArrayList<String>();
                     buf = divideNumberMinusNumber(list.get(i));
@@ -161,11 +162,11 @@ public class Calculator {
                     list.addAll(i, buf);
                     i += buf.size() - 1;
                     if (list.get(i).equals("-"))
-                        status = 2;
-                    else status = 3;
+                        statusOfLastSymbol = status.arithmeticSymbol;
+                    else statusOfLastSymbol = status.number;
                 }
             }
-            if (status == 2) {
+            if (statusOfLastSymbol == status.arithmeticSymbol) {
                 System.err.println("Incorrect input: the expression can not end on an arithmetic sign ");
                 System.exit(1);
             }
