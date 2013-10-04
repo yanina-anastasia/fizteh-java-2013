@@ -1,15 +1,16 @@
 package ru.fizteh.fivt.students.mescherinilya.calculator;
 
 import java.util.*;
-import java.math.BigInteger;
 
 public class Calculator {
 
-    private static boolean isOp(Character c) {
+    private static final int BASE = 18; //must be less than or equal to 10
+
+    private static boolean isOp(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
     }
 
-    private static int priority(Integer op) {
+    private static int priority(int op) {
         if (op < 0) {
             return 4;
         }
@@ -19,44 +20,57 @@ public class Calculator {
             -1;
         }
 
-    private static void executeOperation(ArrayDeque<BigInteger> numbers, Integer op) {
+    private static void executeOperation(Deque<Integer> numbers, Integer op) {
         if (op < 0) {
-            BigInteger operand = numbers.pop();
+            Integer operand = numbers.pop();
             switch (-op) {
             case (int)'+': 
                 numbers.push(operand); 
                 break;
             case (int)'-': 
-                numbers.push(operand.negate()); 
+                numbers.push(-operand);
                 break;
             }
-        }
-        else {
-            BigInteger right = numbers.pop();
-            BigInteger left = numbers.pop();
+        } else {
+            Integer right = numbers.pop();
+            Integer left = numbers.pop();
             switch (op) {
             case (int)'+': 
-                numbers.push(left.add(right)); 
+                if ((left > 0 && right > 0 || left < 0 && right < 0)
+                        && Math.abs(left) > Math.abs(Integer.MAX_VALUE - right)) {
+                    System.err.println("Error: overflow");
+                    System.exit(1);
+                }
+                numbers.push(left + right);
                 break;
-            case (int)'-': 
-                numbers.push(left.subtract(right)); 
+            case (int)'-':
+                if ((left < 0 && right > 0 || left > 0 && right < 0)
+                        && Math.abs(left) > Math.abs(Integer.MAX_VALUE - right)) {
+                    System.err.println("Error: overflow");
+                    System.exit(1);
+                }
+                numbers.push(left - right);
                 break;
-            case (int)'*': 
-                numbers.push(left.multiply(right)); 
+            case (int)'*':
+                if (right != 0 && Math.abs(left) > Math.abs(Integer.MAX_VALUE / right)) {
+                    System.err.println("Error: overflow");
+                    System.exit(1);
+                }
+                numbers.push(left * right);
                 break;
             case (int)'/': 
-                if (right.signum() == 0) {
+                if (right == 0) {
                     System.err.println("Error: division by zero");
                     System.exit(1);
                 }
-                numbers.push(left.divide(right)); 
+                numbers.push(left / right);
                 break;
             case (int)'%': 
-                if (right.signum() == 0) {
+                if (right == 0) {
                     System.err.println("Error: division by zero");
                     System.exit(1);
                 }
-                numbers.push(left.mod(right)); 
+                numbers.push(left % right);
                 break;
             }
         }
@@ -77,13 +91,13 @@ public class Calculator {
 
         String str = builder.toString();
 
-        //проверим корректность выражения
+        //РїСЂРѕРІРµСЂРёРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РІС‹СЂР°Р¶РµРЅРёСЏ
         boolean thereWasNumber = false;
         boolean thereWasOp = false;
         for (int i = 0; i < str.length(); i++) {
             char cur = str.charAt(i);
             char next = (i < str.length()-1 ? str.charAt(i+1) : 0);
-            if (!Character.isWhitespace(cur) && !Character.isDigit(cur) && 
+            if (!Character.isWhitespace(cur) && !Character.isDigit(cur) && (cur < 'A' || cur > 'A' + BASE - 11) &&
                     !isOp(cur) && str.charAt(i) != '(' && str.charAt(i) != ')') {
                 System.err.println("Error: unknown symbol or unsupported operation");
                 System.exit(1);
@@ -95,7 +109,7 @@ public class Calculator {
                     System.err.println("Error: two operators in a row!");
                     System.exit(1);
                 }
-                if (Character.isDigit(next) && thereWasNumber) {
+                if ((Character.isDigit(next) || next >= 'A' && next <= 'A' + BASE - 11) && thereWasNumber) {
                     System.err.println("Error: two numbers in a row!");
                     System.exit(1);
                 }		
@@ -111,7 +125,7 @@ public class Calculator {
             }
             
             
-            if (Character.isDigit(str.charAt(i))) {
+            if (Character.isDigit(str.charAt(i)) || str.charAt(i) >= 'A' && str.charAt(i) <= 'A' + BASE - 11) {
                 thereWasNumber = true;
                 thereWasOp = false;
             }
@@ -147,13 +161,13 @@ public class Calculator {
             }
         }
         if (bracketsBalance != 0) {
-            System.err.println("Error: uncorrect brackets arrangement");
+            System.err.println("Error: incorrect brackets arrangement");
             System.exit(1);
         }
 
 
         boolean mayUnary = true;
-        ArrayDeque<BigInteger> numbers = new ArrayDeque<BigInteger>();
+        ArrayDeque<Integer> numbers = new ArrayDeque<Integer>();
         ArrayDeque<Integer> operations = new ArrayDeque<Integer>();
 
 
@@ -163,16 +177,14 @@ public class Calculator {
                 if (str.charAt(i) == '(') {
                     operations.push((int)'(');
                     mayUnary = true;
-                }
-                else if (str.charAt(i) == ')') {
+                } else if (str.charAt(i) == ')') {
                     while (operations.peek() != '(') {
                         executeOperation(numbers, operations.peek());
                         operations.pop();
                     }
                     operations.pop();
                     mayUnary = false;
-                }
-                else if (isOp(str.charAt(i))) {
+                } else if (isOp(str.charAt(i))) {
                     char c = str.charAt(i);
                     int curOp = c;
                     if (mayUnary && (curOp == '+' || curOp == '-')) 
@@ -182,14 +194,14 @@ public class Calculator {
                     }
                     operations.push(curOp);
                     mayUnary = true;
-                }
-                else {
+                } else {
                     String operand = "";
-                    while (i < str.length() && "0123456789".indexOf(str.charAt(i)) != -1) {
+                    while (i < str.length() &&
+                            (Character.isDigit(str.charAt(i)) || str.charAt(i) >= 'A' && str.charAt(i) <= 'A' + BASE - 11)) {
                         operand += str.charAt(i++);
                     }
                     i--;
-                    numbers.push(new BigInteger(operand));
+                    numbers.push(Integer.parseInt(operand.toString(), BASE));
                     mayUnary = false;
                 }
             }
@@ -198,16 +210,7 @@ public class Calculator {
             executeOperation(numbers, operations.pop());
         }
 
-        if (numbers.isEmpty()) {
-            System.out.println(0);
-        }
-        else {
-            System.out.println(numbers.pop());
-        }
-
+        System.out.println(Integer.toString(numbers.pop(), BASE));
     }
-
-
-
 
 }
