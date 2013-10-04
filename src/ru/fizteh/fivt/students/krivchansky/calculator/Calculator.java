@@ -11,7 +11,7 @@ public class Calculator {
     private String token;
     private char currentChar;
     private InputStream numericExpression;
-    private boolean prevSpace; //флаг для функции, которая будет вызвана следующей
+    private boolean prevSpace;
     private enum OperationType {
         PLUS("+"),
         MINUS("-"),
