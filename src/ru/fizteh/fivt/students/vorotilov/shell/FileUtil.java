@@ -14,10 +14,14 @@ public class FileUtil {
             for (File i : listOfElements) {
                 if (i.isDirectory()) {
                     currentDirectory = recursiveDelete(currentDirectory, i);
-                } else if (!i.delete()) {
+                }
+                if (!i.delete()) {
                     throw new FileWasNotDeleted(i);
                 }
             }
+        }
+        if (!dir.delete()) {
+            throw new FileWasNotDeleted(dir);
         }
         if (dir.equals(currentDirectory)) {
             currentDirectory = dir.getParentFile();

@@ -47,8 +47,7 @@ public class ShellMain {
             case "mkdir":
                 File newDir = FileUtil.convertPath(currentDirectory, commandParts[1]);
                 if (!newDir.mkdir()) {
-                    //directory was not created;
-                    //but we must ignore this
+                    System.out.println("mkdir: can't create'" + newDir.getCanonicalPath() + "'");
                 }
                 break;
             case "dir":
@@ -58,14 +57,7 @@ public class ShellMain {
                 }
                 break;
             case "cd":
-                File newCurrentDirectory;
-                if (commandParts[1] == "..") {
-                    newCurrentDirectory = currentDirectory.getParentFile();
-                } else if (commandParts[1] != ".") {
-                    newCurrentDirectory = currentDirectory;
-                } else {
-                    newCurrentDirectory = FileUtil.convertPath(currentDirectory, commandParts[1]);
-                }
+                File newCurrentDirectory = FileUtil.convertPath(currentDirectory, commandParts[1]).getCanonicalFile();
                 if (newCurrentDirectory.exists()) {
                     currentDirectory = newCurrentDirectory;
                 } else {
@@ -108,6 +100,7 @@ public class ShellMain {
                 }
                 break;
             default:
+                System.out.println("unknown command: '" + commandParts[0] + "'");
                 break;
         }
     }
