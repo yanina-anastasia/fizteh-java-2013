@@ -16,6 +16,10 @@ public class Calc {
         return (Character.isDigit(c) || ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + RADIX - 11)));
     }
 
+    protected static boolean isInRange(long value) {
+        return ((value <= Integer.MAX_VALUE) && (value >= Integer.MIN_VALUE));
+    }
+
     protected static void getToken() {
         while (position < expression.length() && Character.isSpaceChar(expression.charAt(position))) {
             ++position;
@@ -84,7 +88,7 @@ public class Calc {
                 int rightPrim = prim();
                 long longRightPrim = rightPrim;
                 long longLeftPrim = leftPrim;
-                if (Integer.MAX_VALUE < Math.abs(longLeftPrim * longRightPrim)) {
+                if (!isInRange(longLeftPrim * longRightPrim)) {
                     throw new ParseException("impossible to calculate", position);
                 }
                 leftPrim *= rightPrim;
@@ -116,7 +120,7 @@ public class Calc {
                 int rightTerm = term();
                 long longRightTerm = rightTerm;
                 long longLeftTerm = leftTerm;
-                if (Integer.MAX_VALUE < Math.abs(longLeftTerm + longRightTerm)) {
+                if (!isInRange(longLeftTerm + longRightTerm)) {
                     throw new ParseException("impossible to calculate", position);
                 }
                 leftTerm += rightTerm;
@@ -128,7 +132,7 @@ public class Calc {
                 int rightTerm = term();
                 long longRightTerm = rightTerm;
                 long longLeftTerm = leftTerm;
-                if (Integer.MAX_VALUE < Math.abs(longLeftTerm - longRightTerm)) {
+                if (!isInRange(longLeftTerm - longRightTerm)) {
                     throw new ParseException("impossible to calculate", position);
                 }
                 leftTerm -= rightTerm;
