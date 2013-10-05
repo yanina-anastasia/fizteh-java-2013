@@ -3,11 +3,10 @@ package ru.fizteh.fivt.students.dmitryKonturov.calculator;
 import java.math.BigInteger;
 
 /**
- *      Калькулятор, считающий в 17-ичной системе счисления.
- *      Все символы переводятся в нижний регистр.
- *      Допустимые опереции:
- *          бинарные: +, -, *, /
- *          объединение операций круглами скобками.
+ * Калькулятор, считающий в 17-ичной системе счисления.
+ * Все символы переводятся в нижний регистр.
+ * Допустимые опереции: бинарные: +, -, *, /
+ * а также объединение операций круглами скобками.
  */
 
 class WrongExpression extends Exception {
@@ -29,18 +28,6 @@ class MyCalculator {
     private int curPosition;
     private Lexeme curLexeme;
     private BigInteger curNumber;
-
-    enum Lexeme {
-        PLUS,
-        MINUS,
-        DIV,
-        MUL,
-        OPEN_BR,
-        CLOSE_BR,
-        NUMBER,
-        END
-    }
-
 
     private boolean isDigit(char c) {
         return Character.isDigit(c) || ('a' <= c && c <= 'g');
@@ -96,7 +83,7 @@ class MyCalculator {
                     return Lexeme.NUMBER;
                 } catch (Exception e) {
                     throw new WrongExpression(String.format("Нельзя выделить число или операцию в выражении," +
-                                                            "начиная с позиции %d.", curPosition));
+                            "начиная с позиции %d.", curPosition));
 
                 }
         }
@@ -194,12 +181,12 @@ class MyCalculator {
 
             case CLOSE_BR:
                 throw new WrongExpression(String.format("Ожидалось непустое выражение в скобках или число в позиции %d.",
-                                                        curPosition));
+                        curPosition));
 
             default:
                 throw new WrongExpression(String.format("Ожидалось выражение в скобках или число в позиции %d, " +
-                                                        "найдено %s. Возможно записаны две операции подряд.",
-                                                        curPosition, curLexeme.toString()));
+                        "найдено %s. Возможно записаны две операции подряд.",
+                        curPosition, curLexeme.toString()));
         }
     }
 
@@ -214,10 +201,21 @@ class MyCalculator {
 
         if (curLexeme != Lexeme.END) {
             throw new WrongExpression(String.format("Несколько последних символов были проигнорированы.\n" +
-                                                    "Результат без них равен: %s.", result));
+                    "Результат без них равен: %s.", result));
         }
 
         return result.toString(NUMBER_BASE);
+    }
+
+    enum Lexeme {
+        PLUS,
+        MINUS,
+        DIV,
+        MUL,
+        OPEN_BR,
+        CLOSE_BR,
+        NUMBER,
+        END
     }
 
 }
