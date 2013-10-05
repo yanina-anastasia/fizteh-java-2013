@@ -14,7 +14,7 @@ public class CalculatorRunner {
         StringBuilder stringBuilder = new StringBuilder();
         for (String inputPart : args) {
             stringBuilder.append(inputPart);
-            stringBuilder.append (" ");
+            stringBuilder.append(" ");
         }
         String expression = stringBuilder.toString();
         System.out.println(expression);

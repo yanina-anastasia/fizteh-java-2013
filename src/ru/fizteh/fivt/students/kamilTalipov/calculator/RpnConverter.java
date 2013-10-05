@@ -11,7 +11,7 @@ public class RpnConverter {
             if (InputValidator.is19BaseDigit(expression.charAt(pos))) {
                 StringBuilder stringBuilder = new StringBuilder();
                 while (pos < expression.length()
-                       && InputValidator.is19BaseDigit(expression.charAt(pos))) {
+                        && InputValidator.is19BaseDigit(expression.charAt(pos))) {
                     stringBuilder.append(expression.charAt(pos));
                     ++pos;
                 }
@@ -52,7 +52,7 @@ public class RpnConverter {
                         break;
                 }
                 ++pos;
-            } else if (Character.isWhitespace (expression.charAt (pos))) {
+            } else if (Character.isWhitespace(expression.charAt (pos))) {
                 ++pos;
             }
         }
