@@ -76,7 +76,8 @@ class MySystem {
                     }
                 }
             } else {
-                if (fileDestination.equals(fileSource)) {
+                boolean isEquals = fileDestination.getCanonicalPath().equals(fileSource.getCanonicalPath());
+                if (fileDestination.equals(fileSource) || isEquals) {
                     System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
                     return Code.ERROR;
                 }
@@ -219,6 +220,9 @@ class MySystem {
             }
             if (sc.hasNextLine()) {
                 String query = sc.nextLine();
+                if (query.length() == 0) {
+                    continue;
+                }
                 Code res = runCommands(query);
                 if (res == Code.EXIT) {
                     return;
@@ -232,7 +236,7 @@ class MySystem {
 public class Shell {
 
     public static void main(String[] args) throws IOException {
-        //args = new String[]{"cd /home/deamoon/Music;", "cp dir0 /home/deamoon/Music/1.txt"};
+        //args = new String[]{"cd /home/deamoon/Music;", "cp 1.txt /home/deamoon/Music/1.txt"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
