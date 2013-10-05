@@ -6,9 +6,9 @@ import java.util.Stack;
 
 public class Calculator {
     
-    final static private String OPERATOR_MATCHER = "([\\+\\-\\*/\\(\\)])";
-    final static private String NUMBER_MATCHER = "[0-9A-Ha-h]+";
-    final static private int BASE = 18;
+    private static final String OPERATOR_MATCHER = "([\\+\\-\\*/\\(\\)])";
+    private static final String NUMBER_MATCHER = "[0-9A-Ha-h]+";
+    private static final int BASE = 18;
     
     public static void main(String[] args) {
         String usage = "usage: calculator <arithmetic expression>";     

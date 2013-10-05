@@ -26,8 +26,7 @@ public class ExpressionNotationUtility {
         Matcher nextToken = Pattern.compile(capturingRegex).matcher(infixExpression);
         
         /* Shunting-yard implementation */
-        while (nextToken.find())
-        {
+        while (nextToken.find()) {
             String token = nextToken.group(1);
             if (token.equals("(")) {
                 operatorStack.push("(");
