@@ -1,4 +1,4 @@
-//package ru.fizteh.fivt.students.yaninaAnastasia.calculator;
+package ru.fizteh.fivt.students.yaninaAnastasia.calculator;
 
 import java.util.LinkedList;
 
@@ -24,12 +24,12 @@ public class Calculator {
     public static void processOperator(LinkedList<Integer> st, char operation) {
         if (st.isEmpty()) {
             System.out.println("Error with operations");
-            System.exit(0);
+            System.exit(1);
         }
         int right = st.removeLast();
         if (st.isEmpty()) {
             System.out.println("Error with operations");
-            System.exit(0);
+            System.exit(1);
         }
         int left = st.removeLast();
         switch (operation) {
