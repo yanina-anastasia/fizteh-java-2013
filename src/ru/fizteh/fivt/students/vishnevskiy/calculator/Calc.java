@@ -81,7 +81,13 @@ public class Calc {
                 if (tokenType.equals("end")) {
                     return leftPrim;
                 }
-                leftPrim *= prim();
+                int rightPrim = prim();
+                long longRightPrim = rightPrim;
+                long longLeftPrim = leftPrim;
+                if (Integer.MAX_VALUE < Math.abs(longLeftPrim * longRightPrim)) {
+                    throw new ParseException("impossible to calculate", position);
+                }
+                leftPrim *= rightPrim;
             } else if (tokenType.equals("operation") && token.equals("/")) {
                 getToken();
                 if (tokenType.equals("end")) {
@@ -107,13 +113,25 @@ public class Calc {
                 if (tokenType.equals("end")) {
                     return leftTerm;
                 }
-                leftTerm += term();
+                int rightTerm = term();
+                long longRightTerm = rightTerm;
+                long longLeftTerm = leftTerm;
+                if (Integer.MAX_VALUE < Math.abs(longLeftTerm + longRightTerm)) {
+                    throw new ParseException("impossible to calculate", position);
+                }
+                leftTerm += rightTerm;
             } else if (tokenType.equals("operation") && token.equals("-")) {
                 getToken();
                 if (tokenType.equals("end")) {
                     return leftTerm;
                 }
-                leftTerm -= term();
+                int rightTerm = term();
+                long longRightTerm = rightTerm;
+                long longLeftTerm = leftTerm;
+                if (Integer.MAX_VALUE < Math.abs(longLeftTerm - longRightTerm)) {
+                    throw new ParseException("impossible to calculate", position);
+                }
+                leftTerm -= rightTerm;
             } else {
                 return leftTerm;
             }
