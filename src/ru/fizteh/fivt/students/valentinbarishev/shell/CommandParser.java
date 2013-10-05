@@ -8,6 +8,7 @@ public class CommandParser {
         for (int i = 0; i < args.length; ++i) {
             commands.append(" ").append(args[i]);
         }
+
         if (commands.charAt(commands.length() - 1) != ';') {
             commands.append(';');
         }
@@ -15,7 +16,7 @@ public class CommandParser {
 
     public CommandParser(String arg) {
         commands = new StringBuilder(arg);
-        if (commands.charAt(commands.length() - 1) != ';') {
+        if ((!arg.isEmpty()) && (commands.charAt(commands.length() - 1) != ';')) {
             commands.append(';');
         }
     }
@@ -29,7 +30,15 @@ public class CommandParser {
                 break;
             }
         }
-        command = command.trim();
+
+        StringBuilder builder = new StringBuilder(command.trim());
+        for (int i = 0; i < builder.length() - 1;) {
+            if ((builder.charAt(i) == ' ') && (builder.charAt(i + 1)) == ' ') {
+                builder.deleteCharAt(i);
+            }
+            ++i;
+        }
+
         command = command.replace("  ", " ");
         return command.split(" ");
     }
