@@ -227,6 +227,8 @@ class MySystem {
                 if (res == Code.EXIT) {
                     return;
                 }
+            } else {
+                return;
             }
         }
     }
