@@ -10,13 +10,13 @@ import java.util.regex.Pattern;
 public class ExpressionNotationUtility {
     
     public static Queue<String> convertToReversePolishNotation(String infixExpression, 
-    		String validNumMatcher, String validOperatorMatcher) throws IllegalArgumentException {
+            String validNumMatcher, String validOperatorMatcher) throws IllegalArgumentException {
         /* Initialize buffers */
         Queue<String> converted = new LinkedList<String>();
         Stack<String> operatorStack = new Stack<String>();
 
         /* Handle unary minuses */
-        infixExpression = infixExpression.replace(" ", "").replace("(-", "(0-");
+        infixExpression = infixExpression.replaceAll(" *\\( *\\- *", "(0-").replaceAll("^ *\\- *", "0-");
         if (infixExpression.charAt(0) == '-') {
             infixExpression = "0" + infixExpression;
         }
@@ -49,7 +49,7 @@ public class ExpressionNotationUtility {
                 converted.add(token);
             }
         }
-        infixExpression = infixExpression.replaceAll(capturingRegex, "");
+        infixExpression = infixExpression.replaceAll(capturingRegex, "").replaceAll(" ", "");
         if (!infixExpression.isEmpty()) {
             throw new IllegalArgumentException("Illegal symbols found");
         }

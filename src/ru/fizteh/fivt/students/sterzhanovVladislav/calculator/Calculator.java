@@ -17,12 +17,12 @@ public class Calculator {
                 throw new Exception(usage);
             }
             
-            String expression = new String();
+            StringBuilder expression = new StringBuilder();
             for (String arg : args) {
-                expression += arg + " ";
+                expression.append(arg).append(" ");
             }
             Queue<String> reversePolishExpression = ExpressionNotationUtility
-            		.convertToReversePolishNotation(expression, NUMBER_MATCHER, OPERATOR_MATCHER);
+                    .convertToReversePolishNotation(expression.toString(), NUMBER_MATCHER, OPERATOR_MATCHER);
             String result = evaluatePostfixExpression(reversePolishExpression);
             System.out.println(result);
         } catch (Exception e) {
@@ -33,7 +33,7 @@ public class Calculator {
     }
     
     public static String evaluatePostfixExpression(Queue<String> reversePolishExpression) 
-    		throws IllegalArgumentException {
+            throws IllegalArgumentException {
         Stack<BigInteger> numberStack = new Stack<BigInteger>();
         for (String token : reversePolishExpression) {
             if (token.matches(OPERATOR_MATCHER)) {
@@ -57,7 +57,7 @@ public class Calculator {
     }
     
     private static BigInteger apply(String operator, BigInteger leftOperand, BigInteger rightOperand) 
-    		throws IllegalArgumentException {
+            throws IllegalArgumentException {
         if (operator.equals("+")) {
             return leftOperand.add(rightOperand);
         } else if (operator.equals("-")) {
