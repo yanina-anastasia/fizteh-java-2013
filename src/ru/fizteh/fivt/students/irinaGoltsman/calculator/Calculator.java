@@ -74,7 +74,11 @@ public class Calculator {
 
     //Проверка введённого выражения на корректность.
     public enum status {
-        openingBracket, closingBracket, arithmeticSymbol, number, error
+        OPENING_BRACKET,
+        CLOSING_BRACKET,
+        ARITHMETIC_SYMBOL,
+        NUMBER,
+        ERROR
     }
 
 
@@ -94,14 +98,14 @@ public class Calculator {
             if (list.get(start).equals("(")) {
                 brackets++;
                 //Тип последнего рассмотренного символа
-                statusOfLastSymbol = status.openingBracket;
+                statusOfLastSymbol = status.OPENING_BRACKET;
             } else if (isNumber(list.get(start))) {
-                statusOfLastSymbol = status.number;
+                statusOfLastSymbol = status.NUMBER;
             } else {
                 ArrayList<String> buf = new ArrayList<String>();
                 buf = divideNumberMinusNumber(list.get(start));
                 if (buf.size() == 0) {
-                    statusOfLastSymbol = status.error;
+                    statusOfLastSymbol = status.ERROR;
                     System.err.println("Incorrect input:" + list.get(start) + " Check the begin of the formula.");
                     System.exit(1);
                 }
@@ -109,56 +113,56 @@ public class Calculator {
                 list.addAll(start, buf);
                 start = buf.size() - 1;
                 if (list.get(start).equals("-")) {
-                    statusOfLastSymbol = status.arithmeticSymbol;
+                    statusOfLastSymbol = status.ARITHMETIC_SYMBOL;
                 } else {
-                    statusOfLastSymbol = status.number;
+                    statusOfLastSymbol = status.NUMBER;
                 }
             }
             for (int i = start + 1; i < list.size(); i++) {
                 if (isNumber(list.get(i))) {
-                    if (statusOfLastSymbol == status.closingBracket) {
+                    if (statusOfLastSymbol == status.CLOSING_BRACKET) {
                         System.err.println("Incorrect input: after ')' can not be a number.");
                         System.exit(1);
                     }
-                    if (statusOfLastSymbol == status.number) {
+                    if (statusOfLastSymbol == status.NUMBER) {
                         System.err.println("Incorrect input: after a number can not be another number.");
                         System.exit(1);
                     }
-                    statusOfLastSymbol = status.number;
+                    statusOfLastSymbol = status.NUMBER;
                 } else if (list.get(i).equals("(")) {
                     brackets++;
-                    if (statusOfLastSymbol == status.closingBracket) {
+                    if (statusOfLastSymbol == status.CLOSING_BRACKET) {
                         System.err.println("Incorrect input: after ')' can not be '('.");
                         System.exit(1);
                     }
-                    if (statusOfLastSymbol == status.number) {
+                    if (statusOfLastSymbol == status.NUMBER) {
                         System.err.println("Incorrect input: after a number can not be '('  .");
                         System.exit(1);
                     }
-                    statusOfLastSymbol = status.openingBracket;
+                    statusOfLastSymbol = status.OPENING_BRACKET;
                 } else if (list.get(i).equals(")")) {
                     brackets--;
-                    if (statusOfLastSymbol == status.openingBracket) {
+                    if (statusOfLastSymbol == status.OPENING_BRACKET) {
                         System.err.println("Incorrect input: after '(' can not be ')'.");
                         System.exit(1);
                     }
-                    if (statusOfLastSymbol == status.arithmeticSymbol) {
+                    if (statusOfLastSymbol == status.ARITHMETIC_SYMBOL) {
                         System.err.println("Incorrect input: after an arithmetic sign can not be ')'.");
                         System.exit(1);
                     }
-                    statusOfLastSymbol = status.closingBracket;
+                    statusOfLastSymbol = status.CLOSING_BRACKET;
                 } else if (isItArithmeticSign(list.get(i))) {
-                    if (statusOfLastSymbol == status.openingBracket) {
+                    if (statusOfLastSymbol == status.OPENING_BRACKET) {
                         System.err.println("Incorrect input: after '(' can not be an arithmetic sign.");
                         System.exit(1);
                     }
-                    if (statusOfLastSymbol == status.arithmeticSymbol) {
+                    if (statusOfLastSymbol == status.ARITHMETIC_SYMBOL) {
                         System.err.println("Incorrect input: there can not be two arithmetic signs together.");
                         System.exit(1);
                     }
-                    statusOfLastSymbol = status.arithmeticSymbol;
+                    statusOfLastSymbol = status.ARITHMETIC_SYMBOL;
                 } else {
-                    ArrayList<String> buf = new ArrayList<String>();
+                    ArrayList<String> buf;
                     buf = divideNumberMinusNumber(list.get(i));
                     if (buf.size() == 0) {
                         System.err.println("Incorrect input:" + list.get(i));
@@ -168,13 +172,13 @@ public class Calculator {
                     list.addAll(i, buf);
                     i += buf.size() - 1;
                     if (list.get(i).equals("-")) {
-                        statusOfLastSymbol = status.arithmeticSymbol;
+                        statusOfLastSymbol = status.ARITHMETIC_SYMBOL;
                     } else {
-                        statusOfLastSymbol = status.number;
+                        statusOfLastSymbol = status.NUMBER;
                     }
                 }
             }
-            if (statusOfLastSymbol == status.arithmeticSymbol) {
+            if (statusOfLastSymbol == status.ARITHMETIC_SYMBOL) {
                 System.err.println("Incorrect input: the expression can not end on an arithmetic sign ");
                 System.exit(1);
             }
