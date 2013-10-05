@@ -30,26 +30,28 @@ public class Calculator {
        
         for (int i = 0; i < args.length; ++i) {
             for (int j = 0; j < args[i].length(); ++j) {
-               if ((args[i].charAt(j) >= '0' && args[i].charAt(j) <= '9') 
-                       || (args[i].charAt(j) >= 'a' && args[i].charAt(j) <= 'i')) {
-                   expBuilder.append(args[i].charAt(j));
-               } else if (signsPattern.indexOf(args[i].charAt(j)) != -1) {
-                   expBuilder.append(' ');
-                   expBuilder.append(args[i].charAt(j));
-                   expBuilder.append(' ');
-               } else if (args[i].charAt(j) != ' ') {
-                  System.out.print("expression contains unrecognized characters in ");
-                  System.out.println(args[i]);
-                  System.exit(1);
-               }
+                char letter = args[i].charAt(j);
+                if ((letter >= '0' && letter <= '9') 
+                        || (letter >= 'a' && letter <= 'i')
+                        || (letter >= 'A' && letter <= 'I')) {
+                    expBuilder.append(letter);
+                } else if (signsPattern.indexOf(letter) != -1) {
+                    expBuilder.append(' ');
+                    expBuilder.append(letter);
+                    expBuilder.append(' ');
+                } else if (letter != ' ') {
+                    System.out.print("expression contains unrecognized characters in ");
+                    System.out.println(args[i]);
+                    System.exit(1);
+                }
             }
             expBuilder.append(' ');
         }
-        String exp = expBuilder.toString();
+        String exp = expBuilder.toString().toLowerCase();
         Stack<String> lifo = new Stack<String>();
         Vector<String> list = new Vector<String>();
         StringBuilder operandBuilder = new StringBuilder();
-        String operand = new String();
+        String operand;
         
         for (int i = 0; i < exp.length(); ++i) {
             if (exp.charAt(i) == ' ') {
@@ -75,11 +77,11 @@ public class Calculator {
                         lifo.push(operand);
                     }
                  
-                    if ( operand.equals("+") || operand.equals("-") 
+                    if (operand.equals("+") || operand.equals("-") 
                             || operand.equals("*") || operand.equals("/")) {
                         if (lifo.empty()) {
                             lifo.push(operand);
-                        } else if (prior(lifo.peek().toString()) < prior(operand)) {
+                        } else if (prior(lifo.peek()) < prior(operand)) {
                             lifo.push(operand);                           
                         } else {
                             while (!lifo.empty() && prior(lifo.peek().toString()) >= prior(operand)) {
@@ -94,7 +96,7 @@ public class Calculator {
                     list.add(operand);
                 }
 
-                operandBuilder.delete(0,operand.length());
+                operandBuilder.delete(0, operand.length());
 
                 continue;
             }
@@ -114,6 +116,7 @@ public class Calculator {
            
             long left = 0;
             long right = 0;
+            long res = 0;
 
             if (prior(obj) > 0) {
                 if (solution.size() < 2) {
@@ -125,25 +128,25 @@ public class Calculator {
             }
            
             if (obj.equals("+")) {
-                long Res = left + right;
-                if (Res >= Integer.MIN_VALUE && Res <= Integer.MAX_VALUE) {
-                   solution.push((int)Res);
+                res = left + right;
+                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
+                   solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
                 }
             } else if (obj.equals("-")) {
-                long Res = left - right;
-                if (Res >= Integer.MIN_VALUE && Res <= Integer.MAX_VALUE) {
-                   solution.push((int)Res);
+                res = left - right;
+                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
+                   solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
                 }
             } else if (obj.equals("*")) {
-                long Res = left * right;
-                if (Res >= Integer.MIN_VALUE && Res <= Integer.MAX_VALUE) {
-                   solution.push((int)Res);
+                res = left * right;
+                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
+                   solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
@@ -153,7 +156,7 @@ public class Calculator {
                     System.out.println("Division by zero");
                     System.exit(1);
                 }
-                solution.push((int)(left/right));
+                solution.push((int) (left / right));
             } else {
                 try {
                     solution.push(Integer.parseInt(obj, 19));
