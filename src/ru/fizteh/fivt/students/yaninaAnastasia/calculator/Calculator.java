@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.yaninaAnastasia.calculator;
+//package ru.fizteh.fivt.students.yaninaAnastasia.calculator;
 
 import java.util.LinkedList;
 
@@ -22,7 +22,15 @@ public class Calculator {
     }
 
     public static void processOperator(LinkedList<Integer> st, char operation) {
+        if (st.isEmpty()) {
+            System.out.println("Error with operations");
+            System.exit(0);
+        }
         int right = st.removeLast();
+        if (st.isEmpty()) {
+            System.out.println("Error with operations");
+            System.exit(0);
+        }
         int left = st.removeLast();
         switch (operation) {
             case '+':
@@ -88,13 +96,14 @@ public class Calculator {
             } else if (isOperation(c)) {
                 while (!op.isEmpty() && priority(op.getLast()) >= priority(c)) {
                     if (prevSym == 1) {
-                        System.err.println("Error: too many operators without numbers");
+                        System.err.println("Error with operations");
                         System.exit(1);
                     }
                     processOperator(st, op.removeLast());
                 }
-                op.add(c);
                 prevSym = 1;
+                op.add(c);
+
             } else {
                 StringBuilder sb = new StringBuilder();
                 while (i < s.length() && isDigit(s.charAt(i))) {
