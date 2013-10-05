@@ -8,11 +8,12 @@ public class Calculator {
         ADDITION_OR_SUBTRACTION,
         NOT_AN_OPERATION
     }
+    
     private final static String BAD_EXPRESSION = "Not valid Expression";
     private final static int BASE = 19;
     private final static char BINARY_MINUS_REPLACEMENT = '~';
     
-    private static void printNotValidExpressionError() {        //Выводит сообщение об ошибке и заканчивает работу программы
+    private static void printNotValidExpressionError() {
         System.out.println(BAD_EXPRESSION);
         System.exit(1);
     }
@@ -31,6 +32,9 @@ public class Calculator {
                 value = value.multiply(modifierAsInteger);
                 break;
             case '/':
+                if (modifierAsInteger.toString() == "0") {
+                    printNotValidExpressionError();
+                }
                 value = value.divide(modifierAsInteger);
                 break;
             case '+':
@@ -61,7 +65,7 @@ public class Calculator {
         }
     }
     
-    private static String computeExpressionWithOperationType(String expression, OperationType operationType) {   //как работает 4 4 ???
+    private static String computeExpressionWithOperationType(String expression, OperationType operationType) {
         StringBuilder lastNumber = new StringBuilder(expression.length());
         char lastSign = 0;
         BigInteger currentValueOfExpression = new BigInteger("0");
@@ -82,7 +86,7 @@ public class Calculator {
                         printNotValidExpressionError();
                     }
                 } else {
-                    if (lastNumber.length() != 0){
+                    if (lastNumber.length() != 0) {
                         ableToAppend = false;
                     }
                 }
