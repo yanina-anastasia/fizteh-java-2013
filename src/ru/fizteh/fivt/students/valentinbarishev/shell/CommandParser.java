@@ -32,14 +32,14 @@ public class CommandParser {
         }
 
         StringBuilder builder = new StringBuilder(command.trim());
-        for (int i = 0; i < builder.length() - 1;) {
+        for (int i = 0; i < builder.length() - 1; ) {
             if ((builder.charAt(i) == ' ') && (builder.charAt(i + 1)) == ' ') {
                 builder.deleteCharAt(i);
+                continue;
             }
             ++i;
         }
-
-        command = command.replace("  ", " ");
+        command = builder.toString();
         return command.split(" ");
     }
 
