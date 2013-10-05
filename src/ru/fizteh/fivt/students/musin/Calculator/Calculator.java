@@ -88,15 +88,19 @@ class ReverseNotation
 	public void AddCommand(Stack<Operation> commands, int index)
 	{
 		if (operations[index].leftAssociated)
+		{
 			while ((commands.size() > 0) && (operations[index].priority <= commands.peek().priority))
 			{
 				line.add(commands.pop());
 			}
+		}
 		else
+		{
 			while ((commands.size() > 0) && (operations[index].priority < commands.peek().priority))
 			{
 				line.add(commands.pop());
 			}
+		}
 		commands.push(operations[index]);
 	}
 
@@ -117,17 +121,19 @@ class ReverseNotation
 					mode = 1;
 				}
 			}
-			else
-			if (c == '(')
+			else if (c == '(')
 			{
 				if (mode != 0)
+				{
 					throw new Exception("Invalid expression");
+				}
 				if (currentValue.length() != 0)
+				{
 					throw new Exception("Invalid expression");
+				}
 				commands.push(new Operation("(", 0, false, null));
 			}
-			else
-			if (c == ')')
+			else if (c == ')')
 			{
 				if (currentValue.length() != 0)
 				{
@@ -136,23 +142,25 @@ class ReverseNotation
 					mode = 1;
 				}
 				if (mode != 1)
+				{
 					throw new Exception("Invalid expression");
+				}
 				Operation command;
 				do
 				{
 					if (commands.size() == 0)
+					{
 						throw new Exception("Invalid expression");
+					}
 					command = commands.pop();
 					if (command.name != "(")
 					{
 						line.add(command);
 					}
-				}
-				while (command.name != "(");
+				} while (command.name != "(");
 
 			}
-			else
-			if (mode == 0)
+			else if (mode == 0)
 			{
 				if (c == '-' && currentValue.length() == 0)
 				{
@@ -177,7 +185,9 @@ class ReverseNotation
 				else
 				{
 					if (currentValue.length() == 0)
+					{
 						throw new Exception("Invalid expression");
+					}
 					AddValue(currentValue);
 					currentValue = "";
 					AddCommand(commands, index);
@@ -196,7 +206,9 @@ class ReverseNotation
 					}
 				}
 				if (!operationFound)
-					return -1;
+				{
+					throw new Exception("Invalid expression");
+				}
 				mode = 0;
 			}
 		}
@@ -207,11 +219,15 @@ class ReverseNotation
 			mode = 1;
 		}
 		if (mode != 1)
+		{
 			throw new Exception("Invalid expression");
+		}
 		while (commands.size() > 0)
 		{
 			if (commands.peek().name.equals("("))
+			{
 				throw new Exception("Invalid expression");
+			}
 			line.add(commands.pop());
 		}
 		return 0;
