@@ -204,7 +204,7 @@ public class Calculator {
 
     private static void polishRecord(ArrayList<String> list) {
         ArrayList<String> result = new ArrayList<String>();
-        Stack <String> stack = new Stack();
+        Stack<String> stack = new Stack<String>();
         int priorPrev;
         int prior;
         for (String string : list) {
@@ -214,7 +214,7 @@ public class Calculator {
                 if (stack.size() == 0) {
                     priorPrev = 0;
                 } else {
-                    priorPrev = priority(stack.peek().toString());
+                    priorPrev = priority(stack.peek());
                 }
                 //приоритет последнего элемента в стеке
                 prior = priority(string);        //приоритет текущего элемента
@@ -229,11 +229,11 @@ public class Calculator {
                 }
                 if (prior == 1) {   //До тех пор, пока верхним элементом стека не станет открывающая скобка, выталкиваем элементы из стека в выходную строку
                     while (priorPrev != 0) {
-                        result.add(stack.pop().toString());
+                        result.add(stack.pop());
                         if (stack.size() == 0) {
                             priorPrev = 0;
                         } else {
-                            priorPrev = priority(stack.peek().toString());
+                            priorPrev = priority(stack.peek());
                         }
                     }
                     stack.pop();            //delete last elem
@@ -245,12 +245,12 @@ public class Calculator {
                 }
                 if (prior <= priorPrev) {                                        //если новая операция имеет меньший или равный приоритет,
                     while (prior <= priorPrev && stack.size() != 0) {        //чем верхняя операции в стеке, то операции, находящиеся в стеке,
-                        result.add(stack.pop().toString());                    //до ближайшей открывающей скобки или до операции с приоритетом меньшим,
+                        result.add(stack.pop());                    //до ближайшей открывающей скобки или до операции с приоритетом меньшим,
                         //чем у новой операции, перекладываются в формируемую запись,
                         if (stack.size() == 0) {
                             priorPrev = 0;
                         } else {
-                            priorPrev = priority(stack.peek().toString());
+                            priorPrev = priority(stack.peek());
                         }
                     }
                     stack.push(string);                            // а новая операции кладётся в стек.
