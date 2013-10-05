@@ -147,7 +147,9 @@ final class Context {
         if (file.isFile()) {
             copyFile(source, destination);
         } else {
-            new File(destination).mkdirs();
+            if (!new File(destination).exists()) {
+                throw new InvalidCommandException("Can't copy to non-existent directory");
+            }
             recursiveCopy(source, destination, File.separator + (file.getName()));
         }
     }
