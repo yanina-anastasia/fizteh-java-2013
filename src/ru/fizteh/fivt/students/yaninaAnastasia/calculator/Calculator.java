@@ -61,6 +61,10 @@ public class Calculator {
                     System.err.println("Error: dividing by zero");
                     System.exit(1);
                 }
+                if (Integer.MIN_VALUE * right >= left) {
+                    System.err.println("Error: integer overflow");
+                    System.exit(1);
+                }
                 st.add(left / right);
                 break;
             default:
