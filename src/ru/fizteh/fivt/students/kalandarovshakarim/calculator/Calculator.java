@@ -157,7 +157,13 @@ public class Calculator {
                     System.out.println("Division by zero");
                     System.exit(1);
                 }
-                solution.push((int) (left / right));
+                res = left / right;
+                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
+                    solution.push((int) res);
+                } else {
+                    System.out.println("Int overflow");
+                    System.exit(1);
+                }
             } else {
                 try {
                     solution.push(Integer.parseInt(obj, 19));
