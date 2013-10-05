@@ -190,20 +190,14 @@ public class Calculator {
         int p;
         if (a.equals("(")) {
             p = 0;
+        } else if (a.equals(")")) {
+            p = 1;
+        } else if (a.equals("+") || a.equals("-")) {
+            p = 2;
+        } else if (a.equals("*") || a.equals("/")) {
+            p = 3;
         } else {
-            if (a.equals(")")) {
-                p = 1;
-            } else {
-                if (a.equals("+") || a.equals("-")) {
-                    p = 2;
-                } else {
-                    if (a.equals("*") || a.equals("/")) {
-                        p = 3;
-                    } else {
-                        p = -1;
-                    }
-                }
-            }
+            p = -1;
         }
         return p;
     }
