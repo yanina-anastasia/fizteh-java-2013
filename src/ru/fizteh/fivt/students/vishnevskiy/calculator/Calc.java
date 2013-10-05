@@ -167,9 +167,9 @@ public class Calc {
 
     public static void main(String[] args) {
         if ((args.length == 0) || ((args.length == 1) && (args[0].toLowerCase().equals("help")))) {
-            System.out.println(" Input expression as a parameter for Calc. \n You can use integers in 19 radix " +
-                    "and operations + - * / (/ stands for integer division). \n " +
-                    "Use braces () to set the priority of operations.");
+            System.out.println(" Input expression as a parameter for Calc. \n You can use integers in 19 radix "
+                    + "and operations + - * / (/ stands for integer division). \n "
+                    + "Use braces () to set the priority of operations.");
             System.exit(1);
         }
         StringBuilder tempExpression = new StringBuilder();
