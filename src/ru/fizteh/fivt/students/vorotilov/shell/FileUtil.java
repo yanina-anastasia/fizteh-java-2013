@@ -46,7 +46,9 @@ public class FileUtil {
     }
 
     protected static void copyDirectory(File source, File destination) throws IOException {
-        destination.mkdirs();
+        if (!destination.mkdirs()) {
+            System.out.println("cannot make directory :'" + destination + "'");
+        }
         File[] files = source.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
