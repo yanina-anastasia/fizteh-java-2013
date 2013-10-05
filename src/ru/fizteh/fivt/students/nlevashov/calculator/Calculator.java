@@ -127,7 +127,7 @@ public class Calculator {
     }
 
     //Calculating of Reverse Polish Notation
-    public static String calculate(Vector<String> rpn) {
+    public static String calculate(Vector<String> rpn) throws Exception {
         Stack<BigInteger> s = new Stack<BigInteger>();
 
         for (String t : rpn) {
@@ -150,6 +150,9 @@ public class Calculator {
                     break;
                 case "/":
                     b = s.pop();
+                    if (b.equals(0)) {
+                        throw new Exception("Division by zero");
+                    }
                     a = s.pop();
                     s.push(a.divide(b));
                     break;
@@ -182,7 +185,11 @@ public class Calculator {
                     //throw new Exception("Wrong sequence of symbols");
                 } else {
                     Vector<String> rpn = reversePolishNotation(tokens);
-                    System.out.println(calculate(rpn));
+                    try {
+                        System.out.println(calculate(rpn));
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
                 }
             }
         }
