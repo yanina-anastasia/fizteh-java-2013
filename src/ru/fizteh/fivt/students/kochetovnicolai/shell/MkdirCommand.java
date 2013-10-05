@@ -13,7 +13,11 @@ public class MkdirCommand extends ShellCommand {
         }
 
         try {
-            if (!(new File(currentPath.getAbsolutePath() + File.separator + args[1]).mkdir())) {
+            File newDirectory = new File(currentPath.getAbsolutePath() + File.separator + args[1]);
+            if (newDirectory.exists()) {
+                printMessage(args[0] + ": \'" + args[1] + "\': directory already exists");
+                return false;
+            } else if (!newDirectory.mkdir()) {
                 printMessage(args[0] + ": \'" + args[1] + "\': couldn't create directory");
             }
             return true;
