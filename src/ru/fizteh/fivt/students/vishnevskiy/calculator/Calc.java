@@ -13,8 +13,8 @@ public class Calc {
     private static String tokenType;    // тип лексемы (number, operation, braces, end)
 
     protected static boolean isDigit(char c) {
-        return (Character.isDigit(c) ||
-                ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + RADIX - 11)));
+        return (Character.isDigit(c)
+                || ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + RADIX - 11)));
     }
 
     protected static boolean isInRange(long value) {
@@ -157,8 +157,8 @@ public class Calc {
         int i = 0;
         while (i < expression.length()) {
             char c = expression.charAt(i);
-            if (!isDigit(c) && !Character.isSpaceChar(c) &&
-                    (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/')) {
+            if (!isDigit(c) && !Character.isSpaceChar(c)
+                    && (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/')) {
                 throw new ParseException("Incorrect input: invalid character \'" + c + "\'", i);
             }
             ++i;
