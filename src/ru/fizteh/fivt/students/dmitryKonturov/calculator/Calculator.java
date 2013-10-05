@@ -145,7 +145,11 @@ class MyCalculator {
                 case DIV:
                     nextLexeme();
                     tmp = calculateMultiplier();
-                    result = result.divide(tmp);
+                    try {
+                        result = result.divide(tmp);
+                    } catch (ArithmeticException e) {
+                        throw new WrongExpression("Произошло деление на ноль.");
+                    }
                     break;
 
                 default:
