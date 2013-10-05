@@ -15,7 +15,7 @@ class Calculator {
             System.out.println("I can calculate arithmetic expression with +, -, *, /, (, ) and integer numbers in 18-system.");
             System.exit(1);
         }
-        for (int i = 0;  i < args.length; ++i) {
+        for (int i = 0; i < args.length; ++i) {
             String current_str = args[i], num = "";
             int isNumber = 0;
             for (int j = 0; j < current_str.length(); ++j) {
@@ -32,59 +32,59 @@ class Calculator {
                         stackOfNumbers.push(num);
                         num = "";
                     }
-				} else if (c == '+' || c == '*' || c == '/' || c == '-') {
-				    if (isNumber == 1) {
-				        --isNumber;
-				        stackOfNumbers.push(num);
-				        num = "";
-				    }
-				    if (stackOfOperations.empty()) {
-				        stackOfOperations.push(Character.toString(c));
-				    } else {
-				        while (!stackOfOperations.empty() && priority(stackOfOperations.peek()) >= priority(Character.toString(c))) {
-				            makeWork();
-				        }
-				        stackOfOperations.push(Character.toString(c));
-				    }
-				} else if (c == '(') {
-				    stackOfOperations.push(Character.toString(c));
-				    if (isNumber == 1) {
-				        --isNumber;
-				        stackOfNumbers.push(num);
-				        num = "";
-				    }
-				} else if (c == ')') {
-				    if (isNumber == 1) {
-				        --isNumber;
-				        stackOfNumbers.push(num);
-				        num = "";
-				    }
-				    while (!stackOfOperations.empty() && !stackOfOperations.peek().equals("(")){
-				        if (stackOfOperations.empty()) {
-				            System.err.println("Brackets Error");
-				            System.exit(1);
-				        }
-				        makeWork();
-				    }
-				    if (stackOfOperations.empty()) {
-				        System.err.println("Brackets Error");
-				        System.exit(1);
-				    }
-				    stackOfOperations.pop();
-				} else if (c == ' ') {
-				    if (isNumber == 1) {
-				        --isNumber;
-				        stackOfNumbers.push(num);
-				        num = "";
-				    }
-				    continue;
-				} else {
-				    System.err.println("Wrong character");
-				    System.exit(1);
-				}	
+                } else if (c == '+' || c == '*' || c == '/' || c == '-') {
+                    if (isNumber == 1) {
+                        --isNumber;
+                        stackOfNumbers.push(num);
+                        num = "";
+                    }
+                    if (stackOfOperations.empty()) {
+                        stackOfOperations.push(Character.toString(c));
+                    } else {
+                        while (!stackOfOperations.empty() && priority(stackOfOperations.peek()) >= priority(Character.toString(c))) {
+                            makeWork();
+                        }
+                        stackOfOperations.push(Character.toString(c));
+                    }
+                } else if (c == '(') {
+                    stackOfOperations.push(Character.toString(c));
+                    if (isNumber == 1) {
+                        --isNumber;
+                        stackOfNumbers.push(num);
+                        num = "";
+                    }
+                } else if (c == ')') {
+                    if (isNumber == 1) {
+                        --isNumber;
+                        stackOfNumbers.push(num);
+                        num = "";
+                    }
+                    while (!stackOfOperations.empty() && !stackOfOperations.peek().equals("(")) {
+                        if (stackOfOperations.empty()) {
+                            System.err.println("Brackets Error");
+                            System.exit(1);
+                        }
+                        makeWork();
+                    }
+                    if (stackOfOperations.empty()) {
+                        System.err.println("Brackets Error");
+                        System.exit(1);
+                    }
+                    stackOfOperations.pop();
+                } else if (c == ' ') {
+                    if (isNumber == 1) {
+                        --isNumber;
+                        stackOfNumbers.push(num);
+                        num = "";
+                    }
+                    continue;
+                } else {
+                    System.err.println("Wrong character");
+                    System.exit(1);
+                }
             }
         }
-        while (!stackOfOperations.empty()){
+        while (!stackOfOperations.empty()) {
             makeWork();
         }
         if (!stackOfNumbers.empty()) {
@@ -97,7 +97,7 @@ class Calculator {
         } else {
             System.err.println("No result :(");
             System.exit(1);
-        }		
+        }
     }
 
     private static int priority(String s) {
@@ -112,7 +112,7 @@ class Calculator {
         }
         return 0;
     }
-	
+
     private static long doOperation(String operation, long y, long x){
         if (operation.equals("+")) {
             BigInteger result = BigInteger.ZERO;
@@ -146,7 +146,7 @@ class Calculator {
             BigInteger bigY = BigInteger.valueOf(y);
             result = result.add(bigX);
             result = result.multiply(bigY);
-            if  (result.toString().equals(Long.toString(x * y))) {
+            if (result.toString().equals(Long.toString(x * y))) {
                 return x * y;
             } else {
                 System.err.println("Overflow in operation");
@@ -186,7 +186,7 @@ class Calculator {
 
         if (maxLong.compareTo(bigFirst) >= 0 && negMaxLong.compareTo(bigFirst) <= 0) {
             long firstNumber = Long.parseLong(strFirst, 18);
-			
+
             if (stackOfNumbers.empty()) {
                 System.err.println("Operands Error");
                 System.exit(1);
