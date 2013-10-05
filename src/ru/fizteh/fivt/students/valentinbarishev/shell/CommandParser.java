@@ -25,12 +25,12 @@ public class CommandParser {
         for (int i = 0; i < commands.length(); ++i) {
             if (commands.charAt(i) == ';') {
                 command = commands.substring(0, i);
-                commands.replace(0, i + 1,"");
+                commands.replace(0, i + 1, "");
                 break;
             }
         }
         command = command.trim();
-        command = command.replace("  "," ");
+        command = command.replace("  ", " ");
         return command.split(" ");
     }
 

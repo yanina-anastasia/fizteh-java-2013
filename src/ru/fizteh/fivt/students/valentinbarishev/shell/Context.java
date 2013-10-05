@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.util.regex.Pattern;
 
 
 final class Context {
@@ -28,7 +27,7 @@ final class Context {
     }
 
     public String changePath(String currentDir, String path) throws IOException {
-    if (path.charAt(0) != '.') {
+        if (path.charAt(0) != '.') {
             if (!existsFile(path)) {
                 return buildPath(currentDir, path);
             }
@@ -128,7 +127,7 @@ final class Context {
             String[] list = file.list();
             for (int i = 0; i < list.length; ++i) {
                 recursiveCopy(source + File.separator + list[i],
-                                destination, addition + File.separator + list[i]);
+                        destination, addition + File.separator + list[i]);
             }
         }
     }
@@ -138,7 +137,7 @@ final class Context {
         String destination = changePath(currentDir, dest);
         File file = new File(source);
 
-        if (!file.exists()){
+        if (!file.exists()) {
             throw new InvalidCommandException("Source file doesn't exist!");
         }
 

@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
 
-public class ShellMkdir implements ShellCommand{
+public class ShellMkdir implements ShellCommand {
     static String name = "mkdir";
 
     private Context context;
@@ -17,7 +17,7 @@ public class ShellMkdir implements ShellCommand{
         try {
             context.makeDir(args[1]);
         } catch (IOException e) {
-            throw new InvalidCommandException(name +" argument " + args[1]);
+            throw new InvalidCommandException(name + " argument " + args[1]);
         }
     }
 

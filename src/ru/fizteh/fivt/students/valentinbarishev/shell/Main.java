@@ -6,10 +6,10 @@ import java.io.InputStream;
 
 public class Main {
     static final int END_OF_INPUT = -1;
-    static final int END_OF_TRANCEMISSION = 4;
+    static final int END_OF_TRANSMISSION = 4;
 
-    private static boolean isTerminative(int character) {
-        return ((character == END_OF_INPUT) || (character == END_OF_TRANCEMISSION));
+    private static boolean isTerminativeSymbol(int character) {
+        return ((character == END_OF_INPUT) || (character == END_OF_TRANSMISSION));
     }
 
     public static void main(String[] args) {
@@ -26,7 +26,7 @@ public class Main {
             shell.addCommand(new ShellMv(context));
             shell.addCommand(new ShellExit());
 
-            if (args.length > 0){
+            if (args.length > 0) {
                 CommandParser parser = new CommandParser(args);
                 while (!parser.isEmpty()) {
                     shell.executeCommand(parser.getCommand());
@@ -39,11 +39,11 @@ public class Main {
                         int character;
                         StringBuilder commands = new StringBuilder();
 
-                        while ((!isTerminative(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
-                            commands.append((char)character);
+                        while ((!isTerminativeSymbol(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
+                            commands.append((char) character);
                         }
 
-                        if (isTerminative(character)) {
+                        if (isTerminativeSymbol(character)) {
                             System.exit(0);
                         }
 
@@ -67,6 +67,5 @@ public class Main {
             System.err.println("Couldn't read current directory");
             System.exit(1);
         }
-
     }
 }

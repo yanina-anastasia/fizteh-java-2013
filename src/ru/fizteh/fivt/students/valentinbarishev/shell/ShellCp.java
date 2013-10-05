@@ -15,7 +15,7 @@ public class ShellCp implements ShellCommand {
     @Override
     public void run() {
         try {
-        context.copy(args[1], args[2]);
+            context.copy(args[1], args[2]);
         } catch (IOException e) {
             throw new InvalidCommandException(name + " " + e.getMessage());
         }

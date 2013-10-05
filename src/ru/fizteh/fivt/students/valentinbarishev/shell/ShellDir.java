@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-public class ShellDir implements ShellCommand{
+public class ShellDir implements ShellCommand {
     static String name = "dir";
 
     private Context context;
