@@ -88,7 +88,7 @@ public class Calculator {
             getChar();
         } else {
             if( !valid() ){
-                fail(currentChar + " is unknown");
+                fail(currentChar + " is unknown.");
             }
             StringBuilder tokenBuild = new StringBuilder();
             while( (valid()) && (!prevSpace) ){
@@ -113,8 +113,8 @@ public class Calculator {
         getChar();
         getToken();
         result = parseNoPriority();
-        if ((token.charAt(token.length() - 1) == '.')) {
-            fail("Too long expression. Unable to work it out");
+        if ((token.charAt(token.length() - 1) != '.')) {
+            fail("Too long expression. Unable to work it out.");
         }
         return result;
     }    
@@ -131,8 +131,8 @@ public class Calculator {
     private int parseNoPriority() throws UnknownExpressionExceptions, ArithmeticException, NoSuchElementException {
         int result = parseHighPriority();
         int partialResult;
-        OperationType last = OperationType.getByType(token);
-        while (last.opType == "-" || last.opType == "+") {
+        while (token.equals("-") || token.equals("+")) {
+            OperationType last = OperationType.getByType(token);
             if(last.opType == "-" || last.opType == "+") {
                 if (last.opType == "+") {
                     getToken();
@@ -141,7 +141,6 @@ public class Calculator {
                         fail("Overflow");
                     }
                     result += partialResult;
-                    return result;
                 } else {
                     getToken();
                     partialResult = parseHighPriority();
@@ -149,17 +148,10 @@ public class Calculator {
                         fail("Overflow");
                     }
                     result -= partialResult;
-                    return result;
                 }
             }
             if (last.opType == "*" || last.opType == "/" || last.opType == ")" || last.opType == ".") {
                 return result;
-            } else {
-                if (last.opType == ".") {
-                    fail("Unexpected end of expression");
-                } else {
-                    fail(last.getType() + " bad placement");
-                }
             }
         }
         return result;
@@ -168,37 +160,28 @@ public class Calculator {
     private int parseHighPriority() throws UnknownExpressionExceptions, ArithmeticException, NoSuchElementException {
         int result = parseHighestPriority();
         int partialResult;
-        OperationType last = OperationType.getByType(token);
-        while (last.opType == "*" || last.opType == "/") {
+        while (token.equals("*") || token.equals("/")) {
+            OperationType last = OperationType.getByType(token);
             if (last.opType == "*" || last.opType == "/") {
                 if (last.opType == "*") {
                     getToken();
                     partialResult = parseHighestPriority();
-                    if (partialResult!=0 && Integer.MAX_VALUE / Math.abs(partialResult) < Math.abs(result)) {
+                    if (Integer.MAX_VALUE / Math.abs(partialResult) < Math.abs(result)) {
                         fail("Overflow");
                     }
                     result *= partialResult;
-                    return result;
                 } else {
                     getToken();
                     partialResult = parseHighestPriority();
                     if (0 != partialResult){
                         result /= partialResult;
-                        return result;
-                    } else throw new ArithmeticException("Division by zero");
+                    } else throw new ArithmeticException("Division by zero.");
                 }
             }
             if (last.opType == "-" || last.opType == "+" || last.opType == ")" || last.opType == ".") {
                 return result;
             }
-            else {
-                if (last.opType == ".") {
-                        fail("Unexpected end of expression");
-                    } else {
-                        fail(last.getType() + " bad placement");
-                    }
-                }
-            }
+        }
         return result;
     }
     
@@ -208,7 +191,7 @@ public class Calculator {
             getToken();
             result = parseNoPriority();
             if (!token.equals(")")) {
-                fail("Broken bracket balance");
+                fail("Broken bracket balance.");
             }
             getToken();
         } else if(Numeral(token)) {
@@ -219,9 +202,9 @@ public class Calculator {
             result = -parseHighestPriority();        
         } else {
             if(token.equals(".")) {
-                fail("Unexpected end of expression");
+                fail("Unexpected end of expression.");
             } else {
-                fail(token + " bad placement"); 
+                fail(token + " bad placement."); 
             }
         }
         return result;
@@ -249,7 +232,7 @@ public class Calculator {
             System.exit(2);
         }
         catch (ArithmeticException except) {
-            System.out.println(except.getMessage() + "I can't divide by zero.");
+            System.out.println(except.getMessage() + " I can't divide by zero.");
             System.exit(3);
         }
         catch (NoSuchElementException except) {
