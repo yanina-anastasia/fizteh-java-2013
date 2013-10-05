@@ -14,7 +14,7 @@ public class Program
         StringBuilder sb = new StringBuilder();
         for(String arg: Args)
         {
-            sb.append(arg);
+            sb.append(arg + " ");
         }
         try
         {

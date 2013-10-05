@@ -118,7 +118,7 @@ public class ExpressionSolver {
         return true;
     }
 
-    private void executeTree(Node tree) {
+    private void executeTree(Node tree) throws IOException{
         if (tree == null) {
             return;
         }
@@ -136,8 +136,17 @@ public class ExpressionSolver {
         }
     }
 
-    private int makeNumber(String expression) {
-        return Integer.parseInt(expression, RADIX);
+    private int makeNumber(String expression) throws IOException{
+        int result;
+        try
+        {
+            result = Integer.parseInt(expression, RADIX);
+        }
+        catch (NumberFormatException e)
+        {
+            throw new IOException(String.format("'%s' is incorrect number!", expression));
+        }
+        return result;
     }
 
     private Node makeTree(String ex) throws IOException{
