@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 class ExitCommand extends Exception {}
 
@@ -25,26 +23,15 @@ public class ShellMain {
 
     private static File currentDirectory;
 
-    private static String formatCommand(String badCommand) {
-        StringBuilder tempCommand = new StringBuilder(badCommand);
-        int i = 0;
-        while (i < tempCommand.length() && tempCommand.charAt(i) == ' ') {
-            ++i;
-        }
-        tempCommand.delete(0, i);
-        return tempCommand.toString();
-    }
-
-    private static void processCommand(String command) throws ExitCommand, IOException {
-        String[] commandParts = command.split("[ ]+");
-        switch (commandParts[0]) {
+    static void processCommand(String[] parsedCommand) throws ExitCommand, IOException {
+        switch (parsedCommand[0]) {
             case "exit":
                 throw new ExitCommand();
             case "pwd":
                 System.out.println(currentDirectory.getCanonicalPath());
                 break;
             case "mkdir":
-                File newDir = FileUtil.convertPath(currentDirectory, commandParts[1]);
+                File newDir = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                 if (!newDir.mkdir()) {
                     System.out.println("mkdir: can't create'" + newDir.getCanonicalPath() + "'");
                 }
@@ -56,7 +43,7 @@ public class ShellMain {
                 }
                 break;
             case "cd":
-                File newCurrentDirectory = FileUtil.convertPath(currentDirectory, commandParts[1]).getCanonicalFile();
+                File newCurrentDirectory = FileUtil.convertPath(currentDirectory, parsedCommand[1]).getCanonicalFile();
                 if (newCurrentDirectory.exists()) {
                     currentDirectory = newCurrentDirectory;
                 } else {
@@ -64,7 +51,7 @@ public class ShellMain {
                 }
                 break;
             case "rm":
-                File elementToDelete = FileUtil.convertPath(currentDirectory, commandParts[1]);
+                File elementToDelete = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                 if (elementToDelete.exists()) {
                    try {
                        currentDirectory =  FileUtil.recursiveDelete(currentDirectory, elementToDelete);
@@ -76,18 +63,20 @@ public class ShellMain {
                 }
                 break;
             case "cp":
-                File sourceToCp = FileUtil.convertPath(currentDirectory, commandParts[1]);
-                File destinationToCp = FileUtil.convertPath(currentDirectory, commandParts[2]);
+                File sourceToCp = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
+                File destinationToCp = FileUtil.convertPath(currentDirectory, parsedCommand[2]);
                 if (sourceToCp.exists() && destinationToCp.exists()) {
                     FileUtil.copy(sourceToCp, destinationToCp);
                 }
                 break;
             case "mv":
-                File sourceToMv = FileUtil.convertPath(currentDirectory, commandParts[1]);
-                File destinationToMv = FileUtil.convertPath(currentDirectory, commandParts[2]);
+                File sourceToMv = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
+                File destinationToMv = FileUtil.convertPath(currentDirectory, parsedCommand[2]);
                 if (sourceToMv.exists()) {
                     if (!destinationToMv.exists()) {
-                        sourceToMv.renameTo(destinationToMv);
+                        if (!sourceToMv.renameTo(destinationToMv)) {
+                            System.out.println("rm: cannot rename '" + sourceToMv + "'" );
+                        }
                     } else {
                         FileUtil.copy(sourceToMv, destinationToMv);
                         try {
@@ -99,7 +88,7 @@ public class ShellMain {
                 }
                 break;
             default:
-                System.out.println("unknown command: '" + commandParts[0] + "'");
+                System.out.println("unknown command: '" + parsedCommand[0] + "'");
                 break;
         }
     }
@@ -107,25 +96,17 @@ public class ShellMain {
     public static void main(String[] args) {
         final boolean interactiveMode = (args.length == 0);
         try {
-            currentDirectory = new java.io.File(".");
+            currentDirectory = new File(".").getCanonicalFile();
+            ConsoleCommands shellInputCommands;
             if (interactiveMode) {
-                BufferedReader inputStream = new BufferedReader(new InputStreamReader(System.in));
-                while (true) {
-                    System.out.print("$");
-                    processCommand(inputStream.readLine());
-                }
+                shellInputCommands = new InteractiveCommands();
             } else {
-                StringBuilder concatenatedCommands = new StringBuilder();
-                for (String i : args) {
-                    concatenatedCommands.append(i);
-                    concatenatedCommands.append(" ");
-                }
-                String [] separateCommands = concatenatedCommands.toString().split(";");
-                for (String currentCommand : separateCommands) {
-                    processCommand(formatCommand(currentCommand));
-                }
+                shellInputCommands = new PackageCommands(args);
             }
-        } catch (ExitCommand e) {
+            while (true) {
+                processCommand(shellInputCommands.getNextCommand());
+            }
+        } catch (ExitCommand | NoNextCommand e) {
             System.exit(0);
         } catch (IOException e) {
             System.exit(1);
