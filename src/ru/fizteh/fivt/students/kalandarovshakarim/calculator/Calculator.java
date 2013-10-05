@@ -131,7 +131,7 @@ public class Calculator {
             if (obj.equals("+")) {
                 res = left + right;
                 if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                   solution.push((int) res);
+                    solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
@@ -139,7 +139,7 @@ public class Calculator {
             } else if (obj.equals("-")) {
                 res = left - right;
                 if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                   solution.push((int) res);
+                    solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
@@ -147,7 +147,7 @@ public class Calculator {
             } else if (obj.equals("*")) {
                 res = left * right;
                 if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                   solution.push((int) res);
+                    solution.push((int) res);
                 } else {
                     System.out.println("Int overflow");
                     System.exit(1);
