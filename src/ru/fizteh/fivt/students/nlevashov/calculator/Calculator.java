@@ -15,7 +15,8 @@ public class Calculator {
         return alphabet.matcher(s).matches();
     }
 
-    //Parsing input string to array of tokens. After parsing, negative numbers "-x" is replaced to "0-x", spaces are removed.
+    //Parsing input string to array of tokens.
+    //After parsing, negative numbers "-x" is replaced to "0-x", spaces are removed.
     public static ArrayList<String> parse(String s) {
         StringTokenizer tokenParser = new StringTokenizer(s, " \\+\\-\\*\\/\\(\\)", true);
         ArrayList<String> tokens = new ArrayList<String>();
@@ -100,7 +101,8 @@ public class Calculator {
         return priority;
     }
 
-    //Making Reverse Polish Notation (from array of tokens in normal sequence) with Shunting Yard Algorithm of Dijkstra
+    //Making Reverse Polish Notation (from array of tokens in normal sequence)
+    //  with Shunting Yard Algorithm of Dijkstra
     public static Vector<String> reversePolishNotation(ArrayList<String> input) {
         Vector<String> output = new Vector<String>();
         Stack<String> s = new Stack<String>();
@@ -111,10 +113,14 @@ public class Calculator {
             if (j.equals("(")) {
                 s.push(j);
             } else if (j.equals(")")) {
-                while (!s.peek().equals("(")) output.add(s.pop());
+                while (!s.peek().equals("(")) {
+                    output.add(s.pop());
+                }
                 s.pop();
             } else if (sign.matcher(j).matches()) {
-                while (priorityOf(s.peek()) >= priorityOf(j)) output.add(s.pop());
+                while (priorityOf(s.peek()) >= priorityOf(j)) {
+                    output.add(s.pop());
+                }
                 s.push(j);
             } else {
                 output.add(j);
@@ -168,6 +174,7 @@ public class Calculator {
         if (args.length == 0) {
             System.err.println("Empty input");
             //throw new Exception("Empty input");
+            System.exit(1);
         } else {
             StringBuilder sb = new StringBuilder();
             for (String s : args) {
@@ -178,17 +185,20 @@ public class Calculator {
             if (! checkForExcessSymbols(expression)) {
                 System.err.println("There are incorrect symbols");
                 //throw new Exception("There are incorrect symbols");
+                System.exit(1);
             } else {
                 ArrayList<String> tokens = parse(expression);
                 if (! checkForTokensSequence(tokens)) {
                     System.err.println("Wrong sequence of symbols");
                     //throw new Exception("Wrong sequence of symbols");
+                    System.exit(1);
                 } else {
                     Vector<String> rpn = reversePolishNotation(tokens);
                     try {
                         System.out.println(calculate(rpn));
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        System.exit(1);
                     }
                 }
             }
