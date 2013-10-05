@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.Stack;
 
 class Calculator {
-    
+
     public static Stack<String> stackOfOperations = new Stack<String>();
     public static Stack<String> stackOfNumbers = new Stack<String>();
 
@@ -16,10 +16,11 @@ class Calculator {
             System.exit(1);
         }
         for (int i = 0; i < args.length; ++i) {
-            String current_str = args[i], num = "";
+            String currentStr = args[i];
+            String num = "";
             int isNumber = 0;
-            for (int j = 0; j < current_str.length(); ++j) {
-                char c = current_str.charAt(j);
+            for (int j = 0; j < currentStr.length(); ++j) {
+                char c = currentStr.charAt(j);
                 if (Character.toString(c).matches("[0-9A-Ha-h]*")) { 
                     if (isNumber == 1) {
                         num = num + c; 
@@ -27,7 +28,7 @@ class Calculator {
                         ++isNumber;
                         num = num + c;
                     }
-                    if (j == current_str.length() - 1) {
+                    if (j == currentStr.length() - 1) {
                         --isNumber;
                         stackOfNumbers.push(num);
                         num = "";
@@ -113,7 +114,7 @@ class Calculator {
         return 0;
     }
 
-    private static long doOperation(String operation, long y, long x){
+    private static long doOperation(String operation, long y, long x) {
         if (operation.equals("+")) {
             BigInteger result = BigInteger.ZERO;
             BigInteger bigX = BigInteger.valueOf(x);
@@ -172,7 +173,7 @@ class Calculator {
         }
         return 0;
     }
-	
+
     private static void makeWork() {
         String currentOperation = stackOfOperations.pop();
         if (stackOfNumbers.empty()) {
@@ -194,7 +195,7 @@ class Calculator {
             String strSecond = stackOfNumbers.pop();
             BigInteger bigSecond = new BigInteger(strSecond, 18);
             
-            if (maxLong.compareTo(bigSecond) >= 0 && negMaxLong.compareTo(bigSecond) <= 0){
+            if (maxLong.compareTo(bigSecond) >= 0 && negMaxLong.compareTo(bigSecond) <= 0) {
                 long secondNumber = Long.parseLong(strSecond, 18);
                 long result = doOperation(currentOperation, firstNumber, secondNumber);
                 stackOfNumbers.push(Long.toString(result, 18));
