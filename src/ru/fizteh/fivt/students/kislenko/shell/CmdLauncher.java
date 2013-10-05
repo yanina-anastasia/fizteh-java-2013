@@ -1,41 +1,60 @@
 package ru.fizteh.fivt.students.kislenko.shell;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CmdLauncher {
-    public static void launch(String command) throws IOException {
-        if (command.matches("cd .*")) {
-            String[] args = command.substring(2).trim().split("\\s+");
-            CommandCd runner = new CommandCd();
-            runner.run(args);
-        } else if (command.matches("mkdir .*")) {
-            String[] args = command.substring(5).trim().split("\\s+");
-            CommandMkdir runner = new CommandMkdir();
-            runner.run(args);
-        } else if (command.equals("pwd")) {
-            String[] args = new String[0];
-            CommandPwd runner = new CommandPwd();
-            runner.run(args);
-        } else if (command.matches("rm .*")) {
-            String[] args = command.substring(2).trim().split("\\s+");
-            CommandRm runner = new CommandRm();
-            runner.run(args);
-        } else if (command.matches("cp .*")) {
-            String[] args = command.substring(2).trim().split("\\s+");
-            CommandCp runner = new CommandCp();
-            runner.run(args);
-        } else if (command.matches("mv .*")) {
-            String[] args = command.substring(2).trim().split("\\s+");
-            CommandMv runner = new CommandMv();
-            runner.run(args);
-        } else if (command.equals("dir")) {
-            String[] args = new String[0];
-            CommandDir runner = new CommandDir();
-            runner.run(args);
-        } else if (command.equals("")) {
-            System.err.println("Empty command.");
-        } else {
+    private Map<String, Command> commandList = new HashMap<String, Command>();
+
+    private void fillCmdList() {
+        CommandCd cd = new CommandCd();
+        CommandCp cp = new CommandCp();
+        CommandDir dir = new CommandDir();
+        CommandMkdir mkdir = new CommandMkdir();
+        CommandPwd pwd = new CommandPwd();
+        CommandMv mv = new CommandMv();
+        CommandRm rm = new CommandRm();
+
+        commandList.put(cd.getName(), cd);
+        commandList.put(cp.getName(), cp);
+        commandList.put(dir.getName(), dir);
+        commandList.put(mkdir.getName(), mkdir);
+        commandList.put(mv.getName(), mv);
+        commandList.put(pwd.getName(), pwd);
+        commandList.put(rm.getName(), rm);
+    }
+
+    private String getCommand(String inputString) {
+        int start = 0;
+        int finish = inputString.indexOf(" ");
+        if (finish == -1) {
+            finish = inputString.length();
+        }
+        return inputString.substring(start, finish);
+    }
+
+    private String[] getArgs(String inputString) {
+        int start = inputString.indexOf(" ");
+        if (start == -1) {
+            return new String[0];
+        }
+        String[] result = inputString.substring(start + 1, inputString.length()).trim().split("\\s+");
+        for (String s : result) {
+            s = s.trim();
+        }
+        return result;
+    }
+
+    public void launch(Shell owner, String input) throws IOException {
+        fillCmdList();
+        String command = getCommand(input.trim());
+        if (command.isEmpty()) {
+            throw new IOException("Empty input.");
+        }
+        if (!commandList.containsKey(command)) {
             throw new IOException("Wrong command.");
         }
+        commandList.get(command).run(owner, getArgs(input));
     }
 }

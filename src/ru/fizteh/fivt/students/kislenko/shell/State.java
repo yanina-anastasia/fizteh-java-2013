@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.kislenko.shell;
 
 import java.nio.file.Path;
 
-public class Location {
+public class State {
     private static Path absolutePath;
 
     public Path getPath() {

@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class CommandRm implements Command {
+    public String getName() {
+        return "rm";
+    }
+
     private static void removing(Path target) throws IOException {
         File delFile = target.toFile();
         if (delFile.isFile()) {
@@ -31,14 +35,14 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(String[] args) throws IOException {
+    public void run(Shell shell, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }
         String fileName = args[0];
-        Path absolutePath = Shell.loc.getPath();
+        Path absolutePath = shell.getState();
         Path target = absolutePath.resolve(fileName);
         removing(target);
-        Shell.loc.changePath(validatePath(absolutePath));
+        shell.setState(validatePath(absolutePath));
     }
 }
