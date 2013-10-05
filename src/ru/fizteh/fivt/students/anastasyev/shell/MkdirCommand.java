@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class MkdirCommand implements Commands {
+public class MkdirCommand implements Command {
     private static void mkdir(String dir) throws IOException {
         File newDir = new File(Shell.userDir.toPath().resolve(dir).toString());
         if (newDir.exists()) {

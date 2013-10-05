@@ -5,7 +5,7 @@ import java.util.Vector;
 
 public class Shell {
     public static File userDir;
-    public Vector<Commands> commands;
+    public Vector<Command> commands;
 
     public Shell() {
         Shell.userDir = new File(System.getProperty("user.dir"));
@@ -20,7 +20,7 @@ public class Shell {
         commands.add(new ExitCommand());
     }
 
-    public void addCommand(Commands command) {
+    public void addCommand(Command command) {
         commands.add(command);
     }
 }

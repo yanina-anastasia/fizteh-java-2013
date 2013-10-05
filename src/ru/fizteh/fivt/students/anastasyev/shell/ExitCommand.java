@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
-public class ExitCommand implements Commands {
+public class ExitCommand implements Command {
     public boolean exec(String[] command) {
         if (command.length != 1) {
             System.err.println("exit: Usage - exit");

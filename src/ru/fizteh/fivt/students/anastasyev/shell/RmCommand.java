@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class RmCommand implements Commands {
+public class RmCommand implements Command {
     private static void rm(Path removing) throws IOException {
         File remove = new File(removing.toString());
         if (!remove.exists()) {

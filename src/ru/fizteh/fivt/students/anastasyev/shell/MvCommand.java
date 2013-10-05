@@ -6,7 +6,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class MvCommand implements Commands {
+public class MvCommand implements Command {
     private static void move(Path pathFrom, Path pathTo) throws IOException {
         File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
         File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
@@ -46,7 +46,7 @@ public class MvCommand implements Commands {
             Files.move(from.toPath(), Shell.userDir.toPath().resolve(to.toPath()).resolve(from.getName()));
         } else if (from.isDirectory() && (to.isDirectory() || !to.exists())) {
             if (to.toPath().startsWith(from.toPath())) {
-                throw new IOException("Can't copy directory to subdirectory");
+                throw new IOException("can't copy directory to subdirectory");
             }
             if (!to.exists()) {
                 to.mkdir();
@@ -64,7 +64,7 @@ public class MvCommand implements Commands {
     @Override
     public boolean exec(String[] command) {
         if (command.length != 3) {
-            System.err.println("mv: Usage mv <source> <destination>");
+            System.err.println("mv: Usage - mv <source> <destination>");
             return false;
         }
         try {

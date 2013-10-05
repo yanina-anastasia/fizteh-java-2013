@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
-public class PwdCommand implements Commands {
+public class PwdCommand implements Command {
     private static void pwd() {
         System.out.println(Shell.userDir.toPath().normalize());
     }

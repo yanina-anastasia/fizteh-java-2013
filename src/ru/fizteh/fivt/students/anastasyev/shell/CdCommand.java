@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class CdCommand implements Commands {
+public class CdCommand implements Command {
     private static void cd(String dir) throws IOException {
         File newUserDir = new File(dir);
         if (!newUserDir.isAbsolute()) {

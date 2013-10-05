@@ -6,7 +6,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class CpCommand implements Commands {
+public class CpCommand implements Command {
     private static void copy(Path pathFrom, Path pathTo) throws IOException {
         File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
         File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
@@ -48,7 +48,7 @@ public class CpCommand implements Commands {
                 throw new IOException("Can't copy directory to subdirectory");
             }
             if (!to.exists()) {
-                to.mkdir();
+                throw new IOException(to + " there is not such file or directory");
             }
             File[] fromFiles = from.listFiles();
             for (File files : fromFiles) {
