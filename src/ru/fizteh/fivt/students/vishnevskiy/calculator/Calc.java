@@ -5,15 +5,15 @@ import java.text.ParseException;
 
 public class Calc {
 
-    protected static final int radix = 19;
+    protected static final int RADIX = 19;
     protected static String expression; // выражение
     private static int position;        // текущая обрабатываемая позиция
     private static String token;        // последняя обработанная лексема
-    private static int number;       // последнее обработанное число
+    private static int number;          // последнее обработанное число
     private static String tokenType;    // тип лексемы (number, operation, braces, end)
 
     protected static boolean isDigit(char c) {
-        return (Character.isDigit(c) || ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + radix - 11)));
+        return (Character.isDigit(c) || ((Character.toUpperCase(c) >= 'A') && (Character.toUpperCase(c) <= 'A' + RADIX - 11)));
     }
 
     protected static void getToken() {
@@ -130,12 +130,12 @@ public class Calc {
         return answer;
     }
 
-    protected static void analyzeCharacters(StringBuilder expression) throws IOException {
+    protected static void analyzeCharacters(StringBuilder expression) throws ParseException {
         int i = 0;
         while (i < expression.length())  {
             char c = expression.charAt(i);
             if (!isDigit(c) && !Character.isSpaceChar(c) && (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/')) {
-                throw new IOException("Incorrect input: invalid character \'" + c + "\'");
+                throw new ParseException("Incorrect input: invalid character \'" + c + "\'", i);
             }
             ++i;
         }
@@ -156,12 +156,8 @@ public class Calc {
             analyzeCharacters(tempExpression);
             expression = tempExpression.toString();
             int answer = calculate();
-            String strAnswer = Integer.toString(answer, radix);
-            System.out.println("Calc: " + strAnswer);
-        } catch (IOException e) {
-            System.err.println(e);
-            System.out.println("Input \"help\" or start the program without parameters to get help.");
-            System.exit(1);
+            String strAnswer = Integer.toString(answer, RADIX);
+            System.out.println(strAnswer);
         } catch (NumberFormatException e) {
             System.err.println("Incorrect number input");
             System.out.println("Input \"help\" or start the program without parameters to get help.");
