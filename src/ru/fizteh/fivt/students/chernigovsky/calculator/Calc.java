@@ -53,12 +53,13 @@ public class Calc {
     }
 
     private static int priority(char operation) {
-        if (operation == '*' || operation == '/')
+        if (operation == '*' || operation == '/') {
             return 2;
-        else if (operation == '+' || operation == '-')
+        } else if (operation == '+' || operation == '-') {
             return 1;
-        else
+        } else {
             return 0;
+        }
     }
 
     private static int calculateExpression(String expression) throws IOException {
@@ -73,23 +74,22 @@ public class Calc {
                     ++pos;
                 }
                 numberDeque.push(Integer.parseInt(expression.substring(startPos, pos), RADIX));
-            }
-            else {
+            } else {
                 switch (expression.charAt(pos)) {
-                    case '+' :
-                    case '-' :
-                    case '*' :
-                    case '/' :
+                    case '+':
+                    case '-':
+                    case '*':
+                    case '/':
                         while (!operationsDeque.isEmpty() && (priority(operationsDeque.peek())) >= priority(expression.charAt(pos))) {
                             processOperation(numberDeque, operationsDeque.peek());
                             operationsDeque.pop();
                         }
                         operationsDeque.push(expression.charAt(pos));
                         break;
-                    case '(' :
+                    case '(':
                         operationsDeque.push('(');
                         break;
-                    case ')' :
+                    case ')':
                         if (operationsDeque.isEmpty()) {
                             throw new IOException("Incorrect input");
                         }
@@ -102,9 +102,9 @@ public class Calc {
                         }
                         operationsDeque.pop();
                         break;
-                    case ' ' :
+                    case ' ':
                         break;
-                    default :
+                    default:
                         throw new IOException("Incorrect input");
                 }
 
@@ -130,7 +130,7 @@ public class Calc {
             stringBuilder.append(string);
             stringBuilder.append(" ");
         }
-        String expression = new String(stringBuilder);
+        String expression = stringBuilder.toString();
 
         try {
             System.out.println(Integer.toString(calculateExpression(expression), RADIX));
