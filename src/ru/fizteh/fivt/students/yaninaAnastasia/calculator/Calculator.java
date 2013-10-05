@@ -49,7 +49,12 @@ public class Calculator {
                 st.add(left * right);
                 break;
             case '/':
+                if (right == 0) {
+                    System.err.println("Error: dividing by zero");
+                    System.exit(1);
+                }
                 st.add(left / right);
+                break;
             default:
                 System.err.println("Unknown operator");
                 System.exit(1);
