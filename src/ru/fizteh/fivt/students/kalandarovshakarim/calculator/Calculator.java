@@ -84,8 +84,8 @@ public class Calculator {
                         } else if (prior(lifo.peek()) < prior(operand)) {
                             lifo.push(operand);                           
                         } else {
-                            while (!lifo.empty() && prior(lifo.peek().toString()) >= prior(operand)) {
-                                String Pop = lifo.pop().toString();
+                            while (!lifo.empty() && prior(lifo.peek()) >= prior(operand)) {
+                                String Pop = lifo.pop();
                                 list.add(Pop);
                             }
                             lifo.push(operand);                         
