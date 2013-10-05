@@ -32,7 +32,6 @@ public class ShellMain {
             ++i;
         }
         tempCommand.delete(0, i);
-        System.out.println(tempCommand);
         return tempCommand.toString();
     }
 
