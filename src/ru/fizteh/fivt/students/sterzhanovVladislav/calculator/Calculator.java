@@ -65,7 +65,7 @@ public class Calculator {
         } else if (operator.equals("*")) {
             return leftOperand.multiply(rightOperand);
         } else if (operator.equals("/")) {
-            if (rightOperand == BigInteger.ZERO) {
+            if (rightOperand.equals(BigInteger.ZERO)) {
                 throw new IllegalArgumentException("Division by zero");
             }
             return leftOperand.divide(rightOperand);
