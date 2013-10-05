@@ -127,7 +127,9 @@ public class Calculator {
             }
         }
 
-        while (!s.peek().equals(" ")) output.add(s.pop());
+        while (!s.peek().equals(" ")) {
+            output.add(s.pop());
+        }
 
         return output;
     }
@@ -182,13 +184,13 @@ public class Calculator {
             }
             String expression = sb.toString();
 
-            if (! checkForExcessSymbols(expression)) {
+            if (!checkForExcessSymbols(expression)) {
                 System.err.println("There are incorrect symbols");
                 //throw new Exception("There are incorrect symbols");
                 System.exit(1);
             } else {
                 ArrayList<String> tokens = parse(expression);
-                if (! checkForTokensSequence(tokens)) {
+                if (!checkForTokensSequence(tokens)) {
                     System.err.println("Wrong sequence of symbols");
                     //throw new Exception("Wrong sequence of symbols");
                     System.exit(1);
