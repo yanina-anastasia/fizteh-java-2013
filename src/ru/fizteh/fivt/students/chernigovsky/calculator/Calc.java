@@ -14,32 +14,41 @@ public class Calc {
 
     private static void processOperation(Deque<Integer> numberDeque, char operation) throws IOException {
         if (numberDeque.isEmpty()) {
-            throw new IOException();
+            throw new IOException("Incorrect input");
         }
         Integer second = numberDeque.peek();
         numberDeque.pop();
 
         if (numberDeque.isEmpty()) {
-            throw new IOException();
+            throw new IOException("Incorrect input");
         }
         Integer first = numberDeque.peek();
         numberDeque.pop();
 
         switch (operation) {
             case '+':
+                if ((Integer.signum(first) == Integer.signum(second)) && (Math.abs(first) > Integer.MAX_VALUE - Math.abs(second))) {
+                    throw new IOException("Integer overflow");
+                }
                 numberDeque.push(first + second);
                 break;
             case '-':
+                if ((Integer.signum(first) != Integer.signum(second)) && (Math.abs(first) > Integer.MAX_VALUE - Math.abs(second))) {
+                    throw new IOException("Integer overflow");
+                }
                 numberDeque.push(first - second);
                 break;
             case '*':
+                if (Math.abs(first) > Integer.MAX_VALUE / Math.abs(second)) {
+                    throw new IOException("Integer overflow");
+                }
                 numberDeque.push(first * second);
                 break;
             case '/':
                 numberDeque.push(first / second);
                 break;
             default:
-                throw new IOException();
+                throw new IOException("Incorrect input");
         }
     }
 
@@ -82,13 +91,13 @@ public class Calc {
                         break;
                     case ')' :
                         if (operationsDeque.isEmpty()) {
-                            throw new IOException();
+                            throw new IOException("Incorrect input");
                         }
                         while (operationsDeque.peek() != '(') {
                             processOperation(numberDeque, operationsDeque.peek());
                             operationsDeque.pop();
                             if (operationsDeque.isEmpty()) {
-                                throw new IOException();
+                                throw new IOException("Incorrect input");
                             }
                         }
                         operationsDeque.pop();
@@ -96,7 +105,7 @@ public class Calc {
                     case ' ' :
                         break;
                     default :
-                        throw new IOException();
+                        throw new IOException("Incorrect input");
                 }
 
                 ++pos;
@@ -110,7 +119,7 @@ public class Calc {
         }
 
         if (numberDeque.size() != 1) {
-            throw new IOException();
+            throw new IOException("Incorrect input");
         }
         return numberDeque.peek();
     }
@@ -126,7 +135,7 @@ public class Calc {
         try {
             System.out.println(Integer.toString(calculateExpression(expression), RADIX));
         } catch (IOException ex) {
-            System.err.println("Incorrect input");
+            System.err.println(ex.getMessage());
             System.exit(1);
         } catch (NumberFormatException ex) {
             System.err.println(ex.getMessage());
