@@ -220,6 +220,7 @@ public class Calculator {
             System.out.println(Integer.toString(numbers.pop(), BASE));
         } else {
             System.err.println("Incorrect expression.");
+            System.exit(1);
         }
 
     }
