@@ -183,7 +183,7 @@ public class Calculator {
         for (int currentPositionInExpression = 0;
                 currentPositionInExpression < expression.length();
                 currentPositionInExpression++) {
-            schar currentLetterInExpression = expression.charAt(currentPositionInExpression);
+            char currentLetterInExpression = expression.charAt(currentPositionInExpression);
             if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION
                     || currentLetterInExpression == '-') {
                 signsAndBrackets.append(currentLetterInExpression);
