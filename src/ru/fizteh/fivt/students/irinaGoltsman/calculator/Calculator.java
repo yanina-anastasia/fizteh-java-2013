@@ -258,7 +258,7 @@ public class Calculator {
             }
         }
         while (stack.size() != 0) {
-            result.add(stack.pop().toString());
+            result.add(stack.pop());
         }
         list.clear();
         list.addAll(result);
@@ -291,14 +291,16 @@ public class Calculator {
                 if (third.equals("+")) {
                     if (a > 0 ? b > Integer.MAX_VALUE - a
                             : b < Integer.MIN_VALUE - a) {
-                        System.err.print("Integer overflow by adding the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.err.print("Integer overflow by adding the numbers "
+                                + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
                         System.exit(1);
                     }
                     res = a + b;
                 } else if (third.equals("-")) {
                     if (a > 0 ? b < Integer.MIN_VALUE + a
                             : b > Integer.MAX_VALUE + a) {
-                        System.err.print("Integer overflow by subtracting the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.err.print("Integer overflow by subtracting the numbers "
+                                + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
                         System.exit(1);
                     }
                     res = a - b;
@@ -309,7 +311,8 @@ public class Calculator {
                                 || b < Integer.MAX_VALUE / a
                                 : a == -1
                                     && b == Integer.MIN_VALUE)) {
-                        System.err.print("Integer overflow by multiplying the numbers " + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
+                        System.err.print("Integer overflow by multiplying the numbers "
+                                + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
                         System.exit(1);
                     }
                     res = a * b;
