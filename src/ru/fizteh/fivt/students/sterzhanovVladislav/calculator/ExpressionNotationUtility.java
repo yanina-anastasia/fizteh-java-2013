@@ -9,7 +9,8 @@ import java.util.regex.Pattern;
 
 public class ExpressionNotationUtility {
     
-    public static Queue<String> convertToReversePolishNotation(String infixExpression, String validNumMatcher, String validOperatorMatcher) throws IllegalArgumentException {
+    public static Queue<String> convertToReversePolishNotation(String infixExpression, 
+    		String validNumMatcher, String validOperatorMatcher) throws IllegalArgumentException {
         /* Initialize buffers */
         Queue<String> converted = new LinkedList<String>();
         Stack<String> operatorStack = new Stack<String>();
