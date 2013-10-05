@@ -102,7 +102,7 @@ public class Calculator {
             } else if (isNumber(list.get(start))) {
                 statusOfLastSymbol = status.NUMBER;
             } else {
-                ArrayList<String> buf = new ArrayList<String>();
+                ArrayList<String> buf;
                 buf = divideNumberMinusNumber(list.get(start));
                 if (buf.size() == 0) {
                     statusOfLastSymbol = status.ERROR;
