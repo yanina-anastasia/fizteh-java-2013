@@ -89,7 +89,7 @@ class ReverseNotation {
                 line.add(commands.pop());
             }
         }
-		else {
+        else {
             while ((commands.size() > 0) && (operations[index].priority < commands.peek().priority)) {
                 line.add(commands.pop());
             }
@@ -198,17 +198,17 @@ class ReverseNotation {
 
     public BigInteger Solve() throws Exception
     {
-		stack.clear();
+        stack.clear();
         if (line.size() == 0) {
             throw new Exception("Empty expression");
-		}
+        }
         for (int i = 0; i < line.size(); i++) {
             if (line.get(i).getClass() == Operation.class) {
                 ((Operation)line.get(i)).act.calculate(stack);
-			}
+            }
             else {
                 stack.push((BigInteger)line.get(i));
-			}
+            }
         }
         return stack.pop();
     }
@@ -228,7 +228,7 @@ public class Calculator{
             ReverseNotation tr = new ReverseNotation(18);
             tr.parse(s);
             BigInteger answer = tr.Solve();
-            System.out.println(answer);
+            System.out.println(answer.toString(18));
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
