@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.io.IOException;
 
-
 public class Calculator {
-	private static int radix = 18;
+	private static int radix = 10;
 	
 	public static void main(String[] args) {
 		if (args.length == 0) {
@@ -49,6 +48,7 @@ public class Calculator {
 		ArrayList<String> returnValue = new ArrayList<String>();
 		boolean ifLastNumber = false;
 		boolean ifWasSpace = false;
+		boolean ifWasCloseBracket = false;
 		char currentSymbol = ' ';
 		StringBuilder currentNumber = new StringBuilder();
 		for (int i = 0; i < inputString.length(); ++i) {
@@ -75,6 +75,9 @@ public class Calculator {
 					if (ifLastNumber && ifWasSpace) {
 						throw new IOException("Error. Two numbers in a row or extra space.");
 					}
+					if (ifWasCloseBracket) {
+						throw new IOException("Error. An operator is missed after closing bracket.");
+					}
 					currentNumber.append(currentSymbol);
 					ifLastNumber = true;
 					ifMinusUnar = false;
@@ -82,6 +85,9 @@ public class Calculator {
 				case '(':
 					if (ifLastNumber) {
 						throw new IOException("Error. An operator is missed before some opening bracket.");
+					}
+					if (ifWasCloseBracket) {
+						throw new IOException("Error. An operator is missed after closing bracket.");
 					}
 					bracketBalance++;
 					ifMinusUnar = true;
@@ -93,24 +99,27 @@ public class Calculator {
 					if (bracketBalance < 0) {
 						throw new IOException("Error. The bracket balance is wrong.");
 					}
-					if (!(ifLastNumber) && operatorStack.peek() != "(") {
+					if (!ifLastNumber && !operatorStack.peek().equals("(")) {
 						throw new IOException("Error. A number is missed before some closing bracket.");
 					}
-					returnValue.add((new Integer(Integer.parseInt(currentNumber.toString(), radix))).toString());
-					currentNumber.delete(0, currentNumber.length());
-					ifMinusUnar = false;
-					ifLastNumber = false;
+					ifWasCloseBracket = true;
+					if (currentNumber.length() != 0) {
+						returnValue.add((new Integer(Integer.parseInt(currentNumber.toString(), radix))).toString());
+						currentNumber.delete(0, currentNumber.length());
+					}
 					String operator = operatorStack.pop();
-					if (operator.equals("(") && ifLastNumber) {
+					if (operator.equals("(") && !ifLastNumber) {
 						throw new IOException("Error. Brackets are empty.");
 					}
 					while (!(operator.equals("("))) {
 						returnValue.add(operator);
 						operator = operatorStack.pop();
 					}
+					ifMinusUnar = false;
+					ifLastNumber = false;
 					break;
 				case '+':
-					if (!ifLastNumber && !operatorStack.peek().equals(")")) {
+					if (!ifLastNumber && !ifWasCloseBracket){
 						throw new IOException("Error. A number is missed before operator +.");
 					}
 					if(ifLastNumber) {
@@ -125,8 +134,7 @@ public class Calculator {
 					ifLastNumber = false;
 					break;
 				case '-':
-					if (!ifLastNumber && !ifMinusUnar
-							&& !operatorStack.peek().equals(")")) {
+					if (!ifLastNumber && !ifMinusUnar && !ifWasCloseBracket) {
 						throw new IOException("Error. A number is missed before operator -.");
 					}
 					if (ifMinusUnar) {
@@ -146,7 +154,7 @@ public class Calculator {
 					ifMinusUnar = false;
 					break;
 				case '*':
-					if (!ifLastNumber && !operatorStack.firstElement().equals(")")) {
+					if (!ifLastNumber && !ifWasCloseBracket) {
 						throw new IOException("Error. A number is missed before operator *.");
 					}
 					if (ifLastNumber) {
@@ -161,7 +169,7 @@ public class Calculator {
 					ifLastNumber = false;
 					break;
 				case '/':
-					if (!ifLastNumber && !operatorStack.firstElement().equals(")")) {
+					if (!ifLastNumber && !ifWasCloseBracket) {
 						throw new IOException("Error. A number is missed before operator /.");
 					}
 					if (ifLastNumber) {
@@ -180,11 +188,14 @@ public class Calculator {
 					break;
 				default:
 					throw new IOException("Error. Invalid symbols.");							
-				}			
+			}	
+			if (currentSymbol != ' ') {
+				ifWasSpace = false;
 			}
-		if (currentSymbol != ' ') {
-			ifWasSpace = false;
-		}
+			if (currentSymbol != ')' && currentSymbol != ' ') {
+				ifWasCloseBracket = false;
+			}
+		}		
 		if (currentSymbol == '+' || currentSymbol == '-' || currentSymbol == '*' || currentSymbol == '/') {
 			throw new IOException("Error. Unexpected end of input.");
 		}
@@ -235,7 +246,7 @@ public class Calculator {
 				rightOperand = numberStack.pop();
 				leftOperand = numberStack.pop();
 				if (rightOperand == 0) {
-					throw new ArithmeticException("Dividing by zero.");
+					throw new ArithmeticException("Division by zero.");
 				}
 				numberStack.add(leftOperand / rightOperand);
 			} else {
