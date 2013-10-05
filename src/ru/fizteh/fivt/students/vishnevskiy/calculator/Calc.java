@@ -132,7 +132,7 @@ public class Calc {
 
     protected static void analyzeCharacters(StringBuilder expression) throws ParseException {
         int i = 0;
-        while (i < expression.length())  {
+        while (i < expression.length()) {
             char c = expression.charAt(i);
             if (!isDigit(c) && !Character.isSpaceChar(c) && (c != '(') && (c != ')') && (c != '+') && (c != '-') && (c != '*') && (c != '/')) {
                 throw new ParseException("Incorrect input: invalid character \'" + c + "\'", i);
