@@ -47,6 +47,7 @@ public class Calculator {
             }
             expBuilder.append(' ');
         }
+
         String exp = expBuilder.toString().toLowerCase();
         Stack<String> lifo = new Stack<String>();
         Vector<String> list = new Vector<String>();
