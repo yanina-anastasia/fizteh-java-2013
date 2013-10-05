@@ -14,7 +14,11 @@ public class CommandExit implements Command {
         return name;
     }
 
-    public void execute(String args) throws IOException {
+    public int getArgCount() {
+        return 0;
+    }
+
+    public void execute(String[] args) throws IOException {
         System.exit(0);
     }
 }

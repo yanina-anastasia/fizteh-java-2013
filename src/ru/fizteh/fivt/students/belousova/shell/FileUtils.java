@@ -4,34 +4,39 @@ import java.io.*;
 
 public class FileUtils {
 
-    public static void copyFileToFile(File source, File destination) throws IOException{
+    public static void copyFileToFile(File source, File destination) throws IOException {
         if (destination.exists()) {
-            destination.delete();
+            throw new IOException("failed to copy '" + destination.getName() + "': already exists");
         }
         try {
             destination.createNewFile();
             InputStream inputStream = new FileInputStream(source);
-            OutputStream outputStream = new FileOutputStream(destination);
             try {
-                byte[] buffer = new byte[4096];
-                int read;
-                while ((read = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, read);
+                OutputStream outputStream = new FileOutputStream(destination);
+                try {
+                    byte[] buffer = new byte[4096];
+                    int read;
+                    while ((read = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, read);
+                    }
+                } finally {
+                    closeStream(outputStream);
                 }
             } finally {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
+                closeStream(inputStream);
             }
         } catch (IOException e) {
             throw new IOException("cannot copy", e);
+        }
+    }
+
+    private static void closeStream(Closeable stream) {
+        try {
+            if (stream != null) {
+                stream.close();
+            }
+        } catch (IOException e) {
+            //do nothing
         }
     }
 
@@ -42,9 +47,14 @@ public class FileUtils {
     }
 
     public static void copyFolderToFolder(File source, File destination) throws IOException {
-        File copy = new File(destination, source.getName());
+        File copy;
+        if (!destination.exists()) {
+            copy = destination;
+        } else {
+            copy = new File(destination, source.getName());
+        }
         if (copy.exists()) {
-            throw new IOException("omitting directory '" + copy.getName() + "'");
+            throw new IOException("failed to copy '" + copy.getName() + "': already exists");
         }
         copy.mkdirs();
         File[] files = source.listFiles();
