@@ -18,6 +18,15 @@ public class Calculator {
         return 0;
     }
     
+    public static void checkOverflow(long res, Stack<Integer> solution) {
+        if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
+            solution.push((int) res);
+        } else {
+            System.out.println("Int overflow");
+            System.exit(1);
+        }
+    }
+    
     public static void main(String[] args) {
         StringBuilder expBuilder = new StringBuilder();
         String signsPattern = "+-*/()";
@@ -130,40 +139,20 @@ public class Calculator {
            
             if (obj.equals("+")) {
                 res = left + right;
-                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                    solution.push((int) res);
-                } else {
-                    System.out.println("Int overflow");
-                    System.exit(1);
-                }
+                checkOverflow(res, solution);
             } else if (obj.equals("-")) {
                 res = left - right;
-                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                    solution.push((int) res);
-                } else {
-                    System.out.println("Int overflow");
-                    System.exit(1);
-                }
+                checkOverflow(res, solution);
             } else if (obj.equals("*")) {
                 res = left * right;
-                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                    solution.push((int) res);
-                } else {
-                    System.out.println("Int overflow");
-                    System.exit(1);
-                }
+                checkOverflow(res, solution);
             } else if (obj.equals("/")) {
                 if (right == 0) {
                     System.out.println("Division by zero");
                     System.exit(1);
                 }
                 res = left / right;
-                if (res >= Integer.MIN_VALUE && res <= Integer.MAX_VALUE) {
-                    solution.push((int) res);
-                } else {
-                    System.out.println("Int overflow");
-                    System.exit(1);
-                }
+                checkOverflow(res, solution);
             } else {
                 try {
                     solution.push(Integer.parseInt(obj, 19));
