@@ -32,7 +32,7 @@ public class Calculator {
                 value = value.multiply(modifierAsInteger);
                 break;
             case '/':
-                if (modifierAsInteger.toString() == "0") {
+                if (modifierAsInteger.toString().equals("0")) {
                     printNotValidExpressionError();
                 }
                 value = value.divide(modifierAsInteger);
