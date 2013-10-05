@@ -204,7 +204,7 @@ public class Calculator {
 
     private static void polishRecord(ArrayList<String> list) {
         ArrayList<String> result = new ArrayList<String>();
-        Stack stack = new Stack();
+        Stack <String> stack = new Stack();
         int priorPrev;
         int prior;
         for (String string : list) {
