@@ -71,7 +71,9 @@ public class Calculator {
         BigInteger currentValueOfExpression = new BigInteger("0");
         boolean ableToAppend = true;
         
-        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0;
+             currentPositionInExpression < expression.length();
+             currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
             if (findOperationType(currentLetterInExpression) == operationType) {
                 currentValueOfExpression = modifyValueWith(currentValueOfExpression, lastSign, lastNumber.toString());
@@ -102,17 +104,21 @@ public class Calculator {
         StringBuilder finalExpression = new StringBuilder(expression.length());
         StringBuilder lastSubExpression = new StringBuilder(expression.length());
         
-        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0;
+             currentPositionInExpression < expression.length();
+             currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
             if (findOperationType(currentLetterInExpression) == OperationType.ADDITION_OR_SUBTRACTION) {
-                finalExpression.append(computeExpressionWithOperationType(lastSubExpression.toString(), OperationType.MULTIPLICATION_OR_DIVISION));
+                finalExpression.append(computeExpressionWithOperationType(lastSubExpression.toString(),
+                                                                          OperationType.MULTIPLICATION_OR_DIVISION));
                 finalExpression.append(currentLetterInExpression);
                 lastSubExpression.delete(0, lastSubExpression.length());
             } else {
                 lastSubExpression.append(currentLetterInExpression);
             }
         }
-        finalExpression.append(computeExpressionWithOperationType(lastSubExpression.toString(), OperationType.MULTIPLICATION_OR_DIVISION));
+        finalExpression.append(computeExpressionWithOperationType(lastSubExpression.toString(),
+                                                                  OperationType.MULTIPLICATION_OR_DIVISION));
         
         return finalExpression.toString();
     }
@@ -128,7 +134,9 @@ public class Calculator {
         int firstOpenBracket = 0;
         StringBuilder finalExpression = new StringBuilder(expression.length());
         
-        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0;
+             currentPositionInExpression < expression.length();
+             currentPositionInExpression++) {
             switch (expression.charAt(currentPositionInExpression)) {
                 case '(':
                     if (currentBalance == 0) {
@@ -142,7 +150,8 @@ public class Calculator {
                     }
                     currentBalance--;
                     if (currentBalance == 0) {
-                        finalExpression.append(computeExpression(expression.substring(firstOpenBracket + 1, currentPositionInExpression)));
+                        finalExpression.append(computeExpression(expression.substring(firstOpenBracket + 1,
+                                                                                      currentPositionInExpression)));
                     }
                     break;
                 default:
@@ -160,7 +169,9 @@ public class Calculator {
     }
     
     private static boolean checkMinusForUnarity(String neighbourSymbols) {
-        return neighbourSymbols.equals("==") || neighbourSymbols.equals("=+") || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()") || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
+        return neighbourSymbols.equals("==") || neighbourSymbols.equals("=+")
+        || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()")
+        || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
     }
     
     private static String replaceBinaryMinuses(String expression) {
@@ -169,9 +180,12 @@ public class Calculator {
         int currentPositionInSignsAndBrackets = -1;
         boolean addedSign = false;
         
-        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0;
+             currentPositionInExpression < expression.length();
+             currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION || currentLetterInExpression == '-') {
+            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION
+                || currentLetterInExpression == '-') {
                 signsAndBrackets.append(currentLetterInExpression);
                 addedSign = true;
             } else if (currentLetterInExpression == '(' || currentLetterInExpression == ')') {
@@ -184,9 +198,12 @@ public class Calculator {
         
         addedSign = false;
         
-        for (int currentPositionInExpression = 0; currentPositionInExpression < expression.length(); currentPositionInExpression++) {
+        for (int currentPositionInExpression = 0;
+             currentPositionInExpression < expression.length();
+             currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION || currentLetterInExpression == '-') {
+            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION
+                || currentLetterInExpression == '-') {
                 currentPositionInSignsAndBrackets++;
                 addedSign = true;
             } else if (currentLetterInExpression == '(' || currentLetterInExpression == ')') {
@@ -197,8 +214,12 @@ public class Calculator {
             }
             
             if (currentLetterInExpression == '-') {
-                char leftNeighbour = (currentPositionInSignsAndBrackets == 0 ? '=' : signsAndBrackets.charAt(currentPositionInSignsAndBrackets - 1));
-                char rightNeighbour = (currentPositionInSignsAndBrackets == signsAndBrackets.length() - 1 ? '=' : signsAndBrackets.charAt(currentPositionInSignsAndBrackets + 1));
+                char leftNeighbour = (currentPositionInSignsAndBrackets == 0
+                                      ? '='
+                                      : signsAndBrackets.charAt(currentPositionInSignsAndBrackets - 1));
+                char rightNeighbour = (currentPositionInSignsAndBrackets == signsAndBrackets.length() - 1
+                                       ? '='
+                                       : signsAndBrackets.charAt(currentPositionInSignsAndBrackets + 1));
                 String neighbourSymbols = "";
                 neighbourSymbols += leftNeighbour;
                 neighbourSymbols += rightNeighbour;
