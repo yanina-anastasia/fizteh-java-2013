@@ -9,12 +9,12 @@ public class CommandDir implements Command {
         return "dir";
     }
 
-    public void run(Shell shell, String[] empty) throws IOException {
+    public void run(State state, String[] empty) throws IOException {
         if (empty.length > 0) {
             throw new IOException("pwd: Too many arguments.");
         }
         PrintStream ps = new PrintStream(System.out);
-        File currentDir = new File(shell.getState().toString());
+        File currentDir = new File(state.getState().toString());
         File[] entries = currentDir.listFiles();
         if (entries != null) {
             for (File entry : entries) {

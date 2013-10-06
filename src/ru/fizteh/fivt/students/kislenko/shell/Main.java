@@ -7,7 +7,7 @@ public class Main {
         File startingDirectory = new File("");
         startingDirectory = startingDirectory.getAbsoluteFile();
         State starting = new State();
-        starting.changePath(startingDirectory.toPath());
+        starting.setState(startingDirectory.toPath());
         Shell shell = new Shell(starting);
         if (args.length == 0) {
             shell.interactiveMode();

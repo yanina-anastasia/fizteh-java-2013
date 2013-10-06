@@ -46,7 +46,7 @@ public class CmdLauncher {
         return result;
     }
 
-    public void launch(Shell owner, String input) throws IOException {
+    public void launch(State state, String input) throws IOException {
         fillCmdList();
         String command = getCommand(input.trim());
         if (command.isEmpty()) {
@@ -55,6 +55,6 @@ public class CmdLauncher {
         if (!commandList.containsKey(command)) {
             throw new IOException("Wrong command.");
         }
-        commandList.get(command).run(owner, getArgs(input));
+        commandList.get(command).run(state, getArgs(input));
     }
 }

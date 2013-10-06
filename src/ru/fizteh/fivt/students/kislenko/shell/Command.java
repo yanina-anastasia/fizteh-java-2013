@@ -5,5 +5,5 @@ import java.io.IOException;
 public interface Command {
     public String getName();
 
-    public void run(Shell shell, String[] args) throws IOException;
+    public void run(State state, String[] args) throws IOException;
 }

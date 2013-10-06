@@ -8,12 +8,12 @@ public class CommandMkdir implements Command {
         return "mkdir";
     }
 
-    public void run(Shell shell, String[] args) throws IOException {
+    public void run(State state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("mkdir: Command \"mkdir\" takes one argument.");
         }
         String dirName = args[0];
-        File newDir = new File(shell.getState().resolve(dirName).toString());
+        File newDir = new File(state.getState().resolve(dirName).toString());
         newDir.mkdir();
     }
 }

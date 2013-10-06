@@ -3,13 +3,13 @@ package ru.fizteh.fivt.students.kislenko.shell;
 import java.nio.file.Path;
 
 public class State {
-    private static Path absolutePath;
+    private Path absolutePath;
 
-    public Path getPath() {
+    public Path getState() {
         return absolutePath;
     }
 
-    public void changePath(Path path) {
+    public void setState(Path path) {
         absolutePath = path;
     }
 }

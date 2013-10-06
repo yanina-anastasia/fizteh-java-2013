@@ -35,14 +35,14 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(Shell shell, String[] args) throws IOException {
+    public void run(State state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }
         String fileName = args[0];
-        Path absolutePath = shell.getState();
+        Path absolutePath = state.getState();
         Path target = absolutePath.resolve(fileName);
         removing(target);
-        shell.setState(validatePath(absolutePath));
+        state.setState(validatePath(absolutePath));
     }
 }

@@ -23,13 +23,13 @@ public class CommandCp implements Command {
         }
     }
 
-    public void run(Shell shell, String[] args) throws IOException {
+    public void run(State state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("cp: Command \"cp\" takes one argument.");
         }
         String source = args[0];
         String dest = args[1];
-        Path absolutePath = shell.getState();
+        Path absolutePath = state.getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (destPath.toString().equals(sourcePath.toString())) {

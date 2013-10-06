@@ -34,13 +34,13 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(Shell shell, String[] args) throws IOException {
+    public void run(State state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("mv: Command \"mv\" takes one argument.");
         }
         String source = args[0];
         String dest = args[1];
-        Path absolutePath = shell.getState();
+        Path absolutePath = state.getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (destPath.toString().equals(sourcePath.toString())) {
@@ -64,7 +64,7 @@ public class CommandMv implements Command {
                 moveFile(sourceEntry, destPath.toFile());
             }
             sourcePath.toFile().delete();
-            shell.setState(validatePath(absolutePath));
+            state.setState(validatePath(absolutePath));
         } else {
             throw new IOException("mv: Incorrect file names.");
         }

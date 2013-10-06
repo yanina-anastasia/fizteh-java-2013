@@ -7,10 +7,10 @@ public class CommandPwd implements Command {
         return "pwd";
     }
 
-    public void run(Shell shell, String[] empty) throws IOException {
+    public void run(State state, String[] empty) throws IOException {
         if (empty.length > 0) {
             throw new IOException("pwd: Too many arguments.");
         }
-        System.out.println(shell.getState());
+        System.out.println(state.getState());
     }
 }

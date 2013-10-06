@@ -1,34 +1,25 @@
 package ru.fizteh.fivt.students.kislenko.shell;
 
-import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Shell {
     private State state = new State();
 
     public Shell(State startingDir) {
-        state.changePath(startingDir.getPath());
-    }
-
-    public void setState(Path p) {
-        state.changePath(p);
-    }
-
-    public Path getState() {
-        return state.getPath();
+        state.setState(startingDir.getState());
     }
 
     public void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         CmdLauncher launcher = new CmdLauncher();
         while (true) {
-            System.out.print(state.getPath().toString() + "$ ");
+            System.out.print(state.getState().toString() + "$ ");
             String command = scan.nextLine().trim();
             if (command.equals("exit")) {
                 break;
             }
             try {
-                launcher.launch(this, command);
+                launcher.launch(state, command);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -49,7 +40,7 @@ public class Shell {
                 break;
             }
             try {
-                launcher.launch(this, command);
+                launcher.launch(state, command);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
