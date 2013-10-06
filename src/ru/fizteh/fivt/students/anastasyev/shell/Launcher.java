@@ -49,7 +49,7 @@ public class Launcher {
     public static void packageMode(String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
-            packageCommandsNames.append(arg).append("\\s");
+            packageCommandsNames.append(arg).append(" ");
         }
         String commands = packageCommandsNames.toString();
         String[] allArgs = commands.split(";");
