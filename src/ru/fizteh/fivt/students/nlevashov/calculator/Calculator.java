@@ -6,7 +6,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Pattern;
-import java.lang.StringBuilder;
 
 public class Calculator {
     //Checking input string for absence of excess symbols
@@ -40,9 +39,9 @@ public class Calculator {
     }
 
     //Cheking array of tokens for correct sequence:
-    //	- operator after number, number after operator, first & last tokens are number;
-    //	- operator before "(", number after ")";
-    //	- bracket balance >= 0 in every point, in the last point balance = 0
+    //  - operator after number, number after operator, first & last tokens are number;
+    //  - operator before "(", number after ")";
+    //  - bracket balance >= 0 in every point, in the last point balance = 0
     public static boolean checkForTokensSequence(ArrayList<String> tokens) {
         boolean prev = false;
         int i = 0;
@@ -96,6 +95,8 @@ public class Calculator {
                 break;
             case " ":
                 priority = 0;
+                break;
+            default:
         }
 
         return priority;
@@ -139,7 +140,8 @@ public class Calculator {
         Stack<BigInteger> s = new Stack<BigInteger>();
 
         for (String t : rpn) {
-            BigInteger a, b;
+            BigInteger a;
+            BigInteger b;
             switch (t) {
                 case "+":
                     b = s.pop();
@@ -175,7 +177,6 @@ public class Calculator {
     public static void main(String[] args) {
         if (args.length == 0) {
             System.err.println("Empty input");
-            //throw new Exception("Empty input");
             System.exit(1);
         } else {
             StringBuilder sb = new StringBuilder();
@@ -186,13 +187,11 @@ public class Calculator {
 
             if (!checkForExcessSymbols(expression)) {
                 System.err.println("There are incorrect symbols");
-                //throw new Exception("There are incorrect symbols");
                 System.exit(1);
             } else {
                 ArrayList<String> tokens = parse(expression);
                 if (!checkForTokensSequence(tokens)) {
                     System.err.println("Wrong sequence of symbols");
-                    //throw new Exception("Wrong sequence of symbols");
                     System.exit(1);
                 } else {
                     Vector<String> rpn = reversePolishNotation(tokens);
@@ -207,3 +206,4 @@ public class Calculator {
         }
     }
 }
+
