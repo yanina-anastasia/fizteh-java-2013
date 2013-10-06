@@ -13,12 +13,12 @@
 5. [Reflection](http://yadi.sk/d/C2I7P9igAToCA)
 
 ## Семинары
-В папке [tasks](fizteh-java-2013/tree/master/tasks) находятся описания заданий на
+В папке [tasks](tasks) находятся описания заданий на
 семинары. Для написания программ необходимо руководствоваться [соглашениями
 по оформлению кода](http://www.oracle.com/technetwork/java/codeconv-138413.html)
 от Oracle (Code Conventions).
 
-В документе [github-workflow](fizteh-java-2013/tree/master/github-workflow.md) описаны
+В документе [github-workflow](github-workflow.md) описаны
 общие правила по ведению задач на github, а также упрощение жизни с помощью утилиты
 [checkstyle](http://checkstyle.sourceforge.net/), которая проверяет код на соответствие
 Code Conventions.
