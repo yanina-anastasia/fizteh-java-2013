@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
+import java.io.IOException;
+
 public class CdCommand implements Command {
     private FilesystemController controller;
 
@@ -15,9 +17,15 @@ public class CdCommand implements Command {
     }
 
     @Override
-    public void execute(String params) {
-        if (!controller.changeDir(params)) {
-            System.err.println("cd: \"" + params + "\": Not a directory or does not exist");
+    public void execute(String[] args) throws IOException {
+        if (!controller.changeDir(args[1])) {
+            throw new IOException("cd: \"" + args[1] + "\": Not a directory or does not exist");
         }
     }
+
+    @Override
+    public int getArgsCount() {
+        return 1;
+    }
+
 }

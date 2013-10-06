@@ -8,7 +8,12 @@ public class ExitCommand implements Command {
     }
 
     @Override
-    public void execute(String params) {
+    public void execute(String[] args) {
         System.exit(0);
+    }
+
+    @Override
+    public int getArgsCount() {
+        return 0;
     }
 }

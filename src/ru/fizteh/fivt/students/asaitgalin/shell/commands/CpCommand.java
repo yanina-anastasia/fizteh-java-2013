@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
@@ -17,60 +19,51 @@ public class CpCommand implements Command {
     }
 
     @Override
-    public void execute(String params) {
-        String[] args = params.split("\\s+");
-        if (args.length < 2) {
-            System.err.println("cp: too few arguments");
-            return;
+    public void execute(String[] args) throws IOException {
+        File source = controller.getFileFromName(args[1]);
+        File target = controller.getFileFromName(args[2]);
+        if (!source.exists()) {
+            throw new IOException("cp: \"" + args[1] + "\": No such file or directory");
         }
-        File target = controller.getFileFromName(args[args.length - 1]);
-        if (target.exists()) {
-            if (target.isDirectory()) {
-                for (int i = 0; i < args.length - 1; ++i) {
-                    File src = controller.getFileFromName(args[i]);
-                    if (!src.exists()) {
-                        System.err.println("mv: source \"" + args[i] + "\" does not exist");
-                        continue;
-                    }
-                    controller.copyRecursive(src, target);
-
-                }
-            } else if (target.isFile()) {
-                if (args.length == 2) {
-                    // src:  file = copy
-                    //       dir  = show error (cant copy dir to file)
-                    File src = controller.getFileFromName(args[0]);
-                    if (!src.exists()) {
-                        System.err.println("cp: source \"" + args[0] + "\" does not exist");
-                    } else {
-                        if (src.isDirectory()) {
-                            System.err.println("cp: \"" + target.getName() + "\": can not copy dir to file");
-                        } else {
-                            controller.copyFile(src, target);
-                        }
-                    }
-                } else {
-                    // Multiple files to one
-                    System.err.println("cp: target \"" + target.getName() + "\" is not a directory");
-                }
-            }
-        } else {
-            if (args.length == 2) {
-                File src = controller.getFileFromName(args[0]);
-                if (!src.exists()) {
-                    System.err.println("cp: source \"" + args[0] + "\" does not exist");
-                } else {
-                    if (src.isDirectory()) {
-                        System.err.println("cp: target \"" + target.getName() + "\" does not exists");
-                    } else {
-                        controller.copyFile(src, target); // if first arg is file: then create file and copy
-                                                          //                       if second is "sdsd/ <--" show error
-                    }
-                }
+        if (source.equals(target)) {
+            throw new IOException("cp: \"" + args[1] + "\" and \"" + args[2] + "\" are the same file");
+        }
+        if (source.isFile()) {
+            if (!target.exists()) {
+                controller.copyFile(source, target);
             } else {
-                System.err.println("cp: target directory \"" + target.getName() + "\" does not exists");
+                if (target.isDirectory()) {
+                    copyRecursive(source, target);
+                } else {
+                    throw new IOException("cp: can not copy file to existing file");
+                }
+            }
+        } else if (source.isDirectory()) {
+            if (target.isFile() || !target.exists()) {
+                throw new IOException("cp: omitting directory \"" + args[1] + "\"");
+            } else {
+                copyRecursive(source, target);
             }
         }
+    }
+
+    @Override
+    public int getArgsCount() {
+        return 2;
+    }
+
+    public void copyRecursive(File src, File dest) throws IOException {
+        File destFile = new File(dest, src.getName());
+        if (destFile.exists()) {
+            throw new IOException("cp: \"" + src.getName() + "\": already exists");
+        }
+        if (src.isDirectory()) {
+            destFile.mkdir();
+            for (File f: src.listFiles()) {
+                copyRecursive(f, destFile);
+            }
+        }
+        controller.copyFile(src, destFile);
     }
 
 }

@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.asaitgalin.shell.commands.Command;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
 
 public class CommandTable {
     private Map<String, Command> table = new HashMap<String, Command>();
@@ -12,20 +13,18 @@ public class CommandTable {
         table.put(cmd.getName(), cmd);
     }
 
-    public void executeCommands(String commandsLine) throws UnknownCommandException {
-        String[] commands = commandsLine.split(";");
+    public void executeCommandLine(String commandsLine) throws IOException {
+        String[] commands = commandsLine.trim().split("\\s*;\\s*");
         for (String s: commands) {
-            s = s.trim();
-            String[] cmdArgs = s.split("\\s+", 2);
+            String[] cmdArgs = s.split("\\s+");
             Command cmd = table.get(cmdArgs[0]);
             if (cmd != null) {
-                if (cmdArgs.length == 2) {
-                    cmd.execute(cmdArgs[1]);
-                } else {
-                    cmd.execute(null);
+                if (cmdArgs.length - 1 != cmd.getArgsCount()) {
+                    throw new IOException(cmd.getName() + ": wrong argument count");
                 }
+                cmd.execute(cmdArgs);
             } else {
-                throw new UnknownCommandException(cmdArgs[0]);
+                throw new IOException(cmdArgs[0] + ": unrecognized command");
             }
         }
     }

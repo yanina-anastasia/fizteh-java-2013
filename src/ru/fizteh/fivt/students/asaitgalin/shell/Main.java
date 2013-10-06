@@ -1,20 +1,17 @@
 package ru.fizteh.fivt.students.asaitgalin.shell;
 
 import ru.fizteh.fivt.students.asaitgalin.shell.commands.*;
+import ru.fizteh.fivt.students.asaitgalin.utils.StringUtils;
 
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
         CommandTable table = new CommandTable();
-        FilesystemController controller = null;
-        try {
-            controller = new FilesystemController();
-        } catch (IOException ioe) {
-            System.err.println("Failed to get current directory. Exiting...");
-            System.exit(-1);
-        }
+        FilesystemController controller = new FilesystemController();
+
         table.appendCommand(new CdCommand(controller));
         table.appendCommand(new PwdCommand(controller));
         table.appendCommand(new DirCommand(controller));
@@ -25,24 +22,25 @@ public class Main {
         table.appendCommand(new ExitCommand());
 
         if (args.length > 0) {
-            for (String s: args) {
-                try {
-                    table.executeCommands(s);
-                } catch (UnknownCommandException uce) {
-                    System.err.println(uce.getMessage());
-                }
+            // Batch mode
+            String commandLine = StringUtils.join(Arrays.asList(args), " ");
+            try {
+                table.executeCommandLine(commandLine);
+            } catch (IOException ioe) {
+                System.err.println(ioe.getMessage());
+                System.exit(1);
             }
         } else {
+            // Interactive mode
             Scanner scanner = new Scanner(System.in);
             System.out.print("$ ");
             while (scanner.hasNext()) {
                 try {
-                    table.executeCommands(scanner.nextLine());
-                } catch (UnknownCommandException uce) {
-                    System.err.println(uce.getMessage());
-                } finally {
-                    System.out.print("$ ");
+                    table.executeCommandLine(scanner.nextLine());
+                } catch (IOException ioe) {
+                    System.err.println(ioe.getMessage());
                 }
+                System.out.print("$ ");
             }
         }
     }

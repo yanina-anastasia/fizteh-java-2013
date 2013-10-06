@@ -7,20 +7,20 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class FilesystemController {
-    private String currentDir;
+    private File currentDir;
 
-    public FilesystemController() throws IOException {
-           currentDir = new File(".").getCanonicalPath();
+    public FilesystemController() {
+           currentDir = new File(".");
     }
 
-    public String getCurrentDir() {
+    public File getCurrentDir() {
         return currentDir;
     }
 
     public File getFileFromName(String name) {
         File f = new File(name);
         if (!f.isAbsolute()) {
-            f = new File(currentDir + File.separator + name);
+            f = new File(currentDir, name);
         }
         return f;
     }
@@ -29,7 +29,7 @@ public class FilesystemController {
         File f = getFileFromName(newPath);
         if (f.exists() && f.isDirectory()) {
             try {
-                currentDir = f.getCanonicalPath();
+                currentDir = f.getCanonicalFile();
             } catch (IOException ioe) {
                 // Do nothing
             }
@@ -38,7 +38,7 @@ public class FilesystemController {
         return false;
     }
 
-    public void copyFile(File src, File dest) {
+    public void copyFile(File src, File dest) throws IOException {
         FileInputStream in = null;
         FileOutputStream out = null;
         try {
@@ -50,31 +50,11 @@ public class FilesystemController {
                 out.write(buffer, 0, readSize);
             }
         } catch (IOException ioe) {
-            // Output some information
+            throw new IOException("cp: internal error");
         } finally {
             closeStream(in);
             closeStream(out);
         }
-    }
-
-    public void copyRecursive(File src, File dest) {
-        File destFile = new File(dest.getAbsolutePath() + File.separator + src.getName());
-        if (src.isDirectory()) {
-            destFile.mkdir();
-            for (File f: src.listFiles()) {
-                copyRecursive(f, destFile);
-            }
-        }
-        copyFile(src, destFile);
-    }
-
-    public void deleteRecursively(File file) {
-        if (file.isDirectory()) {
-            for (File f: file.listFiles()) {
-                deleteRecursively(f);
-            }
-        }
-        file.delete();
     }
 
     private void closeStream(Closeable stream) {

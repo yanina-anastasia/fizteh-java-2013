@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
 import java.io.File;
+import java.io.IOException;
 
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
@@ -17,14 +18,16 @@ public class MkdirCommand implements Command {
     }
 
     @Override
-    public void execute(String params) {
-        String[] args = params.split("\\s+");
-        for (String s: args) {
-            File f = controller.getFileFromName(s);
-            if (!f.mkdirs()) {
-                System.err.println("mkdir: \"" + s + "\": Failed to create directory");
-            }
+    public void execute(String[] args) throws IOException {
+        File f = controller.getFileFromName(args[1]);
+        if (!f.mkdirs()) {
+            throw new IOException("mkdir: \"" + args[1] + "\": Failed to create directory");
         }
+    }
+
+    @Override
+    public int getArgsCount() {
+        return 1;
     }
 }
 

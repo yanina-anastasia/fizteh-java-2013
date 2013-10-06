@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
 import java.io.File;
+import java.io.IOException;
+
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
 public class RmCommand implements Command {
@@ -16,21 +18,24 @@ public class RmCommand implements Command {
     }
 
     @Override
-    public void execute(String params) {
-        String[] args = params.split("\\s+");
-        for (String s: args) {
-            deleteRecursively(controller.getFileFromName(s));
-        }
+    public void execute(String[] args) throws IOException {
+        deleteRecursively(controller.getFileFromName(args[1]));
     }
 
-    private void deleteRecursively(File file) {
+    @Override
+    public int getArgsCount() {
+        return 1;
+    }
+
+    private void deleteRecursively(File file) throws IOException {
         if (file.isDirectory()) {
             for (File f: file.listFiles()) {
                 deleteRecursively(f);
             }
         }
         if (!file.delete()) {
-            System.err.println("rm: cannot remove \"" + file.getName() + "\": No such file or directory");
+            throw new IOException("rm: cannot remove \"" + file.getName() + "\": No such file or directory");
         }
     }
+
 }
