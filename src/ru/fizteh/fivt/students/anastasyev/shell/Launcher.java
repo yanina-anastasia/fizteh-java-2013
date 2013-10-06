@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -8,7 +9,7 @@ public class Launcher {
     private static Vector<Command> allCommands;
 
     private static boolean launch(String arg) throws IOException {
-        String[] commands = arg.split(" ");
+        String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
         for (; i < allCommands.size(); ++i) {
@@ -37,6 +38,8 @@ public class Launcher {
                 if (!arg.equals("")) {
                     launch(arg);
                 }
+            } catch (NoSuchElementException e) {
+                System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -46,7 +49,7 @@ public class Launcher {
     public static void packageMode(String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
-            packageCommandsNames.append(arg).append(" ");
+            packageCommandsNames.append(arg).append("\\s");
         }
         String commands = packageCommandsNames.toString();
         String[] allArgs = commands.split(";");

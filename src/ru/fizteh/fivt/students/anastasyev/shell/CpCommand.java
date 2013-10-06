@@ -68,6 +68,10 @@ public class CpCommand implements Command {
         try {
             File from = new File(Shell.userDir.toPath().resolve(command[1]).toString());
             File to = new File(Shell.userDir.toPath().resolve(command[2]).toString());
+            if (from.equals(to)) {
+                System.err.println("cp: Can't write directory or file to itself");
+                return false;
+            }
             cp(from.toPath(), to.toPath());
         } catch (FileAlreadyExistsException e) {
             System.err.println("cp: File already exists " + e.getMessage());
