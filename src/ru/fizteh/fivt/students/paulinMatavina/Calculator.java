@@ -9,15 +9,15 @@ public class Calculator {
     //get priority for an operator
     private static int getPriority(final String oper) {
         switch (oper) {
-            case "(" :
+            case "(":
                 return -1;
-            case "+" :
+            case "+":
                 return 2;
-            case "-" :
+            case "-":
                 return 2;
-            case "*" :
+            case "*":
                 return 1;
-            case "/" :
+            case "/":
                 return 1;
             default:
                 return 0;
@@ -64,23 +64,29 @@ public class Calculator {
         }
 
         switch (operator) {
-            case "+" :
+            case "+":
                 if (((a > 0) && (Integer.MAX_VALUE - a < b))
                         || ((a < 0) && (Integer.MIN_VALUE - a > b))) {
                     throw new ArithmeticException("integer overflow");
                 }
                 numStack.push(a + b);
                 break;
-            case "-" :
+            case "-":
                 if (((a > 0) && (Integer.MAX_VALUE - a < -b))
                         || ((a < 0) && (Integer.MIN_VALUE - a > -b))) {
                     throw new ArithmeticException("integer overflow");
                 }
                 numStack.push(b - a);
                 break;
-            case "*" :
-                int signA = a / Math.abs(a);
-                int signB = b / Math.abs(b);
+            case "*":
+                int signA = a;
+                if (a != 0) {
+                    signA = a / Math.abs(a);
+                }
+                int signB = b;
+                if (b != 0) {
+                    signB = b / Math.abs(b);
+                }
                 if (signA * signB == 1 && ((Integer.MAX_VALUE / a) < b)
                         || ((signA * signB == -1)
                                 && ((Integer.MIN_VALUE / a) > b))) {
@@ -88,7 +94,7 @@ public class Calculator {
                 }
                 numStack.push(a * b);
                 break;
-            case "/" :
+            case "/":
                 if (a == 0) {
                     throw new ArithmeticException("division by zero");
                 }
@@ -147,10 +153,10 @@ public class Calculator {
             } else {
                 operator = scanner.next();
                 switch (operator) {
-                case "(" :
+                case "(":
                     operStack.push(operator);
                     break;
-                case ")" :
+                case ")":
                     int prior = getPriority(operStack.peek());
                     while (prior > 0) {
                         prior = getPriority(operStack.peek());
