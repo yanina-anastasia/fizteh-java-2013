@@ -2,22 +2,28 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.File;
 
-public class CpCommand extends ShellCommand {
+public class CpCommand implements Executable {
 
-    @Override
-    public boolean execute(String args[]) {
-        assert (args.length != 0);
-        if (args.length != 3) {
-            printMessage(args[0] + ": invalid number of arguments in the \'" + args[0] + "\' command");
-            return false;
-        }
-        File source = resolvePath(args[1]);
-        File destination = resolvePath(args[2]);
-        return safeCopy(source, destination, getName());
+    private FileManager manager;
+
+    public CpCommand(FileManager fileManager) {
+        manager = fileManager;
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "cp";
+    }
+
+    @Override
+    public int argumentsNumber() {
+        return 3;
+    }
+
+    @Override
+    public boolean execute(String args[]) {
+        File source = manager.resolvePath(args[1]);
+        File destination = manager.resolvePath(args[2]);
+        return manager.safeCopy(source, destination, name());
     }
 }

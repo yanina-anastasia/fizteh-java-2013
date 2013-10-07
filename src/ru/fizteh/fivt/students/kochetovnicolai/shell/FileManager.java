@@ -2,24 +2,49 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.*;
 
-public abstract class ShellCommand implements Executable {
+public class FileManager implements Manager {
 
-    protected static PrintStream outputStream = System.out;
-    protected static File currentPath = new File("").getAbsoluteFile();
+    private PrintStream outputStream = System.out;
+    private File currentPath = new File("").getAbsoluteFile();
+    private boolean mustExit = false;
 
-    public static void printMessage(final String message) {
+    @Override
+    public boolean timeToExit() {
+        return mustExit;
+    }
+
+    @Override
+    public void printMessage(final String message) {
         outputStream.println(message);
     }
 
-    public static void printSuggestMessage() {
+    @Override
+    public void printSuggestMessage() {
         outputStream.print(currentPath.getName() + File.separator + "$ ");
     }
 
-    protected File resolvePath(String path) {
+    public void setExit() {
+        mustExit = true;
+    }
+
+    public File getCurrentPath() {
+        return currentPath;
+    }
+
+    public boolean setCurrentPath(File newCurrentPath) {
+        try {
+            currentPath = newCurrentPath.getCanonicalFile();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public File resolvePath(String path) {
         File newPath = new File(path);
         if (newPath.exists() && newPath.isAbsolute()) {
             try {
-                return newPath.getCanonicalFile().getAbsoluteFile();
+                return newPath.getCanonicalFile();
             } catch (IOException e) {
                 return null;
             }
@@ -41,7 +66,7 @@ public abstract class ShellCommand implements Executable {
         return newPath;
     }
 
-    protected boolean copy(File source, File destination, String command) {
+    boolean copy(File source, File destination, String command) {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try {
@@ -77,7 +102,7 @@ public abstract class ShellCommand implements Executable {
         return false;
     }
 
-    protected boolean recursiveCopy(File source, File destination, String command) {
+    boolean recursiveCopy(File source, File destination, String command) {
         if (source.isDirectory()) {
             try {
                 if (!destination.mkdir()) {
@@ -120,7 +145,7 @@ public abstract class ShellCommand implements Executable {
         return true;
     }
 
-    protected boolean safeCopy(File source, File destination, String command) {
+    boolean safeCopy(File source, File destination, String command) {
         if (source == null) {
             printMessage(command + ": invalid source path");
         } else if (!source.exists()) {
@@ -137,7 +162,7 @@ public abstract class ShellCommand implements Executable {
         return false;
     }
 
-    protected boolean recursiveRemove(File removable, String command) {
+    boolean recursiveRemove(File removable, String command) {
         if (removable.isDirectory()) {
             File files[] = removable.listFiles();
             if (files != null) {

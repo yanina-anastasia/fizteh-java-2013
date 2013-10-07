@@ -1,21 +1,26 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-public class PwdCommand extends ShellCommand {
+public class PwdCommand implements Executable {
 
-    @Override
-    public boolean execute(String[] args) {
-        assert (args.length != 0);
-        if (args.length > 1) {
-            printMessage(args[0] + ": invalid number of arguments in the \'" + args[0] + "\' command");
-        } else {
-            printMessage(currentPath.getAbsolutePath());
-            return true;
-        }
-        return false;
+    private FileManager manager;
+
+    public PwdCommand(FileManager fileManager) {
+        manager = fileManager;
     }
 
     @Override
-    public final String getName() {
+    public String name() {
         return "pwd";
+    }
+
+    @Override
+    public int argumentsNumber() {
+        return 1;
+    }
+
+    @Override
+    public boolean execute(String[] args) {
+        manager.printMessage(manager.getCurrentPath().getAbsolutePath());
+        return true;
     }
 }

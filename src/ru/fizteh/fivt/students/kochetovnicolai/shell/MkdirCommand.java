@@ -2,33 +2,38 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.File;
 
-public class MkdirCommand extends ShellCommand {
+public class MkdirCommand implements Executable {
 
-    @Override
-    public boolean execute(String args[]) {
-        assert (args.length != 0);
-        if (args.length != 2) {
-            printMessage(args[0] + ": invalid number of arguments in the \'" + args[0] + "\' command");
-            return false;
-        }
+    private FileManager manager;
 
-        try {
-            File newDirectory = new File(currentPath.getAbsolutePath() + File.separator + args[1]);
-            if (newDirectory.exists()) {
-                printMessage(args[0] + ": \'" + args[1] + "\': directory already exists");
-                return false;
-            } else if (!newDirectory.mkdir()) {
-                printMessage(args[0] + ": \'" + args[1] + "\': couldn't create directory");
-            }
-            return true;
-        } catch (SecurityException e) {
-            printMessage(args[0] + ": \'" + args[1] + "\': couldn't create directory");
-        }
-        return false;
+    public MkdirCommand(FileManager fileManager) {
+        manager = fileManager;
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "mkdir";
+    }
+
+    @Override
+    public int argumentsNumber() {
+        return 2;
+    }
+
+    @Override
+    public boolean execute(String args[]) {
+        try {
+            File newDirectory = new File(manager.getCurrentPath().getAbsolutePath() + File.separator + args[1]);
+            if (newDirectory.exists()) {
+                manager.printMessage(args[0] + ": \'" + args[1] + "\': directory already exists");
+                return false;
+            } else if (!newDirectory.mkdir()) {
+                manager.printMessage(args[0] + ": \'" + args[1] + "\': couldn't create directory");
+            }
+            return true;
+        } catch (SecurityException e) {
+            manager.printMessage(args[0] + ": \'" + args[1] + "\': couldn't create directory");
+        }
+        return false;
     }
 }
