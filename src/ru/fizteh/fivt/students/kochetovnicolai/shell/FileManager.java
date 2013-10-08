@@ -54,12 +54,11 @@ public class FileManager implements Manager {
         for (String directory : directories) {
             if (!directory.equals(".")) {
                 if (directory.equals("..")) {
-                    newPath = newPath.getParentFile();
+                    if (newPath.getParent() != null) {
+                        newPath = newPath.getParentFile();
+                    }
                 } else {
                     newPath = new File(newPath.getAbsolutePath() + File.separator + directory);
-                }
-                if (newPath == null) {
-                    return null;
                 }
             }
         }
@@ -154,7 +153,9 @@ public class FileManager implements Manager {
             printMessage(command + ": invalid destination path");
         } else if (!destination.getParentFile().exists()) {
             printMessage(command + ": destination path doesn't exists");
-        } else if (destination.getAbsolutePath().contains(source.getAbsolutePath())) {
+        } else if (source.isDirectory() && destination.isFile()) {
+            printMessage(command + ": source path is a directory, but destination is not");
+        } else if (source.isDirectory() && destination.getAbsolutePath().contains(source.getAbsolutePath())) {
             printMessage(command + ": source path is part of destination path");
         } else {
             return recursiveCopy(source, destination, command);
