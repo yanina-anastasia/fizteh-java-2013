@@ -62,7 +62,6 @@ public class Calculator {
         } catch (DataFormatException e) {
             throw new DataFormatException();
         }
-
         switch (operator) {
             case "+":
                 if (((a > 0) && (Integer.MAX_VALUE - a < b))
@@ -180,7 +179,6 @@ public class Calculator {
                 case "/":
                     prior = getPriority(operStack.peek());
                     while (prior > 0 && prior <= getPriority(operator)) {
-                        prior = getPriority(operStack.peek());
                         try {
                             makeOperation(operStack, numStack);
                         } catch (DataFormatException e) {
@@ -192,6 +190,7 @@ public class Calculator {
                                     + e.getMessage());
                             System.exit(1);
                         }
+                        prior = getPriority(operStack.peek());
                     }
                     operStack.push(operator);
                     break;
