@@ -8,8 +8,8 @@ import java.util.Collections;
  * Created by Vladimir Mishatkin on 9/23/13
  */
 public abstract class CommandSource {
-	private ArrayList<String> commandsStringsBuffer = new ArrayList<>();
-	private ArrayList<String> commandArgumentsBuffer = new ArrayList<>();
+	private ArrayList<String> commandsStringsBuffer = new ArrayList<String>();
+	private ArrayList<String> commandArgumentsBuffer = new ArrayList<String>();
 
 	public abstract boolean hasMoreData();
 	public abstract String nextLine();
