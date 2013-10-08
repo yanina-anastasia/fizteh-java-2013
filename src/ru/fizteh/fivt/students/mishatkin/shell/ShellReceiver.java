@@ -14,7 +14,7 @@ public class ShellReceiver implements CommandReceiver {
 	private File shellPath;
 
 	private ShellReceiver() {
-		shellPath = File.listRoots()[0];
+		shellPath = new File("");
 	}
 
 	private void print(String s) {
