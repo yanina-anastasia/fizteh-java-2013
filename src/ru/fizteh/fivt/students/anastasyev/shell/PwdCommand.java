@@ -6,7 +6,7 @@ public class PwdCommand implements Command {
     }
 
     @Override
-    public boolean exec(String[] command) {
+    public final boolean exec(String[] command) {
         if (command.length != 1) {
             System.err.println("pwd: Usage - pwd");
             return false;
@@ -21,7 +21,7 @@ public class PwdCommand implements Command {
     }
 
     @Override
-    public String commandName() {
+    public final String commandName() {
         return "pwd";
     }
 }

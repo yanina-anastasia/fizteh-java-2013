@@ -9,7 +9,7 @@ public class DirCommand implements Command {
     }
 
     @Override
-    public boolean exec(String[] command) {
+    public final boolean exec(String[] command) {
         if (command.length != 1) {
             System.err.println("dir: Usage - dir");
             return false;
@@ -24,7 +24,7 @@ public class DirCommand implements Command {
     }
 
     @Override
-    public String commandName() {
+    public final String commandName() {
         return "dir";
     }
 }

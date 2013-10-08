@@ -17,10 +17,14 @@ public class CpCommand implements Command {
                 throw new IOException("Can't copy directory to subdirectory");
             }
             if (!to.exists()) {
-                to.mkdir();
+                if (!to.mkdir()) {
+                    throw new IOException("can't create directory " + to);
+                }
             }
             File newDir = new File(to.toPath().resolve(from.getName()).toString());
-            newDir.mkdir();
+            if (!newDir.mkdir()) {
+                throw new IOException("can't create directory " + newDir);
+            }
             File[] fromFiles = from.listFiles();
             for (File files : fromFiles) {
                 copy(files.getAbsoluteFile().toPath(), to.getAbsoluteFile().toPath().resolve(from.getName()));
@@ -48,7 +52,9 @@ public class CpCommand implements Command {
                 throw new IOException("Can't copy directory to subdirectory");
             }
             if (!to.exists()) {
-                throw new IOException(to + " there is not such file or directory");
+                if (!to.mkdir()) {
+                    throw new IOException("can't create directory " + to);
+                }
             }
             File[] fromFiles = from.listFiles();
             for (File files : fromFiles) {
@@ -60,7 +66,7 @@ public class CpCommand implements Command {
     }
 
     @Override
-    public boolean exec(String[] command) {
+    public final boolean exec(String[] command) {
         if (command.length != 3) {
             System.err.println("cp: Usage - cp <source> <destination>");
             return false;
@@ -84,7 +90,7 @@ public class CpCommand implements Command {
     }
 
     @Override
-    public String commandName() {
+    public final String commandName() {
         return "cp";
     }
 }

@@ -9,7 +9,7 @@ public class Shell {
 
     public Shell() {
         Shell.userDir = new File(System.getProperty("user.dir"));
-        commands = new Vector<>();
+        commands = new Vector<Command>();
         commands.add(new CdCommand());
         commands.add(new CpCommand());
         commands.add(new DirCommand());

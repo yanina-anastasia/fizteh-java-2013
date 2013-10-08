@@ -7,6 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MvCommand implements Command {
+    private static void selfDelete(File del) throws IOException {
+        if (del.isDirectory() && !del.delete()) {
+            throw new IOException("can't delete " + del);
+        }
+    }
+
     private static void move(Path pathFrom, Path pathTo) throws IOException {
         File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
         File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
@@ -17,10 +23,14 @@ public class MvCommand implements Command {
                 throw new IOException("Can't copy directory to subdirectory");
             }
             if (!to.exists()) {
-                to.mkdir();
+                if (!to.mkdir()) {
+                    throw new IOException("can't create directory " + to);
+                }
             }
             File newDir = new File(to.toPath().resolve(from.getName()).toString());
-            newDir.mkdir();
+            if (!newDir.exists() && !newDir.mkdir()) {
+                throw new IOException("can't create directory " + newDir);
+            }
             File[] fromFiles = from.listFiles();
             for (File files : fromFiles) {
                 move(files.getAbsoluteFile().toPath(), to.getAbsoluteFile().toPath().resolve(from.getName()));
@@ -28,7 +38,7 @@ public class MvCommand implements Command {
         } else {
             throw new IOException("Incorrect file names");
         }
-        from.delete();
+        selfDelete(from);
     }
 
     private static void mv(Path pathFrom, Path pathTo) throws IOException {
@@ -49,20 +59,22 @@ public class MvCommand implements Command {
                 throw new IOException("can't copy directory to subdirectory");
             }
             if (!to.exists()) {
-                to.mkdir();
+                if (!to.mkdir()) {
+                    throw new IOException("can't create directory " + to);
+                }
             }
             File[] fromFiles = from.listFiles();
             for (File files : fromFiles) {
                 move(files.getAbsoluteFile().toPath(), to.getAbsoluteFile().toPath());
             }
-            from.delete();
+            selfDelete(from);
         } else {
             throw new IOException("Incorrect file names");
         }
     }
 
     @Override
-    public boolean exec(String[] command) {
+    public final boolean exec(String[] command) {
         if (command.length != 3) {
             System.err.println("mv: Usage - mv <source> <destination>");
             return false;
@@ -86,7 +98,7 @@ public class MvCommand implements Command {
     }
 
     @Override
-    public String commandName() {
+    public final String commandName() {
         return "mv";
     }
 }
