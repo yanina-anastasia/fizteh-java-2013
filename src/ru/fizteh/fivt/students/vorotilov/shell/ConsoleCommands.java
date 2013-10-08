@@ -4,6 +4,7 @@ import java.io.IOException;
 
 public abstract class ConsoleCommands {
     public abstract String[] getNextCommand() throws IOException, NoNextCommand;
+
     protected String[] parseCommand(String input) {
         StringBuilder notParsedCommand = new StringBuilder(input);
         int i = 0;
