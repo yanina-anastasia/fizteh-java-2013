@@ -14,10 +14,28 @@ public class Shell {
 	private static boolean exitCommand = false;
 	
 	private static File currentDirectory = new File(".");
+	
+	private static String command;
 
 	private static void generateAnError(final String description) {
 		System.err.println("Error: " + description);
 		System.exit(1);
+	}
+	
+	private static int countArguments() {
+		String[] arguments = Shell.command.split(" ");
+		int count = 0;
+		for(String s : arguments) {
+			if(!s.equals("")) {
+				count++;
+				if(count != 1) {
+					Shell.command += " " + s;
+				} else {
+					Shell.command = s;
+				}
+			}
+		}
+		return count;
 	}
 	
 	private static void printWorkingDirectory() throws IOException {
@@ -51,42 +69,48 @@ public class Shell {
 		}
 	}
 	
-	private static void changeDirectory(String command) {
-		if(command.equals("cd")) {
+	private static void changeDirectory() {
+		if(Shell.command.equals("cd")) {
 			Shell.generateAnError("cd: You should enter an argument");
 		}
-		if(!command.startsWith("cd ")) {
-			Shell.generateAnError("Illegal command \"" + command + "\"");
+		if(!Shell.command.startsWith("cd ")) {
+			Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 		}
-		command = command.substring(3).trim();
-		File filePath = new File(command);
+		Shell.command = Shell.command.substring(3).trim();
+		if(1 != Shell.countArguments()) {
+			Shell.generateAnError("cd: You should enter 1 argument");
+		}
+		File filePath = new File(Shell.command);
 		if(!filePath.isAbsolute()) {
-			filePath = new File(Shell.currentDirectory+ File.separator + command);
+			filePath = new File(Shell.currentDirectory+ File.separator + Shell.command);
 		}
 		if(!filePath.exists() || !filePath.isDirectory()) {
-			Shell.generateAnError("cd: \"" + command + "\": No such directory" );
+			Shell.generateAnError("cd: \"" + Shell.command + "\": No such directory" );
 		}
 		Shell.currentDirectory = filePath;
 	}
 	
-	private static void makeDirectory(String command) {
-		if(command.equals("mkdir")) {
+	private static void makeDirectory() {
+		if(Shell.command.equals("mkdir")) {
 			Shell.generateAnError("mkdir: You should enter an argument");
 		}
-		if(!command.startsWith("mkdir ")) {
-			Shell.generateAnError("Illegal command \"" + command + "\"");
+		if(!Shell.command.startsWith("mkdir ")) {
+			Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 		}
-		command = command.substring(6).trim();
-		File fileName = new File(Shell.currentDirectory + File.separator + command);
+		Shell.command = Shell.command.substring(6).trim();
+		if(1 != Shell.countArguments()) {
+			Shell.generateAnError("mkdir: You should enter 1 argument");
+		}
+		File fileName = new File(Shell.currentDirectory + File.separator + Shell.command);
 		if(fileName.exists()) {
-			Shell.generateAnError("mkdir: Directory with name \"" + command + "\" already exists");
+			Shell.generateAnError("mkdir: Directory with name \"" + Shell.command + "\" already exists");
 		}
 		try {
 			if(!fileName.mkdirs()) {
-				Shell.generateAnError("mkdir: Directory with name \"" + command + "\" can not be created");
+				Shell.generateAnError("mkdir: Directory with name \"" + Shell.command + "\" can not be created");
 			};
 		} catch (SecurityException e) {
-			Shell.generateAnError("mkdir: Directory with name \"" + command + "\" can not be created");
+			Shell.generateAnError("mkdir: Directory with name \"" + Shell.command + "\" can not be created");
 		}
 	}
 	
@@ -110,15 +134,18 @@ public class Shell {
 		}
 	}
 	
-	private static void removeFileOrDirectory(String command) throws IOException {
-		if(command.equals("rm")) {
+	private static void removeFileOrDirectory() throws IOException {
+		if(Shell.command.equals("rm")) {
 			Shell.generateAnError("rm: You should enter an argument");
 		}
-		if(!command.startsWith("rm ")) {
-			Shell.generateAnError("Illegal command \"" + command + "\"");
+		if(!Shell.command.startsWith("rm ")) {
+			Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 		}
-		command = command.substring(3).trim();
-		File filePath = new File(Shell.currentDirectory + File.separator + command);
+		Shell.command = Shell.command.substring(3).trim();
+		if(1 != Shell.countArguments()) {
+			Shell.generateAnError("rm: You should enter 1 argument");
+		}
+		File filePath = new File(Shell.currentDirectory + File.separator + Shell.command);
 		Shell.remover(filePath);
 	}
 	
@@ -163,18 +190,18 @@ public class Shell {
 		}
 	}
 	
-	private static void copyFileOrDirectory(String command) throws IOException {
-		if(command.equals("cp")) {
+	private static void copyFileOrDirectory() throws IOException {
+		if(Shell.command.equals("cp")) {
 			Shell.generateAnError("cp: You should enter 2 arguments");
 		}
-		if(!command.startsWith("cp ")) {
-			Shell.generateAnError("Illegal command \"" + command + "\"");
+		if(!Shell.command.startsWith("cp ")) {
+			Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 		}
-		command = command.substring(3).trim();
-		String[] fileAndDestination = command.split(" ");
-		if(fileAndDestination.length != 2) {
+		Shell.command = Shell.command.substring(3).trim();
+		if(2 != Shell.countArguments()) {
 			Shell.generateAnError("cp: You should enter 2 arguments");
 		}
+		String[] fileAndDestination = Shell.command.split(" ");
 		File filePath = new File(Shell.currentDirectory + File.separator + fileAndDestination[0]);
 		File destination = new File(fileAndDestination[1]);
 		if(!destination.isAbsolute()) {
@@ -194,18 +221,18 @@ public class Shell {
 		Shell.copying(filePath, destination);
 	}
 	
-	private static void moveFileOrDirectory(String command) throws IOException {
-		if(command.equals("mv")) {
+	private static void moveFileOrDirectory() throws IOException {
+		if(Shell.command.equals("mv")) {
 			Shell.generateAnError("mv: You should enter 2 arguments");
 		}
-		if(!command.startsWith("mv ")) {
-			Shell.generateAnError("Illegal command \"" + command + "\"");
+		if(!Shell.command.startsWith("mv ")) {
+			Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 		}
-		command = command.substring(3).trim();
-		String[] fileAndDestination = command.split(" ");
-		if(fileAndDestination.length != 2) {
+		Shell.command = Shell.command.substring(3).trim();
+		if(2 != Shell.countArguments()) {
 			Shell.generateAnError("mv: You should enter 2 arguments");
 		}
+		String[] fileAndDestination = Shell.command.split(" ");
 		File filePath = new File(Shell.currentDirectory + File.separator + fileAndDestination[0]);
 		File destination = new File(fileAndDestination[1]);
 		if(!destination.isAbsolute()) {
@@ -226,41 +253,41 @@ public class Shell {
 		}	
 	}
 	
-	private static void interpreterOfCommands(String command) throws IOException {
-		command = command.trim(); // deletes unnecessary spaces 
-		if(command.startsWith("cd")) {
-			Shell.changeDirectory(command);
+	private static void interpreterOfCommands() throws IOException {
+		Shell.command = Shell.command.trim(); // deletes unnecessary spaces 
+		if(Shell.command.startsWith("cd")) {
+			Shell.changeDirectory();
 			return;
 		}
-		if(command.startsWith("mkdir")) {
-			Shell.makeDirectory(command);
+		if(Shell.command.startsWith("mkdir")) {
+			Shell.makeDirectory();
 			return;
 		}
-		if(command.equals("pwd")) {
+		if(Shell.command.equals("pwd")) {
 			Shell.printWorkingDirectory();
 			return;
 		}
-		if(command.startsWith("rm")) {
-			Shell.removeFileOrDirectory(command);
+		if(Shell.command.startsWith("rm")) {
+			Shell.removeFileOrDirectory();
 			return;
 		}
-		if(command.startsWith("cp")) {
-			Shell.copyFileOrDirectory(command);
+		if(Shell.command.startsWith("cp")) {
+			Shell.copyFileOrDirectory();
 			return;
 		}
-		if(command.startsWith("mv")) {
-			Shell.moveFileOrDirectory(command);
+		if(Shell.command.startsWith("mv")) {
+			Shell.moveFileOrDirectory();
 			return;
 		}
-		if(command.equals("dir")) {
+		if(Shell.command.equals("dir")) {
 			Shell.descriptionOfDirectory();
 			return;
 		}
-		if(command.equals("exit")) {
+		if(Shell.command.equals("exit")) {
 			Shell.exitCommand = true; 
 			return;
 		}
-		Shell.generateAnError("Illegal command \"" + command + "\"");
+		Shell.generateAnError("Illegal command \"" + Shell.command + "\"");
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -268,7 +295,7 @@ public class Shell {
 			for(String command_line : args) {
 				args = command_line.split(";");
 				for(String command : args){
-					Shell.interpreterOfCommands(command);
+					Shell.interpreterOfCommands();
 				}
 			}
 		} else {
@@ -279,8 +306,9 @@ public class Shell {
 				System.out.print("$ ");
 				command_line = scanner.nextLine();
 				commands = command_line.split(";");
-				for(String command : commands){
-					Shell.interpreterOfCommands(command);
+				for(String comm : commands){
+					Shell.command = comm;
+					Shell.interpreterOfCommands();
 				}
 			}
 			scanner.close();
