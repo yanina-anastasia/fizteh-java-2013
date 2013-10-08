@@ -45,7 +45,11 @@ public class Shell {
         System.out.print("$ ");
         while (userInput.hasNextLine()) {
             String input = userInput.nextLine();
-            executeCommands(input);
+            try {
+                executeCommands(input);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
             System.out.print("$ ");
         }
         userInput.close();
@@ -56,21 +60,22 @@ public class Shell {
         for (String item : args) {
             concatArgs.append(item).append(" ");
         }
-        executeCommands(concatArgs.toString());
-    }
-
-    private static void executeCommands(String input) {
-        String[][] inputCommandsWithParams = parseCommands(input);
         try {
-            for (int i = 0; i < inputCommandsWithParams.length; ++i) {
-                Command cmd = commands.get(inputCommandsWithParams[i][0]);
-                if (cmd == null) {
-                    throw new Exception("Command not found");
-                }
-                cmd.execute(inputCommandsWithParams[i]);
-            }
+            executeCommands(concatArgs.toString());
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void executeCommands(String input) throws Exception {
+        String[][] inputCommandsWithParams = parseCommands(input);
+        for (int i = 0; i < inputCommandsWithParams.length; ++i) {
+            Command cmd = commands.get(inputCommandsWithParams[i][0]);
+            if (cmd == null) {
+                throw new Exception("Command not found");
+            }
+            cmd.execute(inputCommandsWithParams[i]);
         }
     }
 
@@ -88,11 +93,23 @@ public class Shell {
     }
 
     static void setWorkingDirectory(Path newWorkingDirectory) {
-        workingDirectory = newWorkingDirectory;
+        workingDirectory = newWorkingDirectory.normalize();
     }
 
     static Path getAbsolutePath(Path path) {
         return getWorkingDirectory().resolve(path);
+    }
+
+    static boolean isSubdirectory(Path candidate, Path directory) {
+        Path checkedDirectory = candidate.normalize().getParent();
+        directory = directory.normalize();
+        while (!checkedDirectory.equals(checkedDirectory.getRoot())) {
+            if (checkedDirectory.equals(directory)) {
+                return true;
+            }
+            checkedDirectory = checkedDirectory.getParent();
+        }
+        return false;
     }
 }
 
@@ -173,10 +190,15 @@ class Rm extends Command {
             }
 
             Path path = Paths.get(arguments[1]);
-            path = Shell.getAbsolutePath(path);
+            path = Shell.getAbsolutePath(path).normalize();
             if (path.toFile().isFile()) {
                 Files.delete(path);
             } else {
+                if (Shell.isSubdirectory(Shell.getWorkingDirectory(), path)
+                        || Shell.getWorkingDirectory().equals(path)) {
+                    throw new IllegalArgumentException(
+                            "Working directory is a subdirectory of " + path);
+                }
                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -225,6 +247,10 @@ class Cp extends Command {
                 Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
             } else if (source.toFile().isDirectory()
                     && destination.toFile().isDirectory()) { // recursive
+                if (Shell.isSubdirectory(destination, source)) {
+                    throw new FileSystemLoopException(destination.normalize()
+                            + " is a subdirectory of " + source.normalize());
+                }
                 final Path src = source;
                 final Path dst = destination;
                 Files.walkFileTree(src, EnumSet.of(FileVisitOption.FOLLOW_LINKS),
