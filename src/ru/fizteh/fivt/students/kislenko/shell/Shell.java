@@ -12,14 +12,19 @@ public class Shell {
     public void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         CmdLauncher launcher = new CmdLauncher();
-        while (true) {
+        boolean exitFlag = false;
+        while (!exitFlag) {
             System.out.print(state.getState().toString() + "$ ");
-            String command = scan.nextLine().trim();
-            if (command.equals("exit")) {
-                break;
-            }
+            String input = scan.nextLine().trim();
+            String[] commands = input.split("\\s*;\\s*");
             try {
-                launcher.launch(state, command);
+                for (String command : commands) {
+                    if (command.equals("exit")) {
+                        exitFlag = true;
+                        break;
+                    }
+                    launcher.launch(state, command);
+                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
