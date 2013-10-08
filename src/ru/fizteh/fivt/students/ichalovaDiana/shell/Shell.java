@@ -97,7 +97,7 @@ public class Shell {
     }
 
     static Path getAbsolutePath(Path path) {
-        return getWorkingDirectory().resolve(path);
+        return getWorkingDirectory().resolve(path).normalize();
     }
 
     static boolean isSubdirectory(Path candidate, Path directory) {
@@ -247,9 +247,10 @@ class Cp extends Command {
                 Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
             } else if (source.toFile().isDirectory()
                     && destination.toFile().isDirectory()) { // recursive
-                if (Shell.isSubdirectory(destination, source)) {
-                    throw new FileSystemLoopException(destination.normalize()
-                            + " is a subdirectory of " + source.normalize());
+                if (Shell.isSubdirectory(destination, source)
+                        || destination.equals(source)) {
+                    throw new FileSystemLoopException(destination
+                            + " is a subdirectory of " + source);
                 }
                 final Path src = source;
                 final Path dst = destination;
