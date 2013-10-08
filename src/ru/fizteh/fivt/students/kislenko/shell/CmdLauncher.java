@@ -20,8 +20,8 @@ public class CmdLauncher {
         commandList.put(cp.getName(), cp);
         commandList.put(dir.getName(), dir);
         commandList.put(mkdir.getName(), mkdir);
-        commandList.put(mv.getName(), mv);
         commandList.put(pwd.getName(), pwd);
+        commandList.put(mv.getName(), mv);
         commandList.put(rm.getName(), rm);
     }
 

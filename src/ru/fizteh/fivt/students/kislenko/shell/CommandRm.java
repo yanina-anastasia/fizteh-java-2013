@@ -42,7 +42,11 @@ public class CommandRm implements Command {
         String fileName = args[0];
         Path absolutePath = state.getState();
         Path target = absolutePath.resolve(fileName);
-        removing(target);
+        if (target.toFile().exists()) {
+            removing(target);
+        } else {
+            throw new IOException("rm: The file doesn't exist.");
+        }
         state.setState(validatePath(absolutePath));
     }
 }
