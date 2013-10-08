@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.io.IOException;
+import java.nio.file.FileSystemLoopException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,9 +22,9 @@ public class Shell {
     static {
         workingDirectory = Paths.get(System.getProperty("user.dir"));
 
-        commands.put("cd", new CD());
+        commands.put("cd", new Cd());
         commands.put("mkdir", new Mkdir());
-        commands.put("pwd", new PWD());
+        commands.put("pwd", new Pwd());
         commands.put("rm", new Rm());
         commands.put("cp", new Cp());
         commands.put("mv", new Mv());
@@ -99,7 +100,7 @@ abstract class Command {
     abstract void execute(String... arguments) throws Exception;
 }
 
-class CD extends Command {
+class Cd extends Command {
     static final int ARG_NUM = 2;
 
     @Override
@@ -144,7 +145,7 @@ class Mkdir extends Command {
     }
 }
 
-class PWD extends Command {
+class Pwd extends Command {
     static final int ARG_NUM = 1;
 
     @Override
@@ -247,6 +248,7 @@ class Cp extends Command {
                                         StandardCopyOption.REPLACE_EXISTING);
                                 return FileVisitResult.CONTINUE;
                             }
+
                         });
             } else {
                 throw new Exception("cannot copy directory to file");
