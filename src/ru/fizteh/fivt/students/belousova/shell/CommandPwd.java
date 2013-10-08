@@ -19,6 +19,6 @@ public class CommandPwd implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(state.getCurrentDirectory().getPath());
+        System.out.println(state.getCurrentDirectory().getAbsolutePath());
     }
 }

@@ -1,16 +1,16 @@
 package ru.fizteh.fivt.students.belousova.shell;
 
+import ru.fizteh.fivt.students.belousova.utils.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ShellState {
 
     private File currentDirectory;
 
     public ShellState() {
-        currentDirectory = new File(".");
+        currentDirectory = new File("").getAbsoluteFile();
     }
 
     public File getCurrentDirectory() {

@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.belousova.shell;
 
+import ru.fizteh.fivt.students.belousova.utils.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -23,7 +25,11 @@ public class CommandMkdir implements Command {
         String dirName = args[1];
         File newDirectory = FileUtils.getFileFromString(dirName, state);
 
-        boolean success = newDirectory.mkdirs();
+        if(!newDirectory.getParentFile().exists()) {
+            throw new IOException("parent directory '" + newDirectory.getParent() + "' doesn't exist");
+        }
+
+        boolean success = newDirectory.mkdir();
         if (!success) {
             throw new IOException("cannot create '" + dirName + "': directory already exists");
         }
