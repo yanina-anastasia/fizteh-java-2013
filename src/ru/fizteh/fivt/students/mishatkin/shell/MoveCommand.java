@@ -7,7 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class MoveCommand extends Command {
 	MoveCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.MV;
+		type = CommandType.MV;
 	}
 
 	@Override

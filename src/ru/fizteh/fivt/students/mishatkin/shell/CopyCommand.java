@@ -7,7 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class CopyCommand extends Command {
 	CopyCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.CP;
+		type = CommandType.CP;
 	}
 
 	@Override

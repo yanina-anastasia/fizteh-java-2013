@@ -8,7 +8,7 @@ public class ChangeDirectoryCommand extends Command {
 
 	ChangeDirectoryCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.CD;
+		type = CommandType.CD;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class ExitCommand extends Command {
 	ExitCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.EXIT;
+		type = CommandType.EXIT;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class PrintWorkingDirectoryCommand extends Command {
 	PrintWorkingDirectoryCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.PWD;
+		type = CommandType.PWD;
 	}
 
 	@Override

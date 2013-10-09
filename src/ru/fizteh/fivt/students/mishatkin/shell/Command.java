@@ -6,37 +6,26 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  */
 import java.util.*;
 
-enum COMMAND_TYPE {
-	CD,
-	MKDIR,
-	PWD,
-	RM,
-	CP,
-	MV,
-	DIR,
-	EXIT
-}
-
 public abstract class Command {
-	private static  final Map<COMMAND_TYPE, Integer> inputArgumentsCount;
+	private static  final Map<CommandType, Integer> inputArgumentsCount;
 	static {
-		Map<COMMAND_TYPE, Integer> aMap = new HashMap<COMMAND_TYPE, Integer>();
-		aMap.put(COMMAND_TYPE.CD, 1);
-		aMap.put(COMMAND_TYPE.MKDIR, 1);
-		aMap.put(COMMAND_TYPE.PWD, 0);
-		aMap.put(COMMAND_TYPE.RM, 1);
-		aMap.put(COMMAND_TYPE.CP, 2);
-		aMap.put(COMMAND_TYPE.MV, 2);
-		aMap.put(COMMAND_TYPE.DIR, 0);
-		aMap.put(COMMAND_TYPE.EXIT, 0);
+		Map<CommandType, Integer> aMap = new HashMap<CommandType, Integer>();
+		aMap.put(CommandType.CD, 1);
+		aMap.put(CommandType.MKDIR, 1);
+		aMap.put(CommandType.PWD, 0);
+		aMap.put(CommandType.RM, 1);
+		aMap.put(CommandType.CP, 2);
+		aMap.put(CommandType.MV, 2);
+		aMap.put(CommandType.DIR, 0);
+		aMap.put(CommandType.EXIT, 0);
 		inputArgumentsCount = Collections.unmodifiableMap(aMap);
 	}
 
-	protected COMMAND_TYPE type;
+	protected CommandType type;
 	protected String[] args = new String[2];
 	protected CommandReceiver receiver;
 
-	public COMMAND_TYPE getType() {
+	public CommandType getType() {
 		return type;
 	}
 
@@ -51,12 +40,12 @@ public abstract class Command {
 		Command retValue =  null;
 		String commandName = buffer.get(0);
 		ShellReceiver receiver = ShellReceiver.sharedInstance();
-		COMMAND_TYPE theType;
+		CommandType theType;
 		try {
-			theType = COMMAND_TYPE.valueOf(commandName.toUpperCase());
+			theType = CommandType.valueOf(commandName.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			buffer.removeAll(buffer);
-			String enumName = "COMMAND_TYPE.";
+			String enumName = "CommandType.";
 			String type = e.getMessage().substring( e.getMessage().indexOf(enumName) + enumName.length()).toLowerCase();
 			throw new ShellException("Invalid command: \'" + type + "\'.");
 		}

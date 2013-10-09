@@ -7,7 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class DirectoryCommand extends Command {
 	DirectoryCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.DIR;
+		type = CommandType.DIR;
 	}
 
 	@Override

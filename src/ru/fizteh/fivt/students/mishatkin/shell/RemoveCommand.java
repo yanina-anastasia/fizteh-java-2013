@@ -6,7 +6,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class RemoveCommand extends Command {
 	RemoveCommand(CommandReceiver receiver) {
 		super(receiver);
-		type = COMMAND_TYPE.RM;
+		type = CommandType.RM;
 	}
 
 	@Override
