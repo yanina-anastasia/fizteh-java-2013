@@ -21,8 +21,8 @@ public class RmCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
-        File files[] = manager.getCurrentPath().listFiles();
+    public boolean execute(String[] args) {
+        File[] files = manager.getCurrentPath().listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.getName().equals(args[1])) {

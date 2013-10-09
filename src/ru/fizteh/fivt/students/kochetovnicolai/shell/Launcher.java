@@ -1,9 +1,13 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
-class Launcher {
+class Launcher{
 
     private HashMap<String, Executable> commands;
 
@@ -11,7 +15,7 @@ class Launcher {
         commands = commandsMap;
     }
 
-    public boolean launch(String args[], Manager manager) throws IOException {
+    public boolean launch(String[] args, Manager manager) throws IOException {
         if (args.length == 0) {
             return exec(System.in, manager, false);
         } else {
@@ -42,7 +46,7 @@ class Launcher {
             if (commandName == null) {
                 break;
             }
-            String tokens[] = commandName.trim().split("[\\s]");
+            String[] tokens = commandName.trim().split("[\\s]");
 
             if (tokens.length == 0 || tokens[0].equals("")) {
                 continue;

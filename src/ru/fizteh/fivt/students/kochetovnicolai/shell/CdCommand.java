@@ -21,7 +21,7 @@ public class CdCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
+    public boolean execute(String[] args) {
         File newPath = manager.resolvePath(args[1]);
         if (newPath == null || !newPath.exists()) {
             manager.printMessage(args[0] + ": \'" + args[1] + "\': No such file or directory");

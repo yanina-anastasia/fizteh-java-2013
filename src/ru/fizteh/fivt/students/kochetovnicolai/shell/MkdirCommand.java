@@ -21,7 +21,7 @@ public class MkdirCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
+    public boolean execute(String[] args) {
         try {
             File newDirectory = new File(manager.getCurrentPath().getAbsolutePath() + File.separator + args[1]);
             if (newDirectory.exists()) {

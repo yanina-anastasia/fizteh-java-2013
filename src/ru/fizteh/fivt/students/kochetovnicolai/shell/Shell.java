@@ -10,7 +10,7 @@ public class Shell {
     private HashMap<String, Executable> commands;
 
     private Shell(FileManager manager) {
-        commands = new HashMap<>();
+        commands = new HashMap<String, Executable>();
         commands.put("cd", new CdCommand(manager));
         commands.put("cp", new CpCommand(manager));
         commands.put("dir", new DirCommand(manager));

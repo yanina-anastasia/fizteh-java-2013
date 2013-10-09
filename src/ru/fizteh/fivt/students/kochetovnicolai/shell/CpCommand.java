@@ -21,7 +21,7 @@ public class CpCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
+    public boolean execute(String[] args) {
         File source = manager.resolvePath(args[1]);
         File destination = manager.resolvePath(args[2]);
         return manager.safeCopy(source, destination, name());

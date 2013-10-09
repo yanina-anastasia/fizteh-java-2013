@@ -19,7 +19,7 @@ public class ExitCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
+    public boolean execute(String[] args) {
         manager.setExit();
         return true;
     }

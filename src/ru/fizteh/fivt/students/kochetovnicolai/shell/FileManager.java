@@ -1,6 +1,10 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class FileManager implements Manager {
 
@@ -50,7 +54,7 @@ public class FileManager implements Manager {
             }
         }
         newPath = new File(currentPath.getAbsolutePath());
-        String directories[] = path.split("\\" + File.separator);
+        String[] directories = path.split("\\" + File.separator);
         for (String directory : directories) {
             if (!directory.equals(".")) {
                 if (directory.equals("..")) {
@@ -109,10 +113,10 @@ public class FileManager implements Manager {
                     return false;
                 }
             } catch (SecurityException e) {
-                printMessage(command + ": \'" + destination.getAbsolutePath() + "\': haven't rights to create directory");
+                printMessage(command + ": \'" + destination.getAbsolutePath() + "\': no rights to create directory");
                 return false;
             }
-            File files[] = source.listFiles();
+            File[] files = source.listFiles();
             if (files != null) {
                 for (File file : files) {
                     File newFile = new File(destination.getAbsolutePath() + File.separator + file.getName());
@@ -128,7 +132,7 @@ public class FileManager implements Manager {
                     return false;
                 }
                 if (!destination.canWrite() || !source.canRead()) {
-                    printMessage(command + ": \'" + destination.getAbsolutePath() + "\': haven't rights to create file");
+                    printMessage(command + ": \'" + destination.getAbsolutePath() + "\': no rights to create file");
                     return false;
                 }
                 return copy(source, destination, command);
@@ -165,7 +169,7 @@ public class FileManager implements Manager {
 
     boolean recursiveRemove(File removable, String command) {
         if (removable.isDirectory()) {
-            File files[] = removable.listFiles();
+            File[] files = removable.listFiles();
             if (files != null) {
                 for (File file : files) {
                     if (!recursiveRemove(file, command)) {

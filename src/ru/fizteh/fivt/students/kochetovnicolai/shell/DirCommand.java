@@ -19,8 +19,8 @@ public class DirCommand implements Executable {
     }
 
     @Override
-    public boolean execute(String args[]) {
-        String directories[] = manager.getCurrentPath().list();
+    public boolean execute(String[] args) {
+        String[] directories = manager.getCurrentPath().list();
         if (directories != null) {
             for (String directory : directories) {
                 System.out.println(directory);
