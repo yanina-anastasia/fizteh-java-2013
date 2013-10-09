@@ -1,18 +1,28 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Scanner;
 
 
 public class Main {
     static final int END_OF_INPUT = -1;
     static final int END_OF_TRANSMISSION = 4;
 
-    private static boolean isTerminativeSymbol(int character) {
-        return ((character == END_OF_INPUT) || (character == END_OF_TRANSMISSION));
+    private static boolean isTerminativeSymbol(final int character) {
+        return ((character == END_OF_INPUT)
+                || (character == END_OF_TRANSMISSION));
     }
 
-    public static void main(String[] args) {
+    private static boolean checkTerminate(final String str) {
+        for (int i = 0; i < str.length(); ++i) {
+            if (isTerminativeSymbol(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void main(final String[] args) {
         try {
             Shell shell = new Shell();
             Context context = new Context();
@@ -32,22 +42,17 @@ public class Main {
                     shell.executeCommand(parser.getCommand());
                 }
             } else {
-                InputStream input = System.in;
+                Scanner scanner = new Scanner(System.in);
                 System.out.print("$ ");
-                while (true) {
+                while (scanner.hasNext()) {
                     try {
-                        int character;
-                        StringBuilder commands = new StringBuilder();
+                        String command = scanner.nextLine();
 
-                        while ((!isTerminativeSymbol(character = input.read())) && (character != System.lineSeparator().charAt(1))) {
-                            commands.append((char) character);
-                        }
-
-                        if (isTerminativeSymbol(character)) {
+                        if (checkTerminate(command)) {
                             System.exit(0);
                         }
 
-                        CommandParser parser = new CommandParser(commands.toString());
+                        CommandParser parser = new CommandParser(command);
                         if (!parser.isEmpty()) {
                             shell.executeCommand(parser.getCommand());
                         }

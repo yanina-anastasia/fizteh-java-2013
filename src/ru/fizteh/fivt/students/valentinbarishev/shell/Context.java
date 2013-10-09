@@ -18,26 +18,29 @@ final class Context {
         currentDir = new File(".").getCanonicalPath();
     }
 
-    private boolean existsFile(String path) {
+    private boolean existsFile(final String path) {
         return new File(path).exists();
     }
 
-    private String buildPath(String currentDir, String relativePath) throws IOException {
-        return new File(new File(currentDir).getAbsoluteFile(), relativePath).getAbsoluteFile().getCanonicalPath();
+    private String buildPath(final String curDir,
+                             final String relativePath) throws IOException {
+        return new File(new File(curDir).getAbsoluteFile(),
+                relativePath).getAbsoluteFile().getCanonicalPath();
     }
 
-    public String changePath(String currentDir, String path) throws IOException {
+    public String changePath(final String curDir, final String path)
+            throws IOException {
         if (path.charAt(0) != '.') {
             if (!existsFile(path)) {
-                return buildPath(currentDir, path);
+                return buildPath(curDir, path);
             }
             return new File(path).getCanonicalPath();
         } else {
-            return buildPath(currentDir, path);
+            return buildPath(curDir, path);
         }
     }
 
-    public void changeDir(String path) throws IOException {
+    public void changeDir(final String path) throws IOException {
         String newDir = changePath(currentDir, path);
 
         File file = new File(newDir);
@@ -48,14 +51,14 @@ final class Context {
         currentDir = newDir;
     }
 
-    public void makeDir(String name) throws IOException {
+    public void makeDir(final String name) throws IOException {
         File dir = new File(currentDir + File.separator + name);
         if (!dir.mkdir()) {
             throw new IOException("Wrong directory name!");
         }
     }
 
-    public void makeFullDir(String name) throws IOException {
+    public void makeFullDir(final String name) throws IOException {
         File dir = new File(name);
         if (!dir.mkdirs()) {
             throw new IOException("Cannot create dirs! " + name);
@@ -66,40 +69,45 @@ final class Context {
         return new File(currentDir).list();
     }
 
-    private void recursiveRemove(File file) throws IOException {
+    private void recursiveRemove(final File file) throws IOException {
         if (file.isFile()) {
             if (!file.delete()) {
-                throw new IOException("File " + file.getCanonicalPath() + " is undeletable");
+                throw new IOException("File " + file.getCanonicalPath()
+                        + " is undeletable");
             }
         } else {
             String[] fileList = file.list();
-            for (int i = 0; i < fileList.length; ++i)
-                recursiveRemove(new File(file.getCanonicalPath() + File.separator + fileList[i]));
+            for (int i = 0; i < fileList.length; ++i) {
+                recursiveRemove(new File(file.getCanonicalPath()
+                        + File.separator + fileList[i]));
+            }
             if (!file.delete()) {
-                throw new IOException("Path " + file.getAbsolutePath() + " is undeletable.");
+                throw new IOException("Path " + file.getAbsolutePath()
+                        + " is undeletable.");
             }
         }
     }
 
-    public void remove(String path) throws IOException {
-        path = changePath(currentDir, path);
+    public void remove(final String path) throws IOException {
+        String newPath = changePath(currentDir, path);
 
-        if (!existsFile(path)) {
+        if (!existsFile(newPath)) {
             throw new IOException("Bad path/file name.");
         }
 
-        if (path == currentDir) {
+        if (newPath == currentDir) {
             throw new IOException("I can't delete current directory!");
         }
-        recursiveRemove(new File(path));
+        recursiveRemove(new File(newPath));
     }
 
-    private void copyFile(String src, String dest) throws IOException {
+    private void copyFile(final String src, final String dest)
+            throws IOException {
         File file = new File(dest);
 
         if (file.isDirectory()) {
-            dest = dest + File.separator + (new File(src).getName());
-            file = new File(dest);
+            String newDest = dest + File.separator + (new File(src).getName());
+            file = new File(newDest);
         }
 
         if (file.exists()) {
@@ -118,7 +126,8 @@ final class Context {
         destination.close();
     }
 
-    private void recursiveCopy(String source, String destination, String addition) throws IOException {
+    private void recursiveCopy(final String source, final String destination,
+                               final String addition) throws IOException {
         File file = new File(source);
         if (file.isFile()) {
             copyFile(source, destination + addition);
@@ -132,7 +141,7 @@ final class Context {
         }
     }
 
-    public void copy(String src, String dest) throws IOException {
+    public void copy(final String src, final String dest) throws IOException {
         String source = changePath(currentDir, src);
         String destination = changePath(currentDir, dest);
         File file = new File(source);
@@ -148,13 +157,15 @@ final class Context {
             copyFile(source, destination);
         } else {
             if (!new File(destination).exists()) {
-                throw new InvalidCommandException("Can't copy to non-existent directory");
+                throw new InvalidCommandException("Can't copy to"
+                        + " non-existent directory");
             }
-            recursiveCopy(source, destination, File.separator + (file.getName()));
+            recursiveCopy(source, destination, File.separator
+                    + (file.getName()));
         }
     }
 
-    public void move(String src, String dest) throws IOException {
+    public void move(final String src, final String dest) throws IOException {
         String source = changePath(currentDir, src);
         copy(src, dest);
         remove(source);

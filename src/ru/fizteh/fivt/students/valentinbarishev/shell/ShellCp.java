@@ -2,13 +2,14 @@ package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
 
-public class ShellCp implements ShellCommand {
-    static String name = "cp";
+final class ShellCp implements ShellCommand {
+    private String name = "cp";
+    private int numberOfParameters = 3;
 
     private Context context;
     private String[] args;
 
-    public ShellCp(Context newContext) {
+    public ShellCp(final Context newContext) {
         context = newContext;
     }
 
@@ -22,13 +23,15 @@ public class ShellCp implements ShellCommand {
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 3) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
-            if (command.length < 3) {
-                throw new InvalidCommandException("Usage: " + name + "<src file/dir> <dest file/dir>");
+            if (command.length < numberOfParameters) {
+                throw new InvalidCommandException("Usage: " + name
+                        + "<src file/dir> <dest file/dir>");
             }
             args = command;
             return true;
@@ -39,5 +42,10 @@ public class ShellCp implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }

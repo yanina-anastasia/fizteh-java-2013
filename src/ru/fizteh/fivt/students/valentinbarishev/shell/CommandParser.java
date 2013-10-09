@@ -1,9 +1,9 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-public class CommandParser {
+public final class CommandParser {
     private StringBuilder commands;
 
-    public CommandParser(String[] args) {
+    public CommandParser(final String[] args) {
         commands = new StringBuilder();
         for (int i = 0; i < args.length; ++i) {
             commands.append(" ").append(args[i]);
@@ -14,9 +14,10 @@ public class CommandParser {
         }
     }
 
-    public CommandParser(String arg) {
+    public CommandParser(final String arg) {
         commands = new StringBuilder(arg);
-        if ((!arg.isEmpty()) && (commands.charAt(commands.length() - 1) != ';')) {
+        if ((!arg.isEmpty())
+                && (commands.charAt(commands.length() - 1) != ';')) {
             commands.append(';');
         }
     }
@@ -32,7 +33,7 @@ public class CommandParser {
         }
 
         StringBuilder builder = new StringBuilder(command.trim());
-        for (int i = 0; i < builder.length() - 1; ) {
+        for (int i = 0; i < builder.length() - 1;) {
             if ((builder.charAt(i) == ' ') && (builder.charAt(i + 1)) == ' ') {
                 builder.deleteCharAt(i);
                 continue;

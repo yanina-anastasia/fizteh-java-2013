@@ -1,12 +1,13 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-public class ShellDir implements ShellCommand {
-    static String name = "dir";
+final class ShellDir implements ShellCommand {
+    private String name = "dir";
+    private int numberOfParameters = 1;
 
     private Context context;
     private String[] args;
 
-    public ShellDir(Context newContext) {
+    public ShellDir(final Context newContext) {
         context = newContext;
     }
 
@@ -19,10 +20,11 @@ public class ShellDir implements ShellCommand {
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 1) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
             args = command;
             return true;
@@ -33,5 +35,10 @@ public class ShellDir implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }

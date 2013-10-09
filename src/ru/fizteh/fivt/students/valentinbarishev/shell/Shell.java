@@ -9,11 +9,11 @@ public class Shell {
         allCommands = new ArrayList<ShellCommand>();
     }
 
-    public void addCommand(ShellCommand command) {
+    final void addCommand(final ShellCommand command) {
         allCommands.add(command);
     }
 
-    public void executeCommand(String[] command) {
+    final void executeCommand(final String[] command) {
         for (int i = 0; i < allCommands.size(); ++i) {
             if (allCommands.get(i).isMyCommand(command)) {
                 allCommands.get(i).run();

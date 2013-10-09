@@ -1,7 +1,8 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
-public class ShellExit implements ShellCommand {
-    static String name = "exit";
+final class ShellExit implements ShellCommand {
+    private String name = "exit";
+    private int numberOfParameters = 1;
 
     public ShellExit() {
     }
@@ -12,10 +13,11 @@ public class ShellExit implements ShellCommand {
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 1) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
             return true;
         }
@@ -25,5 +27,10 @@ public class ShellExit implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }

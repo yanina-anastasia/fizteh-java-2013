@@ -1,12 +1,13 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 final class ShellPwd implements ShellCommand {
-    static String name = "pwd";
+    private String name = "pwd";
+    private int numberOfParameters = 1;
 
     private Context context;
     private String[] args;
 
-    public ShellPwd(Context newContext) {
+    public ShellPwd(final Context newContext) {
         context = newContext;
     }
 
@@ -16,10 +17,11 @@ final class ShellPwd implements ShellCommand {
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 1) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
             args = command;
             return true;
@@ -30,5 +32,10 @@ final class ShellPwd implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }

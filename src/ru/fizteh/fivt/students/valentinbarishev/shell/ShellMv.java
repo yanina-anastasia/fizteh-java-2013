@@ -2,12 +2,14 @@ package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
 
-public class ShellMv implements ShellCommand {
-    static String name = "mv";
+final class ShellMv implements ShellCommand {
+    private String name = "mv";
+    private int numberOfParameters = 3;
+
     private Context context;
     private String[] args;
 
-    public ShellMv(Context newContext) {
+    public ShellMv(final Context newContext) {
         context = newContext;
     }
 
@@ -16,18 +18,21 @@ public class ShellMv implements ShellCommand {
         try {
             context.move(args[1], args[2]);
         } catch (IOException e) {
-            throw new InvalidCommandException(name + " bad arguments " + args[1] + " " + args[2]);
+            throw new InvalidCommandException(name + " bad arguments "
+                    + args[1] + " " + args[2]);
         }
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 3) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
-            if (command.length < 3) {
-                throw new InvalidCommandException("Usage: " + name + "<src> <dest>");
+            if (command.length < numberOfParameters) {
+                throw new InvalidCommandException("Usage: " + name
+                        + "<src> <dest>");
             }
             args = command;
             return true;
@@ -38,5 +43,10 @@ public class ShellMv implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }

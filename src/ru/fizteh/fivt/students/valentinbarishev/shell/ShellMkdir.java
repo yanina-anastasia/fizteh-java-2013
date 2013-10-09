@@ -2,13 +2,14 @@ package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 import java.io.IOException;
 
-public class ShellMkdir implements ShellCommand {
-    static String name = "mkdir";
+final class ShellMkdir implements ShellCommand {
+    private String name = "mkdir";
+    private int numberOfParameters = 2;
 
     private Context context;
     private String[] args;
 
-    public ShellMkdir(Context newContext) {
+    public ShellMkdir(final Context newContext) {
         context = newContext;
     }
 
@@ -22,13 +23,15 @@ public class ShellMkdir implements ShellCommand {
     }
 
     @Override
-    public boolean isMyCommand(String[] command) {
+    public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
-            if (command.length > 2) {
-                throw new InvalidCommandException(name + " too many arguments!");
+            if (command.length > numberOfParameters) {
+                throw new InvalidCommandException(name
+                        + " too many arguments!");
             }
-            if (command.length == 1) {
-                throw new InvalidCommandException("Usage: " + name + " <new dir>");
+            if (command.length < numberOfParameters) {
+                throw new InvalidCommandException("Usage: "
+                        + name + " <new dir>");
             }
             args = command;
             return true;
@@ -39,5 +42,10 @@ public class ShellMkdir implements ShellCommand {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+        return numberOfParameters;
     }
 }
