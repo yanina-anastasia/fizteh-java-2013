@@ -43,6 +43,19 @@ public abstract class Shell {
         state.setCurState(dir);
     }
 
+    public String join(String[] items, String sep) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String item : items) {
+            if (!first) {
+                sb.append(sep);
+            }
+            first = false;
+            sb.append(item);
+        }
+        return sb.toString();
+    }
+
     protected String[] getCommandArguments(String inputString) {
         int begin;
 

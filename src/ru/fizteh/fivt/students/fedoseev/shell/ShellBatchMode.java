@@ -12,13 +12,7 @@ public class ShellBatchMode extends Shell {
     }
 
     public void run() throws IOException {
-        StringBuilder sb = new StringBuilder();
-
-        for (String a : args) {
-            sb.append(a).append(" ");
-        }
-
-        String inputString = sb.toString();
+        String inputString = join(args, " ");
         String[] input = inputString.split("\\s*;\\s*");
 
         for (String cmd : input) {
