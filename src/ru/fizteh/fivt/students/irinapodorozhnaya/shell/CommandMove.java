@@ -5,17 +5,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class CommandMove extends AbstractCommand {
-	private StateShell state;
 	public CommandMove(StateShell st) {
-		state = st;
+		setState(st);
 		setNumberOfArguments(2);
 	}
 	public String getName(){
 		return "mv";
 	}
 	public void execute(String[] args) throws IOException {	
-		File source = new File(state.currentDir, args[1]);
-		File dest = new File(state.currentDir, args[2]);
+		File source = new File(getState().currentDir, args[1]);
+		File dest = new File(getState().currentDir, args[2]);
 		if (!source.exists()) {
 			throw new IOException("mv: '" + args[1] + "' not exist");
 		} else if (dest.isDirectory()) {

@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class CommandMakeDirectory extends AbstractCommand {
-	private StateShell state;
 	public CommandMakeDirectory(StateShell st) {
-		this.state = st;
-		setNumberOfArguments(0);
+		setState(st);
+		setNumberOfArguments(1);
 	}
 	public void execute(String[] args) throws IOException {
-		File f = new File(state.currentDir, args[1]);
+		File f = new File(getState().currentDir, args[1]);
 		if (!f.exists()) {
 			f.mkdir();
 		} else {

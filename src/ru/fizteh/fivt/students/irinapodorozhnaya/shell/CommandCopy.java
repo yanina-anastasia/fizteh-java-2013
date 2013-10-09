@@ -7,17 +7,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class CommandCopy extends AbstractCommand {
-	private StateShell state;;
 	public CommandCopy(StateShell st) {
-		state = st;
+		setState(st);
 		setNumberOfArguments(2);
 	}
 	public String getName(){
 		return "cp";
 	}
 	public void execute(String[] args) throws IOException {
-		File source = new File(state.currentDir, args[1]);
-		File dest = new File(state.currentDir, args[2]);
+		File source = new File(getState().currentDir, args[1]);
+		File dest = new File(getState().currentDir, args[2]);
 		try {
 			if (source.equals(dest)){
 				throw new IOException("cp: '" + source.getName() + "' can't copy object to the same object");

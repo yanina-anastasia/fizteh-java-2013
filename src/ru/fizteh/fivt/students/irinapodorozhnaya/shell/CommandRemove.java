@@ -4,16 +4,15 @@ import java.io.File;
 import java.io.IOException;
 
 public class CommandRemove extends AbstractCommand {
-	private StateShell state;
 	CommandRemove(StateShell st) {
-		state = st;
+		setState(st);
 		setNumberOfArguments(1);
 	}
 	public String getName(){
 		return "rm";
 	}
 	public void execute(String[] args) throws IOException {
-		File f = new File(state.currentDir, args[1]);
+		File f = new File(getState().currentDir, args[1]);
 		if (f.exists()) {
 			DeleteRecursivly(f);
 		} else {
