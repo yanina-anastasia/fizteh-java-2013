@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 class Environment {
     private File currentDir = new File(".");
@@ -69,7 +67,7 @@ class Environment {
         return;
     }
 
-    private boolean moveCopyCheck(File source, File dest) {
+    private boolean moveCopyCheck(final File source, final File dest) {
         if (!source.exists() || !dest.exists()) {
             System.err.println("mv or cp: no such file");
             System.exit(1);
@@ -106,7 +104,7 @@ class Environment {
         return;
     }
 
-    private void move (final String sourceStr, final String destStr) {
+    private void move(final String sourceStr, final String destStr) {
         String newSourceStr = makeNewSource(sourceStr);
         String newDestStr = makeNewSource(destStr);
         File source = new File(newSourceStr);
