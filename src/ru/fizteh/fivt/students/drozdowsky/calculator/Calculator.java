@@ -170,8 +170,8 @@ public class Calculator {
     
     private static boolean checkMinusForUnarity(String neighbourSymbols) {
         return neighbourSymbols.equals("==") || neighbourSymbols.equals("=+")
-            || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()")
-            || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
+        || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()")
+        || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
     }
     
     private static String replaceBinaryMinuses(String expression) {
