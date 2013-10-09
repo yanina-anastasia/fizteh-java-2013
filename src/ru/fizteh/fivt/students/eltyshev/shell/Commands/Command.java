@@ -1,9 +1,8 @@
-package ru.fizteh.fivt.students.eltyshev.shell.Commands;
+package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.Shell;
+import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public abstract class Command {
 
@@ -19,7 +18,7 @@ public abstract class Command {
         return helpString;
     }
 
-    public abstract void executeCommand(String params) throws IOException;
+    public abstract void executeCommand(String params, ShellState shellState) throws IOException;
 
     protected abstract void initCommand();
 

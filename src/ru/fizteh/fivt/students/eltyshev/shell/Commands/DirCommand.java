@@ -1,17 +1,19 @@
-package ru.fizteh.fivt.students.eltyshev.shell.Commands;
+package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
 import ru.fizteh.fivt.students.eltyshev.shell.FileSystem;
+import ru.fizteh.fivt.students.eltyshev.shell.FileSystemShellState;
+import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
 
-import java.io.File;
 import java.io.IOException;
 
 public class DirCommand extends Command {
 
-    public void executeCommand(String params) throws IOException {
+    public void executeCommand(String params, ShellState shellState) throws IOException {
         if (params.length() > 0) {
             throw new IllegalArgumentException("Too many arguments!");
         }
-        String[] files = FileSystem.getInstance().listWorkingDirectory();
+        FileSystemShellState state = FileSystemShellState.class.cast(shellState);
+        String[] files = state.getFileSystem().listWorkingDirectory();
         if (files == null) {
             return;
         }

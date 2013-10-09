@@ -9,9 +9,6 @@ import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.*;
 
 public class FileSystem {
-    public static FileSystem getInstance() {
-        return ourInstance;
-    }
 
     public void setWorkingDirectory(String directory) throws IOException {
         Path newWorkingDirectory = getPath(directory);
@@ -70,12 +67,34 @@ public class FileSystem {
         final Path sourcePath = getPath(source);
         final Path sourceParentPath = sourcePath.getParent();
         final Path destinationPath = getPath(destination);
+        if (Files.isSameFile(sourcePath, destinationPath)) {
+            throw new IOException(String.format("'%s' and '%s' are the same file", source, destination));
+        }
+        if (!Files.exists(sourcePath)) {
+            throw new IOException(String.format("cannot copy '%s': No such file or directory", source));
+        }
+        if (Files.isRegularFile(destinationPath)) {
+            if (Files.isRegularFile(sourcePath)) {
+                Files.copy(sourcePath, destinationPath);
+                return;
+            }
+            if (Files.isDirectory(sourcePath)) {
+                throw new IOException(String.format("cannot overwrite non-directory '%s' with directory '%s'", destination, source));
+            }
+        }
+        if (Files.isRegularFile(sourcePath) && !Files.exists(destinationPath)) {
+            Files.copy(sourcePath, destinationPath);
+            return;
+        }
+        if (!Files.exists(destinationPath)) {
+            Files.createDirectory(destinationPath);
+        }
         Files.walkFileTree(sourcePath, new FileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 Path relative = sourceParentPath.relativize(dir);
                 Path destinationDir = destinationPath.resolve(relative);
-                if (!destinationDir.equals(destinationPath)) {
+                if (!destinationDir.equals(destinationPath) || !Files.exists(destinationPath)) {
                     Files.createDirectory(destinationDir);
                 }
                 return FileVisitResult.CONTINUE;
@@ -124,7 +143,7 @@ public class FileSystem {
         return filePath;
     }
 
-    private FileSystem() {
+    public FileSystem() {
         try {
             File file = new File(".");
             setWorkingDirectory(file.getAbsolutePath());
@@ -133,5 +152,4 @@ public class FileSystem {
     }
 
     private Path workingDirectory;
-    private static FileSystem ourInstance = new FileSystem();
 }

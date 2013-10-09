@@ -1,5 +1,8 @@
-package ru.fizteh.fivt.students.eltyshev.shell.Commands;
+package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
+import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,8 +14,11 @@ public class HelpCommand extends Command {
         }
     }
 
-    public void executeCommand(String params) {
+    public void executeCommand(String params, ShellState shellState) throws IOException {
         if (params.length() > 0) {
+            if (params.length() > 1) {
+                throw new IOException("too many arguments");
+            }
             printInfo(params);
         } else {
             for (final String commandName : commands.keySet()) {

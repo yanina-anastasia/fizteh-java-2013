@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.eltyshev.shell.Commands;
-
-import ru.fizteh.fivt.students.eltyshev.shell.Shell;
+package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
 import java.util.ArrayList;
 import java.util.regex.*;

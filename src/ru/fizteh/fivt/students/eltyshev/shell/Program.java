@@ -1,11 +1,9 @@
 package ru.fizteh.fivt.students.eltyshev.shell;
 
-import ru.fizteh.fivt.students.eltyshev.shell.Commands.*;
+import ru.fizteh.fivt.students.eltyshev.shell.commands.*;
 
 import java.io.IOException;
-import java.io.File;
 
-import java.nio.file.*;
 import java.util.ArrayList;
 
 public class Program {
@@ -51,6 +49,7 @@ public class Program {
         commands.add(command);
 
         shell.setCommands(commands);
+        shell.setShellState(new FileSystemShellState());
         shell.start();
     }
 }

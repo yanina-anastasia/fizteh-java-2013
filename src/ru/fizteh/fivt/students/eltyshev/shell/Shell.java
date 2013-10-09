@@ -1,18 +1,18 @@
 package ru.fizteh.fivt.students.eltyshev.shell;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.eltyshev.shell.Commands.*;
+import ru.fizteh.fivt.students.eltyshev.shell.commands.*;
 
 public class Shell {
 
     private HashMap<String, Command> commands = new HashMap<String, Command>();
     private String[] args;
     private String prompt = "$ ";
+    private ShellState shellState;
 
     public Shell(String[] Args) {
         this.args = Args;
@@ -24,6 +24,10 @@ public class Shell {
         } else {
             packageMode();
         }
+    }
+
+    public void setShellState(ShellState shellState) {
+        this.shellState = shellState;
     }
 
     public void setCommands(ArrayList<Command> commands) {
@@ -66,13 +70,16 @@ public class Shell {
     private boolean processCommand(String command) {
         String commandName = CommandParser.getCommandName(command);
         String params = CommandParser.getParameters(command);
+        if (commandName == "") {
+            return true;
+        }
         if (!commands.containsKey(commandName)) {
             System.err.println(String.format("%s: command not found. Type help to get help", commandName));
             return false;
         }
         boolean status = true;
         try {
-            commands.get(commandName).executeCommand(params);
+            commands.get(commandName).executeCommand(params, shellState);
         } catch (IllegalArgumentException e) {
             System.err.println(commandName + ": " + e.getMessage());
             status = false;
