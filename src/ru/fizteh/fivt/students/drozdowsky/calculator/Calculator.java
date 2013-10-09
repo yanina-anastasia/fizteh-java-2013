@@ -170,8 +170,8 @@ public class Calculator {
     
     private static boolean checkMinusForUnarity(String neighbourSymbols) {
         return neighbourSymbols.equals("==") || neighbourSymbols.equals("=+")
-        || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()")
-        || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
+               || neighbourSymbols.equals("=-") || neighbourSymbols.equals("()")
+               || neighbourSymbols.equals("(+") || neighbourSymbols.equals("(-");
     }
     
     private static String replaceBinaryMinuses(String expression) {
@@ -184,11 +184,11 @@ public class Calculator {
                 currentPositionInExpression < expression.length();
                 currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION
-                    || currentLetterInExpression == '-') {
+            if ((findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION)
+                    || (currentLetterInExpression == '-')) {
                 signsAndBrackets.append(currentLetterInExpression);
                 addedSign = true;
-            } else if (currentLetterInExpression == '(' || currentLetterInExpression == ')') {
+            } else if ((currentLetterInExpression == '(') || (currentLetterInExpression == ')')) {
                 addedSign = false;
             } else if ((currentLetterInExpression != ' ') && !addedSign) {
                 signsAndBrackets.append('+');
@@ -202,11 +202,11 @@ public class Calculator {
                 currentPositionInExpression < expression.length();
                 currentPositionInExpression++) {
             char currentLetterInExpression = expression.charAt(currentPositionInExpression);
-            if (findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION
-                    || currentLetterInExpression == '-') {
+            if ((findOperationType(currentLetterInExpression) != OperationType.NOT_AN_OPERATION)
+                    || (currentLetterInExpression == '-')) {
                 currentPositionInSignsAndBrackets++;
                 addedSign = true;
-            } else if (currentLetterInExpression == '(' || currentLetterInExpression == ')') {
+            } else if ((currentLetterInExpression == '(') || (currentLetterInExpression == ')')) {
                 addedSign = false;
             } else if ((currentLetterInExpression != ' ') && !addedSign) {
                 currentPositionInSignsAndBrackets++;
