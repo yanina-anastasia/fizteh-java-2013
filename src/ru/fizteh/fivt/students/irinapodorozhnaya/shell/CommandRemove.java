@@ -5,7 +5,6 @@ import java.io.IOException;
 
 public class CommandRemove extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;
 	CommandRemove(StateShell st) {
 		state = st;
 		argsNumber = 1;

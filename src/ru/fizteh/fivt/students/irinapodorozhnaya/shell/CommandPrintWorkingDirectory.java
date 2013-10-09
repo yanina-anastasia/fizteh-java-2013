@@ -4,7 +4,6 @@ import java.io.IOException;
 
 public class CommandPrintWorkingDirectory extends AbstractCommand {	
 	private StateShell state;
-	private int argsNumber;
 	public CommandPrintWorkingDirectory(StateShell st) {
 		this.state = st;
 		argsNumber = 0;

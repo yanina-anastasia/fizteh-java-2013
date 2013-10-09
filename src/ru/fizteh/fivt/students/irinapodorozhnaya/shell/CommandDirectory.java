@@ -4,7 +4,6 @@ import java.io.File;
 
 public class CommandDirectory extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;
 	CommandDirectory (StateShell st) {
 		state = st;
 		argsNumber = 0;

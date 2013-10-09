@@ -4,7 +4,6 @@ import java.io.IOException;
 
 public class CommandExit extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;
 	public CommandExit(StateShell st) {
 		state = st;
 		argsNumber = 0;

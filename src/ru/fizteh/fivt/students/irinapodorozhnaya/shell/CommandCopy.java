@@ -7,8 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class CommandCopy extends AbstractCommand {
-	private StateShell state;
-	private int argsNumber;
+	private StateShell state;;
 	public CommandCopy(StateShell st) {
 		state = st;
 		argsNumber = 2;

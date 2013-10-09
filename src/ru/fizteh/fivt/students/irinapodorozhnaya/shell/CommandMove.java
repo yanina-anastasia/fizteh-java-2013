@@ -6,7 +6,6 @@ import java.nio.file.Files;
 
 public class CommandMove extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;	
 	public CommandMove(StateShell st) {
 		state = st;
 		argsNumber = 2;

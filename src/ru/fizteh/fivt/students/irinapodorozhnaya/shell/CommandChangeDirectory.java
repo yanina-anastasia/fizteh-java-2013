@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class CommandChangeDirectory extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;
+
 	CommandChangeDirectory (StateShell st){
 		state = st;
 		argsNumber = 1;

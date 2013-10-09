@@ -5,7 +5,6 @@ import java.io.IOException;
 
 public class CommandMakeDirectory extends AbstractCommand {
 	private StateShell state;
-	private int argsNumber;
 	public CommandMakeDirectory(StateShell st) {
 		this.state = st;
 		argsNumber = 1;
