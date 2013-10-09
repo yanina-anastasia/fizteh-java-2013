@@ -16,7 +16,8 @@ public class ShellInteractiveMode extends Shell {
             Thread.currentThread().sleep(10);
             System.out.print(state.getCurState().toString() + "$ ");
 
-            String[] input = scanner.nextLine().trim().split("\\s*;\\s*");
+            String inputString = scanner.nextLine().trim();
+            String[] input = inputString.split("\\s*;\\s*");
 
             for (String cmd : input) {
                 cmd = cmd.trim();
@@ -32,7 +33,7 @@ public class ShellInteractiveMode extends Shell {
                     }
 
                     if (!COMMANDS.containsKey(cmd.substring(0, end))) {
-                        throw new IOException("ERROR: not existing command");
+                        throw new IOException("\"ERROR: not existing command \"" + cmd.substring(0, end) + "\"");
                     }
 
                     COMMANDS.get(cmd.substring(0, end)).execute(getCommandArguments(cmd), state);
