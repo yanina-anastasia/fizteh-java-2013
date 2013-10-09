@@ -128,7 +128,7 @@ class Cd extends Command {
             }
 
             Path changePath = Paths.get(arguments[1]);
-            changePath = Shell.getAbsolutePath(changePath).normalize();
+            changePath = Shell.getAbsolutePath(changePath);
             if (changePath.toFile().isDirectory()) {
                 Shell.setWorkingDirectory(changePath);
             } else {
@@ -190,7 +190,7 @@ class Rm extends Command {
             }
 
             Path path = Paths.get(arguments[1]);
-            path = Shell.getAbsolutePath(path).normalize();
+            path = Shell.getAbsolutePath(path);
             if (path.toFile().isFile()) {
                 Files.delete(path);
             } else {
