@@ -31,6 +31,9 @@ public class MoveFileOrDirectory extends Command {
 		}
 		try {
 			if(destination.getCanonicalFile().getParent().equals(filePath.getCanonicalFile().getParent())) {
+				if(destination.getAbsoluteFile().equals(filePath.getAbsoluteFile())) {
+					return;
+				}
 				super.remover(destination);
 				if(super.hasError) {
 					return;
