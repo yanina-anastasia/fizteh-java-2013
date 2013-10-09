@@ -84,21 +84,24 @@ class ShellState {
 			name = "rm"; 
 			argNumber = 1;
 		}
+		
+		void deleteRecursively(String path) throws IOException {
+			File f = new File(path);
+			File[] files = f.listFiles();
+			for (File file : files) {
+				deleteRecursively(file.getAbsolutePath());
+			}
+			if (!f.delete()) {
+				throw new IOException("rm: cannot remove '" + f.getName() + "': Unknown error");
+			}
+		}
+		
 		void execute(String args[]) throws IOException {
 			File f = new File(absolutePath(args[1]));
 			if (!f.exists()) {
 				throw new IOException("rm: cannot remove '" + args[1] + "': No such file or directory");
 			} else {
-				if (f.isDirectory()) {
-					File[] files = f.listFiles();
-					for (File file : files) {
-						String[] s = {"rm", file.getAbsolutePath()};
-						execute(s);
-					}
-				}
-				if (!f.delete()) {
-					throw new IOException("rm: cannot remove '" + args[1] + "': Unknown error");
-				}
+				deleteRecursively(f.getAbsolutePath());
 			}
 		}
 	}
