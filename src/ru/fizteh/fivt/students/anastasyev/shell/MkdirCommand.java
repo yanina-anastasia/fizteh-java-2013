@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class MkdirCommand implements Command {
-    private static boolean mkdir(String dir) throws IOException {
-        File newDir = new File(Shell.userDir.toPath().resolve(dir).toString());
+    private static boolean mkdir(final String dir) throws IOException {
+        File newDir = new File(Shell.getUserDir().toPath().resolve(dir).toString());
         if (newDir.exists()) {
             System.err.println("mkdir: " + dir + " already exists");
             return false;
@@ -17,7 +17,7 @@ public class MkdirCommand implements Command {
     }
 
     @Override
-    public final boolean exec(String[] command) {
+    public final boolean exec(final String[] command) {
         if (command.length != 2) {
             System.err.println("mkdir: Usage - mkdir <dirname>");
             return false;

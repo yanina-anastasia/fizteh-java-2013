@@ -7,17 +7,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MvCommand implements Command {
-    private static void selfDelete(File del) throws IOException {
+    private static void selfDelete(final File del) throws IOException {
         if (del.isDirectory() && !del.delete()) {
             throw new IOException("can't delete " + del);
         }
     }
 
-    private static void move(Path pathFrom, Path pathTo) throws IOException {
-        File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
-        File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
+    private static void move(final Path pathFrom, final Path pathTo) throws IOException {
+        File from = new File(Shell.getUserDir().toPath().resolve(pathFrom.toString()).toString());
+        File to = new File(Shell.getUserDir().toPath().resolve(pathTo.toString()).toString());
         if (from.isFile() && to.isDirectory()) {
-            Files.move(from.toPath(), Shell.userDir.toPath().resolve(to.toPath()).resolve(from.getName()));
+            Files.move(from.toPath(), Shell.getUserDir().toPath().resolve(to.toPath()).resolve(from.getName()));
         } else if (from.isDirectory() && (to.isDirectory() || !to.exists())) {
             if (to.toPath().startsWith(from.toPath())) {
                 throw new IOException("Can't copy directory to subdirectory");
@@ -41,9 +41,9 @@ public class MvCommand implements Command {
         selfDelete(from);
     }
 
-    private static void mv(Path pathFrom, Path pathTo) throws IOException {
-        File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
-        File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
+    private static void mv(final Path pathFrom, final Path pathTo) throws IOException {
+        File from = new File(Shell.getUserDir().toPath().resolve(pathFrom.toString()).toString());
+        File to = new File(Shell.getUserDir().toPath().resolve(pathTo.toString()).toString());
         if (!from.exists()) {
             throw new IOException(from + " there is not such file or directory");
         }
@@ -53,7 +53,7 @@ public class MvCommand implements Command {
         if (from.isFile() && (to.isFile() || !to.exists())) {
             Files.move(from.toPath(), to.toPath());
         } else if (from.isFile() && to.isDirectory()) {
-            Files.move(from.toPath(), Shell.userDir.toPath().resolve(to.toPath()).resolve(from.getName()));
+            Files.move(from.toPath(), Shell.getUserDir().toPath().resolve(to.toPath()).resolve(from.getName()));
         } else if (from.isDirectory() && (to.isDirectory() || !to.exists())) {
             if (to.toPath().startsWith(from.toPath())) {
                 throw new IOException("can't copy directory to subdirectory");
@@ -74,14 +74,14 @@ public class MvCommand implements Command {
     }
 
     @Override
-    public final boolean exec(String[] command) {
+    public final boolean exec(final String[] command) {
         if (command.length != 3) {
             System.err.println("mv: Usage - mv <source> <destination>");
             return false;
         }
         try {
-            File from = new File(Shell.userDir.toPath().resolve(command[1]).toString());
-            File to = new File(Shell.userDir.toPath().resolve(command[2]).toString());
+            File from = new File(Shell.getUserDir().toPath().resolve(command[1]).toString());
+            File to = new File(Shell.getUserDir().toPath().resolve(command[2]).toString());
             if (from.equals(to)) {
                 System.err.println("cp: Can't write directory or file to itself");
                 return false;

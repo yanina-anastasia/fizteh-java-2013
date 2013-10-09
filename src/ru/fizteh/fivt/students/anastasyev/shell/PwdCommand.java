@@ -2,11 +2,11 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 
 public class PwdCommand implements Command {
     private static void pwd() {
-        System.out.println(Shell.userDir.toPath().normalize());
+        System.out.println(Shell.getUserDir().toPath().normalize());
     }
 
     @Override
-    public final boolean exec(String[] command) {
+    public final boolean exec(final String[] command) {
         if (command.length != 1) {
             System.err.println("pwd: Usage - pwd");
             return false;

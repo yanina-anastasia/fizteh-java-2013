@@ -7,11 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CpCommand implements Command {
-    private static void copy(Path pathFrom, Path pathTo) throws IOException {
-        File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
-        File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
+    private static void copy(final Path pathFrom, final Path pathTo) throws IOException {
+        File from = new File(Shell.getUserDir().toPath().resolve(pathFrom.toString()).toString());
+        File to = new File(Shell.getUserDir().toPath().resolve(pathTo.toString()).toString());
         if (from.isFile() && to.isDirectory()) {
-            Files.copy(from.toPath(), Shell.userDir.toPath().resolve(to.toPath()).resolve(from.getName()));
+            Files.copy(from.toPath(), Shell.getUserDir().toPath().resolve(to.toPath()).resolve(from.getName()));
         } else if (from.isDirectory() && (to.isDirectory() || !to.exists())) {
             if (to.toPath().startsWith(from.toPath())) {
                 throw new IOException("Can't copy directory to subdirectory");
@@ -34,9 +34,9 @@ public class CpCommand implements Command {
         }
     }
 
-    private static void cp(Path pathFrom, Path pathTo) throws IOException {
-        File from = new File(Shell.userDir.toPath().resolve(pathFrom.toString()).toString());
-        File to = new File(Shell.userDir.toPath().resolve(pathTo.toString()).toString());
+    private static void cp(final Path pathFrom, final Path pathTo) throws IOException {
+        File from = new File(Shell.getUserDir().toPath().resolve(pathFrom.toString()).toString());
+        File to = new File(Shell.getUserDir().toPath().resolve(pathTo.toString()).toString());
         if (!from.exists()) {
             throw new IOException(from + " there is not such file or directory");
         }
@@ -46,7 +46,7 @@ public class CpCommand implements Command {
         if (from.isFile() && (to.isFile() || !to.exists())) {
             Files.copy(from.toPath(), to.toPath());
         } else if (from.isFile() && to.isDirectory()) {
-            Files.copy(from.toPath(), Shell.userDir.toPath().resolve(to.toPath()).resolve(from.getName()));
+            Files.copy(from.toPath(), Shell.getUserDir().toPath().resolve(to.toPath()).resolve(from.getName()));
         } else if (from.isDirectory() && (to.isDirectory() || !to.exists())) {
             if (to.toPath().startsWith(from.toPath())) {
                 throw new IOException("Can't copy directory to subdirectory");
@@ -66,14 +66,14 @@ public class CpCommand implements Command {
     }
 
     @Override
-    public final boolean exec(String[] command) {
+    public final boolean exec(final String[] command) {
         if (command.length != 3) {
             System.err.println("cp: Usage - cp <source> <destination>");
             return false;
         }
         try {
-            File from = new File(Shell.userDir.toPath().resolve(command[1]).toString());
-            File to = new File(Shell.userDir.toPath().resolve(command[2]).toString());
+            File from = new File(Shell.getUserDir().toPath().resolve(command[1]).toString());
+            File to = new File(Shell.getUserDir().toPath().resolve(command[2]).toString());
             if (from.equals(to)) {
                 System.err.println("cp: Can't write directory or file to itself");
                 return false;

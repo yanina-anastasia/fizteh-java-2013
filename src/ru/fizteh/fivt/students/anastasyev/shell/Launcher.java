@@ -5,10 +5,11 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
 
-public class Launcher {
+public final class Launcher {
+    private Launcher() { }
     private static Vector<Command> allCommands;
 
-    private static boolean launch(String arg) throws IOException {
+    private static boolean launch(final String arg) throws IOException {
         String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
@@ -25,11 +26,11 @@ public class Launcher {
         return result;
     }
 
-    public static void interactiveMode() {
+    private static void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
-            System.out.print(Shell.userDir.toPath().normalize() + "$ ");
+            System.out.print(Shell.getUserDir().toPath().normalize() + "$ ");
             try {
                 String arg = scan.nextLine().trim();
                 if (arg.equals("exit")) {
@@ -46,7 +47,7 @@ public class Launcher {
         }
     }
 
-    public static void packageMode(String[] args) {
+    private static void packageMode(final String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
@@ -65,9 +66,9 @@ public class Launcher {
         }
     }
 
-    public static void shellLauncher(String[] args) {
+    public static void shellLauncher(final String[] args) {
         Shell shell = new Shell();
-        allCommands = shell.commands;
+        allCommands = shell.getCommands();
         if (args.length == 0) {
             interactiveMode();
         } else {

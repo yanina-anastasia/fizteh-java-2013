@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class RmCommand implements Command {
-    private static void rm(Path removing) throws IOException {
+    private static void rm(final Path removing) throws IOException {
         File remove = new File(removing.toString());
         if (!remove.exists()) {
             throw new IOException(removing + " there is not such file or directory");
@@ -27,13 +27,13 @@ public class RmCommand implements Command {
     }
 
     @Override
-    public final boolean exec(String[] command) {
+    public final boolean exec(final String[] command) {
         if (command.length != 2) {
             System.err.println("rm: Usage - rm <file|dir>");
             return false;
         }
         try {
-            File removing = new File(Shell.userDir.toPath().resolve(command[1]).toString());
+            File removing = new File(Shell.getUserDir().toPath().resolve(command[1]).toString());
             rm(removing.toPath());
         } catch (IOException e) {
             System.err.println("rm: " + e.getMessage());

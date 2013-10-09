@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Vector;
 
 public class Shell {
-    public static File userDir;
-    public Vector<Command> commands;
+    private static File userDir;
+    private Vector<Command> commands;
 
     public Shell() {
         Shell.userDir = new File(System.getProperty("user.dir"));
@@ -20,7 +20,19 @@ public class Shell {
         commands.add(new ExitCommand());
     }
 
-    public void addCommand(Command command) {
+    public final void addCommand(final Command command) {
         commands.add(command);
+    }
+
+    public static File getUserDir() {
+        return userDir;
+    }
+
+    public static void setUserDir(final File newUserDir) {
+        userDir = newUserDir;
+    }
+
+    public final Vector<Command> getCommands() {
+        return commands;
     }
 }
