@@ -46,12 +46,8 @@ class ShellState {
 	}
 	
 	String absolutePath(String path) {
-		File testPath = new File(path);
-		if (testPath.isAbsolute()) {
-			return path;
-		} else {
-			return workingDirectory.getAbsolutePath() + File.separator + path;
-		}
+		File testPath = new File(workingDirectory, path);
+		return testPath.getAbsolutePath();
 	}
 	
 	class MakeDirectoryCommand extends Command {
@@ -74,8 +70,12 @@ class ShellState {
 			name = "pwd"; 
 			argNumber = 0;
 		}
-		void execute(String args[]) {
-			System.out.println(workingDirectory.getAbsolutePath());
+		void execute(String args[]) throws IOException {
+			try {
+				System.out.println(workingDirectory.getCanonicalPath());
+			} catch (SecurityException e) {
+				throw new IOException(e.getMessage());
+			}
 		}
 	}
 
@@ -114,11 +114,13 @@ class ShellState {
 			if (args[1].equals(args[2])) {
 				throw new IOException("Files are same");
 			}
-			if (!sourse.exists() || !destination.exists() || !destination.canWrite() ||
-							!sourse.canRead()) {
+			if (!sourse.exists() || !sourse.canRead()) {
 				throw new IOException("cp: cannot copy '" + args[1] + "' to '" + args[2] +
 									"': No such file or directory");
 			} else {
+				if (!destination.isDirectory()) {
+					destination.createNewFile();
+				}
 				FileInputStream inputStream = new FileInputStream(sourse);
 				FileOutputStream outputStream = new FileOutputStream(destination);
 				byte[] buffer = new byte[4096];
@@ -138,11 +140,15 @@ class ShellState {
 		void execute(String[] args) throws IOException {
 			File sourse = new File(absolutePath(args[1]));
 			File destination = new File(absolutePath(args[2]));
-			if (!sourse.exists() || !destination.exists()) {
-				throw new IOException("cp: cannot copy '" + args[1] + "' to '" + args[2] +
+			if (!sourse.exists()) {
+				throw new IOException("mv: cannot copy '" + args[1] + "' to '" + args[2] +
 									"': No such file or directory");
 			} else {
-				sourse.renameTo(new File(absolutePath(args[2]) + File.separator + sourse.getName()));
+				if (!destination.isDirectory()) {
+					sourse.renameTo(destination);
+				} else {
+					sourse.renameTo(new File(destination.getAbsolutePath() + File.separator + sourse.getName()));
+				}
 			}
 		}
 	}
@@ -189,11 +195,15 @@ class ShellState {
 			System.out.print("$ ");
 			Scanner sc = new Scanner(System.in);
 			command = sc.nextLine();
-			try {
-				execute(command);
-			}
-			catch (IOException e) {
-				System.err.print(e.getMessage());
+			command = command.trim();
+			String[] commands = command.split("\\s*;\\s*");
+			for (String c : commands) {
+				try {
+					execute(c);
+				}
+				catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
 			}
 		} while (flag);
 	}
@@ -234,7 +244,7 @@ public class Shell {
 			}
 			String monoString = sb.toString(); 
 			
-			monoString.trim();
+			monoString = monoString.trim();
 			String[] commands = monoString.split("\\s*;\\s*");
 			for (String command : commands) {
 				try {
