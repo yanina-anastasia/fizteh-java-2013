@@ -1,12 +1,12 @@
 package ru.fizteh.fivt.students.elenav.shell;
 
-class ExitCommand extends Command {
+public class ExitCommand extends AbstractCommand {
 	ExitCommand(ShellState s) {
-		name = "exit";
-		argNumber = 0;
-		shell = s;
+		setName("exit");
+		setArgNumber(0);
+		setShell(s);
 	}
-	void execute(String[] args) {
+	public void execute(String[] args) {
 		System.exit(0);
 	}
 }

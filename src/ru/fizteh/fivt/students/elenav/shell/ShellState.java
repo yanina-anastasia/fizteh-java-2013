@@ -6,13 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class ShellState {
-	File workingDirectory;
+public class ShellState {
+	private File workingDirectory;
+	public void setWorkingDirectory(File f) {
+		workingDirectory = f;
+	}
+	public File getWorkingDirectory() {
+		return workingDirectory;
+	}
 	ShellState() {
 		workingDirectory = new File(".");
 	}
 	
-	static List<Command> commands = new ArrayList<Command>();
+	static List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
 	public void init() {
 		commands.add(new ChangeDirectoryCommand(this));
 		commands.add(new MakeDirectoryCommand(this));

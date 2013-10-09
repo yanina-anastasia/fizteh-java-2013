@@ -3,13 +3,13 @@ package ru.fizteh.fivt.students.elenav.shell;
 import java.io.File;
 import java.io.IOException;
 
-class MakeDirectoryCommand extends Command {
+public class MakeDirectoryCommand extends AbstractCommand {
 	MakeDirectoryCommand(ShellState s) { 
-		name = "mkdir"; 
-		argNumber = 1;
-		shell = s;
+		setName("mkdir"); 
+		setArgNumber(1);
+		setShell(s);
 	}
-	void execute(String args[]) throws IOException {
+	public void execute(String args[]) throws IOException {
 		File f = new File(absolutePath(args[1]));
 		if (!f.exists()) {
 			f.mkdir();

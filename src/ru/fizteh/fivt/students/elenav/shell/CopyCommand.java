@@ -5,13 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-class CopyCommand extends Command {
+public class CopyCommand extends AbstractCommand {
 	CopyCommand(ShellState s) { 
-		name = "cp"; 
-		argNumber = 2;
-		shell = s;
+		setName("cp"); 
+		setArgNumber(2);
+		setShell(s);
 	}
-	void execute(String args[]) throws IOException {
+	public void execute(String args[]) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
 		if (args[1].equals(args[2])) {

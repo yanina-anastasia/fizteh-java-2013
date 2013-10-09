@@ -2,15 +2,15 @@ package ru.fizteh.fivt.students.elenav.shell;
 
 import java.io.IOException;
 
-class PrintWorkingDirectoryCommand extends Command {
+public class PrintWorkingDirectoryCommand extends AbstractCommand {
 	PrintWorkingDirectoryCommand(ShellState s) { 
-		name = "pwd"; 
-		argNumber = 0;
-		shell = s;
+		setName("pwd"); 
+		setArgNumber(0);
+		setShell(s);
 	}
-	void execute(String args[]) throws IOException {
+	public void execute(String args[]) throws IOException {
 		try {
-			System.out.println(shell.workingDirectory.getCanonicalPath());
+			System.out.println(getWorkingDirectory().getCanonicalPath());
 		} catch (SecurityException e) {
 			throw new IOException(e.getMessage());
 		}

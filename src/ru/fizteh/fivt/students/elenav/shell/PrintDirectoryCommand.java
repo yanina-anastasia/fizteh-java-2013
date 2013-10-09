@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.elenav.shell;
 
-class PrintDirectoryCommand extends Command {
+public class PrintDirectoryCommand extends AbstractCommand {
 	PrintDirectoryCommand(ShellState s) { 
-		name = "dir"; 
-		argNumber = 0;
-		shell = s;
+		setName("dir"); 
+		setArgNumber(0);
+		setShell(s);
 	}
-	void execute(String[] args) {
-		String[] files = shell.workingDirectory.list();
+	public void execute(String[] args) {
+		String[] files = getWorkingDirectory().list();
 		for (String s : files) {
 			System.out.println(s);
 		}

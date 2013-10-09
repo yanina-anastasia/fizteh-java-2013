@@ -3,13 +3,13 @@ package ru.fizteh.fivt.students.elenav.shell;
 import java.io.File;
 import java.io.IOException;
 
-class MoveCommand extends Command {
+public class MoveCommand extends AbstractCommand {
 	MoveCommand(ShellState s) { 
-		name = "mv"; 
-		argNumber = 2;
-		shell = s;
+		setName("mv"); 
+		setArgNumber(2);
+		setShell(s);
 	}
-	void execute(String[] args) throws IOException {
+	public void execute(String[] args) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
 		if (!sourse.exists()) {

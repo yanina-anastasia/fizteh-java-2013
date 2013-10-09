@@ -3,20 +3,13 @@ package ru.fizteh.fivt.students.elenav.shell;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class Command {
-	protected ShellState shell;
-	protected String name;
-	protected int argNumber;
-	abstract void execute(String args[]) throws IOException;
-	final String getName() {
-		return name;
-	}
-	final int getArgNumber() {
-		return argNumber;
-	}
-	
-	public String absolutePath(String path) {
-		File testPath = new File(shell.workingDirectory, path);
-		return testPath.getAbsolutePath();
-	}
+public interface Command {
+	public String getName();
+	public int getArgNumber();
+	public void setName(String name);
+	public void setArgNumber(int number);
+	public void setShell(ShellState s);
+	public File getWorkingDirectory();
+	public void setWorkingDirectory(File f);
+	public void execute(String args[]) throws IOException;
 }
