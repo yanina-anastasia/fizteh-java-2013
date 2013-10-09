@@ -32,11 +32,18 @@ public class CommandCp implements Command {
         Path absolutePath = state.getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
+        if (!destPath.getParent().toFile().exists()) {
+            throw new IOException("cp: Cannot copy something on directory that doesn't exist");
+        }
         if (destPath.toString().equals(sourcePath.toString())) {
             throw new IOException("cp: Cannot copy file on itself.");
         }
         if (sourcePath.toFile().isFile() && !destPath.toFile().isDirectory()) {
-            throw new IOException("cp: Destination file is already exist.");
+            if (destPath.toFile().isFile()) {
+                throw new IOException("cp: Destination file is already exist.");
+            } else {
+                Files.copy(sourcePath, destPath);
+            }
         } else if (sourcePath.toFile().isFile() && destPath.toFile().isDirectory()) {
             copyFile(sourcePath.toFile(), destPath.toFile());
         } else if (sourcePath.toFile().isDirectory() && destPath.toFile().isFile()) {

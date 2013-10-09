@@ -43,11 +43,19 @@ public class CommandMv implements Command {
         Path absolutePath = state.getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
+        if (!destPath.getParent().toFile().exists()) {
+            throw new IOException("mv: Cannot mv something on directory that doesn't exist");
+        }
         if (destPath.toString().equals(sourcePath.toString())) {
             throw new IOException("mv: Cannot move file on itself.");
         }
         if (sourcePath.toFile().isFile() && !destPath.toFile().isDirectory()) {
-            throw new IOException("mv: Destination file is already exist.");
+            if (destPath.toFile().isFile()) {
+                throw new IOException("mv: Destination file is already exist.");
+            } else {
+                Files.copy(sourcePath, destPath);
+                sourcePath.toFile().delete();
+            }
         } else if (sourcePath.toFile().isFile() && destPath.toFile().isDirectory()) {
             moveFile(sourcePath.toFile(), destPath.toFile());
         } else if (sourcePath.toFile().isDirectory() && destPath.toFile().isFile()) {
