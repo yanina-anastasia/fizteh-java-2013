@@ -40,20 +40,20 @@ public class MvCommand extends Command {
         };
 
         if (SOURCE.compareTo(destination) == 0) {
-            throw new IOException("CP ERROR: copying file or directory to itself is impossible");
+            throw new IOException("MV ERROR: copying file or directory to itself is impossible");
         }
         if (destination.isFile()) {
-            throw new IOException("CP ERROR: destination can`t be file");
+            throw new IOException("MV ERROR: destination can`t be file");
         }
         if (!SOURCE.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getName() + "\"");
+            throw new FileNotFoundException("MV ERROR: not existing source \"" + SOURCE.getName() + "\"");
         }
         if (!destination.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing destination \"" +
+            throw new FileNotFoundException("MV ERROR: not existing destination \"" +
                     destination.getCanonicalFile().toString() + "\"");
         }
         if (destination.listFiles(filter).length != 0) {
-            throw new IOException("CP ERROR: file with name of source file \"" + SOURCE.getName() +
+            throw new IOException("MV ERROR: file with name of source file \"" + SOURCE.getName() +
                     "\" already exists in destination \"" + destination.getCanonicalFile().toString() +
                     "\"");
 
@@ -65,7 +65,7 @@ public class MvCommand extends Command {
         }
         if (SOURCE.isDirectory()) {
             if (destination.toPath().startsWith(SOURCE.toPath())) {
-                throw new IOException("CP ERROR: directory can`t be copied into itself");
+                throw new IOException("MV ERROR: directory can`t be copied into itself");
             }
 
             move(SOURCE, destination);
