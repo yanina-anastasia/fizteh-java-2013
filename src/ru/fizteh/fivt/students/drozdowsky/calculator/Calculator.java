@@ -9,9 +9,9 @@ public class Calculator {
         NOT_AN_OPERATION
     }
     
-    private final static String BAD_EXPRESSION = "Not valid Expression";
-    private final static int BASE = 19;
-    private final static char BINARY_MINUS_REPLACEMENT = '~';
+    private static final String BAD_EXPRESSION = "Not valid Expression";
+    private static final int BASE = 19;
+    private static final char BINARY_MINUS_REPLACEMENT = '~';
     
     private static void printNotValidExpressionError() {
         System.out.println(BAD_EXPRESSION);
