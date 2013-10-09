@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 
 import java.io.IOException;
 
-public class PwdCommand extends Command {
+public class PwdCommand extends AbstractCommand {
     public PwdCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

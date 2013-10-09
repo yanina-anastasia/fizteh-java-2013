@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class DirCommand extends Command {
+public class DirCommand extends AbstractCommand {
     public DirCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

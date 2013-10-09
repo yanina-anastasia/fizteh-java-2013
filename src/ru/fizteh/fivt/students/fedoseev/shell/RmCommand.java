@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class RmCommand extends Command {
+public class RmCommand extends AbstractCommand {
     public RmCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

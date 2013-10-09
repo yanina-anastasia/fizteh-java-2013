@@ -71,5 +71,5 @@ public abstract class Shell {
         return args;
     }
 
-    public abstract void run() throws IOException;
+    public abstract void run() throws IOException, InterruptedException;
 }

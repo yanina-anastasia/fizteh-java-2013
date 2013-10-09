@@ -9,10 +9,11 @@ public class ShellInteractiveMode extends Shell {
         super(dir);
     }
 
-    public void run() throws IOException {
+    public void run() throws IOException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
 
         while (!Thread.currentThread().isInterrupted()) {
+            Thread.currentThread().sleep(10);
             System.out.print(state.getCurState().toString() + "$ ");
 
             String inputString = scanner.nextLine().trim();
@@ -27,6 +28,14 @@ public class ShellInteractiveMode extends Shell {
                 }
 
                 try {
+                    if (cmd.substring(0, end).length() == 0) {
+                        continue;
+                    }
+
+                    if (!COMMANDS.containsKey(cmd.substring(0, end))) {
+                        throw new IOException("ERROR: not existing command");
+                    }
+
                     COMMANDS.get(cmd.substring(0, end)).execute(getCommandArguments(cmd), state);
                 } catch (Exception e) {
                     System.err.println(e.getMessage());

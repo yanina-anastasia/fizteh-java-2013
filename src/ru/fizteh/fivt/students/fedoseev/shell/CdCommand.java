@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CdCommand extends Command {
+public class CdCommand extends AbstractCommand {
     public CdCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

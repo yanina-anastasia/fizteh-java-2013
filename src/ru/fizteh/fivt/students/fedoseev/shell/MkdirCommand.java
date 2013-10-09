@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class MkdirCommand extends Command {
+public class MkdirCommand extends AbstractCommand {
     public MkdirCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

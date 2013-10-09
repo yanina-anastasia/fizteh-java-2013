@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class MvCommand extends Command {
+public class MvCommand extends AbstractCommand {
     public MvCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }

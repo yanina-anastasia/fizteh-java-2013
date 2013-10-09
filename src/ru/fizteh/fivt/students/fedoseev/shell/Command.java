@@ -2,22 +2,10 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 
 import java.io.IOException;
 
-public abstract class Command {
-    private String cmdName;
-    private Integer argsCount;
+public interface Command {
+    public String getCmdName();
 
-    public Command(String cmdName, Integer argsCount) {
-        this.cmdName = cmdName;
-        this.argsCount = argsCount;
-    }
-
-    public String getCmdName() {
-        return cmdName;
-    }
-
-    public Integer getArgsCount() {
-        return argsCount;
-    }
+    public Integer getArgsCount();
 
     public abstract void execute(String[] input, Shell.ShellState state) throws IOException;
 }

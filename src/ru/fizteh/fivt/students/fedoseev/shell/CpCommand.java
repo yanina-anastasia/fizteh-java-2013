@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class CpCommand extends Command {
+public class CpCommand extends AbstractCommand {
     public CpCommand(String cmdName, Integer argsCount) {
         super(cmdName, argsCount);
     }
