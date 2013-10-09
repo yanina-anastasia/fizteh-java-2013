@@ -12,8 +12,7 @@ public class ShellBatchMode extends Shell {
     }
 
     public void run() throws IOException {
-        String inputString = join(args, " ");
-        String[] input = inputString.split("\\s*;\\s*");
+        String[] input = join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
             if (!Thread.currentThread().isInterrupted()) {

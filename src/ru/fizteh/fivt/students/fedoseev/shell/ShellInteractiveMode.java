@@ -16,8 +16,7 @@ public class ShellInteractiveMode extends Shell {
             Thread.currentThread().sleep(10);
             System.out.print(state.getCurState().toString() + "$ ");
 
-            String inputString = scanner.nextLine().trim();
-            String[] input = inputString.split("\\s*;\\s*");
+            String[] input = scanner.nextLine().trim().split("\\s*;\\s*");
 
             for (String cmd : input) {
                 cmd = cmd.trim();
