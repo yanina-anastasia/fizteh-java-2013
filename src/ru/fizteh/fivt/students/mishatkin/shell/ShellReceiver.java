@@ -15,6 +15,11 @@ public class ShellReceiver implements CommandReceiver {
 
 	private ShellReceiver() {
 		shellPath = new File(".");
+		try {
+			shellPath = shellPath.getCanonicalFile();
+		} catch (IOException e) {
+
+		}
 	}
 
 	private void print(String s) {
@@ -51,7 +56,7 @@ public class ShellReceiver implements CommandReceiver {
 
 	@Override
 	public void changeDirectoryCommand(String arg) throws ShellException {
-		File previousState = new File(shellPath, "");
+		//File previousState = new File(shellPath, "");
 		File destinationFile = new File(arg);
 		if (!destinationFile.isAbsolute()) {
 			destinationFile = new File(shellPath, arg);
@@ -59,24 +64,10 @@ public class ShellReceiver implements CommandReceiver {
 		if (!destinationFile.exists() || !destinationFile.exists()) {
 			throw new ShellException("cd: \'" + arg + "\' : No such directory");
 		}
-		String separatorRegularExpression = (File.separator.equals("/")) ? File.separator : "\\\\";
-		String[] sequence = arg.split(separatorRegularExpression);
-		for (String simpleArg : sequence) {
-			File nextDirectory = new File(shellPath, simpleArg);
-			if (!nextDirectory.exists() || !nextDirectory.isDirectory()) {
-				shellPath = previousState;
-				throw new ShellException("cd: \'" + arg + "\' : No such directory");
-			} else {
-				if (simpleArg.equals("..")) {
-					if (shellPath.getParent() != null) {
-						shellPath = shellPath.getParentFile();
-					} else {
-						throw new ShellException("cd: \'" + arg +"\' :No such directory.");
-					}
-				} else {
-					shellPath = new File(nextDirectory, "");
-				}
-			}
+		try {
+			shellPath = destinationFile.getCanonicalFile();
+		} catch (IOException e) {
+
 		}
 	}
 
