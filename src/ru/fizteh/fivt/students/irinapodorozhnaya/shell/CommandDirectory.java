@@ -12,10 +12,10 @@ public class CommandDirectory extends AbstractCommand {
 	public void execute(String[] args) {
 		File[] filesList = state.currentDir.listFiles();
 		for (File s: filesList) {
-			System.out.println(s.getName());
+			state.out.println(s.getName());
 		}
 	}
-	public String getName(){
+	public String getName() {
 		return "dir";
 	}
 }	

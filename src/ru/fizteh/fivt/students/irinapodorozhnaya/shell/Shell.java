@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Shell {
-	
 	 public static void main(String[] args){
 		 StateShell st = new StateShell();
 		 if (args.length > 0) {
@@ -22,7 +21,7 @@ public class Shell {
 			 System.exit(1);
 		 }
 	 }
-	 
+
 	 private static String join(String[] args){
 		 StringBuilder sb = new StringBuilder();
 		 for (String s: args) {
@@ -31,13 +30,13 @@ public class Shell {
 		 }
 		 return sb.toString();
 	 }
-	 
+
 	 private static void parseAndExecute(String arg, StateShell st) throws IOException{
-		 String[] com = arg.trim().split("\\s*;\\s*"); 
+		 String[] com = arg.trim().split("\\s*;\\s*");
 		 for (String s: com){
 			 String[] args = s.split("\\s+");
 			 int argsNumber = -1;
-			 AbstractCommand c = st.commands.elementAt(0);
+			 AbstractCommand c = null;
 			 for (int i = 0; i < st.commands.size(); ++i) {
 				 if (args[0].equals(st.commands.elementAt(i).getName())){
 					 c = st.commands.elementAt(i);
@@ -49,16 +48,18 @@ public class Shell {
 				 throw new IOException(args[0] + ": No such command");
 			 } else if (argsNumber > args.length - 1) {
 				 throw new IOException(args[0]+ ": Too few arguments");
+			 } else if (argsNumber < args.length - 1) {
+				 throw new IOException(args[0]+ ": Too many arguments");
 			 }
 			 c.execute(args);
 		 }
 	 }
 
 	 private static void interactiveMode(StateShell st) {
-		 Scanner sc = new Scanner(System.in);
+		 Scanner sc = new Scanner(st.in);
 		 do {
 			 try {
-				 System.out.print("$ ");
+				 st.out.print("$ ");
 				 String s = sc.nextLine();
 				 parseAndExecute(s, st);
 			 } catch (IOException e) {

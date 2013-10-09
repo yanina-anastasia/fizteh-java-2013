@@ -13,6 +13,6 @@ public class CommandPrintWorkingDirectory extends AbstractCommand {
 		return "pwd";
 	}
 	public void execute(String[] args) throws IOException {
-		System.out.println(state.currentDir.getCanonicalPath());
+		state.out.println(state.currentDir.getCanonicalPath());
 	}
 }
