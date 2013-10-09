@@ -244,6 +244,10 @@ class Cp extends Command {
                 Files.copy(source, destination.resolve(source.getFileName()),
                         StandardCopyOption.REPLACE_EXISTING);
             } else if (source.toFile().isFile()) {
+                if (source.equals(destination)) {
+                    throw new Exception(source + " and " + destination
+                            + " are the same files");
+                }
                 Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
             } else if (source.toFile().isDirectory()
                     && destination.toFile().isDirectory()) { // recursive
@@ -308,6 +312,11 @@ class Mv extends Command {
                 Files.move(source, destination);
             } else if (source.toFile().isDirectory()
                     && destination.toFile().isDirectory()) {
+                if (Shell.isSubdirectory(destination, source)
+                        || destination.equals(source)) {
+                    throw new FileSystemLoopException(destination
+                            + " is a subdirectory of " + source);
+                }
                 final Path src = source;
                 final Path dst = destination;
                 Files.walkFileTree(src, EnumSet.of(FileVisitOption.FOLLOW_LINKS),
