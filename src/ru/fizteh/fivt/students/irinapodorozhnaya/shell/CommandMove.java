@@ -8,7 +8,7 @@ public class CommandMove extends AbstractCommand {
 	private StateShell state;
 	public CommandMove(StateShell st) {
 		state = st;
-		argsNumber = 2;
+		setNumberOfArguments(2);
 	}
 	public String getName(){
 		return "mv";

@@ -6,7 +6,7 @@ public class CommandPrintWorkingDirectory extends AbstractCommand {
 	private StateShell state;
 	public CommandPrintWorkingDirectory(StateShell st) {
 		this.state = st;
-		argsNumber = 0;
+		setNumberOfArguments(0);
 	}
 	public String getName(){
 		return "pwd";

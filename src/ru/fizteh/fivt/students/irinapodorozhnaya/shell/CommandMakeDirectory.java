@@ -7,7 +7,7 @@ public class CommandMakeDirectory extends AbstractCommand {
 	private StateShell state;
 	public CommandMakeDirectory(StateShell st) {
 		this.state = st;
-		argsNumber = 1;
+		setNumberOfArguments(0);
 	}
 	public void execute(String[] args) throws IOException {
 		File f = new File(state.currentDir, args[1]);

@@ -6,7 +6,7 @@ public class CommandExit extends AbstractCommand {
 	private StateShell state;
 	public CommandExit(StateShell st) {
 		state = st;
-		argsNumber = 0;
+		setNumberOfArguments(0);
 	}
 	public String getName(){
 		return "exit";

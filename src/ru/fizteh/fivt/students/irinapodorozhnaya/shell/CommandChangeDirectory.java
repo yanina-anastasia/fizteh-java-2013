@@ -8,7 +8,7 @@ public class CommandChangeDirectory extends AbstractCommand {
 
 	CommandChangeDirectory (StateShell st){
 		state = st;
-		argsNumber = 1;
+		setNumberOfArguments(1);
 	}
 	public void execute(String[] args) throws IOException {	
 		File f = new File (state.currentDir, args[1]);

@@ -6,7 +6,7 @@ public class CommandDirectory extends AbstractCommand {
 	private StateShell state;
 	CommandDirectory (StateShell st) {
 		state = st;
-		argsNumber = 0;
+		setNumberOfArguments(0);
 	}
 	public void execute(String[] args) {
 		File[] filesList = state.currentDir.listFiles();

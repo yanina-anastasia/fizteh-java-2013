@@ -7,7 +7,7 @@ public class CommandRemove extends AbstractCommand {
 	private StateShell state;
 	CommandRemove(StateShell st) {
 		state = st;
-		argsNumber = 1;
+		setNumberOfArguments(1);
 	}
 	public String getName(){
 		return "rm";

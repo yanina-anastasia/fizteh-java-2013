@@ -10,7 +10,7 @@ public class CommandCopy extends AbstractCommand {
 	private StateShell state;;
 	public CommandCopy(StateShell st) {
 		state = st;
-		argsNumber = 2;
+		setNumberOfArguments(2);
 	}
 	public String getName(){
 		return "cp";
