@@ -1,3 +1,4 @@
+package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
 
 public final class SomethingIsWrong extends Exception {
     public SomethingIsWrong() { 

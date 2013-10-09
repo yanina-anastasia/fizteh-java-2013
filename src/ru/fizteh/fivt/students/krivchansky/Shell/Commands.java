@@ -1,4 +1,4 @@
-//package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
 
 import java.io.File;
 
