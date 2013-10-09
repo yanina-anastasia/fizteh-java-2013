@@ -29,8 +29,8 @@ class ShellState {
 		}
 	}
 
-	public class ChangeDirectory extends Command {
-		public ChangeDirectory() { 
+	public class ChangeDirectoryCommand extends Command {
+		public ChangeDirectoryCommand() { 
 			name = "cd"; 
 			argNumber = 1;
 		}
@@ -40,7 +40,7 @@ class ShellState {
 			{
 				workingDirectory = f;
 			} else {
-				System.out.println("cd: '" + args[1] +"': No such file or directory");
+				throw new IOException("cd: '" + args[1] +"': No such file or directory");
 			}
 		}
 	}
@@ -54,21 +54,23 @@ class ShellState {
 		}
 	}
 	
-	class MakeDirectory extends Command {
-		MakeDirectory() { 
+	class MakeDirectoryCommand extends Command {
+		MakeDirectoryCommand() { 
 			name = "mkdir"; 
 			argNumber = 1;
 		}
-		void execute(String args[]) {
+		void execute(String args[]) throws IOException {
 			File f = new File(absolutePath(args[1]));
 			if (!f.exists()) {
 				f.mkdir();
+			} else {
+				throw new IOException("mkdir: directory already exist");
 			}
 		}
 	}
 
-	class PrintWorkingDirectory extends Command {
-		PrintWorkingDirectory() { 
+	class PrintWorkingDirectoryCommand extends Command {
+		PrintWorkingDirectoryCommand() { 
 			name = "pwd"; 
 			argNumber = 0;
 		}
@@ -77,15 +79,15 @@ class ShellState {
 		}
 	}
 
-	class Remove extends Command {
-		Remove() { 
+	class RemoveCommand extends Command {
+		RemoveCommand() { 
 			name = "rm"; 
 			argNumber = 1;
 		}
-		void execute(String args[]) {
+		void execute(String args[]) throws IOException {
 			File f = new File(absolutePath(args[1]));
 			if (!f.exists()) {
-				System.out.println("rm: cannot remove '" + args[1] + "': No such file or directory");
+				throw new IOException("rm: cannot remove '" + args[1] + "': No such file or directory");
 			} else {
 				if (f.isDirectory()) {
 					File[] files = f.listFiles();
@@ -94,27 +96,32 @@ class ShellState {
 						execute(s);
 					}
 				}
-				f.delete();
+				if (!f.delete()) {
+					throw new IOException("rm: cannot remove '" + args[1] + "': Unknown error");
+				}
 			}
 		}
 	}
 
-	class Copy extends Command {
-		Copy() { 
+	class CopyCommand extends Command {
+		CopyCommand() { 
 			name = "cp"; 
 			argNumber = 2;
 		}
 		void execute(String args[]) throws IOException {
 			File sourse = new File(absolutePath(args[1]));
 			File destination = new File(absolutePath(args[2]));
+			if (args[1].equals(args[2])) {
+				throw new IOException("Files are same");
+			}
 			if (!sourse.exists() || !destination.exists() || !destination.canWrite() ||
 							!sourse.canRead()) {
-				System.out.println("cp: cannot copy '" + args[1] + "' to '" + args[2] +
+				throw new IOException("cp: cannot copy '" + args[1] + "' to '" + args[2] +
 									"': No such file or directory");
 			} else {
 				FileInputStream inputStream = new FileInputStream(sourse);
 				FileOutputStream outputStream = new FileOutputStream(destination);
-				byte[] buffer = new byte[1024];
+				byte[] buffer = new byte[4096];
 				int count = 0;
 				while ((count = inputStream.read(buffer)) > 0) {
 					outputStream.write(buffer, 0, count);
@@ -123,16 +130,16 @@ class ShellState {
 		}
 	}
 
-	class Move extends Command {
-		Move() { 
+	class MoveCommand extends Command {
+		MoveCommand() { 
 			name = "mv"; 
 			argNumber = 2;
 		}
-		void execute(String[] args) {
+		void execute(String[] args) throws IOException {
 			File sourse = new File(absolutePath(args[1]));
 			File destination = new File(absolutePath(args[2]));
 			if (!sourse.exists() || !destination.exists()) {
-				System.out.println("cp: cannot copy '" + args[1] + "' to '" + args[2] +
+				throw new IOException("cp: cannot copy '" + args[1] + "' to '" + args[2] +
 									"': No such file or directory");
 			} else {
 				sourse.renameTo(new File(absolutePath(args[2]) + File.separator + sourse.getName()));
@@ -140,8 +147,8 @@ class ShellState {
 		}
 	}
 
-	class PrintDirectory extends Command {
-		PrintDirectory() { 
+	class PrintDirectoryCommand extends Command {
+		PrintDirectoryCommand() { 
 			name = "dir"; 
 			argNumber = 0;
 		}
@@ -153,8 +160,8 @@ class ShellState {
 		}
 	}
 
-	class Exit extends Command {
-		Exit () {
+	class ExitCommand extends Command {
+		ExitCommand () {
 			name = "exit";
 			argNumber = 0;
 		}
@@ -165,21 +172,20 @@ class ShellState {
 	
 	static List<Command> commands = new ArrayList<Command>();
 	public void init() {
-		commands.add(new ChangeDirectory());
-		commands.add(new MakeDirectory());
-		commands.add(new PrintWorkingDirectory());
-		commands.add(new Remove());
-		commands.add(new Copy());
-		commands.add(new Move());
-		commands.add(new PrintDirectory());
-		commands.add(new Exit());
+		commands.add(new ChangeDirectoryCommand());
+		commands.add(new MakeDirectoryCommand());
+		commands.add(new PrintWorkingDirectoryCommand());
+		commands.add(new RemoveCommand());
+		commands.add(new CopyCommand());
+		commands.add(new MoveCommand());
+		commands.add(new PrintDirectoryCommand());
+		commands.add(new ExitCommand());
 	}
 	
 	public void interactive() {
 		String command = "";
 		final boolean flag = true;
 		do {
-			// вывод текущей директории (необязательно)
 			System.out.print("$ ");
 			Scanner sc = new Scanner(System.in);
 			command = sc.nextLine();
@@ -188,7 +194,6 @@ class ShellState {
 			}
 			catch (IOException e) {
 				System.err.print(e.getMessage());
-				System.exit(1);
 			}
 		} while (flag);
 	}
@@ -227,7 +232,7 @@ public class Shell {
 				sb.append(s);
 				sb.append(" ");
 			}
-			String monoString = sb.toString(); // слепили все в одну
+			String monoString = sb.toString(); 
 			
 			monoString.trim();
 			String[] commands = monoString.split("\\s*;\\s*");
@@ -242,17 +247,3 @@ public class Shell {
 		}	
 	}
 }
-
-	//		Items join(Collection<?> c, sepator s) {
-	//			StringBuilder sb = new StringBuilder();
-	//		}
-
-	// 28 september
-	//	Deque<Integer> deque = new ArrayDeque<Integer>();
-	//	deque = new LinkedList<Integer>();
-	//	Set<Integer> set = new HashSet<Integer>();
-	//	SortedSet<Integer> ss = new TreeSet()<Integer>();
-	//	Iterator<Integer> it = set.Iterator();
-	//	while (it.hasNext()) {
-	//		int i = it.next();
-	//	}
