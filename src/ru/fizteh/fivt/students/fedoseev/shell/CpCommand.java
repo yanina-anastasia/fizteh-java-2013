@@ -24,7 +24,7 @@ public class CpCommand extends AbstractCommand {
         }
     }
 
-    public void execute(String[] input, Shell.ShellState state) throws IOException {
+    public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         if (input.length != getArgsCount()) {
             throw new IOException("CP ERROR: \"cp\" command receives only 2 arguments");
         }
@@ -44,7 +44,7 @@ public class CpCommand extends AbstractCommand {
             throw new IOException("CP ERROR: destination can`t be file");
         }
         if (!SOURCE.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getName() + "\"");
+            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getCanonicalFile().toString() + "\"");
         }
         if (!destination.exists()) {
             throw new FileNotFoundException("CP ERROR: not existing destination \"" +

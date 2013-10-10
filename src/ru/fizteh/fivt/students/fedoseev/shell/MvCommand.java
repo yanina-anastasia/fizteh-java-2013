@@ -26,7 +26,7 @@ public class MvCommand extends AbstractCommand {
         source.delete();
     }
 
-    public void execute(String[] input, Shell.ShellState state) throws IOException {
+    public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         if (input.length != getArgsCount()) {
             throw new IOException("MV ERROR: \"mv\" command receives only 2 arguments");
         }

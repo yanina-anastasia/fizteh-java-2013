@@ -23,7 +23,7 @@ public class RmCommand extends AbstractCommand {
         }
     }
 
-    public void execute(String[] input, Shell.ShellState state) throws IOException {
+    public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         if (input.length != getArgsCount()) {
             throw new IOException("RM ERROR: \"rm\" command receives only 1 argument");
         }

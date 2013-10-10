@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 
 import java.io.IOException;
 
-public abstract class AbstractCommand implements Command {
+public abstract class AbstractCommand implements AbstractShell.Command {
     private String cmdName;
     private Integer argsCount;
 
@@ -19,5 +19,5 @@ public abstract class AbstractCommand implements Command {
         return argsCount;
     }
 
-    public abstract void execute(String[] input, Shell.ShellState state) throws IOException;
+    public abstract void execute(String[] input, AbstractShell.ShellState state) throws IOException;
 }

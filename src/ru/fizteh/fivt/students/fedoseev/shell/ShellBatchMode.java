@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class ShellBatchMode extends Shell {
+public class ShellBatchMode extends AbstractShell {
     private String[] args;
 
     public ShellBatchMode(File dir, String[] args) {
@@ -12,8 +12,7 @@ public class ShellBatchMode extends Shell {
     }
 
     public void run() throws IOException {
-        String inputString = join(args, " ");
-        String[] input = inputString.split("\\s*;\\s*");
+        String[] input = join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
             if (!Thread.currentThread().isInterrupted()) {

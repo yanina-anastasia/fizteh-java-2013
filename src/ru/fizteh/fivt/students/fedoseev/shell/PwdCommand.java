@@ -7,7 +7,7 @@ public class PwdCommand extends AbstractCommand {
         super(cmdName, argsCount);
     }
 
-    public void execute(String[] input, Shell.ShellState state) throws IOException {
+    public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         if (input.length != getArgsCount()) {
             throw new IOException("PWD ERROR: \"pwd\" command receives no arguments");
         }
