@@ -17,10 +17,10 @@ public class Main {
                 listener.listen(concatenator.toString());
             } catch (Listener.IncorrectSyntaxException e) {
                 System.err.println(e.getMessage());
-                return;
+                System.exit(-1);
             } catch (Shell.ShellException e) {
                 System.err.println(e.getMessage());
-                return;
+                System.exit(-2);
             }
         } else {
             BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
