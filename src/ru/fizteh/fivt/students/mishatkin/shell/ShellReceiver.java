@@ -87,7 +87,7 @@ public class ShellReceiver implements CommandReceiver {
 		if (absolutePathFile.isAbsolute() && !absolutePathFile.exists()) {
 			absolutePathFile.mkdir();
 		} else {
-			File directoryToCreate = new File(shellPath, arg);
+			File directoryToCreate = normalizedFile(arg);
 			try {
 				directoryToCreate = directoryToCreate.getCanonicalFile();
 			} catch (IOException ignored) {
@@ -112,11 +112,7 @@ public class ShellReceiver implements CommandReceiver {
 
 	@Override
 	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws ShellException {
-		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
-		if (!sourceFileOrDirectory.isAbsolute()) {
-			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
-		}
-
+		File sourceFileOrDirectory = normalizedFile(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.exists()) {
 			throw new ShellException("cp: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
