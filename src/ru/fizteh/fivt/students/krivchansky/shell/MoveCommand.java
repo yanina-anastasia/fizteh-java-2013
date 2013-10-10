@@ -1,11 +1,9 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
 import java.io.File;
 
 
-
-
-public class Mv implements Commands {
+public class MoveCommand implements Commands {
     
     public String getCommandName() {
         return "mv";
@@ -15,13 +13,13 @@ public class Mv implements Commands {
         return 2;
     }
     
-    private void shift(File from, File to) throws SomethingIsWrong {
+    private void shift(File from, File to) throws SomethingIsWrongException {
         if (from.isFile()) {
-            Cp.copy(from, to);
+            CopyCommand.copy(from, to);
         } else {
             File newPlace = new File(to, from.getName());
             if (!newPlace.exists() || !newPlace.mkdir()) {
-                throw new SomethingIsWrong("Unable to create new directory " + from.getName());
+                throw new SomethingIsWrongException("Unable to create new directory " + from.getName());
             }
             for (String tmp : from.list()) {
                 shift(new File(from, tmp), newPlace);
@@ -31,23 +29,23 @@ public class Mv implements Commands {
     }
     
     
-    public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrong {
+    public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrongException {
         String from = args[0];
         String to = args[1];
         File source = UtilMethods.getAbsoluteName(from, state);
         File destination = UtilMethods.getAbsoluteName(to, state);
         if (!source.exists()) {
-            throw new SomethingIsWrong ("The file " + from + " doesn't exist.");
+            throw new SomethingIsWrongException ("The file " + from + " doesn't exist.");
         }
         if (source.getParent().equals(destination.getParent()) && destination.isDirectory()) {
             if (!source.renameTo(destination)) {
-                throw new SomethingIsWrong("Error acquired while renaming the " + from + " to " + to);
+                throw new SomethingIsWrongException("Error acquired while renaming the " + from + " to " + to);
             }
             return;
         }
         if (!destination.isDirectory()) {
             if(!source.renameTo(destination)) {
-                throw new SomethingIsWrong(to + " is not a directory name");
+                throw new SomethingIsWrongException(to + " Error acquired while renaming it.");
             }
             return;
         }

@@ -1,6 +1,5 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
-import java.io.File;
 
 
 public interface Commands {
@@ -9,5 +8,5 @@ public interface Commands {
     
     public int getArgumentQuantity();
     
-    abstract public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrong;
+    abstract public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrongException;
 }

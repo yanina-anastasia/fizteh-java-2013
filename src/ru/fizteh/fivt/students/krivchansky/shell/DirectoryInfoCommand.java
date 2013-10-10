@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 
-public class Dir implements Commands {
+public class DirectoryInfoCommand implements Commands {
     
     public String getCommandName() {
         return "dir";
@@ -19,8 +19,10 @@ public class Dir implements Commands {
         File dir = new File(state.getCurDir());
         String[] files = dir.list();
         List<String> tempObj = Arrays.asList(files);
-        String anotherTempObj = UtilMethods.uniteItems(tempObj, " ");
-        System.out.println(anotherTempObj);
+        if(tempObj.size() > 0) {
+            String anotherTempObj = UtilMethods.uniteItems(tempObj, "\n");
+            System.out.println(anotherTempObj);
+        }
     }
 
 }

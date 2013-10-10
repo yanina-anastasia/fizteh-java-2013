@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 
-public class Cp implements Commands {
+public class CopyCommand implements Commands {
 
     public String getCommandName() {
         return "cp";
@@ -18,52 +18,24 @@ public class Cp implements Commands {
     }
     
     
-    public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrong {
+    public void implement(String[] args, Shell.ShellState state) throws SomethingIsWrongException {
         String from = args[0];
         String to = args[1];
         File source = UtilMethods.getAbsoluteName(from, state);
         File newPlace = UtilMethods.getAbsoluteName(to, state);
         if (!newPlace.isDirectory()) {
             if (!newPlace.exists()) {
-                /*try {
-                    newPlace.createNewFile();
-                    
-                } catch (IOException e) {
-                    throw new SomethingIsWrong("Error acquired while creating file with that name. Message: " + e.getMessage());
-                }*/
                 copyToNotExistingFile(source, newPlace);
                 return;
             } else {
-                copyToExistingFile(source, newPlace);
+                throw new SomethingIsWrongException("This file already exists. ");
             }
         }
         mkCopy(source, newPlace);
     }
     
-    protected static void copyToExistingFile(File from, File to) throws SomethingIsWrong {
-        File copy = new File(to, from.getName());
-        FileInputStream first = null; //file from copy was made
-        FileOutputStream second = null; // file to
-        try {
-            first = new FileInputStream(from);
-            second = new FileOutputStream(to);
-            byte[]buf = new byte[4096];
-            int read = first.read(buf);
-            while (0 < read) {
-                second.write(buf, 0, read);
-                read = first.read(buf);
-            }
-        } catch (FileNotFoundException e) {
-            throw new SomethingIsWrong("File not found. " + e.getMessage());
-        } catch (IOException e) {
-            throw new SomethingIsWrong("Error aquired while reading/writing a file. " + e.getMessage());
-        } finally {
-            UtilMethods.closeCalm(first);
-            UtilMethods.closeCalm(second);
-        }
-    }
     
-    protected static void copyToNotExistingFile(File from, File to) throws SomethingIsWrong {
+    private static void copyToNotExistingFile(File from, File to) throws SomethingIsWrongException {
         File copy = new File(to, to.getName());
         FileInputStream first = null; //file from copy was made
         FileOutputStream second = null; // file to
@@ -77,16 +49,16 @@ public class Cp implements Commands {
                 read = first.read(buf);
             }
         } catch (FileNotFoundException e) {
-            throw new SomethingIsWrong("File not found. " + e.getMessage());
+            throw new SomethingIsWrongException("File not found. " + e.getMessage());
         } catch (IOException e) {
-            throw new SomethingIsWrong("Error aquired while reading/writing a file. " + e.getMessage());
+            throw new SomethingIsWrongException("Error aquired while reading/writing a file. " + e.getMessage());
         } finally {
             UtilMethods.closeCalm(first);
             UtilMethods.closeCalm(second);
         }
     }
     
-    protected static void copy(File from, File to) throws SomethingIsWrong {
+    protected static void copy(File from, File to) throws SomethingIsWrongException {
         File copy = new File(to, from.getName());
         FileInputStream first = null; //file from copy was made
         FileOutputStream second = null; // file to
@@ -101,23 +73,23 @@ public class Cp implements Commands {
                 read = first.read(buf);
             }
         } catch (FileNotFoundException e) {
-            throw new SomethingIsWrong("File not found. " + e.getMessage());
+            throw new SomethingIsWrongException("File not found. " + e.getMessage());
         } catch (IOException e) {
-            throw new SomethingIsWrong("Error aquired while reading/writing a file. " + e.getMessage());
+            throw new SomethingIsWrongException("Error aquired while reading/writing a file. " + e.getMessage());
         } finally {
             UtilMethods.closeCalm(first);
             UtilMethods.closeCalm(second);
         }
     }
     
-    private void mkCopy(File from, File to) throws SomethingIsWrong {
+    private void mkCopy(File from, File to) throws SomethingIsWrongException {
         if (from.isFile()) {
             copy(from, to);
             return;
         }
         File newPlace = new File(to, from.getName());
         if (!newPlace.exists() || !newPlace.mkdir()) {
-            throw new SomethingIsWrong("Unable to create a new directory " + from.getName());
+            throw new SomethingIsWrongException("Unable to create a new directory " + from.getName());
         }
         for (String temp : from.list()) {
             copy(new File(to, temp), newPlace); 

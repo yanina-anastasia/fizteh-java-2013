@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
 import java.io.Closeable;
 import java.io.File;
@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
-
 
 public class UtilMethods {
     
@@ -35,7 +34,7 @@ public class UtilMethods {
         }
     }
     
-    public static void copyFile(File source, File dirDestination) throws SomethingIsWrong {
+    public static void copyFile(File source, File dirDestination) throws SomethingIsWrongException {
         File copy = new File(dirDestination, source.getName());
         FileInputStream ofOriginal = null;
         FileOutputStream ofCopy = null;
@@ -50,9 +49,9 @@ public class UtilMethods {
                 read = ofOriginal.read(buf);
             }
         } catch (FileNotFoundException e) {
-            throw new SomethingIsWrong ("This file or directory doesn't exist yet. " + e.getMessage());
+            throw new SomethingIsWrongException ("This file or directory doesn't exist yet. " + e.getMessage());
         } catch (IOException e) {
-            throw new SomethingIsWrong ("Error while writing/reading file. " + e.getMessage());
+            throw new SomethingIsWrongException ("Error while writing/reading file. " + e.getMessage());
         } finally {
             closeCalm(ofOriginal);
             closeCalm(ofCopy);

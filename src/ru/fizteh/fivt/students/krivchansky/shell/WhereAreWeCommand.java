@@ -1,6 +1,6 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
-public class Pwd implements Commands {
+public class WhereAreWeCommand implements Commands {
     
     public String getCommandName() {
         return "pwd";

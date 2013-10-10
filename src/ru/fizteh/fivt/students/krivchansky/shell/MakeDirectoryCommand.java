@@ -1,9 +1,9 @@
-package ru.fizteh.fivt.students.isItJavaOrSomething.Shell;
+package ru.fizteh.fivt.students.krivchansky.shell;
 
 import java.io.File;
 
 
-public class MkDir implements Commands {
+public class MakeDirectoryCommand implements Commands {
     
     public String getCommandName() {
         return "mkdir";
@@ -13,11 +13,11 @@ public class MkDir implements Commands {
         return 1;
     }
     
-    public void implement (String[] args, Shell.ShellState state) throws SomethingIsWrong{
+    public void implement (String[] args, Shell.ShellState state) throws SomethingIsWrongException{
         String nameOfDirectory = args [0];
         File creating = UtilMethods.getAbsoluteName(nameOfDirectory, state);
         if (!creating.mkdir()) {
-            throw new SomethingIsWrong("Can't make a directory " + nameOfDirectory);
+            throw new SomethingIsWrongException("Can't make a directory " + nameOfDirectory);
         }
     }
 }
