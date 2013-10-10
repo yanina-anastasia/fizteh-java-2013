@@ -41,21 +41,26 @@ public class ShellReceiver implements CommandReceiver {
 		}
 	}
 
+	private File normalizedFile(String arg) {
+		File theFile = new File(arg);
+		if (!theFile.isAbsolute()) {
+			theFile = new File(shellPath, arg);
+		}
+		try {
+			theFile = theFile.getCanonicalFile();
+		} catch (IOException ignored) {
+		}
+		return theFile;
+	}
+
 	@Override
 	public void changeDirectoryCommand(String arg) throws ShellException {
 		//File previousState = new File(shellPath, "");
-		File destinationFile = new File(arg);
-		if (!destinationFile.isAbsolute()) {
-			destinationFile = new File(shellPath, arg);
-		}
+		File destinationFile = normalizedFile(arg);
 		if (!destinationFile.exists() || !destinationFile.exists()) {
 			throw new ShellException("cd: \'" + arg + "\' : No such directory");
 		}
-		try {
-			shellPath = destinationFile.getCanonicalFile();
-		} catch (IOException e) {
-
-		}
+		shellPath = destinationFile;
 	}
 
 	@Override
@@ -83,7 +88,10 @@ public class ShellReceiver implements CommandReceiver {
 			absolutePathFile.mkdir();
 		} else {
 			File directoryToCreate = new File(shellPath, arg);
-			
+			try {
+				directoryToCreate = directoryToCreate.getCanonicalFile();
+			} catch (IOException ignored) {
+			}
 			if (!directoryToCreate.exists()) {
 				directoryToCreate.mkdir();
 			}
@@ -92,20 +100,14 @@ public class ShellReceiver implements CommandReceiver {
 
 	@Override
 	public void removeCommand(String arg) throws ShellException {
-		File absolutePathFile = new File(arg);
-		if (absolutePathFile.isAbsolute()) {
-			deleteFile(absolutePathFile);
-		} else {
-			File fileToDelete = new File(shellPath, arg);
-			deleteFile(fileToDelete);
-		}
+		File fileToDelete = normalizedFile(arg);
+		deleteFile(fileToDelete);
 	}
 
 	private void deleteFile(File fileToDelete) throws ShellException {
-		if (!fileToDelete.exists()) {
+		if (!fileToDelete.exists() || !fileToDelete.delete()) {
 			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
 		}
-		fileToDelete.delete();
 	}
 
 	@Override
@@ -114,13 +116,11 @@ public class ShellReceiver implements CommandReceiver {
 		if (!sourceFileOrDirectory.isAbsolute()) {
 			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
 		}
+
 		if (!sourceFileOrDirectory.exists()) {
 			throw new ShellException("cp: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
-		File destinationDirectory = new File(destinationDirectoryName);
-		if (!destinationDirectory.isAbsolute()) {
-			destinationDirectory = new File(shellPath, destinationDirectoryName);
-		}
+		File destinationDirectory = normalizedFile(destinationDirectoryName);
 		File destinationFileOrDirectory = new File(destinationDirectory, sourceFileOrDirectory.getName());
 		if (destinationFileOrDirectory.exists()) {
 			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
@@ -143,17 +143,11 @@ public class ShellReceiver implements CommandReceiver {
 
 	@Override
 	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws ShellException {
-		File sourceFileOrDirectory = new File(sourceFileOrDirectoryName);
-		if (!sourceFileOrDirectory.isAbsolute()) {
-			sourceFileOrDirectory = new File(shellPath, sourceFileOrDirectoryName);
-		}
+		File sourceFileOrDirectory = normalizedFile(sourceFileOrDirectoryName);
 		if (!sourceFileOrDirectory.exists()) {
 			throw new ShellException("mv: \'" + sourceFileOrDirectory + "\' : No such file or directory");
 		}
-		File destinationFileOrDirectory = new File(destinationFileOrDirectoryName);
-		if (!destinationFileOrDirectory.isAbsolute()) {
-			destinationFileOrDirectory = new File(shellPath, destinationFileOrDirectoryName);
-		}
+		File destinationFileOrDirectory = normalizedFile(destinationFileOrDirectoryName);
 		if (destinationFileOrDirectory.exists()) {
 			throw new ShellException("mv : \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : destination file already exists.");
 		}
