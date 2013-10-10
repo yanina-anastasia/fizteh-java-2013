@@ -22,7 +22,7 @@ public class ShellRunner {
 			Command aCommand = null;
 			do {
 				try {
-					aCommand = in.nextCommand();
+					aCommand = in.nextCommandForReceiver(ShellReceiver.sharedInstance());
 					if (aCommand != null) {
 						aCommand.execute();
 					}

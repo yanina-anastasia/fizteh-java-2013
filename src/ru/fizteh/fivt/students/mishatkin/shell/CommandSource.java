@@ -1,20 +1,29 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * CommandSource.java
  * Created by Vladimir Mishatkin on 9/23/13
  */
 public abstract class CommandSource {
+	private static  final Map<CommandType, Integer> inputArgumentsCount;
+	static {
+		Map<CommandType, Integer> aMap = new HashMap<CommandType, Integer>();
+		aMap.put(CommandType.CD, 1);
+		aMap.put(CommandType.MKDIR, 1);
+		aMap.put(CommandType.PWD, 0);
+		aMap.put(CommandType.RM, 1);
+		aMap.put(CommandType.CP, 2);
+		aMap.put(CommandType.MV, 2);
+		aMap.put(CommandType.DIR, 0);
+		aMap.put(CommandType.EXIT, 0);
+		inputArgumentsCount = Collections.unmodifiableMap(aMap);
+	}
 	private ArrayList<String> commandsStringsBuffer = new ArrayList<String>();
 	private ArrayList<String> commandArgumentsBuffer = new ArrayList<String>();
 
-	public abstract boolean hasMoreData();
-	public abstract String nextLine();
-
-	public Command nextCommand() throws ShellException {
+	public Command nextCommandForReceiver(CommandReceiver receiver) throws ShellException {
 		if (commandsStringsBuffer.isEmpty()) {
 			if (!hasMoreData()) {
 				throw new TimeToExitException();
@@ -31,7 +40,7 @@ public abstract class CommandSource {
 		}
 		Command theCommand = null;
 		try {
-			theCommand = Command.createCommand(commandArgumentsBuffer);
+			theCommand = createCommand(receiver);
 		} catch (IllegalArgumentException e) {
 			commandsStringsBuffer.clear();
 		}
@@ -39,7 +48,67 @@ public abstract class CommandSource {
 		return theCommand;
 	}
 
+	private Command createCommand(CommandReceiver receiver) throws ShellException {
+		if (commandArgumentsBuffer.isEmpty()) {
+			return null;
+		}
+		Command retValue =  null;
+		String commandName = commandArgumentsBuffer.get(0);
+		CommandType theType;
+		try {
+			theType = CommandType.valueOf(commandName.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			commandArgumentsBuffer.removeAll(commandArgumentsBuffer);
+			String enumName = "CommandType.";
+			String type = e.getMessage().substring( e.getMessage().indexOf(enumName) + enumName.length()).toLowerCase();
+			throw new ShellException("Invalid command: \'" + type + "\'.");
+		}
+		switch (theType) {
+			case CD:
+				retValue = new ChangeDirectoryCommand(receiver);
+				break;
+			case MKDIR:
+				retValue = new MakeDirectoryCommand(receiver);
+				break;
+			case PWD:
+				retValue = new PrintWorkingDirectoryCommand(receiver);
+				break;
+			case RM:
+				retValue = new RemoveCommand(receiver);
+				break;
+			case CP:
+				retValue = new CopyCommand(receiver);
+				break;
+			case MV:
+				retValue = new MoveCommand(receiver);
+				break;
+			case DIR:
+				retValue = new DirectoryCommand(receiver);
+				break;
+			case EXIT:
+				retValue = new ExitCommand(receiver);
+				break;
+		}
+		if (retValue != null) {
+			readArgs(retValue);
+		}
+		return retValue;
+	}
+
+	private void readArgs(Command command) throws  ShellException {
+		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {
+			if (argumentIndex + 1 >= commandArgumentsBuffer.size()) {
+				throw new ShellException("Not enough arguments for command \'"
+						+ command.type.toString().toLowerCase() + "\'.");
+			}
+			command.args[argumentIndex] = commandArgumentsBuffer.get(argumentIndex + 1);
+		}
+	}
+
 	public boolean hasUnexecutedCommands() {
 		return !commandsStringsBuffer.isEmpty();
 	}
+
+	public abstract boolean hasMoreData();
+	public abstract String nextLine();
 }
