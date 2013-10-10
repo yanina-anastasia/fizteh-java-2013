@@ -2,16 +2,12 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.HashMap;
-import java.util.Map;
 
 class MySystem {
 
@@ -171,19 +167,6 @@ class MySystem {
         StringTokenizer token = new StringTokenizer(query);
         int countTokens = token.countTokens();
         String command = token.nextToken().toLowerCase();
-
-        Map<String, String> commandList = new HashMap<String, String>();
-
-        MySystem sys = new MySystem();
-        Class[] paramTypes = new Class[] { String.class };
-        try {
-            Method method = MySystem.class.getMethod("mkdir", paramTypes);
-            Object[] ar = new Object[] {new String("123")};
-            method.invoke(sys, ar);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         if (command.equals("exit") && countTokens == 1) {
             return Code.EXIT;
         } else if (command.equals("dir") && countTokens == 1) {
@@ -248,7 +231,8 @@ class MySystem {
 
 public class Shell {
 
-    public static void runShell(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
+        //args = new String[]{"cd /home/deamoon/Music;", "cp dir0 /home/deamoon/Music/1.txt"};
         MySystem sys = new MySystem();
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
@@ -264,11 +248,6 @@ public class Shell {
         } else {
             sys.interactiveMode();
         }
-    }
-
-    public static void main(String[] args) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        args = new String[]{"cd /home/deamoon/Music;", "cp 1.txt /home/deamoon/Music/1.txt"};
-        //Shell.runShell(args);
     }
 
 }
