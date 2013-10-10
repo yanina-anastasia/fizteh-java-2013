@@ -33,8 +33,10 @@ public class Listener {
                     pointer++;
                 }
             } else if(line.charAt(pointer) == ';') {
-                result.add(command);
-                command = new ArrayList<String>();
+                if(command.size() > 0) {
+                    result.add(command);
+                    command = new ArrayList<String>();
+                }
                 pointer++;
             } else {
                 int start = pointer;

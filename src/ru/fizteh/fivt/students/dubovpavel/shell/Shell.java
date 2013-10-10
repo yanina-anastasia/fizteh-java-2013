@@ -62,7 +62,10 @@ public class Shell {
         }
     }
 
-    private boolean copyFile(String source, String destination) {
+    private boolean copyFile(String source, String destination) throws ShellException {
+        if(source.equals(destination)) {
+            throw new ShellException("cp: Attempt to copy file in itself.");
+        }
         try {
             FileInputStream inf = new FileInputStream(source);
             FileOutputStream ouf = new FileOutputStream(destination);
@@ -79,9 +82,9 @@ public class Shell {
         return true;
     }
 
-    private boolean copyFolder(String source, String destination) {
+    private boolean copyFolder(String source, String destination) throws ShellException {
         File sourceFolder = new File(source), destinationFolder = new File(destination);
-        if(!destinationFolder.mkdirs()) {
+        if(!destinationFolder.mkdir()) {
             return false;
         }
         for(File object: sourceFolder.listFiles()) {
