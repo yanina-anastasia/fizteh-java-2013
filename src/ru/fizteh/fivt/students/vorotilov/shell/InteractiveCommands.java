@@ -8,7 +8,7 @@ public class InteractiveCommands extends ConsoleCommands {
 
     protected BufferedReader inputStream;
 
-    InteractiveCommands() {
+    public InteractiveCommands() {
         inputStream = new BufferedReader(new InputStreamReader(System.in));
     }
 

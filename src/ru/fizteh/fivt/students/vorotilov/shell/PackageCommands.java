@@ -7,7 +7,7 @@ public class PackageCommands extends ConsoleCommands {
 
     private Queue<String[] > commandsBuffer;
 
-    PackageCommands(String[] packageInput) {
+    public PackageCommands(String[] packageInput) {
         commandsBuffer = new LinkedList<>();
         StringBuilder concatenatedPackageInput = new StringBuilder();
         for (String i : packageInput) {

@@ -3,22 +3,6 @@ package ru.fizteh.fivt.students.vorotilov.shell;
 import java.io.File;
 import java.io.IOException;
 
-class ExitCommand extends Exception {}
-
-class FileWasNotDeleted extends Exception {
-
-    protected File problematicFile;
-
-    FileWasNotDeleted(File pF) {
-        super();
-        problematicFile = pF;
-    }
-
-    public File getProblematicFile() {
-        return problematicFile;
-    }
-}
-
 public class ShellMain {
 
     private static File currentDirectory;
@@ -148,7 +132,6 @@ public class ShellMain {
         } catch (IOException e) {
             System.exit(1);
         }
-
     }
 
 }
