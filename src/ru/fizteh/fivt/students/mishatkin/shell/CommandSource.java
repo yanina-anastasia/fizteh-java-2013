@@ -7,7 +7,7 @@ import java.util.*;
  * Created by Vladimir Mishatkin on 9/23/13
  */
 public abstract class CommandSource {
-	private static  final Map<CommandType, Integer> inputArgumentsCount;
+	private static  final Map<CommandType, Integer> INPUT_ARGUMENTS_COUNTS;
 	static {
 		Map<CommandType, Integer> aMap = new HashMap<CommandType, Integer>();
 		aMap.put(CommandType.CD, 1);
@@ -18,7 +18,7 @@ public abstract class CommandSource {
 		aMap.put(CommandType.MV, 2);
 		aMap.put(CommandType.DIR, 0);
 		aMap.put(CommandType.EXIT, 0);
-		inputArgumentsCount = Collections.unmodifiableMap(aMap);
+		INPUT_ARGUMENTS_COUNTS = Collections.unmodifiableMap(aMap);
 	}
 	private ArrayList<String> commandsStringsBuffer = new ArrayList<String>();
 	private ArrayList<String> commandArgumentsBuffer = new ArrayList<String>();
@@ -100,11 +100,11 @@ public abstract class CommandSource {
 	}
 
 	private void readArgs(Command command) throws ShellArgumentsMismatchException {
-		if (inputArgumentsCount.get(command.getType()) != commandArgumentsBuffer.size() - 1) {
+		if (INPUT_ARGUMENTS_COUNTS.get(command.getType()) != commandArgumentsBuffer.size() - 1) {
 			throw new ShellArgumentsMismatchException("Invalid number of arguments for command \'"
 					+ command.type.toString().toLowerCase() + "\'.");
 		}
-		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {
+		for (int argumentIndex = 0; argumentIndex < INPUT_ARGUMENTS_COUNTS.get(command.getType()); ++argumentIndex) {
 			command.args[argumentIndex] = commandArgumentsBuffer.get(argumentIndex + 1);
 		}
 	}
