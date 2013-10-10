@@ -7,9 +7,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
 public class Shell {
-    static String currPath = System.getProperty("user.dir");
-    static boolean isPacket;
-    
+    public static String currPath = System.getProperty("user.dir");
+    public static boolean isPacket;
+
     public static void printError(String errStr) {
         if (isPacket) {
             System.err.println(errStr);
@@ -18,7 +18,7 @@ public class Shell {
             System.out.println(errStr);
         }
     }
-    
+
     public static boolean checkArgs(int num, String[] args) {
         if (args.length != num) {
             printError("Incorrect number of args");
@@ -26,14 +26,14 @@ public class Shell {
         }
         return true;
     }
-    
+
     public static File createFile(String arg) {
         if (new File(arg).isAbsolute()) {
             return new File(arg);
         }
         return new File(currPath + File.separator + arg);
     }
-    
+
     public static void doMkdir(String arg) {
         File currFile = createFile(arg);
         if (currFile.exists()) {
@@ -42,7 +42,7 @@ public class Shell {
             printError("mkdir cannot create a directory'" + arg + "'");
         }
     }
-    
+
     public static void doDelete(File currFile) {
         if (currFile.exists()) {
             if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
@@ -55,7 +55,7 @@ public class Shell {
             }
         }
     }
-    
+
     public static void doRm(String arg) {
         File currFile = createFile(arg);
         if (!currFile.exists()) {
@@ -64,7 +64,7 @@ public class Shell {
             doDelete(currFile);
         }
     }
-    
+
     public static void doCd(String arg) {
         File currFile = createFile(arg);
         if (currFile.exists()) {
@@ -77,7 +77,7 @@ public class Shell {
             printError("cd: '" + arg + "': No such file or directory");
         }
     }
-    
+
     public static void doDir() {
         File currFile = new File(currPath);
         File[] list = currFile.listFiles();
@@ -89,7 +89,7 @@ public class Shell {
             }
         }
     }
-    
+
     public static void doCp(String[] args) {
         File currFile = createFile(args[1]);
         File destFile = createFile(args[2] + File.separator + args[1]);
@@ -103,7 +103,7 @@ public class Shell {
             }
         }
     }
-    
+
     public static void doMv(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
@@ -119,10 +119,10 @@ public class Shell {
             } catch (IOException e1) {
                 printError("cp: cannot move '" + args[1] + "'");
             }
-            
+
         }
     }
-    
+
     public static void execProc(String[] args) {
         switch (args[0]) {
         case "pwd":
@@ -164,8 +164,10 @@ public class Shell {
             System.out.println("Unknown command");
         }
     }
-    
+
     public static String[] getArgsFromString(String str) {
+        str = str.replaceAll("[ ]+", " ");
+        str = str.replaceAll("[ ]+$", "");
         int countArgs = 1;
         for (int i = 0; i < str.length(); ++i) {
             if (str.charAt(i) == ' ') {
@@ -181,9 +183,9 @@ public class Shell {
         stringScanner.close();
         return cmdArgs;
     }
-    
+
     public static void main(String[] args) {
-        
+
         if (args.length != 0) {
             isPacket = true;
             StringBuffer argStr = new StringBuffer(args[0]);
