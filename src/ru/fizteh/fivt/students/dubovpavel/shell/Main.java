@@ -8,16 +8,19 @@ public class Main {
     public static void main(String[] args) {
         Listener listener = new Listener();
         if(args.length != 0) {
+            StringBuilder concatenator = new StringBuilder();
             for(int i = 0; i < args.length; i++) {
-                try {
-                    listener.listen(args[i]);
-                } catch (Listener.IncorrectSyntaxException e) {
-                    System.err.println(e.getMessage());
-                    return;
-                } catch (Shell.ShellException e) {
-                    System.err.println(e.getMessage());
-                    return;
-                }
+                concatenator.append(args[i]);
+                concatenator.append(' ');
+            }
+            try {
+                listener.listen(concatenator.toString());
+            } catch (Listener.IncorrectSyntaxException e) {
+                System.err.println(e.getMessage());
+                return;
+            } catch (Shell.ShellException e) {
+                System.err.println(e.getMessage());
+                return;
             }
         } else {
             BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
