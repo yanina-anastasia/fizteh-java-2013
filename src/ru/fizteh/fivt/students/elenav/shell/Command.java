@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.elenav.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public interface Command {
 	public String getName();
@@ -11,5 +12,5 @@ public interface Command {
 	public void setShell(ShellState s);
 	public File getWorkingDirectory();
 	public void setWorkingDirectory(File f);
-	public void execute(String args[]) throws IOException;
+	public void execute(String args[], PrintStream s) throws IOException;
 }

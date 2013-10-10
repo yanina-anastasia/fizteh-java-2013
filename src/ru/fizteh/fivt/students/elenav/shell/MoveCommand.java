@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.elenav.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class MoveCommand extends AbstractCommand {
 	MoveCommand(ShellState s) { 
@@ -9,7 +10,7 @@ public class MoveCommand extends AbstractCommand {
 		setArgNumber(2);
 		setShell(s);
 	}
-	public void execute(String[] args) throws IOException {
+	public void execute(String[] args, PrintStream s) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
 		if (!sourse.exists()) {

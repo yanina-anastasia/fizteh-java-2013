@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.elenav.shell;
 
 import java.io.File;
-import java.io.IOException;
 
 public abstract class AbstractCommand implements Command {
 	private ShellState shell;

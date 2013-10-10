@@ -1,18 +1,14 @@
 package ru.fizteh.fivt.students.elenav.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public class Shell {
 	public static void main(String[] args) throws IOException {
 		ShellState shell = new ShellState();
 		shell.init();
-			
+		
 		if (args.length == 0) {
-			shell.interactive();
+			shell.interactive(System.out);
 		} else {
 			StringBuilder sb = new StringBuilder();
 			for (String s : args) {
@@ -25,7 +21,7 @@ public class Shell {
 			String[] commands = monoString.split("\\s*;\\s*");
 			for (String command : commands) {
 				try {
-					shell.execute(command);
+					shell.execute(command, System.out);
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 					System.exit(1);

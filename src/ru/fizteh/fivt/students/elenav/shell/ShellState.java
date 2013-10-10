@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.elenav.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -30,7 +31,7 @@ public class ShellState {
 		commands.add(new ExitCommand(this));
 	}
 	
-	public void interactive() {
+	public void interactive(PrintStream s) {
 		String command = "";
 		final boolean flag = true;
 		do {
@@ -41,7 +42,7 @@ public class ShellState {
 			String[] commands = command.split("\\s*;\\s*");
 			for (String c : commands) {
 				try {
-					execute(c);
+					execute(c, s);
 				}
 				catch (IOException e) {
 					System.err.println(e.getMessage());
@@ -50,7 +51,7 @@ public class ShellState {
 		} while (flag);
 	}
 		
-	public void execute(String commandArgLine) throws IOException {
+	public void execute(String commandArgLine, PrintStream s) throws IOException {
 		int correctCommand = 0;
 		String[] args = commandArgLine.split("\\s+");
 		int numberArgs = args.length - 1;
@@ -58,7 +59,7 @@ public class ShellState {
 			if (c.getName().equals(args[0])) {
 				if (c.getArgNumber() == numberArgs) {
 					correctCommand = 1;
-					c.execute(args);
+					c.execute(args, s);
 					break;
 				} else {
 					throw new IOException("Invalid number of args");
