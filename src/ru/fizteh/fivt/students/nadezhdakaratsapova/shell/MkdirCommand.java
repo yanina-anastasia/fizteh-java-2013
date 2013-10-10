@@ -1,0 +1,23 @@
+package ru.fizteh.fivt.students.nadezhdakaratsapova.shell;
+
+import java.io.File;
+import java.io.IOException;
+
+public class MkdirCommand implements Command {
+    public String getName() {
+        return "mkdir";
+    }
+
+    public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
+        File newDir = new File(currentDirectory.getCurDir(), args[1]);
+        if (newDir.exists()) {
+            throw new IOException("mkdir: Directory already exists");
+        } else {
+            newDir.mkdir();
+        }
+
+    }
+    public int getArgsCount() {
+       return 1;
+    }
+}
