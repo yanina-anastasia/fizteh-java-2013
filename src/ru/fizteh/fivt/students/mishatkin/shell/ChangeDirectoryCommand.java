@@ -8,6 +8,7 @@ public class ChangeDirectoryCommand extends Command {
 
 	ChangeDirectoryCommand(CommandReceiver receiver) {
 		super(receiver);
+		setInputArgumentsCount(1);
 		type = CommandType.CD;
 	}
 

@@ -7,6 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class MakeDirectoryCommand extends Command {
 	MakeDirectoryCommand(CommandReceiver receiver) {
 		super(receiver);
+		setInputArgumentsCount(1);
 		type = CommandType.MKDIR;
 	}
 

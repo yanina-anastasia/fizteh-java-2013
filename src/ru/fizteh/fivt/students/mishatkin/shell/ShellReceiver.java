@@ -83,6 +83,7 @@ public class ShellReceiver implements CommandReceiver {
 			absolutePathFile.mkdir();
 		} else {
 			File directoryToCreate = new File(shellPath, arg);
+			
 			if (!directoryToCreate.exists()) {
 				directoryToCreate.mkdir();
 			}

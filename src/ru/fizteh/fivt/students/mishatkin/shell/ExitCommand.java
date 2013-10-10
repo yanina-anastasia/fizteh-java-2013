@@ -7,6 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class ExitCommand extends Command {
 	ExitCommand(CommandReceiver receiver) {
 		super(receiver);
+		setInputArgumentsCount(0);
 		type = CommandType.EXIT;
 	}
 

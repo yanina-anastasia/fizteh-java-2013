@@ -7,19 +7,6 @@ import java.util.*;
  * Created by Vladimir Mishatkin on 9/23/13
  */
 public abstract class CommandSource {
-	private static  final Map<CommandType, Integer> INPUT_ARGUMENTS_COUNTS;
-	static {
-		Map<CommandType, Integer> aMap = new HashMap<CommandType, Integer>();
-		aMap.put(CommandType.CD, 1);
-		aMap.put(CommandType.MKDIR, 1);
-		aMap.put(CommandType.PWD, 0);
-		aMap.put(CommandType.RM, 1);
-		aMap.put(CommandType.CP, 2);
-		aMap.put(CommandType.MV, 2);
-		aMap.put(CommandType.DIR, 0);
-		aMap.put(CommandType.EXIT, 0);
-		INPUT_ARGUMENTS_COUNTS = Collections.unmodifiableMap(aMap);
-	}
 	private ArrayList<String> commandsStringsBuffer = new ArrayList<String>();
 	private ArrayList<String> commandArgumentsBuffer = new ArrayList<String>();
 
@@ -27,6 +14,7 @@ public abstract class CommandSource {
 		commandArgumentsBuffer.clear();
 		commandsStringsBuffer.clear();
 	}
+
 	public Command nextCommandForReceiver(CommandReceiver receiver) throws ShellException {
 		if (commandsStringsBuffer.isEmpty()) {
 			if (!hasMoreData()) {
@@ -100,11 +88,11 @@ public abstract class CommandSource {
 	}
 
 	private void readArgs(Command command) throws ShellArgumentsMismatchException {
-		if (INPUT_ARGUMENTS_COUNTS.get(command.getType()) != commandArgumentsBuffer.size() - 1) {
+		if (command.getInputArgumentsCount() != commandArgumentsBuffer.size() - 1) {
 			throw new ShellArgumentsMismatchException("Invalid number of arguments for command \'"
 					+ command.type.toString().toLowerCase() + "\'.");
 		}
-		for (int argumentIndex = 0; argumentIndex < INPUT_ARGUMENTS_COUNTS.get(command.getType()); ++argumentIndex) {
+		for (int argumentIndex = 0; argumentIndex < command.getInputArgumentsCount(); ++argumentIndex) {
 			command.args[argumentIndex] = commandArgumentsBuffer.get(argumentIndex + 1);
 		}
 	}

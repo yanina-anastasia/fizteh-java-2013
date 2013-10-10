@@ -7,6 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class MoveCommand extends Command {
 	MoveCommand(CommandReceiver receiver) {
 		super(receiver);
+		setInputArgumentsCount(2);
 		type = CommandType.MV;
 	}
 

@@ -7,6 +7,7 @@ package ru.fizteh.fivt.students.mishatkin.shell;
 public class CopyCommand extends Command {
 	CopyCommand(CommandReceiver receiver) {
 		super(receiver);
+		setInputArgumentsCount(2);
 		type = CommandType.CP;
 	}
 

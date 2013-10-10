@@ -6,13 +6,21 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  */
 
 public abstract class Command {
-
+	private static int inputArgumentsCount;
 	protected CommandType type;
 	protected String[] args = new String[2];
 	protected CommandReceiver receiver;
 
 	public CommandType getType() {
 		return type;
+	}
+
+	public int getInputArgumentsCount() {
+		return inputArgumentsCount;
+	}
+
+	protected static void setInputArgumentsCount(int inputArgumentsCount) {
+		Command.inputArgumentsCount = inputArgumentsCount;
 	}
 
 	Command(CommandReceiver receiver) {
