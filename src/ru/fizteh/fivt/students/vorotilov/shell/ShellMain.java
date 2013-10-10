@@ -22,7 +22,6 @@ public class ShellMain {
                 } else {
                     System.out.println(currentDirectory.getCanonicalPath());
                 }
-                System.out.println(currentDirectory.getCanonicalPath());
                 break;
             case "mkdir":
                 if (parsedCommand.length != 2) {
