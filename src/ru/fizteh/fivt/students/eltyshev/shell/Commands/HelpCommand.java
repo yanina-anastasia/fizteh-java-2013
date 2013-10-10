@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HelpCommand extends Command {
+public class HelpCommand extends AbstractCommand {
 
     public HelpCommand(ArrayList<Command> commands) {
         for (final Command command : commands) {

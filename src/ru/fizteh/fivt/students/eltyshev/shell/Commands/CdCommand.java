@@ -1,13 +1,12 @@
 package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.FileSystem;
 import ru.fizteh.fivt.students.eltyshev.shell.FileSystemShellState;
 import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CdCommand extends Command {
+public class CdCommand extends AbstractCommand {
     public void executeCommand(String params, ShellState shellState) throws IOException {
         ArrayList<String> parameters = CommandParser.parseParams(params);
         if (parameters.size() > 1) {

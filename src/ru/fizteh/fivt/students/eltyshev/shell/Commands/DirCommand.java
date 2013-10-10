@@ -1,12 +1,11 @@
 package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.FileSystem;
 import ru.fizteh.fivt.students.eltyshev.shell.FileSystemShellState;
 import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
 
 import java.io.IOException;
 
-public class DirCommand extends Command {
+public class DirCommand extends AbstractCommand {
 
     public void executeCommand(String params, ShellState shellState) throws IOException {
         if (params.length() > 0) {
