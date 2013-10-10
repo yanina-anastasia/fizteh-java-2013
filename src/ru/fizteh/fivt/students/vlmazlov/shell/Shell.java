@@ -5,13 +5,13 @@ import java.lang.Thread;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collections;
-import java.util.Collection;
 import java.util.Scanner;
 import java.util.Arrays;
+import java.io.OutputStream;
 
 public class Shell {
 
-	private static Map<String, Command> supportedCommands;
+	private Map<String, Command> supportedCommands;
 	private static final String invitation = "$ ";
 
 	private static class WrongCommandException extends Exception {
@@ -27,23 +27,6 @@ public class Shell {
 		public WrongCommandException(Throwable cause) { 
 			super(cause); 
 		}
-	}
-
-	public static String Join(Collection<?> items, String separator) {
-		boolean first = true;
-		StringBuilder joinBuilder = new StringBuilder();
-		
-		for (Object item: items) {
-
-			if (!first) {
-				joinBuilder.append(separator);
-			}
-
-			first = false;
-			joinBuilder.append(item.toString());
-		}
-
-		return joinBuilder.toString();
 	}
 
 	public class ShellState {
@@ -79,7 +62,9 @@ public class Shell {
 	public static void main(String[] args) {
 
 		Command[] commands = {
-			new RM(), new CD(), new MV(), new MKDIR(), new CP(), new PWD(), new DIR(), new EXIT()
+			new RmCommand(), new CdCommand(), 
+			new MvCommand(), new MkdirCommand(), new CpCommand(), 
+			new PwdCommand(), new DirCommand(), new ExitCommand()
 		};
 
 		Shell shell = new Shell(commands);
@@ -87,7 +72,7 @@ public class Shell {
 
 		if (0 != args.length) {
 			
-			String arg = Join(Arrays.asList(args), " ");
+			String arg = StringJoiner.join(Arrays.asList(args), " ");
 
 			try {
 				shell.executeLine(arg, state);
@@ -101,7 +86,7 @@ public class Shell {
 				System.exit(0);
 			}
 		} else {
-			shell.InteractiveMode(state);
+			shell.interactiveMode(state);
 		}
 
 		System.exit(0);
@@ -119,7 +104,7 @@ public class Shell {
 		}
 	}
 
-	private void InteractiveMode(Shell.ShellState state) {
+	private void interactiveMode(Shell.ShellState state) {
 		Scanner inputScanner = new Scanner(System.in);
 		Scanner stringScanner;
 
@@ -157,6 +142,6 @@ public class Shell {
 			throw new WrongCommandException("Ivalid number of arguments for " + toExecute[0] + ": " + (toExecute.length - 1));
 		}
 
-		invokedCommand.execute(Arrays.copyOfRange(toExecute, 1, toExecute.length), state);
+		invokedCommand.execute(Arrays.copyOfRange(toExecute, 1, toExecute.length), state, System.out);
 	}
 }

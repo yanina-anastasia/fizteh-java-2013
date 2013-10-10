@@ -1,33 +1,10 @@
 package ru.fizteh.fivt.students.vlmazlov.shell;
 
-import java.io.File;
+import java.io.OutputStream;
 
-public abstract class Command {
-	private final String name;
-	private final int argNum;
+public interface Command {
+	public String getName();
+	public int getArgNum();
+	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException, UserInterruptionException;
 
-	protected final File getAbsFile(String file, Shell.ShellState state) {
-		File absFile = new File(file);
-
-		if (!absFile.isAbsolute()) {
-			absFile = new File(new File(state.getCurDir()), file);
-		}
-
-		return absFile;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public int getArgNum() {
-		return argNum;
-	}
-
-	Command(String _name, int _argNum) {
-		name = _name;
-		argNum = _argNum;
-	}
-
-	abstract public void execute(String[] args, Shell.ShellState state) throws CommandFailException, UserInterruptionException;
 }
