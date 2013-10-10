@@ -136,7 +136,7 @@ class Cd extends Command {
                         + "No such file or directory");
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -157,7 +157,7 @@ class Mkdir extends Command {
                 throw new Exception("Couldn't create a directory");
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -174,7 +174,7 @@ class Pwd extends Command {
 
             System.out.println(Shell.getWorkingDirectory());
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -220,7 +220,7 @@ class Rm extends Command {
                 });
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -285,7 +285,7 @@ class Cp extends Command {
                 throw new Exception("cannot copy directory to file");
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -344,7 +344,7 @@ class Mv extends Command {
                 throw new Exception("cannot move directory to file");
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -364,7 +364,7 @@ class Dir extends Command {
                 System.out.println(file);
             }
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
@@ -381,7 +381,7 @@ class Exit extends Command {
 
             System.exit(0);
         } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.toString());
+            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
 }
