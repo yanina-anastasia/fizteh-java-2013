@@ -23,6 +23,10 @@ public abstract class CommandSource {
 	private ArrayList<String> commandsStringsBuffer = new ArrayList<String>();
 	private ArrayList<String> commandArgumentsBuffer = new ArrayList<String>();
 
+	public void clearBuffers() {
+		commandArgumentsBuffer.clear();
+		commandsStringsBuffer.clear();
+	}
 	public Command nextCommandForReceiver(CommandReceiver receiver) throws ShellException {
 		if (commandsStringsBuffer.isEmpty()) {
 			if (!hasMoreData()) {
@@ -95,12 +99,12 @@ public abstract class CommandSource {
 		return retValue;
 	}
 
-	private void readArgs(Command command) throws  ShellException {
+	private void readArgs(Command command) throws ShellArgumentsMismatchException {
+		if (inputArgumentsCount.get(command.getType()) != commandArgumentsBuffer.size() - 1) {
+			throw new ShellArgumentsMismatchException("Invalid number of arguments for command \'"
+					+ command.type.toString().toLowerCase() + "\'.");
+		}
 		for (int argumentIndex = 0; argumentIndex < inputArgumentsCount.get(command.getType()); ++argumentIndex) {
-			if (argumentIndex + 1 >= commandArgumentsBuffer.size()) {
-				throw new ShellException("Not enough arguments for command \'"
-						+ command.type.toString().toLowerCase() + "\'.");
-			}
 			command.args[argumentIndex] = commandArgumentsBuffer.get(argumentIndex + 1);
 		}
 	}
