@@ -44,7 +44,7 @@ public class CpCommand extends AbstractCommand {
             throw new IOException("CP ERROR: destination can`t be file");
         }
         if (!SOURCE.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getCanonicalFile().toString() + "\"");
+            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getName() + "\"");
         }
         if (!destination.exists()) {
             throw new FileNotFoundException("CP ERROR: not existing destination \"" +
