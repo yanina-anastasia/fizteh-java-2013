@@ -6,7 +6,8 @@ public class CommandPwd extends CommandAbstract {
 		this.name = "pwd";
 	}
 
-	public void evaluate (String args) {
-		System.out.println(Utils.getCurrentDirectory());
+	public boolean evaluate (ShellState state, String args) {
+		System.out.println(state.getCurrentDirectory());
+		return true;
 	}
 }

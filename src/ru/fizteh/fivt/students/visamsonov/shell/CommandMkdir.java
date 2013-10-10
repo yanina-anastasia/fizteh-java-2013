@@ -8,9 +8,11 @@ public class CommandMkdir extends CommandAbstract {
 		this.name = "mkdir";
 	}
 
-	public void evaluate (String args) {
-		if (!(new File(Utils.getCurrentDirectory(), args).mkdir())) {
+	public boolean evaluate (ShellState state, String args) {
+		if (!(new File(state.getCurrentDirectory(), args).mkdir())) {
 			printError("can't create \"" + args + "\"");
+			return false;
 		}
+		return true;
 	}
 }

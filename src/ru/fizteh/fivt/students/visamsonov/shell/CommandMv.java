@@ -12,14 +12,16 @@ public class CommandMv extends CommandAbstract {
 		return new File(parent, from).renameTo(new File(parent, to));
 	}
 
-	public void evaluate (String args) {
-		String[] argArray = args.split("[\n\t ]+");
+	public boolean evaluate (ShellState state, String args) {
+		String[] argArray = args.split("\\s+");
 		if (argArray.length != 2) {
 			printError("given " + argArray.length + " arguments, expected 2");
-			return;
+			return false;
 		}
-		if (!move(Utils.getCurrentDirectory(), argArray[0], argArray[1])) {
+		if (!move(state.getCurrentDirectory(), argArray[0], argArray[1])) {
 			printError("can't move \"" + argArray[0] + "\" to \"" + argArray[1] + "\"");
+			return false;
 		}
+		return true;
 	}
 }

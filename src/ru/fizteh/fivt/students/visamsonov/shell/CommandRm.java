@@ -9,6 +9,9 @@ public class CommandRm extends CommandAbstract {
 	}
 
 	public boolean delete (String parent, String name) {
+		if (name == null) {
+			return true;
+		}
 		try {
 			File file = new File(parent, name);
 			String[] content = file.list();
@@ -25,9 +28,11 @@ public class CommandRm extends CommandAbstract {
 		return false;
 	}
 
-	public void evaluate (String args) {
-		if (!delete(Utils.getCurrentDirectory(), args)) {
+	public boolean evaluate (ShellState state, String args) {
+		if (!delete(state.getCurrentDirectory(), args)) {
 			printError("can't delete \"" + args + "\"");
+			return false;
 		}
+		return true;
 	}
 }

@@ -6,9 +6,11 @@ public class CommandCd extends CommandAbstract {
 		this.name = "cd";
 	}
 
-	public void evaluate (String args) {
-		if (!Utils.setCurrentDirectory(args)) {
+	public boolean evaluate (ShellState state, String args) {
+		if (!state.setCurrentDirectory(args)) {
 			printError(args + ": can't change directory");
+			return false;
 		}
+		return true;
 	}
 }

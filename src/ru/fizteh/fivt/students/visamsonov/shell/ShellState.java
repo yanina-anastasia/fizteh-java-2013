@@ -2,23 +2,11 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 
 import java.io.*;
 
-public class Utils {
+public class ShellState {
 	
-	private static String currentDirectory = null;
+	private String currentDirectory = null;
 
-	public static String stringArrayJoin (String[] array, String separator) {
-		if (array.length == 0) {
-			return null;
-		}
-		StringBuilder result = new StringBuilder();
-		result.append(array[0]);
-		for (int i = 1; i < array.length; ++i) {
-			result.append(separator).append(array[i]);
-		}
-		return result.toString();
-	}
-
-	public static String getCurrentDirectory () {
+	public String getCurrentDirectory () {
 		if (currentDirectory != null) {
 			return currentDirectory;
 		}
@@ -30,7 +18,7 @@ public class Utils {
 		return null;
 	}
 
-	public static boolean setCurrentDirectory (String directory) {
+	public boolean setCurrentDirectory (String directory) {
 		File file;
 		try {
 			if (new File(directory).isAbsolute()) {

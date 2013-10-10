@@ -6,5 +6,5 @@ interface Command {
 
 	public String getName ();
 	
-	public void evaluate (String args);
+	public boolean evaluate (ShellState state, String args);
 }

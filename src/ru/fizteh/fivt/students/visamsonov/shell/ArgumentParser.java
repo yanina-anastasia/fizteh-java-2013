@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
+import ru.fizteh.fivt.students.visamsonov.util.StringUtils;
+
 public class ArgumentParser {
 	
 	private String[] commands = {};
 	private int iterator = 0;
 
 	public ArgumentParser (String[] args) {
-		String allCommands = Utils.stringArrayJoin(args, " ");
-		commands = allCommands.split("[\n\t ]*;[\n\t ]*");
+		String allCommands = StringUtils.stringArrayJoin(args, " ");
+		commands = allCommands.split("\\s*;\\s*");
 	}
 
 	public RawCommand nextCommand () {

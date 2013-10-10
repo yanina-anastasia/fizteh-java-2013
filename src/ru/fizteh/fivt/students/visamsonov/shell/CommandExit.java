@@ -6,7 +6,8 @@ public class CommandExit extends CommandAbstract {
 		this.name = "exit";
 	}
 
-	public void evaluate (String args) {
+	public boolean evaluate (ShellState state, String args) {
 		System.exit(0);
+		return true;
 	}
 }

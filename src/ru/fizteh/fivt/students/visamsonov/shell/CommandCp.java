@@ -15,73 +15,65 @@ public class CommandCp extends CommandAbstract {
 		}
 		FileChannel source = null;
 		FileChannel destination = null;
-		try {
-			source = new FileInputStream(sourceFile).getChannel();
-			destination = new FileOutputStream(destFile).getChannel();
+		source = new FileInputStream(sourceFile).getChannel();
+		destination = new FileOutputStream(destFile).getChannel();
+		if (source != null && destination != null) {
 			destination.transferFrom(source, 0, source.size());
 		}
-		finally {
-			if (source != null) {
-				source.close();
-			}
-			if (destination != null) {
-				destination.close();
-			}
+		if (source != null) {
+			source.close();
+		}
+		if (destination != null) {
+			destination.close();
 		}
 	}
 
-	public boolean copy (String from, String to) {
+	public boolean copy (String from, String to) throws IOException {
 		File source = new File(from);
 		File dest = new File(to);
-		if (!source.exists()) {
+		if (!source.exists() || dest.exists()) {
 			return false;
 		}
 		if (source.isDirectory()) {
-			if (!dest.isDirectory() && !dest.mkdir()) {
+			if (!dest.mkdir()) {
 				return false;
 			}
-			try {
-				String[] content = source.list();
-				for (int i = 0; i < content.length; i++) {
-					if (!copy(new File(from, content[i]).getCanonicalPath(), new File(to, content[i]).getCanonicalPath())) {
-						return false;
-					}
+			String[] content = source.list();
+			for (int i = 0; i < content.length; i++) {
+				if (!copy(new File(from, content[i]).getCanonicalPath(), new File(to, content[i]).getCanonicalPath())) {
+					return false;
 				}
-			}
-			catch (IOException e) {
-				return false;
 			}
 		}
 		else {
-			try {
-				copyFile(source, dest);
-			}
-			catch (IOException e) {
-				return false;
-			}
+			copyFile(source, dest);
 		}
 		return true;
 	}
 
-	public void evaluate (String args) {
+	public boolean evaluate (ShellState state, String args) {
 		String[] argArray = args.split("[\n\t ]+");
 		if (argArray.length != 2) {
 			printError("given " + argArray.length + " arguments, expected 2");
-			return;
+			return false;
 		}
 		try {
-			File sourceDirectory = new File(Utils.getCurrentDirectory(), argArray[0]);
-			File destDirectory = new File(Utils.getCurrentDirectory(), argArray[1]);
+			File sourceDirectory = new File(state.getCurrentDirectory(), argArray[0]);
+			File destDirectory = new File(state.getCurrentDirectory(), argArray[1]);
 			String destination = destDirectory.getCanonicalPath();
 			String source = sourceDirectory.getCanonicalPath();
 			if (destDirectory.isDirectory()) {
 				destination = new File(destination, sourceDirectory.getName()).getCanonicalPath();
 			}
 			if (copy(source, destination)) {
-				return;
+				return true;
 			}
 		}
-		catch (IOException e) {}
+		catch (IOException e) {
+			printError("can't copy \"" + argArray[0] + "\" to \"" + argArray[1] + "\": " + e.getMessage());
+			return false;
+		}
 		printError("can't copy \"" + argArray[0] + "\" to \"" + argArray[1] + "\"");
+		return false;
 	}
 }

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
 import java.io.*;
+import ru.fizteh.fivt.students.visamsonov.util.StringUtils;
 
 public class CommandDir extends CommandAbstract {
 
@@ -8,8 +9,12 @@ public class CommandDir extends CommandAbstract {
 		this.name = "dir";
 	}
 
-	public void evaluate (String args) {
-		String content = Utils.stringArrayJoin(new File(Utils.getCurrentDirectory()).list(), "  ");
+	public boolean evaluate (ShellState state, String args) {
+		String content = StringUtils.stringArrayJoin(new File(state.getCurrentDirectory()).list(), "  ");
+		if (content == null) {
+			content = "";
+		}
 		System.out.println(content);
+		return true;
 	}
 }
