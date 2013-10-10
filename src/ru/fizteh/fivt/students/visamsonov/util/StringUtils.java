@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.visamsonov.util;
 
 public class StringUtils {
 
-	public static String stringArrayJoin (String[] array, String separator) {
+	public static String join (String[] array, String separator) {
 		if (array == null || array.length == 0) {
 			return null;
 		}

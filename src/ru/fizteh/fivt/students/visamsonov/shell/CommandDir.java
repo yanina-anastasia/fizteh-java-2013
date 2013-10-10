@@ -13,7 +13,7 @@ public class CommandDir extends CommandAbstract {
 		if (!checkFixedArguments(splitArguments(args), 0)) {
 			return false;
 		}
-		String content = StringUtils.stringArrayJoin(new File(state.getCurrentDirectory()).list(), "\n");
+		String content = StringUtils.join(new File(state.getCurrentDirectory()).list(), "\n");
 		if (content == null) {
 			content = "";
 		}
