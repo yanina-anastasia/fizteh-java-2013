@@ -10,7 +10,10 @@ public class CommandDir extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
-		String content = StringUtils.stringArrayJoin(new File(state.getCurrentDirectory()).list(), "  ");
+		if (!checkFixedArguments(splitArguments(args), 0)) {
+			return false;
+		}
+		String content = StringUtils.stringArrayJoin(new File(state.getCurrentDirectory()).list(), "\n");
 		if (content == null) {
 			content = "";
 		}

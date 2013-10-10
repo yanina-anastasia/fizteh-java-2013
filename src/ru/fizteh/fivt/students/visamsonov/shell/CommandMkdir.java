@@ -9,6 +9,9 @@ public class CommandMkdir extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
+		if (!checkFixedArguments(splitArguments(args), 1)) {
+			return false;
+		}
 		if (!(new File(state.getCurrentDirectory(), args).mkdir())) {
 			printError("can't create \"" + args + "\"");
 			return false;

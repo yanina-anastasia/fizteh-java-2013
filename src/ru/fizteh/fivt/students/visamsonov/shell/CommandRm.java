@@ -29,6 +29,9 @@ public class CommandRm extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
+		if (!checkFixedArguments(splitArguments(args), 1)) {
+			return false;
+		}
 		if (!delete(state.getCurrentDirectory(), args)) {
 			printError("can't delete \"" + args + "\"");
 			return false;

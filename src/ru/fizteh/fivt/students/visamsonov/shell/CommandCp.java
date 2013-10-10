@@ -10,9 +10,7 @@ public class CommandCp extends CommandAbstract {
 	}
 
 	public void copyFile (File sourceFile, File destFile) throws IOException {
-		if (!destFile.exists()) {
-			destFile.createNewFile();
-		}
+		destFile.createNewFile();
 		FileChannel source = null;
 		FileChannel destination = null;
 		source = new FileInputStream(sourceFile).getChannel();
@@ -52,9 +50,8 @@ public class CommandCp extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
-		String[] argArray = args.split("[\n\t ]+");
-		if (argArray.length != 2) {
-			printError("given " + argArray.length + " arguments, expected 2");
+		String[] argArray = splitArguments(args);
+		if (!checkFixedArguments(argArray, 2)) {
 			return false;
 		}
 		try {

@@ -13,9 +13,8 @@ public class CommandMv extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
-		String[] argArray = args.split("\\s+");
-		if (argArray.length != 2) {
-			printError("given " + argArray.length + " arguments, expected 2");
+		String[] argArray = splitArguments(args);
+		if (!checkFixedArguments(argArray, 2)) {
 			return false;
 		}
 		if (!move(state.getCurrentDirectory(), argArray[0], argArray[1])) {

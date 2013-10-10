@@ -2,8 +2,8 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 
 public final class RawCommand {
 	
-	public String name;
-	public String args;
+	public final String name;
+	public final String args;
 
 	public RawCommand (String commandName, String commandArgs) {
 		this.name = commandName;
