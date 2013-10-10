@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 public class CommandExecutionFailException extends Exception {
 	public CommandExecutionFailException() {

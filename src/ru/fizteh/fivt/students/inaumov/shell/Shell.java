@@ -1,25 +1,28 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Shell {
-	public static final String INVITE = "$ ";
+	private String invitationString = "$ ";
 	private Map<String, Command> commandsMap;
-	ShellState shellState;
+	private ShellState shellState;
+	OutputStream outputStream;
+	
 	public class ShellState {
 		public FileCommander fileCommander;
 		
-		ShellState() {
-			fileCommander = new FileCommander();
+		public ShellState() {
+			fileCommander = new FileCommander(outputStream);
 		}
 	}
 	
-	public Shell() {
+	public Shell(OutputStream outputStream) {
+		this.outputStream = outputStream;
 		commandsMap = new HashMap<String, Command>();
 		shellState = new ShellState();
 	}
@@ -49,11 +52,14 @@ public class Shell {
 		for (int i = 0; i < commands.length; ++i) {
 			if (commands[i].length != 0) {
 				nextCommand = getCommand(commands[i][0]);
+                if (nextCommand.getArgumentsNumber() != commands[i].length - 1) {
+                    throw new CommandExecutionFailException(nextCommand.getName() + ": expected " + nextCommand.getArgumentsNumber() + " arguments, got " + (commands[i].length - 1) + " arguments");
+                }
 				nextCommand.executeCommand(commands[i], shellState);
 			}
 		}
 	}
-	public void packetMode(String[] args) {
+	public void batchMode(String[] args) {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String nextEntry: args) {
 			stringBuilder.append(nextEntry);
@@ -64,8 +70,10 @@ public class Shell {
 			executeAllCommands(commands);
 		} catch (UnknownCommandException exception) {
 			System.err.println(exception.getMessage());
+			System.exit(1);
 		} catch (CommandExecutionFailException exception) {
 			System.err.println(exception.getMessage());
+			System.exit(1);
 		} catch (UserInterruptionException exception) {
 			System.exit(0);
 		}
@@ -74,7 +82,7 @@ public class Shell {
 		BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(System.in)); 
 		
 		while (true) {
-			System.out.print(shellState.fileCommander.getCurrentDirectory() + INVITE);
+			System.out.print(shellState.fileCommander.getCurrentDirectory() + invitationString);
 			String[][] commands = getCommandsWithArgumentsFromPrgArgs(inputStreamReader.readLine());
 			try {
 				executeAllCommands(commands);
@@ -89,24 +97,25 @@ public class Shell {
 	}
 	
 	public static void main(String[] args) {
-		Shell shell = new Shell();
-		shell.addCommand(new CDcommand());
-		shell.addCommand(new MKDIRcommand());
-		shell.addCommand(new PWDcommand());
-		shell.addCommand(new RMcommand());
-		shell.addCommand(new CPcommand());
-		shell.addCommand(new MVcommand());
-		shell.addCommand(new DIRcommand());
-		shell.addCommand(new EXITcommand());
+		Shell shell = new Shell(System.out);
+		shell.addCommand(new CdCommand());
+		shell.addCommand(new MkdirCommand());
+		shell.addCommand(new PwdCommand());
+		shell.addCommand(new RmCommand());
+		shell.addCommand(new CpCommand());
+		shell.addCommand(new MvCommand());
+		shell.addCommand(new DirCommand());
+		shell.addCommand(new ExitCommand());
 		
 		if (args.length == 0) {
 			try {
 				shell.interactiveMode();
 			} catch (IOException exception) {
 				System.err.println(exception.getMessage());
+				System.exit(1);
 			}
 		} else {
-			shell.packetMode(args);
+			shell.batchMode(args);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 public class UserInterruptionException extends Exception {
 	UserInterruptionException() {

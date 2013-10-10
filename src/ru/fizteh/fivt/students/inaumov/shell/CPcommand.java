@@ -1,16 +1,13 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 import java.io.IOException;
 
-public class CPcommand extends AbstractCommand {
-	public CPcommand() {
+public class CpCommand extends AbstractCommand {
+	public CpCommand() {
 		super("cp", 2);
 	}
 	
 	public void executeCommand(String[] commandArguments, Shell.ShellState shellState) throws CommandExecutionFailException {
-		if (commandArguments.length - 1 != argumentsNumber) {
-			throw new CommandExecutionFailException("cp: expected " + argumentsNumber + " arguments, got " + (commandArguments.length - 1) + " arguments");
-		}
 		try {
 			shellState.fileCommander.copyFiles(commandArguments[1], commandArguments[2]);
 		} catch (IOException exception) {

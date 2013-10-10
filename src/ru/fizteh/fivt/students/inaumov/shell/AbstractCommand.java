@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 public class AbstractCommand implements Command {
-	protected String commandName;
-	protected int argumentsNumber;
+	private final String commandName;
+	private final int argumentsNumber;
 	
 	public AbstractCommand(String commandName, int argumentsNumber) {
 		this.commandName = commandName;
@@ -11,5 +11,8 @@ public class AbstractCommand implements Command {
 	public String getName() {
 		return commandName;
 	}
+    public int getArgumentsNumber() {
+        return argumentsNumber;
+    }
 	public void executeCommand(String[] commandArguments, Shell.ShellState shellState) throws UserInterruptionException, CommandExecutionFailException { };
 }

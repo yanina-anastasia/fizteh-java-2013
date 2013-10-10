@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.shell;
+//package ru.fizteh.fivt.students.inaumov.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +10,10 @@ import java.nio.file.Files;
 
 public class FileCommander {
 	private Path currentDirectory;
+	private OutputStream outputStream;
 	
-	public FileCommander() {
+	public FileCommander(OutputStream outputStream) {
+		this.outputStream = outputStream;
 		try {
 			File file = new File(".");
 			setCurrentDirectory(file.getAbsolutePath());
@@ -35,7 +37,7 @@ public class FileCommander {
 		}
 		currentDirectory = newCurrentDirectory;
 	}
-	public void showCurrentDirectory(OutputStream outputStream) throws CommandExecutionFailException {
+	public void showCurrentDirectory() throws CommandExecutionFailException {
 		try {
 			outputStream.write((currentDirectory.toString() + "\n").getBytes());
 		} catch (IOException exception) {
@@ -45,7 +47,7 @@ public class FileCommander {
 	public String getCurrentDirectory() {
 		return currentDirectory.toString();
 	}
-	public void showCurrentDirectoryContent(OutputStream outputStream) throws CommandExecutionFailException {
+	public void showCurrentDirectoryContent() throws CommandExecutionFailException {
 		String[] content = currentDirectory.toFile().list();
 		for (String nextEntry: content) {
 			try {
@@ -79,7 +81,6 @@ public class FileCommander {
 		}
 	}
 	
-	
 	public void createNewDirectory(String newDirectoryName) throws CommandExecutionFailException {
 		Path newDirectoryPath = getFilePathFromString(newDirectoryName);
 		File newDirectoryFile = newDirectoryPath.toFile();
@@ -93,6 +94,9 @@ public class FileCommander {
 		Path sourcePath = getFilePathFromString(sourceFileName);
 		Path destinationPath = getFilePathFromString(destinationFileName);
 		
+		if (sourcePath.toFile().equals(destinationPath.toFile())) {
+			throw new CommandExecutionFailException("cannot move " + sourceFileName + " to " + destinationFileName + ": files are same");
+		}
 		if (sourcePath.toFile().isDirectory() && destinationPath.toFile().isFile()) {
 			throw new CommandExecutionFailException("cannot overwrite non-directory" + destinationFileName + " with directory " + sourceFileName);
 		}
@@ -107,8 +111,11 @@ public class FileCommander {
 		final Path sourcePathParent = sourcePath.getParent();
 		final Path destinationPath = getFilePathFromString(destinationFileName);
 		
+		if (sourcePath.toFile().equals(destinationPath.toFile())) {
+			throw new CommandExecutionFailException("cannot copy " + sourceFileName + " to " + destinationFileName + ": files are same");
+		}
 		if (!Files.exists(sourcePath)) {
-			throw new CommandExecutionFailException("cannot copy " + sourceFileName + ": No such file or directory");
+			throw new CommandExecutionFailException("cannot copy " + sourceFileName + ": no such file or directory");
 		}
 		if (Files.isRegularFile(destinationPath)) {
 			if (Files.isRegularFile(sourcePath)) {
