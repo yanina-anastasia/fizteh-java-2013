@@ -1,10 +1,13 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
+import ru.fizteh.fivt.students.visamsonov.Database;
 import java.io.*;
+import java.util.TreeMap;
 
 public class ShellState {
 	
 	private String currentDirectory = null;
+	public Database database = new Database();
 
 	public String getCurrentDirectory () {
 		if (currentDirectory != null) {

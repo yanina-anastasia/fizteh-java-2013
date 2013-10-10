@@ -9,25 +9,17 @@ public class Shell {
 
 	static {
 		Command command;
-		command = new CommandPwd();
-		commandList.put(command.getName(), command);
 		command = new CommandExit();
 		commandList.put(command.getName(), command);
-		command = new CommandDir();
+		command = new CommandPut();
 		commandList.put(command.getName(), command);
-		command = new CommandMkdir();
+		command = new CommandGet();
 		commandList.put(command.getName(), command);
-		command = new CommandCd();
-		commandList.put(command.getName(), command);
-		command = new CommandRm();
-		commandList.put(command.getName(), command);
-		command = new CommandMv();
-		commandList.put(command.getName(), command);
-		command = new CommandCp();
+		command = new CommandRemove();
 		commandList.put(command.getName(), command);
 	}
 
-	private static ShellState state = new ShellState();
+	public static ShellState state = new ShellState();
 
 	public static boolean perform (String[] args) {
 		ArgumentParser parser = new ArgumentParser(args);

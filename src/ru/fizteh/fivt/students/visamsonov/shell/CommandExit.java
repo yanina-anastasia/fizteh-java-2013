@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
+import java.io.*;
+
 public class CommandExit extends CommandAbstract {
 
 	public CommandExit () {
@@ -7,6 +9,13 @@ public class CommandExit extends CommandAbstract {
 	}
 
 	public boolean evaluate (ShellState state, String args) {
+		try {
+			state.database.saveDataToFile();
+		}
+		catch (IOException e) {
+			printError(e.getMessage());
+			System.exit(1);
+		}
 		System.exit(0);
 		return true;
 	}
