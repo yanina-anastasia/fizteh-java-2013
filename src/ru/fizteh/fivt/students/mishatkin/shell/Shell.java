@@ -17,7 +17,8 @@ public class Shell {
 		isArgumentsMode = (args.length > 0);
 		CommandSource in = isArgumentsMode ? new ArgumentsCommandSource(args) :
 				new StandardInputCommandSource(new Scanner(inputStream));
+		ShellReceiver receiver = new ShellReceiver();
 		ShellRunner runner = new ShellRunner(in);
-		runner.run();
+		runner.run(receiver);
 	}
 }

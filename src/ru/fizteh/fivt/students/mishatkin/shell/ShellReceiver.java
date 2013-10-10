@@ -10,10 +10,10 @@ import java.nio.file.Files;
  */
 
 public class ShellReceiver implements CommandReceiver {
-	private static ShellReceiver sharedInstance = null;
+
 	private File shellPath;
 
-	private ShellReceiver() {
+	public ShellReceiver() {
 		shellPath = new File(".");
 		try {
 			shellPath = shellPath.getCanonicalFile();
@@ -28,19 +28,6 @@ public class ShellReceiver implements CommandReceiver {
 
 	private void println(String s) {
 		System.out.println(s);
-	}
-
-	public static ShellReceiver sharedInstance() {
-		if (sharedInstance == null) {
-			synchronized (ShellReceiver.class)
-			{
-				if (sharedInstance == null)
-				{
-					sharedInstance = new ShellReceiver();
-				}
-			}
-		}
-		return sharedInstance;
 	}
 
 	private String simplePrompt() {

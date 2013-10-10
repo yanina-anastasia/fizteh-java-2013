@@ -15,14 +15,14 @@ public class ShellRunner {
 		this.in = in;
 	}
 
-	public void run() {
-		ShellReceiver.sharedInstance().showPrompt();
+	public void run(ShellReceiver receiver) {
+		receiver.showPrompt();
 		boolean shouldBreakRunLoop = false;
 		while (!shouldBreakRunLoop) {
 			Command aCommand = null;
 			do {
 				try {
-					aCommand = in.nextCommandForReceiver(ShellReceiver.sharedInstance());
+					aCommand = in.nextCommandForReceiver(receiver);
 					if (aCommand != null) {
 						aCommand.execute();
 					}
@@ -34,7 +34,7 @@ public class ShellRunner {
 				}
 			} while (in.hasUnexecutedCommands());
 			if (!shouldBreakRunLoop) {
-				ShellReceiver.sharedInstance().showPrompt();
+				receiver.showPrompt();
 			}
 		}
 	}
