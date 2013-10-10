@@ -72,7 +72,7 @@ public class Shell {
 
 		if (0 != args.length) {
 			
-			String arg = StringJoiner.join(Arrays.asList(args), " ");
+			String arg = StringUtils.join(Arrays.asList(args), " ");
 
 			try {
 				shell.executeLine(arg, state);
@@ -99,6 +99,7 @@ public class Shell {
 
 	private void executeLine(String commandLine, Shell.ShellState state) 
 	throws WrongCommandException, CommandFailException, UserInterruptionException {
+
 		for (String exArg : parseLine(commandLine)) {
 			invokeCommand(exArg.split("\\s+"), state);
 		}
@@ -134,6 +135,11 @@ public class Shell {
 		if (0 == toExecute.length) {
 			throw new WrongCommandException("Empty command");
 		}
+
+		if (toExecute[0].matches("\\s*")) {
+			throw new WrongCommandException("Syntax error near unexpected token ;");
+		}
+
 		Command invokedCommand = supportedCommands.get(toExecute[0]);
 		
 		if (null == invokedCommand) {

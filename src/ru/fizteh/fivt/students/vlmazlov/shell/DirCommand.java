@@ -14,8 +14,10 @@ public class DirCommand extends AbstractCommand {
 		File curDir = new File(state.getCurDir());
 		String[] listing = curDir.list();
 
+		if (listing.length == 0) return;
+		
 		try {
-			out.write((StringJoiner.join(Arrays.asList(listing), System.getProperty("line.separator"))).getBytes());
+			out.write((StringUtils.join(Arrays.asList(listing), System.getProperty("line.separator"))).getBytes());
 			out.write('\n');
 		} catch (IOException ex) {
 			throw new CommandFailException("dir: Unable to print listing");
