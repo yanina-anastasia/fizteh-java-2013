@@ -1,26 +1,19 @@
-//package ru.fizteh.fivt.students.nlevashov.Shell;
+package ru.fizteh.fivt.students.nlevashov.Shell;
 
-import java.util.ArrayList;
 import java.util.Vector;
 import java.util.regex.Pattern;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Files;
-
 import java.util.EnumSet;
 import java.util.Scanner;
-
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.DirectoryStream;
-import java.nio.file.DirectoryIteratorException;
 
 public class Shell {
     public static Vector<String> parse(String str, String separators) {
@@ -45,7 +38,7 @@ public class Shell {
             if (dir.isDirectory()) {
                 System.setProperty("user.dir", dir.toString());
             } else {
-                throw new Exception("cd: Path \"" + path + "\" isn't a directory");    
+                throw new Exception("cd: Path \"" + path + "\" isn't a directory");
             }
         } else {
             throw new Exception("cd: Path \"" + path + "\" doesn't exist");
@@ -74,6 +67,7 @@ public class Shell {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
+
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
                 if (e == null) {
@@ -96,15 +90,20 @@ public class Shell {
             if (destination.isDirectory()) {
                 final Path source = path.toPath();
                 final Path target = destination.toPath().resolve(path.getName());
+                if (Pattern.compile("^[\\.\\/]+").matcher(target.relativize(source).toString()).matches()) {
+                    throw new Exception("cp: Can not copy folder to itself");
+                }
                 try {
                     Files.copy(source, target);
                 } catch (FileAlreadyExistsException e) {
                     throw new IOException("cp: Object \"" + target.toString() + "\" already exist");
                 }
                 if (path.isDirectory()) {
-                    Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new SimpleFileVisitor<Path>() {
+                    Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS),
+                            Integer.MAX_VALUE, new SimpleFileVisitor<Path>() {
                         @Override
-                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                                throws IOException {
                             Path targetdir = target.resolve(source.relativize(dir));
                             try {
                                 Files.copy(dir, targetdir);
@@ -115,6 +114,7 @@ public class Shell {
                             }
                             return FileVisitResult.CONTINUE;
                         }
+
                         @Override
                         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                             try {
@@ -127,7 +127,7 @@ public class Shell {
                     });
                 }
             } else {
-                throw new Exception("cp: Path \"" + to + "\" isn't a directory");    
+                throw new Exception("cp: Path \"" + to + "\" isn't a directory");
             }
         } else {
             throw new Exception("cp: Path \"" + to + "\" doesn't exist");
@@ -140,45 +140,44 @@ public class Shell {
             throw new Exception("mv: Object \"" + from + "\" doesn't exist");
         }
         File destination = makePath(to);
-        if (destination.exists()) {
-            if (destination.isDirectory()) {
-                final Path source = path.toPath();
-                final Path target = destination.toPath().resolve(path.getName());
-                try {
-                    Files.move(source, target);
-                } catch (FileAlreadyExistsException e) {
-                    throw new IOException("mv: Object \"" + target.toString() + "\" already exist");
-                }
-                if (path.isDirectory()) {
-                    Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new SimpleFileVisitor<Path>() {
-                        @Override
-                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                            Path targetdir = target.resolve(source.relativize(dir));
-                            try {
-                                Files.move(dir, targetdir);
-                            } catch (FileAlreadyExistsException e) {
-                                if (!Files.isDirectory(targetdir)) {
-                                    throw new IOException("mv: Object \"" + targetdir.toString() + "\" already exist");
-                                }
-                            }
-                            return FileVisitResult.CONTINUE;
-                        }
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                            try {
-                                Files.move(file, target.resolve(source.relativize(file)));
-                            } catch (FileAlreadyExistsException e) {
-                                throw new IOException("mv: File \"" + file.toString() + "\" already exist");
-                            }
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
+        if (Pattern.compile("^[\\.\\/]+").
+                matcher(destination.toPath().relativize(path.toPath()).toString()).matches()) {
+            throw new Exception("mv: Can not move folder to itself");
+        }
+        if (path.isDirectory()) {
+            if (destination.exists()) {
+                if (destination.isDirectory()) {
+                    try {
+                        path.renameTo(destination.toPath().resolve(path.getName()).toFile());
+                    } catch (SecurityException e) {
+                        throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                    }
+                } else {
+                    throw new Exception("mv: Path \"" + to + "\" isn't a directory");
                 }
             } else {
-                throw new Exception("mv: Path \"" + to + "\" isn't a directory");    
+                throw new Exception("mv: Path \"" + to + "\" doesn't exist");
             }
         } else {
-            throw new Exception("mv: Path \"" + to + "\" doesn't exist");
+            if (destination.exists()) {
+                if (destination.isDirectory()) {
+                    try {
+                        path.renameTo(destination.toPath().resolve(path.getName()).toFile());
+                    } catch (SecurityException e) {
+                        throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                    }
+                } else {
+                    throw new Exception("mv: Object \"" + to + "\" already exists");
+                }
+            } else if (destination.getParentFile().exists()) {
+                try {
+                    path.renameTo(destination);
+                } catch (SecurityException e) {
+                    throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                }
+            } else {
+                throw new Exception("mv: Directory \"" + destination.getParent() + "\" doesn't exist");
+            }
         }
     }
 
@@ -189,7 +188,6 @@ public class Shell {
             System.out.println(f.getFileName().toString());
         }
     }
-
 
     public static boolean execute(String cmd) throws Exception {
         Vector<String> tokens = parse(cmd, " ");
@@ -275,7 +273,9 @@ public class Shell {
             Vector<String> commands = parse(cmdline, ";");
             try {
                 for (String s : commands) {
-                    if (!execute(s)) break;
+                    if (!execute(s)) {
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
