@@ -8,8 +8,10 @@ import java.util.Scanner;
 
 public class Shell {
 
-    public enum exitCode {
-        OK, EXIT, ERR;
+    public enum ExitCode {
+        OK, 
+        EXIT, 
+        ERR;
     }
 
     static File currPath;
@@ -28,40 +30,40 @@ public class Shell {
         }
     }
 
-    private static exitCode deleteFile(File myFile, String cmd) {
+    private static ExitCode deleteFile(File myFile, String cmd) {
         if (!myFile.exists()) {
             System.err.println(cmd + ": '" + myFile.getAbsolutePath()
                     + "': doesn't exist");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
         if (myFile.isFile()) {
             if (!myFile.delete()) {
                 System.err.println(cmd + ": '" + myFile.getAbsolutePath()
                         + "': can't delete file");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
-            return exitCode.OK;
+            return ExitCode.OK;
         } else if (myFile.isDirectory()) {
             File[] filesInDirectory = myFile.listFiles();
             for (File currFile : filesInDirectory) {
-                if (deleteFile(currFile, cmd) != exitCode.OK) {
-                    return exitCode.ERR;
+                if (deleteFile(currFile, cmd) != ExitCode.OK) {
+                    return ExitCode.ERR;
                 }
             }
             if (!myFile.delete()) {
                 System.err.println(cmd + ": '" + myFile.getAbsolutePath()
                         + "': can't delete directory");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
-            return exitCode.OK;
+            return ExitCode.OK;
         } else {
             System.err.println(cmd + ": '" + myFile.getAbsolutePath()
                     + "': unidentified type of file");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
     }
 
-    private static boolean isRoot(File arg, File arg2) {        
+    private static boolean isRoot(File arg) {        
         for (File i : File.listRoots()) {
             if (arg.equals(i)) {
                 return true;
@@ -70,35 +72,48 @@ public class Shell {
         return false;
     }
     
-    private static exitCode copyFileToDir(File source, File dest, String cmd) {
+    private static ExitCode copyFileToDir(File source, File dest, String cmd) {
+        if (source.getAbsolutePath().equals("/")) {
+            System.err.println(cmd + ": skip /");
+            return ExitCode.ERR;
+        }
         if (!source.exists()) {
             System.err.println(cmd + ": '" + source.getAbsolutePath()
                     + "': doesn't exist");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
         if (!dest.exists()) {
             System.err.println(cmd + ": '" + dest.getAbsolutePath()
                     + "': doesn't exist");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
-        if (!dest.isDirectory()) {
+        if (source.isDirectory() && !dest.isDirectory()) {
             System.err.println(cmd + ": '" + dest.getAbsolutePath()
                     + "' isn't a directory");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
-        if (source.getParent().toString()
-                .equals(dest.getAbsolutePath().toString())) {
+        if (source.isFile() && dest.isFile()) {
+            try {
+                copyFromFileToFile(source, dest);
+                return ExitCode.OK;
+            } catch (IOException e) {
+                System.err.println(cmd + ": can't copy from '"
+                        + source.getAbsolutePath() + "' to '"
+                        + dest.getAbsolutePath());
+                return ExitCode.ERR;
+            }
+        }
+        if (source.getParent().equals(dest)) {
             // It's the same directory, nothing to do there.
-            return exitCode.OK;
+            return ExitCode.OK;
         }
         
-        
-        for (File par = dest; !isRoot(par, dest); par = dest.getParentFile()) {
+        for (File par = dest; !isRoot(par); par = par.getParentFile()) {
             if (par.equals(source)) {
                 System.err.println(cmd + ": can't copy from '"
                         + source.getAbsolutePath() + "' to '"
                         + dest.getAbsolutePath() + "' because of recursive call");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
         }
         
@@ -109,18 +124,18 @@ public class Shell {
                 newFile.createNewFile();
                 try {
                     copyFromFileToFile(source, newFile);
-                    return exitCode.OK;
+                    return ExitCode.OK;
                 } catch (IOException e) {
                     System.err.println(cmd + ": can't copy from '"
                             + source.getAbsolutePath() + "' to '"
                             + dest.getAbsolutePath() + "'");
-                    return exitCode.ERR;
+                    return ExitCode.ERR;
                 }
             } catch (IOException e) {
                 System.err.println(cmd + ": can't copy from '"
                         + source.getAbsolutePath() + "' to '"
                         + dest.getAbsolutePath() + "'");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
         } else if (source.isDirectory()) {
             File newDir = new File(dest.getAbsolutePath() + File.separator
@@ -128,21 +143,21 @@ public class Shell {
             if (!newDir.mkdir()) {
                 System.err.println(cmd + ": can't make new dir in '"
                         + dest.getAbsolutePath() + "'");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
             File[] filesInDirectory = source.listFiles();
 
             for (File myFile : filesInDirectory) {
-                if (copyFileToDir(myFile, newDir, cmd) != exitCode.OK) {
-                    return exitCode.ERR;
+                if (copyFileToDir(myFile, newDir, cmd) != ExitCode.OK) {
+                    return ExitCode.ERR;
                 }
             }
         } else {
             System.err.println(cmd + ": '" + source.getAbsolutePath()
                     + "': unidentified type of file");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
-        return exitCode.OK;
+        return ExitCode.OK;
     }
 
     private static void copyFromFileToFile(File source, File dest)
@@ -168,7 +183,7 @@ public class Shell {
         System.out.println(currPath.toString());
     }
 
-    private static exitCode cd(String dest) {
+    private static ExitCode cd(String dest) {
         File newFile;
         try {
             newFile = getFileFromString(dest, "cd");
@@ -177,58 +192,58 @@ public class Shell {
                     currPath = new File(newFile.getCanonicalPath());
                 } catch (IOException e) {
                     System.err.println("cd: '" + dest + "': incorrect path");
-                    return exitCode.ERR;
+                    return ExitCode.ERR;
                 }
             } else {
                 System.err.println("cd: '" + dest + "': no such directory");
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
-            return exitCode.OK;
+            return ExitCode.OK;
 
         } catch (IOException e1) {
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
     }
 
-    private static exitCode dir() {
+    private static ExitCode dir() {
         File newFile = new File(currPath.toString());
         if (!newFile.exists()) {
             System.err.println("dir: '" + currPath.toString() + "': doesn't exist");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
         if (!newFile.isDirectory()) {
             System.err.println("dir: '" + currPath.toString()
                     + "': isn't directory");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
         String[] filesInDirectory = newFile.list();
         for (String file : filesInDirectory) {
             System.out.println(file);
         }
-        return exitCode.OK;
+        return ExitCode.OK;
     }
 
-    private static exitCode rm(String fileToDel) {
+    private static ExitCode rm(String fileToDel) {
         File myFile;
         try {
             myFile = getFileFromString(fileToDel, "rm");
             return deleteFile(myFile, "rm");
         } catch (IOException e) {
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
     }
 
-    private static exitCode mkdir(String dirName) {
+    private static ExitCode mkdir(String dirName) {
         File newDir;
         newDir = new File(currPath.getAbsolutePath() + File.separator + dirName);
         if (!newDir.mkdir()) {
             System.err.println("mkdir: '" + dirName + "': can't make dir");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
-        return exitCode.OK;
+        return ExitCode.OK;
     }
 
-    private static exitCode mv(String source, String dest) {
+    private static ExitCode mv(String source, String dest) {
         File sourceFile;
         File destFile;
         try {
@@ -236,27 +251,26 @@ public class Shell {
             try {
                 destFile = getFileFromString(dest, "mv");
                 if (!destFile.exists()
-                        && sourceFile.getParent().toString()
-                                .equals(destFile.getParent().toString())) {
+                        && sourceFile.getParent().equals(destFile.getParent())) {
                     if (!sourceFile.renameTo(destFile)) {
                         System.err.println("mv: can't rename '" + source + "' to '" + dest + "'");
-                        return exitCode.ERR;
+                        return ExitCode.ERR;
                     }
                 } else {
-                    if (copyFileToDir(sourceFile, destFile, "mv") == exitCode.OK) {
+                    if (copyFileToDir(sourceFile, destFile, "mv") == ExitCode.OK) {
                         return deleteFile(sourceFile, "mv");
                     }
                 }
-                return exitCode.OK;
+                return ExitCode.OK;
             } catch (IOException e) {
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
         } catch (IOException e1) {
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
     }
 
-    private static exitCode cp(String source, String dest) {
+    private static ExitCode cp(String source, String dest) {
         File sourceFile;
         File destFile;
         try {
@@ -265,11 +279,11 @@ public class Shell {
                 destFile = getFileFromString(dest, "cp");
                 return copyFileToDir(sourceFile, destFile, "cp");
             } catch (IOException e) {
-                return exitCode.ERR;
+                return ExitCode.ERR;
             }
 
         } catch (IOException e) {
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
     }
 
@@ -286,23 +300,23 @@ public class Shell {
         return (input.split(newSeparator));
     }
 
-    private static exitCode analyze(String input) {
+    private static ExitCode analyze(String input) {
         String[] arg = getArguments(input);
-        if (arg.equals(null) || arg.length == 0) {
+        if (arg == null) {
             System.err.println("No command found");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
 
         switch (arg[0]) {
         case "exit":
             if (arg.length == 1) {
-                return exitCode.EXIT;
+                return ExitCode.EXIT;
             }
             break;
         case "pwd":
             if (arg.length == 1) {
                 pwd();
-                return exitCode.OK;
+                return ExitCode.OK;
             }
             break;
         case "cd":
@@ -337,10 +351,10 @@ public class Shell {
             break;
         default:
             System.err.println("No such command");
-            return exitCode.ERR;
+            return ExitCode.ERR;
         }
         System.err.println(arg[0] + ": incorrect number of arguments");
-        return exitCode.ERR;
+        return ExitCode.ERR;
     }
 
     private static void interactive() {
@@ -350,9 +364,16 @@ public class Shell {
         System.out.print("$ ");
 
         while (input.hasNext()) {
-            if (analyze(input.next()) == exitCode.EXIT) {
-                break;
+            Scanner inputLine = new Scanner(input.next());
+            inputLine.useDelimiter(";");
+            while (inputLine.hasNext()) {
+                if (analyze(inputLine.next()) == ExitCode.EXIT) {
+                    inputLine.close();
+                    input.close();
+                    return;
+                }
             }
+            inputLine.close();
             System.out.print("$ ");
         }
         input.close();
@@ -371,13 +392,18 @@ public class Shell {
             }
             Scanner input = new Scanner(arguments.toString());
             input.useDelimiter(";");
+            boolean isOk = true;
             while (input.hasNext()) {
-                if (analyze(input.next()) != exitCode.OK) {
+                if (analyze(input.next()) != ExitCode.OK) {
+                    isOk = false;
                     break;
                 }
                 input.next();
             }
             input.close();
+            if (!isOk) {
+                System.exit(1);
+            }
         }
     }
 }
