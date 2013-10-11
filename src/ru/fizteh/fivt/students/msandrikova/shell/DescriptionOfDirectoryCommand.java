@@ -4,21 +4,20 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class DescriptionOfDirectory extends Command {
+public class DescriptionOfDirectoryCommand extends Command {
 
-	public DescriptionOfDirectory() {
+	public DescriptionOfDirectoryCommand() {
 		super("dir", 0);
 	}
 	
 	@Override
-	public void execute(String[] argumentsList) {
-		super.getArgsAcceptor(argumentsList.length - 1);
-		if(super.hasError) {
-			return;
+	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
+			return currentDirectory;
 		}
 		
 		File[] listOfFiles;
-		listOfFiles = Shell.currentDirectory.listFiles();
+		listOfFiles = currentDirectory.listFiles();
 		
 		Arrays.sort(listOfFiles, new Comparator<File>() {
 			@Override
@@ -41,6 +40,7 @@ public class DescriptionOfDirectory extends Command {
 		for(File fileName : listOfFiles) {
 			System.out.println(fileName.getName());
 		}
+		return currentDirectory;
 	}
 
 }

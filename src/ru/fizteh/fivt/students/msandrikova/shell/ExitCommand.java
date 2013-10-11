@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.msandrikova.shell;
 
+import java.io.File;
+
 public class ExitCommand extends Command {
 
 	public ExitCommand() {
@@ -7,12 +9,12 @@ public class ExitCommand extends Command {
 	}
 	
 	@Override
-	public void execute(String[] argumentsList) {
-		super.getArgsAcceptor(argumentsList.length - 1);
-		if(super.hasError) {
-			return;
+	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
+			return currentDirectory;
 		}
 		
-		Shell.isExit = true;
+		Thread.currentThread().interrupt();
+		return currentDirectory;
 	}
 }
