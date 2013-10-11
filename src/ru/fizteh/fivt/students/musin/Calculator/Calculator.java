@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.musin.Calculator;
+package ru.fizteh.fivt.students.musin.calculator;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

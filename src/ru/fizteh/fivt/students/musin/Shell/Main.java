@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.musin.Shell;
+package ru.fizteh.fivt.students.musin.shell;
 
 import java.io.BufferedReader;
 import java.io.File;
