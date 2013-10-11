@@ -33,8 +33,10 @@ public class Shell {
 
 	 private static void parseAndExecute(String arg, StateShell st) throws IOException {
 		 String[] com = arg.trim().split("\\s*;\\s*");
+		 //System.out.println(com.length);
 		 for (String s: com) {
 			 String[] args = s.split("\\s+");
+			 //System.out.println(args.length);
 			 int argsNumber = -1;
 			 AbstractCommand c = null;
 			 for (int i = 0; i < st.commands.size(); ++i) {
@@ -44,7 +46,7 @@ public class Shell {
 					 break;
 				 }
 			 }
-			 if (argsNumber == -1) {
+			 if (c == null) {
 				 throw new IOException(args[0] + ": No such command");
 			 } else if (argsNumber > args.length - 1) {
 				 throw new IOException(args[0]+ ": Too few arguments");

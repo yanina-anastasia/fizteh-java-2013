@@ -15,6 +15,9 @@ public class CommandRemove extends AbstractCommand {
 	public void execute(String[] args) throws IOException {
 		File f = getFileByName(args[1]);
 		if (f.exists()) {
+			if (f.getCanonicalPath().equals(getState().currentDir.getCanonicalPath())) {
+				throw new IOException("rm: '" + args[1]+ "' can't delete current directory");
+			}
 			DeleteRecursivly(f);
 		} else {
 			throw new IOException("rm: '" + args[1]+ "doesn't exist");
