@@ -23,7 +23,7 @@ public class MoveCommand extends AbstractCommand {
 				}
 			}
 		} else {
-			System.err.println("mv: cannot copy: Files are same");
+			throw new IOException("mv: cannot copy: Files are same");
 		}
 	}
 }

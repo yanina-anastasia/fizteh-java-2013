@@ -34,7 +34,7 @@ public class CopyCommand extends AbstractCommand {
 				}
 			}
 		} else {
-			System.err.println("cp: cannot copy: Files are same");
+			throw new IOException("cp: cannot copy: Files are same");
 		}
 	}
 }
