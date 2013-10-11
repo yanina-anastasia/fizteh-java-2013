@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Shell {
-    public enum returnCode {
+    public enum Code {
         OK,
         ERROR,
         SYSTEM_ERROR,
@@ -16,15 +16,15 @@ public class Shell {
     }
 
     //print working directory, печатает абсолютный путь к текущей директории +
-    public static returnCode pwdCommand() {
+    public static Code pwdCommand() {
         Properties p = System.getProperties();
         String dir = p.getProperty("user.dir");
         System.out.println(dir);
-        return (returnCode.OK);
+        return (Code.OK);
     }
 
     //Печатает содержимое текущей директории.
-    public static returnCode dirCommand() {
+    public static Code dirCommand() {
         Properties p = System.getProperties();
         String dir = p.getProperty("user.dir");
         File f1 = new File(dir);
@@ -34,13 +34,13 @@ public class Shell {
             }
         } catch (Exception e) {
             System.err.println(e);
-            return (returnCode.SYSTEM_ERROR);
+            return (Code.SYSTEM_ERROR);
         }
-        return (returnCode.OK);
+        return (Code.OK);
     }
 
     //Создание новой директории в текущей директории.
-    public static returnCode mkdirCommand(String nameOfDir) {
+    public static Code mkdirCommand(String nameOfDir) {
         Properties p = System.getProperties();
         String dir = p.getProperty("user.dir");
         File f = new File(dir + File.separator + nameOfDir);
@@ -48,68 +48,67 @@ public class Shell {
             boolean result = f.mkdir();
             if (!result) {
                 System.err.println("mkdir: dir '" + nameOfDir + "' can not be made");
-                return returnCode.ERROR;
+                return Code.ERROR;
             }
         } else {
             System.err.println("mkdir: dir '" + nameOfDir + "' already exists");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
-        return (returnCode.OK);
+        return (Code.OK);
     }
 
     //Копирует указанную в параметра папку/файл в указанное место.
-    public static returnCode cpCommand(String source, String destination) {
+    public static Code cpCommand(String source, String destination) {
         File from = new File(source);
         File toDir = new File(destination);
         if (!from.exists()) {
             System.err.println("cp: '" + source + "': No such file or directory");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
         if (!toDir.exists()) {
             System.err.println("cp: '" + destination + "': No such file or directory");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
         if (!toDir.isDirectory()) {
             System.err.println("cp: '" + destination + "': Is not a directory");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
         File to = new File(destination + File.separator + source);
         if (to.exists()) {
             System.err.println("cp: '" + source + "': File with such name already exist in '" + destination + "'");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
         try {
             Files.copy(from.toPath(), to.toPath());
         } catch (Exception e) {
             System.err.println(e);
-            return returnCode.SYSTEM_ERROR;
+            return Code.SYSTEM_ERROR;
         }
-        return returnCode.OK;
+        return Code.OK;
     }
 
     // mv <source> <destination> — переносит указанный файл/папку в новое место (файл на прежнем месте удаляется).
     // В частности переименовывает файл/папку, если source и destination находятся в одной папке
-    public static returnCode mvCommand(String source, String destination) {
+    public static Code mvCommand(String source, String destination) {
         File from = new File(source);
         if (!from.exists()) {
             System.err.println("wv: cannot move'" + source + "': No such file or directory'");
-            return returnCode.ERROR;
+            return Code.ERROR;
         }
         if (destination.equals(".")) {
-            return returnCode.OK;
+            return Code.OK;
         }
         File toDir = new File(destination);
         if (!toDir.exists()) {
             if (!from.renameTo(toDir)) {
                 System.err.println("wv: cannot rename'" + source + "': to '" + destination + "'");
-                return returnCode.ERROR;
-            }
-            else {
-                return returnCode.OK;
+                return Code.ERROR;
+            } else {
+                return Code.OK;
             }
         } else {
-            returnCode cpReturnCode = cpCommand(source, destination);
-            if (cpReturnCode != returnCode.OK) {
+            Code cpReturnCode = cpCommand(source, destination);
+            if (cpReturnCode != Code.OK) {
                 return cpReturnCode;
             }
             return rmCommand(source);
@@ -117,12 +116,12 @@ public class Shell {
     }
 
     //Удаляет указанную в параметрах папку (рекурсивно) или файл.
-    public static returnCode rmCommand(String path) {
+    public static Code rmCommand(String path) {
         try {
             File inputFile = new File(path);
             if (!inputFile.exists()) {
                 System.err.println("rm: cannot remove '" + path + "': No such file or directory");
-                return returnCode.ERROR;
+                return Code.ERROR;
             }
             if (!inputFile.isAbsolute()) {
                 Properties p = System.getProperties();
@@ -135,34 +134,34 @@ public class Shell {
                 if (childFile != null) {
                     if (childFile.isDirectory()) {
                         cdCommand(path);
-                        if (rmCommand(childFile.toString()) == returnCode.SYSTEM_ERROR) {
-                            return returnCode.SYSTEM_ERROR;
+                        if (rmCommand(childFile.toString()) == Code.SYSTEM_ERROR) {
+                            return Code.SYSTEM_ERROR;
                         }
                         cdCommand("..");
                     }
                     if (!childFile.delete()) {
                         System.err.println("rm: impossible to remove file '" + childFile.toString() + "'.");
-                        return returnCode.ERROR;
+                        return Code.ERROR;
                     }
                 }
             }
             if (!inputFile.delete()) {
                 System.err.println("rm: impossible to remove file '" + path + "'.");
-                return returnCode.ERROR;
+                return Code.ERROR;
             } else {
-                return returnCode.OK;
+                return Code.OK;
             }
         } catch (Exception e) {
             System.err.println(e);
-            return returnCode.SYSTEM_ERROR;
+            return Code.SYSTEM_ERROR;
         }
     }
 
     //Change directory, смена текущей директории. Поддерживаются ., .., относительные и абсолютные пути.
-    public static returnCode cdCommand(String inputNameDir) {
+    public static Code cdCommand(String inputNameDir) {
         String path = inputNameDir;
         if (path.equals(".")) {
-            return (returnCode.OK);
+            return (Code.OK);
         }
         Properties p = System.getProperties();
         if (path.equals("..")) {
@@ -185,19 +184,19 @@ public class Shell {
             }
             if (!newDir.isDirectory()) {
                 System.err.println("cd: '" + inputNameDir + "': No such file or directory");
-                return (returnCode.ERROR);
+                return (Code.ERROR);
             } else {
                 System.setProperty("user.dir", path);
             }
         } catch (Exception e) {
             System.err.println(e);
-            return (returnCode.SYSTEM_ERROR);
+            return (Code.SYSTEM_ERROR);
         }
-        return (returnCode.OK);
+        return (Code.OK);
     }
 
     //Обработка введённой команды.
-    public static returnCode commandProcessing(String command) {
+    public static Code commandProcessing(String command) {
         StringTokenizer st = new StringTokenizer(command, " ", false);
         ArrayList<String> parts = new ArrayList<String>();
         while (st.hasMoreElements()) {
@@ -209,7 +208,7 @@ public class Shell {
         if (parts.get(0).equals("pwd") && parts.size() == 1) {
             return pwdCommand();
         } else if (parts.get(0).equals("exit") && parts.size() == 1) {
-            return (returnCode.EXIT);
+            return (Code.EXIT);
         } else if (parts.get(0).equals("dir") && parts.size() == 1) {
             return dirCommand();
         } else if (parts.get(0).equals("mkdir") && parts.size() == 2) {
@@ -224,7 +223,7 @@ public class Shell {
             return mvCommand(parts.get(1), parts.get(2));
         } else {
             System.out.println("Incorrect input: " + command);
-            return (returnCode.ERROR);
+            return (Code.ERROR);
         }
 
     }
@@ -239,11 +238,11 @@ public class Shell {
                 if (command.length() == 0) {
                     continue;
                 }
-                returnCode codeOfCommand = commandProcessing(command);
-                if (codeOfCommand == returnCode.SYSTEM_ERROR) {
+                Code codeOfCommand = commandProcessing(command);
+                if (codeOfCommand == Code.SYSTEM_ERROR) {
                     System.exit(1);
                 }
-                if (codeOfCommand == returnCode.EXIT) {
+                if (codeOfCommand == Code.EXIT) {
                     System.exit(0);
                 }
             }
@@ -258,11 +257,11 @@ public class Shell {
             String input = str.toString();
             String commands[] = input.split(";");
             for (int i = 0; i < commands.length; i++) {
-                returnCode codeOfCommand = commandProcessing(commands[i]);
-                if (codeOfCommand == returnCode.SYSTEM_ERROR) {
+                Code codeOfCommand = commandProcessing(commands[i]);
+                if (codeOfCommand == Code.SYSTEM_ERROR) {
                     System.exit(1);
                 }
-                if (codeOfCommand == returnCode.EXIT) {
+                if (codeOfCommand == Code.EXIT) {
                     System.exit(0);
                 }
             }
