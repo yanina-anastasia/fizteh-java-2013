@@ -6,7 +6,7 @@
 
 Теперь приложение, помимо возможности запуска из командной строки, может быть запущено в рамках другого приложения
 (как библиотека). Библиотека должна реализовывать соответствующие интерфейсы, объявленные в пакете
-[ru.fizteh.fivt.storage.strings](src/ru/fizteh/fivt/storage/strings) (Table, TableProvider, TableProviderFactory).
+[ru.fizteh.fivt.storage.strings](../src/ru/fizteh/fivt/storage/strings) (Table, TableProvider, TableProviderFactory).
 
 Каждый метод каждого интерфейса должен быть покрыт модульными тестами (с помощью [JUnit](http://junit.org/)).
 Для классов-реализаций интерфейсов, где это разумно, также должны быть написаны тесты.
