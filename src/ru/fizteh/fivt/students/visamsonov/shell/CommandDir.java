@@ -15,7 +15,7 @@ public class CommandDir extends CommandAbstract {
 		}
 		String content = StringUtils.join(new File(state.getCurrentDirectory()).list(), "\n");
 		if (content == null) {
-			content = "";
+			return true;
 		}
 		System.out.println(content);
 		return true;
