@@ -16,7 +16,7 @@ public class CdCommand implements Command {
         if (!newDir.exists() | !newDir.isDirectory()) {
             throw new IOException("cd: " + newDir.getName() + ": directory doesn't exist");
         } else {
-            currentDirectory.changeCurDir(newDir.getCanonicalFile());
+            currentDirectory.changeCurDir(newDir.getAbsoluteFile());
         }
 
     }

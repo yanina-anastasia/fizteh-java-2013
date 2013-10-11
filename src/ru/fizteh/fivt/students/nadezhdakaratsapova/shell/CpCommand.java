@@ -56,7 +56,7 @@ public class CpCommand implements Command {
     private void copyingRec(File src, File dest) throws IOException {
         File target = new File(dest, src.getName());
         if (target.exists()) {
-            throw new IOException("cp: " + src.getName() + "alreadu exists in" + dest.getName());
+            throw new IOException("cp: " + src.getName() + "already exists in" + dest.getName());
         } else {
             if (src.isDirectory()) {
                 target.mkdir();

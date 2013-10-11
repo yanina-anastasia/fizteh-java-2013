@@ -21,17 +21,17 @@ public class RmCommand implements Command {
 
     }
 
-    private void rmRec(File src) throws IOException{
+    private void rmRec(File src) throws IOException {
         if (src.isDirectory()) {
             File[] listFile = src.listFiles();
             if (listFile.length > 0) {
-                for (File file: listFile) {
+                for (File file : listFile) {
                     rmRec(file);
                 }
             }
         }
         if (!src.delete()) {
-            throw new IOException("rm: not managed to remove " + src.getCanonicalPath());
+            throw new IOException("rm: not managed to remove " + src.getName());
         }
 
     }
