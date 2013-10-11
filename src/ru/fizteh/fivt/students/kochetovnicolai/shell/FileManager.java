@@ -159,8 +159,6 @@ public class FileManager implements Manager {
             printMessage(command + ": destination path doesn't exists");
         } else if (source.isDirectory() && destination.isFile()) {
             printMessage(command + ": source path is a directory, but destination is not");
-        } else if (source.isDirectory() && destination.getAbsolutePath().contains(source.getAbsolutePath())) {
-            printMessage(command + ": source path is part of destination path");
         } else {
             return recursiveCopy(source, destination, command);
         }

@@ -46,7 +46,7 @@ class Launcher{
             if (commandName == null) {
                 break;
             }
-            String[] tokens = commandName.trim().split("[\\s]");
+            String[] tokens = commandName.trim().split("[\\s]+");
 
             if (tokens.length == 0 || tokens[0].equals("")) {
                 continue;

@@ -22,15 +22,15 @@ public class RmCommand implements Executable {
 
     @Override
     public boolean execute(String[] args) {
-        File[] files = manager.getCurrentPath().listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().equals(args[1])) {
-                    return manager.recursiveRemove(file, args[0]);
-                }
-            }
+        File file = manager.resolvePath(args[1]);
+        if (file == null) {
+            manager.printMessage(args[0] + ": cannot remove \'" + args[1] + "\': No such file or directory");
+            return false;
         }
-        manager.printMessage(args[0] + ": cannot remove \'" + args[1] + "\': No such file or directory");
-        return false;
+        if (file.isDirectory() && manager.getCurrentPath().getAbsolutePath().contains(file.getAbsolutePath())) {
+            manager.printMessage(args[0] + ": cannot remove \'" + args[1] + "\': cannot delete current directory");
+            return false;
+        }
+        return manager.recursiveRemove(file, args[0]);
     }
 }
