@@ -82,20 +82,12 @@ public class ShellReceiver implements CommandReceiver {
 	}
 
 	@Override
-	public void makeDirectoryCommand(String arg) {
-		File absolutePathFile = new File(arg);
-		if (absolutePathFile.isAbsolute() && !absolutePathFile.exists()) {
-			absolutePathFile.mkdir();
-		} else {
-			File directoryToCreate = normalizedFile(arg);
-			try {
-				directoryToCreate = directoryToCreate.getCanonicalFile();
-			} catch (IOException ignored) {
-			}
-			if (!directoryToCreate.exists()) {
-				directoryToCreate.mkdir();
-			}
+	public void makeDirectoryCommand(String arg) throws ShellException {
+		File directoryToCreate = normalizedFile(arg);
+		if (directoryToCreate.exists()) {
+			throw new ShellException("mkdir: \'" + directoryToCreate.getAbsolutePath() + "\': directory already exists.");
 		}
+		directoryToCreate.mkdir();
 	}
 
 	@Override

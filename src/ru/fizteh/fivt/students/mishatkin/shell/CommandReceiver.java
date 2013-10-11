@@ -11,7 +11,7 @@ public interface CommandReceiver {
 	public void changeDirectoryCommand(String arg) throws ShellException;
 	public void directoryCommand();
 	public void printWorkingDirectoryCommand();
-	public void makeDirectoryCommand(String arg);
+	public void makeDirectoryCommand(String arg) throws ShellException;
 	public void removeCommand(String arg) throws ShellException;
 	public void copyCommand(String sourceFileOrDirectoryName, String destinationDirectoryName) throws ShellException;
 	public void moveCommand(String sourceFileOrDirectoryName, String destinationFileOrDirectoryName) throws ShellException;
