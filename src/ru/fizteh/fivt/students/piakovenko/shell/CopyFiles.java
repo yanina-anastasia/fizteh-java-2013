@@ -53,7 +53,7 @@ public class CopyFiles {
                 outStream.write(buffer, 0, read);
             }
         } catch (IOException e) {
-            throw new MyException(new Exception("Error: " + e.getMessage()));
+            throw new MyException(e.getCause());
         } finally {
             streamClose(inStream);
             streamClose(outStream);

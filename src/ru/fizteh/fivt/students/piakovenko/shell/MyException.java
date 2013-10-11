@@ -8,9 +8,9 @@ package ru.fizteh.fivt.students.piakovenko.shell;
  * To change this template use File | Settings | File Templates.
  */
 public class MyException extends Exception {
-    private final Exception reason;
+    private final Throwable reason;
 
-    public MyException(Exception e) {
+    public MyException(Throwable e) {
         reason = e;
     }
 
