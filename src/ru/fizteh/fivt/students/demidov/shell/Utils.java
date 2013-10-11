@@ -18,11 +18,6 @@ public class Utils {
 	}
 	
 	public static void copy(File source, File destination) throws IOException {
-		File fileDestination = new File(destination.getPath() + File.separator + source.getName());
-		if(fileDestination.exists()) {
-			throw new IOException("file already exists");
-		}
-		
         FileChannel sourceChannel = new FileInputStream(source.getPath()).getChannel();
 	    FileChannel destinationChannel = new FileOutputStream(destination.getPath()).getChannel();
 	    
@@ -33,7 +28,17 @@ public class Utils {
 	} 
 	
 	public static void copyFileOrDirectory(File source, File destination) throws IOException {
-		if (source.isFile()) {
+		if (destination.isFile() && !(source.isFile())) {
+			throw new IOException("unable to copy directory " + source.getPath() + " to file " + destination.getPath());
+		}
+		
+		if (source.getPath().equals(destination.getPath())) {
+			return;
+		}
+		
+		if (source.isFile() && destination.isDirectory()) {
+			copy(source, new File(destination.getPath() + File.separator + source.getName()));
+		} else if (source.isFile()) {
 			copy(source, destination);
 		} else {
 			File elementsDestination = new File(destination.getPath() + File.separator + source.getName());
@@ -49,8 +54,13 @@ public class Utils {
 	}
 	
 	public static void deleteFileOrDirectory(File source) {
+		if (source.isFile()) {
+			source.delete();
+			return;
+		}
+		
 		for (String element : source.list()) {
-			deleteFileOrDirectory(new File(source, element));
+			deleteFileOrDirectory(new File(source.getPath() + File.separator + element));
 		}
 
 		source.delete();

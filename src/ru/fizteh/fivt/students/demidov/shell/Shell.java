@@ -27,7 +27,7 @@ public class Shell {
 			try {
 				doInstructions(instructions);
 			} catch (IOException catchedException) {
-				System.err.println(catchedException);
+				System.err.println(catchedException.getMessage());
 				System.exit(1);
 			} catch (InterruptionException catchedException) {
 				System.exit(0);
@@ -43,7 +43,7 @@ public class Shell {
 				try {
 					doInstructions(instructions);
 				} catch (IOException catchedException) {
-					System.err.println(catchedException);
+					System.err.println(catchedException.getMessage());
 				} catch (InterruptionException catchedException) {
 					System.exit(0);
 				}
@@ -60,6 +60,10 @@ public class Shell {
 	private static void executeInstruction(String[] exeInstruction) throws IOException, InterruptionException {
 		if (0 == exeInstruction.length) {
 			throw new IOException("empty instruction");
+		}
+		
+		if (exeInstruction[0].equals("")) {
+			return;
 		}
 		
 		BasicCommand exeCommand = null;
@@ -97,7 +101,7 @@ public class Shell {
 				break;
 				
 		}
-
+		
 		if (null == exeCommand) {
 			throw new IOException("unknown instruction: " + exeInstruction[0]);
 		} 

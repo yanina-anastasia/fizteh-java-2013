@@ -8,8 +8,14 @@ public class Mv implements BasicCommand {
 	public void executeCommand(String[] arguments) throws IOException {	
 		File source = Utils.getFile(arguments[0]);
 		File destination = Utils.getFile(arguments[1]);
-		if (source.getParent().equals(destination.getParent())) {
+		
+		if (source.getPath().equals(destination.getPath())) {
+			return;
+		}
+		
+		if (source.isFile() && destination.isFile() && source.getParent().equals(destination.getParent())) {
 			(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 1, 2));
+			
 			if (!source.renameTo(destination)) {
 				throw new IOException("unable to move" + source.getPath() + " to " + destination.getPath());
 			}
