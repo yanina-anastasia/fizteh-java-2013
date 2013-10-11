@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 
 interface ShellExecutable {
-    public void execute(ArrayList<String> args);
+    public int execute(ArrayList<String> args);
 }
 
 class ShellCommand {
@@ -34,113 +34,151 @@ public class Shell {
     private ShellCommand[] commands = new ShellCommand[]{
             new ShellCommand("hello", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
                     System.out.println("hello to you too");
+                    return 0;
                 }
             }),
             new ShellCommand("dir", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
                     for (File f : currentDirectory.listFiles()) {
                         System.out.println(f.getName());
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("pwd", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
                     try {
                         System.out.println(currentDirectory.getCanonicalPath());
                     } catch (Exception e) {
                         System.err.println("pwd: Current Folder Error");
+                        return -1;
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("mkdir", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
+                    if (args.size() < 1) {
+                        System.err.println("mkdir: Too few arguments");
+                        return -1;
+                    }
                     try {
                         File newDir = new File(args.get(0));
                         if (!newDir.mkdir()) {
                             System.err.printf("mkdir: Folder '%s' can not be created\n", args.get(0));
+                            return -1;
                         }
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        return -1;
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("cd", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
+                    if (args.size() < 1) {
+                        System.err.println("cd: Too few arguments");
+                        return -1;
+                    }
                     try {
                         Path path = Paths.get(currentDirectory.getCanonicalPath());
                         path = path.resolve(args.get(0));
                         File newDir = new File(path.toAbsolutePath().toString());
                         if (!newDir.exists() || !newDir.isDirectory()) {
                             System.err.printf("cd: '%s': No such file or directory\n", args.get(0));
+                            return -1;
                         } else {
                             currentDirectory = newDir;
                         }
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        return -1;
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("exit", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
                     exit = true;
+                    return 0;
                 }
             }),
             new ShellCommand("rm", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
+                    if (args.size() < 1) {
+                        System.err.println("rm: Too few arguments");
+                        return -1;
+                    }
                     try {
                         Path path = Paths.get(currentDirectory.getCanonicalPath());
                         path = path.resolve(args.get(0));
                         File newDir = new File(path.toAbsolutePath().toString());
                         if (!newDir.exists()) {
                             System.err.printf("rm: '%s': No such file or directory\n", args.get(0));
+                            return -1;
                         } else {
                             FileSystemRoutine.deleteDirectoryOrFile(newDir);
                         }
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        return -1;
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("mv", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
+                    if (args.size() < 2) {
+                        System.err.println("mv: Too few arguments");
+                        return -1;
+                    }
                     try {
                         Path path = Paths.get(currentDirectory.getCanonicalPath());
                         path = path.resolve(args.get(0));
                         File from = new File(path.toAbsolutePath().toString());
                         if (!from.exists()) {
                             System.err.printf("mv: '%s': No such file or directory\n", args.get(0));
+                            return -1;
                         } else {
                             path = Paths.get(currentDirectory.getCanonicalPath());
                             path = path.resolve(args.get(1));
                             File to = new File(path.toAbsolutePath().toString());
                             if (!from.renameTo(to)) {
                                 System.err.println("mv: File or directory can't be moved");
+                                return -1;
                             }
                         }
-
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        return -1;
                     }
+                    return 0;
                 }
             }),
             new ShellCommand("cp", new ShellExecutable() {
                 @Override
-                public void execute(ArrayList<String> args) {
+                public int execute(ArrayList<String> args) {
+                    if (args.size() < 2) {
+                        System.err.println("cp: Too few arguments");
+                        return -1;
+                    }
                     try {
                         Path path = Paths.get(currentDirectory.getCanonicalPath());
                         path = path.resolve(args.get(0));
                         File from = new File(path.toAbsolutePath().toString());
                         if (!from.exists()) {
                             System.err.printf("mv: '%s': No such file or directory\n", args.get(0));
+                            return -1;
                         } else {
                             path = Paths.get(currentDirectory.getCanonicalPath());
                             path = path.resolve(args.get(1));
@@ -150,7 +188,9 @@ public class Shell {
 
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
+                        return -1;
                     }
+                    return 0;
                 }
             })
     };
@@ -162,12 +202,9 @@ public class Shell {
         currentDirectory = new File(startDirectory);
     }
 
-    public void parseString(String s) {
+    public int parseString(String s) {
         String[] comm = s.split(";");
         for (int i = 0; i < comm.length; i++) {
-            if (exit) {
-                break;
-            }
             String[] strings = comm[i].split(" ");
             String name = "";
             ArrayList<String> args = new ArrayList<String>();
@@ -185,23 +222,27 @@ public class Shell {
             }
             for (int j = 0; j < commands.length; j++) {
                 if (commands[j].name.equals(name)) {
-                    commands[j].exec.execute(args);
+                    if (commands[j].exec.execute(args) != 0)
+                        return -1;
                     break;
                 }
             }
         }
+        return 0;
     }
 
-    public void run(BufferedReader br) {
+    public int run(BufferedReader br) {
         exit = false;
         while (!exit) {
             System.out.print("$ ");
             try {
                 String str = br.readLine();
-                parseString(str);
+                if (parseString(str) != 0)
+                    return -1;
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
         }
+        return 0;
     }
 }

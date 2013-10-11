@@ -26,10 +26,10 @@ public class Main {
                 sb = sb.append(s).append(" ");
             }
             String argString = sb.toString();
-            shell.parseString(argString);
+            System.exit(shell.parseString(argString));
         } else {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            shell.run(br);
+            System.exit(shell.run(br));
         }
     }
 }
