@@ -6,8 +6,8 @@ import java.io.File;
 import java.util.Arrays;
 
 public class CommandsOperator {
-    private static final String COMMANDS_PATH = "ru.fizteh.fivt.students.vishnevskiy.shell.Commands.";
-    private static final File COMMANDS_DIR = new File("./src/ru/fizteh/fivt/students/vishnevskiy/shell/Commands");
+    private static final String COMMANDS_PATH = "ru.fizteh.fivt.students.vishnevskiy.shell.сommands.";
+    private static final File COMMANDS_DIR = new File("./src/ru/fizteh/fivt/students/vishnevskiy/shell/сommands");
     private Map<String, Command> commandsTable = new HashMap<String, Command>();
     private FileSystemOperator fileSystemOperator;
 
