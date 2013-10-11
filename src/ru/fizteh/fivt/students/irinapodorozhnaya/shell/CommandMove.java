@@ -6,22 +6,23 @@ import java.nio.file.Files;
 
 public class CommandMove extends AbstractCommand {
 	public CommandMove(StateShell st) {
-		setState(st);
-		setNumberOfArguments(2);
+		super(2, st);
 	}
-	public String getName(){
+	
+	public String getName() {
 		return "mv";
 	}
+	
 	public void execute(String[] args) throws IOException {	
-		File source = new File(getState().currentDir, args[1]);
-		File dest = new File(getState().currentDir, args[2]);
+		File source = getFileByName(args[1]);
+		File dest = getFileByName(args[2]);
 		if (!source.exists()) {
 			throw new IOException("mv: '" + args[1] + "' not exist");
 		} else if (dest.isDirectory()) {
-			if (!source.renameTo(new File(dest + File.separator + source.getName()))){
+			if (!source.renameTo(new File(dest + File.separator + source.getName()))) {
 				throw new IOException("mv: '" + source.getName() + "' can't move file");
 			}
-		} else if (!source.renameTo(dest)){
+		} else if (!source.renameTo(dest)) {
 			throw new IOException("mv: '" + source.getName() + "' can't move file");
 		}		
 	}

@@ -5,18 +5,19 @@ import java.io.IOException;
 
 public class CommandMakeDirectory extends AbstractCommand {
 	public CommandMakeDirectory(StateShell st) {
-		setState(st);
-		setNumberOfArguments(1);
+		super(1, st);
 	}
+	
 	public void execute(String[] args) throws IOException {
-		File f = new File(getState().currentDir, args[1]);
+		File f = getFileByName(args[1]);
 		if (!f.exists()) {
-			f.mkdir();
+			f.mkdir();	
 		} else {
 			throw new IOException("mkdir: '" + args[1] +"' already exist");
 		}
 	}
-	public String getName(){
+	
+	public String getName() {
 		return "mkdir";
 	}
 }

@@ -8,21 +8,22 @@ import java.io.IOException;
 
 public class CommandCopy extends AbstractCommand {
 	public CommandCopy(StateShell st) {
-		setState(st);
-		setNumberOfArguments(2);
+		super(2, st);
 	}
-	public String getName(){
+	
+	public String getName() {
 		return "cp";
 	}
+	
 	public void execute(String[] args) throws IOException {
-		File source = new File(getState().currentDir, args[1]);
-		File dest = new File(getState().currentDir, args[2]);
+		File source = getFileByName(args[1]);
+		File dest = getFileByName(args[2]);
 		try {
-			if (source.equals(dest)){
+			if (source.equals(dest)) {
 				throw new IOException("cp: '" + source.getName() + "' can't copy object to the same object");
 			} else if (source.isFile() && dest.isDirectory()) {
 				copyFileToDirectory(source, dest);
-			} else if (source.isFile()){
+			} else if (source.isFile()) {
 				copyFileToFile(source, dest);
 			} else if (source.isDirectory() && dest.isDirectory()) {
 				copyDirectoryToDirectory(source, dest);
@@ -33,6 +34,7 @@ public class CommandCopy extends AbstractCommand {
 			throw new IOException(f);
 		}
 	}
+	
 	private void copyFileToFile(File source, File dest) throws IOException, FileNotFoundException {
 		if (!dest.createNewFile()) {
 			throw new IOException("cp: '" + dest.getName() + "' can't create file or this file already exists");
@@ -47,13 +49,15 @@ public class CommandCopy extends AbstractCommand {
 		in.close();
 		out.close();
 	}
+	
 	private void copyFileToDirectory(File source, File dest) throws IOException, FileNotFoundException {
 		File destination = new File(dest, source.getName());
 		copyFileToFile(source, destination);
 	}
+	
 	private void copyDirectoryToDirectory(File source, File dest) throws FileNotFoundException, IOException {
 		if (source.isDirectory()) {
-			for ( File s: source.listFiles()){
+			for ( File s: source.listFiles()) {
 				File destination = new File(dest, s.getName());
 				destination.createNewFile();
 				copyDirectoryToDirectory(s, destination);
