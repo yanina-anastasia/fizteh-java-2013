@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +13,9 @@ public class rm implements Command {
     void remove(Path thePath) throws IOException {
         File theFile = thePath.toFile();
         if (theFile.isFile()) {
-                if(!theFile.delete()) {
-                    throw new IOException("can't delete");
-                }
+            if (!theFile.delete()) {
+                throw new IOException("can't delete");
+            }
 
         } else if (theFile.isDirectory()) {
             File[] listOfFiles = theFile.listFiles();
@@ -30,7 +30,7 @@ public class rm implements Command {
 
     public void executeCmd(Shell shell, String[] args) throws IOException {
         if (1 == args.length) {
-            Path  thePath = shell.getState().getPath().resolve(args[0]);
+            Path thePath = shell.getState().getPath().resolve(args[0]);
             if (thePath.toFile().exists()) {
                 remove(thePath);
             }

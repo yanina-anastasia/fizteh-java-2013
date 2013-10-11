@@ -1,9 +1,9 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.File;
 import java.io.IOException;
 
-public class mkdir implements Command{
+public class mkdir implements Command {
 
     public String getName() {
         return "mkdir";
@@ -13,8 +13,7 @@ public class mkdir implements Command{
         if (1 == args.length) {
             File theFile = new File(shell.getState().getPath().resolve(args[0]).toString());
             theFile.mkdir();
-        }
-        else
-            throw  new IOException("Not correct name of directory");
+        } else
+            throw new IOException("Not correct name of directory");
     }
 }

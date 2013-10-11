@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class mv implements Command {
                 }
             }
             if (source.toFile().isDirectory() && target.toFile().isFile()) {
-                throw  new IOException("not allowed to move directory in file");
+                throw new IOException("not allowed to move directory in file");
             }
             if (((source.toFile().isDirectory() && target.toFile().isDirectory()) || (source.toFile().isFile() && target.toFile().isFile())) && source.toString().equals(target.toString())) {
                 throw new IOException("not allowed to move in yourself");
@@ -52,7 +52,7 @@ public class mv implements Command {
             source.toFile().delete();
             shell.setState(target);
         } else {
-            throw  new IOException("not allowed number of arguments");
+            throw new IOException("not allowed number of arguments");
         }
     }
 }

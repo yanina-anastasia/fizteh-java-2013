@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.File;
 import java.io.IOException;

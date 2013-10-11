@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class dir implements Command {
                 print.println(listOfFiles[i].getName());
             }
         } else {
-            throw  new IOException("not allowed number of arguments");
+            throw new IOException("not allowed number of arguments");
         }
     }
 }

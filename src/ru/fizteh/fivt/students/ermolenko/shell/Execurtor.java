@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,15 +42,15 @@ public class Execurtor {
         String tmp;
         int space = cmd.indexOf(" ");
         if (-1 == space)
-               space = cmd.length();
+            space = cmd.length();
         tmp = cmd.substring(0, space);
-        return  tmp;
+        return tmp;
     }
 
     public void execute(Shell shell, String cmd) throws IOException {
-            if (!mapOfCmd.containsKey(cmdCheck(cmd))) {
-                throw new IOException("Can't find key");
-            }
-            mapOfCmd.get(cmdCheck(cmd)).executeCmd(shell, argsCheck(cmd));
+        if (!mapOfCmd.containsKey(cmdCheck(cmd))) {
+            throw new IOException("Can't find key");
+        }
+        mapOfCmd.get(cmdCheck(cmd)).executeCmd(shell, argsCheck(cmd));
     }
 }

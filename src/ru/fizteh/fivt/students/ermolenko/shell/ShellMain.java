@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,7 @@ public class ShellMain {
         if (args.length != 0) {
             //в args лежат слова разделенные пробелами
             shell.batchState(shell, args);
-        }
-        else System.out.println("Nothing to execute");
+        } else System.out.println("Nothing to execute");
         System.exit(0);
     }
 }

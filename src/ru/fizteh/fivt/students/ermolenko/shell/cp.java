@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenkoevgeny.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class cp implements Command {
                 }
             }
             if (source.toFile().isDirectory() && target.toFile().isFile()) {
-                throw  new IOException("not allowed to copy directory in file");
+                throw new IOException("not allowed to copy directory in file");
             }
             if (((source.toFile().isDirectory() && target.toFile().isDirectory()) || (source.toFile().isFile() && target.toFile().isFile())) && source.toString().equals(target.toString())) {
                 throw new IOException("not allowed to copy in yourself");
@@ -50,7 +50,7 @@ public class cp implements Command {
                 throw new IOException("not allowed to copy parent directory in kid's directory");
             }
         } else {
-            throw  new IOException("not allowed number of arguments");
+            throw new IOException("not allowed number of arguments");
         }
     }
 }
