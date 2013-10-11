@@ -268,7 +268,6 @@ public class Shell {
                     }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
-                    System.exit(1);
                 }
             } while (flag);
         } else {
@@ -285,7 +284,7 @@ public class Shell {
                     }
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
                 System.exit(1);
             }
         }
