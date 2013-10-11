@@ -16,8 +16,7 @@ public final class CommandParser {
 
     public CommandParser(final String arg) {
         commands = new StringBuilder(arg);
-        if ((!arg.isEmpty())
-                && (commands.charAt(commands.length() - 1) != ';')) {
+        if ((!arg.isEmpty()) && (commands.charAt(commands.length() - 1) != ';')) {
             commands.append(';');
         }
     }
@@ -33,7 +32,7 @@ public final class CommandParser {
         }
 
         StringBuilder builder = new StringBuilder(command.trim());
-        for (int i = 0; i < builder.length() - 1;) {
+        for (int i = 0; i < builder.length() - 1; ) {
             if ((builder.charAt(i) == ' ') && (builder.charAt(i + 1)) == ' ') {
                 builder.deleteCharAt(i);
                 continue;

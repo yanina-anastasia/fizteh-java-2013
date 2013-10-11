@@ -16,8 +16,7 @@ final class ShellExit implements ShellCommand {
     public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
             if (command.length > numberOfParameters) {
-                throw new InvalidCommandException(name
-                        + " too many arguments!");
+                throw new InvalidCommandException(name + " too many arguments!");
             }
             return true;
         }

@@ -30,8 +30,7 @@ final class ShellMkdir implements ShellCommand {
                         + " too many arguments!");
             }
             if (command.length < numberOfParameters) {
-                throw new InvalidCommandException("Usage: "
-                        + name + " <new dir>");
+                throw new InvalidCommandException("Usage: " + name + " <new dir>");
             }
             args = command;
             return true;

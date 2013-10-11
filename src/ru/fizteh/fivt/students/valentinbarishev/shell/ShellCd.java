@@ -18,8 +18,7 @@ final class ShellCd implements ShellCommand {
         try {
             context.changeDir(args[1]);
         } catch (IOException e) {
-            throw new InvalidCommandException(name + " argument: "
-                    + args[1] + " " + e.getMessage());
+            throw new InvalidCommandException(name + " argument: " + args[1] + " " + e.getMessage());
         }
     }
 
@@ -30,8 +29,7 @@ final class ShellCd implements ShellCommand {
                 throw new InvalidCommandException(name + " too many arguments");
             }
             if (command.length < numberOfParameters) {
-                throw new InvalidCommandException("Usage: " + name
-                        + "<absolute/relative path>");
+                throw new InvalidCommandException("Usage: " + name + "<absolute/relative path>");
             }
 
             args = command;

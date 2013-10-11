@@ -26,12 +26,10 @@ final class ShellCp implements ShellCommand {
     public boolean isMyCommand(final String[] command) {
         if (command[0].equals(name)) {
             if (command.length > numberOfParameters) {
-                throw new InvalidCommandException(name
-                        + " too many arguments!");
+                throw new InvalidCommandException(name + " too many arguments!");
             }
             if (command.length < numberOfParameters) {
-                throw new InvalidCommandException("Usage: " + name
-                        + "<src file/dir> <dest file/dir>");
+                throw new InvalidCommandException("Usage: " + name + "<src file/dir> <dest file/dir>");
             }
             args = command;
             return true;

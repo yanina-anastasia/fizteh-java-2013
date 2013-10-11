@@ -9,8 +9,7 @@ public class Main {
     static final int END_OF_TRANSMISSION = 4;
 
     private static boolean isTerminativeSymbol(final int character) {
-        return ((character == END_OF_INPUT)
-                || (character == END_OF_TRANSMISSION));
+        return ((character == END_OF_INPUT) || (character == END_OF_TRANSMISSION));
     }
 
     private static boolean checkTerminate(final String str) {

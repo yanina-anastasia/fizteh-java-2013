@@ -22,10 +22,8 @@ final class Context {
         return new File(path).exists();
     }
 
-    private String buildPath(final String curDir,
-                             final String relativePath) throws IOException {
-        return new File(new File(curDir).getAbsoluteFile(),
-                relativePath).getAbsoluteFile().getCanonicalPath();
+    private String buildPath(final String curDir, final String relativePath) throws IOException {
+        return new File(new File(curDir).getAbsoluteFile(), relativePath).getAbsoluteFile().getCanonicalPath();
     }
 
     public String changePath(final String curDir, final String path)
@@ -72,18 +70,15 @@ final class Context {
     private void recursiveRemove(final File file) throws IOException {
         if (file.isFile()) {
             if (!file.delete()) {
-                throw new IOException("File " + file.getCanonicalPath()
-                        + " is undeletable");
+                throw new IOException("File " + file.getCanonicalPath() + " is undeletable");
             }
         } else {
             String[] fileList = file.list();
             for (int i = 0; i < fileList.length; ++i) {
-                recursiveRemove(new File(file.getCanonicalPath()
-                        + File.separator + fileList[i]));
+                recursiveRemove(new File(file.getCanonicalPath() + File.separator + fileList[i]));
             }
             if (!file.delete()) {
-                throw new IOException("Path " + file.getAbsolutePath()
-                        + " is undeletable.");
+                throw new IOException("Path " + file.getAbsolutePath() + " is undeletable.");
             }
         }
     }
@@ -126,8 +121,8 @@ final class Context {
         destination.close();
     }
 
-    private void recursiveCopy(final String source, final String destination,
-                               final String addition) throws IOException {
+    private void recursiveCopy(final String source, final String destination, final String addition)
+            throws IOException {
         File file = new File(source);
         if (file.isFile()) {
             copyFile(source, destination + addition);
@@ -157,11 +152,9 @@ final class Context {
             copyFile(source, destination);
         } else {
             if (!new File(destination).exists()) {
-                throw new InvalidCommandException("Can't copy to"
-                        + " non-existent directory");
+                throw new InvalidCommandException("Can't copy to" + " non-existent directory");
             }
-            recursiveCopy(source, destination, File.separator
-                    + (file.getName()));
+            recursiveCopy(source, destination, File.separator + (file.getName()));
         }
     }
 
