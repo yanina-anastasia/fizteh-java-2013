@@ -179,6 +179,7 @@ public class FileManager implements Manager {
         try {
             if (!removable.delete()) {
                 printMessage(command + ": couldn't remove file \'" + removable.getAbsolutePath() + "\'");
+                return false;
             }
             return true;
         } catch (SecurityException e) {

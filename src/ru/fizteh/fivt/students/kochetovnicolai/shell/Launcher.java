@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-class Launcher{
+class Launcher {
 
     private HashMap<String, Executable> commands;
 
@@ -42,35 +42,38 @@ class Launcher{
             if (!isPackage) {
                 manager.printSuggestMessage();
             }
-            String commandName = reader.readLine();
-            if (commandName == null) {
+            String commandSet = reader.readLine();
+            if (commandSet == null) {
                 break;
             }
-            String[] tokens = commandName.trim().split("[\\s]+");
+            String[] commandList = commandSet.split(";");
+            for (String commandName : commandList) {
+                String[] tokens = commandName.trim().split("[\\s]+");
 
-            if (tokens.length == 0 || tokens[0].equals("")) {
-                continue;
-            }
-
-            boolean success = false;
-
-            if (!commands.containsKey(tokens[0])) {
-                manager.printMessage(tokens[0] + ": command not found");
-            } else {
-                Executable command = commands.get(tokens[0]);
-                if (command.argumentsNumber() != tokens.length) {
-                    manager.printMessage(tokens[0] + ": invalid number of arguments");
-                } else {
-                    success = command.execute(tokens);
+                if (tokens.length == 0 || tokens[0].equals("")) {
+                    continue;
                 }
-            }
 
-            if (!success && isPackage) {
-                return false;
-            }
+                boolean success = false;
 
-            if (manager.timeToExit()) {
-                return true;
+                if (!commands.containsKey(tokens[0])) {
+                    manager.printMessage(tokens[0] + ": command not found");
+                } else {
+                    Executable command = commands.get(tokens[0]);
+                    if (command.argumentsNumber() != tokens.length) {
+                        manager.printMessage(tokens[0] + ": invalid number of arguments");
+                    } else {
+                        success = command.execute(tokens);
+                    }
+                }
+
+                if (!success && isPackage) {
+                    return false;
+                }
+
+                if (manager.timeToExit()) {
+                    return true;
+                }
             }
         }
         return true;
