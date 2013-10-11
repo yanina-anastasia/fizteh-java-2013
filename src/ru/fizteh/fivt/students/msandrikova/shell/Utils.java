@@ -115,4 +115,15 @@ public class Utils {
 		return sb.toString();
 	}
 	
+	public static String[] parseOfInstruction(String instruction) {
+		String[] arguments;
+		arguments = instruction.split("\\s+");
+		return arguments;
+	}
+	
+	public static String[] parseOfInstructionLine(String instructionLine) {
+		instructionLine = instructionLine.trim();
+		return instructionLine.split("\\s*;\\s*", -1);
+	}
+	
 }

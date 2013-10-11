@@ -24,23 +24,12 @@ public class Shell {
 	
 	
 	
-	private static String[] parseOfInstruction(String instruction) {
-		String[] arguments;
-		arguments = instruction.split("\\s+");
-		return arguments;
-	}
-	
-	private static String[] parseOfInstructionLine(String instructionLine) {
-		instructionLine = instructionLine.trim();
-		return instructionLine.split("\\s*;\\s*", -1);
-	}
-	
 	private void executeOfInstructionLine(String instructionLine) {
 		String[] instructionsList = new String[]{};
 		String[] argumentsList;
-		instructionsList = Shell.parseOfInstructionLine(instructionLine);
+		instructionsList = Utils.parseOfInstructionLine(instructionLine);
 		for(String instruction : instructionsList){
-			argumentsList = Shell.parseOfInstruction(instruction);
+			argumentsList = Utils.parseOfInstruction(instruction);
 			if(argumentsList[0].equals("")){
 				continue;
 			}
