@@ -315,7 +315,8 @@ public class Shell {
         if (f1.toPath().normalize().toAbsolutePath().equals(f2.toPath().normalize().toAbsolutePath())) {
             throw new Exception("Copying is not possible: this arguments are the same");
         }
-        if (f1.toPath().normalize().toAbsolutePath().getParent().equals(f2.toPath().normalize().toAbsolutePath().getParent())) {
+        if (f1.toPath().normalize().toAbsolutePath().getParent().
+                equals(f2.toPath().normalize().toAbsolutePath().getParent())) {
             remove(destination);
             if (!f1.renameTo(f2.getAbsoluteFile())) {
                 throw new Exception("An unexpected error");
