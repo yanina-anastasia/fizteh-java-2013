@@ -131,7 +131,7 @@ public class ShellMain {
             while (shellInputCommands.hasNext()) {
                 processCommand(shellInputCommands.getNext());
             }
-            throw new ExitCommand();
+            throw new WrongCommand();
         } catch (ExitCommand | NoNextCommand e) {
             System.exit(0);
         } catch (IOException | WrongCommand e) {
