@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class Shell {
     public static int argc;
@@ -48,7 +49,7 @@ public class Shell {
         
     public static void pwd() throws Exception {
         if (lexems.length > 1) {
-            throw new Exception ("pwd: there is no arguments.");
+            throw new Exception("pwd: there is no arguments.");
         }
         System.out.println(currentDir);
     }
@@ -61,7 +62,9 @@ public class Shell {
                 Path temp = name.resolve(curFile.toPath()).normalize();
                 delete(temp);
             }
-            name.toFile().delete();
+            if (!name.toFile().delete()) {
+                throw new Exception("rm: I can't delete this file.");
+            }
         } else {
             if (!name.toFile().delete()) {
                 throw new Exception("rm: I can't delete this file.");
@@ -78,7 +81,39 @@ public class Shell {
         }
         File dirName = new File(lexems[1]);
         Path temp = currentDir.toPath().resolve(dirName.toPath()).normalize();
-        delete(temp);
+        if (currentDir.toPath().startsWith(temp)) {
+            throw new Exception("rm: I can't delete this.");
+        } else {
+            delete(temp);
+        }
+    }
+    
+    public static void myCopy(boolean needDelete, 
+                              Path sourcePath, 
+                              Path destPath) throws Exception {
+        if (sourcePath.toFile().isDirectory() 
+            && destPath.toFile().isFile()) {
+            if (needDelete) {
+                throw new Exception("rm: I can't remove dir into file.");
+            } else {
+                throw new Exception("cp: I can't copy dir into file.");
+            }
+        }
+        if (destPath.toFile().isDirectory()) {
+            destPath = destPath.resolve(sourcePath.getFileName());
+        }
+        if (needDelete) {
+            Files.move(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+        if (sourcePath.toFile().isDirectory()) {
+            String[] dirList = sourcePath.toFile().list();
+            for (int i = 0; i < dirList.length; ++i) {
+                Path newSourcePath = sourcePath.resolve(dirList[i]).normalize();
+                myCopy(needDelete, newSourcePath, destPath);
+            }
+        }
     }
         
     public static void cp() throws Exception {
@@ -88,19 +123,13 @@ public class Shell {
         if (lexems.length > 3) {
             throw new Exception("cp: there is so many arguments.");
         }
-        try {
-            File sourceName = new File(lexems[1]);
-            Path sourcePath = currentDir.toPath().resolve(sourceName.toPath()).normalize();
-            File destinationName = new File(lexems[2]);
-            Path destinationPath = currentDir.toPath().resolve(destinationName.toPath()).normalize();
-            destinationPath = destinationPath.resolve(sourceName.toPath()).normalize();
-            //System.out.println(sourcePath);
-            //System.out.println(destinationPath);
-            Files.copy(sourcePath, destinationPath);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            throw new Exception("cp: I can't copy this file.");
-        }
+        Path currentPath = currentDir.toPath();
+        File sourceName = new File(lexems[1]);
+        Path sourcePath = sourceName.toPath();
+        sourcePath = currentPath.resolve(sourcePath).normalize();
+        File destName = new File(lexems[2]);
+        Path destPath = currentPath.resolve(destName.toPath()).normalize();
+        myCopy(false, sourcePath, destPath);
     }
         
     public static void mv() throws Exception {
@@ -110,21 +139,16 @@ public class Shell {
         if (lexems.length > 3) {
             throw new Exception("mv: there is so many arguments.");
         }
-        try {
-            File sourceName = new File(lexems[1]);
-            Path sourcePath = currentDir.toPath().resolve(sourceName.toPath()).normalize();
-            File destinationName = new File(lexems[2]);
-            Path destinationPath = currentDir.toPath().resolve(destinationName.toPath()).normalize();
-            if (sourcePath.toFile().isFile()
-                && destinationPath.toFile().isFile()) {
-                sourcePath.toFile().renameTo(destinationPath.toFile());
-            } else {
-                destinationPath = destinationPath.resolve(sourceName.toPath()).normalize();
-                Files.copy(sourcePath, destinationPath);
-                delete(sourcePath);
-            }
-        } catch (Exception e) {
-            throw new Exception("mv: I can't remove this file.");
+        Path currentPath = currentDir.toPath();
+        File sourceName = new File(lexems[1]);
+        Path sourcePath = sourceName.toPath();
+        sourcePath = currentPath.resolve(sourcePath).normalize();
+        File destName = new File(lexems[2]);
+        Path destPath = currentPath.resolve(destName.toPath()).normalize();
+        if (currentDir.toPath().startsWith(sourcePath)) {
+            throw new Exception("mv: I can't remove this.");
+        } else {
+            myCopy(true, sourcePath, destPath);
         }
     }
         
