@@ -121,19 +121,29 @@ public class ShellReceiver implements CommandReceiver {
 		if (destinationFileOrDirectory.exists()) {
 			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
 		}
-		try {
-			Files.copy(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
-			File[] subFilesAndDirectories = sourceFileOrDirectory.listFiles();
-			if (subFilesAndDirectories != null) {
-				for (File subFile : subFilesAndDirectories) {
-					String destinationSubFileOwnerName = new File(destinationDirectory.getAbsolutePath(),
-					                                              sourceFileOrDirectory.getName()).getAbsolutePath();
-					copyCommand(subFile.getAbsolutePath(), destinationSubFileOwnerName);
-				}
+		if (!destinationFileOrDirectory.isDirectory()) {
+			try {
+				Files.copy(sourceFileOrDirectory.toPath(), destinationDirectory.toPath());
+			} catch (IOException e) {
+				throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
+						"\' : Cannot copy file.");
 			}
-		} catch (IOException e) {
-			throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
-			                    "\' : Cannot copy file or directory");
+		} else {
+			try {
+				Files.copy(sourceFileOrDirectory.toPath(), destinationFileOrDirectory.toPath());
+
+				File[] subFilesAndDirectories = sourceFileOrDirectory.listFiles();
+				if (subFilesAndDirectories != null) {
+					for (File subFile : subFilesAndDirectories) {
+						String destinationSubFileOwnerName = new File(destinationDirectory.getAbsolutePath(),
+																	  sourceFileOrDirectory.getName()).getAbsolutePath();
+						copyCommand(subFile.getAbsolutePath(), destinationSubFileOwnerName);
+					}
+				}
+			} catch (IOException e) {
+				throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
+									"\' : Cannot copy file or directory.");
+			}
 		}
 	}
 
