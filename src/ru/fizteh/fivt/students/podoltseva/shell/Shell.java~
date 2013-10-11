@@ -23,6 +23,7 @@ public class Shell {
 			for (String i : commands) {
 				exec.execute(state, i);
 			}
+			System.out.println(state.getState().toString());
 		}
 		catch (FileNotFoundException exception) {
 			System.err.println(exception.getMessage());
