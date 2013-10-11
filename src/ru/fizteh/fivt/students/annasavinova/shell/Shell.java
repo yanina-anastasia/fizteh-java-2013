@@ -92,15 +92,22 @@ public class Shell {
 
     public static void doCp(String[] args) {
         File currFile = createFile(args[1]);
+        File tmpFile = createFile(args[2]);
         File destFile = createFile(args[2] + File.separator + args[1]);
         if (!currFile.exists()) {
             printError("cp: cannot copy: '" + args[1] + "': No such file or directory");
         } else {
+            if (tmpFile.exists()) {
+                destFile = createFile(args[2]);
+            }
             try {
-                Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+                Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                        StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e1) {
+                e1.printStackTrace();
                 printError("cp: cannot copy '" + args[1] + "'");
             }
+
         }
     }
 
@@ -124,44 +131,46 @@ public class Shell {
     }
 
     public static void execProc(String[] args) {
-        switch (args[0]) {
-        case "pwd":
-            if (checkArgs(1, args)) {
-                System.out.println(currPath);
+        if (args.length != 0) {
+            switch (args[0]) {
+            case "pwd":
+                if (checkArgs(1, args)) {
+                    System.out.println(currPath);
+                }
+                break;
+            case "cd":
+                if (checkArgs(2, args)) {
+                    doCd(args[1]);
+                }
+                break;
+            case "dir":
+                if (checkArgs(1, args)) {
+                    doDir();
+                }
+                break;
+            case "mkdir":
+                if (checkArgs(2, args)) {
+                    doMkdir(args[1]);
+                }
+                break;
+            case "rm":
+                if (checkArgs(2, args)) {
+                    doRm(args[1]);
+                }
+                break;
+            case "mv":
+                if (checkArgs(3, args)) {
+                    doMv(args);
+                }
+                break;
+            case "cp":
+                if (checkArgs(3, args)) {
+                    doCp(args);
+                }
+                break;
+            default:
+                printError("Unknown command");
             }
-            break;
-        case "cd":
-            if (checkArgs(2, args)) {
-                doCd(args[1]);
-            }
-            break;
-        case "dir":
-            if (checkArgs(1, args)) {
-                doDir();
-            }
-            break;
-        case "mkdir":
-            if (checkArgs(2, args)) {
-                doMkdir(args[1]);
-            }
-            break;
-        case "rm":
-            if (checkArgs(2, args)) {
-                doRm(args[1]);
-            }
-            break;
-        case "mv":
-            if (checkArgs(3, args)) {
-                doMv(args);
-            }
-            break;
-        case "cp":
-            if (checkArgs(3, args)) {
-                doCp(args);
-            }
-            break;
-        default:
-            System.out.println("Unknown command");
         }
     }
 
@@ -204,7 +213,7 @@ public class Shell {
             isPacket = false;
             System.out.print("$ ");
             Scanner mainScanner = new Scanner(System.in);
-            mainScanner.useDelimiter(System.lineSeparator());
+            mainScanner.useDelimiter(System.lineSeparator() + "|[;]");
             while (mainScanner.hasNext()) {
                 String str = new String();
                 str = mainScanner.next();
@@ -212,8 +221,10 @@ public class Shell {
                     mainScanner.close();
                     return;
                 }
-                execProc(getArgsFromString(str));
-                System.out.print("$ ");
+                if (!str.isEmpty()) {
+                    execProc(getArgsFromString(str));                    
+                    System.out.print("$ ");
+                }
             }
             mainScanner.close();
             return;
