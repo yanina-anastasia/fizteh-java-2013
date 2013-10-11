@@ -9,10 +9,6 @@ public class DirCommand extends AbstractCommand {
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
-        if (input.length != getArgsCount()) {
-            throw new IOException("DIR ERROR: \"dir\" command receives no arguments");
-        }
-
         File curDir = new File(state.getCurState().toString());
         File[] files = curDir.listFiles();
 

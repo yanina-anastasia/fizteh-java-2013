@@ -12,7 +12,7 @@ public class ShellBatchMode extends AbstractShell {
     }
 
     public void run() throws IOException {
-        String[] input = join(args, " ").split("\\s*;\\s*");
+        String[] input = Utilities.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
             if (!Thread.currentThread().isInterrupted()) {
@@ -24,11 +24,7 @@ public class ShellBatchMode extends AbstractShell {
                 }
 
                 try {
-                    if (!COMMANDS.containsKey(cmd.substring(0, end))) {
-                        throw new IOException("ERROR: not existing command \"" + cmd.substring(0, end) + "\"");
-                    }
-
-                    COMMANDS.get(cmd.substring(0, end)).execute(getCommandArguments(cmd), state);
+                    runCommands(cmd, end);
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                     System.exit(1);

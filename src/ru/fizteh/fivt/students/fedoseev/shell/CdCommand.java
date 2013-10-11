@@ -11,10 +11,6 @@ public class CdCommand extends AbstractCommand {
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
-        if (input.length != getArgsCount()) {
-            throw new IOException("CD ERROR: \"cd\" command receives only 1 argument");
-        }
-
         Path toCanPath = state.getCurState().toPath().resolve(input[0]).normalize();
         File newDir = new File(toCanPath.toString());
 

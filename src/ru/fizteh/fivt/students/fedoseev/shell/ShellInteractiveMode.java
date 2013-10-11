@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ShellInteractiveMode extends AbstractShell {
@@ -31,11 +32,7 @@ public class ShellInteractiveMode extends AbstractShell {
                         continue;
                     }
 
-                    if (!COMMANDS.containsKey(cmd.substring(0, end))) {
-                        throw new IOException("\"ERROR: not existing command \"" + cmd.substring(0, end) + "\"");
-                    }
-
-                    COMMANDS.get(cmd.substring(0, end)).execute(getCommandArguments(cmd), state);
+                    runCommands(cmd, end);
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }

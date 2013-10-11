@@ -4,9 +4,9 @@ import java.io.IOException;
 
 public abstract class AbstractCommand implements AbstractShell.Command {
     private String cmdName;
-    private Integer argsCount;
+    private int argsCount;
 
-    public AbstractCommand(String cmdName, Integer argsCount) {
+    public AbstractCommand(String cmdName, int argsCount) {
         this.cmdName = cmdName;
         this.argsCount = argsCount;
     }
@@ -15,7 +15,7 @@ public abstract class AbstractCommand implements AbstractShell.Command {
         return cmdName;
     }
 
-    public Integer getArgsCount() {
+    public int getArgsCount() {
         return argsCount;
     }
 

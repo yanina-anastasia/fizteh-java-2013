@@ -24,10 +24,6 @@ public class RmCommand extends AbstractCommand {
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
-        if (input.length != getArgsCount()) {
-            throw new IOException("RM ERROR: \"rm\" command receives only 1 argument");
-        }
-
         File curFile = new File(state.getCurState().toPath().resolve(input[0]).toString());
 
         if (!curFile.exists()) {

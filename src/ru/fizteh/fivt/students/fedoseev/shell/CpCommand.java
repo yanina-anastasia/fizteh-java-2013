@@ -25,47 +25,51 @@ public class CpCommand extends AbstractCommand {
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
-        if (input.length != getArgsCount()) {
-            throw new IOException("CP ERROR: \"cp\" command receives only 2 arguments");
-        }
-
-        final File SOURCE = new File(state.getCurState().toPath().resolve(input[0]).toString());
+        final File source = new File(state.getCurState().toPath().resolve(input[0]).toString());
         File destination = new File(state.getCurState().toPath().resolve(input[1]).toString());
         FileFilter filter = new FileFilter() {
             public boolean accept(File file) {
-                return file.getName().equals(SOURCE.getName());
+                return file.getName().equals(source.getName());
             }
         };
 
-        if (SOURCE.compareTo(destination) == 0) {
+        if (source.compareTo(destination) == 0) {
             throw new IOException("CP ERROR: copying file or directory to itself is impossible");
         }
-        if (destination.isFile()) {
-            throw new IOException("CP ERROR: destination can`t be file");
-        }
-        if (!SOURCE.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing source \"" + SOURCE.getName() + "\"");
-        }
-        if (!destination.exists()) {
-            throw new FileNotFoundException("CP ERROR: not existing destination \"" +
-                    destination.getCanonicalFile().toString() + "\"");
-        }
-        if (destination.listFiles(filter).length != 0) {
-            throw new IOException("CP ERROR: file with name of source file \"" + SOURCE.getName() +
-                    "\" already exists in destination \"" + destination.getCanonicalFile().toString() +
-                    "\"");
-
+        if (!source.exists()) {
+            throw new FileNotFoundException("CP ERROR: not existing source \"" + source.getName() + "\"");
         }
 
-        if (SOURCE.isFile()) {
-            Files.copy(SOURCE.toPath(), destination.toPath().resolve(SOURCE.getName()));
+        if (!destination.isDirectory() && source.isFile()) {
+            if (destination.isFile()) {
+                throw new IOException("CP ERROR: file with name of source file \"" + source.getName() +
+                        "\" already exists in destination \"" + destination.getCanonicalFile().toString() +
+                        "\"");
+            }
+
+            Files.copy(source.toPath(), destination.toPath());
+        } else {
+            if (!destination.exists()) {
+                throw new FileNotFoundException("CP ERROR: not existing destination \"" +
+                        destination.getCanonicalFile().toString() + "\"");
+            }
+            if (destination.listFiles(filter).length != 0) {
+                throw new IOException("CP ERROR: file with name of source file \"" + source.getName() +
+                        "\" already exists in current destination");
+
+            }
+
+            if (source.isFile()) {
+                Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
+            }
         }
-        if (SOURCE.isDirectory()) {
-            if (destination.toPath().startsWith(SOURCE.toPath())) {
+
+        if (source.isDirectory()) {
+            if (destination.toPath().startsWith(source.toPath())) {
                 throw new IOException("CP ERROR: directory can`t be copied into itself");
             }
 
-            copy(SOURCE, destination);
+            copy(source, destination);
         }
     }
 }
