@@ -42,8 +42,15 @@ public class Shell {
         while (scanner.hasNext()) {
             String command = scanner.nextLine();
             String[] commands = CommandParser.parseCommands(command);
+            if (commands.length == 0)
+            {
+                System.out.println("no commands");
+            }
             for (final String com : commands) {
-                processCommand(com);
+                if (!processCommand(com))
+                {
+                    break;
+                }
             }
             printPrompt();
         }
@@ -71,6 +78,7 @@ public class Shell {
         String commandName = CommandParser.getCommandName(command);
         String params = CommandParser.getParameters(command);
         if (commandName == "") {
+            System.err.println("empty command!");
             return true;
         }
         if (!commands.containsKey(commandName)) {
