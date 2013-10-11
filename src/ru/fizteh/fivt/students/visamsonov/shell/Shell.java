@@ -1,27 +1,27 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
 import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Shell {
 	
-	private static final TreeMap<String, Command> commandList = new TreeMap<String, Command>();
+	private final Map<String, Command> commandList = new HashMap<String, Command>();
 
-	static {
-		Command command;
-		command = new CommandExit();
-		commandList.put(command.getName(), command);
-		command = new CommandPut();
-		commandList.put(command.getName(), command);
-		command = new CommandGet();
-		commandList.put(command.getName(), command);
-		command = new CommandRemove();
+	public void addCommand (Command command) {
 		commandList.put(command.getName(), command);
 	}
 
-	public static ShellState state = new ShellState();
+	public Shell () {
+		addCommand(new CommandExit());
+		addCommand(new CommandPut());
+		addCommand(new CommandGet());
+		addCommand(new CommandRemove());
+	}
 
-	public static boolean perform (String[] args) {
+	private final ShellState state = new ShellState();
+
+	public boolean perform (String[] args) {
 		ArgumentParser parser = new ArgumentParser(args);
 		for (RawCommand command = parser.nextCommand(); command != null; command = parser.nextCommand()) {
 			Command availableCommand = commandList.get(command.name);
@@ -36,7 +36,7 @@ public class Shell {
 		return true;
 	}
 
-	public static void interactiveMode () {
+	public void interactiveMode () {
 		Scanner sc = new Scanner(System.in);
 		System.out.printf("%s$ ", state.getCurrentDirectory());
 		while (sc.hasNextLine()) {
@@ -47,10 +47,11 @@ public class Shell {
 	}
 
 	public static void main (String[] args) {
+		Shell shell = new Shell();
 		if (args.length == 0) {
-			interactiveMode();
+			shell.interactiveMode();
 		}
-		else if (!perform(args)) {
+		else if (!shell.perform(args)) {
 			System.exit(1);
 		}
 		System.exit(0);

@@ -8,7 +8,7 @@ public class ArgumentParser {
 	private int iterator = 0;
 
 	public ArgumentParser (String[] args) {
-		String allCommands = StringUtils.stringArrayJoin(args, " ");
+		String allCommands = StringUtils.join(args, " ");
 		commands = allCommands.split("\\s*;\\s*");
 	}
 
