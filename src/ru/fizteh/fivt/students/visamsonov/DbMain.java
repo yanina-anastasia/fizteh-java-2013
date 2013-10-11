@@ -6,8 +6,9 @@ import java.io.*;
 public class DbMain {
 
 	public static void main (String[] args) {
+		Shell shell = new Shell();
 		try {
-			Shell.state.database.loadDataToMemory();
+			shell.state.database.loadDataToMemory();
 		}
 		catch (FileNotFoundException e) {
 			System.err.println("Database file not found");
@@ -17,6 +18,12 @@ public class DbMain {
 			System.err.printf("Error: %s\n", e.getMessage());
 			System.exit(1);
 		}
-		Shell.main(args);
+		if (args.length == 0) {
+			shell.interactiveMode();
+		}
+		else if (!shell.perform(args)) {
+			System.exit(1);
+		}
+		System.exit(0);
 	}
 }

@@ -17,6 +17,7 @@ public class Shell {
 		addCommand(new CommandPut());
 		addCommand(new CommandGet());
 		addCommand(new CommandRemove());
+		addCommand(new CommandTalkToMe());
 	}
 
 	public final ShellState state = new ShellState();
