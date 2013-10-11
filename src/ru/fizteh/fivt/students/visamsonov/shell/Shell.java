@@ -19,7 +19,7 @@ public class Shell {
 		addCommand(new CommandRemove());
 	}
 
-	private final ShellState state = new ShellState();
+	public final ShellState state = new ShellState();
 
 	public boolean perform (String[] args) {
 		ArgumentParser parser = new ArgumentParser(args);
