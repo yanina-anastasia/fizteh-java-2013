@@ -16,32 +16,7 @@ public class ChangeDirectory implements Commands {
     private final String name = "cd";
     private CurrentStatus currentStatus;
 
-    private List<String> argumnetsParser(String s) {
-        List<String> array = new ArrayList<String>();
-        int i = 0;
-        for (; i < s.length(); ++i) {
-            if (s.charAt(i) != ' ')
-                break;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (; i < s.length(); ++i) {
-            if (s.charAt(i) == ' ' && sb.toString().isEmpty()){
-                continue;
-            }
-            if ((s.charAt(i) == ' ' && !sb.toString().isEmpty()) || i == s.length() -1) {
-                if (i == s.length() - 1){
-                    sb.append(s.charAt(i));
-                }
-                array.add(sb.toString());
-                sb = new StringBuilder();
-                continue;
-            }
-            sb.append(s.charAt(i));
-        }
-        return array;
-    }
-
-    ChangeDirectory(CurrentStatus cs) {
+    public ChangeDirectory(CurrentStatus cs) {
         currentStatus = cs;
     }
 
@@ -51,11 +26,11 @@ public class ChangeDirectory implements Commands {
 
 
     public void perform(String args) throws MyException, IOException {
-        List<String> array = argumnetsParser(args);
-        if (array.size() != 1) {
-            throw new MyException("Wrong arguments! Usage ~ cd <destination>");
+        String[] array = args.trim().split("\\s+");
+        if (array.length != 1) {
+            throw new MyException(new Exception("Wrong arguments! Usage ~ cd <destination>"));
         }
-        File f =  new File(currentStatus.getCurrentDirectory() + File.separator + array.get(0));
+        File f =  new File(currentStatus.getCurrentDirectory(), array[0]);
         currentStatus.changeCurrentDirectory(f.getCanonicalPath());
     }
 

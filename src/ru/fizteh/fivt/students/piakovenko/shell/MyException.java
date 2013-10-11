@@ -8,14 +8,14 @@ package ru.fizteh.fivt.students.piakovenko.shell;
  * To change this template use File | Settings | File Templates.
  */
 public class MyException extends Exception {
-    private final String reason;
+    private final Exception reason;
 
-    MyException(String s) {
-        reason = s;
+    public MyException(Exception e) {
+        reason = e;
     }
 
     public String what() {
-        return reason;
+        return reason.getMessage();
     }
 
 }

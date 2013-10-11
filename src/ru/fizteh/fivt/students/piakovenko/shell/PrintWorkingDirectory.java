@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.piakovenko.shell;
 
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Pavel
@@ -11,7 +13,7 @@ public class PrintWorkingDirectory implements Commands {
     private final String name = "pwd";
     private CurrentStatus currentStatus;
 
-    PrintWorkingDirectory(CurrentStatus cs) {
+    public PrintWorkingDirectory(CurrentStatus cs) {
         currentStatus = cs;
     }
 
@@ -20,9 +22,9 @@ public class PrintWorkingDirectory implements Commands {
     }
 
 
-    public void perform(String s) throws MyException {
+    public void perform(String s) throws MyException, IOException {
         if (!s.isEmpty()) {
-            throw new MyException("Wrong arguments! Usage ~ pwd");
+            throw new MyException(new Exception("Wrong arguments! Usage ~ pwd"));
         }
         System.out.println(currentStatus.getCurrentDirectory());
     }

@@ -24,7 +24,7 @@ public class CommandsMap {
         if (commands.containsKey(commandName)){
             commands.get(commandName).perform(arguments);
         } else {
-            throw new MyException("No command with such name: " + commandName);
+            throw new MyException(new Exception("No command with such name: " + commandName));
         }
     }
 

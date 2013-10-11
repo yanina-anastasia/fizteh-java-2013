@@ -16,47 +16,22 @@ public class Remove implements Commands {
     private final String name = "rm";
     private CurrentStatus currentStatus;
 
-    private List<String> argumnetsParser(String s) {
-        List<String> array = new ArrayList<String>();
-        int i = 0;
-        for (; i < s.length(); ++i) {
-            if (s.charAt(i) != ' ')
-                break;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (; i < s.length(); ++i) {
-            if (s.charAt(i) == ' ' && sb.toString().isEmpty()){
-                continue;
-            }
-            if ((s.charAt(i) == ' ' && !sb.toString().isEmpty()) || i == s.length() -1) {
-                if (i == s.length() - 1){
-                    sb.append(s.charAt(i));
-                }
-                array.add(sb.toString());
-                sb = new StringBuilder();
-                continue;
-            }
-            sb.append(s.charAt(i));
-        }
-        return array;
-    }
-
     private void removeRecursively (File f) throws MyException, IOException{
         if (!f.isDirectory()) {
             if (!f.delete()) {
-                throw new MyException("Error! Unable to delete file - " + f.getCanonicalPath());
+                throw new MyException(new Exception("Error! Unable to delete file - " + f.getCanonicalPath()));
             }
         } else {
             for (File file: f.listFiles()) {
                 removeRecursively(file);
             }
             if (!f.delete()) {
-                throw new MyException("Error! Unable to delete file - " + f.getCanonicalPath());
+                throw new MyException(new Exception("Error! Unable to delete file - " + f.getCanonicalPath()));
             }
         }
     }
 
-    Remove(CurrentStatus cs) {
+    public Remove(CurrentStatus cs) {
         currentStatus = cs;
     }
 
@@ -66,17 +41,17 @@ public class Remove implements Commands {
 
 
     public void perform(String args) throws MyException, IOException {
-        List<String> array = argumnetsParser(args);
-        if (array.size() != 1) {
-            throw new MyException("Wrong arguments! Usage ~ rm <removeDirectory>");
+        String[] array = args.trim().split("\\s+");
+        if (array.length != 1) {
+            throw new MyException(new Exception("Wrong arguments! Usage ~ rm <removeDirectory>"));
         }
         File f;
-        f = new File(array.get(0));
+        f = new File(array[0]);
         if (!f.isAbsolute()) {
-            f = new File(currentStatus.getCurrentDirectory() + File.separator + array.get(0));
+            f = new File(currentStatus.getCurrentDirectory(), array[0]);
         }
         if (!f.exists()) {
-            throw new MyException(f.getCanonicalPath() + " doesn't exist!");
+            throw new MyException(new Exception(f.getCanonicalPath() + " doesn't exist!"));
         }
         removeRecursively(f);
     }
