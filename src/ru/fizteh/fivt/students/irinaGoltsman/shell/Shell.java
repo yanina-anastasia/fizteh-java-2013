@@ -258,7 +258,7 @@ public class Shell {
             String commands[] = input.split(";");
             for (int i = 0; i < commands.length; i++) {
                 Code codeOfCommand = commandProcessing(commands[i]);
-                if (codeOfCommand == Code.SYSTEM_ERROR) {
+                if (codeOfCommand == Code.SYSTEM_ERROR || codeOfCommand == Code.ERROR) {
                     System.exit(1);
                 }
                 if (codeOfCommand == Code.EXIT) {
