@@ -14,7 +14,7 @@ public class PerformerCreateDirectory extends Performer {
         File directory = getCanonicalFile(command.getArgument(0));
         if(!directory.mkdirs()) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                    String.format("'%s'. mkdir: Can not create ''%s'.", command.getDescription(), directory.getPath())));
+                    String.format("'%s'. mkdir: Can not create '%s'", command.getDescription(), directory.getPath())));
         }
     }
 }

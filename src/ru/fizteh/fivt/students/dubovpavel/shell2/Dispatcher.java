@@ -73,7 +73,7 @@ public class Dispatcher {
                         }
                     }
                     if(!performed) {
-                        callbackWriter(MessageType.ERROR, String.format("%s is not correct.", command.getDescription()));
+                        callbackWriter(MessageType.ERROR, String.format("%s is not correct", command.getDescription()));
                     }
                 } catch(Performer.PerformerException e) {
                     invalidOperations++;

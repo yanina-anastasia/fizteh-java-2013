@@ -29,7 +29,7 @@ public class Main {
                 } catch(IOException e) {
                     throw new RuntimeException(e.getMessage()); // Something should go totally wrong.
                 } catch(Dispatcher.DispatcherException e) {
-                    throw new RuntimeException("Dispatcher exception forwarding was set in the interactive mode.");
+                    throw new RuntimeException("Dispatcher exception forwarding was set in the interactive mode");
                 }
             }
         }

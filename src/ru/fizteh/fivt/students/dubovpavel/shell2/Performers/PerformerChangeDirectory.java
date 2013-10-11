@@ -16,7 +16,7 @@ public class PerformerChangeDirectory extends Performer {
             System.setProperty("user.dir", directory.getPath());
         } else {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                    String.format("%s. cd: '%s' is not a directory.", command.getDescription(), directory.getPath())));
+                    String.format("%s. cd: '%s' is not a directory", command.getDescription(), directory.getPath())));
         }
     }
 }

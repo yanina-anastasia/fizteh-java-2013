@@ -24,7 +24,7 @@ public class Parser {
                 for(pointer++; pointer < line.length() && line.charAt(pointer) != line.charAt(start); pointer++);
                 if(pointer >= line.length()) {
                     throw new IncorrectSyntaxException(
-                            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "Quotes are not closed."));
+                            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "Quotes are not closed"));
                 }
                 if(command == null) {
                     pointer++;

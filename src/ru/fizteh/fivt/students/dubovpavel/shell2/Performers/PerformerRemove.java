@@ -37,7 +37,7 @@ public class PerformerRemove extends Performer {
         File object = getCanonicalFile(command.getArgument(0));
         if(!object.exists()) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                    String.format("%s. rm: '%s' does not exist.", command.getDescription(), object.getPath())));
+                    String.format("%s. rm: '%s' does not exist", command.getDescription(), object.getPath())));
         }
         try {
             removeObject(object);
