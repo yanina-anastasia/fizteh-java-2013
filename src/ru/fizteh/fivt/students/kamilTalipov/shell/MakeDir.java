@@ -11,7 +11,7 @@ public class MakeDir extends SimpleCommand {
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
         if (numberOfArguments != args.length) {
             throw new IllegalArgumentException(name + ": expected " + numberOfArguments
-                                                + "but " + args.length + " got");
+                                                + " but " + args.length + " got");
         }
 
         String dirName = args[0];

@@ -15,7 +15,7 @@ public class Copy extends SimpleCommand {
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
         if (numberOfArguments != args.length) {
             throw new IllegalArgumentException(name + ": expected " + numberOfArguments
-                                                + "but " + args.length + " got");
+                                                + " but " + args.length + " got");
         }
 
         String sourceFileName = PathUtils.getPath(args[0], shell.getCurrentPath());
@@ -27,6 +27,10 @@ public class Copy extends SimpleCommand {
         }
 
         if (destinationFile.exists() && destinationFile.isDirectory()) {
+            if (destinationFile.equals(sourceFile)
+                    || destinationFile.getAbsolutePath().contains(sourceFile.getAbsolutePath())) {
+                throw new IllegalArgumentException("cp: cannot copy same directory to directory");
+            }
             destinationFile = new File(destinationFileName + File.separator + sourceFile.getName());
         }
 

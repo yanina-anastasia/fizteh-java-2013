@@ -20,7 +20,12 @@ public class Shell {
         while (!wasExit) {
             System.out.print(GREETING);
             String cmd = input.readLine();
-            processCommand(cmd);
+            try {
+                processCommand(cmd);
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
+                System.err.flush();
+            }
         }
     }
 
@@ -32,7 +37,7 @@ public class Shell {
             stringBuilder.append(" ");
         }
 
-        String[] inputCommands = stringBuilder.toString().split(";");
+        String[] inputCommands = stringBuilder.toString().trim().split(";");
         for (String command : inputCommands) {
             processCommand(command);
             if (wasExit) {
@@ -42,7 +47,7 @@ public class Shell {
     }
 
     private void processCommand(String cmd) throws IllegalArgumentException {
-        String[] parsedCommand = cmd.split(" ");
+        String[] parsedCommand = cmd.trim().split("\\s+");
         if (parsedCommand.length == 0) {
             return;
         }
@@ -57,6 +62,9 @@ public class Shell {
             }
         }
 
+        if (commandName.equals("")) {
+            return;
+        }
         for (Command command : commands) {
             if (command.equalName(commandName)) {
                 command.run(this, arguments.toArray(new String[arguments.size()]));
