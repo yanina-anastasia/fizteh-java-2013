@@ -22,23 +22,17 @@ public class CommandMv implements Command {
 	@Override
 	public void execute(State state, String[] args)
 			throws FileNotFoundException, IOException {
-		Path sourcePath = Paths.get(args[0]);
-		Path sourceAbsolutePath;
-		if (!sourcePath.isAbsolute()) {
-			sourceAbsolutePath = state.getState().resolve(sourcePath);
-		} else {
-			sourceAbsolutePath = sourcePath;
+		Path sourceAbsolutePath = Paths.get(args[0]);
+		if (!sourceAbsolutePath.isAbsolute()) {
+			sourceAbsolutePath = state.getState().resolve(sourceAbsolutePath);
 		}
 		File source = new File(sourceAbsolutePath.toString());
 		if (!source.exists()) {
-			throw new FileNotFoundException("mv: '" + args[0] + "': No such file or directory.");
+			throw new FileNotFoundException("mv: '" + args[0] + "': No such file or directory");
 		}
-		Path destinationPath = Paths.get(args[1]);
-		Path destinationAbsolutePath;
-		if (!destinationPath.isAbsolute()) {
-			destinationAbsolutePath = state.getState().resolve(destinationPath);
-		} else {
-			destinationAbsolutePath = destinationPath;
+		Path destinationAbsolutePath = Paths.get(args[1]);
+		if (!destinationAbsolutePath.isAbsolute()) {
+			destinationAbsolutePath = state.getState().resolve(destinationAbsolutePath);
 		}
 		File destination = new File(destinationAbsolutePath.toString());
 		if (!destination.exists()) {
@@ -59,7 +53,7 @@ public class CommandMv implements Command {
 		if (source.isFile() && destination.isFile()) {
 			throw new IOException("mv: The file with name '" + args[1] + "' already exists.");
 		} else if (source.isFile() && destination.isDirectory()) {
-			Files.move(sourceAbsolutePath, sourceAbsolutePath.resolve(source.getName()));
+			Files.move(sourceAbsolutePath, destinationAbsolutePath.resolve(source.getName()));
 		} else if (source.isDirectory() && destination.isFile()) {
 			throw new IOException("mv: Can't replace file '" + args[1] + "' with directory '" + args[0] + "'.");
 		} else if (source.isDirectory() && destination.isDirectory()) {

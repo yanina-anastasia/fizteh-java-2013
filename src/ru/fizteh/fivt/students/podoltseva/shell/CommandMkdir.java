@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.podoltseva.shell;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CommandMkdir implements Command {
@@ -18,11 +18,12 @@ public class CommandMkdir implements Command {
 	
 	@Override
 	public void execute(State state, String[] args)
-			throws FileNotFoundException {
-		Path newDirPath = state.getState();
-		newDirPath.resolve(args[0]);
-		File newDir = new File(newDirPath.toString());
-		newDir.mkdir();
+			throws IOException {
+		Path newDirPath = state.getState().resolve(args[0]);
+		if (newDirPath.toFile().exists()) {
+			throw new IOException("mkdir: The directory or file '" + args[0] + "' is already exists.");
+		}
+		Files.createDirectory(newDirPath);
 	}	
 
 }

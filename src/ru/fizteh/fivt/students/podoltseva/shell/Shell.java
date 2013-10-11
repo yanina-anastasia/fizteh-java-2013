@@ -11,7 +11,7 @@ public class Shell {
 	private State state = new State();
 	
 	public Shell() {
-		state.setState(Paths.get(new File(".").getAbsolutePath()));
+		state.setState(Paths.get(new File(".").getAbsolutePath()).normalize());
 	}
 	
 	public void batchMode(String[] args) {
@@ -40,8 +40,8 @@ public class Shell {
 		String inputString;
 		String[] commands;
 		Scanner scan = new Scanner(System.in);
-		try {
-			do {
+		do {
+			try {
 				System.out.println(state.getState() + "$");
 				inputString = scan.nextLine();
 				inputString.trim();
@@ -50,16 +50,15 @@ public class Shell {
 					exec.execute(state, i);
 				}
 			}
-			while(!Thread.currentThread().isInterrupted());
+			catch (FileNotFoundException exception) {
+				System.err.println(exception.getMessage());
+			}
+			catch (IOException exception) {
+				System.err.println(exception.getMessage());
+			}
 		}
-		catch (FileNotFoundException exception) {
-			System.err.println(exception.getMessage());
-			System.exit(2);
-		}
-		catch (IOException exception) {
-			System.err.println(exception.getMessage());
-			System.exit(1);
-		}
+		while(!Thread.currentThread().isInterrupted());
+		
 	}
 	
 	private static String join(/*Iterable<?>*/ String[] objects, String Separator) {

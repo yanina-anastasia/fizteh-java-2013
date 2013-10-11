@@ -31,7 +31,7 @@ public class CommandCd implements Command {
 		}*/
 		Path absoluteDirPath = Paths.get(dir);
 		if (!absoluteDirPath.isAbsolute()) { 
-			absoluteDirPath = Paths.get(state.getState().toString(), dir);
+			absoluteDirPath = state.getState().resolve(absoluteDirPath);
 		}
 		File newDir = new File(absoluteDirPath.toString());
 		if (!newDir.exists()) {
@@ -40,7 +40,7 @@ public class CommandCd implements Command {
 		if (newDir.isFile()) {
 			throw new FileNotFoundException("cd: '" + dir + "': It is not a directory");
 		}
-		state.setState(absoluteDirPath);
+		state.setState(absoluteDirPath.normalize());
 	}
 
 }
