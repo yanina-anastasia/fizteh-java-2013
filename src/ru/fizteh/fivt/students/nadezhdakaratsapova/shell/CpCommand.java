@@ -23,7 +23,7 @@ public class CpCommand implements Command {
             throw new IOException("cp: " + source.getCanonicalPath() + " was not found");
         }
         if (source.equals(destination)) {
-            throw new IOException("cp:" + args[1] + " and " + args[2] + " are same files");
+            throw new IOException("cp: " + args[1] + " and " + args[2] + " are same files");
         }
         if (source.isFile()) {
             if (!destination.exists()) {
@@ -60,14 +60,15 @@ public class CpCommand implements Command {
         } else {
             if (src.isDirectory()) {
                 target.mkdir();
-                for (File file: src.listFiles())
-                copyingRec(file, target);
+                for (File file : src.listFiles())
+                    copyingRec(file, target);
             } else {
                 Files.copy(src.toPath(), target.toPath());
             }
         }
     }
+
     public int getArgsCount() {
-      return 2;
+        return 2;
     }
 }

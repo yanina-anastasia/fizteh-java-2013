@@ -8,24 +8,39 @@ public class Shell {
     private CommandsController controller = new CommandsController();
     private CurrentDirectory currentDirectory = new CurrentDirectory();
 
-    public void interactiveVersion() throws IOException {
+    public void addCommand(Command cmd) {
+        controller.addCmd(cmd);
+    }
+
+    public void interactiveMode() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print(currentDirectory.getCurDir().getCanonicalPath() +"$ ");
-            String inputString = scanner.nextLine();
-            batchVersion(inputString);
+            try {
+                System.out.print(currentDirectory.getCurDir().getCanonicalPath() + "$ ");
+                String inputString = scanner.nextLine();
+                String[] commands = inputString.split(";");
+                for (String command : commands) {
+                    String[] splittedCommand = command.trim().split("\\s+");
+                    controller.runCommand(currentDirectory, splittedCommand);
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
-    public void batchVersion(String inputString) throws IOException {
+    public void batchMode(String inputString) {
+        try {
+            String[] commands = inputString.split(";");
+            for (String command : commands) {
+                String[] splittedCommand = command.trim().split("\\s+");
+                controller.runCommand(currentDirectory, splittedCommand);
 
-        String[] commands = inputString.split(";");
-        for (String command: commands) {
-            String[] splittedCommand = command.trim().split("\\s+");
-            controller.runCommand(currentDirectory, splittedCommand);
-
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
-
 
     }
 }

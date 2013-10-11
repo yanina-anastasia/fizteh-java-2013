@@ -1,24 +1,26 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.shell;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
-import  java.util.HashMap;
+
 
 public class Main {
 
     public static void main(String[] args) {
-        try {
-            Shell shell = new Shell();
-            if (args.length == 0) {
-                shell.interactiveVersion();
-            } else {
-                String arguments = StringMethods.join(Arrays.asList(args), " ");
-                shell.batchVersion(arguments);
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+        Shell shell = new Shell();
+        shell.addCommand(new CdCommand());
+        shell.addCommand(new CpCommand());
+        shell.addCommand(new DirCommand());
+        shell.addCommand(new ExitCommand());
+        shell.addCommand(new MkdirCommand());
+        shell.addCommand(new MvCommand());
+        shell.addCommand(new PwdCommand());
+        shell.addCommand(new RmCommand());
+        if (args.length == 0) {
+            shell.interactiveMode();
+        } else {
+            String arguments = StringMethods.join(Arrays.asList(args), " ");
+            shell.batchMode(arguments);
         }
+
     }
 }

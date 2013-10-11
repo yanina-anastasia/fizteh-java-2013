@@ -24,6 +24,7 @@ public class MvCommand implements Command {
         if (source.equals(destination)) {
             throw new IOException("mv: " + args[1] + " and " + args[2] + " are same files");
         }
+
         if (source.isFile()) {
             if (destination.exists()) {
                 if (destination.isDirectory()) {
@@ -31,8 +32,7 @@ public class MvCommand implements Command {
                     if (target.exists()) {
                         throw new IOException("mv: " + source.getName() + " already exists in " + destination.getName());
                     }
-                    Files.copy(source.toPath(), target.toPath());
-                    source.delete();
+                    Files.move(source.toPath(), target.toPath());
                 } else {
                     throw new IOException("mv: not managed to copy File " + source.getName() + " to File " + destination.getName());
                 }
@@ -48,13 +48,9 @@ public class MvCommand implements Command {
             if (destination.isDirectory()) {
                 File target = new File(destination, source.getName());
                 if (target.exists()) {
-                    throw new IOException("mv: " + source.getName() + "already exists in " + destination.getName());
+                    throw new IOException("mv: " + source.getName() + " already exists in " + destination.getName());
                 }
-                if (source.getParentFile().equals(destination.getParentFile())) {
-                    source.renameTo(destination);
-                } else {
-                    moveRec(source, destination);
-                }
+                moveRec(source, destination);
             } else {
                 throw new IOException("mv: not managed to copy Directory " + source.getName() + " to File " + destination.getName());
             }
@@ -68,14 +64,15 @@ public class MvCommand implements Command {
             target.mkdir();
             File[] fileList = src.listFiles();
             if (fileList.length > 0) {
-                for (File file: fileList) {
-                    moveRec(file, dest);
+                for (File file : fileList) {
+                    moveRec(file, target);
                 }
             }
+            src.delete();
         } else {
-            Files.copy(src.toPath(), target.toPath());
+            Files.move(src.toPath(), target.toPath());
         }
-        src.delete();
+
     }
 
     public int getArgsCount() {
