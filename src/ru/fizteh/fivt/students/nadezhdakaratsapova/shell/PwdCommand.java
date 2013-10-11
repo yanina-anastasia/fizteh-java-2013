@@ -8,7 +8,7 @@ public class PwdCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        System.out.println(currentDirectory.getCurDir().getCanonicalPath());
+        System.out.println(currentDirectory.getCurDir().getAbsolutePath());
     }
 
     public int getArgsCount() {
