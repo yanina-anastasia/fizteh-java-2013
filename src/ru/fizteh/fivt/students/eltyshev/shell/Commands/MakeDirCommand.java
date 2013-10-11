@@ -4,16 +4,20 @@ import ru.fizteh.fivt.students.eltyshev.shell.FileSystemShellState;
 import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MakeDirCommand extends AbstractCommand {
 
     public void executeCommand(String params, ShellState shellState) throws IOException {
-
-        if (CommandParser.getParametersCount(params) > 1) {
+        ArrayList<String> parameters = CommandParser.parseParams(params);
+        if (parameters.size() > 1) {
             throw new IllegalArgumentException("Too many arguments!");
         }
+        if (parameters.size() < 1) {
+            throw new IllegalArgumentException("missing argument");
+        }
         FileSystemShellState state = FileSystemShellState.class.cast(shellState);
-        state.getFileSystem().createDirectory(params);
+        state.getFileSystem().createDirectory(parameters.get(0));
     }
 
     protected void initCommand() {
