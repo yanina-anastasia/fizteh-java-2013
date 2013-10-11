@@ -18,8 +18,7 @@ final class ShellRm implements ShellCommand {
         try {
             context.remove(args[1]);
         } catch (IOException e) {
-            throw new InvalidCommandException(name + " argument " + args[1]
-                    + " " + e.getMessage());
+            throw new InvalidCommandException(name + " argument " + args[1] + " " + e.getMessage());
         }
     }
 

@@ -18,8 +18,7 @@ final class ShellMv implements ShellCommand {
         try {
             context.move(args[1], args[2]);
         } catch (IOException e) {
-            throw new InvalidCommandException(name + " bad arguments "
-                    + args[1] + " " + args[2]);
+            throw new InvalidCommandException(name + " bad arguments " + args[1] + " " + args[2]);
         }
     }
 

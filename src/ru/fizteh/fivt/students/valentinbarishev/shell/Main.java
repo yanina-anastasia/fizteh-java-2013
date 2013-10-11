@@ -43,7 +43,7 @@ public class Main {
             } else {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print("$ ");
-                while (scanner.hasNext()) {
+                while (true) {
                     try {
                         String command = scanner.nextLine();
 
