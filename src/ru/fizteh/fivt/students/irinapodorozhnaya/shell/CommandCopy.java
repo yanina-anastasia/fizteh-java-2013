@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
+
 public class CommandCopy extends AbstractCommand {
 	public CommandCopy(StateShell st) {
 		super(2, st);

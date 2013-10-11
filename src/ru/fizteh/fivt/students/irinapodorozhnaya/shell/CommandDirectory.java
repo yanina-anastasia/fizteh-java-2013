@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.File;
 
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
+
 public class CommandDirectory extends AbstractCommand {
 	CommandDirectory (StateShell state) {
 		super(0, state);

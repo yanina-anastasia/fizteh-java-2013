@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
+
 public class CommandPrintWorkingDirectory extends AbstractCommand {	
 	public CommandPrintWorkingDirectory(StateShell st) {
 		super(0, st);;
