@@ -42,6 +42,10 @@ public class Shell {
             new ShellCommand("dir", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() != 0) {
+                        System.err.println("dir: Too many arguments");
+                        return -1;
+                    }
                     for (File f : currentDirectory.listFiles()) {
                         System.out.println(f.getName());
                     }
@@ -51,6 +55,10 @@ public class Shell {
             new ShellCommand("pwd", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() != 0) {
+                        System.err.println("pwd: Too many arguments");
+                        return -1;
+                    }
                     try {
                         System.out.println(currentDirectory.getCanonicalPath());
                     } catch (Exception e) {
@@ -63,12 +71,18 @@ public class Shell {
             new ShellCommand("mkdir", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() > 1) {
+                        System.err.println("mkdir: Too many arguments");
+                        return -1;
+                    }
                     if (args.size() < 1) {
                         System.err.println("mkdir: Too few arguments");
                         return -1;
                     }
                     try {
-                        File newDir = new File(args.get(0));
+                        Path path = currentDirectory.toPath();
+                        path = path.resolve(args.get(0));
+                        File newDir = path.toFile();
                         if (!newDir.mkdir()) {
                             System.err.printf("mkdir: Folder '%s' can not be created\n", args.get(0));
                             return -1;
@@ -83,6 +97,10 @@ public class Shell {
             new ShellCommand("cd", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() > 1) {
+                        System.err.println("cd: Too many arguments");
+                        return -1;
+                    }
                     if (args.size() < 1) {
                         System.err.println("cd: Too few arguments");
                         return -1;
@@ -114,6 +132,10 @@ public class Shell {
             new ShellCommand("rm", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() > 1) {
+                        System.err.println("rm: Too many arguments");
+                        return -1;
+                    }
                     if (args.size() < 1) {
                         System.err.println("rm: Too few arguments");
                         return -1;
@@ -138,6 +160,10 @@ public class Shell {
             new ShellCommand("mv", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() > 2) {
+                        System.err.println("mv: Too many arguments");
+                        return -1;
+                    }
                     if (args.size() < 2) {
                         System.err.println("mv: Too few arguments");
                         return -1;
@@ -168,6 +194,10 @@ public class Shell {
             new ShellCommand("cp", new ShellExecutable() {
                 @Override
                 public int execute(ArrayList<String> args) {
+                    if (args.size() > 2) {
+                        System.err.println("cp: Too many arguments");
+                        return -1;
+                    }
                     if (args.size() < 2) {
                         System.err.println("cp: Too few arguments");
                         return -1;
@@ -220,12 +250,17 @@ public class Shell {
                     nameRead = true;
                 }
             }
+            boolean commandFound = false;
             for (int j = 0; j < commands.length; j++) {
                 if (commands[j].name.equals(name)) {
                     if (commands[j].exec.execute(args) != 0)
                         return -1;
                     break;
                 }
+            }
+            if (!commandFound) {
+                System.err.printf("No such command %s\n", name);
+                return -1;
             }
         }
         return 0;
