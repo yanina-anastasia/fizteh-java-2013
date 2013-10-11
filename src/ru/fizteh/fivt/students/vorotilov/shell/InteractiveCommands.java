@@ -13,8 +13,9 @@ public class InteractiveCommands extends ConsoleCommands {
     }
 
     @Override
-    public String[] getNextCommand() throws IOException {
+    public String[] getNext() throws IOException {
         System.out.print("$ ");
         return parseCommand(inputStream.readLine());
     }
+
 }

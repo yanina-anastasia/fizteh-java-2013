@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.vorotilov.shell;
 import java.io.IOException;
 
 public abstract class ConsoleCommands {
-    public abstract String[] getNextCommand() throws IOException, NoNextCommand;
+    public abstract String[] getNext() throws IOException, NoNextCommand;
 
     protected String[] parseCommand(String input) {
         StringBuilder notParsedCommand = new StringBuilder(input);
@@ -17,6 +17,10 @@ public abstract class ConsoleCommands {
             notParsedCommand.delete(indexOfTwoWhitespaces, indexOfTwoWhitespaces + 1);
         }
         return notParsedCommand.toString().split("[ ]+");
+    }
+
+    public boolean hasNext() {
+        return true;
     }
 }
 

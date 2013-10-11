@@ -6,8 +6,9 @@ import java.io.IOException;
 public class ShellMain {
 
     private static File currentDirectory;
+    private static boolean interactiveMode;
 
-    static void processCommand(String[] parsedCommand) throws ExitCommand, IOException {
+    static void processCommand(String[] parsedCommand) throws ExitCommand, IOException, WrongCommand {
         switch (parsedCommand[0]) {
             case "exit":
                 if (parsedCommand.length > 1) {
@@ -29,7 +30,8 @@ public class ShellMain {
                 } else {
                     File newDir = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                     if (newDir.exists()) {
-                        System.out.println("mkdir: can't create'" + newDir.getCanonicalPath() + "' directory is already exists");
+                        System.out.println("mkdir: can't create'"
+                                + newDir.getCanonicalPath() + "' directory is already exists");
                     } else if (!newDir.mkdir()) {
                         System.out.println("mkdir: can't create'" + newDir.getCanonicalPath() + "'");
                     }
@@ -49,7 +51,8 @@ public class ShellMain {
                 if (parsedCommand.length != 2) {
                     System.out.println("cd: get 1 parameter");
                 } else {
-                    File newCurrentDirectory = FileUtil.convertPath(currentDirectory, parsedCommand[1]).getCanonicalFile();
+                    File newCurrentDirectory = FileUtil.convertPath(currentDirectory,
+                            parsedCommand[1]).getCanonicalFile();
                     if (newCurrentDirectory.exists()) {
                         currentDirectory = newCurrentDirectory;
                     } else {
@@ -93,7 +96,7 @@ public class ShellMain {
                     if (sourceToMv.exists()) {
                         if (!destinationToMv.exists()) {
                             if (!sourceToMv.renameTo(destinationToMv)) {
-                                System.out.println("rm: cannot rename '" + sourceToMv + "'" );
+                                System.out.println("rm: cannot rename '" + sourceToMv + "'");
                             }
                         } else {
                             FileUtil.copy(sourceToMv, destinationToMv);
@@ -105,16 +108,18 @@ public class ShellMain {
                         }
                     }
                 }
-
                 break;
             default:
                 System.out.println("unknown command: '" + parsedCommand[0] + "'");
+                if (!interactiveMode) {
+                    throw new WrongCommand();
+                }
                 break;
         }
     }
 
     public static void main(String[] args) {
-        final boolean interactiveMode = (args.length == 0);
+        interactiveMode = (args.length == 0);
         try {
             currentDirectory = new File(".").getCanonicalFile();
             ConsoleCommands shellInputCommands;
@@ -123,12 +128,13 @@ public class ShellMain {
             } else {
                 shellInputCommands = new PackageCommands(args);
             }
-            while (true) {
-                processCommand(shellInputCommands.getNextCommand());
+            while (shellInputCommands.hasNext()) {
+                processCommand(shellInputCommands.getNext());
             }
+            throw new ExitCommand();
         } catch (ExitCommand | NoNextCommand e) {
             System.exit(0);
-        } catch (IOException e) {
+        } catch (IOException | WrongCommand e) {
             System.exit(1);
         }
     }

@@ -5,7 +5,7 @@ import java.util.Queue;
 
 public class PackageCommands extends ConsoleCommands {
 
-    private Queue<String[] > commandsBuffer;
+    private Queue<String[]> commandsBuffer;
 
     public PackageCommands(String[] packageInput) {
         commandsBuffer = new LinkedList<>();
@@ -21,11 +21,16 @@ public class PackageCommands extends ConsoleCommands {
     }
 
     @Override
-    public String[] getNextCommand() throws NoNextCommand {
+    public String[] getNext() throws NoNextCommand {
         if (commandsBuffer.isEmpty()) {
             throw new NoNextCommand();
         }
         return commandsBuffer.remove();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !commandsBuffer.isEmpty();
     }
 
 }

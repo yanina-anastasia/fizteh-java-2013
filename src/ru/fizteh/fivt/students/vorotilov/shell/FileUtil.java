@@ -39,9 +39,9 @@ public class FileUtil {
 
     public static void copy(File source, File destination) throws IOException {
         if (source.isDirectory()) {
-            copyDirectory(source,new File (destination, source.getName()));
+            copyDirectory(source, new File(destination, source.getName()));
         } else {
-            copyFile(source,new File(destination, source.getName()));
+            copyFile(source, new File(destination, source.getName()));
         }
     }
 
