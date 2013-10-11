@@ -10,6 +10,9 @@ public final class Launcher {
     private static Vector<Command> allCommands;
 
     private static boolean launch(final String arg) throws IOException {
+        if (arg.equals("")) {
+            return true;
+        }
         String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
@@ -32,12 +35,17 @@ public final class Launcher {
             System.err.flush();
             System.out.print(Shell.getUserDir().toPath().normalize() + "$ ");
             try {
-                String arg = scan.nextLine().trim();
-                if (arg.equals("exit")) {
-                    System.exit(0);
-                }
-                if (!arg.equals("")) {
-                    launch(arg);
+                String commands = scan.nextLine().trim();
+                String[] allArgs = commands.split(";");
+                for (String arg : allArgs) {
+                    if (arg.equals("exit")) {
+                        System.exit(0);
+                    }
+                    if (!arg.equals("")) {
+                        if (!launch(arg.trim())) {
+                            break;
+                        }
+                    }
                 }
             } catch (NoSuchElementException e) {
                 System.exit(1);
