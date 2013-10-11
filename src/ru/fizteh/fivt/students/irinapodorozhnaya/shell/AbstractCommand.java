@@ -4,7 +4,7 @@ import java.io.File;
 
 public abstract class AbstractCommand implements Command {
 	private final int argsNumber;
-	private StateShell state;
+	private final StateShell state;
 	
 	public AbstractCommand(int argsNumber, StateShell state) {
 		this.argsNumber =argsNumber;
@@ -17,10 +17,6 @@ public abstract class AbstractCommand implements Command {
 	
 	public StateShell getState() {
 		return state;
-	}
-	
-	public void setState(StateShell state) {
-		this.state = state;
 	}
 	
 	protected File getFileByName(String path) {
