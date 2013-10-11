@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vishnevskiy.shell.Commands;
+package ru.fizteh.fivt.students.vishnevskiy.shell.сommands;
 
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
 import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
