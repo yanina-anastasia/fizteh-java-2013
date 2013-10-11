@@ -11,7 +11,7 @@ public class MoveCommand extends AbstractCommand {
 	public void execute(String[] args, PrintStream s) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
-		if (!args[1].equals(args[2])) {
+		if (!sourse.getAbsolutePath().equals(destination.getAbsolutePath())) {
 			if (!sourse.exists()) {
 				throw new IOException("mv: cannot move '" + args[1] + "' to '" + args[2] +
 								"': No such file or directory");
