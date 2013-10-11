@@ -122,11 +122,15 @@ public class ShellReceiver implements CommandReceiver {
 			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
 		}
 		if (!destinationFileOrDirectory.isDirectory()) {
-			try {
-				Files.copy(sourceFileOrDirectory.toPath(), destinationDirectory.toPath());
-			} catch (IOException e) {
-				throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
-						"\' : Cannot copy file.");
+			if (destinationDirectory.toPath().equals(sourceFileOrDirectory.toPath())) {
+				throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' : cannot copy to the same path.");
+			} else {
+				try {
+					Files.copy(sourceFileOrDirectory.toPath(), destinationDirectory.toPath());
+				} catch (IOException e) {
+					throw new ShellException("cp: \'" + sourceFileOrDirectoryName + "\' -> \'" + destinationDirectoryName +
+							"\' : Cannot copy file.");
+				}
 			}
 		} else {
 			try {
