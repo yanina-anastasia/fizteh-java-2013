@@ -8,9 +8,7 @@ import java.io.PrintStream;
 
 public class CopyCommand extends AbstractCommand {
 	CopyCommand(ShellState s) { 
-		setName("cp"); 
-		setArgNumber(2);
-		setShell(s);
+		super(s, "cp", 2);
 	}
 	public void execute(String args[], PrintStream s) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
@@ -35,6 +33,8 @@ public class CopyCommand extends AbstractCommand {
 					throw new IOException("Can't read or write");
 				}
 			}
+		} else {
+			System.err.println("cp: cannot copy: Files are same");
 		}
 	}
 }

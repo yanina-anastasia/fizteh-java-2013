@@ -4,9 +4,7 @@ import java.io.PrintStream;
 
 public class ExitCommand extends AbstractCommand {
 	ExitCommand(ShellState s) {
-		setName("exit");
-		setArgNumber(0);
-		setShell(s);
+		super(s, "exit", 0);
 	}
 	public void execute(String[] args, PrintStream s) {
 		System.exit(0);

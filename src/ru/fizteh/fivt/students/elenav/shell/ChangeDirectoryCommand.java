@@ -6,9 +6,7 @@ import java.io.PrintStream;
 
 public class ChangeDirectoryCommand extends AbstractCommand {
 	public ChangeDirectoryCommand(ShellState s) { 
-		setName("cd"); 
-		setArgNumber(1);
-		setShell(s);
+		super(s, "cd", 1); 
 	}
 	public void execute(String args[], PrintStream s) throws IOException {
 		File f = new File(args[1]);

@@ -7,9 +7,6 @@ import java.io.PrintStream;
 public interface Command {
 	String getName();
 	int getArgNumber();
-	void setName(String name);
-	void setArgNumber(int number);
-	void setShell(ShellState s);
 	File getWorkingDirectory();
 	void setWorkingDirectory(File f);
 	void execute(String args[], PrintStream s) throws IOException;

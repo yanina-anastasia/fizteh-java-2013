@@ -6,9 +6,7 @@ import java.io.PrintStream;
 
 public class RemoveCommand extends AbstractCommand {
 	RemoveCommand(ShellState s) { 
-		setName("rm"); 
-		setArgNumber(1);
-		setShell(s);
+		super(s, "rm", 1);
 	}
 	
 	private void deleteRecursively(String path) throws IOException {

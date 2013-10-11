@@ -6,22 +6,24 @@ import java.io.PrintStream;
 
 public class MoveCommand extends AbstractCommand {
 	MoveCommand(ShellState s) { 
-		setName("mv"); 
-		setArgNumber(2);
-		setShell(s);
+		super(s, "mv", 2);
 	}
 	public void execute(String[] args, PrintStream s) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
-		if (!sourse.exists()) {
-			throw new IOException("mv: cannot copy '" + args[1] + "' to '" + args[2] +
+		if (!args[1].equals(args[2])) {
+			if (!sourse.exists()) {
+				throw new IOException("mv: cannot move '" + args[1] + "' to '" + args[2] +
 								"': No such file or directory");
-		} else {
-			if (!destination.isDirectory()) {
-				sourse.renameTo(destination);
 			} else {
-				sourse.renameTo(new File(destination.getAbsolutePath() + File.separator + sourse.getName()));
+				if (!destination.isDirectory()) {
+					sourse.renameTo(destination);
+				} else {
+					sourse.renameTo(new File(destination.getAbsolutePath() + File.separator + sourse.getName()));
+				}
 			}
+		} else {
+			System.err.println("mv: cannot copy: Files are same");
 		}
 	}
 }

@@ -5,9 +5,7 @@ import java.io.PrintStream;
 
 public class PrintWorkingDirectoryCommand extends AbstractCommand {
 	PrintWorkingDirectoryCommand(ShellState s) { 
-		setName("pwd"); 
-		setArgNumber(0);
-		setShell(s);
+		super(s, "pwd", 0);
 	}
 	public void execute(String args[], PrintStream s) throws IOException {
 		try {
