@@ -26,10 +26,7 @@ public class Shell {
     }
 
     private void cd(String argument) {
-        File currentFile = new File(argument);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + argument);
-        }
+        File currentFile = unionWithCurrentPath(argument);
         if (currentFile.exists()) {
             try {
                 currentPath = currentFile.getCanonicalPath();
@@ -70,22 +67,17 @@ public class Shell {
         return result.toString();
     }
 
-    private void delete(File file) {
-        if (!file.isDirectory() || file.listFiles().length == 0) {
-            file.delete();
-        } else {
+    private void deleteFiles(File file) {
+        if (file.isDirectory() && (file.listFiles().length != 0)) { 
             while (file.listFiles().length != 0) {
-                delete(file.listFiles()[0]);
+                deleteFiles(file.listFiles()[0]);
             }
-            file.delete();
         }
+        file.delete();
     }
 
     private void mkDir(String str) {
-        File currentFile = new File(str);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + str);
-        }
+        File currentFile = unionWithCurrentPath(str);
         if (currentFile.exists()) {
             printError("mkdir: can't create a directory '" + str
                     + "': such directory exists");
@@ -93,26 +85,28 @@ public class Shell {
             printError("mkdir can't create a directory'" + str);
         }
     }
+    private File unionWithCurrentPath(String curr) {
+        File curr1 = new File (curr);
+        if (!curr1.isAbsolute()) {
+            curr1 = new File(currentPath + File.separator + curr);
+        }
+        return curr1;
+    }
 
     private void rm(String str) {
-        File currentFile = new File(str);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + str);
-        }
+        File currentFile = unionWithCurrentPath(str);
         if (!currentFile.exists()) {
             printError("rm: cannot remove '" + str
                     + "': No such file or directory");
         } else {
-            delete(currentFile);
+            deleteFiles(currentFile);
+            currentFile.delete();
         }
-
     }
 
     private void cp(String[] str) {
-        File currentFile = new File(str[1]);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + str[1]);
-        }
+        File currentFile = unionWithCurrentPath(str[1]);
+        File file = unionWithCurrentPath(str[2]);
         File destinationFile = new File(str[2] + File.separator + str[1]);
         if (!destinationFile.isAbsolute()) {
             destinationFile = new File(currentPath + File.separator + str[2]
@@ -122,8 +116,13 @@ public class Shell {
             printError("cp: cannot copy: '" + str[1] + "': No such file");
         } else {
             try {
+                if (currentFile.isFile() && file.isFile()) {
+                Files.copy(currentFile.toPath(), file.toPath(),
+                        StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+            } else {
                 Files.copy(currentFile.toPath(), destinationFile.toPath(),
-                        StandardCopyOption.COPY_ATTRIBUTES);
+                        StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+            }
             } catch (IOException exception) {
                 printError("cp: cannot copy '" + str[1] + "'");
             }
@@ -131,19 +130,13 @@ public class Shell {
     }
 
     private void mv(String[] str) {
-        File currentFile = new File(str[1]);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + str[1]);
-        }
+        File currentFile = unionWithCurrentPath(str[1]);
         File destinationFile = new File(str[2] + File.separator + str[1]);
         if (!destinationFile.isAbsolute()) {
             destinationFile = new File(currentPath + File.separator + str[2]
                     + File.separator + str[1]);
         }
-        File file = new File(str[2]);
-        if (!currentFile.isAbsolute()) {
-            currentFile = new File(currentPath + File.separator + str[2]);
-        }
+        File file = unionWithCurrentPath(str[2]);
         if (!currentFile.exists()) {
             printError("mv: cannot move: '" + str[1]
                     + "': No such file or directory");
@@ -226,15 +219,14 @@ public class Shell {
         Scanner scanner = new Scanner(newInput);
         scanner.useDelimiter("[ ]*;[ ]*");
         while (scanner.hasNext()) {
-            executeProcess(extractArgumentsFromInputString(scanner.next()
-                    .toString()));
+            executeProcess(extractArgumentsFromInputString(scanner.next().toString()));
         }
         scanner.close();
     }
 
     private void doInInteractiveMode() {
         System.out.print("$ ");
-        String cur = new String();
+        String cur;
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter(System.lineSeparator());
         while (scanner.hasNext()) {
