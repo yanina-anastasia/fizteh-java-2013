@@ -14,7 +14,7 @@ class Environment {
         try {
             System.out.println(currentDir.getCanonicalPath());
         } catch (IOException e) {
-            System.err.println("pwd: internal error");
+            System.err.println("pwd: internal error: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -68,13 +68,8 @@ class Environment {
     }
 
     private boolean moveCopyCheck(final File source, final File dest) {
-        if (!source.exists() || !dest.exists()) {
+        if (!source.exists()) {
             System.err.println("mv or cp: no such file");
-            System.exit(1);
-        }
-        if (!dest.isDirectory()) {
-            System.err.println("mv or cp: " + dest.getAbsolutePath()
-                            + "L is not a directory");
             System.exit(1);
         }
         return true;
@@ -85,8 +80,18 @@ class Environment {
         String newDestStr = makeNewSource(destStr);
         File source = new File(newSourceStr);
         File dest = new File(newDestStr);
+        if (dest.isDirectory()) {
+            dest = new File(newDestStr + File.separator + source.getName());
+        }
+        try {
+            if (dest.getCanonicalPath().equals(source.getCanonicalPath())) {
+                System.err.println("copy: source path equals destination path");
+                return;
+            }
+        } catch (IOException e) {
+            System.err.println("copy: internal error: " + e.getMessage());
+        }
         moveCopyCheck(source, dest);
-        dest = new File(newDestStr + File.separator + source.getName());
         try {
             Files.copy(source.toPath(), dest.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
@@ -109,8 +114,18 @@ class Environment {
         String newDestStr = makeNewSource(destStr);
         File source = new File(newSourceStr);
         File dest = new File(newDestStr);
+        if (dest.isDirectory()) {
+            dest = new File(newDestStr + File.separator + source.getName());
+        }
+        try {
+            if (dest.getCanonicalPath().equals(source.getCanonicalPath())) {
+                System.err.println("move: source path equals destination path");
+                return;
+            }
+        } catch (IOException e) {
+            System.err.println("copy: internal error: " + e.getMessage());
+        }
         moveCopyCheck(source, dest);
-        dest = new File(newDestStr + File.separator + source.getName());
         try {
             Files.move(source.toPath(), dest.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
@@ -187,7 +202,7 @@ class Environment {
         } else if (command.equals("dir") && tokenNum == 1) {
             dir();
         } else {
-            System.err.println("Wrong command format: " + command);
+            System.err.println(command + ": wrong command format");
             System.exit(1);
         }
         return;
@@ -215,11 +230,14 @@ public class Shell {
             while (true) {
                 System.out.print("$ ");
                 if (scanner.hasNextLine()) {
-                    String query = scanner.nextLine();
-                    if (query.length() == 0) {
-                        continue;
+                    String queryLine = scanner.nextLine();
+                    Scanner lineScanner = new Scanner(queryLine);
+                    lineScanner.useDelimiter(";");
+                    while (lineScanner.hasNext()) {
+                        String query = lineScanner.next();
+                        env.execute(query);
                     }
-                    env.execute(query);
+                    lineScanner.close();
                 } else {
                     scanner.close();
                     return;
