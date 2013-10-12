@@ -5,11 +5,11 @@ import java.io.*;
 public class CommandTalkToMe extends CommandAbstract {
 
 	public CommandTalkToMe () {
-		this.name = "talk-to-me";
+		super("talk-to-me");
 	}
-
+	
 	public boolean evaluate (ShellState state, String args) {
-		System.out.println("Are you kidding me?!\nResult: 42");
+		outStream.println("Are you kidding me?!\nResult: 42");
 		return true;
 	}
 }

@@ -3,16 +3,19 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 public class CommandRemove extends CommandAbstract {
 
 	public CommandRemove () {
-		this.name = "remove";
+		super("remove");
 	}
-
+	
 	public boolean evaluate (ShellState state, String args) {
-		String value = state.database.database.remove(args);
+		if (!checkFixedArguments(splitArguments(args), 1)) {
+			return false;
+		}
+		String value = state.database.remove(args);
 		if (value != null) {
-			System.out.printf("removed\n");
+			outStream.printf("removed\n");
 		}
 		else {
-			System.out.printf("not found\n");
+			outStream.println("not found");
 		}
 		return true;
 	}

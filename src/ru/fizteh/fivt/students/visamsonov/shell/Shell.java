@@ -7,20 +7,15 @@ import java.util.HashMap;
 public class Shell {
 	
 	private final Map<String, Command> commandList = new HashMap<String, Command>();
+	private final ShellState state;
+
+	public Shell (ShellState state) {
+		this.state = state;
+	}
 
 	public void addCommand (Command command) {
 		commandList.put(command.getName(), command);
 	}
-
-	public Shell () {
-		addCommand(new CommandExit());
-		addCommand(new CommandPut());
-		addCommand(new CommandGet());
-		addCommand(new CommandRemove());
-		addCommand(new CommandTalkToMe());
-	}
-
-	public final ShellState state = new ShellState();
 
 	public boolean perform (String[] args) {
 		ArgumentParser parser = new ArgumentParser(args);
@@ -39,22 +34,11 @@ public class Shell {
 
 	public void interactiveMode () {
 		Scanner sc = new Scanner(System.in);
-		System.out.printf("%s$ ", state.getCurrentDirectory());
+		System.out.printf("$ ");
 		while (sc.hasNextLine()) {
 			String[] args = {sc.nextLine()};
 			perform(args);
-			System.out.printf("%s$ ", state.getCurrentDirectory());
+			System.out.printf("$ ");
 		}
-	}
-
-	public static void main (String[] args) {
-		Shell shell = new Shell();
-		if (args.length == 0) {
-			shell.interactiveMode();
-		}
-		else if (!shell.perform(args)) {
-			System.exit(1);
-		}
-		System.exit(0);
 	}
 }

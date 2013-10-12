@@ -3,22 +3,21 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 public class CommandPut extends CommandAbstract {
 
 	public CommandPut () {
-		this.name = "put";
+		super("put");
 	}
-
+	
 	public boolean evaluate (ShellState state, String args) {
-		String[] argArray = args.split("\\s+");
-		if (argArray.length != 2) {
-			printError("given " + argArray.length + " arguments, expected 2");
+		String[] argArray = splitArguments(args);
+		if (!checkFixedArguments(argArray, 2)) {
 			return false;
 		}
-		String oldValue = state.database.database.get(argArray[0]);
-		state.database.database.put(argArray[0], argArray[1]);
+		String oldValue = state.database.get(argArray[0]);
+		state.database.put(argArray[0], argArray[1]);
 		if (oldValue != null) {
-			System.out.printf("overwrite\n%s\n", oldValue);
+			outStream.printf("overwrite\n%s\n", oldValue);
 		}
 		else {
-			System.out.printf("new\n");
+			outStream.println("new");
 		}
 		return true;
 	}

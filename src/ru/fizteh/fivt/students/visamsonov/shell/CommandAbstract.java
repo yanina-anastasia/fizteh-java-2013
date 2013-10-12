@@ -5,13 +5,27 @@ import java.io.PrintStream;
 public abstract class CommandAbstract implements Command {
 
 	protected String name;
+	protected PrintStream errStream;
+	protected PrintStream outStream;
 
-	public void printError (String message, PrintStream out) {
-		out.printf("%s: %s\n", name, message);
+	public CommandAbstract (String commandName) {
+		name = commandName;
+		errStream = System.err;
+		outStream = System.out;
+	}
+
+	public CommandAbstract (String commandName, PrintStream out, PrintStream err) {
+		name = commandName;
+		redirectStreams(out, err);
+	}
+
+	public void redirectStreams (PrintStream out, PrintStream err) {
+		errStream = err;
+		outStream = out;
 	}
 
 	public void printError (String message) {
-		printError(message, System.err);
+		errStream.printf("%s: %s\n", name, message);
 	}
 
 	protected String[] splitArguments (String args) {
