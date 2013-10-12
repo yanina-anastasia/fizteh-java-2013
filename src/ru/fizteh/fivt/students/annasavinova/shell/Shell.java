@@ -90,6 +90,13 @@ public class Shell {
         }
     }
 
+    private static boolean isParent(File sourse, File dest) {
+        if (dest.getAbsolutePath().startsWith(sourse.getAbsolutePath())) {
+            return true;
+        }
+        return false;
+    }
+
     public static void doCp(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
@@ -101,8 +108,12 @@ public class Shell {
                 destFile = createFile(args[2]);
             }
             try {
-                Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                        StandardCopyOption.REPLACE_EXISTING);
+                if (isParent(currFile, destFile)) {
+                    Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                            StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    printError("cp: cannot copy '" + "': sourse is parent of dest");
+                }
             } catch (IOException e1) {
                 e1.printStackTrace();
                 printError("cp: cannot copy '" + args[1] + "'");
@@ -122,7 +133,11 @@ public class Shell {
                 destFile = createFile(args[2]);
             }
             try {
-                Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if (isParent(currFile, destFile)) {
+                    Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    printError("mv: cannot move '" + "': sourse is parent of dest");
+                }
             } catch (IOException e1) {
                 printError("cp: cannot move '" + args[1] + "'");
             }
@@ -222,7 +237,7 @@ public class Shell {
                     return;
                 }
                 if (!str.isEmpty()) {
-                    execProc(getArgsFromString(str));                    
+                    execProc(getArgsFromString(str));
                     System.out.print("$ ");
                 }
             }
