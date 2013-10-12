@@ -6,10 +6,10 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
 import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
 public class Rm implements Command {
-    private static final String name = "rm";
+    private static final String NAME = "rm";
     public Rm() {}
     public String getName() {
-        return name;
+        return NAME;
     }
 
     private void recursivelyRemove(File file) throws ShellException {

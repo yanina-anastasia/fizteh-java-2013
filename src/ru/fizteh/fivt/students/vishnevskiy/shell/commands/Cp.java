@@ -8,10 +8,10 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
 import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
 public class Cp implements Command {
-    private static final String name = "cp";
+    private static final String NAME = "cp";
     public Cp() {}
     public String getName() {
-        return name;
+        return NAME;
     }
     public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
         if (args.length < 2) {

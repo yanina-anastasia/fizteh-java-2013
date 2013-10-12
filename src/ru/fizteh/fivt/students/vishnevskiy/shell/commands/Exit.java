@@ -6,10 +6,10 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
 import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
 public class Exit implements Command {
-    private static final String name = "exit";
+    private static final String NAME = "exit";
     public Exit() {}
     public String getName() {
-        return name;
+        return NAME;
     }
     public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
         if (args.length > 0) {

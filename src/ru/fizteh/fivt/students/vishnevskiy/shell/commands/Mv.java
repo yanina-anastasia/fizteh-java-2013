@@ -8,10 +8,10 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
 import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
 public class Mv implements Command {
-    private static final String name = "mv";
+    private static final String NAME = "mv";
     public Mv() {}
     public String getName() {
-        return name;
+        return NAME;
     }
     public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
         if (args.length < 2) {
