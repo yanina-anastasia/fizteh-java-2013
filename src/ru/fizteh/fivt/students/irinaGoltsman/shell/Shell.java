@@ -59,8 +59,10 @@ public class Shell {
 
     //Копирует указанную в параметра папку/файл в указанное место.
     public static Code cpCommand(String source, String destination) {
-        File from = new File(source);
-        File to = new File(destination);
+        Properties p = System.getProperties();
+        String userDir = p.getProperty("user.dir");
+        File from = new File(userDir + File.separator + source);
+        File to = new File(userDir + File.separator + destination);
         if (!from.exists()) {
             System.err.println("cp: '" + source + "': No such file or directory");
             return Code.ERROR;
@@ -169,7 +171,7 @@ public class Shell {
             return (Code.OK);
         }
         Properties p = System.getProperties();
-        if (path.equals("..") || path.equals(File.separator + "..")) {
+        if (path.equals("..") || path.equals("/..") || path.equals("\\..")) {
             StringBuilder str = new StringBuilder();
             str.append(p.getProperty("user.dir"));
             int indexOfLastSeparator = str.lastIndexOf(File.separator);
@@ -178,15 +180,11 @@ public class Shell {
         }
         try {
             File newDir = new File(path);
-            if (!newDir.exists()) {
-                System.err.println("cd: '" + inputNameDir + "': No such file or directory");
-                return (Code.ERROR);
-            }
-            if (!newDir.isDirectory()) {
-                System.err.println("cd: '" + inputNameDir + "': Is not a directory");
-                return (Code.ERROR);
-            }
             if (!newDir.isAbsolute()) {
+                if (path.startsWith("/") || path.startsWith("\\")) {
+                    System.err.println("cd: '" + inputNameDir + "': No such file or directory");
+                    return (Code.ERROR);
+                }
                 String currentDir = p.getProperty("user.dir");
                 path = currentDir + File.separator + inputNameDir;
                 newDir = new File(path);
@@ -194,6 +192,14 @@ public class Shell {
                     System.err.println("Error in cd");
                     System.exit(1);
                 }
+            }
+            if (!newDir.exists()) {
+                System.err.println("cd: '" + inputNameDir + "': No such file or directory");
+                return (Code.ERROR);
+            }
+            if (!newDir.isDirectory()) {
+                System.err.println("cd: '" + inputNameDir + "': Is not a directory");
+                return (Code.ERROR);
             }
             System.setProperty("user.dir", path);
         } catch (Exception e) {
