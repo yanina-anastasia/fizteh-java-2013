@@ -239,8 +239,8 @@ public class Shell {
     public static void main(String[] args) {
         //Интерактивный режим.
         if (args.length == 0) {
-            System.out.print("$ ");
             while (true) {
+                System.out.print("$ ");
                 Scanner scan = new Scanner(System.in);
                 String command = "exit";
                 if (scan.hasNext()) {
