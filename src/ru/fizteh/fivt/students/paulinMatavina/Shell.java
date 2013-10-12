@@ -11,7 +11,8 @@ public class Shell {
                 str.append(args[i]);
                 str.append(" ");
             }
-            env.executeQueryLine(str.toString());
+            int status = env.executeQueryLine(str.toString());
+            System.exit(status);
         } else {
             Scanner scanner = new Scanner(System.in);
             while (true) {
