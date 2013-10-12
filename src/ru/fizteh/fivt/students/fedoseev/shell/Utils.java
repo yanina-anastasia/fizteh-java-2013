@@ -1,6 +1,9 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
-public class Utilities {
+public class Utils {
+    private Utils() {
+    }
+
     public static String join(String[] items, String sep) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;

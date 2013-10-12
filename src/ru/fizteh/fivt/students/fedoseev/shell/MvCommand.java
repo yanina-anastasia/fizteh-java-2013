@@ -66,14 +66,15 @@ public class MvCommand extends AbstractCommand {
                 Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
                 source.delete();
             }
-        }
-        if (source.isDirectory()) {
-            if (destination.toPath().startsWith(source.toPath())) {
-                throw new IOException("MV ERROR: directory can`t be copied into itself");
-            }
 
-            move(source, destination);
-            source.delete();
+            if (source.isDirectory()) {
+                if (destination.toPath().startsWith(source.toPath())) {
+                    throw new IOException("MV ERROR: directory can`t be copied into itself");
+                }
+
+                move(source, destination);
+                source.delete();
+            }
         }
 
         while (!state.getCurState().exists()) {

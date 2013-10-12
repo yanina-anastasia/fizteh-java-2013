@@ -62,14 +62,13 @@ public class CpCommand extends AbstractCommand {
             if (source.isFile()) {
                 Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
             }
-        }
+            if (source.isDirectory()) {
+                if (destination.toPath().startsWith(source.toPath())) {
+                    throw new IOException("CP ERROR: directory can`t be copied into itself");
+                }
 
-        if (source.isDirectory()) {
-            if (destination.toPath().startsWith(source.toPath())) {
-                throw new IOException("CP ERROR: directory can`t be copied into itself");
+                copy(source, destination);
             }
-
-            copy(source, destination);
         }
     }
 }
