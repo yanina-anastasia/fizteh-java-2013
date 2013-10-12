@@ -28,8 +28,7 @@ public class ShellRunner {
 					shouldBreakRunLoop = true;
 				} catch (ShellArgumentsMismatchException e) {
 					System.err.println(e.getMessage());
-					shouldBreakRunLoop = true;
-					System.exit(1);
+					in.clearBuffers();
 				} catch (ShellException e) {
 					System.err.println(e.getMessage());
 					if (Shell.isArgumentsMode) {
