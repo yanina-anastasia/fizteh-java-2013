@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class MkdirCommand extends AbstractCommand {
-    public MkdirCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public MkdirCommand() {
+        super("mkdir", 1);
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {

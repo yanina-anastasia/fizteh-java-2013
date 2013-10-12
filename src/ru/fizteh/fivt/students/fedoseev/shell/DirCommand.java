@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class DirCommand extends AbstractCommand {
-    public DirCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public DirCommand() {
+        super("dir", 0);
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {

@@ -15,20 +15,18 @@ public class ShellBatchMode extends AbstractShell {
         String[] input = Utils.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
-            if (!Thread.currentThread().isInterrupted()) {
-                cmd = cmd.trim();
+            cmd = cmd.trim();
 
-                int end;
-                if ((end = cmd.indexOf(" ")) == -1) {
-                    end = cmd.length();
-                }
+            int end;
+            if ((end = cmd.indexOf(" ")) == -1) {
+                end = cmd.length();
+            }
 
-                try {
-                    runCommands(cmd, end);
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                    System.exit(1);
-                }
+            try {
+                runCommands(cmd, end);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
             }
         }
     }

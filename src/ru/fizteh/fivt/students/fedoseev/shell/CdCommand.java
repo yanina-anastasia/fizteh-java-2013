@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class CdCommand extends AbstractCommand {
-    public CdCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public CdCommand() {
+        super("cd", 1);
     }
 
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {

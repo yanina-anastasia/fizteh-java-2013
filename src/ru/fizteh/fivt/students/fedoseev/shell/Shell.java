@@ -12,7 +12,7 @@ public interface Shell {
         void execute(String[] input, AbstractShell.ShellState state) throws IOException;
     }
 
-    Map<String, AbstractCommand> setCommands();
+    Map<String, AbstractCommand> getCommands();
 
     void run() throws IOException, InterruptedException;
 

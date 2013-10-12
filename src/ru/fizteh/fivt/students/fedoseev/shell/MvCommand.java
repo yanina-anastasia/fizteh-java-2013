@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class MvCommand extends AbstractCommand {
-    public MvCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public MvCommand() {
+        super("mv", 2);
     }
 
     private static void move(File source, File destination) throws IOException {

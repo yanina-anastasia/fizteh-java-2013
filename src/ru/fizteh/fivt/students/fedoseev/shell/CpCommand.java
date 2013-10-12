@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class CpCommand extends AbstractCommand {
-    public CpCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public CpCommand() {
+        super("cp", 2);
     }
 
     private static void copy(File source, File destination) throws IOException {
