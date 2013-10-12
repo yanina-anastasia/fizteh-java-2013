@@ -75,6 +75,10 @@ public class ShellEnvironment {
             return 1;
         }
         
+        if (dest.exists()) {
+            System.err.println("mv or cp: writing on an existing file");
+            return 1;
+        }
         String canonicalSource = "";
         String canonicalDest = "";
         try {
