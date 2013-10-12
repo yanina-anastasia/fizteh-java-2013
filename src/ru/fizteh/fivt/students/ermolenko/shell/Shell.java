@@ -3,8 +3,6 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Shell {
@@ -58,18 +56,17 @@ public class Shell {
         String[] cmd;
         while (true) {
             System.out.print(state.getPath().toString() + "$ ");
-            cmd = scanner.nextLine().trim().split("\\;");
+            cmd = scanner.nextLine().trim().split("\\s*;\\s*");
             try {
                 for (int i = 0; i < cmd.length; ++i) {
                     if (!cmd[i].equals("exit")) {
                         exec.execute(this, cmd[i]);
                     } else {
-                        break;
+                        System.exit(0);
                     }
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
-                System.exit(1);
             }
         }
     }

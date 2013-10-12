@@ -12,9 +12,6 @@ public class pwd implements Command {
         if (args.length > 0) {
             throw new IOException("too many args");
         }
-
-        System.out.print("result: ");
         System.out.println(((shell.getState()).getPath()).toString());
-
     }
 }

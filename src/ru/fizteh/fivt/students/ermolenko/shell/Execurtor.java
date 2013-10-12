@@ -26,6 +26,8 @@ public class Execurtor {
         mapOfCmd.put(mv.getName(), mv);
         Command dir = new dir();
         mapOfCmd.put(dir.getName(), dir);
+        Command rm = new rm();
+        mapOfCmd.put(rm.getName(), rm);
     }
 
     String[] argsCheck(String inCommand) {

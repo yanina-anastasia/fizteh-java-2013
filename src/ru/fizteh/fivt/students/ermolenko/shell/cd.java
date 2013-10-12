@@ -18,6 +18,8 @@ public class cd implements Command {
                 throw new IOException("Directory doesn't exist");
             }
             shell.setState(thePath.normalize());
+        } else {
+            throw new IOException("not allowed number of arguments");
         }
     }
 }

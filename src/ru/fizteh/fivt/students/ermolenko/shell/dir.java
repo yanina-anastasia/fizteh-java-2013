@@ -16,8 +16,10 @@ public class dir implements Command {
             File currentDirectory = new File(shell.getState().getPath().toString());
             File[] listOfFiles = currentDirectory.listFiles();
             PrintStream print = new PrintStream(System.out);
-            for (int i = 0; i < listOfFiles.length; ++i) {
-                print.println(listOfFiles[i].getName());
+            if (listOfFiles != null) {
+                for (File listOfFile : listOfFiles) {
+                    print.println(listOfFile.getName());
+                }
             }
         } else {
             throw new IOException("not allowed number of arguments");

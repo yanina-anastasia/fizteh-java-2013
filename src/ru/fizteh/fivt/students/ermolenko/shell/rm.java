@@ -19,8 +19,10 @@ public class rm implements Command {
 
         } else if (theFile.isDirectory()) {
             File[] listOfFiles = theFile.listFiles();
-            for (int i = 0; i < listOfFiles.length; ++i) {
-                remove(listOfFiles[i].toPath());
+            if (listOfFiles != null) {
+                for (File listOfFile : listOfFiles) {
+                    remove(listOfFile.toPath());
+                }
             }
             if (!theFile.delete()) {
                 throw new IOException("can't delete");
@@ -29,13 +31,22 @@ public class rm implements Command {
     }
 
     public void executeCmd(Shell shell, String[] args) throws IOException {
-        if (1 == args.length) {
-            Path thePath = shell.getState().getPath().resolve(args[0]);
-            if (thePath.toFile().exists()) {
-                remove(thePath);
+        Path thePath = shell.getState().getPath().resolve(args[0]);
+        try {
+            if (1 == args.length) {
+                if (thePath.toFile().exists()) {
+                    remove(thePath);
+                }
+            } else {
+                throw new IOException("not allowed number of arguments");
             }
-        } else {
-            throw new IOException("not allowed number of arguments");
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            while (!thePath.toFile().isDirectory()) {
+                thePath = thePath.getParent();
+            }
+            shell.setState(thePath);
         }
     }
 }
