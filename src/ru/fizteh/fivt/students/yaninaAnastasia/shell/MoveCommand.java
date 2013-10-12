@@ -3,45 +3,40 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 import java.io.File;
 import java.io.IOException;
 import java.lang.System;
-
-import static java.nio.file.StandardCopyOption.*;
-
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class MoveCommand extends Command {
     public boolean exec(String[] args, ShellState curState) throws IOException {
         if (args.length != 2) {
-            System.out.println("Invalid number of arguments");
+            System.err.println("Invalid arguments");
             return false;
         }
-        Path sourcePath = Paths.get(args[0]);
-        if (curState.workingDirectory != null && !sourcePath.isAbsolute()) {
-            sourcePath = Paths.get(curState.workingDirectory).resolve(sourcePath);
+        File temp = new File(args[0]);
+        if (!temp.isAbsolute()) {
+            temp = new File(curState.workingDirectory, args[0]);
         }
-        File source = sourcePath.normalize().toFile();
-        Path destinationPath = Paths.get(args[1]);
-        if (curState.workingDirectory != null && !destinationPath.isAbsolute()) {
-            destinationPath = Paths.get(curState.workingDirectory).resolve(destinationPath);
+        File source = temp;
+        temp = new File(args[1]);
+        if (!temp.isAbsolute()) {
+            temp = new File(curState.workingDirectory, args[1]);
         }
-        File destination = destinationPath.normalize().toFile();
-        if (!destination.isDirectory()) {
-            System.err.println("Destination is not a directory");
+        File destination = temp;
+        if (!source.exists()) {
+            System.err.println("The directory doesn't exist");
             return false;
         }
-        if ((!source.exists()) || (!destination.exists())) {
-            System.err.println("File does not exist");
-            return false;
+        if (destination.isDirectory()) {
+            destination = new File(destination, source.getName());
         }
-        if (source.toString().equals(destination.toString())) {
-            System.err.println("Error: source = destination");
+        if (destination.exists()) {
+            System.err.println("Error while moving");
             return false;
         }
         try {
-            Files.move(sourcePath, destinationPath, REPLACE_EXISTING);
+            Files.move(source.toPath(), destination.toPath());
         } catch (IOException e) {
-            System.err.println("IOException");
+            System.err.println("Error while moving");
+            return false;
         }
         return true;
     }

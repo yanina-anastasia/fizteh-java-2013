@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Shell {
     public ShellState curState = new ShellState();
@@ -39,6 +41,11 @@ public class Shell {
         if (command.length() == 0) {
             return true;
         }
+        Pattern p = Pattern.compile("\\s+");
+        Matcher m = p.matcher(command);
+        if (m.matches() == true) {
+            return true;
+        }
         String commandName = getCommandName(command);
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
@@ -47,7 +54,9 @@ public class Shell {
             return false;
         }
         try {
-            cmds.get(commandName).exec(params, curState);
+            if (cmds.get(commandName).exec(params, curState) == false) {
+                return false;
+            }
         } catch (IllegalArgumentException e) {
             System.err.println("Error: illegal arguments");
             return false;
