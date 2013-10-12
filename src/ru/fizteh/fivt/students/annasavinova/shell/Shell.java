@@ -78,8 +78,8 @@ public class Shell extends UserShell {
         if (!currFile.exists()) {
             printError("cp: cannot copy: '" + args[1] + "': No such file or directory");
         } else {
-            if (tmpFile.exists()) {
-                destFile = createFile(args[2]);
+            if (!tmpFile.isDirectory()) {
+                destFile = tmpFile;
             }
             try {
                 Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
