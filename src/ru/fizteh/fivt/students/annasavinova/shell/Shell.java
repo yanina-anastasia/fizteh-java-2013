@@ -27,7 +27,7 @@ public class Shell extends UserShell {
     public static void doDelete(File currFile) {
         if (currFile.exists()) {
             if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
-                if (currFile.delete()) {
+                if (!currFile.delete()) {
                     printError("rm: cannot remove '" + currFile.getName() + "'");
                 }
             } else {
