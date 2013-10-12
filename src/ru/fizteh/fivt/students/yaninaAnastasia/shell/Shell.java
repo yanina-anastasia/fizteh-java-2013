@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.Commands.Command;
-
 public class Shell {
     public ShellState curState = new ShellState();
     private HashMap<String, Command> cmds = new HashMap<String, Command>();
@@ -29,7 +27,11 @@ public class Shell {
             String[] result = {};
             return result;
         } else {
-            return command.substring(spaceEntry + 1).split("\\s+");
+            String [] res = command.substring(spaceEntry + 1).trim().split("\\s+");
+            for (int i = 0; i < res.length; i++) {
+                res[i].trim();
+            }
+            return res;
         }
     }
 
@@ -38,15 +40,16 @@ public class Shell {
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
             System.err.println("Unknown command");
+            System.getProperty("line.separator");
             return false;
         }
         try {
             cmds.get(commandName).exec(params, curState);
         } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error: illegal arguments");
             return false;
         } catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error with input/output");
             return false;
         }
         return true;
@@ -59,7 +62,9 @@ public class Shell {
             while (scan.hasNextLine()) {
                 String input = new String();
                 input = scan.nextLine();
-                processCommand(input);
+                if (!processCommand(input)) {
+                    System.getProperty("line.separator");
+                }
                 System.out.print("$ ");
             }
             scan.close();

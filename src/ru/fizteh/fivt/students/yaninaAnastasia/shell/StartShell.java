@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.Commands.*;
-
 import java.util.ArrayList;
 
 public class StartShell {

@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.yaninaAnastasia.shell.Commands;
-
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.ShellState;
+package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.*;
 import java.lang.System;
@@ -43,20 +41,20 @@ public class CopyCommand extends Command {
                 Path relative = sourceParentPath.relativize(file);
                 Path destinationFile = destinationPath.resolve(relative);
                 if (Files.exists(destinationFile)) {
-                    throw new IOException(String.format("'%s': file already exists", destinationFile.toString()));
+                    throw new IOException("File already exists");
                 }
                 Files.copy(file, destinationFile);
-                return FileVisitResult.CONTINUE;  //To change body of implemented methods use File | Settings | File Templates.
+                return FileVisitResult.CONTINUE;
             }
 
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                return FileVisitResult.CONTINUE;  //To change body of implemented methods use File | Settings | File Templates.
+                return FileVisitResult.CONTINUE;
             }
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                return FileVisitResult.CONTINUE;  //To change body of implemented methods use File | Settings | File Templates.
+                return FileVisitResult.CONTINUE;
             }
         });
         return true;

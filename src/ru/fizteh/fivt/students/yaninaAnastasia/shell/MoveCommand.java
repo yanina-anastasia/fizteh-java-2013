@@ -1,11 +1,9 @@
-package ru.fizteh.fivt.students.yaninaAnastasia.shell.Commands;
-
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.ShellState;
+package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.System;
-import java.nio.file.CopyOption;
+import static java.nio.file.StandardCopyOption.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,8 +32,7 @@ public class MoveCommand extends Command {
             System.err.println("Error with moving files");
             return false;
         }
-        //source.renameTo(new File(destination + File.separator + source.getName()));
-        Files.move(sourcePath, destinationPath, CopyOption);
+        Files.move(sourcePath, destinationPath, REPLACE_EXISTING);
         return true;
     }
 
