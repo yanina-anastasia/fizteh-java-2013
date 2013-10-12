@@ -7,19 +7,6 @@ public class Shell {
 
     static File currentDir = new File(System.getProperty("user.dir"));
 
-    //вспомогательный метод, чтобы корректно закрывать filestream
-    private static void close(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Throwable e) {
-
-        }
-
-    }
-
     static boolean cd(String directory) {
         try {
             File newDir = new File(directory);
