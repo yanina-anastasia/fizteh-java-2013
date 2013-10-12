@@ -10,7 +10,6 @@ public class Shell {
             int status = commandsOperator.runCommand(command);
             if (status == 1) {
                 System.err.flush();
-                System.out.println("Process terminated");
                 return 1;
             }
         }
@@ -19,11 +18,11 @@ public class Shell {
 
     private static void interactiveMode(CommandsOperator commandsOperator) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print(" $ ");
+        System.out.print("$ ");
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             executeLine(line, commandsOperator);
-            System.out.print(" $ ");
+            System.out.print("$ ");
         }
     }
 

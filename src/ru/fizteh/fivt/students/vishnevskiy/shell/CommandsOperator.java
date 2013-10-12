@@ -7,33 +7,10 @@ import java.util.Arrays;
 import ru.fizteh.fivt.students.vishnevskiy.shell.сommands.*;
 
 public class CommandsOperator {
-//    private static final String COMMANDS_PATH = "ru.fizteh.fivt.students.vishnevskiy.shell.сommands.";
-//    private static final File COMMANDS_DIR = new File("./src/ru/fizteh/fivt/students/vishnevskiy/shell/сommands");
     private Map<String, Command> commandsTable = new HashMap<String, Command>();
     private FileSystemOperator fileSystemOperator;
 
     private void loadClasses() {
-//        File COMMANDS_DIR = new File(this.getClass().getClassLoader().getResource("commands").getPath());
-//        System.out.println(this.getClass().getResource());
-//        System.out.println(COMMANDS_DIR.getAbsolutePath());
-//        String[] commandsList = COMMANDS_DIR.list();
-//        for (String commandClass: commandsList) {
-//            try {
-//                    String className = COMMANDS_PATH + commandClass.split(".java")[0];
-//                    Class temp = this.getClass().getClassLoader().loadClass(className);
-//                    Command command = (Command) temp.newInstance();
-//                    commandsTable.put(command.getName(), command);
-//            } catch (ClassNotFoundException e) {
-//                System.err.println(e.getMessage());
-//                System.exit(1);
-//            } catch (IllegalAccessException e) {
-//                System.err.println(e.getMessage());
-//                System.exit(1);
-//            } catch (InstantiationException e) {
-//                System.err.println(e.getMessage());
-//                System.exit(1);
-//           }
-//        }
         Cd cd = new Cd();
         commandsTable.put(cd.getName(), cd);
         Cp cp = new Cp();
@@ -66,7 +43,6 @@ public class CommandsOperator {
             Command command = commandsTable.get(commandName);
             if (command == null) {
                 if (commandName.equals("")) {
-//                    throw new ShellException("Command expected");
                     return 0;
                 } else {
                     throw new ShellException(commandName + ": command not found");
