@@ -15,12 +15,16 @@ class RemoveCommand extends ExternalCommand {
                 if (f.isDirectory())  {
                     recursiveRemove(f);
                 } else {
-                    f.delete();
+                    if (!f.delete()) {
+                        throw new IllegalArgumentException("rm: unable to delete file.");
+                    }
                 }
             }
         }
 
-        file.delete();
+        if (!file.delete()) {
+            throw new IllegalArgumentException("rm: unable to delete file.");
+        }
     }
 
     public void execute(String[] args, Shell shell) {
