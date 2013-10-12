@@ -222,7 +222,7 @@ public class Shell {
     public int parseString(String s) {
         String[] comm = s.split(";");
         for (int i = 0; i < comm.length; i++) {
-            String[] strings = comm[i].split(" ");
+            String[] strings = comm[i].split("[ \\t\\r]");
             String name = "";
             ArrayList<String> args = new ArrayList<String>();
             boolean nameRead = false;
