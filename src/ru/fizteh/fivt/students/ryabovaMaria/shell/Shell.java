@@ -178,6 +178,8 @@ public class Shell {
         String[] commands = currentString.split("[ ]*;[ ]*");
         for (int i = 0; i < commands.length; ++i) {
             lexems = commands[i].split("[ ]+");
+            if (lexems.length == 0)
+                continue;
             String command = lexems[0];
             switch (command) {
                 case "cd":
@@ -205,7 +207,7 @@ public class Shell {
                     exit();
                     break;
                 case "":
-                    throw new Exception("Write something command.");
+                    break;
                 default:
                     throw new Exception("Bad command");
             }
@@ -216,13 +218,17 @@ public class Shell {
         String currentString;
         Scanner scan = new Scanner(System.in); 
         while (true) {
-            System.out.print(currentDir);
-            System.out.print("$ ");
-            currentString = scan.nextLine();
-            try {
-                processing(currentString);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
+            if (scan.hasNextLine()) {
+                System.out.print(currentDir);
+                System.out.print("$ ");
+                currentString = scan.nextLine();
+                try {
+                    processing(currentString);
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            } else {
+                exit();
             }
         }
     }
