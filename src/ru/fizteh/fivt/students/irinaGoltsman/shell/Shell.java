@@ -259,14 +259,32 @@ public class Shell {
                     System.out.print("$ ");
                     continue;
                 }
-                Code codeOfCommand = commandProcessing(command);
-                if (codeOfCommand == Code.SYSTEM_ERROR) {
-                    System.exit(1);
+                String[] commands = command.split(";");
+                if (commands.length == 0) {
+                    Code codeOfCommand = commandProcessing(command);
+                    if (codeOfCommand == Code.SYSTEM_ERROR) {
+                        System.exit(1);
+                    }
+                    if (codeOfCommand == Code.EXIT) {
+                        System.exit(0);
+                    }
+                    System.out.print("$ ");
+                } else {
+                    for (int i = 0; i < commands.length; i++) {
+                        String checkEmpty = commands[i].replaceAll(" ", "");
+                        if (checkEmpty.equals("")) {
+                            continue;
+                        }
+                        Code codeOfCommand = commandProcessing(commands[i]);
+                        if (codeOfCommand == Code.SYSTEM_ERROR || codeOfCommand == Code.ERROR) {
+                            System.exit(1);
+                        }
+                        if (codeOfCommand == Code.EXIT) {
+                            System.exit(0);
+                        }
+                    }
+                    System.out.print("$ ");
                 }
-                if (codeOfCommand == Code.EXIT) {
-                    System.exit(0);
-                }
-                System.out.print("$ ");
             }
         } else {   //Пакетный режим.
             StringBuilder str = new StringBuilder();
