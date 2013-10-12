@@ -24,7 +24,7 @@ public abstract class CommandSource {
 			String[] commandsSequence = line.split(";");
 			Collections.addAll(commandsStringsBuffer, commandsSequence);
 		}
-		Collections.addAll(commandArgumentsBuffer, commandsStringsBuffer.get(0).split(" "));
+		Collections.addAll(commandArgumentsBuffer, commandsStringsBuffer.get(0).trim().split("\\s+"));
 		commandsStringsBuffer.remove(0);
 
 		// removing white spaces
