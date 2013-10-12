@@ -213,7 +213,7 @@ public class Shell {
 
     //Обработка введённой команды.
     public static Code commandProcessing(String command) {
-        StringTokenizer st = new StringTokenizer(command, " ", false);
+        StringTokenizer st = new StringTokenizer(command, " \t", false);
         ArrayList<String> parts = new ArrayList<String>();
         while (st.hasMoreElements()) {
             String tmp = (String) st.nextElement();
@@ -254,6 +254,9 @@ public class Shell {
                 if (scan.hasNextLine()) {
                     command = scan.nextLine();
                 }
+                else {
+                    break;
+                }
                 String checkIsEmpty = command.replaceAll(" ", "");
                 checkIsEmpty = checkIsEmpty.replaceAll("\t", "");
                 if (checkIsEmpty.equals("")) {
@@ -261,13 +264,10 @@ public class Shell {
                     continue;
                 }
                 String[] commands = command.split(";");
-                if (commands.length == 0) {
+                if (commands.length == 1) {
                     Code codeOfCommand = commandProcessing(command);
                     if (codeOfCommand == Code.SYSTEM_ERROR) {
                         System.exit(1);
-                    }
-                    if (codeOfCommand == Code.EXIT) {
-                        System.exit(0);
                     }
                     System.out.print("$ ");
                 } else {
@@ -278,11 +278,8 @@ public class Shell {
                             continue;
                         }
                         Code codeOfCommand = commandProcessing(commands[i]);
-                        if (codeOfCommand == Code.SYSTEM_ERROR || codeOfCommand == Code.ERROR) {
+                        if (codeOfCommand == Code.SYSTEM_ERROR) {
                             System.exit(1);
-                        }
-                        if (codeOfCommand == Code.EXIT) {
-                            System.exit(0);
                         }
                     }
                     System.out.print("$ ");
