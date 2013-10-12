@@ -9,7 +9,7 @@ public class MkdirCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File newDir = new File(currentDirectory.getCurDir(), args[1]);
+        File newDir = new File(currentDirectory.getCurDir(), args[1]).getCanonicalFile();
         if (newDir.exists()) {
             throw new IOException("mkdir: Directory already exists");
         } else {
@@ -17,7 +17,8 @@ public class MkdirCommand implements Command {
         }
 
     }
+
     public int getArgsCount() {
-       return 1;
+        return 1;
     }
 }

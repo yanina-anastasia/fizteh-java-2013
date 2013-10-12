@@ -11,11 +11,11 @@ public class CpCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File source = new File(args[1]);
+        File source = new File(args[1]).getCanonicalFile();
         if (!source.isAbsolute()) {
             source = new File(currentDirectory.getCurDir(), args[1]);
         }
-        File destination = new File(args[2]);
+        File destination = new File(args[2]).getCanonicalFile();
         if (!destination.isAbsolute()) {
             destination = new File(currentDirectory.getCurDir(), args[2]);
         }
@@ -32,7 +32,7 @@ public class CpCommand implements Command {
                 if (destination.isDirectory()) {
                     File target = new File(destination, source.getName());
                     if (target.exists()) {
-                        throw new IOException("cp: " + source.getName() + "already exists in " + destination.getName());
+                        throw new IOException("cp: " + source.getName() + " already exists in " + destination.getName());
                     } else {
                         Files.copy(source.toPath(), target.toPath());
                     }
@@ -56,7 +56,7 @@ public class CpCommand implements Command {
     private void copyingRec(File src, File dest) throws IOException {
         File target = new File(dest, src.getName());
         if (target.exists()) {
-            throw new IOException("cp: " + src.getName() + "already exists in" + dest.getName());
+            throw new IOException("cp: " + src.getName() + " already exists in" + dest.getName());
         } else {
             if (src.isDirectory()) {
                 target.mkdir();

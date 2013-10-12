@@ -10,11 +10,11 @@ public class MvCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File source = new File(args[1]);
+        File source = new File(args[1]).getCanonicalFile();
         if (!source.isAbsolute()) {
             source = new File(currentDirectory.getCurDir(), args[1]);
         }
-        File destination = new File(args[2]);
+        File destination = new File(args[2]).getCanonicalFile();
         if (!destination.isAbsolute()) {
             destination = new File(currentDirectory.getCurDir(), args[2]);
         }

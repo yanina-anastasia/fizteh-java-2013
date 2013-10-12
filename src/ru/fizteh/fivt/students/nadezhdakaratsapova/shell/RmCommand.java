@@ -9,7 +9,7 @@ public class RmCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File src = new File(args[1]);
+        File src = new File(args[1]).getCanonicalFile();
         if (!src.isAbsolute()) {
             src = new File(currentDirectory.getCurDir(), args[1]);
         }
