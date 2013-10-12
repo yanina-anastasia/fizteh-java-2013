@@ -25,10 +25,10 @@ public class Shell {
         cmdMap.put("exit", new Command.Exit());
     }
     
-    public void execCommandStream(InputStream cmdStream, boolean doPrintPrompt) throws Exception {
+    public void execCommandStream(InputStream cmdStream, boolean isInteractiveMode) throws Exception {
         Scanner cmdReader = new Scanner(cmdStream);
         try {
-            maybePrintPrompt(doPrintPrompt);
+            maybePrintPrompt(isInteractiveMode);
             while (cmdReader.hasNextLine()) {
                 try {
                     String[] cmdList = cmdReader.nextLine().split(";");
@@ -39,9 +39,13 @@ public class Shell {
                         }
                     }
                 } catch (Exception e) {
-                    out.println(e.getMessage());
+                    if (isInteractiveMode) {
+                        out.println(e.getMessage());
+                    } else {
+                        throw e;
+                    }
                 }
-                maybePrintPrompt(doPrintPrompt);
+                maybePrintPrompt(isInteractiveMode);
             }
         } finally {
             cmdReader.close();
