@@ -253,8 +253,7 @@ public class Shell {
                 String command = "exit";
                 if (scan.hasNextLine()) {
                     command = scan.nextLine();
-                }
-                else {
+                } else {
                     break;
                 }
                 String checkIsEmpty = command.replaceAll(" ", "");
