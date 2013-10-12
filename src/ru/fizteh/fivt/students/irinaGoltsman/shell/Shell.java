@@ -242,7 +242,9 @@ public class Shell {
             System.out.print("$ ");
             while (true) {
                 Scanner scan = new Scanner(System.in);
-                String command = scan.nextLine();
+                String command = "exit";
+                if (scan.hasNext())
+                    command = scan.nextLine();
                 if (command.length() == 0) {
                     continue;
                 }
