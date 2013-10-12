@@ -57,8 +57,11 @@ public class Copy {
         if (destination.equals(Main.getCurrentDirectory())) {
             throw new IOException("cp: can't copy file " + source);
         }
-        if ((new File(source).isFile()) && (new File(destination).isDirectory())) {
+        if (new File(source).isFile()) {
             String fileName = (new File(source)).getName();
+            if (!(new File(destination)).exists()) {
+                Mkdir.makeDir(" " + destination, 0);
+            }
             File newFile = new File(destination + File.separator + fileName);
             try {
                 newFile.createNewFile();
@@ -73,7 +76,14 @@ public class Copy {
     }
 
     private static boolean isFolderToFolder(String source, String destination) throws IOException {
-        if ((new File(source).isDirectory()) && (new File(destination).isDirectory())) {
+        if (new File(source).isDirectory()) {
+            String fileName = (new File(source)).getName();
+            if (!(new File(destination)).exists()) {
+                Mkdir.makeDir(" " + destination, 0);
+            }
+            if (destination.contains(source)) {    // if parent into child
+                throw new IOException("cp: can't copy " + source);
+            }
             try {
                 recursionCopy(new File(source), new File(destination));
             } catch (IOException e){
@@ -107,16 +117,15 @@ public class Copy {
         if (isFileToFile(source, destination) && !checked) {
             throw new IOException("cp: can't copy file " + source);
         }
+        if (isFolderToFile(source, destination) && !checked) {
+            throw new IOException("cp: can't copy file " + source);
+        }
         if (isFileToFolder(source, destination) && !checked) {
             error = false;
             checked = true;
         }
         if (isFolderToFolder(source, destination) && !checked) {
             error = false;
-            checked = true;
-        }
-        if (isFolderToFile(source, destination) && !checked) {
-            throw new IOException("cp: can't copy file " + source);
         }
         if (error) {
             throw new IOException("cp: can't copy file " + source);

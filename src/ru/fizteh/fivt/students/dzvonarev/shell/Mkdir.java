@@ -10,7 +10,7 @@ public class Mkdir {
         if (newSpaceIndex != -1) {
             throw new IOException("Wrong parametres of mkdir");
         }
-        String folder = Main.getCurrentDirectory() + File.separator + expr.substring(spaceIndex + 1, expr.length());
+        String folder = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, expr.length()));
         File dir = new File(folder);
         if (!dir.mkdir()) {
             throw new IOException("mkdir: can't create " + expr.substring(spaceIndex + 1, expr.length()) + " folder");

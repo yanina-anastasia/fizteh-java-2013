@@ -40,6 +40,9 @@ public class Move {
         }
         String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, newSpaceIndex));
         String destination = DoCommand.getAbsPath(expr.substring(newSpaceIndex + 1, expr.length()));
+        if (destination.contains(source)) {    // if parent into child
+            throw new IOException("mv: can't move " + source);
+        }
         if (!isMoved(source, destination)) {
             throw new IOException("mv: can't move " + source);
         }

@@ -39,8 +39,13 @@ class Main {
         initCurrDirectory();
         invite();
         Scanner sc = new Scanner(System.in);
-        String input = sc.nextLine();
+        String input = sc.nextLine().trim();
         while (!input.equals("exit")) {
+            if (input.isEmpty()) {
+                invite();
+                input = sc.nextLine();
+                continue;
+            }
             String[] s = input.split(";");
             for (int i = 0; i < s.length; ++i) {
                 try {
