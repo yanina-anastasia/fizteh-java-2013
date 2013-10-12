@@ -79,8 +79,7 @@ public class Shell {
     private void mkDir(String str) {
         File currentFile = unionWithCurrentPath(str);
         if (currentFile.exists()) {
-            printError("mkdir: can't create a directory '" + str
-                    + "': such directory exists");
+            printError("mkdir: can't create a directory '" + str + "': such directory exists");
         } else if (!currentFile.mkdirs()) {
             printError("mkdir can't create a directory'" + str);
         }
@@ -102,8 +101,7 @@ public class Shell {
     private void rm(String str) {
         File currentFile = unionWithCurrentPath(str);
         if (!currentFile.exists()) {
-            printError("rm: cannot remove '" + str
-                    + "': No such file or directory");
+            printError("rm: cannot remove '" + str + "': No such file or directory");
         } else {
             deleteFiles(currentFile);
             currentFile.delete();
@@ -133,32 +131,33 @@ public class Shell {
     private void cp(String[] str) {
         File currentFile = unionWithCurrentPath(str[1]);
         File file = unionWithCurrentPath(str[2]);
-        File destinationFile = new File(str[2] + File.separator + str[1]);
-        if (!destinationFile.isAbsolute()) {
-            destinationFile = new File(currentPath + File.separator + str[2]
-                    + File.separator + str[1]);
-            try {
-                destinationFile = destinationFile.getCanonicalFile();
-            } catch (IOException exception) {
-                printError(destinationFile.toString());
-            }
-        }
+        File destinationFile = unionWithCurrentPath(str[2] + File.separator + str[1]);
         if (!currentFile.exists()) {
-            printError("cp: cannot copy: '" + str[1] + "': No such file");
-        } else if (!file.exists()) {
-            printError("cp: cannot copy: '" + str[2] + "': No such file");
+            printError("cp: cannot copy: '" + str[1] + "': No such file or Directory");
         } else {
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException exception) {
+                    printError("cp: cannot create a file '" + str[1] + "'");
+                }
+                file = unionWithCurrentPath(file.toString());
+            }
             try {
-                if (!checkIsRoot(currentFile, destinationFile)) {
-                    Files.copy(currentFile.toPath(), destinationFile.toPath(),
-                            StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING);
-                } else if (currentFile.isFile() && file.isFile()) {
-                    Files.copy(currentFile.toPath(), file.toPath(),
-                            StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING);
+                if (checkIsRoot(currentFile, destinationFile)) {
+                    printError("cp: cannot copy: '" + str[1] + "': It is a root or a parent of destination");
                 } else {
-                    printError("cp: cannot copy: '" + str[1] + "'It is a root");
+                    if (currentFile.getCanonicalPath().equals(file.getCanonicalPath())) {
+                        printError("cp: cannot copy: '" + str[1] + "': It is the same");
+                    } else {
+                        if (currentFile.isFile() && file.isFile()) {
+                            Files.copy(currentFile.toPath(), file.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                                    StandardCopyOption.REPLACE_EXISTING);
+                        } else {
+                            Files.copy(currentFile.toPath(), destinationFile.toPath(),
+                                    StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
                 }
             } catch (IOException exception) {
                 printError("cp: cannot copy '" + str[1] + "'");
@@ -170,19 +169,16 @@ public class Shell {
         File currentFile = unionWithCurrentPath(str[1]);
         File destinationFile = new File(str[2] + File.separator + str[1]);
         if (!destinationFile.isAbsolute()) {
-            destinationFile = new File(currentPath + File.separator + str[2]
-                    + File.separator + str[1]);
+            destinationFile = new File(currentPath + File.separator + str[2] + File.separator + str[1]);
         }
         File file = unionWithCurrentPath(str[2]);
         if (!currentFile.exists()) {
-            printError("mv: cannot move: '" + str[1]
-                    + "': No such file or directory");
+            printError("mv: cannot move: '" + str[1] + "': No such file or directory");
         } else if (!file.exists()) {
             destinationFile = file;
         }
         try {
-            Files.move(currentFile.toPath(), destinationFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(currentFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
             printError("cp: cannot move '" + str[1] + "'");
         }
@@ -256,8 +252,7 @@ public class Shell {
         Scanner scanner = new Scanner(newInput);
         scanner.useDelimiter("[ ]*;[ ]*");
         while (scanner.hasNext()) {
-            executeProcess(extractArgumentsFromInputString(scanner.next()
-                    .toString()));
+            executeProcess(extractArgumentsFromInputString(scanner.next().toString()));
         }
         scanner.close();
     }
@@ -266,18 +261,24 @@ public class Shell {
         System.out.print("$ ");
         String cur;
         Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter(System.lineSeparator());
-        while (scanner.hasNext()) {
-            cur = scanner.next().toString();
-            if (cur.equals("exit")) {
-                scanner.close();
-                System.exit(0);
-            } else {
-                if (!cur.equals("")) {
-                    executeProcess(extractArgumentsFromInputString(cur));
-                    System.out.print("$ ");
+        while (scanner.hasNextLine()) {
+            cur = scanner.nextLine();
+            Scanner scanner1 = new Scanner(cur);
+            scanner1.useDelimiter("[ ]*;[ ]*");
+            while (scanner1.hasNext()) {
+                String current = scanner1.next();
+                if (current.equals("exit")) {
+                    scanner.close();
+                    scanner1.close();
+                    return;
+                } else {
+                    if (!current.equals("")) {
+                        executeProcess(extractArgumentsFromInputString(current));
+                    }
                 }
             }
+            System.out.print("$ ");
+            scanner1.close();
         }
         scanner.close();
     }
