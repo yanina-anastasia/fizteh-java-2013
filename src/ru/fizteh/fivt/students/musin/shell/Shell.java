@@ -211,7 +211,15 @@ public class Shell {
                             path = Paths.get(currentDirectory.getCanonicalPath());
                             path = path.resolve(args.get(1));
                             File to = new File(path.toAbsolutePath().toString());
-                            FileSystemRoutine.copyDirectory(from, to);
+                            if (to.exists() && to.isDirectory())
+                            {
+                                to = to.toPath().resolve(from.getName()).toFile();
+                                FileSystemRoutine.copyDirectory(from, to);
+                            }
+                            else
+                            {
+                                FileSystemRoutine.copyDirectory(from, to);
+                            }
                         }
 
                     } catch (Exception e) {
@@ -251,8 +259,9 @@ public class Shell {
             boolean commandFound = false;
             for (int j = 0; j < commands.length; j++) {
                 if (commands[j].name.equals(name)) {
-                    if (commands[j].exec.execute(args) != 0)
+                    if (commands[j].exec.execute(args) != 0) {
                         return -1;
+                    }
                     commandFound = true;
                     break;
                 }
@@ -271,8 +280,9 @@ public class Shell {
             System.out.print("$ ");
             try {
                 String str = br.readLine();
-                if (parseString(str) != 0)
+                if (parseString(str) != 0) {
                     return -1;
+                }
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }

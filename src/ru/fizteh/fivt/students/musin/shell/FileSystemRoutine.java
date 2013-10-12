@@ -33,12 +33,14 @@ class FileSystemRoutine {
     }
 
     public static void getFileList(FileList fl) {
-        for (File f : fl.file.listFiles()) {
-            FileList files = new FileList();
-            files.file = f;
-            if (f.isDirectory())
-                getFileList(files);
-            fl.list.add(files);
+        if (fl.file.isDirectory()) {
+            for (File f : fl.file.listFiles()) {
+                FileList files = new FileList();
+                files.file = f;
+                if (f.isDirectory())
+                    getFileList(files);
+                fl.list.add(files);
+            }
         }
     }
 
