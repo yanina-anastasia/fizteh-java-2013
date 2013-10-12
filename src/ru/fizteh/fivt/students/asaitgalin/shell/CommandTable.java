@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.asaitgalin.shell;
 
-import ru.fizteh.fivt.students.asaitgalin.shell.commands.Command;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
