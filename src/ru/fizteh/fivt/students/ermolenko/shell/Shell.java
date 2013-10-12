@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Shell {
 
@@ -23,7 +24,7 @@ public class Shell {
         state.setPath(inState);
     }
 
-    public void batchState(Shell shell, String args[]) throws IOException {
+    public void batchState(Shell shell, String[] args) throws IOException {
         StringBuilder tmp = new StringBuilder();
 
         //слили все слова в одну строку
@@ -50,4 +51,26 @@ public class Shell {
         }
     }
 
+    public void interactiveState() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        Execurtor exec = new Execurtor();
+        String input;
+        String[] cmd;
+        while (true) {
+            System.out.print(state.getPath().toString() + "$ ");
+            cmd = scanner.nextLine().trim().split("\\;");
+            try {
+                for (int i = 0; i < cmd.length; ++i) {
+                    if (!cmd[i].equals("exit")) {
+                        exec.execute(this, cmd[i]);
+                    } else {
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
+        }
+    }
 }
