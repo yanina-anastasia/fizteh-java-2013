@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.asaitgalin.filemap;
+package ru.fizteh.fivt.students.asaitgalin.filemap.Commands;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;

@@ -9,7 +9,7 @@ import java.util.Map;
 public class SingleFileTable implements Table {
     private Map<String, String> table = new HashMap<>(15);
 
-    public void addEntries(FileSerializer loader) throws IOException {
+    public void addEntries(TableEntryReader loader) throws IOException {
         while (loader.hasNextEntry()) {
             loader.readNextEntry(table);
         }

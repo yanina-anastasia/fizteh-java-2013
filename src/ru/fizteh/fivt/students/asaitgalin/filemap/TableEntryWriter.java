@@ -1,5 +1,5 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
-public class FileDeserializer {
+public class TableEntryWriter {
     private
 }

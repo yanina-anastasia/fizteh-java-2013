@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FileSerializer {
+public class TableEntryReader {
     private RandomAccessFile stream;
     private boolean isStreamValid;
     private long firstValueOffset = -1;
@@ -17,7 +17,7 @@ public class FileSerializer {
     private String nextKey;
     private long nextValueOffset;
 
-    public FileSerializer(String name) throws IOException {
+    public TableEntryReader(String name) throws IOException {
         stream = new RandomAccessFile(name, "rw");
         isStreamValid = true;
         readNext();

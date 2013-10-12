@@ -1,5 +1,9 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
+import ru.fizteh.fivt.students.asaitgalin.filemap.Commands.ExitCommand;
+import ru.fizteh.fivt.students.asaitgalin.filemap.Commands.GetCommand;
+import ru.fizteh.fivt.students.asaitgalin.filemap.Commands.PutCommand;
+import ru.fizteh.fivt.students.asaitgalin.filemap.Commands.RemoveCommand;
 import ru.fizteh.fivt.students.asaitgalin.shell.CommandTable;
 import ru.fizteh.fivt.students.asaitgalin.shell.ShellUtils;
 
@@ -10,9 +14,9 @@ public class Main {
     public static void main(String[] args) {
         CommandTable table = new CommandTable();
         ShellUtils shellUtils = new ShellUtils(table);
-        FileSerializer loader = null;
+        TableEntryReader loader = null;
         try {
-            loader = new FileSerializer(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
+            loader = new TableEntryReader(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
         } catch (IOException ioe) {
             System.err.println("Internal filesystem error");
             System.exit(-1);
