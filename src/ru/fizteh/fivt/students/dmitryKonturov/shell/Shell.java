@@ -1,10 +1,7 @@
 package ru.fizteh.fivt.students.dmitryKonturov.shell;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -49,7 +46,7 @@ class MyShell {
     private File currentDir;
 
     MyShell() {
-        currentDir = new File(".");
+        currentDir = new File(System.getProperty("user.dir"));
     }
 
     private String pathAppend(String path) {
@@ -113,15 +110,15 @@ class MyShell {
         } catch (ShellException se) {
             throw se;
         } catch (Exception e) {
-            throw new ShellException("mkdir", e.getMessage());
+            throw new ShellException("pwd", e.getMessage());
         }
     }
 
     private void remove(String[] args) throws ShellException {
         try {
             checkArgsAmount("rm", args.length, 1);
-            Path pathToRemove = currentDir.toPath().resolve(args[0]);
-            if (currentDir.toPath().startsWith(pathToRemove)) {
+            Path pathToRemove = currentDir.toPath().resolve(args[0]).normalize();
+            if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
                 throw new ShellException("rm", String.format("\'%s\': Cannot be removed: "
                                                            + "Firstly leave this directory", args[0]));
             }
@@ -137,21 +134,26 @@ class MyShell {
                         toRemove[0] = file.getPath();
                         remove(toRemove);
                     } catch (Exception e) {
-                        System.err.println(String.format("rm: \'%s\' : File cannot be removed ",
-                                                        file.getCanonicalPath()));
-                        return;
+                        throw new ShellException("rm", String.format("\'%s\' : File cannot be removed: %s ",
+                                                        file.getCanonicalPath(), e.getMessage()));
                     }
                 }
             }
-
-            if (!fileToRemove.delete()) {
-                System.err.println(String.format("rm: \'%s\' : File cannot be removed ",
-                                                fileToRemove.getCanonicalPath()));
+            try {
+                if (!Files.deleteIfExists(pathToRemove)) {
+                    throw new ShellException("rm", String.format("\'%s\' : File cannot be removed ",
+                                                    fileToRemove.getCanonicalPath()));
+                }
+            } catch (DirectoryNotEmptyException e) {
+                throw new ShellException("rm", String.format("\'%s\' : Directory not empty",
+                                                            fileToRemove.getCanonicalPath()));
             }
         } catch (ShellException se) {
             throw se;
+        } catch (AccessDeniedException e) {
+            throw new ShellException("rm", "Access denied");
         } catch (Exception e) {
-            throw new ShellException("mkdir", e.getMessage());
+            throw new ShellException("rm", e.getMessage());
         }
     }
 
@@ -176,15 +178,15 @@ class MyShell {
 
         try {
             Path curDir = Paths.get(currentDir.getCanonicalPath());
-            Path sourcePath = curDir.resolve(source);
-            Path destinationPath = curDir.resolve(destination);
+            Path sourcePath = curDir.resolve(source).normalize();
+            Path destinationPath = curDir.resolve(destination).normalize();
 
             if (!Files.exists(sourcePath)) {
                 throw new ShellException(commandName, String.format("%s file not exist", source));
             }
 
             if (Files.isDirectory(destinationPath)) {
-                destinationPath = destinationPath.resolve(sourcePath.getFileName());
+                destinationPath = destinationPath.resolve(sourcePath.getFileName()).normalize();
             } else {
                 if (Files.isDirectory(sourcePath) && Files.exists(destinationPath)) {
                     throw new ShellException(commandName, "Cannot copy/move directory to the "
@@ -192,12 +194,13 @@ class MyShell {
                 }
             }
 
-            if (sourcePath.normalize().equals(destinationPath.normalize())) {
+            if (sourcePath.equals(destinationPath)) {
                 throw new ShellException(commandName, "The same file");
             }
 
             if (destinationPath.startsWith(sourcePath)) {
-                throw new ShellException(commandName, "Cannot move/copy file: cycle copy");
+                throw new ShellException(commandName, String.format("Cannot move/copy file: cycle copy: %s -> %s",
+                                                        sourcePath.toString(), destinationPath.toString()));
             }
 
             if (toMove) {
@@ -210,7 +213,9 @@ class MyShell {
             if (sourceEntries != null) {
                 for (File entry : sourceEntries) {
                     String name = entry.getName();
-                    copy(sourcePath.resolve(name).toString(), destinationPath.resolve(name).toString(), toMove);
+                    copy(sourcePath.resolve(name).normalize().toString(),
+                         destinationPath.resolve(name).normalize().toString(),
+                         toMove);
                 }
             }
         } catch (ShellException se) {
@@ -264,6 +269,7 @@ class MyShell {
                 break;
 
             case "exit"     :
+                System.out.println();
                 System.exit(0);
                 break;
 
@@ -285,11 +291,8 @@ class MyShell {
     public void interactiveMode() {
         Scanner scanner = new Scanner(System.in);
         String greeting;
+
         try {
-            if (!currentDir.exists()) {
-                System.err.println("Writing directory does not exist: Return to default.");
-                currentDir = new File(".");
-            }
             greeting = currentDir.getCanonicalPath() + "$ ";
         } catch (Exception e) {
             greeting = "$ ";
@@ -309,9 +312,9 @@ class MyShell {
                 System.out.println(e);
             }
             try {
-                if (!currentDir.exists()) {
+                if (!Files.isDirectory(currentDir.toPath())) {
                     System.err.println("Writing directory does not exist: Return to default.");
-                    currentDir = new File(".");
+                    currentDir = new File(System.getProperty("user.dir"));
                 }
                 greeting = currentDir.getCanonicalPath() + "$ ";
             } catch (Exception e) {
