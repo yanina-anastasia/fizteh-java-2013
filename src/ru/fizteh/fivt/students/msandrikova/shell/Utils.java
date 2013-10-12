@@ -77,6 +77,26 @@ public class Utils {
 		return true;
 	}
 	
+	public static boolean copyDirectoriesInSameDirectory (File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
+		try {
+			if(!destination.mkdirs()) {
+				Utils.generateAnError("Directory with name \"" + destination.getCanonicalPath() 
+						+ "\" can not be created in directory \"" + destination.getParentFile().getCanonicalPath() + "\"", commandName, isInteractive);
+				return false;
+			}
+		} catch (SecurityException e) {
+			Utils.generateAnError("Directory with name \"" + filePath.getName() 
+					+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
+			return false;
+		}
+		File[] listOfFiles;
+		listOfFiles = filePath.listFiles();
+		for(File nextFile : listOfFiles) {
+			copying(nextFile, destination, commandName, isInteractive);
+		}
+		return true;
+	}
+	
 	public static boolean remover(File filePath, String commandName, boolean isInteractive) throws IOException {
 		if(!filePath.exists()) {
 			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" does not exist", commandName, isInteractive);
