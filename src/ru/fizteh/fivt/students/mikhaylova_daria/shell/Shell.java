@@ -280,7 +280,7 @@ public class Shell {
             arg2 = currentDirectory.toPath().normalize().resolve(arg2.toPath()).normalize().toFile();
         }
         if (!arg1.toPath().toAbsolutePath().toFile().exists()) {
-             throw new Exception("File source not found");
+            throw new Exception("File source not found");
         }
         if (!arg2.toPath().toAbsolutePath().toFile().exists()) {
             Files.createFile(arg2.toPath().toAbsolutePath());
@@ -333,7 +333,7 @@ public class Shell {
     }
 
     private static void move(String source, String destination) throws Exception {
-            copy(source, destination);
-            remove(source);
+        copy(source, destination);
+        remove(source);
     }
 }
