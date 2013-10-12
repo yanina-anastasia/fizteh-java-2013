@@ -18,8 +18,8 @@ public class Shell<State> {
         this.args = args;
     }
 
-    public void start() throws IOException {
-        if (args != null && args.length == 0) {
+    public void start() {
+        if (args == null || args.length == 0) {
             startInteractive();
         } else {
             packageMode();
@@ -36,7 +36,7 @@ public class Shell<State> {
         }
     }
 
-    private void startInteractive() throws IOException {
+    private void startInteractive() {
         Scanner scanner = new Scanner(System.in);
         printPrompt();
         while (scanner.hasNext()) {
