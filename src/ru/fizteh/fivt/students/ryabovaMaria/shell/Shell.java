@@ -129,7 +129,15 @@ public class Shell {
         sourcePath = currentPath.resolve(sourcePath).normalize();
         File destName = new File(lexems[2]);
         Path destPath = currentPath.resolve(destName.toPath()).normalize();
-        myCopy(false, sourcePath, destPath);
+        if (currentDir.toPath().startsWith(sourcePath)) {
+            throw new Exception("cp: I can't copy this.");
+        } else {
+            if (destPath.startsWith(sourcePath)) {
+                throw new Exception("cp: there is a cyclic copying.");
+            } else {
+                myCopy(false, sourcePath, destPath);
+            }
+        }
     }
         
     public static void mv() throws Exception {
@@ -148,7 +156,11 @@ public class Shell {
         if (currentDir.toPath().startsWith(sourcePath)) {
             throw new Exception("mv: I can't remove this.");
         } else {
-            myCopy(true, sourcePath, destPath);
+            if (destPath.startsWith(sourcePath)) {
+                throw new Exception("mv: there is a cyclic removeing.");
+            } else {
+                myCopy(true, sourcePath, destPath);
+            }
         }
     }
         
@@ -196,6 +208,8 @@ public class Shell {
                 case "exit":
                     exit();
                     break;
+                case "":
+                    throw new Exception("Write something command.");
                 default:
                     throw new Exception("Bad command");
             }
