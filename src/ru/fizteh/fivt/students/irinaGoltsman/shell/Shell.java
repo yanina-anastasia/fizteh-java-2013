@@ -253,9 +253,10 @@ public class Shell {
                 String command = "exit";
                 if (scan.hasNextLine()) {
                     command = scan.nextLine();
-                    System.out.print("$ ");
                 }
-                if (command.length() == 0) {
+                String checkIsEmpty = command.replaceAll(" ", "");
+                if (checkIsEmpty.equals("")) {
+                    System.out.print("$ ");
                     continue;
                 }
                 Code codeOfCommand = commandProcessing(command);
@@ -265,6 +266,7 @@ public class Shell {
                 if (codeOfCommand == Code.EXIT) {
                     System.exit(0);
                 }
+                System.out.print("$ ");
             }
         } else {   //Пакетный режим.
             StringBuilder str = new StringBuilder();
@@ -275,6 +277,10 @@ public class Shell {
             String input = str.toString();
             String[] commands = input.split(";");
             for (int i = 0; i < commands.length; i++) {
+                String checkIsEmpty = commands[i].replaceAll(" ", "");
+                if (checkIsEmpty.equals("")) {
+                    continue;
+                }
                 Code codeOfCommand = commandProcessing(commands[i]);
                 if (codeOfCommand == Code.SYSTEM_ERROR || codeOfCommand == Code.ERROR) {
                     System.exit(1);
