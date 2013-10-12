@@ -24,15 +24,15 @@ public class MoveCommand extends Command {
             destinationPath = Paths.get(curState.workingDirectory).resolve(destinationPath);
         }
         File destination = destinationPath.normalize().toFile();
-        if ((!source.isDirectory()) || (!destination.isDirectory())) {
-            System.err.println("It is not a directory");
+        if (!destination.isDirectory()) {
+            System.err.println("Destination is not a directory");
             return false;
         }
         if ((!source.exists()) || (!destination.exists())) {
             System.err.println("Error with moving files");
             return false;
         }
-        Files.move(sourcePath, destinationPath, REPLACE_EXISTING);
+        Files.move(source.toPath(), destination.toPath(), REPLACE_EXISTING);
         return true;
     }
 
