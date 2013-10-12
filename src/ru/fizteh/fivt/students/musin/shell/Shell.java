@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.musin.shell;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 /**
@@ -255,10 +253,11 @@ public class Shell {
                 if (commands[j].name.equals(name)) {
                     if (commands[j].exec.execute(args) != 0)
                         return -1;
+                    commandFound = true;
                     break;
                 }
             }
-            if (!commandFound) {
+            if (!commandFound && !name.equals("")) {
                 System.err.printf("No such command %s\n", name);
                 return -1;
             }
