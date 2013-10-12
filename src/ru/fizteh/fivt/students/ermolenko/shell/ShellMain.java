@@ -11,7 +11,9 @@ public class ShellMain {
         if (args.length != 0) {
             //в args лежат слова разделенные пробелами
             shell.batchState(shell, args);
-        } else System.out.println("Nothing to execute");
+        } else {
+            shell.interactiveState();
+        }
         System.exit(0);
     }
 }
