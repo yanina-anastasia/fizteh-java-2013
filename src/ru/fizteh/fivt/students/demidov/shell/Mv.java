@@ -14,8 +14,10 @@ public class Mv implements BasicCommand {
 		}
 		
 		if (source.isFile() && destination.isFile() && source.getParent().equals(destination.getParent())) {
-			(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 1, 2));
-			
+			if (destination.exists()) {
+				throw new IOException("file " + destination.getPath() + " already exists");
+			}
+				
 			if (!source.renameTo(destination)) {
 				throw new IOException("unable to move" + source.getPath() + " to " + destination.getPath());
 			}

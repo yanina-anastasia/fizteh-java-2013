@@ -6,6 +6,8 @@ import java.util.Scanner;
 import java.util.Arrays;
 
 public class Shell {
+	private Shell() {}
+	
 	private static String currentDirectory = System.getProperty("user.dir");
 	
 	public static String getCurrentDirectory() {
@@ -98,8 +100,7 @@ public class Shell {
 				break;
 			case "exit":
 				exeCommand = new Exit();
-				break;
-				
+				break;				
 		}
 		
 		if (null == exeCommand) {

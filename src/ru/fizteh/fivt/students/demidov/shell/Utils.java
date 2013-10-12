@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Utils {
+	private Utils() {}
+
 	public static File getFile(String fileName) throws IOException {
 		File resultFile = new File(fileName);
 
@@ -18,6 +20,10 @@ public class Utils {
 	}
 	
 	public static void copy(File source, File destination) throws IOException {
+		if (destination.exists()) {
+			throw new IOException("file " + destination.getPath() + " already exists");
+		}
+		
         FileChannel sourceChannel = new FileInputStream(source.getPath()).getChannel();
 	    FileChannel destinationChannel = new FileOutputStream(destination.getPath()).getChannel();
 	    
@@ -30,10 +36,6 @@ public class Utils {
 	public static void copyFileOrDirectory(File source, File destination) throws IOException {
 		if (destination.isFile() && !(source.isFile())) {
 			throw new IOException("unable to copy directory " + source.getPath() + " to file " + destination.getPath());
-		}
-		
-		if (source.getPath().equals(destination.getPath())) {
-			return;
 		}
 		
 		if (source.isFile() && destination.isDirectory()) {
