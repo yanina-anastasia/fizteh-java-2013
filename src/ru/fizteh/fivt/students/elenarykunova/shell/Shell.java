@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Shell {
 
     public enum ExitCode {
-        OK,
+        OK, 
         EXIT, 
         ERR;
     }
@@ -79,11 +79,20 @@ public class Shell {
                     + "': doesn't exist");
             return ExitCode.ERR;
         }
+
         if (!dest.exists()) {
-            System.err.println(cmd + ": '" + dest.getAbsolutePath()
-                    + "': doesn't exist");
-            return ExitCode.ERR;
+            if (!dest.getParentFile().exists()) {
+                if (!dest.getParentFile().mkdirs()) {
+                    System.err.println(cmd + "can't create: '" + dest.getAbsolutePath());                    
+                }
+            }
+            try {
+                dest.createNewFile();
+            } catch (IOException e) {
+                System.err.println(cmd + "can't create: '" + dest.getAbsolutePath());
+            }
         }
+            
         if (source.isDirectory() && !dest.isDirectory()) {
             System.err.println(cmd + ": '" + dest.getAbsolutePath()
                     + "' isn't a directory");
@@ -100,7 +109,7 @@ public class Shell {
                 return ExitCode.ERR;
             }
         }
-        
+
         boolean finish = false;
         for (File par = dest; !finish; par = par.getParentFile()) {
             if (par.equals(source)) {
@@ -115,7 +124,7 @@ public class Shell {
                 break;
             }
         }
-        
+
         if (source.getParent().equals(dest)) {
             // It's the same directory, nothing to do there.
             return ExitCode.OK;
@@ -309,8 +318,7 @@ public class Shell {
     private static ExitCode analyze(String input) {
         String[] arg = getArguments(input);
         if (arg == null || arg.length == 0) {
-            System.err.println("No command found");
-            return ExitCode.ERR;
+            return ExitCode.OK;
         }
 
         switch (arg[0]) {
@@ -398,9 +406,13 @@ public class Shell {
             Scanner input = new Scanner(arguments.toString());
             input.useDelimiter(";");
             boolean isOk = true;
+            ExitCode result;
             while (input.hasNext()) {
-                if (analyze(input.next()) != ExitCode.OK) {
-                    isOk = false;
+                result = analyze(input.next());
+                if (result != ExitCode.OK) {
+                    if (result == ExitCode.ERR) {
+                        isOk = false;
+                    }
                     break;
                 }
             }
