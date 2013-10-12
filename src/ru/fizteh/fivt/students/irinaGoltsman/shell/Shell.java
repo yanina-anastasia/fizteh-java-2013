@@ -243,8 +243,9 @@ public class Shell {
             while (true) {
                 Scanner scan = new Scanner(System.in);
                 String command = "exit";
-                if (scan.hasNext())
+                if (scan.hasNext()) {
                     command = scan.nextLine();
+                }
                 if (command.length() == 0) {
                     continue;
                 }
@@ -256,16 +257,14 @@ public class Shell {
                     System.exit(0);
                 }
             }
-        }
-        //Пакетный режим.
-        else {
+        } else {   //Пакетный режим.
             StringBuilder str = new StringBuilder();
             for (int i = 0; i < args.length; i++) {
                 str.append(args[i]);
                 str.append(" ");
             }
             String input = str.toString();
-            String commands[] = input.split(";");
+            String[] commands = input.split(";");
             for (int i = 0; i < commands.length; i++) {
                 Code codeOfCommand = commandProcessing(commands[i]);
                 if (codeOfCommand == Code.SYSTEM_ERROR || codeOfCommand == Code.ERROR) {
