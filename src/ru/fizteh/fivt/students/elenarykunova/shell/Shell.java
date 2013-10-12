@@ -98,8 +98,9 @@ public class Shell {
                 return ExitCode.ERR;
             }
         }
-
-        for (File par = dest; !isRoot(par); par = par.getParentFile()) {
+        
+        boolean finish = false;
+        for (File par = dest; !finish; par = par.getParentFile()) {
             if (par.equals(source)) {
                 System.err.println(cmd + ": can't copy from '"
                         + source.getAbsolutePath() + "' to '"
@@ -107,9 +108,13 @@ public class Shell {
                         + "' because of recursive call");
                 return ExitCode.ERR;
             }
+            if (isRoot(par)) {
+                finish = true;
+                break;
+            }
         }
-
-        if (source.getParent() == null || source.getParent().equals(dest)) {
+        
+        if (source.getParent().equals(dest)) {
             // It's the same directory, nothing to do there.
             return ExitCode.OK;
         }
@@ -287,7 +292,7 @@ public class Shell {
     }
 
     private static String[] getArguments(String input) {
-        input.trim();
+        input = input.trim();
         if (input.isEmpty()) {
             return null;
         }
