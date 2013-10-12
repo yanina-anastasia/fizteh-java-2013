@@ -15,6 +15,10 @@ public class SingleFileTable implements Table {
         }
     }
 
+    public void saveEntries(TableEntryWriter writer) throws IOException {
+        writer.writeEntries(table);
+    }
+
     @Override
     public String getName() {
         return null;
@@ -37,19 +41,19 @@ public class SingleFileTable implements Table {
 
     @Override
     public int size() {
-        // Not used in this realization
+        // Not used in this version
         return 0;
     }
 
     @Override
     public int commit() {
-        // Not used in this realization
+        // Not used in this version
         return 0;
     }
 
     @Override
     public int rollback() {
-        // Not used in this realization
+        // Not used in this version
         return 0;
     }
 

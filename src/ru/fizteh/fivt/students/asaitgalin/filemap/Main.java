@@ -15,8 +15,9 @@ public class Main {
         CommandTable table = new CommandTable();
         ShellUtils shellUtils = new ShellUtils(table);
         TableEntryReader loader = null;
+        String dbName = System.getProperty("fizteh.db.dir") + File.separator + "db.dat";
         try {
-            loader = new TableEntryReader(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
+            loader = new TableEntryReader(dbName);
         } catch (IOException ioe) {
             System.err.println("Internal filesystem error");
             System.exit(-1);
@@ -33,13 +34,15 @@ public class Main {
         table.appendCommand(new PutCommand(entryTable));
         table.appendCommand(new GetCommand(entryTable));
         table.appendCommand(new RemoveCommand(entryTable));
-        table.appendCommand(new ExitCommand());
+        table.appendCommand(new ExitCommand(entryTable, dbName));
 
         if (args.length == 0) {
             shellUtils.interactiveMode(System.in, System.out, System.err);
         } else {
             shellUtils.batchMode(args, System.err);
         }
+
+
 
     }
 }

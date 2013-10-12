@@ -35,6 +35,7 @@ public class TableEntryReader {
                 list.add(readByte);
                 readByte = stream.readByte();
             }
+
             nextKey = StringUtils.getStringFromArray(list, "UTF-8");
             nextValueOffset = stream.readInt();
 
