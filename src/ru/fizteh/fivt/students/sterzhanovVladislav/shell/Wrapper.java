@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 public class Wrapper {
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         try {
             Shell cmdShell = new Shell();
             if (args.length > 1) {

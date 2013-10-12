@@ -15,8 +15,8 @@ import java.util.EnumSet;
 
 public abstract class Command {
     protected Shell parentShell;
-    abstract public Command newCommand();
-    abstract public void innerExecute() throws Exception, IOException;
+    public abstract Command newCommand();
+    public abstract void innerExecute() throws Exception, IOException;
     
     private int argc;
     public String[] args;
@@ -66,7 +66,7 @@ public abstract class Command {
         Cd() {
             setArgc(2);
         }
-        Cd (String... args) {
+        Cd(String... args) {
             super(args);
             setArgc(2);
         }
@@ -88,7 +88,7 @@ public abstract class Command {
         Mkdir() {
             setArgc(2);
         }
-        Mkdir (String... args) {
+        Mkdir(String... args) {
             super(args);
             setArgc(2);
         }
@@ -106,7 +106,7 @@ public abstract class Command {
         Pwd() {
             setArgc(1);
         }
-        Pwd (String... args) {
+        Pwd(String... args) {
             super(args);
             setArgc(1);
         }
@@ -150,7 +150,7 @@ public abstract class Command {
         Rm() {
             setArgc(2);
         }
-        Rm (String... args) {
+        Rm(String... args) {
             super(args);
             setArgc(2);
         }
@@ -158,7 +158,7 @@ public abstract class Command {
     
     public static class Cp extends Command {
         @Override
-        public void innerExecute() throws Exception, IOException{
+        public void innerExecute() throws Exception, IOException {
             Path source = Paths.get(args[1]);
             Path destination = Paths.get(args[2]);
             source = parentShell.getAbsolutePath(source);
@@ -172,8 +172,8 @@ public abstract class Command {
                     throw new Exception("Source equals destination");
                 }
                 Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-            } else if (source.toFile().isDirectory() && 
-                    (destination.toFile().isDirectory() || !destination.toFile().exists())) {
+            } else if (source.toFile().isDirectory() 
+                    && (destination.toFile().isDirectory() || !destination.toFile().exists())) {
                 if (!destination.toFile().exists()) {
                     destination.toFile().mkdir();
                 }
@@ -210,10 +210,10 @@ public abstract class Command {
         public Command newCommand() {
             return new Cp();
         }
-        Cp () {
+        Cp() {
             setArgc(3);
         }
-        Cp (String... args) {
+        Cp(String... args) {
             super(args);
             setArgc(3);
         }
@@ -255,7 +255,7 @@ public abstract class Command {
         Dir() {
             setArgc(1);
         }
-        Dir (String... args) {
+        Dir(String... args) {
             super(args);
             setArgc(1);
         }
@@ -273,7 +273,7 @@ public abstract class Command {
         Exit() {
             setArgc(1);
         }
-        Exit (String... args) {
+        Exit(String... args) {
             super(args);
             setArgc(1);
         }
