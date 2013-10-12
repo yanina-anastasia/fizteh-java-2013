@@ -47,7 +47,14 @@ public class Shell {
     }
 
     private void processCommand(String cmd) throws IllegalArgumentException {
+        if (cmd == null) {
+            wasExit = true;
+            return;
+        }
         String[] parsedCommand = cmd.trim().split("\\s+");
+        if (parsedCommand == null) {
+            return;
+        }
         if (parsedCommand.length == 0) {
             return;
         }
@@ -61,7 +68,6 @@ public class Shell {
                 arguments.add(string);
             }
         }
-
         if (commandName.equals("")) {
             return;
         }

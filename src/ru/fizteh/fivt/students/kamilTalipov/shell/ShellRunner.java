@@ -18,6 +18,7 @@ public class ShellRunner {
                 shell.packageMode(args);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println(e.getMessage());
             System.exit(1);
         }

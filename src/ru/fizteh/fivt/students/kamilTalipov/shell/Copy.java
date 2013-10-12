@@ -33,6 +33,9 @@ public class Copy extends SimpleCommand {
             }
             destinationFile = new File(destinationFileName + File.separator + sourceFile.getName());
         }
+        if (sourceFile.equals(sourceFile)) {
+            throw new IllegalArgumentException("cp: cannot copy same file to file");
+        }
 
         if (sourceFile.isDirectory()) {
             copyDir(shell, sourceFile, destinationFile);
