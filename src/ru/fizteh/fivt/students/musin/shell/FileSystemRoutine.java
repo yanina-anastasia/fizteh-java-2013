@@ -2,7 +2,10 @@ package ru.fizteh.fivt.students.musin.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.CopyOption;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 class FileSystemRoutine {
@@ -20,9 +23,10 @@ class FileSystemRoutine {
             for (File f : file.listFiles()) {
                 deleteDirectoryOrFile(f);
             }
-            file.delete();
-        } else
-            file.delete();
+        }
+        if (!file.delete()) {
+            System.err.printf("rm: file '%s' can't be deleted\n");
+        }
     }
 
     public static void getFileList(FileList fl) {
@@ -30,8 +34,9 @@ class FileSystemRoutine {
             for (File f : fl.file.listFiles()) {
                 FileList files = new FileList();
                 files.file = f;
-                if (f.isDirectory())
+                if (f.isDirectory()) {
                     getFileList(files);
+                }
                 fl.list.add(files);
             }
         }
@@ -41,6 +46,7 @@ class FileSystemRoutine {
         try {
             Files.copy(Paths.get(fl.file.getCanonicalPath()), Paths.get(to.getCanonicalPath()), new CopyOption[0]);
         } catch (FileAlreadyExistsException e) {
+            //It Already there, no action needed
         }
         for (FileList list : fl.list) {
             File newDir = new File(to.getCanonicalPath() + "/" + list.file.getName());

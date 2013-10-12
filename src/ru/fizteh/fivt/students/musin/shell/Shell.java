@@ -1,23 +1,11 @@
 package ru.fizteh.fivt.students.musin.shell;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
-interface ShellExecutable {
-    public int execute(ArrayList<String> args);
-}
-
-class ShellCommand {
-    String name;
-    ShellExecutable exec;
-
-    public ShellCommand(String name, ShellExecutable exec) {
-        this.name = name;
-        this.exec = exec;
-    }
-}
 
 public class Shell {
 
@@ -276,13 +264,25 @@ public class Shell {
                 if (str == null) {
                     return 0;
                 }
-                if (parseString(str) != 0) {
-                    return -1;
-                }
+                parseString(str);
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
         }
         return 0;
+    }
+}
+
+interface ShellExecutable {
+    int execute(ArrayList<String> args);
+}
+
+class ShellCommand {
+    String name;
+    ShellExecutable exec;
+
+    public ShellCommand(String name, ShellExecutable exec) {
+        this.name = name;
+        this.exec = exec;
     }
 }
