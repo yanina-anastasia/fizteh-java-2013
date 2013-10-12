@@ -77,8 +77,9 @@ public class Shell extends UserShell {
 
     private static boolean isParent(File sourse, File dest) {
         try {
-            if (dest.getParentFile().getCanonicalPath().startsWith(sourse.getParentFile().getCanonicalPath())
-                    || dest.getCanonicalPath().equals(sourse.getCanonicalPath())) {
+            String destPath = dest.getParentFile().getCanonicalPath();
+            String soursePath = sourse.getCanonicalPath() + File.separator;
+            if (destPath.startsWith(soursePath)) {
                 return true;
             }
         } catch (IOException e) {
@@ -101,8 +102,12 @@ public class Shell extends UserShell {
                 if (isParent(currFile, destFile)) {
                     printError("cp: cannot copy: '" + args[1] + "': Sourse is parent of destination");
                 } else {
-                    Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING);
+                    if (currFile.getCanonicalPath().equals(tmpFile.getCanonicalPath())) {
+                        printError("cp: cannot copy: '" + args[1] + "': Sourse is the same as destination");
+                    } else {
+                        Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             } catch (IOException e1) {
                 printError("cp: cannot copy '" + args[1] + "'");
@@ -122,9 +127,18 @@ public class Shell extends UserShell {
                 destFile = tmpFile;
             }
             try {
-                Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if (isParent(currFile, destFile)) {
+                    printError("mv: cannot move: '" + args[1] + "': Sourse is parent of destination");
+                } else {
+                    if (currFile.getCanonicalPath().equals(tmpFile.getCanonicalPath())) {
+                        printError("mv: cannot move: '" + args[1] + "': Sourse is the same as destination");
+                    } else {
+                        Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
             } catch (IOException e1) {
-                printError("cp: cannot move '" + args[1] + "'");
+                printError("mv: cannot move '" + args[1] + "'");
             }
 
         }
