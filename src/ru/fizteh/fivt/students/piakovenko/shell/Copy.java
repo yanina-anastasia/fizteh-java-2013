@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,19 +23,18 @@ public class Copy implements Commands {
     }
 
 
-    public void perform(String args) throws MyException, IOException {
-        String[] array = args.trim().split("\\s+");
-        if (array.length != 2) {
+    public void perform(String[] array) throws MyException, IOException {
+        if (array.length != 3) {
             throw new MyException(new Exception("Wrong arguments! Usage ~ cp <source> <destination>"));
         }
         File from, to;
-        from = new File(array[0]);
+        from = new File(array[1]);
         if (!from.isAbsolute()) {
-            from = new File(currentStatus.getCurrentDirectory(), array[0]);
+            from = new File(currentStatus.getCurrentDirectory(), array[1]);
         }
-        to = new File(array[1]);
+        to = new File(array[2]);
         if (!to.isAbsolute()) {
-            to = new File(currentStatus.getCurrentDirectory() , array[1]);
+            to = new File(currentStatus.getCurrentDirectory() , array[2]);
         }
         if (!to.exists()) {
             if (to.getName().indexOf('.') == -1) {
@@ -56,7 +53,7 @@ public class Copy implements Commands {
         } else if (from.isDirectory()) {
             CopyFiles.copyRecursively(from, to);
         } else {
-            throw new MyException(new Exception("Error! " + array[0] + " should be a directory!"));
+            throw new MyException(new Exception("Error! " + array[1] + " should be a directory!"));
         }
     }
 }

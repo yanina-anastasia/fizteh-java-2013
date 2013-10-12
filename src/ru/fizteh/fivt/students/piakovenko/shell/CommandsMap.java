@@ -20,11 +20,15 @@ public class CommandsMap {
         }
     }
 
-    public void execute(String commandName, String arguments) throws MyException, IOException {
-        if (commands.containsKey(commandName)){
-            commands.get(commandName).perform(arguments);
-        } else {
-            throw new MyException(new Exception("No command with such name: " + commandName));
+    public void execute(String commandsString) throws MyException, IOException {
+        String[] commandsArray = commandsString.trim().split("\\s*;\\s*");
+        for (String command : commandsArray) {
+            String[] args = command.split("\\s+");
+            if (commands.containsKey(args[0])){
+                commands.get(args[0]).perform(args);
+            } else {
+                throw new MyException(new Exception("No command with such name: " + args[0]));
+            }
         }
     }
 

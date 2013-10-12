@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Shell {
@@ -26,13 +24,7 @@ public class Shell {
                 try {
                     System.out.print(currentStatus.getCurrentDirectory() + " $ ");
                     String s = sc.nextLine();
-                    int i = 0;
-                    s.trim();
-                    if (s.indexOf(' ') < 0) {
-                        cm.execute(s.substring(i), "");
-                    } else {
-                        cm.execute(s.substring(0,s.indexOf(' ')), s.substring(s.indexOf(' ')));
-                    }
+                    cm.execute(s);
                 } catch (MyException e){
                     System.err.println("Error! " + e.what());
                 } catch (IOException e) {
@@ -47,15 +39,7 @@ public class Shell {
                 sb.append(args[i] + ' ');
             }
             sb.append(args[args.length - 1]);
-            String[] commands = sb.toString().trim().split("\\s*;\\s*");
-            for (int i = 0; i < commands.length; ++i){
-                commands[i].trim();
-                if (commands[i].indexOf(' ') < 0) {
-                    cm.execute(commands[i], "");
-                } else {
-                    cm.execute(commands[i].substring(0,commands[i].indexOf(' ')), commands[i].substring(commands[i].indexOf(' ')));
-                }
-            }
+           cm.execute(sb.toString());
         } catch (MyException e) {
             System.err.println("Error! " + e.what());
             System.exit(1);

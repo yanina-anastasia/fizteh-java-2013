@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,13 +23,12 @@ public class MakeDirectory implements Commands {
     }
 
 
-    public void perform(String args) throws MyException, IOException {
-        String[] array = args.trim().split("\\s+");
-        if (array.length != 1) {
+    public void perform(String[] array) throws MyException, IOException {
+        if (array.length != 2) {
             throw new MyException(new Exception("Wrong arguments! Usage ~ mkdir <name of new directory>"));
         }
         File f;
-        f = new File(currentStatus.getCurrentDirectory(), array[0]);
+        f = new File(currentStatus.getCurrentDirectory(), array[1]);
         if (!f.mkdirs()){
             throw new MyException(new Exception("Unable to create this directory - " + f.getCanonicalPath()));
         }

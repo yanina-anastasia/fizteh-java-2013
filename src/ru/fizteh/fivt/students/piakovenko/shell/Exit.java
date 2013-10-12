@@ -20,8 +20,8 @@ public class Exit implements Commands {
     }
 
 
-    public void perform(String s) throws MyException {
-        if (!s.isEmpty()) {
+    public void perform(String[] s) throws MyException {
+        if (s.length != 1) {
             throw new MyException(new Exception("Wrong arguments! Usage ~ exit"));
         }
        System.exit(0);

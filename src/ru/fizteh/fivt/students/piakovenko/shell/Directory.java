@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,8 +22,8 @@ public class Directory implements Commands {
     }
 
 
-    public void perform(String args) throws MyException, IOException {
-        if (!args.isEmpty()) {
+    public void perform(String[] args) throws MyException, IOException {
+        if (args.length != 1) {
             throw new MyException(new Exception("Wrong arguments! Usage ~ dir"));
         }
         if (!currentStatus.getCurrentFile().isDirectory()) {

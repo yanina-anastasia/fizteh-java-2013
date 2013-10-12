@@ -10,6 +10,6 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public interface Commands {
-    public String getName ();
-    public void perform (String s) throws MyException, IOException;
+    public String getName();
+    public void perform(String[] s) throws MyException, IOException;
 }

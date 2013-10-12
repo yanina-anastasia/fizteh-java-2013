@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,14 +22,17 @@ public class Move implements Commands {
     }
 
 
-    public void perform(String args) throws MyException, IOException {
-        String[] array = args.trim().split("\\s+");
-        if (array.length != 2) {
+    public void perform(String[] array) throws MyException, IOException {
+        if (array.length != 3) {
             throw new MyException(new Exception("Wrong arguments! Usage mv <source> <destination>"));
         }
         Copy c = new Copy(currentStatus);
         Remove r = new Remove(currentStatus);
-        c.perform(array[0]+ ' '+ array[1]);
-        r.perform(array[0]);
+        String[] temp = new String[2];
+        for (int i =0; i < 2; ++i) {
+            temp[i] = array[i];
+        }
+        c.perform(array);
+        r.perform(temp);
     }
 }

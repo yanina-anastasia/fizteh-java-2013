@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,15 +38,17 @@ public class Remove implements Commands {
     }
 
 
-    public void perform(String args) throws MyException, IOException {
-        String[] array = args.trim().split("\\s+");
-        if (array.length != 1) {
+    public void perform(String[] array) throws MyException, IOException {
+        if (array.length != 2) {
             throw new MyException(new Exception("Wrong arguments! Usage ~ rm <removeDirectory>"));
         }
         File f;
-        f = new File(array[0]);
+        f = new File(array[1]);
         if (!f.isAbsolute()) {
-            f = new File(currentStatus.getCurrentDirectory(), array[0]);
+            f = new File(currentStatus.getCurrentDirectory(), array[1]);
+        }
+        if (f.getCanonicalPath().equals(currentStatus.getCurrentDirectory())) {
+            throw new MyException(new Exception("Trying to delete current directory!"));
         }
         if (!f.exists()) {
             throw new MyException(new Exception(f.getCanonicalPath() + " doesn't exist!"));
