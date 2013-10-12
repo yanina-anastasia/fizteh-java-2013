@@ -138,19 +138,20 @@ public class Shell {
                 System.err.print("Error in rm");
                 System.exit(1);
             }
-
-            for (File childFile : inputFile.listFiles()) {
-                if (childFile != null) {
-                    if (childFile.isDirectory()) {
-                        cdCommand(path);
-                        if (rmCommand(childFile.toString()) == Code.SYSTEM_ERROR) {
-                            return Code.SYSTEM_ERROR;
+            if (inputFile.isDirectory()) {
+                for (File childFile : inputFile.listFiles()) {
+                    if (childFile != null) {
+                        if (childFile.isDirectory()) {
+                            cdCommand(path);
+                            if (rmCommand(childFile.toString()) == Code.SYSTEM_ERROR) {
+                                return Code.SYSTEM_ERROR;
+                            }
+                            cdCommand("..");
                         }
-                        cdCommand("..");
-                    }
-                    if (!childFile.delete()) {
-                        System.err.println("rm: impossible to remove file '" + childFile.toString() + "'.");
-                        return Code.ERROR;
+                        if (!childFile.delete()) {
+                            System.err.println("rm: impossible to remove file '" + childFile.toString() + "'.");
+                            return Code.ERROR;
+                        }
                     }
                 }
             }
