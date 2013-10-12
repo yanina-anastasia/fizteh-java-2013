@@ -36,7 +36,12 @@ public class CommandCp implements Command {
 		}
 		File destination = new File(destinationAbsolutePath.toString());
 		if (!destination.exists()) {
-			throw new FileNotFoundException("cp: '" + args[1] + "': No such file or directory");
+			if (source.isFile()) {
+				Files.copy(sourceAbsolutePath, destinationAbsolutePath);
+			} else {
+				recursiveCopyFile(source, destinationAbsolutePath);
+			}
+			return;
 		}
 		if (sourceAbsolutePath.toString().equals(destinationAbsolutePath.toString())) {
 			if (source.isFile()) {
@@ -46,23 +51,22 @@ public class CommandCp implements Command {
 			}
 		}
 		if (source.isFile() && destination.isFile()) {
-			throw new IOException("cp: The file with name '" + args[1] + "' alresdy exists.");
+			throw new IOException("cp: The file with name '" + args[1] + "' already exists.");
 		} else if (source.isFile() && destination.isDirectory()) {
 			Files.copy(sourceAbsolutePath, destinationAbsolutePath.resolve(source.getName()));
 		} else if (source.isDirectory() && destination.isFile()) {
 			throw new IOException("cp: Can't overwrite file '" + args[1] + "' with directory '" + args[0] + "'.");
 		} else if (source.isDirectory() && destination.isDirectory()) {
-			recursiveCopyFile(source, destination);
+			recursiveCopyFile(source, destinationAbsolutePath.resolve(source.getName()));
 		}
 	}
 	
-	private void recursiveCopyFile(File source, File destination) throws IOException {
-		Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
+	private void recursiveCopyFile(File source, Path destination) throws IOException {
+		Files.copy(source.toPath(), destination);
 		if (source.isDirectory()) {
 			File[] sourceFileList = source.listFiles();
-			destination = new File(destination.toPath().resolve(source.getName()).toString());
 			for (File i : sourceFileList) {
-				recursiveCopyFile(i, destination);
+				recursiveCopyFile(i, destination.resolve(i.getName()));
 			}
 		}
 	}
