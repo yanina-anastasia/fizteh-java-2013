@@ -3,9 +3,22 @@ package ru.fizteh.fivt.students.mescherinilya.shell;
 
 import java.io.*;
 
-public class BadShell {
+public class Shell {
 
     static File currentDir = new File(System.getProperty("user.dir"));
+
+    //вспомогательный метод, чтобы корректно закрывать filestream
+    private static void close(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Throwable e) {
+
+        }
+
+    }
 
     static boolean cd(String directory) {
         try {
@@ -27,7 +40,6 @@ public class BadShell {
             return false;
         }
     }
-
 
     static boolean mkdir(String directory) {
         try {
@@ -103,7 +115,6 @@ public class BadShell {
 
     }
 
-
     static boolean copy(String file, String location) {
         try {
             File source = new File(file);
@@ -122,18 +133,24 @@ public class BadShell {
             }
 
             if (source.equals(destination)) {
-                System.err.println("Error: cannot copy file to itself");
+                System.err.println("Error: cannot copy file to itself.");
                 return false;
             }
 
             if (source.isDirectory()) {
-                if (!destination.isDirectory()) {
-                    destination.mkdir();
-                }
-
                 File newDestination = new File(destination + File.separator + source.getName());
-                if (!newDestination.exists()) {
-                    newDestination.mkdir();
+
+                if (!destination.isDirectory()) {
+                    if (!destination.mkdir()) {
+                        System.err.println("Error: couldn't make a new directory.");
+                        return false;
+                    }
+                    newDestination = destination;
+                } else if (!newDestination.exists()) {
+                    if (!newDestination.mkdir()) {
+                        System.err.println("Error: couldn't make a new directory.");
+                        return false;
+                    }
                 }
 
                 String[] entries = source.list();
@@ -143,28 +160,18 @@ public class BadShell {
                         return false;
                     }
                 }
-            }
-            else {
+            } else {
                 FileInputStream input = null;
                 FileOutputStream output = null;
                 try {
-                    try {
-                        input = new FileInputStream(source);
-                    } catch (Exception e) {
-                        System.err.println("Error: couldn't open the source file.");
-                        return false;
+                    input = new FileInputStream(source);
+
+                    if (destination.isDirectory()) {
+                        output = new FileOutputStream(destination + File.separator + source.getName());
+                    } else {
+                        output = new FileOutputStream(destination);
                     }
-                    try {
-                        if (destination.isDirectory()) {
-                            output = new FileOutputStream(destination + File.separator + source.getName());
-                        } else {
-                            output = new FileOutputStream(destination);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error: couldn't open the destination file.");
-                        input.close();
-                        return false;
-                    }
+
                     int count;
                     byte[] buf = new byte[16];
                     while (true) {
@@ -174,12 +181,28 @@ public class BadShell {
                         }
                         output.write(buf, 0, count);
                     }
+
+                } catch (Exception e) {
+                    System.err.println("A problem with reading from source file or writing to destination file");
+                    return false;
                 } finally {
-                    try {
-                        input.close();
-                    } finally {
-                        output.close();
+                    if (input != null) {
+                        try {
+                            input.close();
+                        } catch (Throwable e) {
+                            System.err.println("Couldn't close the source file after reading!");
+                            return false;
+                        }
                     }
+                    if (output != null) {
+                        try {
+                            output.close();
+                        } catch (Throwable e) {
+                            System.err.println("Couldn't close the destination file after writing!");
+                            return false;
+                        }
+                    }
+
                 }
             }
         } catch (Exception e) {
