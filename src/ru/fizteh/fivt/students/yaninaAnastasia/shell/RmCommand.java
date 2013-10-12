@@ -1,12 +1,8 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.ShellState;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.System;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class RmCommand extends Command {
     private void recRemove(File file) throws IOException {

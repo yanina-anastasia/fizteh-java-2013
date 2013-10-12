@@ -43,7 +43,7 @@ public class Shell {
         }
         Pattern p = Pattern.compile("\\s+");
         Matcher m = p.matcher(command);
-        if (m.matches() == true) {
+        if (m.matches()) {
             return true;
         }
         String commandName = getCommandName(command);
@@ -74,8 +74,11 @@ public class Shell {
             while (scan.hasNextLine()) {
                 String input = new String();
                 input = scan.nextLine();
-                if (!processCommand(input)) {
-                    System.getProperty("line.separator");
+                String[] commandArray = input.split(";");
+                for (final String command : commandArray) {
+                    if (!processCommand(command)) {
+                        System.getProperty("line.separator");
+                    }
                 }
                 System.out.print("$ ");
             }
@@ -91,7 +94,7 @@ public class Shell {
             expressionBuilder.append(" ");
         }
         String expression = expressionBuilder.toString();
-        String[] commandArray = expression.split("\\s*;\\s*");
+        String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
                 System.exit(1);

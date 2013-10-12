@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 import java.io.File;
 
 public class ShellState {
+    public String workingDirectory;
+
     ShellState() {
         File file = new File(".");
         workingDirectory = file.getAbsolutePath();
@@ -11,6 +13,4 @@ public class ShellState {
     public void printWorkDir() {
         System.out.println(workingDirectory);
     }
-
-    public String workingDirectory;
 }
