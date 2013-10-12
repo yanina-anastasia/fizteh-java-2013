@@ -36,6 +36,9 @@ public class Shell {
     }
 
     boolean processCommand(String command) {
+        if (command.length() == 0) {
+            return true;
+        }
         String commandName = getCommandName(command);
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
@@ -82,7 +85,6 @@ public class Shell {
         String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
-                System.err.print("Error in process...");
                 System.exit(1);
             }
         }

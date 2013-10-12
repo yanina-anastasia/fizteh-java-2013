@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class DirCommand extends Command {
     public final boolean exec(String[] args, ShellState curState) throws IOException {
-        if (args.length > 0) {
+        if (args.length != 0) {
             System.out.println("Invalid number of arguments");
             return false;
         }

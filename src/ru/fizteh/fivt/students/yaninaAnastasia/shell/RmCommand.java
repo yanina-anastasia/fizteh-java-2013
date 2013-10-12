@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 public class RmCommand extends Command {
     public boolean exec(String[] args, ShellState curState) throws IOException {
-        if (args.length > 1) {
+        if (args.length != 1) {
             System.err.println("Invalid arguments");
             return false;
         }

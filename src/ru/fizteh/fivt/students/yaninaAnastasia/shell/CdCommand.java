@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 public class CdCommand extends Command {
     public boolean exec(String[] args, ShellState curState) throws IOException {
-        if (args.length > 1) {
+        if (args.length != 1) {
             System.out.println("Invalid number of arguments");
             return false;
         }

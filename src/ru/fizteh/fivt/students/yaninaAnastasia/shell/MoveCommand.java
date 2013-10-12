@@ -3,7 +3,9 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 import java.io.File;
 import java.io.IOException;
 import java.lang.System;
+
 import static java.nio.file.StandardCopyOption.*;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,10 +31,18 @@ public class MoveCommand extends Command {
             return false;
         }
         if ((!source.exists()) || (!destination.exists())) {
-            System.err.println("Error with moving files");
+            System.err.println("File does not exist");
             return false;
         }
-        Files.move(source.toPath(), destination.toPath(), REPLACE_EXISTING);
+        if (source.toString().equals(destination.toString())) {
+            System.err.println("Error: source = destination");
+            return false;
+        }
+        try {
+            Files.move(sourcePath, destinationPath, REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println("IOException");
+        }
         return true;
     }
 
