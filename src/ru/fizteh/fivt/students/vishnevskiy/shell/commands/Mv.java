@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vishnevskiy.shell.сommands;
+package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,34 +7,34 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
 import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
 import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
-public class Cp implements Command {
-    private static final String name = "cp";
-    public Cp() {}
+public class Mv implements Command {
+    private static final String name = "mv";
+    public Mv() {}
     public String getName() {
         return name;
     }
     public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
         if (args.length < 2) {
-            throw new ShellException("cp: arguments expected");
+            throw new ShellException("mv: arguments expected");
         }
         if (args.length > 2) {
-            throw new ShellException("cp: wrong number of arguments");
+            throw new ShellException("mv: wrong number of arguments");
         }
         File source = fileSystem.compileFile(args[0]);
         File target = fileSystem.compileFile(args[1]);
         if (!source.exists()) {
-            throw new ShellException("cp: " + source.getName() + ": file or directory doesn't exist");
+            throw new ShellException("mv: " + source.getName() + ": file or directory doesn't exist");
         }
         if (target.isDirectory()) {
             target = new File(target, source.getName());
         }
         if (target.exists()) {
-            throw new ShellException("cp: can't copy to " + target.getPath() + ": file or directory already exists");
+            throw new ShellException("mv: can't move to " + target.getPath() + ": file or directory already exists");
         }
         try {
-            Files.copy(source.toPath(), target.toPath());
+            Files.move(source.toPath(), target.toPath());
         } catch (IOException e) {
-            throw new ShellException("cp: failed to copy " + source.getName() + " to " + target.getPath());
+            throw new ShellException("mv: failed to move " + source.getName() + " to " + target.getPath());
         }
     }
 }

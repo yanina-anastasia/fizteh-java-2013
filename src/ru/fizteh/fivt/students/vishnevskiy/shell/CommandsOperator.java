@@ -2,9 +2,8 @@ package ru.fizteh.fivt.students.vishnevskiy.shell;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.io.File;
 import java.util.Arrays;
-import ru.fizteh.fivt.students.vishnevskiy.shell.сommands.*;
+import ru.fizteh.fivt.students.vishnevskiy.shell.commands.*;
 
 public class CommandsOperator {
     private Map<String, Command> commandsTable = new HashMap<String, Command>();

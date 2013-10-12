@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vishnevskiy.shell.сommands;
+package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 
 import java.io.File;
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
