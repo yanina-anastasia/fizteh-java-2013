@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class Shell {
-    public static int argc;
-    
     public static File currentDir;
     
     public static String[] lexems;
@@ -175,11 +173,13 @@ public class Shell {
     }
     
     public static void processing(String currentString)throws Exception {
-        String[] commands = currentString.split("[ ]*;[ ]*");
+        String[] commands = currentString.split("[ \t\n\r]*;[ \t\n\r]*");
         for (int i = 0; i < commands.length; ++i) {
-            lexems = commands[i].split("[ ]+");
-            if (lexems.length == 0)
+            commands[i] = commands[i].trim();
+            lexems = commands[i].split("[ \t\n\r]+");
+            if (lexems.length == 0) {
                 continue;
+            }
             String command = lexems[0];
             switch (command) {
                 case "cd":
@@ -248,7 +248,7 @@ public class Shell {
     }
     
     public static void main(String[] args) {
-        argc = args.length;
+        int argc = args.length;
         currentDir = new File(System.getProperty("user.dir"));
         if (argc == 0) {
             interactive();
