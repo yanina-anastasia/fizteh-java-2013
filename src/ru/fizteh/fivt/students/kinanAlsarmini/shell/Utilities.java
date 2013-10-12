@@ -64,7 +64,7 @@ class Utilities {
             try {
                 Files.copy(file, target.resolve(source.getParent().relativize(file)));
             } catch (IOException e) {
-                throw new IllegalArgumentException("I/O error while copying file");
+                throw new IllegalArgumentException("I/O error while copying file: " + file.toString() + ".");
             }
 
             return CONTINUE;
@@ -77,7 +77,7 @@ class Utilities {
                     FileTime time = Files.getLastModifiedTime(dir);
                     Files.setLastModifiedTime(newdir, time);
                 } catch (IOException x) {
-                    throw new IllegalArgumentException("Unable to copy file attributes.");
+                    System.err.println(x.getMessage());
                 }
             }
 
@@ -86,7 +86,7 @@ class Utilities {
 
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             if (exc instanceof FileSystemLoopException) {
-                throw new IllegalArgumentException("Cycle detected while copying.");
+                throw new IllegalArgumentException("Cycle detected while copying file: " + file.getName() + ".");
             }
 
             System.err.println(exc);

@@ -120,6 +120,7 @@ class Shell {
         String[] commands = mergedCommands.trim().split("\\s*;\\s*");
 
         for (int i = 0; i < commands.length && !terminated; i++) {
-            runCommand(commands[i]); }
+            runCommand(commands[i]);
+        }
     }
 }

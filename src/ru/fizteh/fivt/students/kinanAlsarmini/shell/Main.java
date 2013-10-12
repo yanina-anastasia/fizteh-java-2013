@@ -12,8 +12,9 @@ class Main {
             StringBuilder commands = new StringBuilder();
             for (int i = 0; i < args.length; i++) {
                 commands.append(args[i]);
-                if (i < args.length - 1)
+                if (i < args.length - 1) {
                     commands.append(" ");
+                }
             }
 
             shell.startBatch(commands.toString());

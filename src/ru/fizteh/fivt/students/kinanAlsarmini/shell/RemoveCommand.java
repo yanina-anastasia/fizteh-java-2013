@@ -16,14 +16,14 @@ class RemoveCommand extends ExternalCommand {
                     recursiveRemove(f);
                 } else {
                     if (!f.delete()) {
-                        throw new IllegalArgumentException("rm: unable to delete file.");
+                        throw new IllegalArgumentException("rm: unable to delete file: " + f.getName() + ".");
                     }
                 }
             }
         }
 
         if (!file.delete()) {
-            throw new IllegalArgumentException("rm: unable to delete file.");
+            throw new IllegalArgumentException("rm: unable to delete file: " + file.getName() + ".");
         }
     }
 
