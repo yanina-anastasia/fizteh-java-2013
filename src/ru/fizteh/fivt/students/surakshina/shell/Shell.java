@@ -92,8 +92,7 @@ public class Shell {
             curr1 = new File(currentPath + File.separator + curr);
             try {
                 curr1 = curr1.getCanonicalFile();
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 printError(curr1.toString());
             }
         }
@@ -110,6 +109,7 @@ public class Shell {
             currentFile.delete();
         }
     }
+
     private boolean IsRoot(File currentFile) {
         for (int i = 0; i < File.listRoots().length; ++i) {
             if (currentFile.equals(File.listRoots()[i])) {
@@ -139,21 +139,20 @@ public class Shell {
                     + File.separator + str[1]);
             try {
                 destinationFile = destinationFile.getCanonicalFile();
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 printError(destinationFile.toString());
-            }  
+            }
         }
         if (!currentFile.exists()) {
             printError("cp: cannot copy: '" + str[1] + "': No such file");
-        } else if (!file.exists()){
+        } else if (!file.exists()) {
             printError("cp: cannot copy: '" + str[2] + "': No such file");
-        }else {
+        } else {
             try {
                 if (!checkIsRoot(currentFile, destinationFile)) {
                     Files.copy(currentFile.toPath(), destinationFile.toPath(),
                             StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING); 
+                            StandardCopyOption.REPLACE_EXISTING);
                 } else if (currentFile.isFile() && file.isFile()) {
                     Files.copy(currentFile.toPath(), file.toPath(),
                             StandardCopyOption.COPY_ATTRIBUTES,
