@@ -5,13 +5,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Brother
- * Date: 10.10.13
- * Time: 23:28
- * To change this template use File | Settings | File Templates.
- */
 class FileSystemRoutine {
     public static class FileList {
         File file;
