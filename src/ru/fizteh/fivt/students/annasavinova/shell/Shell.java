@@ -2,30 +2,13 @@ package ru.fizteh.fivt.students.annasavinova.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
+import java.rmi.UnexpectedException;
 
-public class Shell {
+public class Shell extends UserShell {
     public static String currPath = System.getProperty("user.dir");
-    public static boolean isPacket;
-
-    public static void printError(String errStr) {
-        if (isPacket) {
-            System.err.println(errStr);
-            System.exit(1);
-        } else {
-            System.out.println(errStr);
-        }
-    }
-
-    public static boolean checkArgs(int num, String[] args) {
-        if (args.length != num) {
-            printError("Incorrect number of args");
-            return false;
-        }
-        return true;
-    }
 
     public static File createFile(String arg) {
         if (new File(arg).isAbsolute()) {
@@ -90,13 +73,6 @@ public class Shell {
         }
     }
 
-    private static boolean isParent(File sourse, File dest) {
-        if (dest.getAbsolutePath().startsWith(sourse.getAbsolutePath())) {
-            return true;
-        }
-        return false;
-    }
-
     public static void doCp(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
@@ -108,14 +84,9 @@ public class Shell {
                 destFile = createFile(args[2]);
             }
             try {
-                if (isParent(currFile, destFile)) {
-                    Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    printError("cp: cannot copy '" + "': sourse is parent of dest");
-                }
+                Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                        StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e1) {
-                e1.printStackTrace();
                 printError("cp: cannot copy '" + args[1] + "'");
             }
 
@@ -133,11 +104,7 @@ public class Shell {
                 destFile = createFile(args[2]);
             }
             try {
-                if (isParent(currFile, destFile)) {
-                    Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    printError("mv: cannot move '" + "': sourse is parent of dest");
-                }
+                Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e1) {
                 printError("cp: cannot move '" + args[1] + "'");
             }
@@ -145,7 +112,7 @@ public class Shell {
         }
     }
 
-    public static void execProc(String[] args) {
+    protected void execProc(String[] args) {
         if (args.length != 0) {
             switch (args[0]) {
             case "pwd":
@@ -189,60 +156,9 @@ public class Shell {
         }
     }
 
-    public static String[] getArgsFromString(String str) {
-        str = str.replaceAll("[ ]+", " ");
-        str = str.replaceAll("[ ]+$", "");
-        int countArgs = 1;
-        for (int i = 0; i < str.length(); ++i) {
-            if (str.charAt(i) == ' ') {
-                ++countArgs;
-            }
-        }
-        Scanner stringScanner = new Scanner(str);
-        stringScanner.useDelimiter(" ");
-        String[] cmdArgs = new String[countArgs];
-        for (int i = 0; stringScanner.hasNext(); ++i) {
-            cmdArgs[i] = stringScanner.next();
-        }
-        stringScanner.close();
-        return cmdArgs;
-    }
-
     public static void main(String[] args) {
+        Shell sh = new Shell();
+        sh.exec(args);
 
-        if (args.length != 0) {
-            isPacket = true;
-            StringBuffer argStr = new StringBuffer(args[0]);
-            for (int i = 1; i < args.length; ++i) {
-                argStr.append(" ");
-                argStr.append(args[i]);
-            }
-            Scanner mainScanner = new Scanner(argStr.toString());
-            mainScanner.useDelimiter("[ ]*;[ ]*");
-            while (mainScanner.hasNext()) {
-                String str = mainScanner.next();
-                execProc(getArgsFromString(str));
-            }
-            mainScanner.close();
-        } else {
-            isPacket = false;
-            System.out.print("$ ");
-            Scanner mainScanner = new Scanner(System.in);
-            mainScanner.useDelimiter(System.lineSeparator() + "|[;]");
-            while (mainScanner.hasNext()) {
-                String str = new String();
-                str = mainScanner.next();
-                if (str.equals("exit")) {
-                    mainScanner.close();
-                    return;
-                }
-                if (!str.isEmpty()) {
-                    execProc(getArgsFromString(str));
-                    System.out.print("$ ");
-                }
-            }
-            mainScanner.close();
-            return;
-        }
     }
 }
