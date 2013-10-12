@@ -398,7 +398,6 @@ public class Shell {
                     isOk = false;
                     break;
                 }
-                input.next();
             }
             input.close();
             if (!isOk) {
