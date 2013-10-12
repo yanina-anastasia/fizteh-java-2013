@@ -169,25 +169,23 @@ public class Shell {
 
     //Change directory, смена текущей директории. Поддерживаются ., .., относительные и абсолютные пути.
     public static Code cdCommand(String inputNameDir) {
-        String path = inputNameDir;
-        if (path.equals(".")) {
-            return (Code.OK);
-        }
-        Properties p = System.getProperties();
-        if (path.equals("..") || path.equals("/..") || path.equals("\\..")) {
-            StringBuilder str = new StringBuilder();
-            str.append(p.getProperty("user.dir"));
-            int indexOfLastSeparator = str.lastIndexOf(File.separator);
-            str.delete(indexOfLastSeparator, str.length());
-            path = str.toString();
-        }
+        File newDir = new File(inputNameDir);
+        String path = "";
         try {
-            File newDir = new File(path);
+            path = newDir.getCanonicalPath();
+        } catch (Exception e) {
+            System.err.println(e);
+            return (Code.SYSTEM_ERROR);
+        }
+        try {  /*
             if (!newDir.isAbsolute()) {
+                /*
                 if (path.startsWith("/") || path.startsWith("\\")) {
                     System.err.println("cd: '" + inputNameDir + "': No such file or directory");
                     return (Code.ERROR);
                 }
+
+                Properties p = System.getProperties();
                 String currentDir = p.getProperty("user.dir");
                 path = currentDir + File.separator + inputNameDir;
                 newDir = new File(path);
@@ -196,6 +194,7 @@ public class Shell {
                     System.exit(1);
                 }
             }
+       */
             if (!newDir.exists()) {
                 System.err.println("cd: '" + inputNameDir + "': No such file or directory");
                 return (Code.ERROR);
