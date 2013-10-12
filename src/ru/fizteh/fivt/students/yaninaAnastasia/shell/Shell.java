@@ -91,7 +91,7 @@ public class Shell {
             expressionBuilder.append(" ");
         }
         String expression = expressionBuilder.toString();
-        String[] commandArray = expression.split(";");
+        String[] commandArray = expression.split("\\s*;\\s*");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
                 System.exit(1);
