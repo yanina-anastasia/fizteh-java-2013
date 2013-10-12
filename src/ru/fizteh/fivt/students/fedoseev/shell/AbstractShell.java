@@ -57,11 +57,11 @@ public abstract class AbstractShell implements Shell {
 
         AbstractCommand command = commands.get(cmd.substring(0, end));
 
-        if (Utilities.getCommandArguments(cmd).length != command.getArgsCount()) {
+        if (Utils.getCommandArguments(cmd).length != command.getArgsCount()) {
             throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
                     "\" command receives " + command.getArgsCount() + " arguments");
         }
 
-        command.execute(Utilities.getCommandArguments(cmd), state);
+        command.execute(Utils.getCommandArguments(cmd), state);
     }
 }

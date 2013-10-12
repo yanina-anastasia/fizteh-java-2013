@@ -12,7 +12,7 @@ public class ShellBatchMode extends AbstractShell {
     }
 
     public void run() throws IOException {
-        String[] input = Utilities.join(args, " ").split("\\s*;\\s*");
+        String[] input = Utils.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
             if (!Thread.currentThread().isInterrupted()) {
