@@ -13,7 +13,7 @@ public class CopyCommand extends AbstractCommand {
 	public void execute(String args[], PrintStream s) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
-		if (!sourse.getAbsolutePath().equals(destination.getAbsolutePath())) {
+		if (!sourse.getCanonicalPath().equals(destination.getCanonicalPath())) {
 			if (!sourse.exists() || !sourse.canRead()) {
 				throw new IOException("cp: cannot copy '" + args[1] + "' to '" + args[2] +
 								"': No such file or directory");

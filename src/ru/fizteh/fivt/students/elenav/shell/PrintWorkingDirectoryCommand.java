@@ -7,6 +7,7 @@ public class PrintWorkingDirectoryCommand extends AbstractCommand {
 	PrintWorkingDirectoryCommand(ShellState s) { 
 		super(s, "pwd", 0);
 	}
+	
 	public void execute(String args[], PrintStream s) throws IOException {
 		try {
 			s.println(getWorkingDirectory().getCanonicalPath());

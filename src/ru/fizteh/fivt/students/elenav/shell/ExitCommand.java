@@ -6,6 +6,7 @@ public class ExitCommand extends AbstractCommand {
 	ExitCommand(ShellState s) {
 		super(s, "exit", 0);
 	}
+	
 	public void execute(String[] args, PrintStream s) {
 		System.exit(0);
 	}
