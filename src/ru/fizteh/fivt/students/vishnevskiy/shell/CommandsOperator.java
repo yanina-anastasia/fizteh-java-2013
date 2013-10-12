@@ -66,7 +66,8 @@ public class CommandsOperator {
             Command command = commandsTable.get(commandName);
             if (command == null) {
                 if (commandName.equals("")) {
-                    throw new ShellException("Command expected");
+//                    throw new ShellException("Command expected");
+                    return 0;
                 } else {
                     throw new ShellException(commandName + ": command not found");
                 }

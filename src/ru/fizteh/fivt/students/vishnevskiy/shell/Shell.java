@@ -6,7 +6,7 @@ public class Shell {
 
     private static int executeLine(String line, CommandsOperator commandsOperator) {
         String[] commands = line.split(";");
-        for(String command : commands) {
+        for (String command : commands) {
             int status = commandsOperator.runCommand(command);
             if (status == 1) {
                 System.err.flush();
