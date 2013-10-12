@@ -1,20 +1,18 @@
 package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HelpCommand extends AbstractCommand {
+public class HelpCommand<State> extends AbstractCommand<State> {
 
-    public HelpCommand(ArrayList<Command> commands) {
-        for (final Command command : commands) {
+    public HelpCommand(ArrayList<Command<State>> commands) {
+        for (final Command<State> command : commands) {
             this.commands.put(command.getCommandName(), command);
         }
     }
 
-    public void executeCommand(String params, ShellState shellState) throws IOException {
+    public void executeCommand(String params, State shellState) throws IOException {
         if (params.length() > 0) {
             if (params.length() > 1) {
                 throw new IOException("too many arguments");
@@ -36,9 +34,9 @@ public class HelpCommand extends AbstractCommand {
         if (!commands.containsKey(commandName)) {
             throw new IllegalArgumentException(String.format("'%s': command not found", commandName));
         }
-        Command command = commands.get(commandName);
+        Command<State> command = commands.get(commandName);
         System.out.println(command.getHelpString());
     }
 
-    private HashMap<String, Command> commands = new HashMap<String, Command>();
+    private HashMap<String, Command<State>> commands = new HashMap<String, Command<State>>();
 }

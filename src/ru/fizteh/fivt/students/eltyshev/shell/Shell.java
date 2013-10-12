@@ -7,12 +7,12 @@ import java.io.IOException;
 
 import ru.fizteh.fivt.students.eltyshev.shell.commands.*;
 
-public class Shell {
+public class Shell<State> {
 
-    private HashMap<String, Command> commands = new HashMap<String, Command>();
+    private HashMap<String, Command<State>> commands = new HashMap<String, Command<State>>();
     private String[] args;
     private String prompt = "$ ";
-    private ShellState shellState;
+    private State shellState;
 
     public Shell(String[] Args) {
         this.args = Args;
@@ -26,12 +26,12 @@ public class Shell {
         }
     }
 
-    public void setShellState(ShellState shellState) {
+    public void setShellState(State shellState) {
         this.shellState = shellState;
     }
 
-    public void setCommands(ArrayList<Command> commands) {
-        for (final Command command : commands) {
+    public void setCommands(ArrayList<Command<State>> commands) {
+        for (final Command<State> command : commands) {
             this.commands.put(command.getCommandName(), command);
         }
     }

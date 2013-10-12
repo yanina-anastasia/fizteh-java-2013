@@ -10,10 +10,10 @@ public class Program {
     public static void main(String[] Args) throws IOException {
         Shell shell = new Shell(Args);
 
-        ArrayList<Command> commands = new ArrayList<Command>();
+        ArrayList<Command<FileSystemShellState>> commands = new ArrayList<Command<FileSystemShellState>>();
 
         // putting MakeDirCommand
-        Command command = new MakeDirCommand();
+        Command<FileSystemShellState> command = new MakeDirCommand();
         commands.add(command);
 
         // putting DirCommand
@@ -45,7 +45,7 @@ public class Program {
         commands.add(command);
 
         // putting HelpCommand
-        command = new HelpCommand(commands);
+        command = new HelpCommand<FileSystemShellState>(commands);
         commands.add(command);
 
         shell.setCommands(commands);

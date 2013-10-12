@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
-
-public class ExitCommand extends AbstractCommand {
-    public void executeCommand(String params, ShellState shellState) {
+public class ExitCommand<State> extends AbstractCommand<State> {
+    public void executeCommand(String params, State shellState) {
         System.out.println("Good bye!");
         System.exit(0);
     }

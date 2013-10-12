@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.eltyshev.shell.commands;
 
-import ru.fizteh.fivt.students.eltyshev.shell.ShellState;
-
 import java.io.IOException;
 
-public abstract class AbstractCommand implements Command {
+public abstract class AbstractCommand<State> implements Command<State> {
 
     public AbstractCommand() {
         initCommand();
@@ -18,7 +16,7 @@ public abstract class AbstractCommand implements Command {
         return helpString;
     }
 
-    public abstract void executeCommand(String params, ShellState shellState) throws IOException;
+    public abstract void executeCommand(String params, State shellState) throws IOException;
 
     protected abstract void initCommand();
 
