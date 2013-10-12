@@ -66,6 +66,7 @@ public class CommandLauncher {
                 String startShellString = (String) startShellMethod.invoke(exampleClass, new Object[]{});
                 System.out.print(startShellString);
             } catch (Exception e) {
+                e.printStackTrace();
                 System.err.println("Неправильный путь");
                 return;
             }
