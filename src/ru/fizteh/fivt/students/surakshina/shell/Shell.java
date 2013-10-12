@@ -68,7 +68,7 @@ public class Shell {
     }
 
     private void deleteFiles(File file) {
-        if (file.isDirectory() && (file.listFiles().length != 0)) { 
+        if (file.isDirectory() && (file.listFiles().length != 0)) {
             while (file.listFiles().length != 0) {
                 deleteFiles(file.listFiles()[0]);
             }
@@ -85,10 +85,17 @@ public class Shell {
             printError("mkdir can't create a directory'" + str);
         }
     }
+
     private File unionWithCurrentPath(String curr) {
-        File curr1 = new File (curr);
+        File curr1 = new File(curr);
         if (!curr1.isAbsolute()) {
             curr1 = new File(currentPath + File.separator + curr);
+            try {
+                curr1 = curr1.getCanonicalFile();
+            }
+            catch (IOException exception) {
+                printError(curr1.toString());
+            }
         }
         return curr1;
     }
@@ -103,6 +110,25 @@ public class Shell {
             currentFile.delete();
         }
     }
+    private boolean IsRoot(File currentFile) {
+        for (int i = 0; i < File.listRoots().length; ++i) {
+            if (currentFile.equals(File.listRoots()[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkIsRoot(File currentFile, File file) {
+        File tmp = new File(file.getParent());
+        while (!IsRoot(tmp)) {
+            tmp = new File(tmp.getParent());
+            if (tmp.equals(currentFile)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void cp(String[] str) {
         File currentFile = unionWithCurrentPath(str[1]);
@@ -111,18 +137,30 @@ public class Shell {
         if (!destinationFile.isAbsolute()) {
             destinationFile = new File(currentPath + File.separator + str[2]
                     + File.separator + str[1]);
+            try {
+                destinationFile = destinationFile.getCanonicalFile();
+            }
+            catch (IOException exception) {
+                printError(destinationFile.toString());
+            }  
         }
         if (!currentFile.exists()) {
             printError("cp: cannot copy: '" + str[1] + "': No such file");
-        } else {
+        } else if (!file.exists()){
+            printError("cp: cannot copy: '" + str[2] + "': No such file");
+        }else {
             try {
-                if (currentFile.isFile() && file.isFile()) {
-                Files.copy(currentFile.toPath(), file.toPath(),
-                        StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-            } else {
-                Files.copy(currentFile.toPath(), destinationFile.toPath(),
-                        StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-            }
+                if (!checkIsRoot(currentFile, destinationFile)) {
+                    Files.copy(currentFile.toPath(), destinationFile.toPath(),
+                            StandardCopyOption.COPY_ATTRIBUTES,
+                            StandardCopyOption.REPLACE_EXISTING); 
+                } else if (currentFile.isFile() && file.isFile()) {
+                    Files.copy(currentFile.toPath(), file.toPath(),
+                            StandardCopyOption.COPY_ATTRIBUTES,
+                            StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    printError("cp: cannot copy: '" + str[1] + "'It is a root");
+                }
             } catch (IOException exception) {
                 printError("cp: cannot copy '" + str[1] + "'");
             }
@@ -219,7 +257,8 @@ public class Shell {
         Scanner scanner = new Scanner(newInput);
         scanner.useDelimiter("[ ]*;[ ]*");
         while (scanner.hasNext()) {
-            executeProcess(extractArgumentsFromInputString(scanner.next().toString()));
+            executeProcess(extractArgumentsFromInputString(scanner.next()
+                    .toString()));
         }
         scanner.close();
     }
@@ -235,8 +274,10 @@ public class Shell {
                 scanner.close();
                 System.exit(0);
             } else {
-                executeProcess(extractArgumentsFromInputString(cur));
-                System.out.print("$ ");
+                if (!cur.equals("")) {
+                    executeProcess(extractArgumentsFromInputString(cur));
+                    System.out.print("$ ");
+                }
             }
         }
         scanner.close();
