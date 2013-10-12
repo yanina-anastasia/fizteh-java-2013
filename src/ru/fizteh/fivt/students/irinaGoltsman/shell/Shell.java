@@ -245,12 +245,13 @@ public class Shell {
     public static void main(String[] args) {
         //Интерактивный режим.
         if (args.length == 0) {
+            Scanner scan = new Scanner(System.in);
+            System.out.print("$ ");
             while (true) {
-                System.out.print("$ ");
-                Scanner scan = new Scanner(System.in);
                 String command = "exit";
-                if (scan.hasNext()) {
+                if (scan.hasNextLine()) {
                     command = scan.nextLine();
+                    System.out.print("$ ");
                 }
                 if (command.length() == 0) {
                     continue;
