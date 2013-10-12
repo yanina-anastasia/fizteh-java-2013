@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.Math;
 
 public class Execurtor {
 
@@ -36,8 +35,7 @@ public class Execurtor {
             return new String[0];
         }
         String substr = inCommand.substring(space + 1);
-        String[] tmp = substr.trim().split("\\ ");
-        return tmp;
+        return substr.trim().split("\\ ");
     }
 
     String cmdCheck(String cmd) {

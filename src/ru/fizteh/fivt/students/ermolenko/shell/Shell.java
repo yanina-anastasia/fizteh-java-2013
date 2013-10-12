@@ -26,14 +26,14 @@ public class Shell {
         StringBuilder tmp = new StringBuilder();
 
         //слили все слова в одну строку
-        for (int i = 0; i < args.length; ++i) {
-            tmp.append(args[i]).append(" ");
+        for (String arg : args) {
+            tmp.append(arg).append(" ");
         }
 
         //создали массив команд
         String[] command = tmp.toString().split("\\;");
 
-        String cmd = new String();
+        String cmd = "";
         Execurtor exec = new Execurtor();
 
         //подаем команды на выполнение
@@ -58,9 +58,9 @@ public class Shell {
             System.out.print(state.getPath().toString() + "$ ");
             cmd = scanner.nextLine().trim().split("\\s*;\\s*");
             try {
-                for (int i = 0; i < cmd.length; ++i) {
-                    if (!cmd[i].equals("exit")) {
-                        exec.execute(this, cmd[i]);
+                for (String aCmd : cmd) {
+                    if (!aCmd.equals("exit")) {
+                        exec.execute(this, aCmd);
                     } else {
                         System.exit(0);
                     }
