@@ -9,7 +9,7 @@ import ru.fizteh.fivt.students.eltyshev.shell.commands.*;
 
 public class Shell<State> {
 
-    private HashMap<String, Command<State>> commands = new HashMap<String, Command<State>>();
+    private HashMap<String, Command> commands = new HashMap<String, Command>();
     private String[] args;
     private String prompt = "$ ";
     private State shellState;
@@ -30,8 +30,8 @@ public class Shell<State> {
         this.shellState = shellState;
     }
 
-    public void setCommands(ArrayList<Command<State>> commands) {
-        for (final Command<State> command : commands) {
+    public void setCommands(ArrayList<Command> commands) {
+        for (final Command command : commands) {
             this.commands.put(command.getCommandName(), command);
         }
     }

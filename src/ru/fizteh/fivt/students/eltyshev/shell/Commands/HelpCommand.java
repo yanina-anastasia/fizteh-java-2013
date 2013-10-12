@@ -10,8 +10,9 @@ public class HelpCommand<State> extends AbstractCommand<State> {
         super("help", "help");
     }
 
-    public HelpCommand(ArrayList<Command<State>> commands) {
-        for (final Command<State> command : commands) {
+    public HelpCommand(ArrayList<Command> commands) {
+        super("help", "help");
+        for (final Command command : commands) {
             this.commands.put(command.getCommandName(), command);
         }
     }
@@ -33,9 +34,9 @@ public class HelpCommand<State> extends AbstractCommand<State> {
         if (!commands.containsKey(commandName)) {
             throw new IllegalArgumentException(String.format("'%s': command not found", commandName));
         }
-        Command<State> command = commands.get(commandName);
+        Command command = commands.get(commandName);
         System.out.println(command.getHelpString());
     }
 
-    private HashMap<String, Command<State>> commands = new HashMap<String, Command<State>>();
+    private HashMap<String, Command> commands = new HashMap<String, Command>();
 }
