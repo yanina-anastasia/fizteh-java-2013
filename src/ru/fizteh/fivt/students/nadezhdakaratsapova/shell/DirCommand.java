@@ -11,7 +11,6 @@ public class DirCommand implements Command {
 
     public void execute(CurrentDirectory currentDirectory, String[] args) {
         if (currentDirectory.getCurDir().isDirectory()) {
-            System.out.println(currentDirectory.getCurDir());
             File[] fileList = currentDirectory.getCurDir().getAbsoluteFile().listFiles();
             Arrays.sort(fileList, new Comparator<File>() {
                 @Override
