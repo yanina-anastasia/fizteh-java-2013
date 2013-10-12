@@ -1,13 +1,12 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
-import ru.fizteh.fivt.students.annasavinova.shell.Shell;
+import ru.fizteh.fivt.students.annasavinova.shell.UserShell;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Scanner;
 
-public class FileMap {
+public class FileMap extends UserShell {
     private static RandomAccessFile dataFile;
 
     private static String getKey(long pointer) {
@@ -140,31 +139,32 @@ public class FileMap {
     public static void doRemove(String key) {
         long keyPointer = findKey(key);
         if (keyPointer == -1) {
-            Shell.printError("not found");
+            UserShell.printError("not found");
         } else {
             delete(key);
             System.out.println("removed");
         }
     }
 
-    private static void execCommand(String[] args) {
+    // @Override
+    protected void execProc(String[] args) {
         try {
             // dataFile = new
             // RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
             dataFile = new RandomAccessFile("dbfile", "rw");
             switch (args[0]) {
             case "put":
-                if (Shell.checkArgs(3, args)) {
+                if (UserShell.checkArgs(3, args)) {
                     doPut(args[1], args[2]);
                 }
                 break;
             case "get":
-                if (Shell.checkArgs(2, args)) {
+                if (UserShell.checkArgs(2, args)) {
                     doGet(args[1]);
                 }
                 break;
             case "remove":
-                if (Shell.checkArgs(2, args)) {
+                if (UserShell.checkArgs(2, args)) {
                     doRemove(args[1]);
                 }
                 break;
@@ -179,36 +179,7 @@ public class FileMap {
     }
 
     public static void main(String[] args) {
-        if (args.length != 0) {
-            Shell.isPacket = true;
-            StringBuffer argStr = new StringBuffer(args[0]);
-            for (int i = 1; i < args.length; ++i) {
-                argStr.append(" ");
-                argStr.append(args[i]);
-            }
-            Scanner mainScanner = new Scanner(argStr.toString());
-            mainScanner.useDelimiter("[ ]*;[ ]*");
-            while (mainScanner.hasNext()) {
-                String str = mainScanner.next();
-                execCommand(Shell.getArgsFromString(str));
-            }
-            mainScanner.close();
-        } else {
-            System.out.print("$ ");
-            Scanner mainScanner = new Scanner(System.in);
-            mainScanner.useDelimiter(System.lineSeparator());
-            while (mainScanner.hasNext()) {
-                String str = new String();
-                str = mainScanner.next();
-                if (str.equals("exit")) {
-                    mainScanner.close();
-                    return;
-                }
-                execCommand(Shell.getArgsFromString(str));
-                System.out.print("$ ");
-            }
-            mainScanner.close();
-            return;
-        }
+        FileMap tmp = new FileMap();
+        tmp.exec(args);
     }
 }
