@@ -23,7 +23,7 @@ public abstract class Command {
     
     void execute() throws IllegalArgumentException, Exception {
         if (argc != args.length) {
-            throw new IllegalArgumentException("Unable to handle " + args.length + " arguments");
+            throw new IllegalArgumentException("Unable to handle " + (args.length - 1) + " arguments");
         }
         if (parentShell == null) {
             throw new Exception("Cannot execute a command without a shell attached");
