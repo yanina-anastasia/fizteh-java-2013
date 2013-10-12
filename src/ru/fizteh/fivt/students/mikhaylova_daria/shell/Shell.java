@@ -20,9 +20,13 @@ public class Shell {
         while (flag) {
             if (arg.length == 0) {
                 System.out.print("$ ");
-                inputString = input.nextLine();
-                commandString = inputString.split("[;]");
-                flag = manager(commandString, false);
+                if (input.hasNextLine()) {
+                    inputString = input.nextLine();
+                    commandString = inputString.split("[;]");
+                    flag = manager(commandString, false);
+                } else {
+                    System.exit(0);
+                }
             } else {
                 pack(arg);
                 flag = false;
@@ -329,29 +333,7 @@ public class Shell {
     }
 
     private static void move(String source, String destination) throws Exception {
-        File f1 = new File(source);
-        File f2 = new File(destination);
-        if (!f1.isAbsolute()) {
-            f1 = currentDirectory.toPath().resolve(f1.toPath()).normalize().toFile();
-        }
-        if (!f1.toPath().normalize().toAbsolutePath().toFile().exists()) {
-            throw new Exception(f1.getName() + " not found");
-        }
-        if (!f2.isAbsolute()) {
-            f2 = currentDirectory.toPath().resolve(f2.toPath()).normalize().toFile();
-        }
-        if (f1.toPath().normalize().toAbsolutePath().equals(f2.toPath().normalize().toAbsolutePath())) {
-            throw new Exception("Copying is not possible: this arguments are the same");
-        }
-        if (f1.toPath().normalize().toAbsolutePath().getParent().
-                equals(f2.toPath().normalize().toAbsolutePath().getParent())) {
-            remove(destination);
-            if (!f1.renameTo(f2.getAbsoluteFile())) {
-                throw new Exception("An unexpected error");
-            }
-        } else {
             copy(source, destination);
             remove(source);
-        }
     }
 }
