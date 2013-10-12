@@ -3,9 +3,8 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
 import java.io.IOException;
 import java.util.Scanner;
 
-
 public class Mode {
-
+	 private Mode() {}
 	 public static void batchMode(String[] args, State st) {
 		 try {
 			 parseAndExecute(joinString(args), st);
