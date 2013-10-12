@@ -9,101 +9,116 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 class Shell {
-    private boolean terminated;
-    private Path currentPath;
-    private ExternalCommand[] possibleCommands;
+	private boolean terminated;
+	private Path currentPath;
+	private ExternalCommand[] possibleCommands;
 
-    public Shell() {
-        terminated = false;
+	public Shell() {
+		terminated = false;
 
-        currentPath = Utilities.getAbsolutePath(Paths.get(""));
+		currentPath = Utilities.getAbsolutePath(Paths.get(""));
 
-        possibleCommands = new ExternalCommand[] {new CopyCommand(), new RemoveCommand(),
-                new MakeDirCommand(), new MoveCommand(), new DirCommand()};
-    }
+		possibleCommands = new ExternalCommand[] {new CopyCommand(), new RemoveCommand(),
+			new MakeDirCommand(), new MoveCommand(), new DirCommand()};
+	}
 
-    private void runCommand(String command) throws IOException {
-        String[] tokens = command.split("\\s+");
+	private void runCommand(String command) throws IOException {
+		String[] tokens = command.split("\\s+");
 
-        if (tokens.length == 0) {
-            throw new IllegalArgumentException("Empty command.");
-        }
+		if (tokens.length == 0) {
+			throw new IllegalArgumentException("Empty command.");
+		}
 
-        if (tokens[0].equals("exit")) {
-            if (tokens.length != 1) {
-                throw new IllegalArgumentException("exit doesn't take any arguments.");
-            }
+		if (tokens[0].equals("exit")) {
+			if (tokens.length != 1) {
+				throw new IllegalArgumentException("exit doesn't take any arguments.");
+			}
 
-            terminated = true;
-        } else if (tokens[0].equals("pwd")) {
-            if (tokens.length != 1) {
-                throw new IllegalArgumentException("pwd doesn't take any arguments.");
-            }
+			terminated = true;
+		} else if (tokens[0].equals("pwd")) {
+			if (tokens.length != 1) {
+				throw new IllegalArgumentException("pwd doesn't take any arguments.");
+			}
 
-            System.out.println(currentPath.toString());
-        } else if (tokens[0].equals("cd")) {
-            if (tokens.length != 2) {
-                throw new IllegalArgumentException("cd takes only 1 argument.");
-            }
+			System.out.println(currentPath.toString());
+		} else if (tokens[0].equals("cd")) {
+			if (tokens.length != 2) {
+				throw new IllegalArgumentException("cd takes only 1 argument.");
+			}
 
-            changeDirectory(tokens[1]);
-        } else {
-            boolean foundCommand = false;
-            for (ExternalCommand ex: possibleCommands) {
-                if (tokens[0].equals(ex.getName())) {
-                    foundCommand = true;
+			changeDirectory(tokens[1]);
+		} else {
+			boolean foundCommand = false;
+			for (ExternalCommand ex: possibleCommands) {
+				if (tokens[0].equals(ex.getName())) {
+					foundCommand = true;
 
-                    if (tokens.length - 1 != ex.getArgNumber()) {
-                        throw new IllegalArgumentException(tokens[0] + " takes "
-                                + Integer.toString(tokens.length - 1) + " argument.");
-                    }
+					if (tokens.length - 1 != ex.getArgNumber()) {
+						throw new IllegalArgumentException(tokens[0] + " takes "
+								+ Integer.toString(tokens.length - 1) + " argument.");
+					}
 
-                    ex.execute(Arrays.copyOfRange(tokens, 1, tokens.length), this);
-                }
-            }
+					ex.execute(Arrays.copyOfRange(tokens, 1, tokens.length), this);
+				}
+			}
 
-            if (!foundCommand) {
-                throw new IllegalArgumentException("Unknown command.");
-            }
-        }
-    }
+			if (!foundCommand) {
+				throw new IllegalArgumentException("Unknown command.");
+			}
+		}
+	}
 
-    private void changeDirectory(String extPath) {
-        Path pextPath = Paths.get(extPath).normalize();
-        Path tempPath = Utilities.joinPaths(currentPath, pextPath);
+	private void changeDirectory(String extPath) {
+		Path pextPath = Paths.get(extPath).normalize();
+		Path tempPath = Utilities.joinPaths(currentPath, pextPath);
 
-        if (Files.notExists(tempPath)) {
-            throw new IllegalArgumentException("cd: Invalid directory.");
-        }
+		if (Files.notExists(tempPath)) {
+			throw new IllegalArgumentException("cd: Invalid directory.");
+		}
 
-        currentPath = tempPath;
-    }
+		currentPath = tempPath;
+	}
 
-    Path getCurrentPath() {
-        return currentPath;
-    }
+	Path getCurrentPath() {
+		return currentPath;
+	}
 
-    public void startInteractive() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	public void startInteractive() {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
-        while (!terminated) {
-            try {
-                System.out.print(currentPath.toString() + "$ ");
+		while (!terminated) {
+			try {
+				System.out.print(currentPath.toString() + "$ ");
 
-                String currentCommand = in.readLine();
+				String currentCommand = in.readLine();
 
-                runCommands(currentCommand);
-            } catch (IllegalArgumentException e) {
-                System.err.println(e.getMessage());
-            }
-        }
-    }
+				if (currentCommand == null) {
+					break;
+				}
 
-    public void runCommands(String mergedCommands) throws IOException {
-        String[] commands = mergedCommands.trim().split("\\s*;\\s*");
+				runCommands(currentCommand);
+			} catch (IllegalArgumentException | IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
 
-        for (int i = 0; i < commands.length && !terminated; i++) {
-            runCommand(commands[i]);
-        }
-    }
+	public void startBatch(String commands) {
+		try {
+			runCommands(commands);
+		} catch (IOException | IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	private void runCommands(String mergedCommands) throws IOException {
+		if (mergedCommands.trim().equals("")) {
+			return;
+		}
+
+		String[] commands = mergedCommands.trim().split("\\s*;\\s*");
+
+		for (int i = 0; i < commands.length && !terminated; i++) {
+			runCommand(commands[i]); }
+	}
 }
