@@ -133,8 +133,7 @@ public class Shell extends UserShell {
                     if (currFile.getCanonicalPath().equals(tmpFile.getCanonicalPath())) {
                         printError("mv: cannot move: '" + args[1] + "': Sourse is the same as destination");
                     } else {
-                        Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                                StandardCopyOption.REPLACE_EXISTING);
+                        Files.move(currFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             } catch (IOException e1) {
