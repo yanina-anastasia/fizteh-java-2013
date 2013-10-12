@@ -3,13 +3,6 @@ package ru.fizteh.fivt.students.musin.shell;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Brother
- * Date: 10.10.13
- * Time: 19:19
- * To change this template use File | Settings | File Templates.
- */
 public class Main {
 
     public static void main(String[] args) throws Exception {
