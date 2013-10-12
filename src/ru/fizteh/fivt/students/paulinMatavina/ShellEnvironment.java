@@ -74,22 +74,21 @@ public class ShellEnvironment {
             System.err.println("mv or cp: no such file");
             return 1;
         }
-        
         if (dest.exists()) {
             System.err.println("mv or cp: writing on an existing file");
             return 1;
         }
         String canonicalSource = "";
-        String canonicalDest = "";
+        String parentDest = "";
         try {
             canonicalSource = source.getCanonicalPath();
-            canonicalDest = dest.getCanonicalPath();
+            parentDest = dest.getParentFile().getCanonicalPath();
         } catch (IOException e) {
             System.err.println("mv or cp: internal error: " + e.getMessage());
             return 1;            
         }
-        
-        if (canonicalDest.startsWith(canonicalSource)) {
+
+        if (parentDest.startsWith(canonicalSource)) {
             System.err.println("mv or cp: attempt to move a folder into itself");
             return 1;   
         }
