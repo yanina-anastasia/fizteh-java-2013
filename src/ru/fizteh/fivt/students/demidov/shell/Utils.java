@@ -9,13 +9,13 @@ import java.io.IOException;
 public class Utils {
 	private Utils() {}
 
-	public static File getFile(String fileName) throws IOException {
+	public static File getFile(String fileName, Shell.CurrentShell curShell) throws IOException {
 		File resultFile = new File(fileName);
 
 		if (resultFile.isAbsolute()) {
-			return (new File(resultFile.getCanonicalPath()));
+			return resultFile.getCanonicalFile();
 		} else {
-			return (new File((new File(Shell.getCurrentDirectory() + File.separator + fileName)).getCanonicalPath()));
+			return new File(curShell.getCurrentDirectory(), fileName).getCanonicalFile();
 		}
 	}
 	
@@ -39,18 +39,18 @@ public class Utils {
 		}
 		
 		if (source.isFile() && destination.isDirectory()) {
-			copy(source, new File(destination.getPath() + File.separator + source.getName()));
+			copy(source, new File(destination.getPath(), source.getName()));
 		} else if (source.isFile()) {
 			copy(source, destination);
 		} else {
-			File elementsDestination = new File(destination.getPath() + File.separator + source.getName());
+			File elementsDestination = new File(destination.getPath(), source.getName());
 			
 			if(!elementsDestination.exists()) {
 				elementsDestination.mkdir();
 			}
 
 			for (String element : source.list()) {
-				copyFileOrDirectory(new File(source.getPath() + File.separator + element), elementsDestination);
+				copyFileOrDirectory(new File(source.getPath(), element), elementsDestination);
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class Utils {
 		}
 		
 		for (String element : source.list()) {
-			deleteFileOrDirectory(new File(source.getPath() + File.separator + element));
+			deleteFileOrDirectory(new File(source.getPath(), element));
 		}
 
 		source.delete();

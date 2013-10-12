@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class Rm implements BasicCommand {
-	public void executeCommand(String[] arguments) throws IOException {		
-		File source = Utils.getFile(arguments[0]);	
+	public void executeCommand(String[] arguments, Shell.CurrentShell curShell) throws IOException {		
+		File source = Utils.getFile(arguments[0], curShell);	
 
 		if (source.exists()) {
 			Utils.deleteFileOrDirectory(source);

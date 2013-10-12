@@ -8,17 +8,25 @@ import java.util.Arrays;
 public class Shell {
 	private Shell() {}
 	
-	private static String currentDirectory = System.getProperty("user.dir");
-	
-	public static String getCurrentDirectory() {
-			return currentDirectory;	
+	public static class CurrentShell {
+		public CurrentShell(String newCurrentDirectory) {
+				currentDirectory = newCurrentDirectory;
+		}
+		
+		public String getCurrentDirectory() {
+				return currentDirectory;	
+		}
+		
+		public void changeCurrentDirectory(String newDirectory) {
+			currentDirectory = newDirectory;		
+		}		
+		
+		private String currentDirectory;
 	}
 	
-	public static void changeCurrentDirectory(String newDirectory) {
-		currentDirectory = newDirectory;		
-	}
-
 	public static void main(String[] args) {
+		CurrentShell curShell = new CurrentShell(System.getProperty("user.dir"));
+		
 		if (0 != args.length) {
 			StringBuilder strBuilderOfInstructions = new StringBuilder();
 			for (int i = 0; i < args.length; ++i) {
@@ -27,7 +35,7 @@ public class Shell {
 			String instructions = strBuilderOfInstructions.toString();
 
 			try {
-				doInstructions(instructions);
+				doInstructions(instructions, curShell);
 			} catch (IOException catchedException) {
 				System.err.println(catchedException.getMessage());
 				System.exit(1);
@@ -38,12 +46,12 @@ public class Shell {
 			Scanner inputScanner = new Scanner(System.in);
 
 			while (!Thread.currentThread().isInterrupted()) {
-				System.out.print(currentDirectory + "$ ");
+				System.out.print(curShell.getCurrentDirectory() + "$ ");
 
 				String instructions = inputScanner.nextLine();				
 		
 				try {
-					doInstructions(instructions);
+					doInstructions(instructions, curShell);
 				} catch (IOException catchedException) {
 					System.err.println(catchedException.getMessage());
 				} catch (InterruptionException catchedException) {
@@ -53,13 +61,13 @@ public class Shell {
 		}
 	}
 
-	private static void doInstructions(String instructions) throws IOException, InterruptionException {
+	private static void doInstructions(String instructions, Shell.CurrentShell curShell) throws IOException, InterruptionException {
 		for (String instruction : instructions.trim().split("\\s*;\\s*", -1)) {
-			executeInstruction(instruction.split("\\s+"));
+			executeInstruction(instruction.split("\\s+"), curShell);
 		}
 	}
 
-	private static void executeInstruction(String[] exeInstruction) throws IOException, InterruptionException {
+	private static void executeInstruction(String[] exeInstruction, Shell.CurrentShell curShell) throws IOException, InterruptionException {
 		if (0 == exeInstruction.length) {
 			throw new IOException("empty instruction");
 		}
@@ -113,6 +121,6 @@ public class Shell {
 			throw new IOException("too less arguments for " + exeInstruction[0]);
 		}
 
-		exeCommand.executeCommand(Arrays.copyOfRange(exeInstruction, 1, exeInstruction.length));
+		exeCommand.executeCommand(Arrays.copyOfRange(exeInstruction, 1, exeInstruction.length), curShell);
 	}
 }

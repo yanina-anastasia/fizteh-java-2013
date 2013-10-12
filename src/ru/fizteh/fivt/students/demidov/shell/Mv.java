@@ -5,25 +5,15 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Mv implements BasicCommand {
-	public void executeCommand(String[] arguments) throws IOException {	
-		File source = Utils.getFile(arguments[0]);
-		File destination = Utils.getFile(arguments[1]);
+	public void executeCommand(String[] arguments, Shell.CurrentShell curShell) throws IOException {	
+		File source = Utils.getFile(arguments[0], curShell);
+		File destination = Utils.getFile(arguments[1], curShell);
 		
-		if (source.getPath().equals(destination.getPath())) {
+		if (source.exists() && source.getPath().equals(destination.getPath())) {
 			return;
 		}
 		
-		if (source.isFile() && destination.isFile() && source.getParent().equals(destination.getParent())) {
-			if (destination.exists()) {
-				throw new IOException("file " + destination.getPath() + " already exists");
-			}
-				
-			if (!source.renameTo(destination)) {
-				throw new IOException("unable to move" + source.getPath() + " to " + destination.getPath());
-			}
-		} else {
-			(new Cp()).executeCommand(arguments);
-			(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 0, 1));
-		}
+		(new Cp()).executeCommand(arguments, curShell);
+		(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 0, 1), curShell);
 	}
 }
