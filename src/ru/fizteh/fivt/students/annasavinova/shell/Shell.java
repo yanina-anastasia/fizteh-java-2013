@@ -27,12 +27,16 @@ public class Shell extends UserShell {
     public static void doDelete(File currFile) {
         if (currFile.exists()) {
             if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
-                currFile.delete();
+                if (currFile.delete()) {
+                    printError("rm: cannot remove '" + currFile.getName() + "'");
+                }
             } else {
                 while (currFile.listFiles().length != 0) {
                     doDelete(currFile.listFiles()[0]);
                 }
-                currFile.delete();
+                if (!currFile.delete()) {
+                    printError("rm: cannot remove '" + currFile.getName() + "'");
+                }
             }
         }
     }
@@ -71,6 +75,17 @@ public class Shell extends UserShell {
         }
     }
 
+    private static boolean isParent(File sourse, File dest) {
+        try {
+            if (dest.getCanonicalPath().startsWith(sourse.getCanonicalPath())) {
+                return true;
+            }
+        } catch (IOException e) {
+            printError("Incorrect Path");
+        }
+        return false;
+    }
+
     public static void doCp(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
@@ -82,8 +97,12 @@ public class Shell extends UserShell {
                 destFile = tmpFile;
             }
             try {
-                Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                        StandardCopyOption.REPLACE_EXISTING);
+                if (isParent(currFile, destFile)) {
+                    printError("cp: cannot copy: '" + args[1] + "': Sourse is parent of destination");
+                } else {
+                    Files.copy(currFile.toPath(), destFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                            StandardCopyOption.REPLACE_EXISTING);
+                }
             } catch (IOException e1) {
                 printError("cp: cannot copy '" + args[1] + "'");
             }
@@ -148,6 +167,9 @@ public class Shell extends UserShell {
                     doCp(args);
                 }
                 break;
+            case "exit":
+                System.exit(0);
+                break;
             default:
                 printError("Unknown command");
             }
@@ -157,6 +179,5 @@ public class Shell extends UserShell {
     public static void main(String[] args) {
         Shell sh = new Shell();
         sh.exec(args);
-
     }
 }
