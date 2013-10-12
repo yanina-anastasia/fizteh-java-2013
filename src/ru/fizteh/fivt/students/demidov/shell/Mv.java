@@ -13,6 +13,13 @@ public class Mv implements BasicCommand {
 			return;
 		}
 		
+		if ((source.exists()) && (source.isDirectory()) && (!destination.exists()) && (source.getParent().equals(destination.getParent()))) {
+			if (!source.renameTo(destination)) {
+		         throw new IOException("unable to move " + source.getPath() + " to " + destination.getPath());
+		       }
+			return;
+		}
+		
 		(new Cp()).executeCommand(arguments, curShell);
 		(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 0, 1), curShell);
 	}
