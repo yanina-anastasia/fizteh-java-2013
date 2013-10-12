@@ -20,6 +20,8 @@ public class Shell {
                 return;
             }
         }
-        throw new InvalidCommandException(command[0]);
+        if ((command.length > 0) && (!command[0].equals(""))) {
+            throw new InvalidCommandException(command[0]);
+        }
     }
 }
