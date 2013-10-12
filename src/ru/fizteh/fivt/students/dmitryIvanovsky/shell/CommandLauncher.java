@@ -27,14 +27,14 @@ public class CommandLauncher {
             return Code.EXIT;
         } else if (commandList.containsKey(command)) {
             String nameMethod = commandList.get(command);
-            Class[] paramTypes = new Class[] { String[].class };
+            Class[] paramTypes = new Class[]{String[].class};
             try {
                 Method method = exampleClass.getClass().getMethod(nameMethod, paramTypes);
-                Vector<String> commandArgs = new Vector<String>();
-                for (int i=2; i<=countTokens; ++i) {
+                Vector<String> commandArgs = new Vector<>();
+                for (int i = 2; i <= countTokens; ++i) {
                     commandArgs.add(token.nextToken());
                 }
-                Object[] args = new Object[] { commandArgs.toArray(new String[commandArgs.size()]) };
+                Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
                 return (Code) method.invoke(exampleClass, args);
             } catch (Exception e) {
                 System.err.println(String.format("Ошибка выполнения метода \'%s\'", nameMethod));
@@ -72,10 +72,15 @@ public class CommandLauncher {
             }
             if (sc.hasNextLine()) {
                 String query = sc.nextLine();
+                if (query.length() == 0) {
+                    continue;
+                }
                 Code res = runCommands(query);
                 if (res == Code.EXIT) {
                     return;
                 }
+            } else {
+                return;
             }
         }
     }

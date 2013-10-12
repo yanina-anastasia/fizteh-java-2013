@@ -19,6 +19,7 @@ public class MyFileMap {
 
     public Code put(String[] args) {
         if (args.length != 2) {
+            System.err.println("У команды put 2 аргумента");
             return Code.ERROR;
         }
         String key = args[0];
@@ -35,6 +36,7 @@ public class MyFileMap {
 
     public Code get(String[] args) {
         if (args.length != 1) {
+            System.err.println("У команды get 1 аргумент");
             return Code.ERROR;
         }
         String key = args[0];
@@ -49,6 +51,7 @@ public class MyFileMap {
 
     public Code remove(String[] args) {
         if (args.length != 1) {
+            System.err.println("У команды remove 1 аргумент");
             return Code.ERROR;
         }
         String key = args[0];
@@ -80,18 +83,13 @@ public class MyFileMap {
         while (point < separate) {
             dbFile.seek(point);
             key = dbFile.readUTF();
-
             dbFile.readChar();
             dbFile.readInt();
             point = dbFile.getFilePointer();
-
             dbFile.seek(point2);
-
             value = dbFile.readUTF();
             point2 = dbFile.getFilePointer();
-
             dbMap.put(key, value);
-
         }
     }
 

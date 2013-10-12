@@ -1,16 +1,17 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.shell;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
-import java.util.*;
 
 public class Shell {
 
     public static void main(String[] args) throws IOException {
-        args = new String[]{"cd /home/deamoon/Music;", "cp2 dir3 dir4"};
+        //args = new String[]{"cd /home/deamoon/Music;", "cp dir3 dir4"};
 
         CommandShell fileCommand = new CommandShell();
-        Map<String, String> commandList = new HashMap<String, String>(){{
+        Map<String, String> commandList = new HashMap<String, String>(){ {
             put("dir", "dir");
             put("mv", "mv");
             put("cp", "cp");

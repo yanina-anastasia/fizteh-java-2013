@@ -133,7 +133,7 @@ public class CommandShell {
             if (listFiles != null) {
                 if (tmpFile.isDirectory()) {
                     for (File c : listFiles) {
-                        rm(new String[]{ c.toString() });
+                        rm(new String[]{c.toString()});
                     }
                 }
             }
