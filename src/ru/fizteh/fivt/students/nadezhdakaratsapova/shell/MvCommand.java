@@ -37,12 +37,7 @@ public class MvCommand implements Command {
                     throw new IOException("mv: not managed to copy File " + source.getName() + " to File " + destination.getName());
                 }
             } else {
-                File target = new File(source, destination.getName());
-                if (target.equals(destination)) {
-                    source.renameTo(destination);
-                } else {
-                    throw new IOException("mv: not managed to copy File " + source.getName() + " to File " + destination.getName());
-                }
+                source.renameTo(destination);
             }
         } else {
             if (destination.isDirectory()) {
