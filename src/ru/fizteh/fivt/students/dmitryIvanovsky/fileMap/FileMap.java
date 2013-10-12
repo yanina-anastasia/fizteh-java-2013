@@ -8,21 +8,29 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class FileMap {
     public static void main(String[] args) throws IOException {
-        //args = new String[]{"cd /home/deamoon/Music;", "cp2 dir3 dir4"};
+        //args = new String[]{"get ключ; get key; get 123"};
+        //String path = "/home/deamoon/Music";
         String path = System.getProperty("fizteh.db.dir");
-        MyFileMap fileMapCommand = new MyFileMap(path);
 
-        Map<String, String> commandList = new HashMap<String, String>(){ {
-            put("put", "put");
-            put("get", "get");
-            put("remove", "remove");
-        }};
+        try {
+            MyFileMap fileMapCommand = new MyFileMap(path);
 
-        CommandLauncher sys = new CommandLauncher(fileMapCommand, commandList);
-        Code res = sys.runShell(args);
-        fileMapCommand.closeDbFile();
+            Map<String, String> commandList = new HashMap<String, String>(){ {
+                put("put", "put");
+                put("get", "get");
+                put("remove", "remove");
+            }};
 
-        if (res == Code.ERROR) {
+            CommandLauncher sys = new CommandLauncher(fileMapCommand, commandList);
+            Code res = sys.runShell(args);
+            fileMapCommand.closeDbFile();
+
+            if (res == Code.ERROR) {
+                System.exit(1);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Ошибка загрузки базы данных");
             System.exit(1);
         }
     }

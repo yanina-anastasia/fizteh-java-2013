@@ -96,7 +96,6 @@ public class MyFileMap {
     }
 
     public MyFileMap(String db, Map map) throws IOException {
-        //RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
         Path pathDbFile = Paths.get(db);
         pathDbFile = pathDbFile.resolve("db.dat");
         dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
@@ -104,7 +103,6 @@ public class MyFileMap {
     }
 
     public MyFileMap(String db) throws IOException {
-        //RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
         Path pathDbFile = Paths.get(db);
         pathDbFile = pathDbFile.resolve("db.dat");
         dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
@@ -124,7 +122,7 @@ public class MyFileMap {
             dbFile.writeUTF(key.toString());
             dbFile.writeChar('\0');
             dbFile.writeInt(len);
-            len += dbMap.get(key).toString().length() * 2;
+            len += dbMap.get(key).toString().getBytes().length + 2;
         }
 
         for (Object value : dbMap.values()) {
