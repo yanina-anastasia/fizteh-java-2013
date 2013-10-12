@@ -49,7 +49,7 @@ public class Shell {
         String commandName = getCommandName(command);
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
-            System.err.println("Unknown command");
+            System.err.println("Invalid input");
             System.getProperty("line.separator");
             return false;
         }

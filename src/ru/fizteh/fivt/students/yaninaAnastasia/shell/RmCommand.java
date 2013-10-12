@@ -9,33 +9,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RmCommand extends Command {
+    private void recRemove(File file) throws IOException {
+        if (file.isDirectory()) {
+            for (File innerFile : file.listFiles()) {
+                recRemove(innerFile);
+            }
+        }
+        if(!file.delete()) {
+            throw new IOException("Error while deleting");
+        }
+    }
     public boolean exec(String[] args, ShellState curState) throws IOException {
         if (args.length != 1) {
             System.err.println("Invalid arguments");
             return false;
         }
-        Path filePath = Paths.get(args[0]);
-        if (curState.workingDirectory != null && !filePath.isAbsolute()) {
-            filePath = Paths.get(curState.workingDirectory).resolve(filePath);
+        File temp = new File(args[0]);
+        if (!temp.isAbsolute()) {
+            temp = new File(curState.workingDirectory, args[0]);
         }
-        File myFile = filePath.toFile();
-        if (!myFile.isDirectory()) {
-            System.err.println("It is not a directory");
-            return false;
-        }
+        File file = temp;
+        recRemove(file);
 
-        File[] files = myFile.listFiles();
-        String[] path = new String[1];
-        if (files != null) {
-            for (File itFile : files) {
-                path[0] = itFile.toString();
-                exec(path, curState);
-            }
-        }
-        if (!myFile.delete()) {
-            System.err.println("Error with deleting");
-            return false;
-        }
         return true;
     }
 
