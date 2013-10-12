@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Shell{
+public class Shell {
 
     public static void main(String[] args) {
         MyShell shell = new MyShell();
@@ -74,9 +74,9 @@ class MyShell {
                 currentDir = tmpFile;
             } else {
                 if (tmpFile.exists()) {
-                   throw new ShellException("cd", String.format("\'%s\': Not a directory", args[0]));
+                    throw new ShellException("cd", String.format("\'%s\': Not a directory", args[0]));
                 } else {
-                   throw new ShellException("cd", String.format("\'%s\': No such file or directory", args[0]));
+                    throw new ShellException("cd", String.format("\'%s\': No such file or directory", args[0]));
                 }
             }
         } catch (ShellException se) {
@@ -229,7 +229,7 @@ class MyShell {
         StringTokenizer tokenizer = new StringTokenizer(command);
         int argNum = tokenizer.countTokens();
         if (argNum == 0) {
-            throw new ShellException("shell", "Empty command");
+            return;
         }
         String commandName = tokenizer.nextToken();
         --argNum;
@@ -238,42 +238,42 @@ class MyShell {
             args[i] = tokenizer.nextToken();
         }
         switch (commandName) {
-            case "cd"       :
+            case "cd":
                 changeDirectory(args);
                 break;
 
-            case "mkdir"    :
+            case "mkdir":
                 mkdir(args);
                 break;
 
-            case "pwd"      :
+            case "pwd":
                 pwd(args);
                 break;
 
-            case "rm"       :
+            case "rm":
                 remove(args);
                 break;
 
-            case "cp"       :
+            case "cp":
                 checkArgsAmount("cp", args.length, 2);
                 copy(args[0], args[1], false);
                 break;
 
-            case "mv"       :
+            case "mv":
                 checkArgsAmount("mv", args.length, 2);
                 copy(args[0], args[1], true);
                 break;
 
-            case "dir"      :
+            case "dir":
                 dir(args);
                 break;
 
-            case "exit"     :
+            case "exit":
                 System.out.println();
                 System.exit(0);
                 break;
 
-            default         :
+            default:
                 throw new ShellException("shell", "No such command");
         }
 
@@ -301,6 +301,7 @@ class MyShell {
         System.out.flush();
         while (scanner.hasNextLine()) {
             String query = scanner.nextLine();
+            query = query.trim();
             if (query.length() == 0) {
                 System.out.print(greeting);
                 System.out.flush();
