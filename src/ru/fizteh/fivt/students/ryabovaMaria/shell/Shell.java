@@ -216,11 +216,11 @@ public class Shell {
     
     public static void interactive() {
         String currentString;
-        Scanner scan = new Scanner(System.in); 
+        Scanner scan = new Scanner(System.in);
         while (true) {
+            System.out.print(currentDir);
+            System.out.print("$ ");
             if (scan.hasNextLine()) {
-                System.out.print(currentDir);
-                System.out.print("$ ");
                 currentString = scan.nextLine();
                 try {
                     processing(currentString);
