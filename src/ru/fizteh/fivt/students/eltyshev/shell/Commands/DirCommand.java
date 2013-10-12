@@ -6,6 +6,10 @@ import java.io.IOException;
 
 public class DirCommand extends AbstractCommand<FileSystemShellState> {
 
+    public DirCommand() {
+        super("dir", "dir");
+    }
+
     public void executeCommand(String params, FileSystemShellState shellState) throws IOException {
         if (params.length() > 0) {
             throw new IllegalArgumentException("Too many arguments!");
@@ -17,10 +21,5 @@ public class DirCommand extends AbstractCommand<FileSystemShellState> {
         for (final String file : files) {
             System.out.println(file);
         }
-    }
-
-    protected void initCommand() {
-        commandName = "dir";
-        helpString = "dir";
     }
 }

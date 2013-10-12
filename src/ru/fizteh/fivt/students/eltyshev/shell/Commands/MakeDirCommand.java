@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 public class MakeDirCommand extends AbstractCommand<FileSystemShellState> {
 
+    public MakeDirCommand() {
+        super("mkdir", "mkdir <directory name>");
+    }
+
     public void executeCommand(String params, FileSystemShellState shellState) throws IOException {
         ArrayList<String> parameters = CommandParser.parseParams(params);
         if (parameters.size() > 1) {
@@ -16,10 +20,5 @@ public class MakeDirCommand extends AbstractCommand<FileSystemShellState> {
             throw new IllegalArgumentException("missing argument");
         }
         shellState.getFileSystem().createDirectory(parameters.get(0));
-    }
-
-    protected void initCommand() {
-        commandName = "mkdir";
-        helpString = "mkdir <directory name>";
     }
 }

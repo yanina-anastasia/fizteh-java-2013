@@ -67,11 +67,11 @@ public class FileSystem {
         final Path sourcePath = getPath(source);
         final Path sourceParentPath = sourcePath.getParent();
         final Path destinationPath = getPath(destination);
-        if (Files.isSameFile(sourcePath, destinationPath)) {
-            throw new IOException(String.format("'%s' and '%s' are the same file", source, destination));
-        }
         if (!Files.exists(sourcePath)) {
             throw new IOException(String.format("cannot copy '%s': No such file or directory", source));
+        }
+        if (Files.exists(destinationPath) && Files.isSameFile(sourcePath, destinationPath)) {
+            throw new IOException(String.format("'%s' and '%s' are the same file", source, destination));
         }
         if (Files.isRegularFile(destinationPath)) {
             if (Files.isRegularFile(sourcePath)) {

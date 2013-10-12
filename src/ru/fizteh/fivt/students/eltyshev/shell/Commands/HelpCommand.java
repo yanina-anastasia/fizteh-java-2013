@@ -6,6 +6,10 @@ import java.util.HashMap;
 
 public class HelpCommand<State> extends AbstractCommand<State> {
 
+    public HelpCommand() {
+        super("help", "help");
+    }
+
     public HelpCommand(ArrayList<Command<State>> commands) {
         for (final Command<State> command : commands) {
             this.commands.put(command.getCommandName(), command);
@@ -23,11 +27,6 @@ public class HelpCommand<State> extends AbstractCommand<State> {
                 printInfo(commandName);
             }
         }
-    }
-
-    public void initCommand() {
-        commandName = "help";
-        helpString = "help";
     }
 
     private void printInfo(String commandName) {

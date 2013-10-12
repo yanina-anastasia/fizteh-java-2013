@@ -42,13 +42,11 @@ public class Shell<State> {
         while (scanner.hasNext()) {
             String command = scanner.nextLine();
             String[] commands = CommandParser.parseCommands(command);
-            if (commands.length == 0)
-            {
+            if (commands.length == 0) {
                 System.out.println("no commands");
             }
             for (final String com : commands) {
-                if (!processCommand(com))
-                {
+                if (!processCommand(com)) {
                     break;
                 }
             }

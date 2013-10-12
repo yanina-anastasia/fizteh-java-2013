@@ -4,8 +4,16 @@ import java.io.IOException;
 
 public abstract class AbstractCommand<State> implements Command<State> {
 
+    private final String commandName;
+    private final String helpString;
+
     public AbstractCommand() {
-        initCommand();
+        this("", "");
+    }
+
+    public AbstractCommand(String commandName, String helpString) {
+        this.commandName = commandName;
+        this.helpString = helpString;
     }
 
     public String getCommandName() {
@@ -15,11 +23,4 @@ public abstract class AbstractCommand<State> implements Command<State> {
     public String getHelpString() {
         return helpString;
     }
-
-    public abstract void executeCommand(String params, State shellState) throws IOException;
-
-    protected abstract void initCommand();
-
-    protected String commandName;
-    protected String helpString;
 }
