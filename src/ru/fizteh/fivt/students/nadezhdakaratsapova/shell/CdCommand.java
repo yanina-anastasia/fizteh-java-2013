@@ -9,7 +9,7 @@ public class CdCommand implements Command {
     }
 
     public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File newDir = new File(args[1]);
+        File newDir = new File(args[1]).getCanonicalFile();
         if (!newDir.isAbsolute()) {
             newDir = new File(currentDirectory.getCurDir(), args[1]);
         }
