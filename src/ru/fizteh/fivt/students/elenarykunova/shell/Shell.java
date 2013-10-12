@@ -9,14 +9,13 @@ import java.util.Scanner;
 public class Shell {
 
     public enum ExitCode {
-        OK, 
-        EXIT, 
-        ERR;
+        OK, EXIT, ERR;
     }
 
     static File currPath;
 
-    private static File getFileFromString(String pathString, String cmd) throws IOException {
+    private static File getFileFromString(String pathString, String cmd)
+            throws IOException {
         File resultFile = new File(pathString);
         if (!resultFile.isAbsolute()) {
             resultFile = new File(currPath.getAbsolutePath() + File.separator
@@ -63,7 +62,7 @@ public class Shell {
         }
     }
 
-    private static boolean isRoot(File arg) {        
+    private static boolean isRoot(File arg) {
         for (File i : File.listRoots()) {
             if (arg.equals(i)) {
                 return true;
@@ -71,12 +70,8 @@ public class Shell {
         }
         return false;
     }
-    
+
     private static ExitCode copyFileToDir(File source, File dest, String cmd) {
-        if (source.getAbsolutePath().equals("/")) {
-            System.err.println(cmd + ": skip /");
-            return ExitCode.ERR;
-        }
         if (!source.exists()) {
             System.err.println(cmd + ": '" + source.getAbsolutePath()
                     + "': doesn't exist");
@@ -103,20 +98,22 @@ public class Shell {
                 return ExitCode.ERR;
             }
         }
-        if (source.getParent().equals(dest)) {
-            // It's the same directory, nothing to do there.
-            return ExitCode.OK;
-        }
-        
+
         for (File par = dest; !isRoot(par); par = par.getParentFile()) {
             if (par.equals(source)) {
                 System.err.println(cmd + ": can't copy from '"
                         + source.getAbsolutePath() + "' to '"
-                        + dest.getAbsolutePath() + "' because of recursive call");
+                        + dest.getAbsolutePath()
+                        + "' because of recursive call");
                 return ExitCode.ERR;
             }
         }
-        
+
+        if (source.getParent() == null || source.getParent().equals(dest)) {
+            // It's the same directory, nothing to do there.
+            return ExitCode.OK;
+        }
+
         if (source.isFile()) {
             File newFile = new File(dest.getAbsolutePath() + File.separator
                     + source.getName());
@@ -208,7 +205,8 @@ public class Shell {
     private static ExitCode dir() {
         File newFile = new File(currPath.toString());
         if (!newFile.exists()) {
-            System.err.println("dir: '" + currPath.toString() + "': doesn't exist");
+            System.err.println("dir: '" + currPath.toString()
+                    + "': doesn't exist");
             return ExitCode.ERR;
         }
         if (!newFile.isDirectory()) {
@@ -253,7 +251,8 @@ public class Shell {
                 if (!destFile.exists()
                         && sourceFile.getParent().equals(destFile.getParent())) {
                     if (!sourceFile.renameTo(destFile)) {
-                        System.err.println("mv: can't rename '" + source + "' to '" + dest + "'");
+                        System.err.println("mv: can't rename '" + source
+                                + "' to '" + dest + "'");
                         return ExitCode.ERR;
                     }
                 } else {
@@ -302,7 +301,7 @@ public class Shell {
 
     private static ExitCode analyze(String input) {
         String[] arg = getArguments(input);
-        if (arg == null) {
+        if (arg == null || arg.length == 0) {
             System.err.println("No command found");
             return ExitCode.ERR;
         }
@@ -360,11 +359,10 @@ public class Shell {
     private static void interactive() {
         Scanner input = new Scanner(System.in);
 
-        input.useDelimiter(System.lineSeparator());
         System.out.print("$ ");
 
-        while (input.hasNext()) {
-            Scanner inputLine = new Scanner(input.next());
+        while (input.hasNextLine()) {
+            Scanner inputLine = new Scanner(input.nextLine());
             inputLine.useDelimiter(";");
             while (inputLine.hasNext()) {
                 if (analyze(inputLine.next()) == ExitCode.EXIT) {
@@ -381,7 +379,7 @@ public class Shell {
 
     public static void main(String[] args) {
         currPath = new File(System.getProperty("user.dir"));
-        
+
         if (args.length == 0) {
             interactive();
         } else {
