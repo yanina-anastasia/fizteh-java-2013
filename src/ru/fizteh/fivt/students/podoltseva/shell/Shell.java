@@ -41,7 +41,7 @@ public class Shell {
 		Scanner scan = new Scanner(System.in);
 		do {
 			try {
-				System.out.println(state.getState() + "$");
+				System.out.println(state.getState() + "$ ");
 				inputString = scan.nextLine();
 				inputString.trim();
 				commands = inputString.split("\\s*;\\s*");
