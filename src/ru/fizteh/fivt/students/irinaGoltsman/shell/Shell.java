@@ -255,6 +255,7 @@ public class Shell {
                     command = scan.nextLine();
                 }
                 String checkIsEmpty = command.replaceAll(" ", "");
+                checkIsEmpty = checkIsEmpty.replaceAll("\t", "");
                 if (checkIsEmpty.equals("")) {
                     System.out.print("$ ");
                     continue;
@@ -272,6 +273,7 @@ public class Shell {
                 } else {
                     for (int i = 0; i < commands.length; i++) {
                         String checkEmpty = commands[i].replaceAll(" ", "");
+                        checkEmpty = checkEmpty.replaceAll("\t", "");
                         if (checkEmpty.equals("")) {
                             continue;
                         }
@@ -296,6 +298,7 @@ public class Shell {
             String[] commands = input.split(";");
             for (int i = 0; i < commands.length; i++) {
                 String checkIsEmpty = commands[i].replaceAll(" ", "");
+                checkIsEmpty = checkIsEmpty.replaceAll("\t", "");
                 if (checkIsEmpty.equals("")) {
                     continue;
                 }
