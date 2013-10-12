@@ -20,11 +20,18 @@ public class Shell {
         while (!wasExit) {
             System.out.print(GREETING);
             String cmd = input.readLine();
-            try {
-                processCommand(cmd);
-            } catch (IllegalArgumentException e) {
-                System.err.println(e.getMessage());
-                System.err.flush();
+            if (cmd == null) {
+                wasExit = true;
+                break;
+            }
+            String[] cmds = cmd.trim().split(";");
+            for (String currentCommand : cmds) {
+                try {
+                    processCommand(currentCommand);
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e.getMessage());
+                    System.err.flush();
+                }
             }
         }
     }
