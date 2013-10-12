@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.mikhaylova_daria.shell;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import static java.nio.file.StandardCopyOption.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import java.util.Scanner;
@@ -100,7 +101,7 @@ public class Shell {
                     try {
                         copy(command[1], command[2]);
                     } catch (Exception e) {
-                        System.err.println("cp: " + e.getMessage());
+                        System.err.println("cp: " + e.toString());
                         if (pack) {
                             System.exit(1);
                         }
@@ -139,9 +140,11 @@ public class Shell {
                     || command[0].equals("rm") || command[0].equals("cp")
                     || command[0].equals("mv") || command[0].equals("dir")
                     || command[0].equals("exit"))) {
-                System.err.println(command[0] + ": An unknown command");
-                if (pack) {
-                    System.exit(1);
+                if (!command[0].isEmpty()) {
+                    System.err.println(command[0] + ": An unknown command");
+                    if (pack) {
+                        System.exit(1);
+                    }
                 }
             }
         }
@@ -246,14 +249,15 @@ public class Shell {
             sourceStr = currentDirectory.toString();
         } else {
             if (sourceStr.equals("..")) {
-                sourceStr = currentDirectory.toPath().normalize().getParent().toAbsolutePath().toString();
+                sourceStr = currentDirectory.toPath().normalize().toAbsolutePath().
+                        getParent().toString();
             }
         }
         if (destination.equals(".")) {
-            destination = currentDirectory.toString();
+            destination = currentDirectory.toPath().normalize().toString();
         } else {
             if (destination.equals("..")) {
-                destination = currentDirectory.toPath().normalize().getParent().toAbsolutePath().toString();
+                destination = currentDirectory.toPath().normalize().toAbsolutePath().getParent().toString();
             }
         }
         File arg1 = new File(sourceStr);
@@ -264,19 +268,25 @@ public class Shell {
         if (!arg2.isAbsolute()) {
             arg2 = currentDirectory.toPath().resolve(arg2.toPath()).normalize().toFile();
         }
-        final Path source = arg1.toPath().normalize().toAbsolutePath();
-        Path targetDir = arg2.toPath().normalize().toAbsolutePath();
+        final Path source = arg1.toPath().toAbsolutePath();
+        Path targetDir = arg2.toPath().toAbsolutePath();
+        final Path target = arg2.toPath().toAbsolutePath();
         if (targetDir.startsWith(source)) {
             if (targetDir.equals(source)) {
                 throw new Exception("Copying is not possible: this arguments are the same");
             }
             throw new Exception("Copying to a subfolder is impossible");
         }
-        targetDir = targetDir.resolve(source.getFileName()).normalize();
+        if (source.toFile().isFile() && target.toFile().isFile()) {
+            Files.copy(source, target, REPLACE_EXISTING);
+            return;
+        }
+        if (targetDir.toFile().isFile() && source.toFile().isDirectory()) {
+            throw new Exception("Copying a directory to file");
+        }
         if (!targetDir.toFile().mkdirs()) {
             throw new Exception("A directory with the same name already exists in the target path\n");
         }
-        final Path target = targetDir;
         Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
                 new SimpleFileVisitor<Path>() {
                     @Override
