@@ -24,7 +24,7 @@ public class Utils {
 			throw new IOException("file " + destination.getPath() + " already exists");
 		}
 		
-        FileChannel sourceChannel = new FileInputStream(source.getPath()).getChannel();
+		FileChannel sourceChannel = new FileInputStream(source.getPath()).getChannel();
 	    FileChannel destinationChannel = new FileOutputStream(destination.getPath()).getChannel();
 	    
 	    destinationChannel.transferFrom(sourceChannel, 0, sourceChannel.size());

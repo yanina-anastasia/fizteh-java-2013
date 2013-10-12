@@ -15,8 +15,8 @@ public class Mv implements BasicCommand {
 		
 		if ((source.exists()) && (source.isDirectory()) && (!destination.exists()) && (source.getParent().equals(destination.getParent()))) {
 			if (!source.renameTo(destination)) {
-		         throw new IOException("unable to move " + source.getPath() + " to " + destination.getPath());
-		       }
+				throw new IOException("unable to move " + source.getPath() + " to " + destination.getPath());
+			}
 			return;
 		}
 		
