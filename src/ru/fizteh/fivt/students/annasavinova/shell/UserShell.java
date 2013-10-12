@@ -23,22 +23,25 @@ public abstract class UserShell {
     }
 
     public static String[] getArgsFromString(String str) {
+        str = str.trim();
         str = str.replaceAll("[ ]+", " ");
-        str = str.replaceAll("[ ]+$", "");
         int countArgs = 1;
         for (int i = 0; i < str.length(); ++i) {
             if (str.charAt(i) == ' ') {
                 ++countArgs;
             }
         }
-        Scanner stringScanner = new Scanner(str);
-        stringScanner.useDelimiter(" ");
-        String[] cmdArgs = new String[countArgs];
-        for (int i = 0; stringScanner.hasNext(); ++i) {
-            cmdArgs[i] = stringScanner.next();
+        if (!str.isEmpty()) {
+            Scanner stringScanner = new Scanner(str);
+            stringScanner.useDelimiter(" ");
+            String[] cmdArgs = new String[countArgs];
+            for (int i = 0; stringScanner.hasNext(); ++i) {
+                cmdArgs[i] = stringScanner.next();
+            }
+            stringScanner.close();
+            return cmdArgs;
         }
-        stringScanner.close();
-        return cmdArgs;
+        return null;
     }
 
     protected abstract void execProc(String[] args);
@@ -62,7 +65,6 @@ public abstract class UserShell {
             isPacket = false;
             System.out.print("$ ");
             Scanner mainScanner = new Scanner(System.in);
-            //mainScanner.useDelimiter(/*System.lineSeparator() + "|*/"[;]|//s");
             while (mainScanner.hasNextLine()) {
                 String str = new String();
                 str = mainScanner.nextLine();
@@ -74,7 +76,7 @@ public abstract class UserShell {
                     Scanner lineSeparator = new Scanner(str);
                     lineSeparator.useDelimiter("[ ]*;[ ]*");
                     while (lineSeparator.hasNext()) {
-                        execProc(getArgsFromString(lineSeparator.next()));                        
+                        execProc(getArgsFromString(lineSeparator.next()));
                     }
                     lineSeparator.close();
                 }

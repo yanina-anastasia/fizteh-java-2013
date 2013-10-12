@@ -77,7 +77,8 @@ public class Shell extends UserShell {
 
     private static boolean isParent(File sourse, File dest) {
         try {
-            if (dest.getCanonicalPath().startsWith(sourse.getCanonicalPath())) {
+            if (dest.getParentFile().getCanonicalPath().startsWith(sourse.getParentFile().getCanonicalPath())
+                    || dest.getCanonicalPath().equals(sourse.getCanonicalPath())) {
                 return true;
             }
         } catch (IOException e) {
@@ -130,7 +131,7 @@ public class Shell extends UserShell {
     }
 
     protected void execProc(String[] args) {
-        if (args.length != 0) {
+        if (args != null && args.length != 0) {
             switch (args[0]) {
             case "pwd":
                 if (checkArgs(1, args)) {
