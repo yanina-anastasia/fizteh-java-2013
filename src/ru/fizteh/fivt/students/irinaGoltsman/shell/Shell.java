@@ -97,7 +97,9 @@ public class Shell {
     // mv <source> <destination> — переносит указанный файл/папку в новое место (файл на прежнем месте удаляется).
     // В частности переименовывает файл/папку, если source и destination находятся в одной папке
     public static Code mvCommand(String source, String destination) {
-        File from = new File(source);
+        Properties p = System.getProperties();
+        String userDir = p.getProperty("user.dir");
+        File from = new File(userDir + File.separator + source);
         if (!from.exists()) {
             System.err.println("wv: cannot move'" + source + "': No such file or directory'");
             return Code.ERROR;
@@ -105,7 +107,7 @@ public class Shell {
         if (destination.equals(".")) {
             return Code.OK;
         }
-        File toDir = new File(destination);
+        File toDir = new File(userDir + File.separator + destination);
         if (!toDir.exists()) {
             if (!from.renameTo(toDir)) {
                 System.err.println("wv: cannot rename'" + source + "': to '" + destination + "'");
@@ -125,16 +127,16 @@ public class Shell {
     //Удаляет указанную в параметрах папку (рекурсивно) или файл.
     public static Code rmCommand(String path) {
         try {
-            File inputFile = new File(path);
+            Properties p = System.getProperties();
+            String userDir = p.getProperty("user.dir");
+            File inputFile = new File(userDir + File.separator + path);
             if (!inputFile.exists()) {
                 System.err.println("rm: cannot remove '" + path + "': No such file or directory");
                 return Code.ERROR;
             }
             if (!inputFile.isAbsolute()) {
-                Properties p = System.getProperties();
-                String dir = p.getProperty("user.dir");
-                String absPath = dir + File.separator + path;
-                inputFile = new File(absPath);
+                System.err.print("Error in rm");
+                System.exit(1);
             }
 
             for (File childFile : inputFile.listFiles()) {
