@@ -2,10 +2,8 @@ package ru.fizteh.fivt.students.annasavinova.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.rmi.UnexpectedException;
 
 public class Shell extends UserShell {
     public static String currPath = System.getProperty("user.dir");
