@@ -86,7 +86,7 @@ class Utilities {
 
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             if (exc instanceof FileSystemLoopException) {
-                throw new IllegalArgumentException("Cycle detected while copying file: " + file.getName() + ".");
+                throw new IllegalArgumentException("Cycle detected while copying file: " + file.toString() + ".");
             }
 
             System.err.println(exc);
