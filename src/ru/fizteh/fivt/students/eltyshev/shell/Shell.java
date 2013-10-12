@@ -14,12 +14,12 @@ public class Shell<State> {
     private String prompt = "$ ";
     private State shellState;
 
-    public Shell(String[] Args) {
-        this.args = Args;
+    public void setArgs(String[] args) {
+        this.args = args;
     }
 
     public void start() throws IOException {
-        if (args.length == 0) {
+        if (args != null && args.length == 0) {
             startInteractive();
         } else {
             packageMode();

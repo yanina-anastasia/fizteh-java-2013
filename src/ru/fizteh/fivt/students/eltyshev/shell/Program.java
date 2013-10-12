@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Program {
     public static void main(String[] Args) throws IOException {
-        Shell shell = new Shell(Args);
+        Shell shell = new Shell();
 
         ArrayList<Command<FileSystemShellState>> commands = new ArrayList<Command<FileSystemShellState>>();
 
@@ -50,6 +50,7 @@ public class Program {
 
         shell.setCommands(commands);
         shell.setShellState(new FileSystemShellState());
+        shell.setArgs(Args);
         shell.start();
     }
 }
