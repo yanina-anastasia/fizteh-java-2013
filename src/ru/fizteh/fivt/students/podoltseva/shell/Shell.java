@@ -43,7 +43,7 @@ public class Shell {
 			try {
 				System.out.println(state.getState() + "$ ");
 				inputString = scan.nextLine();
-				inputString.trim();
+				inputString = inputString.trim();
 				commands = inputString.split("\\s*;\\s*");
 				for (String i : commands) {
 					exec.execute(state, i);
