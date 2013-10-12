@@ -9,7 +9,9 @@ import java.util.Scanner;
 public class Shell {
 
     public enum ExitCode {
-        OK, EXIT, ERR;
+        OK,
+        EXIT, 
+        ERR;
     }
 
     static File currPath;
