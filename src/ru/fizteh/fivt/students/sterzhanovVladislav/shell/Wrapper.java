@@ -8,7 +8,7 @@ public class Wrapper {
     public static void main(String[] args) {
         try {
             Shell cmdShell = new Shell();
-            if (args.length > 1) {
+            if (args.length > 0) {
                 InputStream cmdStream = createStream(args);
                 cmdShell.execCommandStream(cmdStream, false);
             } else {
