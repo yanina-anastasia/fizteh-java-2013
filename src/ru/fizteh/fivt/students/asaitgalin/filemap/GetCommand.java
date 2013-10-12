@@ -1,10 +1,16 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class GetCommand implements Command {
+    private Table storage;
+
+    public GetCommand(Table storage) {
+        this.storage = storage;
+    }
 
     @Override
     public String getName() {
@@ -13,7 +19,13 @@ public class GetCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-
+        String value =  storage.get(args[1]);
+        if (value != null) {
+            System.out.println("found");
+            System.out.println(value);
+        } else {
+            System.out.println("not found");
+        }
     }
 
     @Override
