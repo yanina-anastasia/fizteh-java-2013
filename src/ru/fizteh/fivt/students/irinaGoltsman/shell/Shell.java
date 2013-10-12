@@ -60,26 +60,31 @@ public class Shell {
     //Копирует указанную в параметра папку/файл в указанное место.
     public static Code cpCommand(String source, String destination) {
         File from = new File(source);
-        File toDir = new File(destination);
+        File to = new File(destination);
         if (!from.exists()) {
             System.err.println("cp: '" + source + "': No such file or directory");
             return Code.ERROR;
         }
-        if (!toDir.exists()) {
-            System.err.println("cp: '" + destination + "': No such file or directory");
-            return Code.ERROR;
+        if (!to.exists()) {
+            try {
+                Files.copy(from.toPath(), to.toPath());
+            } catch (Exception e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
+            return Code.OK;
         }
-        if (!toDir.isDirectory()) {
+        if (!to.isDirectory()) {
             System.err.println("cp: '" + destination + "': Is not a directory");
             return Code.ERROR;
         }
-        File to = new File(destination + File.separator + source);
-        if (to.exists()) {
+        File toInDir = new File(destination + File.separator + source);
+        if (toInDir.exists()) {
             System.err.println("cp: '" + source + "': File with such name already exist in '" + destination + "'");
             return Code.ERROR;
         }
         try {
-            Files.copy(from.toPath(), to.toPath());
+            Files.copy(from.toPath(), toInDir.toPath());
         } catch (Exception e) {
             System.err.println(e);
             return Code.SYSTEM_ERROR;
