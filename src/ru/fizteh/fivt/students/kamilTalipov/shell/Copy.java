@@ -75,7 +75,6 @@ public class Copy extends SimpleCommand {
             throw new IllegalArgumentException("cp: cannot access to '" + destinationFile.getName() + "'");
         }
 
-        final int BUFF_SIZE = 1024;
         byte[] buff = new byte[BUFF_SIZE];
         int lengthRead = -1;
         try {
@@ -95,4 +94,6 @@ public class Copy extends SimpleCommand {
             throw new IllegalArgumentException("Couldn't close file");
         }
     }
+
+    private static final int BUFF_SIZE = 1024;
 }
