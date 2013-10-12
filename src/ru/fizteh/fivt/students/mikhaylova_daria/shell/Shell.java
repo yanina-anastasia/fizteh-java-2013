@@ -101,7 +101,7 @@ public class Shell {
                     try {
                         copy(command[1], command[2]);
                     } catch (Exception e) {
-                        System.err.println("cp: " + e.toString());
+                        System.err.println("cp: " + e.getMessage());
                         if (pack) {
                             System.exit(1);
                         }
@@ -246,7 +246,7 @@ public class Shell {
 
     private static void copy(String sourceStr, String destination) throws Exception {
         if (sourceStr.equals(".")) {
-            sourceStr = currentDirectory.toString();
+            sourceStr = currentDirectory.toPath().toAbsolutePath().normalize().toString();
         } else {
             if (sourceStr.equals("..")) {
                 sourceStr = currentDirectory.toPath().normalize().toAbsolutePath().
@@ -254,7 +254,7 @@ public class Shell {
             }
         }
         if (destination.equals(".")) {
-            destination = currentDirectory.toPath().normalize().toString();
+            destination = currentDirectory.toPath().toAbsolutePath().normalize().toString();
         } else {
             if (destination.equals("..")) {
                 destination = currentDirectory.toPath().normalize().toAbsolutePath().getParent().toString();
@@ -263,10 +263,16 @@ public class Shell {
         File arg1 = new File(sourceStr);
         File arg2 = new File(destination);
         if (!arg1.isAbsolute()) {
-            arg1 = currentDirectory.toPath().resolve(arg1.toPath()).normalize().toFile();
+            arg1 = currentDirectory.toPath().normalize().resolve(arg1.toPath()).normalize().toFile();
         }
         if (!arg2.isAbsolute()) {
-            arg2 = currentDirectory.toPath().resolve(arg2.toPath()).normalize().toFile();
+            arg2 = currentDirectory.toPath().normalize().resolve(arg2.toPath()).normalize().toFile();
+        }
+        if (!arg1.toPath().toAbsolutePath().toFile().exists()) {
+             throw new Exception("File source not found");
+        }
+        if (!arg2.toPath().toAbsolutePath().toFile().exists()) {
+            Files.createFile(arg2.toPath().toAbsolutePath());
         }
         final Path source = arg1.toPath().toAbsolutePath();
         Path targetDir = arg2.toPath().toAbsolutePath();
@@ -281,17 +287,22 @@ public class Shell {
             Files.copy(source, target, REPLACE_EXISTING);
             return;
         }
+        if (source.toFile().isFile() && target.toFile().isDirectory()) {
+            Files.copy(source, target.resolve(source.getFileName()), REPLACE_EXISTING);
+            return;
+        }
         if (targetDir.toFile().isFile() && source.toFile().isDirectory()) {
             throw new Exception("Copying a directory to file");
         }
-        if (!targetDir.toFile().mkdirs()) {
+        if (!target.resolve(source.getFileName()).toFile().mkdirs()) {
             throw new Exception("A directory with the same name already exists in the target path\n");
         }
+        final Path tar = target.resolve(source.getFileName());
         Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
                 new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                        Path targetDir = target.resolve(source.relativize(dir)).normalize();
+                        Path targetDir = tar.resolve(source.relativize(dir)).normalize();
                         try {
                             Files.copy(dir, targetDir);
                         } catch (FileAlreadyExistsException e) {
@@ -304,7 +315,7 @@ public class Shell {
 
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.copy(file, target.resolve(source.relativize(file)));
+                        Files.copy(file, tar.resolve(source.relativize(file)));
                         return FileVisitResult.CONTINUE;
                     }
                 });
