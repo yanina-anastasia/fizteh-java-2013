@@ -9,7 +9,7 @@ public class Cp implements BasicCommand {
 		File destination = Utils.getFile(arguments[1], curShell);
 		
 		if (source.exists()) {
-			if (destination.exists() || (source.isFile() && (new File(destination.getParent())).exists())) {
+			if ((destination.exists()) || ((source.isFile()) && ((new File(destination.getParent())).exists()))) {
 				Utils.copyFileOrDirectory(source, destination);
 			} else {
 				throw new IOException(destination.getPath() + " doesn't exist");

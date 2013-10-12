@@ -34,11 +34,11 @@ public class Utils {
 	} 
 	
 	public static void copyFileOrDirectory(File source, File destination) throws IOException {
-		if (destination.isFile() && !(source.isFile())) {
+		if ((destination.isFile()) && (!(source.isFile()))) {
 			throw new IOException("unable to copy directory " + source.getPath() + " to file " + destination.getPath());
 		}
 		
-		if (source.isFile() && destination.isDirectory()) {
+		if ((source.isFile()) && (destination.isDirectory())) {
 			copy(source, new File(destination.getPath(), source.getName()));
 		} else if (source.isFile()) {
 			copy(source, destination);

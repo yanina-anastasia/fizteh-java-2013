@@ -9,7 +9,7 @@ public class Mv implements BasicCommand {
 		File source = Utils.getFile(arguments[0], curShell);
 		File destination = Utils.getFile(arguments[1], curShell);
 		
-		if (source.exists() && source.getPath().equals(destination.getPath())) {
+		if ((source.exists()) && (source.getPath().equals(destination.getPath()))) {
 			return;
 		}
 		
