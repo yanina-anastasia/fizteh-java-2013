@@ -66,6 +66,7 @@ public class Shell {
 		for (Object o : objects) {
 			if (first) {
 				result.append(o.toString());
+				first = false;
 			} else {
 				result.append(Separator).append(o.toString());
 			}
