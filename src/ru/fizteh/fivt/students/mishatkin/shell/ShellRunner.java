@@ -26,15 +26,11 @@ public class ShellRunner {
 					}
 				} catch (TimeToExitException e) {
 					shouldBreakRunLoop = true;
-				} catch (ShellArgumentsMismatchException e) {
-					System.err.println(e.getMessage());
-					in.clearBuffers();
 				} catch (ShellException e) {
 					System.err.println(e.getMessage());
+					in.clearBuffers();
 					if (Shell.isArgumentsMode) {
 						System.exit(1);
-					} else {
-						in.clearBuffers();
 					}
 				}
 			} while (in.hasUnexecutedCommands());
