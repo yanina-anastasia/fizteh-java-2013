@@ -129,14 +129,10 @@ public class Shell {
         sourcePath = currentPath.resolve(sourcePath).normalize();
         File destName = new File(lexems[2]);
         Path destPath = currentPath.resolve(destName.toPath()).normalize();
-        if (currentDir.toPath().startsWith(sourcePath)) {
-            throw new Exception("cp: I can't copy this.");
+        if (destPath.startsWith(sourcePath)) {
+            throw new Exception("cp: there is a cyclic copying.");
         } else {
-            if (destPath.startsWith(sourcePath)) {
-                throw new Exception("cp: there is a cyclic copying.");
-            } else {
-                myCopy(false, sourcePath, destPath);
-            }
+            myCopy(false, sourcePath, destPath);
         }
     }
         
