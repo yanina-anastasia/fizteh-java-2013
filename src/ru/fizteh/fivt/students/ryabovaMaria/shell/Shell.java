@@ -225,7 +225,7 @@ public class Shell {
                 try {
                     processing(currentString);
                 } catch (Exception e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                 }
             } else {
                 exit();
