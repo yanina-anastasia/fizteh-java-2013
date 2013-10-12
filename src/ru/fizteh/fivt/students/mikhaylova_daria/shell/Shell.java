@@ -44,7 +44,14 @@ public class Shell {
                         System.exit(1);
                     }
                 } else {
-                    changeDir(command[1]);
+                    try {
+                        changeDir(command[1]);
+                    } catch (Exception e) {
+                        System.err.println("cd: " + e.getMessage());
+                        if (pack) {
+                            System.exit(1);
+                        }
+                    }
                 }
             }
             if (command[0].equals("mkdir")) {
@@ -164,7 +171,7 @@ public class Shell {
 
     }
 
-    private static void changeDir(String pathString) {
+    private static void changeDir(String pathString) throws Exception {
         File newDir = new File(pathString);
         if (!newDir.isAbsolute()) {
             newDir = currentDirectory.toPath().resolve(newDir.toPath()).toFile();
@@ -172,7 +179,7 @@ public class Shell {
         if (newDir.isDirectory()) {
             currentDirectory = newDir;
         } else {
-            System.err.println("Shell: cd: '" + pathString + "': It's not a directory");
+            throw new Exception(pathString + "': It's not a directory");
         }
     }
 
