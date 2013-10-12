@@ -80,6 +80,12 @@ public class Shell {
             return ExitCode.ERR;
         }
 
+        if (source.equals(dest)) {
+            // It's the same directory, nothing to do there.
+            System.err.println(cmd + ": '" + source.getAbsolutePath() + ": it's the same file!");
+            return ExitCode.ERR;
+        }
+        
         if (!dest.exists()) {
             if (!dest.getParentFile().exists()) {
                 if (!dest.getParentFile().mkdirs()) {
@@ -125,10 +131,6 @@ public class Shell {
             }
         }
 
-        if (source.getParent().equals(dest)) {
-            // It's the same directory, nothing to do there.
-            return ExitCode.OK;
-        }
 
         if (source.isFile()) {
             File newFile = new File(dest.getAbsolutePath() + File.separator
