@@ -49,7 +49,7 @@ class Shell {
             changeDirectory(tokens[1]);
         } else {
             boolean foundCommand = false;
-            for (ExternalCommand ex: possibleCommands) {
+            for (ExternalCommand ex : possibleCommands) {
                 if (tokens[0].equals(ex.getName())) {
                     foundCommand = true;
 

@@ -11,7 +11,7 @@ class RemoveCommand extends ExternalCommand {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
 
-            for (File f: files) {
+            for (File f : files) {
                 if (f.isDirectory())  {
                     recursiveRemove(f);
                 } else {

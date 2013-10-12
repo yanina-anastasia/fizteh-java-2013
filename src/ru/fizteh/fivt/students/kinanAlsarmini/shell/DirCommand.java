@@ -16,7 +16,7 @@ class DirCommand extends ExternalCommand {
 
         File[] fList = dir.listFiles();
 
-        for (File f: fList) {
+        for (File f : fList) {
             System.out.println(f.getName());
         }
     }

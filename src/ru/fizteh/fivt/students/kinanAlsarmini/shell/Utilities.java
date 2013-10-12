@@ -14,8 +14,6 @@ import java.nio.file.attribute.FileTime;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
-
-
 class Utilities {
     public static Path getAbsolutePath(Path p) {
         return p.toAbsolutePath().normalize();
