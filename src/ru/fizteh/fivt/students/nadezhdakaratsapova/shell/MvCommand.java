@@ -51,7 +51,11 @@ public class MvCommand implements Command {
                 }
                 moveRec(source, destination);
             } else {
-                throw new IOException("mv: not managed to copy Directory " + source.getName() + " to File " + destination.getName());
+                if (!destination.exists() && source.getParentFile().equals(destination.getParentFile())) {
+                    source.renameTo(destination);
+                } else {
+                    throw new IOException("mv: not managed to copy " + source.getName() + " to " + destination.getName());
+                }
             }
         }
 
