@@ -274,12 +274,13 @@ public class Shell {
             scanner1.useDelimiter("[ ]*;[ ]*");
             while (scanner1.hasNext()) {
                 String current = scanner1.next();
+                current = current.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
                 if (current.equals("exit")) {
                     scanner.close();
                     scanner1.close();
                     return;
                 } else {
-                    if (!current.equals("") || !current.equals(" ")) {
+                    if (!current.isEmpty()) {
                         executeProcess(extractArgumentsFromInputString(current));
                     }
                 }
