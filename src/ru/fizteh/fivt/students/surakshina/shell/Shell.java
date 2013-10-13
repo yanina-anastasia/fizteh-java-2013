@@ -252,7 +252,13 @@ public class Shell {
         Scanner scanner = new Scanner(newInput);
         scanner.useDelimiter("[ ]*;[ ]*");
         while (scanner.hasNext()) {
-            executeProcess(extractArgumentsFromInputString(scanner.next().toString()));
+            String current = scanner.next();
+            current = current.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
+            if (!current.isEmpty()) {
+                executeProcess(extractArgumentsFromInputString(current));
+            } else {
+                printError("Incorrect input");
+            }
         }
         scanner.close();
     }
@@ -263,6 +269,7 @@ public class Shell {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             cur = scanner.nextLine();
+            cur = cur.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
             Scanner scanner1 = new Scanner(cur);
             scanner1.useDelimiter("[ ]*;[ ]*");
             while (scanner1.hasNext()) {
@@ -272,7 +279,7 @@ public class Shell {
                     scanner1.close();
                     return;
                 } else {
-                    if (!current.equals("")) {
+                    if (!current.equals("") || !current.equals(" ")) {
                         executeProcess(extractArgumentsFromInputString(current));
                     }
                 }
