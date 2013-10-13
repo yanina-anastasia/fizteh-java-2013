@@ -264,11 +264,10 @@ public class Shell {
                 }
                 String[] commands = command.split(";");
                 if (commands.length == 1) {
-                    Code codeOfCommand = commandProcessing(command);
+                    Code codeOfCommand = commandProcessing(commands[0]);
                     if (codeOfCommand == Code.SYSTEM_ERROR) {
                         System.exit(1);
                     }
-                    System.out.print("$ ");
                 } else {
                     for (int i = 0; i < commands.length; i++) {
                         String checkEmpty = commands[i].replaceAll(" ", "");
@@ -281,8 +280,8 @@ public class Shell {
                             System.exit(1);
                         }
                     }
-                    System.out.print("$ ");
                 }
+                System.out.print("$ ");
             }
         } else {   //Пакетный режим.
             StringBuilder str = new StringBuilder();
