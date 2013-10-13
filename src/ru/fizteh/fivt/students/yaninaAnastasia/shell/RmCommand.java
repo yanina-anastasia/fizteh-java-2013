@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.System;
 
 public class RmCommand extends Command {
     private void recRemove(File file) throws IOException {
@@ -11,7 +10,7 @@ public class RmCommand extends Command {
                 recRemove(innerFile);
             }
         }
-        if(!file.delete()) {
+        if (!file.delete()) {
             throw new IOException("Error while deleting");
         }
     }

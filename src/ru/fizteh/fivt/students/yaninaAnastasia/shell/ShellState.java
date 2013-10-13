@@ -6,7 +6,8 @@ public class ShellState {
     public String workingDirectory;
 
     ShellState() {
-        File file = new File(".");
+        File file = new File("");
+
         workingDirectory = file.getAbsolutePath();
     }
 

@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.*;
-import java.lang.System;
 import java.nio.file.*;
 
 public class CopyCommand extends Command {

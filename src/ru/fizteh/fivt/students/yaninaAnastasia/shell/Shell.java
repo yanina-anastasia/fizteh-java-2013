@@ -29,7 +29,7 @@ public class Shell {
             String[] result = {};
             return result;
         } else {
-            String [] res = command.substring(spaceEntry + 1).trim().split("\\s+");
+            String[] res = command.substring(spaceEntry + 1).trim().split("\\s+");
             for (int i = 0; i < res.length; i++) {
                 res[i].trim();
             }
@@ -50,11 +50,11 @@ public class Shell {
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
             System.err.println("Invalid input");
-            System.getProperty("line.separator");
+
             return false;
         }
         try {
-            if (cmds.get(commandName).exec(params, curState) == false) {
+            if (!cmds.get(commandName).exec(params, curState)) {
                 return false;
             }
         } catch (IllegalArgumentException e) {
@@ -87,7 +87,7 @@ public class Shell {
         }
     }
 
-    public void pocket(String[] args) {
+    public void pocket(String [] args) {
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);

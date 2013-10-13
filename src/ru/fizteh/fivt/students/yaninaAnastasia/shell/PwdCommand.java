@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.IOException;
-import java.lang.System;
 
 public class PwdCommand extends Command {
     public boolean exec(String[] args, ShellState curState) throws IOException {

@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.System;
 import java.nio.file.Files;
 
 public class MoveCommand extends Command {

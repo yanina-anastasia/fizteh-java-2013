@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
-import ru.fizteh.fivt.students.yaninaAnastasia.shell.ShellState;
-
 import java.io.IOException;
 
 public class ExitCommand extends Command {
