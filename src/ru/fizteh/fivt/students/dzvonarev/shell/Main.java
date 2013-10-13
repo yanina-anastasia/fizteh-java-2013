@@ -44,7 +44,12 @@ class Main {
         initCurrDirectory();
         invite();
         Scanner sc = new Scanner(System.in);
-        String input = sc.nextLine();
+        String input = "";
+        if (sc.hasNextLine()) {
+            input = sc.nextLine();
+        } else {
+            Exit.exitShell(0);
+        }
         while (!input.equals("exit")) {
             String[] s = input.split("\\s*;\\s*");
             for (int i = 0; i < s.length; ++i) {
@@ -58,7 +63,11 @@ class Main {
                 }
             }
             invite();
-            input = sc.nextLine();
+            if (sc.hasNextLine()) {
+                input = sc.nextLine();
+            } else {
+                Exit.exitShell(0);
+            }
         }
     }
 
