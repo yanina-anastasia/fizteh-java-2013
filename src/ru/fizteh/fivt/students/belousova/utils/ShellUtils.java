@@ -1,21 +1,19 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
 import ru.fizteh.fivt.students.belousova.shell.Command;
-import ru.fizteh.fivt.students.belousova.shell.MainShell;
-import ru.fizteh.fivt.students.belousova.shell.ShellState;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ShellUtils {
-    public static void batchMode(String[] args, ShellState state) {
+    public static void batchMode(String[] args, Map<String, Command> commandList) {
 
         String s = join(Arrays.asList(args), " ");
         try {
-            stringHandle(s, state);
+            stringHandle(s, commandList);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -36,21 +34,21 @@ public class ShellUtils {
         return sb.toString();
     }
 
-    public static void interactiveMode(InputStream inputStream, ShellState state) {
+    public static void interactiveMode(InputStream inputStream, Map<String, Command> commandList) {
 
         do {
             System.out.print("$ ");
             Scanner scanner = new Scanner(inputStream);
             String s = scanner.nextLine();
             try {
-                stringHandle(s, state);
+                stringHandle(s, commandList);
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
         } while (!Thread.currentThread().isInterrupted());
     }
 
-    public static void stringHandle(String s, ShellState state) throws IOException{
+    public static void stringHandle(String s, Map<String, Command> commandList) throws IOException {
 
         String[] commands = s.trim().split("\\s*;\\s*");
 
@@ -58,11 +56,11 @@ public class ShellUtils {
             String[] tokens = com.split("\\s+");
             try {
                 String commandName = tokens[0];
-                if (!MainShell.commandList.containsKey(commandName)) {
+                if (!commandList.containsKey(commandName)) {
                     throw new IOException("Invalid command");
                 }
 
-                Command command = MainShell.commandList.get(commandName);
+                Command command = commandList.get(commandName);
                 if (command.getArgCount() + 1 > tokens.length) {
                     throw new IOException("missing file operand");
                 }
