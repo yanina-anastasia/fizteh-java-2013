@@ -17,11 +17,6 @@ public class DbMain {
 		try {
 			shellState = new ShellState();
 		}
-		catch (FileNotFoundException e) {
-			System.err.println("Database file not found");
-			System.exit(1);
-			return;
-		}
 		catch (IOException e) {
 			System.err.printf("Error: %s\n", e.getMessage());
 			System.exit(1);

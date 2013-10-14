@@ -9,13 +9,14 @@ public class FileStorage implements Table {
 	private final File dbFilePath;
 	private final TreeMap<String, String> memoryStore;
 
-	public FileStorage (String directory, String fileName) throws FileNotFoundException, IOException {
+	public FileStorage (String directory, String fileName) throws IOException {
 		dbFilePath = new File(directory, fileName);
 		memoryStore = new TreeMap<String, String>();
+		dbFilePath.createNewFile();
 		loadDataToMemory();
 	}
 
-	private void loadDataToMemory () throws FileNotFoundException, IOException {
+	private void loadDataToMemory () throws IOException {
 		DataInputStream dbFile = new DataInputStream(new BufferedInputStream(new FileInputStream(dbFilePath)));
 		for (;;) {
 			int keyLength, valueLength;
