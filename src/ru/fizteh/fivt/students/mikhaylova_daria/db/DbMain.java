@@ -14,23 +14,21 @@
                 Parser.parser(arg, FileMap.class);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
+                System.exit(1);
             }
         }
 
-        private static void writerDateBase() throws Exception {
+        static void writerDateBase() throws Exception {
             File workingDirectory = new File(workingDirectoryName);
             RandomAccessFile dateBase = null;
             try {
                 dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "rw");
             } catch (Exception e) {
-                 throw new Exception("Creating \"db.dat\" is not possible");
-            } finally {
-                if (dateBase != null) {
-                    dateBase.close();
-                }
+                throw new Exception("Creating" + workingDirectory.toPath().resolve("db.dat").toFile()
+                        + "is not possible");
             }
             HashMap<String, Long> offsets = new HashMap<String, Long>();
-            long lastOffset = 0;
+            long lastOffset;
             for (String key: FileMap.fileMap.keySet()) {
                 dateBase.writeUTF(key);
                 dateBase.writeChar('\0');
@@ -48,9 +46,10 @@
                 dateBase.write(lastOffsetInt);
                 dateBase.seek(lastOffset);
             }
+            dateBase.close();
         }
 
-        private static void readerDateBase() throws Exception {
+        static void readerDateBase() throws Exception {
             File workingDirectory = new File(workingDirectoryName);
             RandomAccessFile dateBase = null;
             try {
@@ -59,10 +58,6 @@
                 throw new Exception("File is not found " + e.getMessage());
             } catch (Exception e) {
                 throw new Exception("Opening isn't possible");
-            } finally {
-                if (dateBase != null) {
-                    dateBase.close();
-                }
             }
             String key;
             String value;
@@ -85,6 +80,7 @@
                 value = dateBase.readUTF();
                 FileMap.fileMap.put(key, value);
             }
+            dateBase.close();
         }
      }
 

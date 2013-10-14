@@ -1,10 +1,11 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 import java.lang.reflect.Method;
 
 public class Parser {
-    public static void parser(String[] arg, Class workingClass) throws Exception{
+    public static void parser(String[] arg, Class workingClass) throws Exception {
         boolean flag = true;
         Scanner input = new Scanner(System.in);
         String[] commandString;
@@ -33,8 +34,20 @@ public class Parser {
         Class[] parametrTypes = new Class[] {String[].class};
         for (i = 0; i < commandString.length; ++i) {
             String[] command = commandString[i].trim().split("\\s+");
-            Method currentMethod = workingClass.getMethod(command[0], parametrTypes);
-            currentMethod.invoke(command);
+            Method currentMethod = null;
+            try {
+                currentMethod = workingClass.getMethod(command[0], parametrTypes);
+                try {
+                    currentMethod.invoke(obj, (Object) command);
+                } catch (InvocationTargetException e) {
+                    throw new Exception(e.getCause().toString());
+                }
+            } catch (Exception e) {
+                System.err.println("parser: " + command[0] + ": Bad command or wrong number of arguments");
+                if (pack) {
+                    System.exit(1);
+                }
+            }
         }
     }
 

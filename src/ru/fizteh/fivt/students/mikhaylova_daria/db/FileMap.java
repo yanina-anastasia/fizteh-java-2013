@@ -4,18 +4,18 @@
     import java.util.HashMap;
 
     class FileMap {
-        static HashMap<String, String> fileMap;
+        static HashMap<String, String> fileMap = new HashMap<String, String>();
         public static void main(String[] arg) {
 
         }
 
-        static void put(String[] arg) throws IOException {
+        public static void put(String[] arg) throws IOException {
             if (arg.length != 3) {
                 throw new IOException("put: Wrong number of arguments");
             }
             if (!fileMap.containsValue(arg[2])) {
                  System.out.println("new");
-            };
+            }
             if (fileMap.containsKey(arg[1])) {
                 if (fileMap.containsKey(arg[1])) {
                     System.out.println("overwrite\n" + fileMap.get(arg[1]));
@@ -24,7 +24,7 @@
             fileMap.put(arg[1], arg[2]);
         }
 
-        static void get(String[] arg) throws IOException {
+        public static void get(String[] arg) throws IOException {
             if (arg.length != 2) {
                 throw new IOException("get: Wrong number of arguments");
             }
@@ -35,7 +35,7 @@
             }
         }
 
-        static void remove(String[] arg) throws  IOException {
+        public static void remove(String[] arg) throws  IOException {
             if (arg.length != 2) {
                 throw new IOException("remove: Wrong number of arguments");
             }
@@ -47,7 +47,13 @@
             }
         }
 
-        static void exit() {
+        public static void exit(String[] arg) {
+            try {
+                DbMain.writerDateBase();
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
             System.exit(0);
         }
     }
