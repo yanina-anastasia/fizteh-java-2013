@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.State;
 
@@ -35,28 +37,29 @@ public class DbState extends State {
 		if (path == null) {
 			throw new IOException("can't get property");
 		}
-		currentDir = new File(path, "db.dat");
-		if (!currentDir.exists()) {
-			if (!currentDir.createNewFile()) {
+		setCurrentDir(new File(path, "db.dat"));
+		if (!getCurrentDir().exists()) {
+			if (!getCurrentDir().createNewFile()) {
 				throw new IOException("can't create db.dat");
 			} else {
-				dbFile = new RandomAccessFile(currentDir, "rw");
+				dbFile = new RandomAccessFile(getCurrentDir(), "rw");
 			}
 		} else {
 			try {
 				loadDataFromFile();
 			} catch (EOFException e) {
-				throw new IOException("File is emply or have wrong format");
+				throw new IOException("File have wrong format");
 			}
 		}
 	}
 	
 	private void loadDataFromFile() throws FileNotFoundException, IOException{
-		dbFile = new RandomAccessFile(currentDir, "rw");
-		
+		dbFile = new RandomAccessFile(getCurrentDir(), "rw");
+		if (dbFile.length() == 0) {
+			return;
+		}
 		long currentOffset;
 		long firstOffset = 0;
-		boolean isFirst = true;
 		long pos = 0;
 		String key = null;
 		String value = null;
@@ -65,9 +68,8 @@ public class DbState extends State {
 			key = dbFile.readUTF();
 			dbFile.readChar();
 			currentOffset = dbFile.readInt();
-			if (isFirst) {
+			if (firstOffset == 0) {
 				firstOffset = currentOffset;
-				isFirst = false;
 			}
 			pos = dbFile.getFilePointer();
 			dbFile.seek(currentOffset);
@@ -75,4 +77,32 @@ public class DbState extends State {
 			data.put(key, value);
 		} while (pos < firstOffset);
 	}
+	
+
+	public void commitDiff() throws IOException {
+		RandomAccessFile dbFile = getDbFile();
+		int offset = 0;
+		long pos = 0;
+		
+		Set<String> keys = getData().keySet();
+		for (String s: keys) {
+			offset += s.getBytes("UTF-8").length + 8;
+		}
+		
+		for (Map.Entry<String, String> s: getData().entrySet()) {
+			dbFile.seek(pos);
+			dbFile.writeUTF(s.getKey());
+			dbFile.writeChar('\0');
+			dbFile.writeInt(offset);
+			pos = dbFile.getFilePointer();
+			dbFile.seek(offset);
+			dbFile.writeUTF(s.getValue());
+			offset = (int) dbFile.getFilePointer();
+		}
+		
+		if (dbFile.length() == 0) {
+			getCurrentDir().delete();
+		}
+	}
+
 }

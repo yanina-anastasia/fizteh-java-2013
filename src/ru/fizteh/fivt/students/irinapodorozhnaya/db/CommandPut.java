@@ -16,9 +16,9 @@ public class CommandPut extends AbstractCommand {
 	public void execute(String[] args) throws IOException {
 		String s = ((DbState) getState()).getData().put(args[1], args[2]);
 		if (s != null) {
-			getState().out.print("overwrite " + s);
+			getState().getOutputStream().println("overwrite " + s);
 		} else {
-			getState().out.println("new");
+			getState().getOutputStream().println("new");
 		}
 	}
 }

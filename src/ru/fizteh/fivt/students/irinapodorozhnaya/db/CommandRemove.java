@@ -18,9 +18,9 @@ public class CommandRemove extends AbstractCommand {
 	public void execute(String[] args) throws IOException {
 		String s = ((DbState) getState()).getData().remove(args[1]);
 		if (s == null) {
-			getState().out.println("not found");
+			getState().getOutputStream().println("not found");
 		} else {
-			getState().out.println("removed");
+			getState().getOutputStream().println("removed");
 		}
 	}
 }

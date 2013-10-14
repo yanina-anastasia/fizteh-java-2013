@@ -27,7 +27,7 @@ public class Mode {
 		 String[] com = arg.trim().split("\\s*;\\s*");
 		 for (String s: com) {
 			 String[] args = s.split("\\s+");
-			 Command c = st.commands.get(args[0]);
+			 Command c = st.getCommands().get(args[0]);
 			 if (c != null) {
 				 int argsNumber = c.getNumberOfArguments();
 				 if (argsNumber > args.length - 1) {
@@ -43,10 +43,10 @@ public class Mode {
 	 }
 
 	 public static void interactiveMode(State st) {
-		 Scanner sc = new Scanner(st.in);
+		 Scanner sc = new Scanner(st.getInputStream());
 		 do {
 			 try {
-				 st.out.print("$ ");
+				 st.getOutputStream().print("$ ");
 				 String s = sc.nextLine();
 				 parseAndExecute(s, st);
 			 } catch (IOException e) {

@@ -24,7 +24,7 @@ public abstract class AbstractCommand implements Command {
 		if (f.isAbsolute()) {
 			return f;
 		} else {
-			return new File (getState().currentDir, path);
+			return new File (state.getCurrentDir(), path);
 		}
 	}
 }
