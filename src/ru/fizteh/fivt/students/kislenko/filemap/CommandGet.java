@@ -14,6 +14,14 @@ public class CommandGet implements Command {
         return 1;
     }
 
+    private String byteToString(byte[] symbols) {
+        StringBuilder sb = new StringBuilder();
+        for (byte symbol : symbols) {
+            sb.append((char) symbol);
+        }
+        return sb.toString();
+    }
+
     private String get(String targetKey) throws IOException {
         if (database.length() == 0) {
             return "";
@@ -25,20 +33,17 @@ public class CommandGet implements Command {
         do {
             keyLength = database.readInt();
             valueLength = database.readInt();
-            key = "";
-            value = "";
-            for (int i = 0; i < keyLength; ++i) {
-                key = key + database.readChar();
+            byte[] keySymbols = new byte[keyLength];
+            byte[] valueSymbols = new byte[valueLength];
+            database.read(keySymbols);
+            database.read(valueSymbols);
+            key = byteToString(keySymbols);
+            value = byteToString(valueSymbols);
+            if (key.equals(targetKey)) {
+                return value;
             }
-            for (int i = 0; i < valueLength; ++i) {
-                value = value + database.readChar();
-            }
-        } while (!key.equals(targetKey) && database.getFilePointer() != database.length());
-        if (key.equals(targetKey)) {
-            return value;
-        } else {
-            return "";
-        }
+        } while (database.getFilePointer() != database.length());
+        return "";
     }
 
     public void run(State state, String[] args) throws IOException {

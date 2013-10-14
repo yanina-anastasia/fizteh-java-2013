@@ -16,38 +16,23 @@ public class CommandPut implements Command {
         return 2;
     }
 
-    private void find(String targetKey) throws IOException {
-        if (database.length() == 0) {
-            position = -1;
-            return;
+    private String byteToString(byte[] symbols) {
+        StringBuilder sb = new StringBuilder();
+        for (byte symbol : symbols) {
+            sb.append((char) symbol);
         }
-        int keyLength = database.readInt();
-        int valueLength = database.readInt();
-        String key;
-        do {
-            key = "";
-            for (int i = 0; i < keyLength; ++i) {
-                key = key + database.readChar();
-            }
-            for (int i = 0; i < valueLength; ++i) {
-                database.readChar();
-            }
-        } while (!key.equals(targetKey) && database.getFilePointer() != database.length());
-        if (key.equals(targetKey)) {
-            length = 2 * (keyLength + valueLength) + 8;
-            position = database.getFilePointer() - length;
-        } else {
-            position = -1;
-        }
+        return sb.toString();
     }
 
-    private void remove() throws IOException {
-        byte[] part = new byte[(int) (database.length() - (position + length))];
-        database.seek(position + length);
-        database.read(part);
-        database.seek(position);
-        database.write(part);
-        database.setLength(database.length() - length);
+    private byte[] stringToByte(String s) throws IOException {
+        byte[] b = new byte[s.length()];
+        for (int i = 0; i < b.length; ++i) {
+            if (s.charAt(i) > 255) {
+                throw new IOException("put: Not in UTF-8.");
+            }
+            b[i] = (byte) s.charAt(i);
+        }
+        return b;
     }
 
     private byte[] intToByte(int a) {
@@ -59,14 +44,49 @@ public class CommandPut implements Command {
         return result;
     }
 
+    private void find(String targetKey) throws IOException {
+        if (database.length() == 0) {
+            position = -1;
+            return;
+        }
+        int keyLength;
+        int valueLength;
+        String key;
+        do {
+            keyLength = database.readInt();
+            valueLength = database.readInt();
+            byte[] keySymbols = new byte[keyLength];
+            byte[] valueSymbols = new byte[valueLength];
+            database.read(keySymbols);
+            database.read(valueSymbols);
+            key = byteToString(keySymbols);
+            byteToString(valueSymbols);
+            if (key.equals(targetKey)) {
+                length = keyLength + valueLength + 8;
+                position = database.getFilePointer() - length;
+                return;
+            }
+        } while (database.getFilePointer() != database.length());
+        position = -1;
+    }
+
+    private void remove() throws IOException {
+        byte[] part = new byte[(int) (database.length() - (position + length))];
+        database.seek(position + length);
+        database.read(part);
+        database.seek(position);
+        database.write(part);
+        database.setLength(database.length() - length);
+    }
+
     private void put(String key, String value) throws IOException {
         database.seek(database.length());
         byte[] keySize = intToByte(key.length());
         byte[] valueSize = intToByte(value.length());
         database.write(keySize);
         database.write(valueSize);
-        database.writeChars(key);
-        database.writeChars(value);
+        database.write(stringToByte(key));
+        database.write(stringToByte(value));
     }
 
     public void run(State state, String[] args) throws IOException {

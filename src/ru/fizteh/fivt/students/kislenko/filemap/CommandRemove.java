@@ -16,6 +16,14 @@ public class CommandRemove implements Command {
         return 1;
     }
 
+    private String byteToString(byte[] symbols) {
+        StringBuilder sb = new StringBuilder();
+        for (byte symbol : symbols) {
+            sb.append((char) symbol);
+        }
+        return sb.toString();
+    }
+
     private void find(String targetKey) throws IOException {
         if (database.length() == 0) {
             position = -1;
@@ -27,20 +35,19 @@ public class CommandRemove implements Command {
         do {
             keyLength = database.readInt();
             valueLength = database.readInt();
-            key = "";
-            for (int i = 0; i < keyLength; ++i) {
-                key = key + database.readChar();
+            byte[] keySymbols = new byte[keyLength];
+            byte[] valueSymbols = new byte[valueLength];
+            database.read(keySymbols);
+            database.read(valueSymbols);
+            key = byteToString(keySymbols);
+            byteToString(valueSymbols);
+            if (key.equals(targetKey)) {
+                length = keyLength + valueLength + 8;
+                position = database.getFilePointer() - length;
+                return;
             }
-            for (int i = 0; i < valueLength; ++i) {
-                database.readChar();
-            }
-        } while (!key.equals(targetKey) && database.getFilePointer() != database.length());
-        if (key.equals(targetKey)) {
-            length = 2 * (keyLength + valueLength) + 8;
-            position = database.getFilePointer() - length;
-        } else {
-            position = -1;
-        }
+        } while (database.getFilePointer() != database.length());
+        position = -1;
     }
 
     private void remove() throws IOException {
