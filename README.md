@@ -11,7 +11,7 @@
 3. [Исключения, Stream, Reader, Writer](http://yadi.sk/d/4qdRI4fOA3THz)
 4. [Наследование, обобщения, коллекции](http://yadi.sk/d/0kYMQiNhA3TWo)
 5. [Reflection](http://yadi.sk/d/C2I7P9igAToCA)
-6. [JUnit, Сериализация](http://yadi.sk/d/6vK6OgakAoBBw)
+6. [JUnit, Сериализация](http://yadi.sk/d/cPNVV8f6Apt7D)
 
 ## Семинары
 В папке [tasks](tasks) находятся описания заданий на
