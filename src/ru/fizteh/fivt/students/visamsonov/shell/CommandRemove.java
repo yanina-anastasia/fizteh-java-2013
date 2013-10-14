@@ -12,10 +12,10 @@ public class CommandRemove extends CommandAbstract {
 		}
 		String value = state.database.remove(args);
 		if (value != null) {
-			outStream.printf("removed\n");
+			getOutStream().printf("removed\n");
 		}
 		else {
-			outStream.println("not found");
+			getOutStream().println("not found");
 		}
 		return true;
 	}

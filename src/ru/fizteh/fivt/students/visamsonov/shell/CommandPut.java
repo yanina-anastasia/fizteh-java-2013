@@ -14,10 +14,10 @@ public class CommandPut extends CommandAbstract {
 		String oldValue = state.database.get(argArray[0]);
 		state.database.put(argArray[0], argArray[1]);
 		if (oldValue != null) {
-			outStream.printf("overwrite\n%s\n", oldValue);
+			getOutStream().printf("overwrite\n%s\n", oldValue);
 		}
 		else {
-			outStream.println("new");
+			getOutStream().println("new");
 		}
 		return true;
 	}

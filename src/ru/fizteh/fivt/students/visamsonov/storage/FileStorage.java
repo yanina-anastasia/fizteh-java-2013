@@ -4,17 +4,19 @@ import java.util.TreeMap;
 import java.math.BigInteger;
 import java.io.*;
 
-public class FileStorage extends TreeMap<String, String> implements Table {
+public class FileStorage implements Table {
 
 	private final File dbFilePath;
+	private final TreeMap<String, String> memoryStore;
 
 	public FileStorage (String directory, String fileName) throws FileNotFoundException, IOException {
 		dbFilePath = new File(directory, fileName);
+		memoryStore = new TreeMap<String, String>();
 		loadDataToMemory();
 	}
 
 	private void loadDataToMemory () throws FileNotFoundException, IOException {
-		DataInputStream dbFile = new DataInputStream(new FileInputStream(dbFilePath));
+		DataInputStream dbFile = new DataInputStream(new BufferedInputStream(new FileInputStream(dbFilePath)));
 		for (;;) {
 			int keyLength, valueLength;
 			try {
@@ -37,29 +39,33 @@ public class FileStorage extends TreeMap<String, String> implements Table {
 	}
 
 	public String get (String key) {
-		return super.get(key);
+		return memoryStore.get(key);
 	}
 
 	public String put (String key, String value) {
-		return super.put(key, value);
+		return memoryStore.put(key, value);
 	}
 
 	public String remove (String key) {
-		return super.remove(key);
+		return memoryStore.remove(key);
 	}
 
 	public int rollback () {
 		throw new UnsupportedOperationException();
 	}
 
+	public int size () {
+		throw new UnsupportedOperationException();
+	}
+
 	public int commit () {
 		int saved = 0;
 		try {
-			DataOutputStream dbFile = new DataOutputStream(new FileOutputStream(dbFilePath));
-			while (firstEntry() != null) {
-				byte[] key = firstEntry().getKey().getBytes();
-				byte[] value = firstEntry().getValue().getBytes();
-				pollFirstEntry();
+			DataOutputStream dbFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dbFilePath)));
+			while (memoryStore.firstEntry() != null) {
+				byte[] key = memoryStore.firstEntry().getKey().getBytes();
+				byte[] value = memoryStore.firstEntry().getValue().getBytes();
+				memoryStore.pollFirstEntry();
 				dbFile.writeInt(key.length);
 				dbFile.writeInt(value.length);
 				dbFile.write(key);

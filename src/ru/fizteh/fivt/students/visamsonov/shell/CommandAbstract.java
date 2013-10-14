@@ -5,8 +5,8 @@ import java.io.PrintStream;
 public abstract class CommandAbstract implements Command {
 
 	protected String name;
-	protected PrintStream errStream;
-	protected PrintStream outStream;
+	private PrintStream errStream;
+	private PrintStream outStream;
 
 	public CommandAbstract (String commandName) {
 		name = commandName;
@@ -22,6 +22,14 @@ public abstract class CommandAbstract implements Command {
 	public void redirectStreams (PrintStream out, PrintStream err) {
 		errStream = err;
 		outStream = out;
+	}
+
+	public PrintStream getOutStream () {
+		return outStream;
+	}
+
+	public PrintStream getErrStream () {
+		return errStream;
 	}
 
 	public void printError (String message) {

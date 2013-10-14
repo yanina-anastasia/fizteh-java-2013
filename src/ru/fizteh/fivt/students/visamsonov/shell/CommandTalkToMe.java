@@ -9,7 +9,7 @@ public class CommandTalkToMe extends CommandAbstract {
 	}
 	
 	public boolean evaluate (ShellState state, String args) {
-		outStream.println("Are you kidding me?!\nResult: 42");
+		getOutStream().println("Are you kidding me?!\nResult: 42");
 		return true;
 	}
 }

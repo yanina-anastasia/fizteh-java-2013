@@ -12,10 +12,10 @@ public class CommandGet extends CommandAbstract {
 		}
 		String value = state.database.get(args);
 		if (value != null) {
-			outStream.printf("found\n%s\n", value);
+			getOutStream().printf("found\n%s\n", value);
 		}
 		else {
-			outStream.println("not found");
+			getOutStream().println("not found");
 		}
 		return true;
 	}
