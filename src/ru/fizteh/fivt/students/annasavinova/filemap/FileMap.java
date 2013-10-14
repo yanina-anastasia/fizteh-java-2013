@@ -20,7 +20,7 @@ public class FileMap extends UserShell {
             dataFile.skipBytes(valueLong);
             return key;
         } catch (IOException e) {
-            System.out.println("Can't read key");
+            System.err.println("Can't read key");
             System.exit(1);
         }
         return "PANIC_KEY";
@@ -37,7 +37,7 @@ public class FileMap extends UserShell {
             String value = new String(byteArray, "UTF-16");
             return value;
         } catch (IOException e) {
-            System.out.println("Can't read value");
+            System.err.println("Can't read value");
             System.exit(1);
         }
         return "PANIC_VALUE";
@@ -54,7 +54,7 @@ public class FileMap extends UserShell {
                 currPointer = dataFile.getFilePointer();
             }
         } catch (IOException e) {
-            System.out.println("Can't find key");
+            System.err.println("Can't find key");
             System.exit(1);
         }
         return -1;
@@ -76,7 +76,7 @@ public class FileMap extends UserShell {
             dataFile.writeChars(key);
             dataFile.writeChars(value);
         } catch (IOException e) {
-            System.out.println("Can't put");
+            System.err.println("Can't put");
             System.exit(1);
         }
     }
@@ -92,24 +92,24 @@ public class FileMap extends UserShell {
                 System.out.println(value);
             }
         } catch (IOException e) {
-            System.out.println("Can't get");
+            System.err.println("Can't get");
             System.exit(1);
         }
     }
 
-    private static void copy(RandomAccessFile sourse, RandomAccessFile dest, long off, long length) {
+    private static void copy(RandomAccessFile source, RandomAccessFile dest, long offset, long length) {
         int tmp = (int) length;
         if (tmp < 0) {
             System.out.println(tmp);
         }
         byte[] arr = new byte[tmp];
         try {
-            sourse.seek(off);
-            sourse.read(arr, 0, tmp);
+            source.seek(offset);
+            source.read(arr, 0, tmp);
             dest.seek(dest.length());
             dest.write(arr);
         } catch (IOException e) {
-            System.out.println("Can't rewrite file");
+            System.err.println("Can't rewrite file");
             System.exit(1);
         }
 
@@ -131,7 +131,7 @@ public class FileMap extends UserShell {
             dataFile.setLength(tmpFile.length());
             tmpFile.close();
         } catch (IOException e) {
-            System.out.println("Can't remove");
+            System.err.println("Can't remove");
             System.exit(1);
         }
     }
@@ -146,34 +146,45 @@ public class FileMap extends UserShell {
         }
     }
 
-    // @Override
+    @Override
     protected void execProc(String[] args) {
         try {
-            // dataFile = new
-            // RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
-            dataFile = new RandomAccessFile("dbfile", "rw");
-            switch (args[0]) {
-            case "put":
-                if (UserShell.checkArgs(3, args)) {
-                    doPut(args[1], args[2]);
+            dataFile = new RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
+            if (args != null && args.length != 0) {
+                switch (args[0]) {
+                case "put":
+                    if (args.length > 3) {
+                        StringBuffer str = new StringBuffer(args[2]);
+                        for (int i = 3; i < args.length; ++i) {
+                            str.append(" ");
+                            str.append(args[i]);
+                        }
+                        doPut(args[1], str.toString());
+                    } else {
+                        doPut(args[1], args[2]);
+                    }
+                    break;
+                case "get":
+                    if (UserShell.checkArgs(2, args)) {
+                        doGet(args[1]);
+                    }
+                    break;
+                case "remove":
+                    if (UserShell.checkArgs(2, args)) {
+                        doRemove(args[1]);
+                    }
+                    break;
+                case "exit":
+                    dataFile.close();
+                    System.exit(0);
+                    break;
+                default:
+                    printError("Unknown command");
                 }
-                break;
-            case "get":
-                if (UserShell.checkArgs(2, args)) {
-                    doGet(args[1]);
-                }
-                break;
-            case "remove":
-                if (UserShell.checkArgs(2, args)) {
-                    doRemove(args[1]);
-                }
-                break;
-            default:
-                System.out.println("Unknown command");
+                dataFile.close();
             }
-            dataFile.close();
         } catch (IOException e) {
-            System.out.println("Can't open or close file");
+            System.err.println("Cannot open or close file");
             System.exit(1);
         }
     }
