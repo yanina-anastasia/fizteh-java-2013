@@ -19,6 +19,7 @@ public abstract class ConsoleInput {
         int indexOfTwoWhitespaces = notParsedCommand.indexOf("  ");
         while (indexOfTwoWhitespaces != -1) {
             notParsedCommand.delete(indexOfTwoWhitespaces, indexOfTwoWhitespaces + 1);
+            indexOfTwoWhitespaces = notParsedCommand.indexOf("  ");
         }
         return notParsedCommand.toString().split("[ ]+");
     }
