@@ -4,22 +4,25 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.State;
 
 public class DbState extends State {
 
-	private final HashMap<String, String> data = new HashMap<String, String>();
+	private final Map<String, String> data = new HashMap<String, String>();
 	private RandomAccessFile dbFile;
 	
 	RandomAccessFile getDbFile() {
 		return dbFile;
 	}
-	DbState () throws  IOException{
+	
+	DbState (InputStream in, PrintStream out) throws  IOException{
+		super(in, out);
 		openDataFile();
 		add (new CommandExit(this));
 		add (new CommandPut(this));		
@@ -27,8 +30,7 @@ public class DbState extends State {
 		add (new CommandGet(this));				
 	}
 	
-	
-	public HashMap<String, String> getData() {
+	public Map<String, String> getData() {
 		return data;
 	}
 	
@@ -48,7 +50,7 @@ public class DbState extends State {
 			try {
 				loadDataFromFile();
 			} catch (EOFException e) {
-				throw new IOException("File have wrong format");
+				throw new IOException("File has wrong format");
 			}
 		}
 	}
@@ -104,5 +106,4 @@ public class DbState extends State {
 			getCurrentDir().delete();
 		}
 	}
-
 }

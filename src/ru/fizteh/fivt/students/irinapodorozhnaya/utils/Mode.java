@@ -24,22 +24,11 @@ public class Mode {
 	 }
 
 	 private static void parseAndExecute(String arg, State st) throws IOException {
-		 String[] com = arg.trim().split("\\s*;\\s*");
-		 for (String s: com) {
-			 String[] args = s.split("\\s+");
-			 Command c = st.getCommands().get(args[0]);
-			 if (c != null) {
-				 int argsNumber = c.getNumberOfArguments();
-				 if (argsNumber > args.length - 1) {
-					 throw new IOException(args[0]+ ": Too few arguments");
-				 } else if (argsNumber < args.length - 1) {
-					 throw new IOException(args[0]+ ": Too many arguments");
-				 }
-				 c.execute(args);
-			 } else {
-				 throw new IOException(args[0] + ": No such command");
-			 }
-		 }
+	 	String[] com = arg.trim().split("\\s*;\\s*");
+	 	for (String s: com) {
+	 		String[] args = s.split("\\s+");
+	 		st.checkAndExecute(args);
+	 	}
 	 }
 
 	 public static void interactiveMode(State st) {
