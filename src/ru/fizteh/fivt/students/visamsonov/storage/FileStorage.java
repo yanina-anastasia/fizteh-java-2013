@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.visamsonov.storage;
 import java.util.TreeMap;
 import java.math.BigInteger;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class FileStorage implements Table {
 
@@ -31,7 +32,7 @@ public class FileStorage implements Table {
 			dbFile.readFully(keyRaw);
 			byte[] valueRaw = new byte[valueLength];
 			dbFile.readFully(valueRaw);
-			put(new String(keyRaw), new String(valueRaw));
+			put(new String(keyRaw, StandardCharsets.UTF_8), new String(valueRaw, StandardCharsets.UTF_8));
 		}
 	}
 
@@ -64,8 +65,8 @@ public class FileStorage implements Table {
 		try {
 			DataOutputStream dbFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dbFilePath)));
 			while (memoryStore.firstEntry() != null) {
-				byte[] key = memoryStore.firstEntry().getKey().getBytes();
-				byte[] value = memoryStore.firstEntry().getValue().getBytes();
+				byte[] key = memoryStore.firstEntry().getKey().getBytes(StandardCharsets.UTF_8);
+				byte[] value = memoryStore.firstEntry().getValue().getBytes(StandardCharsets.UTF_8);
 				memoryStore.pollFirstEntry();
 				dbFile.writeInt(key.length);
 				dbFile.writeInt(value.length);
