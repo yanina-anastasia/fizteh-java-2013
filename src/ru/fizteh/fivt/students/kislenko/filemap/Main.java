@@ -2,24 +2,27 @@ package ru.fizteh.fivt.students.kislenko.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
+        System.setProperty("fizteh.db.dir", "1");
         String dbAddress = System.getProperty("fizteh.db.dir");
-        File db = new File(dbAddress);
+        MapBuilder mb = new MapBuilder();
         try {
-            db = db.getCanonicalFile().toPath().resolve("db.dat").toFile();
+            Path db = new File(dbAddress).getCanonicalFile().toPath().resolve("db.dat");
+            State state = new State(db);
+            mb.buildMap(state);
+            Shell shell = new Shell(state);
+            if (args.length == 0) {
+                shell.interactiveMode();
+            } else {
+                shell.batchMode(args);
+            }
+            mb.fillFile(state);
         } catch (IOException e) {
             System.err.println("File not found.\n");
             System.exit(1);
-        }
-        State state = new State();
-        state.setState(db.toPath());
-        Shell shell = new Shell(state);
-        if (args.length == 0) {
-            shell.interactiveMode();
-        } else {
-            shell.batchMode(args);
         }
         System.exit(0);
     }

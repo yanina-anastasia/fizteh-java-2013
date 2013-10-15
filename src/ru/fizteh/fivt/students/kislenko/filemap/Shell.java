@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.kislenko.filemap;
 import java.util.Scanner;
 
 public class Shell {
-    private State state = new State();
+    private State state;
 
     public Shell(State startingState) {
         state = startingState;
