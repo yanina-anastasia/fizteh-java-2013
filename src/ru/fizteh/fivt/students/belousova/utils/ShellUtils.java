@@ -14,6 +14,7 @@ public class ShellUtils {
         String s = join(Arrays.asList(args), " ");
         try {
             stringHandle(s, commandList);
+            stringHandle("exit", commandList);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
