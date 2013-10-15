@@ -88,12 +88,16 @@ public final class DataBaseFile {
 
     public void save() {
         try {
-            RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
-            for (Node node : data) {
-                node.write(outputFile);
+            if (data.size() == 0) {
+                file.delete();
+            } else {
+                RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
+                for (Node node : data) {
+                    node.write(outputFile);
+                }
+                outputFile.setLength(outputFile.getFilePointer() + 1);
+                outputFile.close();
             }
-            outputFile.setLength(outputFile.getFilePointer() + 1);
-            outputFile.close();
         } catch (FileNotFoundException e) {
             throw new DataBaseException("File save error!");
         } catch (IOException e) {
