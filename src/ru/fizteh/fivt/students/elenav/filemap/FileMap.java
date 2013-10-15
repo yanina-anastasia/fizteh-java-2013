@@ -12,7 +12,7 @@ public class FileMap {
 			System.err.println("File doesn't exist, but I will create it for you");
 			in.createNewFile();
 		}
-		FileMapState fileMap = new FileMapState(in, "My first table", System.out);
+		FileMapState fileMap = new FileMapState("My first table", in, System.out);
 		fileMap.readFile();
 		if (args.length == 0) {
 			fileMap.interactiveMode();

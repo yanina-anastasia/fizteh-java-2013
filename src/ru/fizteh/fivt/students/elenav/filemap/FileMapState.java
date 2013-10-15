@@ -9,26 +9,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ru.fizteh.fivt.students.elenav.commands.ExitCommand;
+import ru.fizteh.fivt.students.elenav.commands.GetCommand;
+import ru.fizteh.fivt.students.elenav.commands.PutCommand;
+import ru.fizteh.fivt.students.elenav.commands.RemoveCommand;
+import ru.fizteh.fivt.students.elenav.shell.State;
 
-public class FileMapState implements Table {
-	private final String name;
-	private final File currentFile;
-	private final PrintStream stream;
+public class FileMapState extends State implements Table {
 	
-	FileMapState(File f, String n, PrintStream s) {
-		currentFile = f;
-		name = n;
-		stream = s;
+	public FileMapState(String n, File f, PrintStream s) {
+		super(n, f, s);
 	}
 	
-	HashMap<String, String> map = new HashMap<>();
-
+	public HashMap<String, String> map = new HashMap<>();
+	
 	public void readFile() throws IOException {
-		DataInputStream s = new DataInputStream(new FileInputStream(currentFile));
+		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
 		boolean flag = true;
 		do {
 			try {
@@ -45,7 +44,7 @@ public class FileMapState implements Table {
 	}
 	
 	public void writeFile() throws IOException {
-		DataOutputStream s = new DataOutputStream(new FileOutputStream(currentFile));
+		DataOutputStream s = new DataOutputStream(new FileOutputStream(getWorkingDirectory()));
 		Set<Entry<String, String>> set = map.entrySet();
 		for (Entry<String, String> element : set) {
 			String key = element.getKey();
@@ -57,97 +56,22 @@ public class FileMapState implements Table {
 		}
 		s.close();
 	}
-	
-	public void interactiveMode() {
-		String command = "";
-		Scanner sc = new Scanner(System.in);
-		boolean flag = true;
-		do {
-			command = sc.nextLine();
-			command = command.trim();
-			String[] commands = command.split("\\s*;\\s*");
-			for (String c : commands) {
-				try {
-					execute(c);
-				}
-				catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			}
-		} while(flag);
-	}
-	
-	public void execute(String command) throws IOException {
-		String[] args = command.split("\\s+");
-		switch (args[0]) {
-		case "put":
-			if (args.length != 3) {
-				throw new IOException("Invalid number of arguments");
-			} else {
-				put(args[1], args[2]);
-			}
-			break;
-			
-		case "get":
-			if (args.length != 2) {
-				throw new IOException("Invalid number of arguments");
-			} else {
-				get(args[1]);
-			}
-			break;
-			
-		case "remove":
-			if (args.length != 2) {
-				throw new IOException("Invalid number of arguments");
-			} else {
-				remove(args[1]);
-			}
-			break;
-			
-		case "exit": 
-			System.exit(0);
-			break;
-			
-		default: 
-			throw new IOException("Invalid input");
-			
-		}
-	}
-
-	public String getName() {
-		return name;
-	}
 
 	public String get(String key) {
-		if (map.containsKey(key)) {
-			stream.println("found");
-			stream.println(map.get(key));
-		}
-		else {
-			stream.println("not found");
-		}
+		GetCommand g = new GetCommand(this);
+		g.execute(key.split("\\s+"), getStream());
 		return null;
 	}
 
 	public String put(String key, String value) {
-		String result = map.put(key, value);
-		if (result != null) {
-			stream.println("overwrite");
-			stream.println(result);
-		}
-		else {
-			stream.println("new");
-		}
+		PutCommand c = new PutCommand(this);
+		c.execute(key.split("\\s+"), getStream());
 		return null;
 	}
 
 	public String remove(String key) {
-		if (map.containsKey(key)) {
-			map.remove(key);
-			stream.println("removed");
-		} else {
-			stream.println("not found");
-		}
+		RemoveCommand c = new RemoveCommand(this);
+		c.execute(key.split("\\s+"), getStream());
 		return null;
 	}
 
@@ -161,6 +85,13 @@ public class FileMapState implements Table {
 
 	public int rollback() {
 		return 0;
+	}
+
+	protected void init() {
+		commands.add(new GetCommand(this));
+		commands.add(new PutCommand(this));
+		commands.add(new RemoveCommand(this));
+		commands.add(new ExitCommand(this));
 	}
 	
 }

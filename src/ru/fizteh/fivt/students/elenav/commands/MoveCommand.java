@@ -1,11 +1,13 @@
-package ru.fizteh.fivt.students.elenav.shell;
+package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import ru.fizteh.fivt.students.elenav.shell.State;
+
 public class MoveCommand extends AbstractCommand {
-	MoveCommand(ShellState s) { 
+	public MoveCommand(State s) { 
 		super(s, "mv", 2);
 	}
 	
