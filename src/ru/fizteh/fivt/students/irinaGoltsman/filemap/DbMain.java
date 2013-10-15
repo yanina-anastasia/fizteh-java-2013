@@ -54,8 +54,7 @@ public class DbMain {
                             System.exit(1);
                         }
                         System.exit(1);
-                    }
-                    else if (codeOfCommand == Code.EXIT) {
+                    } else if (codeOfCommand == Code.EXIT) {
                         try {
                             myDataBase.close();
                         } catch (Exception e) {
