@@ -14,8 +14,7 @@ public class FileUtil {
             for (File i : listOfElements) {
                 if (i.isDirectory()) {
                     currentDirectory = recursiveDelete(currentDirectory, i);
-                }
-                if (!i.delete()) {
+                } else if (!i.delete()) {
                     throw new FileWasNotDeleted(i);
                 }
             }
@@ -50,11 +49,13 @@ public class FileUtil {
             System.out.println("cannot make directory :'" + destination + "'");
         }
         File[] files = source.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                copyDirectory(file, new File(destination, file.getName()));
-            } else {
-                copyFile(file, new File(destination, file.getName()));
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    copyDirectory(file, new File(destination, file.getName()));
+                } else {
+                    copyFile(file, new File(destination, file.getName()));
+                }
             }
         }
     }

@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class PackageInput extends ConsoleInput {
 

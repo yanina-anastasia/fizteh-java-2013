@@ -17,11 +17,11 @@ public class InteractiveInput extends ConsoleInput {
     @Override
     public String[] getNext() throws IOException, ExitCommand {
         if (commandsBuffer.isEmpty()) {
+            System.out.print("$ ");
             String newLine = inputStream.readLine();
             if (newLine == null) {
                 throw new ExitCommand();
             } else {
-                System.out.print("$ ");
                 String[] splittedInput = newLine.split(";");
                 for (String i : splittedInput) {
                     commandsBuffer.offer(parseCommand(i));
