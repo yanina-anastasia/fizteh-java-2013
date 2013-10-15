@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.drozdowsky.shell;
 
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.*;
-
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -69,7 +67,8 @@ public class InteractiveMode {
                 return;
             }
 
-            String command = args[0];
+            Utils.executeCommand(args, workingDirectory);
+            /*String command = args[0];
             if (command.equals("cd")) {
                 ChangeDirectory cd = new ChangeDirectory(workingDirectory, args);
                 cd.execute();
@@ -95,7 +94,7 @@ public class InteractiveMode {
                 return;
             } else {
                     System.err.println(args[0] + " command not found");
-            }
+            }*/
         }
     }
 }

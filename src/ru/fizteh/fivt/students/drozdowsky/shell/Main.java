@@ -3,7 +3,12 @@ package ru.fizteh.fivt.students.drozdowsky.shell;
 public class Main {
 
     public static void main(String[] args) {
-        InteractiveMode im = new InteractiveMode();
-        im.start();
+        if (args.length == 1) {
+            InteractiveMode im = new InteractiveMode();
+            im.start();
+        } else {
+            PacketMode pm = new PacketMode(args);
+            pm.start();
+        }
     }
 }

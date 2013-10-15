@@ -11,7 +11,8 @@ public class PrintWorkingDirectory {
         this.args = args;
     }
 
-    public void execute() {
+    public boolean execute() {
         System.out.println(path.toString());
+        return true;
     }
 }

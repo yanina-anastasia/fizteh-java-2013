@@ -13,8 +13,7 @@ public class Directory {
         this.args = args;
     }
 
-    public void execute() {
-
+    public boolean execute() {
         try {
             PathController temp = new PathController(path);
             if (args.length > 1) {
@@ -23,16 +22,17 @@ public class Directory {
             File totalPath = temp.getPath();
             String[] result = totalPath.list();
             if (result == null) {
-                return;
+                return true;
             }
 
-            for (int i = 0; i < result.length; i++) {
-                System.out.println(result[i]);
+            for (String aResult : result) {
+                System.out.println(aResult);
             }
         } catch (SecurityException e) {
             System.out.println(e);
         } catch (IOException e) {
             System.err.println("cp: " + e.getMessage());
         }
+        return true;
     }
 }

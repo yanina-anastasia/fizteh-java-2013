@@ -15,18 +15,29 @@ public class Move {
 
     public boolean execute() {
         if (args.length < 3) {
-            System.err.println("usage: rm file|directory file|directory");
+            System.err.println("usage: mv file|directory file|directory");
             return false;
         }
         try {
-            Copy cp = new Copy(new PathController(), args);
-            if (cp.execute()) {
-                Remove rm = new Remove(new PathController(), args);
-                rm.execute();
+            PathController pathFrom = new PathController(path);
+            PathController pathTo = new PathController(path);
+            pathFrom.changePath(args[1]);
+            pathTo.changePath(args[2]);
+
+            if (pathFrom.getPath().equals(pathTo.getPath())) {
+                return true;
             }
-            return true;
+
+            Copy cp = new Copy(path, args);
+            if (cp.execute()) {
+                Remove rm = new Remove(path, args);
+                return rm.execute();
+            }
+            return false;
         } catch (SecurityException e) {
-            System.err.println("cp: " + "Permission denied");
+            System.err.println("mv: " + "Permission denied");
+        } catch (IOException e) {
+            System.err.println("mv: " +  e.getMessage());
         }
         return false;
     }

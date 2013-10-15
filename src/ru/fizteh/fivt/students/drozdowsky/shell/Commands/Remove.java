@@ -32,10 +32,10 @@ public class Remove {
         toDelete.delete();
     }
 
-    public void execute() {
+    public boolean execute() {
         if (args.length < 2) {
             System.err.println("usage: rm file|directory");
-            return;
+            return false;
         }
         try {
             PathController tempPath = new PathController(path);
@@ -50,10 +50,12 @@ public class Remove {
             }
 
             toDelete.delete();
+            return true;
         } catch (SecurityException e) {
             System.err.println("mkdir: " + args[1] + ": " + "Permission denied");
         } catch (IOException e) {
             System.err.println("mkdir: " + args[1] + ": " + e.getMessage());
         }
+        return false;
     }
 }
