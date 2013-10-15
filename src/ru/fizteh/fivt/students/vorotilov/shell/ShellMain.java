@@ -13,6 +13,9 @@ public class ShellMain {
             case "exit":
                 if (parsedCommand.length > 1) {
                     System.out.println("exit: must not get parameter");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     throw new ExitCommand();
                 }
@@ -20,6 +23,9 @@ public class ShellMain {
             case "pwd":
                 if (parsedCommand.length > 1) {
                     System.out.println("pwd: must not get parameter");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     System.out.println(currentDirectory.getCanonicalPath());
                 }
@@ -27,19 +33,32 @@ public class ShellMain {
             case "mkdir":
                 if (parsedCommand.length != 2) {
                     System.out.println("mkdir: get 1 parameter");
+
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     File newDir = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                     if (newDir.exists()) {
                         System.out.println("mkdir: can't create'"
                                 + newDir.getCanonicalPath() + "' directory is already exists");
-                    } else if (!newDir.mkdir()) {
+                        if (!interactiveMode) {
+                            throw new WrongCommand();
+                        }
+                    } else if (!newDir.mkdirs()) {
                         System.out.println("mkdir: can't create'" + newDir.getCanonicalPath() + "'");
+                        if (!interactiveMode) {
+                            throw new WrongCommand();
+                        }
                     }
                 }
                 break;
             case "dir":
                 if (parsedCommand.length > 1) {
                     System.out.println("dir: must not get parameter");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     String[] listOfFiles = currentDirectory.list();
                     for (String i : listOfFiles) {
@@ -50,19 +69,29 @@ public class ShellMain {
             case "cd":
                 if (parsedCommand.length != 2) {
                     System.out.println("cd: get 1 parameter");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     File newCurrentDirectory = FileUtil.convertPath(currentDirectory,
                             parsedCommand[1]).getCanonicalFile();
                     if (newCurrentDirectory.exists()) {
                         currentDirectory = newCurrentDirectory;
                     } else {
+                        System.out.println("Flag interactiveMode: " + interactiveMode);
                         System.out.println("cd: '" + newCurrentDirectory + "': No such file or directory");
+                        if (!interactiveMode) {
+                            throw new WrongCommand();
+                        }
                     }
                 }
                 break;
             case "rm":
                 if (parsedCommand.length != 2) {
                     System.out.println("rm: get 1 parameter");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     File elementToDelete = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                     if (elementToDelete.exists()) {
@@ -70,15 +99,24 @@ public class ShellMain {
                             currentDirectory =  FileUtil.recursiveDelete(currentDirectory, elementToDelete);
                         } catch (FileWasNotDeleted e) {
                             System.out.println("rm: cannot remove '" + e.getProblematicFile() + "'");
+                            if (!interactiveMode) {
+                                throw new WrongCommand();
+                            }
                         }
                     } else {
                         System.out.println("rm: cannot remove '" + elementToDelete + "': No such file or directory");
+                        if (!interactiveMode) {
+                            throw new WrongCommand();
+                        }
                     }
                 }
                 break;
             case "cp":
                 if (parsedCommand.length != 3) {
                     System.out.println("cp: get 2 parameters");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
                 } else {
                     File sourceToCp = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                     File destinationToCp = FileUtil.convertPath(currentDirectory, parsedCommand[2]);
@@ -90,6 +128,10 @@ public class ShellMain {
             case "mv":
                 if (parsedCommand.length != 3) {
                     System.out.println("mv: get 2 parameters");
+                    if (!interactiveMode) {
+                        throw new WrongCommand();
+                    }
+
                 } else {
                     File sourceToMv = FileUtil.convertPath(currentDirectory, parsedCommand[1]);
                     File destinationToMv = FileUtil.convertPath(currentDirectory, parsedCommand[2]);
@@ -97,6 +139,9 @@ public class ShellMain {
                         if (!destinationToMv.exists()) {
                             if (!sourceToMv.renameTo(destinationToMv)) {
                                 System.out.println("rm: cannot rename '" + sourceToMv + "'");
+                                if (!interactiveMode) {
+                                    throw new WrongCommand();
+                                }
                             }
                         } else {
                             FileUtil.copy(sourceToMv, destinationToMv);
@@ -104,6 +149,9 @@ public class ShellMain {
                                 currentDirectory = FileUtil.recursiveDelete(currentDirectory, sourceToMv);
                             } catch (FileWasNotDeleted e) {
                                 System.out.println("rm: cannot remove '" + e.getProblematicFile() + "'");
+                                if (!interactiveMode) {
+                                    throw new WrongCommand();
+                                }
                             }
                         }
                     }
