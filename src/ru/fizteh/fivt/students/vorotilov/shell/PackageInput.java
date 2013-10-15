@@ -3,11 +3,9 @@ package ru.fizteh.fivt.students.vorotilov.shell;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class PackageCommands extends ConsoleCommands {
+public class PackageInput extends ConsoleInput {
 
-    private Queue<String[]> commandsBuffer;
-
-    public PackageCommands(String[] packageInput) {
+    public PackageInput(String[] packageInput) {
         commandsBuffer = new LinkedList<>();
         StringBuilder concatenatedPackageInput = new StringBuilder();
         for (String i : packageInput) {

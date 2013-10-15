@@ -122,11 +122,11 @@ public class ShellMain {
         interactiveMode = (args.length == 0);
         try {
             currentDirectory = new File(".").getCanonicalFile();
-            ConsoleCommands shellInputCommands;
+            ConsoleInput shellInputCommands;
             if (interactiveMode) {
-                shellInputCommands = new InteractiveCommands();
+                shellInputCommands = new InteractiveInput();
             } else {
-                shellInputCommands = new PackageCommands(args);
+                shellInputCommands = new PackageInput(args);
             }
             while (shellInputCommands.hasNext()) {
                 processCommand(shellInputCommands.getNext());

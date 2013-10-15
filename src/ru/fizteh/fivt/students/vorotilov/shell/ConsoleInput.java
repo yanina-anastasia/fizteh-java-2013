@@ -1,9 +1,13 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
 import java.io.IOException;
+import java.util.Queue;
 
-public abstract class ConsoleCommands {
-    public abstract String[] getNext() throws IOException, NoNextCommand;
+public abstract class ConsoleInput {
+
+    protected Queue<String[]> commandsBuffer;
+
+    public abstract String[] getNext() throws IOException, NoNextCommand, ExitCommand;
 
     protected String[] parseCommand(String input) {
         StringBuilder notParsedCommand = new StringBuilder(input);
