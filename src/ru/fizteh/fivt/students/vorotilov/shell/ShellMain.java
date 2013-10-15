@@ -78,7 +78,6 @@ public class ShellMain {
                     if (newCurrentDirectory.exists()) {
                         currentDirectory = newCurrentDirectory;
                     } else {
-                        System.out.println("Flag interactiveMode: " + interactiveMode);
                         System.out.println("cd: '" + newCurrentDirectory + "': No such file or directory");
                         if (!interactiveMode) {
                             throw new WrongCommand();
