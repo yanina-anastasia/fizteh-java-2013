@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.shell.commands;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class HelpCommand<State> extends AbstractCommand<State> {
 
@@ -10,7 +11,7 @@ public class HelpCommand<State> extends AbstractCommand<State> {
         super("help", "help");
     }
 
-    public HelpCommand(ArrayList<Command> commands) {
+    public HelpCommand(List<Command> commands) {
         super("help", "help");
         for (final Command command : commands) {
             this.commands.put(command.getCommandName(), command);

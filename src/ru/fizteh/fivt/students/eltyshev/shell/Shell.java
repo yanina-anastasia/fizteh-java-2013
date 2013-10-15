@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.shell;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class Shell<State> {
         this.shellState = shellState;
     }
 
-    public void setCommands(ArrayList<Command> commands) {
+    public void setCommands(List<Command> commands) {
         for (final Command command : commands) {
             this.commands.put(command.getCommandName(), command);
         }

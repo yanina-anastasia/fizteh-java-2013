@@ -7,13 +7,13 @@ import ru.fizteh.fivt.students.eltyshev.filemap.base.commands.*;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.commands.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MultifileMapMain {
-    public static void main(String[] Args)
-    {
+    public static void main(String[] Args) {
         Shell<MultifileMapShellState> shell = new Shell<MultifileMapShellState>();
 
-        ArrayList<Command> commands = new ArrayList<Command>();
+        List<Command> commands = new ArrayList<Command>();
 
         Command<FileMapShellState> command = new PutCommand();
         commands.add(command);

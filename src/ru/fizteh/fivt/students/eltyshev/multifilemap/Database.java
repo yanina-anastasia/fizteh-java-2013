@@ -9,15 +9,13 @@ import java.util.HashMap;
 public class Database implements TableProvider {
     HashMap<String, MultifileTable> tables = new HashMap<String, MultifileTable>();
     private String databaseDirectoryPath;
+    private MultifileTable activeTable = null;
 
-    public Database(String databaseDirectoryPath)
-    {
+    public Database(String databaseDirectoryPath) {
         this.databaseDirectoryPath = databaseDirectoryPath;
         File databaseDirectory = new File(databaseDirectoryPath);
-        for(final File tableFile: databaseDirectory.listFiles())
-        {
-            if (tableFile.isFile())
-            {
+        for (final File tableFile : databaseDirectory.listFiles()) {
+            if (tableFile.isFile()) {
                 continue;
             }
             MultifileTable table = new MultifileTable(databaseDirectoryPath, tableFile.getName());
@@ -25,36 +23,30 @@ public class Database implements TableProvider {
         }
     }
 
-    public Table getTable(String name) throws IllegalArgumentException, IllegalStateException
-    {
-        if (name == null)
-        {
+    public Table getTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (name == null) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
         MultifileTable table = tables.get(name);
 
-        if (table == null)
-        {
+        if (table == null) {
             throw new IllegalStateException("tablename not exists");
         }
 
-        if (table.getUncommitedChangesCount() > 0)
-        {
-            throw new IllegalStateException(String.format("%d unsaved changes", table.getUncommitedChangesCount()));
+        if (activeTable != null && activeTable.getUncommitedChangesCount() > 0) {
+            throw new IllegalStateException(String.format("%d unsaved changes", activeTable.getUncommitedChangesCount()));
         }
 
+        activeTable = table;
         return table;
     }
 
-    public Table createTable(String name) throws IllegalArgumentException, IllegalStateException
-    {
-        if (name == null)
-        {
+    public Table createTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (name == null) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
-        if (tables.containsKey(name))
-        {
+        if (tables.containsKey(name)) {
             throw new IllegalStateException("tablename exists");
         }
 
@@ -63,15 +55,12 @@ public class Database implements TableProvider {
         return table;
     }
 
-    public void removeTable(String name) throws IllegalArgumentException, IllegalStateException
-    {
-        if (name == null)
-        {
+    public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (name == null) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
-        if (!tables.containsKey(name))
-        {
+        if (!tables.containsKey(name)) {
             throw new IllegalStateException("tablename not exists");
         }
 

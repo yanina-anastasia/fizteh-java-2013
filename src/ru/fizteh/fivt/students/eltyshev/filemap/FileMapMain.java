@@ -3,38 +3,24 @@ package ru.fizteh.fivt.students.eltyshev.filemap;
 import ru.fizteh.fivt.students.eltyshev.shell.Shell;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.Command;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.HelpCommand;
-
 import ru.fizteh.fivt.students.eltyshev.filemap.base.commands.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileMapMain {
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Shell<FileMapShellState> shell = new Shell<FileMapShellState>();
 
-        ArrayList<Command> commands = new ArrayList<Command>();
+        List<Command> commands = new ArrayList<Command>();
 
-        Command<FileMapShellState> command = new PutCommand();
-        commands.add(command);
-
-        command = new GetCommand();
-        commands.add(command);
-
-        command = new RemoveCommand();
-        commands.add(command);
-
-        command = new CommitCommand();
-        commands.add(command);
-
-        command = new RollbackCommand();
-        commands.add(command);
-
-        command = new ExitCommand();
-        commands.add(command);
-
-        command = new HelpCommand<FileMapShellState>(commands);
-        commands.add(command);
+        commands.add(new PutCommand());
+        commands.add(new GetCommand());
+        commands.add(new RemoveCommand());
+        commands.add(new CommitCommand());
+        commands.add(new RollbackCommand());
+        commands.add(new ExitCommand());
+        commands.add(new HelpCommand<FileMapShellState>(commands));
 
         shell.setCommands(commands);
 
