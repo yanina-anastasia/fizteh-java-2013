@@ -1,8 +1,12 @@
 package ru.fizteh.fivt.students.vorotilov.shell;
 
 import java.io.IOException;
+import java.util.Queue;
 
-public abstract class ConsoleCommands {
+public abstract class ConsoleInput {
+
+    protected Queue<String[]> commandsBuffer;
+
     public abstract String[] getNext() throws IOException, NoNextCommand, ExitCommand;
 
     protected String[] parseCommand(String input) {
@@ -19,7 +23,7 @@ public abstract class ConsoleCommands {
         return notParsedCommand.toString().split("[ ]+");
     }
 
-    public abstract boolean hasNext() throws IOException;
-
+    public boolean hasNext() {
+        return true;
+    }
 }
-

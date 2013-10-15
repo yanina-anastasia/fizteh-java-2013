@@ -32,4 +32,3 @@ public class PackageInput extends ConsoleInput {
     }
 
 }
-
