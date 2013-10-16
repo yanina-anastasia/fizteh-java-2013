@@ -1,11 +1,11 @@
 package ru.fizteh.fivt.students.valentinbarishev.multifilehashmap;
 
 import ru.fizteh.fivt.students.valentinbarishev.filemap.DataBaseException;
-import ru.fizteh.fivt.students.valentinbarishev.filemap.SimpleDataBase;
+
 import java.io.File;
 import java.io.IOException;
 
-public final class DataBaseTable implements SimpleDataBase{
+public final class DataBaseTable {
     private String tableDir;
     private File tableDirFile;
     private String currentTable;
@@ -53,22 +53,18 @@ public final class DataBaseTable implements SimpleDataBase{
         return true;
     }
 
-    @Override
     public String put(final String keyStr, final String valueStr) {
         return dataBase.put(keyStr, valueStr);
     }
 
-    @Override
     public String get(final String keyStr) {
         return dataBase.get(keyStr);
     }
 
-    @Override
     public boolean remove(final String keyStr) {
         return dataBase.remove(keyStr);
     }
 
-    @Override
     public boolean exist() {
         return (dataBase != null);
     }
