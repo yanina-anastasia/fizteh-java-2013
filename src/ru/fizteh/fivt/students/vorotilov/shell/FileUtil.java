@@ -36,15 +36,19 @@ public class FileUtil {
         return newElem;
     }
 
-    public static void copy(File source, File destination) throws IOException {
+    public static void copy(File source, File destination) throws IOException, WrongCommand {
         if (source.isDirectory()) {
             copyDirectory(source, new File(destination, source.getName()));
         } else {
-            copyFile(source, new File(destination, source.getName()));
+            if (destination.exists() && destination.isDirectory()) {
+                copyFile(source, new File(destination, source.getName()));
+            } else {
+                copyFile(source, destination);
+            }
         }
     }
 
-    protected static void copyDirectory(File source, File destination) throws IOException {
+    protected static void copyDirectory(File source, File destination) throws IOException, WrongCommand {
         if (!destination.mkdirs()) {
             System.out.println("cannot make directory :'" + destination + "'");
         }
@@ -60,7 +64,16 @@ public class FileUtil {
         }
     }
 
-    protected static void copyFile(File source, File destination) throws IOException {
+    protected static void copyFile(File source, File destination) throws IOException, WrongCommand {
+        if (destination.exists()) {
+            System.out.println("cp: destination file is already exists");
+            throw new WrongCommand();
+        } else {
+            if (!destination.createNewFile()) {
+                System.out.println("cp: can't create new file: '" + destination.getCanonicalPath() + "'");
+                throw new WrongCommand();
+            }
+        }
         FileChannel sourceChannel = new FileInputStream(source).getChannel();
         FileChannel targetChannel = new FileOutputStream(destination).getChannel();
         sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
