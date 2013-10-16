@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class FileMap {
-    private static File fileMap;
-    private static ArrayList<Element> elementList = new ArrayList<Element>();
-    private Vector<Command> commands;
+    private File fileMap;
+    private ArrayList<Element> elementList = new ArrayList<Element>();
+    private Vector<Command> commands = new Vector<Command>();
 
     private static class Element {
         private String key;
@@ -34,11 +34,6 @@ public class FileMap {
 
     public FileMap(String dbDir) {
         fileMap = new File(dbDir + File.separator + "db.dat");
-        commands = new Vector<Command>();
-        commands.add(new PutCommand());
-        commands.add(new GetCommand());
-        commands.add(new RemoveCommand());
-        commands.add(new ExitCommand());
         try {
             openFileMap();
         } catch (FileNotFoundException e) {
@@ -50,7 +45,7 @@ public class FileMap {
         }
     }
 
-    private static void read(RandomAccessFile input) throws IOException {
+    private void read(RandomAccessFile input) throws IOException {
         int keyLength = input.readInt();
         int valueLength = input.readInt();
         byte[] key = new byte[keyLength];
@@ -60,14 +55,14 @@ public class FileMap {
         elementList.add(new Element(key, value));
     }
 
-    private static void write(RandomAccessFile output, Element element) throws IOException {
+    private void write(RandomAccessFile output, Element element) throws IOException {
         output.writeInt(element.key.length());
         output.writeInt(element.value.length());
         output.write(element.key.getBytes("UTF-8"));
         output.write(element.value.getBytes("UTF-8"));
     }
 
-    private static void openFileMap() throws IOException {
+    private void openFileMap() throws IOException {
         if (!fileMap.exists()) {
             if (!fileMap.createNewFile()) {
                 throw new IOException("Can't create data file db.dat");
@@ -87,7 +82,7 @@ public class FileMap {
         input.close();
     }
 
-    public static void saveFileMap() throws IOException {
+    public void saveFileMap() throws IOException {
         RandomAccessFile output;
         try {
             output = new RandomAccessFile(fileMap.toString(), "rw");
@@ -101,7 +96,7 @@ public class FileMap {
         output.close();
     }
 
-    private static int find(String key) {
+    private int find(String key) {
         for (int i = 0; i < elementList.size(); ++i) {
             if (elementList.get(i).key.equals(key)) {
                 return i;
@@ -110,7 +105,7 @@ public class FileMap {
         return -1;
     }
 
-    public static String put(String newKey, String newValue) throws IOException {
+    public String put(String newKey, String newValue) throws IOException {
         int index = find(newKey);
         if (index == -1) {
             elementList.add(new Element(newKey, newValue));
@@ -121,7 +116,7 @@ public class FileMap {
         return str;
     }
 
-    public static String get(String key) {
+    public String get(String key) {
         int index = find(key);
         if (index == -1) {
             return "not found";
@@ -129,7 +124,7 @@ public class FileMap {
         return elementList.get(index).value;
     }
 
-    public static String remove(String key) {
+    public String remove(String key) {
         int index = find(key);
         if (index == -1) {
             return "not found";
@@ -140,5 +135,9 @@ public class FileMap {
 
     public final Vector<Command> getCommands() {
         return commands;
+    }
+
+    public final void addCommand(Command command) {
+        commands.add(command);
     }
 }

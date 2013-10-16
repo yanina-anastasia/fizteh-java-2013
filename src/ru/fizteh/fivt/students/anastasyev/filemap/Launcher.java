@@ -6,9 +6,10 @@ import java.util.Scanner;
 import java.util.Vector;
 
 public class Launcher {
-    private static Vector<ru.fizteh.fivt.students.anastasyev.filemap.Command> allCommands;
+    private Vector<Command> allCommands;
+    private FileMap fileMap;
 
-    private static boolean launch(final String arg) throws IOException {
+    private boolean launch(final String arg) throws IOException {
         String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
@@ -25,7 +26,7 @@ public class Launcher {
         return result;
     }
 
-    private static void interactiveMode() {
+    private void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
@@ -42,7 +43,7 @@ public class Launcher {
                 }
             } catch (NoSuchElementException e) {
                 try {
-                    FileMap.saveFileMap();
+                    fileMap.saveFileMap();
                 } catch (IOException e1) {
                     System.err.println(e1.getMessage());
                 }
@@ -53,7 +54,7 @@ public class Launcher {
         }
     }
 
-    private static void packageMode(final String[] args) {
+    private void packageMode(final String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
@@ -64,7 +65,7 @@ public class Launcher {
             for (String arg : allArgs) {
                 if (!launch(arg.trim())) {
                     try {
-                        FileMap.saveFileMap();
+                        fileMap.saveFileMap();
                     } catch (IOException e1) {
                         System.err.println(e1.getMessage());
                     }
@@ -74,7 +75,7 @@ public class Launcher {
         } catch (IOException e) {
             System.err.println(e.getMessage());
             try {
-                FileMap.saveFileMap();
+                fileMap.saveFileMap();
             } catch (IOException e1) {
                 System.err.println(e1.getMessage());
             }
@@ -82,21 +83,25 @@ public class Launcher {
         }
     }
 
-    public static void fileMapLauncher(String[] args) {
+    public void fileMapLauncher(String[] args) {
         if (System.getProperty("fizteh.db.dir") == null) {
             System.err.println("Set home data base's directory");
             System.err.println("Use: -Dfizteh.db.dir=<directory>");
             System.exit(1);
         }
-        FileMap fileMap = new FileMap(System.getProperty("fizteh.db.dir"));
+        fileMap = new FileMap(System.getProperty("fizteh.db.dir"));
         allCommands = fileMap.getCommands();
+        fileMap.addCommand(new PutCommand(fileMap));
+        fileMap.addCommand(new GetCommand(fileMap));
+        fileMap.addCommand(new RemoveCommand(fileMap));
+        fileMap.addCommand(new ExitCommand(fileMap));
         if (args.length == 0) {
             interactiveMode();
         } else {
             packageMode(args);
         }
         try {
-            FileMap.saveFileMap();
+            fileMap.saveFileMap();
         } catch (IOException e1) {
             System.err.println(e1.getMessage());
         }

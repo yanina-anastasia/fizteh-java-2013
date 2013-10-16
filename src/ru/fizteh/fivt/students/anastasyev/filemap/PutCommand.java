@@ -3,14 +3,26 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 import java.io.IOException;
 
 public class PutCommand implements Command {
+    private FileMap fileMap;
+
+    public PutCommand(FileMap myFileMap) {
+        fileMap = myFileMap;
+    }
+
     @Override
     public boolean exec(String[] command) {
-        if (command.length != 3) {
+        if (command.length < 3) {
             System.err.println("put: Usage - put key value");
             return false;
         }
         try {
-            String str = FileMap.put(command[1], command[2]);
+            String arg1 = command[1];
+            StringBuilder builderArg2 = new StringBuilder();
+            for (int i = 2; i < command.length; ++i) {
+                builderArg2.append(command[i]).append(" ");
+            }
+            String arg2 = builderArg2.toString();
+            String str = fileMap.put(arg1, arg2);
             if (str.equals("new")) {
                 System.out.println("new");
             } else {

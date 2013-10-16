@@ -1,6 +1,12 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 public class GetCommand implements Command {
+    private FileMap fileMap;
+
+    public GetCommand(FileMap myFileMap) {
+        fileMap = myFileMap;
+    }
+
     @Override
     public boolean exec(String[] command) {
         if (command.length != 2) {
@@ -8,7 +14,7 @@ public class GetCommand implements Command {
             return false;
         }
         try {
-            String str = FileMap.get(command[1]);
+            String str = fileMap.get(command[1]);
             if (str.equals("not found")) {
                 System.out.println("not found");
             } else {
