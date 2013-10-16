@@ -17,7 +17,7 @@ public class FileMap {
 
     private String readKey(DataInputStream stream) throws IOException {
         List<Byte> buf = new ArrayList<Byte>();
-        byte b = 0;
+        byte b;
         b = stream.readByte();
 
         while (b != 0) {
@@ -28,11 +28,8 @@ public class FileMap {
                 e.printStackTrace();
             }
         }
-        String key = null;
 
-        key = convertBytesToString(buf, "UTF-8");
-
-        return key;
+        return byteToString(buf, "UTF-8");
     }
 
     private static String readValue(DataInputStream dis, long offset1, long offset2, long position) throws IOException {
@@ -45,10 +42,10 @@ public class FileMap {
         return value;
     }
 
-    public static String convertBytesToString(Collection<Byte> collection, String Encoding) throws UnsupportedEncodingException {
-        byte[] buf = new byte[collection.size()];
+    public static String byteToString(List<Byte> mas, String Encoding) throws UnsupportedEncodingException {
+        byte[] buf = new byte[mas.size()];
         int i = 0;
-        for (Byte b : collection) {
+        for (Byte b : mas) {
             buf[i] = (byte) b;
             ++i;
         }
@@ -158,7 +155,7 @@ public class FileMap {
         //создали массив команд
         String[] command = tmp.toString().split("\\;");
 
-        String cmd = "";
+        String cmd;
         Executor exec = new Executor();
 
         //подаем команды на выполнение
@@ -171,7 +168,6 @@ public class FileMap {
             }
             try {
                 exec.execute(dataBase, cmd);
-                //System.out.println(cmd);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
@@ -182,7 +178,6 @@ public class FileMap {
     void interactiveState() throws IOException {
         Scanner scanner = new Scanner(System.in);
         Executor exec = new Executor();
-        String input;
         String[] cmd;
         while (true) {
             cmd = scanner.nextLine().trim().split("\\s*;\\s*");
