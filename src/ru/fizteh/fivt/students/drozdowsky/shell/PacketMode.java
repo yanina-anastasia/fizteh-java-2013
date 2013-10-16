@@ -13,7 +13,7 @@ public class PacketMode {
 
     public void start() {
         ArrayList<String> tempArgs = new ArrayList<String>();
-        for (int i = 1; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             tempArgs.add(args[i]);
             if (args[i].charAt(args[i].length() - 1) == ';') {
                 String temp = tempArgs.get(tempArgs.size() - 1);

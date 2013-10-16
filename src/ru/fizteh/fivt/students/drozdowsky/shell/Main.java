@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.drozdowsky.shell;
 public class Main {
 
     public static void main(String[] args) {
-        if (args.length == 1) {
+        if (args.length == 0) {
             InteractiveMode im = new InteractiveMode();
             im.start();
         } else {

@@ -22,7 +22,7 @@ public class InteractiveMode {
                 System.out.print("> ");
             }
 
-            if (!in.hasNext()) {
+            if (!in.hasNextLine()) {
                 if (!openQuotes) {
                     System.exit(0);
                 } else {
@@ -63,9 +63,9 @@ public class InteractiveMode {
         while (true) {
             System.out.print("$ ");
             String[] args = scanArgs(in);
-            if (args.length == 0) {
+            /*if (args.length == 0) {
                 return;
-            }
+            }*/
 
             Utils.executeCommand(args, workingDirectory);
             /*String command = args[0];

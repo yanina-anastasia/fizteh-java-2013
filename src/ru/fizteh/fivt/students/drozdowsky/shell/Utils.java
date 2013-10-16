@@ -1,15 +1,18 @@
 package ru.fizteh.fivt.students.drozdowsky.shell;
 
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.ChangeDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.MakeDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.Copy;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.Directory;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.PrintWorkingDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.Remove;
-import ru.fizteh.fivt.students.drozdowsky.shell.Commands.Move;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.ChangeDirectory;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.MakeDirectory;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.Copy;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.Directory;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.PrintWorkingDirectory;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.Remove;
+import ru.fizteh.fivt.students.drozdowsky.shell.commands.Move;
 
 public class Utils {
     public static boolean executeCommand(String[] args, PathController workingDirectory) {
+        if (args.length == 0) {
+            return true;
+        }
         String command = args[0];
         if (command.equals("cd")) {
             ChangeDirectory cd = new ChangeDirectory(workingDirectory, args);
