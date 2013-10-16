@@ -3,13 +3,34 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 import ru.fizteh.fivt.students.annasavinova.shell.UserShell;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class FileMap extends UserShell {
-    private static RandomAccessFile dataFile;
+    private RandomAccessFile dataFile;
 
-    private static String getKey(long pointer) {
+    public void setDataFile(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            try {
+                dataFile = new RandomAccessFile(path, "rw");
+            } catch (FileNotFoundException e) {
+                System.err.println("Cannot open file");
+                System.exit(1);
+            }
+        }
+    }
+    public String appendArgs(int num, String[] args) {
+        StringBuffer str = new StringBuffer(args[num]);
+        for (int i = num + 1; i < args.length; ++i) {
+            str.append(" ");
+            str.append(args[i]);
+        }
+        return str.toString();
+    }
+
+    private String getKey(long pointer) {
         try {
             dataFile.seek(pointer);
             int keyLong = dataFile.readInt();
@@ -26,7 +47,7 @@ public class FileMap extends UserShell {
         return "PANIC_KEY";
     }
 
-    private static String getValue(long pointer) {
+    private String getValue(long pointer) {
         try {
             dataFile.seek(pointer);
             int keyLong = dataFile.readInt();
@@ -43,7 +64,7 @@ public class FileMap extends UserShell {
         return "PANIC_VALUE";
     }
 
-    private static long findKey(String key) {
+    private long findKey(String key) {
         try {
             dataFile.seek(0);
             long currPointer = dataFile.getFilePointer();
@@ -60,7 +81,7 @@ public class FileMap extends UserShell {
         return -1;
     }
 
-    public static void doPut(String key, String value) {
+    public void doPut(String key, String value) {
         try {
             long pointToKey = findKey(key);
             if (dataFile.length() == 0 || pointToKey == -1) {
@@ -81,7 +102,7 @@ public class FileMap extends UserShell {
         }
     }
 
-    public static void doGet(String key) {
+    public void doGet(String key) {
         long findRes = findKey(key);
         try {
             if (findRes == -1 || dataFile.length() == 0) {
@@ -97,7 +118,7 @@ public class FileMap extends UserShell {
         }
     }
 
-    private static void copy(RandomAccessFile source, RandomAccessFile dest, long offset, long length) {
+    private void copy(RandomAccessFile source, RandomAccessFile dest, long offset, long length) {
         int tmp = (int) length;
         byte[] arr = new byte[tmp];
         try {
@@ -112,7 +133,7 @@ public class FileMap extends UserShell {
 
     }
 
-    private static void delete(String key) {
+    private void delete(String key) {
         try {
             long keyPointer = findKey(key);
             File tmp = File.createTempFile("DataBase", key);
@@ -133,7 +154,7 @@ public class FileMap extends UserShell {
         }
     }
 
-    public static void doRemove(String key) {
+    public void doRemove(String key) {
         long keyPointer = findKey(key);
         if (keyPointer == -1) {
             UserShell.printError("not found");
@@ -150,17 +171,10 @@ public class FileMap extends UserShell {
             if (args != null && args.length != 0) {
                 switch (args[0]) {
                 case "put":
-                    if (args.length > 3) {
-                        StringBuffer str = new StringBuffer(args[2]);
-                        for (int i = 3; i < args.length; ++i) {
-                            str.append(" ");
-                            str.append(args[i]);
-                        }
-                        doPut(args[1], str.toString());
+                    if (args.length > 2) {
+                        doPut(args[1], appendArgs(2, args));
                     } else {
-                        if (UserShell.checkArgs(3, args)) {
-                            doPut(args[1], args[2]);
-                        }
+                        UserShell.printError("Incorrect number of args");
                     }
                     break;
                 case "get":
