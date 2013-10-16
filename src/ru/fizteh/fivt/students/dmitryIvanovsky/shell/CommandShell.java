@@ -8,12 +8,24 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
-public class CommandShell {
+public class CommandShell implements CommandAbstract {
 
     File currentFile;
 
     public CommandShell() {
         currentFile = new File(".");
+    }
+
+    public CommandShell(String path) {
+        currentFile = new File(path);
+    }
+
+    public void exit() {
+
+    }
+
+    public String getCurrentFile() {
+        return currentFile.toString();
     }
 
     public String startShellString() throws IOException {

@@ -1,47 +1,63 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.shell;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Scanner;
 
 public class CommandLauncher {
 
-    public enum Code {EXIT, OK, ERROR}
+    public enum Code {
+        EXIT,
+        OK,
+        ERROR
+    }
 
-    Object exampleClass;
+    CommandAbstract exampleClass;
     Map<String, String> commandList;
+    Map<String, Method> commandMethod;
 
-    public CommandLauncher(Object exClass, Map<String, String> comList) {
-        exampleClass = exClass;
-        commandList = comList;
+    public CommandLauncher(CommandAbstract exampleClass, Map<String, String> commandList) throws NoSuchMethodException {
+        this.exampleClass = exampleClass;
+        this.commandList = commandList;
+        commandMethod = new HashMap<String, Method>();
+        Class[] paramTypes = new Class[]{String[].class};
+        for (String key : commandList.keySet()) {
+            commandMethod.put(key, exampleClass.getClass().getMethod(key, paramTypes));
+        }
     }
 
     public Code runCommand(String query) {
         query = query.trim();
         StringTokenizer token = new StringTokenizer(query);
         int countTokens = token.countTokens();
-        String command = token.nextToken().toLowerCase();
-        if (command.equals("exit") && countTokens == 1) {
-            return Code.EXIT;
-        } else if (commandList.containsKey(command)) {
-            String nameMethod = commandList.get(command);
-            Class[] paramTypes = new Class[]{String[].class};
-            try {
-                Method method = exampleClass.getClass().getMethod(nameMethod, paramTypes);
+
+        if (countTokens > 0) {
+            String command = token.nextToken().toLowerCase();
+            if (command.equals("exit") && countTokens == 1) {
+                return Code.EXIT;
+            } else if (commandList.containsKey(command)) {
+                Method method = commandMethod.get(command);
                 Vector<String> commandArgs = new Vector<>();
                 for (int i = 2; i <= countTokens; ++i) {
                     commandArgs.add(token.nextToken());
                 }
                 Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
-                return (Code) method.invoke(exampleClass, args);
-            } catch (Exception e) {
-                System.err.println(String.format("Ошибка выполнения метода \'%s\'", nameMethod));
+                try {
+                    return (Code) method.invoke(exampleClass, args);
+                } catch (Exception e) {
+                    System.err.println(String.format("Ошибка выполнения команды \'%s\'", command));
+                    return Code.ERROR;
+                }
+            } else {
+                System.err.println("Неизвестная команда");
                 return Code.ERROR;
             }
         } else {
-            System.err.println("Неизвестная команда");
+            System.err.println("Пустой ввод");
             return Code.ERROR;
         }
     }
@@ -62,11 +78,9 @@ public class CommandLauncher {
         Scanner sc = new Scanner(System.in);
         while (true) {
             try {
-                Method startShellMethod = exampleClass.getClass().getMethod("startShellString", new Class[]{});
-                String startShellString = (String) startShellMethod.invoke(exampleClass, new Object[]{});
-                System.out.print(startShellString);
+                System.out.print(exampleClass.startShellString());
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 System.err.println("Неправильный путь");
                 return;
             }
@@ -85,7 +99,7 @@ public class CommandLauncher {
         }
     }
 
-    public Code runShell(String[] args) {
+    public Code runShell(String[] args) throws IOException {
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {
@@ -93,9 +107,11 @@ public class CommandLauncher {
                 builder.append(' ');
             }
             String query = builder.toString();
+            exampleClass.exit();
             return runCommands(query);
         } else {
             interactiveMode();
+            exampleClass.exit();
             return Code.OK;
         }
     }

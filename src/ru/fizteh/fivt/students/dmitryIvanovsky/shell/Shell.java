@@ -21,12 +21,17 @@ public class Shell {
             put("cd", "cd");
         }};
 
-        CommandLauncher sys = new CommandLauncher(fileCommand, commandList);
+        CommandLauncher sys = null;
+        try {
+            sys = new CommandLauncher(fileCommand, commandList);
+        } catch (Exception e) {
+            System.err.println("Не реализован метод из fileMapCommand");
+            System.exit(1);
+        }
         Code res = sys.runShell(args);
         if (res == Code.ERROR) {
             System.exit(1);
         }
-
     }
 
 }
