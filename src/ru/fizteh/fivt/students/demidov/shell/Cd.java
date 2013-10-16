@@ -4,13 +4,19 @@ import java.io.File;
 import java.io.IOException;
 
 public class Cd implements BasicCommand {
-	public void executeCommand(String[] arguments, Shell.CurrentShell curShell) throws IOException {	
-		File goToDirectory = Utils.getFile(arguments[0], curShell);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {	
+		File goToDirectory = Utils.getFile(arguments[0], usedShell);
 
 		if (goToDirectory.isDirectory()) {
-			curShell.changeCurrentDirectory(goToDirectory.getPath());
+			usedShell.curShell.changeCurrentDirectory(goToDirectory.getPath());
 		} else {
 			throw new IOException(arguments[0] + ": no such directory");	
 		}
+	}
+	public int getNumberOfArguments() {
+		return 1;
+	}	
+	public String getCommandName() {
+		return "cd";
 	}
 }

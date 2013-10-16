@@ -7,15 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Utils {
-	private Utils() {}
-
-	public static File getFile(String fileName, Shell.CurrentShell curShell) throws IOException {
+	public static File getFile(String fileName, Shell usedShell) throws IOException {
 		File resultFile = new File(fileName);
 
 		if (resultFile.isAbsolute()) {
 			return resultFile.getCanonicalFile();
 		} else {
-			return new File(curShell.getCurrentDirectory(), fileName).getCanonicalFile();
+			return new File(usedShell.curShell.getCurrentDirectory(), fileName).getCanonicalFile();
 		}
 	}
 	
@@ -67,4 +65,6 @@ public class Utils {
 
 		source.delete();
 	}
+	
+	private Utils() {}
 }

@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Mv implements BasicCommand {
-	public void executeCommand(String[] arguments, Shell.CurrentShell curShell) throws IOException {	
-		File source = Utils.getFile(arguments[0], curShell);
-		File destination = Utils.getFile(arguments[1], curShell);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {	
+		File source = Utils.getFile(arguments[0], usedShell);
+		File destination = Utils.getFile(arguments[1], usedShell);
 		
 		if ((source.exists()) && (source.getPath().equals(destination.getPath()))) {
 			return;
@@ -20,7 +20,13 @@ public class Mv implements BasicCommand {
 			return;
 		}
 		
-		(new Cp()).executeCommand(arguments, curShell);
-		(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 0, 1), curShell);
+		(new Cp()).executeCommand(arguments, usedShell);
+		(new Rm()).executeCommand(Arrays.copyOfRange(arguments, 0, 1), usedShell);
+	}
+	public int getNumberOfArguments() {
+		return 2;
+	}	
+	public String getCommandName() {
+		return "mv";
 	}
 }
