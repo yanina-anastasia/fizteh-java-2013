@@ -21,6 +21,7 @@ public class GetCommand extends SimpleCommand {
         if (value == null) {
             System.out.println("not found");
         } else {
+            System.out.println("found");
             System.out.println(value);
         }
     }

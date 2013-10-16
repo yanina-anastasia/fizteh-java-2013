@@ -72,7 +72,7 @@ public class SimpleTable implements Table {
                 table.put(key, value);
             }
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println("Database file have incorrect format");
         } finally {
             try {
                 input.close();
