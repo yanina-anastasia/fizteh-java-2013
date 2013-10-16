@@ -65,7 +65,7 @@ no table
 ### Вариант 1
 Пара ключ-значение записывается в соответствующий файл по следующему правилу:
 ```
-hashcode = key.dirCode()
+hashcode = key.hashCode()
 ndirectory = hashcode % 16
 nfile = hashcode / 16 % 16
 ```
