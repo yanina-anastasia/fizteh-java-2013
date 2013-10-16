@@ -15,10 +15,12 @@ import java.util.Map;
 public class FileMap {
     File location;
     HashMap<String, String> map;
+    final int maxLength;
 
     public FileMap(File location) {
         this.location = location;
         map = new HashMap<String, String>();
+        maxLength = 1 << 24;
     }
 
     public void loadFromDisk() throws FileNotFoundException {
@@ -50,9 +52,13 @@ public class FileMap {
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int valueLength = cast.getInt();
+                if (keyLength > maxLength || valueLength > maxLength) {
+                    System.err.println("Database loading failed: Wrong data format");
+                    break;
+                }
                 buffer = new byte[keyLength];
                 bytesRead = inputStream.read(buffer, 0, keyLength);
-                if (bytesRead != bytesRead) {
+                if (bytesRead != keyLength) {
                     System.err.println("Database loading failed: Wrong data format");
                     break;
                 }
