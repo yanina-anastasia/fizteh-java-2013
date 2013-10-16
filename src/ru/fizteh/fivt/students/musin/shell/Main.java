@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String pwd = System.getProperty("user.dir");
         Shell shell = new Shell(pwd);
+        FileSystemRoutine.integrate(shell);
         if (args.length != 0) {
             StringBuilder sb = new StringBuilder();
             for (String s : args) {

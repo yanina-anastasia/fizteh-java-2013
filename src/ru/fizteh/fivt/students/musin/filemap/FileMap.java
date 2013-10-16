@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
+import ru.fizteh.fivt.students.musin.shell.Shell;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +23,10 @@ public class FileMap {
 
     public void loadFromDisk() throws FileNotFoundException {
         map.clear();
+        if (!location.exists()) {
+            System.err.println("Database file wasn't found");
+            return;
+        }
         FileInputStream inputStream = new FileInputStream(location);
         byte[] buffer;
         ByteBuffer cast;
@@ -105,8 +111,8 @@ public class FileMap {
         return (map.remove(key) != null);
     }
 
-    private ShellCommand[] commands = new ShellCommand[]{
-            new ShellCommand("put", new ShellExecutable() {
+    private Shell.ShellCommand[] commands = new Shell.ShellCommand[]{
+            new Shell.ShellCommand("put", new Shell.ShellExecutable() {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     if (args.size() > 2) {
@@ -126,7 +132,7 @@ public class FileMap {
                     return 0;
                 }
             }),
-            new ShellCommand("get", new ShellExecutable() {
+            new Shell.ShellCommand("get", new Shell.ShellExecutable() {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     if (args.size() > 1) {
@@ -146,7 +152,7 @@ public class FileMap {
                     return 0;
                 }
             }),
-            new ShellCommand("remove", new ShellExecutable() {
+            new Shell.ShellCommand("remove", new Shell.ShellExecutable() {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     if (args.size() > 1) {
