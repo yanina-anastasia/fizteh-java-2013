@@ -99,9 +99,6 @@ public class FileMap extends UserShell {
 
     private static void copy(RandomAccessFile source, RandomAccessFile dest, long offset, long length) {
         int tmp = (int) length;
-        if (tmp < 0) {
-            System.out.println(tmp);
-        }
         byte[] arr = new byte[tmp];
         try {
             source.seek(offset);
@@ -149,7 +146,7 @@ public class FileMap extends UserShell {
     @Override
     protected void execProc(String[] args) {
         try {
-            dataFile = new RandomAccessFile(System.getProperty("fizteh.db.dir"), "rw");
+            dataFile = new RandomAccessFile(System.getProperty("fizteh.db.dir") + "db.dat", "rw");
             if (args != null && args.length != 0) {
                 switch (args[0]) {
                 case "put":
