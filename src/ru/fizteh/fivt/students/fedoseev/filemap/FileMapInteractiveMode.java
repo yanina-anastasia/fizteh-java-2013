@@ -1,12 +1,12 @@
-package ru.fizteh.fivt.students.fedoseev.shell;
+package ru.fizteh.fivt.students.fedoseev.filemap;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class ShellInteractiveMode extends AbstractShell {
-    public ShellInteractiveMode(File dir) {
-        super(dir);
+public class FileMapInteractiveMode extends AbstractFileMap {
+    public FileMapInteractiveMode(File file) throws IOException {
+        super(file);
     }
 
     @Override

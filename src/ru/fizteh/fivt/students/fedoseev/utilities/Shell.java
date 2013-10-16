@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.fedoseev.shell;
+package ru.fizteh.fivt.students.fedoseev.utilities;
 
 import java.io.IOException;
 import java.util.Map;
@@ -9,7 +9,7 @@ public interface Shell {
 
         int getArgsCount();
 
-        void execute(String[] input, AbstractShell.ShellState state) throws IOException;
+        void execute(String[] input, Abstract.ShellState state) throws IOException;
     }
 
     Map<String, AbstractCommand> getCommands();

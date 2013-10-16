@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.fedoseev.shell;
+package ru.fizteh.fivt.students.fedoseev.utilities;
 
 import java.io.IOException;
 
-public abstract class AbstractCommand implements AbstractShell.Command {
+public abstract class AbstractCommand implements Shell.Command {
     private String cmdName;
     private int argsCount;
 
@@ -19,5 +19,5 @@ public abstract class AbstractCommand implements AbstractShell.Command {
         return argsCount;
     }
 
-    public abstract void execute(String[] input, AbstractShell.ShellState state) throws IOException;
+    public abstract void execute(String[] input, Abstract.ShellState state) throws IOException;
 }
