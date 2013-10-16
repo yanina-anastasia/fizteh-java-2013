@@ -6,7 +6,6 @@ import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
-        System.setProperty("fizteh.db.dir", "1");
         String dbAddress = System.getProperty("fizteh.db.dir");
         MapBuilder mb = new MapBuilder();
         try {
