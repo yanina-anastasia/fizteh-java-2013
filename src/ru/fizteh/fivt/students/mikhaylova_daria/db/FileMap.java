@@ -1,10 +1,10 @@
-    package ru.fizteh.fivt.students.mikhaylova_daria.db;
+package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
-    import java.io.IOException;
+import java.io.IOException;
     import java.util.HashMap;
 
-    class FileMap {
-        static HashMap<String, String> fileMap = new HashMap<String, String>();
+public class FileMap {
+    static HashMap<String, String> fileMap = new HashMap<String, String>();
         public static void main(String[] arg) {
 
         }
@@ -56,4 +56,4 @@
             }
             System.exit(0);
         }
-    }
+}
