@@ -158,7 +158,9 @@ public class FileMap extends UserShell {
                         }
                         doPut(args[1], str.toString());
                     } else {
-                        doPut(args[1], args[2]);
+                        if (UserShell.checkArgs(3, args)) {
+                            doPut(args[1], args[2]);
+                        }
                     }
                     break;
                 case "get":
