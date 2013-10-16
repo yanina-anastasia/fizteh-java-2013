@@ -30,58 +30,58 @@
             HashMap<String, Long> offsets = new HashMap<String, Long>();
             long lastOffset;
             for (String key: FileMap.fileMap.keySet()) {
-                dateBase.writeUTF(key);
-                dateBase.writeChar('\0');
+                dateBase.write(key.getBytes());
+                dateBase.writeInt(0);
                 long offset = dateBase.getFilePointer();
-                dateBase.seek(dateBase.getFilePointer() + 4);
+                dateBase.seek(dateBase.getFilePointer() + 1);
                 lastOffset = offset;
                 offsets.put(key, offset);
             }
 
             for (String key: FileMap.fileMap.keySet()) {
-                dateBase.writeUTF(FileMap.fileMap.get(key));
+                dateBase.write(FileMap.fileMap.get(key).getBytes());
                 lastOffset = dateBase.getFilePointer();
                 dateBase.seek(offsets.get(key));
-                int lastOffsetInt = new Long(lastOffset).intValue();
-                dateBase.write(lastOffsetInt);
+                Integer lastOffsetInt = new Long(lastOffset).intValue();
+                dateBase.write(lastOffsetInt.byteValue());
                 dateBase.seek(lastOffset);
             }
             dateBase.close();
         }
 
-        static void readerDateBase() throws Exception {
-            File workingDirectory = new File(workingDirectoryName);
-            RandomAccessFile dateBase = null;
-            try {
-                dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "r");
-            } catch (FileNotFoundException e) {
-                throw new Exception("File is not found " + e.getMessage());
-            } catch (Exception e) {
-                throw new Exception("Opening isn't possible");
-            }
-            String key;
-            String value;
-            key = dateBase.readUTF();
-            long offset;
-            final long firstOffset;
-            int offsetOfValue;
-            offsetOfValue = dateBase.readInt();
-            offset = dateBase.getFilePointer();
-            firstOffset = offsetOfValue;
-            dateBase.seek(offsetOfValue);
-            value = dateBase.readUTF();
-            FileMap.fileMap.put(key, value);
-            while (firstOffset > offset) {
-                key = dateBase.readUTF();
-                dateBase.readChar();
-                offsetOfValue = dateBase.readInt();
-                offset = dateBase.getFilePointer();
-                dateBase.seek(offsetOfValue);
-                value = dateBase.readUTF();
-                FileMap.fileMap.put(key, value);
-            }
-            dateBase.close();
-        }
+//        static void readerDateBase() throws Exception {
+//            File workingDirectory = new File(workingDirectoryName);
+//            RandomAccessFile dateBase = null;
+//            try {
+//                dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "r");
+//            } catch (FileNotFoundException e) {
+//                throw new Exception("File is not found " + e.getMessage());
+//            } catch (Exception e) {
+//                throw new Exception("Opening isn't possible");
+//            }
+//            String key;
+//            String value;
+//            key = dateBase.readUTF();
+//            long offset;
+//            final long firstOffset;
+//            int offsetOfValue;
+//            offsetOfValue = dateBase.readInt();
+//            offset = dateBase.getFilePointer();
+//            firstOffset = offsetOfValue;
+//            dateBase.seek(offsetOfValue);
+//            value = dateBase.readUTF();
+//            FileMap.fileMap.put(key, value);
+//            while (firstOffset > offset) {
+//                key = dateBase.readUTF();
+//                dateBase.readChar();
+//                offsetOfValue = dateBase.readInt();
+//                offset = dateBase.getFilePointer();
+//                dateBase.seek(offsetOfValue);
+//                value = dateBase.readUTF();
+//                FileMap.fileMap.put(key, value);
+//            }
+//            dateBase.close();
+//        }
      }
 
 
