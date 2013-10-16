@@ -10,7 +10,7 @@ public class DataBase {
     private final String pathToDataBaseDirectory = "fizteh.db.dir";
     private final String name = "db.dat";
     static RandomAccessFile dbFile = null;
-    static HashMap<String, String> dbStorage = new HashMap<>() ;  //1 - ключ, 2 - значение
+    static HashMap<String, String> dbStorage = new HashMap<>();  //1 - ключ, 2 - значение
     static Path pathDbFile = null;
 
     public void load(String pathInput) throws Exception {
@@ -50,7 +50,8 @@ public class DataBase {
     }
 
     public void load() throws Exception {
-        pathDbFile = Paths.get(pathToDataBaseDirectory);
+        String path = System.getProperty(pathToDataBaseDirectory);
+        pathDbFile = Paths.get(path);
         pathDbFile = pathDbFile.resolve(name);
         dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
         dbStorage = new HashMap<>();
@@ -99,7 +100,7 @@ public class DataBase {
         dbFile.close();
     }
 
-    public void emergencyExit() throws Exception{
+    public void emergencyExit() throws Exception {
         dbFile.seek(0);
         dbFile.close();
     }
