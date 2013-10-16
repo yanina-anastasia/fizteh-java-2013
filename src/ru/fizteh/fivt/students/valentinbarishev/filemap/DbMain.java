@@ -6,25 +6,9 @@ import ru.fizteh.fivt.students.valentinbarishev.shell.Shell;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.ShellExit;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandParser;
+import ru.fizteh.fivt.students.valentinbarishev.shell.Main;
 
 public class DbMain {
-    static final int END_OF_INPUT = -1;
-    static final int END_OF_TRANSMISSION = 4;
-
-    private static boolean isTerminativeSymbol(final int character) {
-        return ((character == END_OF_INPUT)
-                || (character == END_OF_TRANSMISSION));
-    }
-
-    private static boolean checkTerminate(final String str) {
-        for (int i = 0; i < str.length(); ++i) {
-            if (isTerminativeSymbol(str.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static void main(final String[] args) {
         try {
             Shell shell = new Shell();
@@ -48,11 +32,11 @@ public class DbMain {
             } else {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print("$ ");
-                while (scanner.hasNext()) {
+                while (true) {
                     try {
                         String command = scanner.nextLine();
 
-                        if (checkTerminate(command)) {
+                        if (Main.checkTerminate(command)) {
                             System.exit(0);
                         }
 
@@ -75,6 +59,9 @@ public class DbMain {
             System.err.println("Couldn't read current directory");
             System.exit(1);
         } catch (DataBaseException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (DataBaseWrongFileFormat e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }

@@ -22,12 +22,21 @@ public final class DataBaseFile {
         }
 
         public Node(final RandomAccessFile inputFile) throws IOException {
-            int keyLength = inputFile.readInt();
-            int valueLength = inputFile.readInt();
-            key = new byte[keyLength];
-            value = new byte[valueLength];
-            inputFile.read(key);
-            inputFile.read(value);
+            try {
+                int keyLength = inputFile.readInt();
+                int valueLength = inputFile.readInt();
+                if ((keyLength <= 0) || (valueLength <= 0)) {
+                    throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
+                }
+                key = new byte[keyLength];
+                value = new byte[valueLength];
+                inputFile.read(key);
+                inputFile.read(value);
+            } catch (Exception e) {
+                throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
+            } catch (Error e) {
+                throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
+            }
         }
 
         public void setKey(final byte[] newKey) {
