@@ -1,4 +1,3 @@
-
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
 import java.util.*;
@@ -21,9 +20,9 @@ public class MapOfCommands {
                 parts.add(tmp);
             }
         }
-        String [] partsOfCommand = new String [parts.size()];
+        String[] partsOfCommand = new String[parts.size()];
         for (int i = 0; i < parts.size(); i++) {
-            partsOfCommand[i] =  parts.get(i);
+            partsOfCommand[i] = parts.get(i);
         }
         String nameOfCommand = partsOfCommand[0];
         if (!commands.containsKey(nameOfCommand)) {
@@ -32,8 +31,7 @@ public class MapOfCommands {
         } else {
             if (commands.get(nameOfCommand).check(partsOfCommand)) {
                 return commands.get(nameOfCommand).perform(partsOfCommand);
-            }
-            else {
+            } else {
                 System.err.println("Command '" + nameOfCommand + "' has wrong arguments");
                 return Code.ERROR;
             }
