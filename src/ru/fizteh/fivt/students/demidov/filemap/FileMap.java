@@ -14,7 +14,7 @@ public class FileMap {
 	}
 	
 	public void readDataFromFile(Shell usedShell) throws IOException {
-		String path = System.getProperty("user.dir"); //System.getProperty("fizteh.db.dir");
+		String path = System.getProperty("fizteh.db.dir");
 		if (path == null) {
 			throw new IOException("problem with property");
 		}
