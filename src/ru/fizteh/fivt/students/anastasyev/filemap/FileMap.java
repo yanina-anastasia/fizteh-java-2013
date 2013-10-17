@@ -13,7 +13,7 @@ public class FileMap {
     private ArrayList<Element> elementList = new ArrayList<Element>();
     private Vector<Command> commands = new Vector<Command>();
 
-    private static class Element {
+    private class Element {
         private String key;
         private String value;
 

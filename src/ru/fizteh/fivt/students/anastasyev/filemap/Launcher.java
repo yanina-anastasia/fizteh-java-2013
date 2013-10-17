@@ -94,7 +94,7 @@ public class Launcher {
         fileMap.addCommand(new PutCommand(fileMap));
         fileMap.addCommand(new GetCommand(fileMap));
         fileMap.addCommand(new RemoveCommand(fileMap));
-        fileMap.addCommand(new ExitCommand(fileMap));
+        fileMap.addCommand(new FileMapExitCommand(fileMap));
         if (args.length == 0) {
             interactiveMode();
         } else {

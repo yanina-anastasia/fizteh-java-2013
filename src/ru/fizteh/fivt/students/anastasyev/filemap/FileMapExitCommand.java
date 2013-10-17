@@ -2,10 +2,10 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import java.io.IOException;
 
-public class ExitCommand implements Command {
+public class FileMapExitCommand implements Command {
     private FileMap fileMap;
 
-    public ExitCommand(FileMap myFileMap) {
+    public FileMapExitCommand(FileMap myFileMap) {
         fileMap = myFileMap;
     }
 
