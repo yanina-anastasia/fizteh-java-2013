@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class FileMapController {
 
-    private DataFileController dataFileController = new DataFileController();
+    private FileWriter dataFileController = new FileWriter();
     private DataTable dataTable = new DataTable();
     private CommandsController controller = new CommandsController();
     File dataFile;

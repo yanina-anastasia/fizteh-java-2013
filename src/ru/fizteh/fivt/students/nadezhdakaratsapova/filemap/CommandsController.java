@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class CommandsController {
     private Map<String, Command> commandsStorage = new HashMap<String, Command>();
-    private DataFileController fileController = new DataFileController();
+    private FileReader fileController = new FileReader();
 
     public void addCmd(Command cmd) {
         commandsStorage.put(cmd.getName(), cmd);
