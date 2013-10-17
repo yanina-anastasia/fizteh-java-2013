@@ -21,12 +21,7 @@ public class Main {
             fileMap.integrate(shell);
             int exitCode;
             if (args.length != 0) {
-                StringBuilder sb = new StringBuilder();
-                for (String s : args) {
-                    sb = sb.append(s).append(" ");
-                }
-                String argString = sb.toString();
-                exitCode = shell.parseString(argString);
+                exitCode = shell.runArgs(args);
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 exitCode = shell.run(br);

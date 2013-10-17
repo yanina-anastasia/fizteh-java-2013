@@ -23,11 +23,7 @@ public class Shell {
         }));
     }
 
-    public void addCommand(ShellCommand command) {
-        commands.add(command);
-    }
-
-    public int parseString(String s) {
+    private int parseString(String s) {
         ArrayList<String> comm = new ArrayList<String>();
         int start = 0;
         boolean quote = false;
@@ -72,8 +68,7 @@ public class Shell {
                     }
                     if (quote) {
                         args.add(comm.get(i).substring(start, j));
-                        if (j + 1 != comm.get(i).length() && !Character.isSpaceChar(comm.get(i).charAt(j + 1)))
-                        {
+                        if (j + 1 != comm.get(i).length() && !Character.isSpaceChar(comm.get(i).charAt(j + 1))) {
                             System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
                             return -1;
                         }
@@ -108,6 +103,36 @@ public class Shell {
             }
         }
         return 0;
+    }
+
+    public void addCommand(ShellCommand command) {
+        commands.add(command);
+    }
+
+    public int runArgs(String[] args) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : args) {
+            boolean spaceFound = false;
+            int endCommand = -1;
+            for (int i = 0; i < s.length(); i++) {
+                if (Character.isSpaceChar(s.charAt(i))) {
+                    spaceFound = true;
+                }
+                if (s.charAt(i) == ';' && endCommand == -1) {
+                    endCommand = i;
+                }
+            }
+            if (spaceFound && endCommand == -1) {
+                sb = sb.append("\"").append(s).append("\" ");
+            } else if (spaceFound && endCommand != -1) {
+                sb = sb.append("\"").append(s.substring(0, endCommand)).append("\"");
+                sb = sb.append(s.substring(endCommand, s.length())).append(" ");
+            } else {
+                sb = sb.append(s).append(" ");
+            }
+        }
+        String argString = sb.toString();
+        return parseString(argString);
     }
 
     public int run(BufferedReader br) {
