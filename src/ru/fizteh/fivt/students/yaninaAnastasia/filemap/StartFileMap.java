@@ -9,9 +9,9 @@ import java.util.ArrayList;
 public class StartFileMap {
     public static void main(String[] args) {
         Shell shell = new Shell();
-        DBState curState = new DBState();
+
         try {
-            if (!OpenFile.open(curState)) {
+            if (!OpenFile.open(shell.curState)) {
                 System.err.println("Error with opening file");
                 System.exit(1);
             }

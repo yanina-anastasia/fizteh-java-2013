@@ -9,7 +9,7 @@ public class DBState extends State {
     public RandomAccessFile dbFile;
 
 
-    DBState() {
+    public DBState() {
 
     }
 }

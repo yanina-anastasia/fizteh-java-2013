@@ -33,11 +33,11 @@ public class CommandExit extends Command {
             myState.dbFile.writeUTF(step.getValue());
             offset = myState.dbFile.getFilePointer();
         }
+        System.exit(0);
         return true;
     }
 
     public String getCmd () {
         return "exit";
-
     }
 }
