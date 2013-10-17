@@ -79,7 +79,9 @@ public class FileMap {
         } catch (IOException e) {
             throw new IOException("Error in read db.dat");
         } catch (OutOfMemoryError e) {
-            throw new IOException("OutOfMemoryError in read db.dat");
+            throw new IOException("db.dat has incorrect format");
+        } catch (NegativeArraySizeException e) {
+            throw new IOException("db.dat has incorrect format");
         }
         input.close();
     }
@@ -91,6 +93,8 @@ public class FileMap {
             output.setLength(0);
         } catch (FileNotFoundException e) {
             throw new IOException("Can't find file to save");
+        } catch (Exception e) {
+            throw new IOException("Can't save FileMap");
         }
         for (Element element : elementList) {
             write(output, element);
