@@ -24,13 +24,16 @@ public class ShellCommands {
                 throw new Exception("No such file or directory");
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Cd();
         }
+        
         public Cd() {
             super(2);
         }
+        
         public Cd(String... arguments) {
             super(arguments, 2);
         }
@@ -45,13 +48,16 @@ public class ShellCommands {
                 throw new Exception("Unable to create a directory");
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Mkdir();
         }
+        
         public Mkdir() {
             super(2);
         }
+        
         public Mkdir(String... arguments) {
             super(arguments, 2);
         }
@@ -62,13 +68,16 @@ public class ShellCommands {
         public void innerExecute() {
             parentShell.out.println(parentShell.getWorkingDir());
         }
+        
         @Override
         public Command newCommand() {
             return new Pwd();
         }
+        
         public Pwd() {
             super(1);
         }
+        
         public Pwd(String... arguments) {
             super(arguments, 1);
         }
@@ -105,13 +114,16 @@ public class ShellCommands {
                 });
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Rm();
         }
+        
         public Rm() {
             super(2);
         }
+        
         public Rm(String... arguments) {
             super(arguments, 2);
         }
@@ -167,13 +179,16 @@ public class ShellCommands {
                 throw new Exception("Will not overwrite a file with a directory");
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Cp();
         }
+        
         public Cp() {
             super(3);
         }
+        
         public Cp(String... arguments) {
             super(arguments, 3);
         }
@@ -187,13 +202,16 @@ public class ShellCommands {
             cp.execute();
             rm.execute();
         }
+        
         @Override
         public Command newCommand() {
             return new Mv();
         }
+        
         public Mv() {
             super(3);
         }
+        
         public Mv(String... args) {
             super(args, 3);
         }
@@ -207,13 +225,16 @@ public class ShellCommands {
                 parentShell.out.println(fileName);
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Dir();
         }
+        
         public Dir() {
             super(1);
         }
+        
         public Dir(String... args) {
             super(args, 1);
         }
@@ -224,13 +245,16 @@ public class ShellCommands {
         public void innerExecute() {
             parentShell.exit(0);
         }
+        
         @Override
         public Command newCommand() {
             return new Exit();
         }
+        
         public Exit() {
             super(1);
         }
+        
         public Exit(String... arguments) {
             super(arguments, 1);
         }

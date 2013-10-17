@@ -15,13 +15,16 @@ public class FileMapCommands {
                 parentShell.out.println("overwrite\n" + oldValue);
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Put().setContext(dbContext);
         }
+        
         Put() {
             super(3);
         }
+        
         Put(String... args) {
             super(args, 3);
         }
@@ -37,13 +40,16 @@ public class FileMapCommands {
                 parentShell.out.println("found\n" + value);
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Get().setContext(dbContext);
         }
+        
         Get() {
             super(2);
         }
+        
         Get(String... args) {
             super(args, 2);
         }
@@ -59,13 +65,16 @@ public class FileMapCommands {
                 parentShell.out.println("removed");
             }
         }
+        
         @Override
         public Command newCommand() {
             return new Remove().setContext(dbContext);
         }
+        
         Remove() {
             super(2);
         }
+        
         Remove(String... args) {
             super(args, 2);
         }
