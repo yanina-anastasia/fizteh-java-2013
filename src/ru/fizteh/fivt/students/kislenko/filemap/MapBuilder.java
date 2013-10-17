@@ -30,8 +30,8 @@ public class MapBuilder {
         database.setLength(0);
         Set<String> keySet = state.getMap().keySet();
         for (String key : keySet) {
-            database.writeInt(key.length());
-            database.writeInt(state.getValue(key).length());
+            database.writeInt(key.getBytes(StandardCharsets.UTF_8).length);
+            database.writeInt(state.getValue(key).getBytes(StandardCharsets.UTF_8).length);
             database.write(key.getBytes(StandardCharsets.UTF_8));
             database.write(state.getValue(key).getBytes(StandardCharsets.UTF_8));
         }
