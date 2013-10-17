@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.eltyshev.filemap.base;
 
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -8,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Set;
 
-public class FilemapWriter implements Cloneable {
+public class FilemapWriter implements Closeable {
 
     private RandomAccessFile file;
 

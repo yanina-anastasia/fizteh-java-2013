@@ -1,12 +1,9 @@
 package ru.fizteh.fivt.students.eltyshev.filemap.base;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.HashMap;
 
-public class FilemapReader implements Cloneable {
+public class FilemapReader implements Closeable {
     private RandomAccessFile file;
     private int valuesOffset = -1;
 
