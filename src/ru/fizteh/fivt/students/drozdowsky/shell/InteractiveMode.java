@@ -63,38 +63,8 @@ public class InteractiveMode {
         while (true) {
             System.out.print("$ ");
             String[] args = scanArgs(in);
-            /*if (args.length == 0) {
-                return;
-            }*/
-
-            Utils.executeCommand(args, workingDirectory);
-            /*String command = args[0];
-            if (command.equals("cd")) {
-                ChangeDirectory cd = new ChangeDirectory(workingDirectory, args);
-                cd.execute();
-            } else if (command.equals("mkdir")) {
-                MakeDirectory mkdir = new MakeDirectory(workingDirectory, args);
-                mkdir.execute();
-            } else if (command.equals("pwd")) {
-                PrintWorkingDirectory pwd = new PrintWorkingDirectory(workingDirectory, args);
-                pwd.execute();
-            } else if (command.equals("rm")) {
-                Remove rm = new Remove(workingDirectory, args);
-                rm.execute();
-            } else if (command.equals("dir")) {
-                Directory dir = new Directory(workingDirectory, args);
-                dir.execute();
-            } else if (command.equals("cp")) {
-                Copy cp = new Copy(workingDirectory, args);
-                cp.execute();
-            } else if (command.equals("mv")) {
-                Move mv = new Move(workingDirectory, args);
-                mv.execute();
-            } else if (command.equals("exit")) {
-                return;
-            } else {
-                    System.err.println(args[0] + " command not found");
-            }*/
+            PacketMode pm = new PacketMode(args, workingDirectory);
+            pm.start();
         }
     }
 }

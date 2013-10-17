@@ -69,6 +69,11 @@ public class Copy {
             PathController pathTo = new PathController(path);
             pathFrom.changePath(args[1]);
             pathTo.changePath(args[2]);
+
+            if (pathFrom.getPath().equals(pathTo.getPath())) {
+                return true;
+            }
+
             copy(pathFrom.getPath(), pathTo.getPath());
             return true;
         } catch (SecurityException e) {

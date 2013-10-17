@@ -5,26 +5,48 @@ import java.util.ArrayList;
 public class PacketMode {
     private PathController workingDirectory;
     String[] args;
+    boolean exitOnFailure;
 
     public PacketMode(String[] args) {
         workingDirectory = new PathController();
         this.args = args;
+        exitOnFailure = true;
+    }
+
+    public PacketMode(String[] args, PathController path) {
+        workingDirectory = path;
+        this.args = args;
+        exitOnFailure = false;
     }
 
     public void start() {
-        ArrayList<String> tempArgs = new ArrayList<String>();
-        for (int i = 0; i < args.length; i++) {
-            tempArgs.add(args[i]);
-            if (args[i].charAt(args[i].length() - 1) == ';') {
-                String temp = tempArgs.get(tempArgs.size() - 1);
-                tempArgs.remove(tempArgs.size() - 1);
-                tempArgs.add(temp.substring(0, temp.length() - 1));
-                Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory);
-                tempArgs.clear();
-            }
+        StringBuilder concatenateArgs = new StringBuilder();
+
+        for (String arg : args) {
+            concatenateArgs.append(arg);
+            concatenateArgs.append(" ");
         }
-        if (tempArgs.size() != 0) {
-            Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory);
+        concatenateArgs.append(';');
+
+        ArrayList<String> tempArgs = new ArrayList<String>();
+        int last = -1;
+
+        for (int j = 0; j < concatenateArgs.length(); j++) {
+            if (concatenateArgs.charAt(j) == ';' || concatenateArgs.charAt(j) == ' ') {
+                if (last + 1 != j) {
+                    tempArgs.add(concatenateArgs.substring(last + 1, j));
+                }
+                last = j;
+
+                if (concatenateArgs.charAt(j) == ';' && tempArgs.size() != 0) {
+                    if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
+                        if (exitOnFailure) {
+                            System.exit(1);
+                        }
+                    }
+                    tempArgs.clear();
+                }
+            }
         }
     }
 }
