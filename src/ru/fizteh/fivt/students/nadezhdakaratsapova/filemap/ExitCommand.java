@@ -4,6 +4,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 import java.io.IOException;
 
 public class ExitCommand implements Command {
+
     public String getName() {
         return "exit";
     }

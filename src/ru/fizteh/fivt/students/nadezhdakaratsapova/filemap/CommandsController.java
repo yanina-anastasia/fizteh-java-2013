@@ -9,7 +9,8 @@ import java.util.Map;
 
 public class CommandsController {
     private Map<String, Command> commandsStorage = new HashMap<String, Command>();
-    private FileReader fileController = new FileReader();
+    private FileReader fileReader = new FileReader();
+    private FileWriter fileWriter = new FileWriter();
 
     public void addCmd(Command cmd) {
         commandsStorage.put(cmd.getName(), cmd);
@@ -25,7 +26,10 @@ public class CommandsController {
                     throw new IOException(cmd.getName() + ": wrong number of arguments. It should be " + cmd.getArgsCount());
                 } else {
                     if (flagFirst) {
-                        fileController.loadDataFromFile(file, dataTable);
+                        fileReader.loadDataFromFile(file, dataTable);
+                    }
+                    if (cmd.getName().equals("exit")) {
+                        fileWriter.writeDataToFile(file, dataTable);
                     }
                     cmd.execute(command, dataTable);
                 }

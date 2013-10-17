@@ -37,6 +37,7 @@ public class FileMapController {
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
+
         }
     }
 
@@ -55,6 +56,7 @@ public class FileMapController {
         } finally {
             dataFileController.writeDataToFile(dataFile, dataTable);
         }
+
 
     }
 }

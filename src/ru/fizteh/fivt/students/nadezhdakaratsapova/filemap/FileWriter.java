@@ -14,14 +14,14 @@ public class FileWriter {
             List<String> values = new ArrayList<String>(keys.size());
             int intSize = 4;
             int separatorSize = 1;
-            Integer offset = 0;
+            int offset = 0;
             for (String s : keys) {
                 offset += s.getBytes(StandardCharsets.UTF_8).length + intSize + separatorSize;
             }
             for (String s : keys) {
                 byte[] b = s.getBytes(StandardCharsets.UTF_8);
                 outStream.write(b);
-                outStream.writeByte(0);
+                outStream.writeByte('\0');
                 outStream.writeInt(offset);
                 String value = table.getValue(s);
                 values.add(value);

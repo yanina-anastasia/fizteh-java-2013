@@ -10,6 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            System.setProperty("fizteh.db.dir", "/home/hope");
             File dataFile = new File(System.getProperty("fizteh.db.dir"), "db.dat");
             FileMapController fileMap = new FileMapController(dataFile);
             if (!dataFile.exists()) {
