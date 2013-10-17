@@ -50,7 +50,7 @@ class MyShell {
             }
             String commands = input.nextLine();
             if (commands.length() != 0) {
-                runCommands(commands); 
+                runCommands(commands);
             }
         }
     }
@@ -71,6 +71,10 @@ class MyShell {
     }
 
     private void runCommand(String commandWithArguments) {
+        commandWithArguments = commandWithArguments.trim();
+        if (commandWithArguments.length() == 0) {
+            return;
+        }
         StringTokenizer tokenizer = new StringTokenizer(commandWithArguments);
         int tokensAmount = tokenizer.countTokens();
         String command = tokenizer.nextToken();
@@ -80,7 +84,7 @@ class MyShell {
             }  else {
                 String newPath = tokenizer.nextToken();
                 try {
-                    myCD(newPath);
+                    myCd(newPath);
                 } catch (IllegalArgumentException e) {
                     System.err.println("cd: " + e.getMessage());
                 }
@@ -92,7 +96,7 @@ class MyShell {
             }  else {
                 String name = tokenizer.nextToken();
                 try {
-                    myMKDIR(name);
+                    myMkdir(name);
                 } catch (IllegalArgumentException e) {
                     System.err.println("mkdir: " + e.getMessage());
                 }
@@ -104,7 +108,7 @@ class MyShell {
                 throw new IllegalArgumentException("pwd: invalid usage");
             }  else {
                 try {
-                    myPWD();
+                    myPwd();
                 } catch (IllegalArgumentException e) {
                     System.err.println("pwd: " + e.getMessage());
                 }
@@ -118,7 +122,7 @@ class MyShell {
             }  else {
                 String name = tokenizer.nextToken();
                 try {
-                    myRM(name);
+                    myRemove(name);
                 } catch (IllegalArgumentException e) {
                     System.err.println("rm: " + e.getMessage());
                 }
@@ -132,7 +136,7 @@ class MyShell {
                 String source = tokenizer.nextToken();
                 String destination = tokenizer.nextToken();
                 try {
-                    myCPMV(source, destination, true);
+                    myCopyMove(source, destination, true);
                 } catch (IllegalArgumentException e) {
                     System.err.println("cp: " + e.getMessage());
                 } catch (Exception e) {
@@ -148,7 +152,7 @@ class MyShell {
                 String source = tokenizer.nextToken();
                 String destination = tokenizer.nextToken();
                 try {
-                    myCPMV(source, destination, false);
+                    myCopyMove(source, destination, false);
                 } catch (IllegalArgumentException e) {
                     System.err.println("mv: " + e.getMessage());
                 } catch (Exception e) {
@@ -162,7 +166,7 @@ class MyShell {
                 throw new IllegalArgumentException("dir: invalid usage");
             }  else {
                 try {
-                    myDIR();
+                    myDir();
                 } catch (IllegalArgumentException e) {
                     System.err.println("dir: " + e.getMessage());
                 }
@@ -172,14 +176,14 @@ class MyShell {
             if (tokensAmount != 1) {
                 throw new IllegalArgumentException("exit: invalid usage");
             }  else {
-                myEXIT();
+                myExit();
             }
         } else {
             throw new IllegalArgumentException(String.format("%s: Unknown command", command));
         }
     }
 
-    private void myCD(String pathName) {
+    private void myCd(String pathName) {
         try {
             File newPath = new File(pathName);
             if (!newPath.isAbsolute()) {
@@ -196,11 +200,11 @@ class MyShell {
         }
     }
 
-    private void myMKDIR(String directoryName) {
+    private void myMkdir(String directoryName) {
         File newDirectory = new File(getFullPath(directoryName));
         if (!newDirectory.exists()) {
             if (!newDirectory.mkdir()) {
-                throw new IllegalArgumentException(directoryName + ": It is impossible to create a directory"); 
+                throw new IllegalArgumentException(directoryName + ": It is impossible to create a directory");
             }
         } else {
             throw new IllegalArgumentException(directoryName + ": File/directory exists");
@@ -216,7 +220,7 @@ class MyShell {
         }
     }
 
-    private void myPWD() {
+    private void myPwd() {
         try {
             System.out.println(path.getCanonicalPath());
         } catch (Exception e) {
@@ -224,24 +228,24 @@ class MyShell {
         }
     }
 
-    private void myRM(String name) {
+    private void myRemove(String name) {
         File currFile = new File(getFullPath(name));
         if (!currFile.exists()) {
             throw new IllegalArgumentException(name + ": No such file or directory");
         }
         File[] children = currFile.listFiles();
-        if (children != null) 
+        if (children != null)
             if (currFile.isDirectory()) {
                 for (File child : children) {
-                    myRM(child.toString());
+                    myRemove(child.toString());
                 }
             }
         if (!currFile.delete()) {
             throw new IllegalArgumentException(name + ": Can't delete");
-        } 
+        }
     }
 
-    private void myDIR() {
+    private void myDir() {
         if (!path.exists()) {
             throw new IllegalArgumentException("Current path does not exist");
         }
@@ -250,49 +254,48 @@ class MyShell {
         }
     }
 
-    private void myCPMV(String sourceName, String destinationName, boolean isItCopy) throws Exception{
-        String command = (isItCopy?"copy":"move");
-            File source = new File(getFullPath(sourceName));
-            File destination = new File(getFullPath(destinationName));
-            if (source.isDirectory()) {
-                Path sourcePath = Paths.get(source.getCanonicalPath());
-                if (destination.isDirectory()) {
-                    destinationName = destinationName + File.separator + source.getName();
-                    destination = new File(getFullPath(destinationName));
-                }
-                Path destinationPath = Paths.get(destination.getCanonicalPath()); 
-                if (isItCopy) {
-                    Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                File[] children = source.listFiles();
-                if (children != null) {
-                    for (File child : children) {
-                        String currFileName = child.getName();
-                        myCPMV(child.getCanonicalPath(), destinationName + File.separator + currFileName, isItCopy);
-                    }
-                }
+    private void myCopyMove(String sourceName, String destinationName, boolean isItCopy) throws Exception{
+        File source = new File(getFullPath(sourceName));
+        File destination = new File(getFullPath(destinationName));
+        if (source.isDirectory()) {
+            Path sourcePath = Paths.get(source.getCanonicalPath());
+            if (destination.isDirectory()) {
+                destinationName = destinationName + File.separator + source.getName();
+                destination = new File(getFullPath(destinationName));
+            }
+            Path destinationPath = Paths.get(destination.getCanonicalPath());
+            if (isItCopy) {
+                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
             } else {
-                if (destination.getCanonicalPath().equals(source.getCanonicalPath())) {
-                    throw new IllegalArgumentException("Files are identical");
-                }
-                Path sourcePath = Paths.get(source.getCanonicalPath());
-                Path destinationPath;
-                if (destination.isDirectory()) {
-                    destinationPath = Paths.get(destination.getCanonicalPath() + File.separator + source.getName());
-                } else {
-                    destinationPath = Paths.get(destination.getCanonicalPath());
-                } 
-                if (isItCopy) {
-                    Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            File[] children = source.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    String currFileName = child.getName();
+                    myCopyMove(child.getCanonicalPath(), destinationName + File.separator + currFileName, isItCopy);
                 }
             }
+        } else {
+            if (destination.getCanonicalPath().equals(source.getCanonicalPath())) {
+                throw new IllegalArgumentException("Files are identical");
+            }
+            Path sourcePath = Paths.get(source.getCanonicalPath());
+            Path destinationPath;
+            if (destination.isDirectory()) {
+                destinationPath = Paths.get(destination.getCanonicalPath() + File.separator + source.getName());
+            } else {
+                destinationPath = Paths.get(destination.getCanonicalPath());
+            }
+            if (isItCopy) {
+                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
     }
 
-    private void myEXIT() {
+    private void myExit() {
         System.exit(0);
     }
 }
