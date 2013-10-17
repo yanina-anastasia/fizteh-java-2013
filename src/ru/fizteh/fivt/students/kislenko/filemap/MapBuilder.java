@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MapBuilder {
     void buildMap(State state) throws IOException {
-        RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "rw");
+        RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "r");
         int keyLength;
         int valueLength;
         String key;
@@ -17,10 +18,11 @@ public class MapBuilder {
             byte[] valueSymbols = new byte[valueLength];
             database.read(keySymbols);
             database.read(valueSymbols);
-            key = new String(keySymbols, "UTF-8");
-            value = new String(valueSymbols, "UTF-8");
+            key = new String(keySymbols, StandardCharsets.UTF_8);
+            value = new String(valueSymbols, StandardCharsets.UTF_8);
             state.putValue(key, value);
         }
+        database.close();
     }
 
     void fillFile(State state) throws IOException {
@@ -30,8 +32,9 @@ public class MapBuilder {
         for (String key : keySet) {
             database.writeInt(key.length());
             database.writeInt(state.getValue(key).length());
-            database.write(key.getBytes("UTF-8"));
-            database.write(state.getValue(key).getBytes("UTF-8"));
+            database.write(key.getBytes(StandardCharsets.UTF_8));
+            database.write(state.getValue(key).getBytes(StandardCharsets.UTF_8));
         }
+        database.close();
     }
 }
