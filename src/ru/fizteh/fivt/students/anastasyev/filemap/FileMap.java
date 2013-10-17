@@ -69,7 +69,7 @@ public class FileMap {
                 throw new IOException("Can't create data file db.dat");
             }
         }
-        RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "rw");
+        RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "r");
         if (input.length() == 0) {
             return;
         }
