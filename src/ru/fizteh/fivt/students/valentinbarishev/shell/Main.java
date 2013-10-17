@@ -12,7 +12,7 @@ public class Main {
         return ((character == END_OF_INPUT) || (character == END_OF_TRANSMISSION));
     }
 
-    private static boolean checkTerminate(final String str) {
+    public static boolean checkTerminate(final String str) {
         for (int i = 0; i < str.length(); ++i) {
             if (isTerminativeSymbol(str.charAt(i))) {
                 return true;
