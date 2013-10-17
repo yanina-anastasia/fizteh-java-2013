@@ -10,7 +10,7 @@ public class FileMapController {
     private FileWriter dataFileController = new FileWriter();
     private DataTable dataTable = new DataTable();
     private CommandsController controller = new CommandsController();
-    File dataFile;
+    private File dataFile;
 
     public FileMapController(File file) {
         dataFile = file;
