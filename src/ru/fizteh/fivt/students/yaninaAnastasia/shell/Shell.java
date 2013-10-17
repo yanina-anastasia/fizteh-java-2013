@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.DBState;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Shell {
-    public ShellState curState = new ShellState();
+    public DBState curState = new DBState();
     private HashMap<String, Command> cmds = new HashMap<String, Command>();
 
     public void fillHashMap(ArrayList<Command> cmdList) {
@@ -50,7 +52,6 @@ public class Shell {
         String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
             System.err.println("Invalid input");
-
             return false;
         }
         try {
