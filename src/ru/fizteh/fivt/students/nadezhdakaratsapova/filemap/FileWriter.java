@@ -30,6 +30,7 @@ public class FileWriter {
             for (String v : values) {
                 outStream.write(v.getBytes(StandardCharsets.UTF_8));
             }
+            outStream.close();
         } catch (FileNotFoundException e) {
             System.err.println(file.getName() + " was not found");
         } catch (IOException e) {
