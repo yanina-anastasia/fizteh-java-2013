@@ -6,12 +6,12 @@ import javax.swing.plaf.multi.MultiInternalFrameUI;
 import java.io.File;
 import java.util.HashMap;
 
-public class Database implements TableProvider {
+public class DatabaseTableProvider implements TableProvider {
     HashMap<String, MultifileTable> tables = new HashMap<String, MultifileTable>();
     private String databaseDirectoryPath;
     private MultifileTable activeTable = null;
 
-    public Database(String databaseDirectoryPath) {
+    public DatabaseTableProvider(String databaseDirectoryPath) {
         this.databaseDirectoryPath = databaseDirectoryPath;
         File databaseDirectory = new File(databaseDirectoryPath);
         for (final File tableFile : databaseDirectory.listFiles()) {

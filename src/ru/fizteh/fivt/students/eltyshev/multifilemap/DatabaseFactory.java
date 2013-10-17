@@ -10,6 +10,6 @@ public class DatabaseFactory implements TableProviderFactory {
         if (!databaseDirectory.exists()) {
             databaseDirectory.mkdir();
         }
-        return new Database(databaseDirectory.getAbsolutePath());
+        return new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
     }
 }
