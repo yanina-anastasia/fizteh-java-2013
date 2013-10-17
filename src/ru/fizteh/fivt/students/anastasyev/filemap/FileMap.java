@@ -49,6 +49,9 @@ public class FileMap {
     private void read(RandomAccessFile input) throws IOException {
         int keyLength = input.readInt();
         int valueLength = input.readInt();
+        if (keyLength <= 0 || valueLength <= 0) {
+            throw new IOException("db.dat has incorrect format");
+        }
         byte[] key = new byte[keyLength];
         byte[] value = new byte[valueLength];
         input.read(key);
@@ -77,12 +80,12 @@ public class FileMap {
             while (input.getFilePointer() < input.length()) {
                 read(input);
             }
-        } catch (OutOfMemoryError e) {
-            throw new IOException("db.dat has incorrect format");
-        } catch (NegativeArraySizeException e) {
-            throw new IOException("db.dat has incorrect format");
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IOException("Error in read db.dat");
+        } catch (Exception e) {
+            throw new IOException("db.dat has incorrect format");
+        } catch (Error e) {
+            throw new IOException("db.dat has incorrect format");
         }
         input.close();
     }
