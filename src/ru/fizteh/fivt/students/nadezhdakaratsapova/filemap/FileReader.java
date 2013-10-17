@@ -78,6 +78,7 @@ public class FileReader {
                 ++i;
 
             }
+            inStream.close();
         } catch (FileNotFoundException e) {
             System.err.println(file.getName() + " was not found");
         } catch (IOException e) {
