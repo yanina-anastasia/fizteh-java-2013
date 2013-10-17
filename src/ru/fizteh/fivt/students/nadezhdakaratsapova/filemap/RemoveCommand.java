@@ -9,7 +9,7 @@ public class RemoveCommand implements Command {
 
     public void execute(String[] args, DataTable dataTable) throws IOException {
         String value = dataTable.remove(args[1]);
-        if (value.length() == 0) {
+        if (value == null) {
             System.out.println("not found");
         } else {
             System.out.println("removed");

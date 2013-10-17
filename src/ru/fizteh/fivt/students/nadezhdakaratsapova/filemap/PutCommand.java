@@ -12,7 +12,7 @@ public class PutCommand implements Command {
     public void execute(String[] args, DataTable dataTable) throws IOException {
         String value = dataTable.getValue(args[1]);
         dataTable.add(args[1], args[2]);
-        if (value.length() == 0) {
+        if (value == null) {
             System.out.println("new");
         } else {
             System.out.println("overwrite");

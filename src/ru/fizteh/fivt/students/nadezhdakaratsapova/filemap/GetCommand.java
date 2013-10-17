@@ -9,7 +9,7 @@ public class GetCommand implements Command {
 
     public void execute(String[] args, DataTable dataTable) throws IOException {
         String value = dataTable.getValue(args[1]);
-        if (value.length() == 0) {
+        if (value == null) {
             System.out.println("not found");
         } else {
             System.out.println("found");
