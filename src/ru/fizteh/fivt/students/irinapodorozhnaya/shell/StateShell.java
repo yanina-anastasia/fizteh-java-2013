@@ -1,12 +1,18 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.State;
 
 public class StateShell extends State {
 	
-	public StateShell() {
-		currentDir = new File(".");
+	public StateShell(InputStream in, PrintStream out) {
+		super(in, out);
+		try {
+			setCurrentDir(new File("."));
+		} catch (IOException e) {
+		}
 		add(new CommandDirectory(this));
 		add(new CommandChangeDirectory(this));
 		add(new CommandRemove(this));

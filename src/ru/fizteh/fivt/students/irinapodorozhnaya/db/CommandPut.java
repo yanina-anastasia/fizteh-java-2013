@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.db;
 
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
+import ru.fizteh.fivt.students.irinapodorozhnaya.shell.AbstractCommand;
 
 public class CommandPut extends AbstractCommand {
 	public CommandPut(DbState state) {

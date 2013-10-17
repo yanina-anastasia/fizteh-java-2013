@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.File;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
 
 public class CommandDirectory extends AbstractCommand {
 	CommandDirectory (StateShell state) {
@@ -10,9 +9,9 @@ public class CommandDirectory extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) {
-		File[] filesList = getState().currentDir.listFiles();
+		File[] filesList = getState().getCurrentDir().listFiles();
 		for (File s: filesList) {
-			getState().out.println(s.getName());
+			getState().getOutputStream().println(s.getName());
 		}
 	}
 	

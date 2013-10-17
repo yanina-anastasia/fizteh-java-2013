@@ -2,12 +2,13 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.File;
 
+
 public abstract class AbstractCommand implements Command {
 	private final int argsNumber;
-	private final StateShell state;
+	private final State state;
 	
-	public AbstractCommand(int argsNumber, StateShell state) {
-		this.argsNumber =argsNumber;
+	public AbstractCommand(int argsNumber, State state) {
+		this.argsNumber = argsNumber;
 		this.state = state;
 	}
 	
@@ -15,7 +16,7 @@ public abstract class AbstractCommand implements Command {
 		return argsNumber;
 	}
 	
-	public StateShell getState() {
+	public State getState() {
 		return state;
 	}
 	
@@ -24,7 +25,7 @@ public abstract class AbstractCommand implements Command {
 		if (f.isAbsolute()) {
 			return f;
 		} else {
-			return new File (state.currentDir, path);
+			return new File (state.getCurrentDir(), path);
 		}
 	}
 }

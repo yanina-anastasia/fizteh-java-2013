@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 import java.io.File;
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.AbstractCommand;
 
 public class CommandChangeDirectory extends AbstractCommand {
 	CommandChangeDirectory (StateShell st){
@@ -15,7 +14,7 @@ public class CommandChangeDirectory extends AbstractCommand {
 		if (!f.isDirectory()){
 			throw new IOException("cd: '" + args[1] + "' is not an exicting directory");
 		} else {
-			getState().currentDir = f;
+			getState().setCurrentDir(f);
 		}
 	}
 	

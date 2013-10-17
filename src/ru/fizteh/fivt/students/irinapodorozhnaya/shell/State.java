@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
+package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+
 
 
 public abstract class State {
@@ -37,9 +38,6 @@ public abstract class State {
 	}
 
 	public void setCurrentDir(File currentDir) throws IOException {
-		if (!currentDir.exists()) {
-			throw new IOException("no such directory");
-		}
 		this.currentDir = currentDir;
 	}
 
