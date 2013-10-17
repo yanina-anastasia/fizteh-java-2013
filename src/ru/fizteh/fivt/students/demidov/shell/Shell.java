@@ -74,7 +74,7 @@ public class Shell {
 		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
-		} catch (InterruptionException catchedException) {
+		} catch (ShellInterruptionException catchedException) {
 			return;
 		}
 	}
@@ -91,19 +91,19 @@ public class Shell {
 				doInstructions(instructions, curShell);
 			} catch (IOException catchedException) {
 				System.err.println(catchedException.getMessage());
-			} catch (InterruptionException catchedException) {
+			} catch (ShellInterruptionException catchedException) {
 				return;
 			}
 		}
 	}
 
-	private void doInstructions(String instructions, ShellMethods curShell) throws IOException, InterruptionException {
+	private void doInstructions(String instructions, ShellMethods curShell) throws IOException, ShellInterruptionException {
 		for (String instruction : instructions.trim().split("\\s*;\\s*", -1)) {
 			executeInstruction(instruction.split("\\s+"), curShell);
 		}
 	}
 
-	private void executeInstruction(String[] exeInstruction, ShellMethods curShell) throws IOException, InterruptionException {
+	private void executeInstruction(String[] exeInstruction, ShellMethods curShell) throws IOException, ShellInterruptionException {
 		if ((exeInstruction.length == 0) || (exeInstruction[0].equals(""))) {
 			return;
 		}
