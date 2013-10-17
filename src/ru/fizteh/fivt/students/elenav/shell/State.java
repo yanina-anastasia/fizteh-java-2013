@@ -12,10 +12,10 @@ import ru.fizteh.fivt.students.elenav.commands.Command;
 
 public abstract class State {
 	
-	private PrintStream stream;
+	private final PrintStream stream;
 	private File workingDirectory;
-	private String name;
-	protected List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
+	private final String name;
+	protected final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
 		
 	protected State(String n, File wd, PrintStream s) {
 		stream = s;
@@ -36,10 +36,6 @@ public abstract class State {
 	
 	public PrintStream getStream() {
 		return stream;
-	}
-	
-	public void setStream(PrintStream s) {
-		stream = s;
 	}
 	
 	public String getName() {
@@ -84,6 +80,30 @@ public abstract class State {
 				}
 			}
 		} while (flag);
+	}
+	
+	public void run(String[] args) {
+		if (args.length == 0) {
+			interactiveMode();
+		} else {
+			StringBuilder sb = new StringBuilder();
+			for (String s : args) {
+				sb.append(s);
+				sb.append(" ");
+			}
+			String monoString = sb.toString(); 
+			
+			monoString = monoString.trim();
+			String[] commands = monoString.split("\\s*;\\s*");
+			for (String command : commands) {
+				try {
+					execute(command);
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+					System.exit(1);
+				}
+			}
+		}
 	}
 	
 }
