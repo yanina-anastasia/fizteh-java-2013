@@ -6,9 +6,8 @@ import java.io.IOException;
 public class Cd {
 
     public static void changeDir(String expr, int spaceIndex) throws IOException {
-        int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
-        if (newSpaceIndex != -1) {
-            throw new IOException("cd: wrong path " + expr.substring(spaceIndex + 1, expr.length()));
+        if (expr.indexOf(' ', spaceIndex + 1) != -1) {
+            throw new IOException("cd: wrong parameters");
         }
         String destination = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, expr.length()));
         File destFile = new File(destination);

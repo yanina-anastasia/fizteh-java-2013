@@ -21,7 +21,11 @@ public class DoCommand {
         String newExpression = expression.trim();
         int spaceIndex = newExpression.indexOf(' ', 0);
         if (spaceIndex != -1) {
-            String command = newExpression.substring(0, spaceIndex);
+            int index = spaceIndex;
+            while (newExpression.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
+                ++spaceIndex;
+            }
+            String command = newExpression.substring(0, index);
             if (command.equals("cd")) {
                 Cd.changeDir(newExpression, spaceIndex);
             }

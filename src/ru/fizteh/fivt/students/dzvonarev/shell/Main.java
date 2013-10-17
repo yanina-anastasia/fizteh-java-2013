@@ -18,8 +18,8 @@ class Main {
 
     public static String mergeAll(String[] arr) {
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < arr.length; i++) {
-            s.append(arr[i]);
+        for (String anArr : arr) {
+            s.append(anArr);
             s.append(" ");
         }
         return s.toString();
@@ -52,12 +52,12 @@ class Main {
         }
         while (!input.equals("exit")) {
             String[] s = input.split("\\s*;\\s*");
-            for (int i = 0; i < s.length; ++i) {
-                if (isEmpty(s[i])) {
+            for (String command : s) {
+                if (isEmpty(command)) {
                     continue;
                 }
                 try {
-                    DoCommand.run(s[i]);
+                    DoCommand.run(command);
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                 }
@@ -75,15 +75,15 @@ class Main {
         initCurrDirectory();
         String expression = mergeAll(arr);
         String[] s = expression.split("\\s*;\\s*");
-        for (int i = 0; i < s.length; ++i) {
-            if (s[i].equals("exit")) {
+        for (String command : s) {
+            if (command.equals("exit")) {
                 Exit.exitShell(0);
             }
-            if (isEmpty(s[i])) {
+            if (isEmpty(command)) {
                 continue;
             }
             try {
-                DoCommand.run(s[i]);
+                DoCommand.run(command);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 Exit.exitShell(1);

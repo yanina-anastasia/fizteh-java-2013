@@ -9,8 +9,8 @@ import java.nio.channels.FileChannel;
 public class Copy {
 
     private static void copyFileUsingChannel(File source, File dest) throws IOException {
-        FileChannel sourceChannel = null;
-        FileChannel destChannel = null;
+        FileChannel sourceChannel;
+        FileChannel destChannel;
         try {
             sourceChannel = new FileInputStream(source).getChannel();
             destChannel = new FileOutputStream(dest).getChannel();
@@ -25,10 +25,7 @@ public class Copy {
     private static boolean simpleFolderToFolderCopy(String source, String destination) {
         String folder = destination + File.separator + (new File(source)).getName();
         File dir = new File(folder);
-        if (!dir.mkdir()) {
-            return false;
-        }
-        return true;
+        return dir.mkdir();
     }
 
     private static void recursionCopy(File source, File dest) throws IOException {
@@ -37,8 +34,8 @@ public class Copy {
                 throw new IOException("cp: can't copy file " + source);
             }
             String[] file = source.list();
-            for (int i = 0; i < file.length; ++i) {
-                File currFile = new File(source, file[i]);
+            for (String aFile : file) {
+                File currFile = new File(source, aFile);
                 File newDest = new File(dest.toString() + File.separator + source.getName());
                 recursionCopy(currFile, newDest);
             }
@@ -69,7 +66,9 @@ public class Copy {
                 toChannel = destination + File.separator + fileName;
             }
             try {
-                newFile.createNewFile();
+                if (!newFile.createNewFile()) {
+                    throw new IOException("cp: can't copy file " + source);
+                }
             } catch (IOException e) {
                 throw new IOException("cp: can't copy file " + source);
             }
@@ -82,7 +81,6 @@ public class Copy {
 
     private static boolean isFolderToFolder(String source, String destination) throws IOException {
         if (new File(source).isDirectory()) {
-            String fileName = (new File(source)).getName();
             if (!(new File(destination)).exists()) {
                 Mkdir.makeDir(" " + destination, 0);
             }
@@ -107,12 +105,16 @@ public class Copy {
     public static void copyObject(String expr, int spaceIndex) throws IOException {
         int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
         if (newSpaceIndex == -1) {
-            throw new IOException("cp: wrong parametres");
+            throw new IOException("cp: wrong parameters");
+        }
+        int index = newSpaceIndex;
+        while (expr.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
+            ++newSpaceIndex;
         }
         if (expr.indexOf(' ', newSpaceIndex + 1) != -1) {
-            throw new IOException("cp: wrong parametres");
+            throw new IOException("cp: wrong parameters");
         }
-        String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, newSpaceIndex));
+        String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, index));
         String destination = DoCommand.getAbsPath(expr.substring(newSpaceIndex + 1, expr.length()));
         if (destination.equals(source)) {
             throw new IOException("cp: can't copy file " + source);

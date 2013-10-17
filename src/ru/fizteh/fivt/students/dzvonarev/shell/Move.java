@@ -13,18 +13,9 @@ public class Move {
         if (sourceFile.isFile() || sourceFile.isDirectory()) {
             File destFile = new File(destination);
             if (destFile.isDirectory()) {
-                if (!sourceFile.renameTo(new File(destination + File.separator + sourceFile.getName()))) {
-                    return false;
-                }
-                return true;
+                return sourceFile.renameTo(new File(destination + File.separator + sourceFile.getName()));
             } else {
-                if (destFile.isFile()) {
-                    return false;
-                }
-                if (!sourceFile.renameTo(new File(destination))) {
-                    return false;
-                }
-                return true;
+                return !destFile.isFile() && sourceFile.renameTo(new File(destination));
             }
         }
         return true;
@@ -33,12 +24,16 @@ public class Move {
     public static void moveObject(String expr, int spaceIndex) throws IOException {
         int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
         if (newSpaceIndex == -1) {
-            throw new IOException("mv: wrong parametres");
+            throw new IOException("mv: wrong parameters");
+        }
+        int index = newSpaceIndex;
+        while (expr.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
+            ++newSpaceIndex;
         }
         if (expr.indexOf(' ', newSpaceIndex + 1) != -1) {
-            throw new IOException("mv: wrong parametres");
+            throw new IOException("mv: wrong parameters");
         }
-        String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, newSpaceIndex));
+        String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, index));
         String destination = DoCommand.getAbsPath(expr.substring(newSpaceIndex + 1, expr.length()));
         if (destination.contains(source)) {    // if parent into child
             throw new IOException("mv: can't move " + source);

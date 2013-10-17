@@ -16,8 +16,8 @@ public class Remove {
                 }
             } else {
                 String[] file = aim.list();
-                for (int i = 0; i < file.length; ++i) {
-                    File currFile = new File(aim, file[i]);
+                for (String aFile : file) {
+                    File currFile = new File(aim, aFile);
                     delete(currFile);
                 }
                 if (aim.list().length == 0) {
