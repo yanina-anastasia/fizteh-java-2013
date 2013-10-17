@@ -1,14 +1,14 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 /**
- * ArgumentsCommandSource.java
+ * BatchCommandSource.java
  * Created by Vladimir Mishatkin on 9/23/13
  *
  */
-public class ArgumentsCommandSource extends CommandSource {
+public class BatchCommandSource extends CommandSource {
 	private int nextArgumentIndex = 0;
 	private String[] args;
 
-	public ArgumentsCommandSource(String[] args) {
+	public BatchCommandSource(String[] args) {
 		this.args = args;
 	}
 

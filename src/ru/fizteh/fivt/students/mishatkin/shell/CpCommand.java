@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
 /**
- * CopyCommand.java
+ * CpCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class CopyCommand extends Command {
-	CopyCommand(CommandReceiver receiver) {
+public class CpCommand extends ShellCommand {
+	public CpCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(2);
-		type = CommandType.CP;
 	}
 
 	@Override
