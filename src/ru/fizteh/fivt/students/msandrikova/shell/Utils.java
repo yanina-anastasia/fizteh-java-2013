@@ -17,12 +17,6 @@ public class Utils {
 		} else {
 			System.err.println("Error: " + description);
 		}
-		if(isInteractive) {
-			try {
-				Thread.sleep(2);
-			} catch (InterruptedException e) {}
-			return;
-		}
 		System.exit(1);
 	}
 	
@@ -38,6 +32,20 @@ public class Utils {
 	        sourceChannel.close();
 	        destinationChannel.close();
 	    }
+	}
+	
+	public static boolean createFile(File newFile) throws IOException {
+		if(!newFile.getParentFile().exists()) {
+			return false;
+		}
+		try {
+			if(!newFile.createNewFile()) {
+				return false;
+			}
+		} catch (SecurityException e) {
+			return false;
+		}
+		return true;
 	}
 	
 	public static boolean copying(File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
@@ -61,16 +69,9 @@ public class Utils {
 			}
 		} else {
 			File newFile = new File(destination + File.separator + filePath.getName());
-			try {
-				if(!newFile.createNewFile()) {
-					Utils.generateAnError("File with name \"" + filePath.getName() 
-							+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
-					return false;
-				}
-			} catch (SecurityException e) {
+			if(!Utils.createFile(newFile)) {
 				Utils.generateAnError("File with name \"" + filePath.getName() 
 						+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
-				return false;
 			}
 			Utils.copyFiles(filePath, newFile);
 		}

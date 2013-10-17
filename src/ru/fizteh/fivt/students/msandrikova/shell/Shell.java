@@ -42,7 +42,11 @@ public class Shell {
 		}
 	}
 	
-	public Shell(Command[] commands) {
+	public Shell(Command[] commands, String currentDirectory) {
+		this.currentDirectory = new File(currentDirectory).getAbsoluteFile();
+		if(!this.currentDirectory.exists()) {
+			Utils.generateAnError("Given directory does not exist", "shell", false);
+		}
 		this.InitMap(commands);
 	}
 	

@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.msandrikova.shell;
 
 import java.io.File;
 
-abstract class Command {
+public abstract class Command {
 	
 	private String name;
 	private int argNum;

@@ -14,7 +14,7 @@ public class Launcher {
 	
 
 	public static void main(String[] args) {
-		Shell myShell = new Shell(commands);
+		Shell myShell = new Shell(commands, ".");
 		myShell.execute(args);
 	}
 
