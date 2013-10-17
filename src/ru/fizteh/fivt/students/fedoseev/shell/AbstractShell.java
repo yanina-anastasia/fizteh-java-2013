@@ -1,11 +1,20 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.Abstract;
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+import ru.fizteh.fivt.students.fedoseev.common.Utils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractShell implements Shell {
+public abstract class AbstractShell extends Abstract {
+    public AbstractShell(File dir) {
+        super(dir);
+    }
+
+    @Override
     public Map<String, AbstractCommand> getCommands() {
         final CdCommand CD = new CdCommand();
         final MkdirCommand MKDIR = new MkdirCommand();
@@ -15,7 +24,8 @@ public abstract class AbstractShell implements Shell {
         final MvCommand MV = new MvCommand();
         final DirCommand DIR = new DirCommand();
         final ExitCommand EXIT = new ExitCommand();
-        final Map<String, AbstractCommand> COMMANDS = new HashMap<String, AbstractCommand>() {{
+
+        return new HashMap<String, AbstractCommand>() {{
             put(CD.getCmdName(), CD);
             put(MKDIR.getCmdName(), MKDIR);
             put(PWD.getCmdName(), PWD);
@@ -25,29 +35,9 @@ public abstract class AbstractShell implements Shell {
             put(DIR.getCmdName(), DIR);
             put(EXIT.getCmdName(), EXIT);
         }};
-        return COMMANDS;
     }
 
-    public class ShellState {
-        private File curState;
-
-        public void setCurState(File dir) {
-            curState = dir;
-        }
-
-        public File getCurState() {
-            return curState;
-        }
-    }
-
-    protected ShellState state = new ShellState();
-
-    public AbstractShell(File dir) {
-        state.setCurState(dir);
-    }
-
-    public abstract void run() throws IOException, InterruptedException;
-
+    @Override
     public void runCommands(String cmd, int end) throws IOException {
         Map<String, AbstractCommand> commands = getCommands();
 

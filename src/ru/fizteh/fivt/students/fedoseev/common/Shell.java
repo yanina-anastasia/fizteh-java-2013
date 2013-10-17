@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.fedoseev.utilities;
+package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
 import java.util.Map;

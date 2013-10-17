@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,6 +12,7 @@ public class CdCommand extends AbstractCommand {
         super("cd", 1);
     }
 
+    @Override
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         Path toCanPath = state.getCurState().toPath().resolve(input[0]).normalize();
         File newDir = new File(toCanPath.toString());

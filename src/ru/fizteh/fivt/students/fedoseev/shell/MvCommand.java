@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -26,6 +28,7 @@ public class MvCommand extends AbstractCommand {
         source.delete();
     }
 
+    @Override
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         final File source = new File(state.getCurState().toPath().resolve(input[0]).toString());
         File destination = new File(state.getCurState().toPath().resolve(input[1]).toString());

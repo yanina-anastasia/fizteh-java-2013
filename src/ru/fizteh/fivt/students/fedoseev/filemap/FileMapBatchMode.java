@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.fedoseev.filemap;
 
-import ru.fizteh.fivt.students.fedoseev.utilities.Utils;
+import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
 import java.io.File;
 import java.io.IOException;

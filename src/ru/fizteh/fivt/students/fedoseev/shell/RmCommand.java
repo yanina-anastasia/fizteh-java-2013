@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,6 +25,7 @@ public class RmCommand extends AbstractCommand {
         }
     }
 
+    @Override
     public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
         File curFile = new File(state.getCurState().toPath().resolve(input[0]).toString());
 

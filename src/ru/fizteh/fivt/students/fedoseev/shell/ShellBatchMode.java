@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.Utils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -11,22 +13,25 @@ public class ShellBatchMode extends AbstractShell {
         this.args = args;
     }
 
+    @Override
     public void run() throws IOException {
         String[] input = Utils.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
-            cmd = cmd.trim();
+            if (!Thread.currentThread().isInterrupted()) {
+                cmd = cmd.trim();
 
-            int end;
-            if ((end = cmd.indexOf(" ")) == -1) {
-                end = cmd.length();
-            }
+                int end;
+                if ((end = cmd.indexOf(" ")) == -1) {
+                    end = cmd.length();
+                }
 
-            try {
-                runCommands(cmd, end);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
+                try {
+                    runCommands(cmd, end);
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                    System.exit(1);
+                }
             }
         }
     }

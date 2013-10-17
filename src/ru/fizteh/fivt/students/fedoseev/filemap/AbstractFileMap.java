@@ -1,13 +1,12 @@
 package ru.fizteh.fivt.students.fedoseev.filemap;
 
-import ru.fizteh.fivt.students.fedoseev.utilities.Abstract;
-import ru.fizteh.fivt.students.fedoseev.utilities.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.utilities.Utils;
+import ru.fizteh.fivt.students.fedoseev.common.Abstract;
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public abstract class AbstractFileMap extends Abstract {
     private static final Map<String, String> content = new HashMap<String, String>();
@@ -64,8 +63,8 @@ public abstract class AbstractFileMap extends Abstract {
             try {
                 file = new RandomAccessFile(state.getCurState(), "rw");
 
-                loadFromFile();
-            } catch (IOException e) {
+                readFile();
+            } catch (Exception e) {
                 System.err.println("ERROR: incorrect file format");
                 System.exit(1);
             }
@@ -78,29 +77,64 @@ public abstract class AbstractFileMap extends Abstract {
         }
     }
 
-    private void loadFromFile() throws IOException {
+    private void readFile() throws IOException {
         if (file.length() == 0) {
             return;
         }
 
-        int curOffset;
+        List<Integer> offsets = new ArrayList<Integer>();
+
+        while (file.getFilePointer() != file.length()) {
+            if (file.readByte() == '\0') {
+                int offset = file.readInt();
+
+                if (offset < 0 || offset > file.length()) {
+                    throw new IOException("ERROR: incorrect input");
+                }
+
+                offsets.add(offset);
+            }
+        }
+        offsets.add((int) file.length());
 
         file.seek(0);
-        String key = file.readUTF();
-        file.readChar();
-        int first = file.readInt();
-        int position = (int) file.getFilePointer();
-        file.seek(first);
-        content.put(key, file.readUTF());
 
-        while (position < first) {
-            file.seek(position);
-            key = file.readUTF();
-            file.readChar();
-            curOffset = file.readInt();
-            position = (int) file.getFilePointer();
-            file.seek(curOffset);
-            content.put(key, file.readUTF());
+        for (int i = 0; i < offsets.size() - 1; ++i) {
+            List<Byte> bytesKeyList = new ArrayList<Byte>();
+
+            while (file.getFilePointer() != file.length()) {
+                byte b = file.readByte();
+
+                if (b == 0) {
+                    break;
+                }
+
+                bytesKeyList.add(b);
+            }
+
+            byte[] bytesKeyArray = new byte[bytesKeyList.size()];
+
+            for (int j = 0; j < bytesKeyArray.length; ++j) {
+                bytesKeyArray[j] = bytesKeyList.get(j);
+            }
+
+            String key = new String(bytesKeyArray, StandardCharsets.UTF_8);
+
+            file.read();
+            file.readInt();
+
+            int currentOffset = (int) file.getFilePointer() - 1;
+
+            file.seek(offsets.get(i));
+
+            byte[] valueArray = new byte[offsets.get(i + 1) - offsets.get(i)];
+
+            file.read(valueArray);
+
+            String value = new String(valueArray, StandardCharsets.UTF_8);
+
+            content.put(key, value);
+            file.seek(currentOffset);
         }
     }
 
@@ -115,17 +149,17 @@ public abstract class AbstractFileMap extends Abstract {
         Set<String> keySet = getMap().keySet();
 
         for (String key : keySet) {
-            curOffset += key.getBytes("UTF-8").length + 8;
+            curOffset += key.getBytes(StandardCharsets.UTF_8).length + 5;
         }
 
         for (String key : keySet) {
             file.seek(position);
-            file.writeUTF(key);
-            file.writeChar('\0');
+            file.write(key.getBytes(StandardCharsets.UTF_8));
+            file.write('\0');
             file.writeInt(curOffset);
             position = (int) file.getFilePointer();
             file.seek(curOffset);
-            file.writeUTF(getMap().get(key));
+            file.write(getMap().get(key).getBytes(StandardCharsets.UTF_8));
             curOffset = (int) file.getFilePointer();
         }
     }

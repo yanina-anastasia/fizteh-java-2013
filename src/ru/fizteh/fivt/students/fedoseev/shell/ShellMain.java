@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.Shell;
+
 import java.io.File;
 import java.io.IOException;
 
