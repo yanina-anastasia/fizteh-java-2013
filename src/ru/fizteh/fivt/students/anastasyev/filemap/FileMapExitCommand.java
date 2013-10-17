@@ -1,12 +1,13 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import java.io.IOException;
+import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class FileMapExitCommand implements Command {
-    private FileMap fileMap;
+    private Launcher launcher;
 
-    public FileMapExitCommand(FileMap myFileMap) {
-        fileMap = myFileMap;
+    public FileMapExitCommand(Launcher myLauncher) {
+        launcher = myLauncher;
     }
 
     public final boolean exec(final String[] command) {
@@ -15,7 +16,7 @@ public class FileMapExitCommand implements Command {
             return false;
         }
         try {
-            fileMap.saveFileMap();
+            launcher.getFileMap().saveFileMap();
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

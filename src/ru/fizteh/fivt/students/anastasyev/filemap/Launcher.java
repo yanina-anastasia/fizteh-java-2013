@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
+import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class Launcher {
     private Vector<Command> allCommands;
     private FileMap fileMap;
+
+    public FileMap getFileMap() {
+        return fileMap;
+    }
 
     private boolean launch(final String arg) throws IOException {
         String[] commands = arg.split("\\s+");
@@ -92,10 +97,10 @@ public class Launcher {
         }
         fileMap = new FileMap(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
         allCommands = fileMap.getCommands();
-        fileMap.addCommand(new PutCommand(fileMap));
-        fileMap.addCommand(new GetCommand(fileMap));
-        fileMap.addCommand(new RemoveCommand(fileMap));
-        fileMap.addCommand(new FileMapExitCommand(fileMap));
+        fileMap.addCommand(new PutCommand(this));
+        fileMap.addCommand(new GetCommand(this));
+        fileMap.addCommand(new RemoveCommand(this));
+        fileMap.addCommand(new FileMapExitCommand(this));
         if (args.length == 0) {
             interactiveMode();
         } else {

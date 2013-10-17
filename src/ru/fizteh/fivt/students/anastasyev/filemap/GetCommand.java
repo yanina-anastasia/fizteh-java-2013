@@ -1,10 +1,12 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-public class GetCommand implements Command {
-    private FileMap fileMap;
+import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
-    public GetCommand(FileMap myFileMap) {
-        fileMap = myFileMap;
+public class GetCommand implements Command {
+    private Launcher launcher;
+
+    public GetCommand(Launcher myLauncher) {
+        launcher = myLauncher;
     }
 
     @Override
@@ -14,7 +16,7 @@ public class GetCommand implements Command {
             return false;
         }
         try {
-            String str = fileMap.get(command[1]);
+            String str = launcher.getFileMap().get(command[1]);
             if (str.equals("not found")) {
                 System.out.println("not found");
             } else {

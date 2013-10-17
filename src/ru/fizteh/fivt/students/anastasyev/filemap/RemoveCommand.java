@@ -1,10 +1,12 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-public class RemoveCommand implements Command {
-    private FileMap fileMap;
+import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
-    public RemoveCommand(FileMap myFileMap) {
-        fileMap = myFileMap;
+public class RemoveCommand implements Command {
+    private Launcher launcher;
+
+    public RemoveCommand(Launcher myLauncher) {
+        launcher = myLauncher;
     }
 
     @Override
@@ -14,7 +16,7 @@ public class RemoveCommand implements Command {
             return false;
         }
         try {
-            String str = fileMap.remove(command[1]);
+            String str = launcher.getFileMap().remove(command[1]);
             if (str.equals("not found")) {
                 System.out.println("not found");
             } else {

@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Vector;
+import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class FileMap {
     private File fileMap;
