@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.nio.ByteBuffer;
@@ -50,9 +51,8 @@ public class DatabaseContext {
         FileInputStream fstream = new FileInputStream(dbFile);
         try {
             while (fstream.available() > 4) {
-                String key = parseString(fstream);
-                String value = parseString(fstream);
-                map.put(key, value);
+                Map.Entry<String, String> newEntry = parseEntry(fstream);
+                map.put(newEntry.getKey(), newEntry.getValue());
             }
         } finally {
             fstream.close();
@@ -60,19 +60,23 @@ public class DatabaseContext {
         return map;
     }
     
-    private static String parseString(FileInputStream fstream) throws Exception {
-        if (fstream.available() < 4) {
+    private static Map.Entry<String, String> parseEntry(FileInputStream fstream) throws Exception {
+        if (fstream.available() < 8) {
             throw new Exception("Error: malformed database");
         }
         byte[] sizeBuf = new byte[4];
         fstream.read(sizeBuf);
-        int size = ByteBuffer.wrap(sizeBuf).getInt();
-        if (fstream.available() < size) {
+        int keySize = ByteBuffer.wrap(sizeBuf).getInt();
+        fstream.read(sizeBuf);
+        int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
+        if (fstream.available() < keySize + valueSize) {
             throw new Exception("Error: malformed database");
         }
-        byte[] stringBuf = new byte[size];
-        fstream.read(stringBuf);
-        return new String(stringBuf, "UTF-8");
+        byte[] keyBuf = new byte[keySize];
+        fstream.read(keyBuf);
+        byte[] valueBuf = new byte[valueSize];
+        fstream.read(valueBuf);
+        return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, "UTF-8"), new String(valueBuf, "UTF-8"));
     }
     
     private static void writeOut(HashMap<String, String> map, File dbFile) throws IOException {
@@ -82,17 +86,23 @@ public class DatabaseContext {
         FileOutputStream fstream = new FileOutputStream(dbFile);
         try {
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                writeString(entry.getKey(), fstream);
-                writeString(entry.getValue(), fstream);
+                writeEntry(entry, fstream);
             } 
         } finally {
-            fstream.close();
+            try {
+                fstream.close();
+            } catch (Exception e) {
+                // Ignore
+            }
         }
     }
     
-    private static void writeString(String s, FileOutputStream fstream) throws IOException {
-        byte[] buf = s.getBytes("UTF-8");
-        fstream.write(ByteBuffer.allocate(4).putInt(buf.length).array());
-        fstream.write(buf);
+    private static void writeEntry(Map.Entry<String, String> e, FileOutputStream fstream) throws IOException {
+        byte[] keyBuf = e.getKey().getBytes("UTF-8");
+        byte[] valueBuf = e.getValue().getBytes("UTF-8");
+        fstream.write(ByteBuffer.allocate(4).putInt(keyBuf.length).array());
+        fstream.write(ByteBuffer.allocate(4).putInt(valueBuf.length).array());
+        fstream.write(keyBuf);
+        fstream.write(valueBuf);
     }
 }
