@@ -60,13 +60,14 @@ public class ShellMain {
                     } else {
                         File newCurrentDirectory = FileUtil.convertPath(currentDirectory,
                                 parsedCommand[1]).getCanonicalFile();
-                        if (!newCurrentDirectory.isDirectory()) {
-                            System.out.println("cd: '" + newCurrentDirectory.getCanonicalPath() + "' is not directory");
-                        } else if (newCurrentDirectory.exists()) {
-                            currentDirectory = newCurrentDirectory;
-                        } else {
+                        if (!newCurrentDirectory.exists()) {
                             System.out.println("cd: '" + newCurrentDirectory + "': No such file or directory");
                             throw new WrongCommand();
+                        } else if (!newCurrentDirectory.isDirectory()) {
+                            System.out.println("cd: '" + newCurrentDirectory.getCanonicalPath() + "' is not directory");
+                            throw new WrongCommand();
+                        } else {
+                            currentDirectory = newCurrentDirectory;
                         }
                     }
                     break;
@@ -100,11 +101,19 @@ public class ShellMain {
                         if (sourceToCp.equals(destinationToCp)) {
                             System.out.println("cp: destination and source are equal");
                             throw new WrongCommand();
-                        } else if (sourceToCp.exists()) {
-                            FileUtil.copy(sourceToCp, destinationToCp);
-                        } else {
+                        } else if (!sourceToCp.exists()) {
                             System.out.println("cp: source '" + sourceToCp.getCanonicalPath() + "' not exists");
                             throw new WrongCommand();
+                        } else {
+                            if (destinationToCp.exists()) {
+                                FileUtil.copy(sourceToCp, destinationToCp);
+                            } else if (sourceToCp.getParentFile().equals(destinationToCp.getParentFile())) {
+                                FileUtil.copy(sourceToCp, destinationToCp);
+                            } else {
+                                System.out.println("cp: destination '" + destinationToCp.getCanonicalPath()
+                                        + "' not exists");
+                                throw new WrongCommand();
+                            }
                         }
                     }
                     break;

@@ -10,18 +10,7 @@ public abstract class ConsoleInput {
     public abstract String[] getNext() throws IOException, NoNextCommand, ExitCommand;
 
     protected String[] parseCommand(String input) {
-        StringBuilder notParsedCommand = new StringBuilder(input);
-        int i = 0;
-        while (i < notParsedCommand.length() && notParsedCommand.charAt(i) == ' ') {
-            ++i;
-        }
-        notParsedCommand.delete(0, i);
-        int indexOfTwoWhitespaces = notParsedCommand.indexOf("  ");
-        while (indexOfTwoWhitespaces != -1) {
-            notParsedCommand.delete(indexOfTwoWhitespaces, indexOfTwoWhitespaces + 1);
-            indexOfTwoWhitespaces = notParsedCommand.indexOf("  ");
-        }
-        return notParsedCommand.toString().split("[ ]+");
+        return input.trim().split("\\s+");
     }
 
     public boolean hasNext() {
