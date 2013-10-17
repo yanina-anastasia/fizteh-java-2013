@@ -15,7 +15,7 @@ public class FileMap {
 		String dbFileName = "db.dat";
 		FileMapReceiver receiver = null;
 		try {
-			receiver = new FileMapReceiver(dbDirectory, dbFileName, (args.length > 0), System.out);
+			receiver = new FileMapReceiver(dbDirectory, dbFileName, (args.length == 0), System.out);
 			runner.runReceiver(receiver);
 		} catch (MissingFileMapDatabaseException e) {
 			System.err.println(e.getMessage());
