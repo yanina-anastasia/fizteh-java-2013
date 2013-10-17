@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import ru.fizteh.fivt.students.mikhaylova_daria.shell.Parser;
@@ -37,9 +36,9 @@ public class DbMain {
         long lastOffset;
         for (String key: FileMap.fileMap.keySet()) {
             dateBase.write(key.getBytes());
-            dateBase.writeInt(0);
+            dateBase.write("\0".getBytes());
             long offset = dateBase.getFilePointer();
-            dateBase.seek(dateBase.getFilePointer() + 1);
+            dateBase.seek(dateBase.getFilePointer() + 4);
             lastOffset = offset;
             offsets.put(key, offset);
         }
@@ -49,7 +48,7 @@ public class DbMain {
             lastOffset = dateBase.getFilePointer();
             dateBase.seek(offsets.get(key));
             Integer lastOffsetInt = new Long(lastOffset).intValue();
-            dateBase.write(lastOffsetInt.byteValue());
+            dateBase.writeInt(lastOffsetInt);
             dateBase.seek(lastOffset);
          }
          dateBase.close();
