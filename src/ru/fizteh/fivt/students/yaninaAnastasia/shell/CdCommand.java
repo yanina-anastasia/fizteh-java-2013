@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class CdCommand extends Command {
-    public boolean exec(String[] args, ShellState curState) throws IOException {
+    public boolean exec(String[] args, State curState) throws IOException {
         if (args.length != 1) {
             System.out.println("Invalid number of arguments");
             return false;

@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.*;
 
 public abstract class Command {
-    Command() {
+    public Command() {
 
     }
 
-    public abstract boolean exec(String[] args, ShellState curState) throws IOException;
+    public abstract boolean exec(String[] args, State curState) throws IOException;
 
     public abstract String getCmd();
 }

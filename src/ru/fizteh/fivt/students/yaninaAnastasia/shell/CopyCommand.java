@@ -1,10 +1,12 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.*;
 import java.nio.file.*;
 
 public class CopyCommand extends Command {
-    public boolean exec(String[] args, ShellState curState) throws IOException {
+    public boolean exec(String[] args, State curState) throws IOException {
         if (args.length != 2) {
             System.err.println("Invalid arguments");
             return false;

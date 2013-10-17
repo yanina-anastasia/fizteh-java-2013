@@ -1,10 +1,13 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.util.ArrayList;
 
 public class StartShell {
     public static void main(String[] args) {
         Shell shell = new Shell();
+        State curState = new ShellState();
         ArrayList<Command> cmdList = new ArrayList<Command>();
         Command cmd = new CdCommand();
         cmdList.add(cmd);
