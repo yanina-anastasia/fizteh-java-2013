@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
-import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.Command;
-import ru.fizteh.fivt.students.sterzhanovVladislav.shell.Shell;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellCommands;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellUtility;
 
@@ -15,10 +14,16 @@ public class Wrapper {
     private static DatabaseContext context = null;
     
     public static void main(String[] args) {
-        try {
-            context = new DatabaseContext(Paths.get(System.getProperty("fizteh.db.dir")));
-        } catch (NullPointerException e) {
+        String dbDir = System.getProperty("fizteh.db.dir");
+        if (dbDir == null) {
             System.out.println("fizteh.db.dir not set");
+        }
+        Path dbPath = Paths.get(dbDir);
+        if (dbPath == null) {
+            System.out.println("fizteh.db.dir did not resolve to a valid directory");
+        }
+        try {
+            context = new DatabaseContext(dbPath);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -29,18 +34,7 @@ public class Wrapper {
         cmdMap.put("remove", new FileMapCommands.Remove().setContext(context));
         cmdMap.put("exit", new ShellCommands.Exit());
         
-        try {
-            Shell cmdShell = new Shell(cmdMap);
-            if (args.length > 0) {
-                InputStream cmdStream = ShellUtility.createStream(args);
-                cmdShell.execCommandStream(cmdStream, false);
-            } else {
-                cmdShell.execCommandStream(System.in, true);
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
-        }
+        ShellUtility.execShell(args, cmdMap);
         System.exit(0);
     }
 }
