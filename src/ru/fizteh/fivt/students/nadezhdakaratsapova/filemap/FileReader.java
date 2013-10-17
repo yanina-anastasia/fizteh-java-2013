@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class FileReader {
                     for (int k = 0; i < fileLength; ++k, ++i) {
                         b[k] = inStream.readByte();
                     }
-                    table.add(new String(keyInBytes, "UTF-8"), new String(b, "UTF*8"));
+                    table.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
                 }
                 int intSize = 4;
                 Integer offset = inStream.readInt();
@@ -67,7 +68,7 @@ public class FileReader {
                 offset1 -= offset;
                 arraySize = key.size();
                 Integer offsetValue = offset - prevOffset;
-                keysToMap.add(new String(keyInBytes, "UTF-8"));
+                keysToMap.add(new String(keyInBytes, StandardCharsets.UTF_8));
                 offsets.add(offsetValue);
                 keyInBytes = new byte[arraySize];
                 for (int j = 0; j < arraySize; ++j) {
