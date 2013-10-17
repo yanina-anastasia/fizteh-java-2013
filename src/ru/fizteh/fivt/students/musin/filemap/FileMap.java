@@ -23,15 +23,16 @@ public class FileMap {
         maxLength = 1 << 24;
     }
 
-    public void loadFromDisk() throws FileNotFoundException {
+    public boolean loadFromDisk() throws FileNotFoundException {
         map.clear();
         if (!location.exists()) {
             System.err.println("Database file wasn't found");
-            return;
+            return true;
         }
         FileInputStream inputStream = new FileInputStream(location);
         byte[] buffer;
         ByteBuffer cast;
+        boolean error = false;
         try {
             while (true) {
                 buffer = new byte[4];
@@ -41,6 +42,7 @@ public class FileMap {
                 }
                 if (bytesRead != 4) {
                     System.err.println("Database loading failed: Wrong data format");
+                    error = true;
                     break;
                 }
                 cast = ByteBuffer.wrap(buffer);
@@ -48,18 +50,21 @@ public class FileMap {
                 bytesRead = inputStream.read(buffer, 0, 4);
                 if (bytesRead != 4) {
                     System.err.println("Database loading failed: Wrong data format");
+                    error = true;
                     break;
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int valueLength = cast.getInt();
-                if (keyLength > maxLength || valueLength > maxLength) {
+                if (keyLength > maxLength || valueLength > maxLength || keyLength <= 0 || valueLength <= 0) {
                     System.err.println("Database loading failed: Wrong data format");
+                    error = true;
                     break;
                 }
                 buffer = new byte[keyLength];
                 bytesRead = inputStream.read(buffer, 0, keyLength);
                 if (bytesRead != keyLength) {
                     System.err.println("Database loading failed: Wrong data format");
+                    error = true;
                     break;
                 }
                 String key = new String(buffer, "UTF-8");
@@ -67,6 +72,7 @@ public class FileMap {
                 bytesRead = inputStream.read(buffer, 0, valueLength);
                 if (bytesRead != valueLength) {
                     System.err.println("Database loading failed: Wrong data format");
+                    error = true;
                     break;
                 }
                 String value = new String(buffer, "UTF-8");
@@ -74,6 +80,7 @@ public class FileMap {
             }
         } catch (IOException e) {
             System.err.println(e);
+            error = true;
         } finally {
             try {
                 inputStream.close();
@@ -81,6 +88,7 @@ public class FileMap {
                 System.err.println(e);
             }
         }
+        return (!error);
     }
 
     public void writeToDisk() throws Exception {

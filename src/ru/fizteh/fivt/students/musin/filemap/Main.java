@@ -15,7 +15,9 @@ public class Main {
         String db = System.getProperty("fizteh.db.dir");
         try {
             FileMap fileMap = new FileMap((Paths.get(db)).resolve("db.dat").toFile());
-            fileMap.loadFromDisk();
+            if (!fileMap.loadFromDisk()) {
+                System.exit(-1);
+            }
             fileMap.integrate(shell);
             int exitCode;
             if (args.length != 0) {

@@ -28,21 +28,68 @@ public class Shell {
     }
 
     public int parseString(String s) {
-        String[] comm = s.split(";");
-        for (int i = 0; i < comm.length; i++) {
-            String[] strings = comm[i].split("[ \\t\\r]");
+        ArrayList<String> comm = new ArrayList<String>();
+        int start = 0;
+        boolean quote = false;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == ';' && !quote) {
+                comm.add(s.substring(start, i));
+                start = i + 1;
+            }
+            if (s.charAt(i) == '"') {
+                quote ^= true;
+            }
+        }
+        if (quote) {
+            System.err.println("Wrong quotation sequence");
+            return -1;
+        }
+        if (start != s.length()) {
+            comm.add(s.substring(start, s.length()));
+        }
+        for (int i = 0; i < comm.size(); i++) {
             String name = "";
             ArrayList<String> args = new ArrayList<String>();
             boolean nameRead = false;
-            for (int j = 0; j < strings.length; j++) {
-                if (strings[j].equals("")) {
-                    continue;
+            start = 0;
+            quote = false;
+            for (int j = 0; j < comm.get(i).length(); j++) {
+                if (!quote && Character.isSpaceChar(comm.get(i).charAt(j))) {
+                    if (start != j) {
+                        if (!nameRead) {
+                            name = comm.get(i).substring(start, j);
+                            nameRead = true;
+                        } else {
+                            args.add(comm.get(i).substring(start, j));
+                        }
+                    }
+                    start = j + 1;
                 }
-                if (nameRead) {
-                    args.add(strings[j]);
+                if (comm.get(i).charAt(j) == '"') {
+                    if (!nameRead) {
+                        System.err.println("Arguments are specified, but no command was given");
+                        return -1;
+                    }
+                    if (quote) {
+                        args.add(comm.get(i).substring(start, j));
+                        if (j + 1 != comm.get(i).length() && !Character.isSpaceChar(comm.get(i).charAt(j + 1)))
+                        {
+                            System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
+                            return -1;
+                        }
+                    } else if (!Character.isSpaceChar(comm.get(i).charAt(j - 1))) {
+                        System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
+                        return -1;
+                    }
+                    quote ^= true;
+                    start = j + 1;
+                }
+            }
+            if (start != comm.get(i).length()) {
+                if (!nameRead) {
+                    name = comm.get(i).substring(start, comm.get(i).length());
                 } else {
-                    name = strings[j];
-                    nameRead = true;
+                    args.add(comm.get(i).substring(start, comm.get(i).length()));
                 }
             }
             boolean commandFound = false;
