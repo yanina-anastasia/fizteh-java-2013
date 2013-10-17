@@ -10,6 +10,7 @@ import java.util.*;
 
 public abstract class AbstractFileMap extends Abstract {
     private static final Map<String, String> content = new HashMap<String, String>();
+    private static final int MAX_FILE_SIZE = 150100500;
     private static RandomAccessFile file;
 
     public static RandomAccessFile getFile() {
@@ -63,18 +64,20 @@ public abstract class AbstractFileMap extends Abstract {
             try {
                 file = new RandomAccessFile(state.getCurState(), "rw");
 
+                if (file.length() > MAX_FILE_SIZE) {
+                    file.close();
+                    throw new IOException("ERROR: too big file");
+                }
+
                 readFile();
-            } catch (Exception e) {
+            } catch (IOException e) {
+                file.close();
                 System.err.println("ERROR: incorrect file format");
-                System.exit(1);
-            }
-        } else {
-            if (!state.getCurState().createNewFile()) {
-                throw new IOException("ERROR: cannot create db.dat");
-            } else {
-                file = new RandomAccessFile(state.getCurState(), "rw");
+                return;
             }
         }
+
+        file.close();
     }
 
     private void readFile() throws IOException {
