@@ -1,20 +1,11 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
-import ru.fizteh.fivt.students.anastasyev.filemap.*;
-import ru.fizteh.fivt.students.anastasyev.filemap.Command;
-
-import java.io.IOException;
-
 public class ExitCommand implements Command {
     public final boolean exec(final String[] command) {
         if (command.length != 1) {
             System.err.println("exit: Usage - exit");
+            System.exit(1);
             return false;
-        }
-        try {
-            FileMap.saveFileMap();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
         }
         System.exit(0);
         return true;
