@@ -11,5 +11,5 @@ import java.io.IOException;
  */
 public interface Commands {
     public String getName();
-    public void perform(String[] s) throws MyException, IOException;
+    public void perform(String[] s) throws MyException, IOException, MyException;
 }

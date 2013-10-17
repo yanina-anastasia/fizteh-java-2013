@@ -36,6 +36,9 @@ public class Copy implements Commands {
         if (!to.isAbsolute()) {
             to = new File(currentStatus.getCurrentDirectory() , array[2]);
         }
+        if (from.equals(to)) {
+            throw new MyException(new Exception("Trying to copy file to the same file"));
+        }
         if (!to.exists()) {
             if (to.getName().indexOf('.') == -1) {
                 to.mkdirs();

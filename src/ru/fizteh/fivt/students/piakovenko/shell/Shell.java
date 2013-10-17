@@ -5,10 +5,62 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Shell {
-    public static void main(String[] args) {
-        CurrentStatus currentStatus = null;
+    private CommandsMap cm = null;
+    private CurrentStatus currentStatus = null;
+    private String startInvitation = " $ ";
+
+
+    private void interactiveMode() {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            try {
+                if (currentStatus == null) {
+                    System.out.print(startInvitation);
+                } else {
+                    System.out.print(currentStatus.getCurrentDirectory() + startInvitation);
+                }
+                String s = sc.nextLine();
+                cm.execute(s);
+            } catch (MyException e) {
+                System.err.println("Error! " + e.what());
+            } catch (IOException e) {
+                System.err.println("Error! " + e.getMessage());
+            }
+        }
+    }
+
+    private void packageMode(String[] args) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < args.length - 1; ++i) {
+                sb.append(args[i] + ' ');
+            }
+            sb.append(args[args.length - 1]);
+            cm.execute(sb.toString());
+        } catch (MyException e) {
+            System.err.println("Error! " + e.what());
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Error! " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+
+    public Shell () {
+        cm = new CommandsMap();
+    }
+
+    public void addCommand(Commands command) {
+        cm.addCommand(command);
+    }
+
+    public void changeInvitation (String invitation) {
+        startInvitation = invitation;
+    }
+
+    public void initializeBasicCommands () {
         currentStatus = new CurrentStatus(new File("."));
-        CommandsMap cm = new CommandsMap();
         cm.addCommand(new PrintWorkingDirectory(currentStatus));
         cm.addCommand(new ChangeDirectory(currentStatus));
         cm.addCommand(new MakeDirectory(currentStatus));
@@ -17,36 +69,14 @@ public class Shell {
         cm.addCommand(new Copy(currentStatus));
         cm.addCommand(new Move(currentStatus));
         cm.addCommand(new Exit(currentStatus));
+    }
 
+    public void start (String[] args) {
         if (args.length == 0) {
-            Scanner sc = new Scanner(System.in);
-            while (true) {
-                try {
-                    System.out.print(currentStatus.getCurrentDirectory() + " $ ");
-                    String s = sc.nextLine();
-                    cm.execute(s);
-                } catch (MyException e){
-                    System.err.println("Error! " + e.what());
-                } catch (IOException e) {
-                    System.err.println("Error! " + e.getMessage());
-                }
-            }
-
-    } else {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < args.length - 1 ; ++i) {
-                sb.append(args[i] + ' ');
-            }
-            sb.append(args[args.length - 1]);
-           cm.execute(sb.toString());
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Error! " + e.getMessage());
-            System.exit(1);
-        }
+            interactiveMode();
+        } else {
+            packageMode(args);
         }
     }
+
 }
