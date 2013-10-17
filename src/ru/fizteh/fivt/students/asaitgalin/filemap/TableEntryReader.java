@@ -1,49 +1,61 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
-import ru.fizteh.fivt.students.asaitgalin.utils.StringUtils;
-
-import java.io.RandomAccessFile;
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class TableEntryReader {
-    private RandomAccessFile stream;
+    private RandomAccessFile fileStream;
     private boolean isStreamValid;
     private long firstValueOffset = -1;
 
     private String nextKey;
     private long nextValueOffset;
 
-    public TableEntryReader(String name) throws IOException {
-        stream = new RandomAccessFile(name, "rw");
+    public TableEntryReader(File input) throws IOException {
         isStreamValid = true;
-        readNext();
+        try {
+            fileStream = new RandomAccessFile(input, "r");
+        } catch (FileNotFoundException fnfe) {
+            isStreamValid = false;
+        }
+        if (isStreamValid) {
+            readNext();
+        }
     }
 
     public boolean hasNextEntry() throws IOException {
-        return isStreamValid && (stream.getFilePointer() <= firstValueOffset);
+        return isStreamValid && (fileStream.getFilePointer() <= firstValueOffset);
     }
 
-    private void readNext() {
-        List<Byte> list = new ArrayList<>();
+    private void readNext() throws IOException {
+        ByteArrayOutputStream keyBuffer = new ByteArrayOutputStream();
+        boolean partialRead = false;
         try {
-            byte readByte = stream.readByte();
-            while (readByte != 0) {
-                list.add(readByte);
-                readByte = stream.readByte();
+            byte readByte = fileStream.readByte();
+            if (readByte == 0) {             // no key in input
+                throw new IOException("Corrupted input file");
             }
+            while (readByte != 0) {
+                keyBuffer.write(readByte);
+                readByte = fileStream.readByte();
+            }
+            partialRead = true;
+            nextKey = keyBuffer.toString(StandardCharsets.UTF_8.toString());
+            nextValueOffset = fileStream.readInt();
 
-            nextKey = StringUtils.getStringFromArray(list, "UTF-8");
-            nextValueOffset = stream.readInt();
+            if (nextValueOffset >= fileStream.length() || nextValueOffset < 0) {
+                throw new IOException("Corrupted input file");
+            }
 
             if (firstValueOffset == -1) {
                 firstValueOffset = nextValueOffset;
             }
-
-        } catch (IOException ioe) {
+            partialRead = false;
+        } catch (EOFException eofe) {
+            if (partialRead) {
+                throw new IOException("Corrupted input file");
+            }
             isStreamValid = false;
         }
     }
@@ -53,17 +65,17 @@ public class TableEntryReader {
             long offset = nextValueOffset;
             String key = nextKey;
             readNext();
-            long savedPos = stream.getFilePointer();
-            stream.seek(offset);
+            long savedPos = fileStream.getFilePointer();
+            fileStream.seek(offset);
             byte[] valueData;
             if (key != null && !isStreamValid) {
-                valueData = new byte[(int)(stream.length() - offset)];
+                valueData = new byte[(int)(fileStream.length() - offset)];
             } else {
                 valueData = new byte[(int)(nextValueOffset - offset)];
             }
-            stream.read(valueData);
-            String value = new String(valueData, "UTF-8");
-            stream.seek(savedPos);
+            fileStream.read(valueData);
+            String value = new String(valueData, StandardCharsets.UTF_8.toString());
+            fileStream.seek(savedPos);
             container.put(key, value);
         } catch (EOFException eofe) {
             isStreamValid = false;

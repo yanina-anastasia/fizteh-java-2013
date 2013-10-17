@@ -1,15 +1,16 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
 public class TableEntryWriter {
-    private DataOutputStream stream;
+    private DataOutputStream fileStream;
 
-    public TableEntryWriter(String name) throws IOException {
-        stream = new DataOutputStream(new FileOutputStream(name));
+    public TableEntryWriter(File name) throws IOException {
+        fileStream = new DataOutputStream(new FileOutputStream(name));
     }
 
     public void writeEntries(Map<String, String> items) throws IOException {
@@ -20,14 +21,14 @@ public class TableEntryWriter {
         valuesOffset += items.size() * Integer.SIZE / 8;  // sizes
         valuesOffset += items.size();  // zero bytes
         for (String s : items.keySet()) {
-            long valueLen = items.get(s).length();
-            stream.write(s.getBytes("UTF-8"));
-            stream.writeByte(0);
-            stream.writeInt((int)valuesOffset);
+            long valueLen = items.get(s).getBytes("UTF-8").length;
+            fileStream.write(s.getBytes("UTF-8"));
+            fileStream.writeByte(0);
+            fileStream.writeInt((int) valuesOffset);
             valuesOffset += valueLen;
         }
         for (String s : items.values()) {
-            stream.write(s.getBytes("UTF-8"));
+            fileStream.write(s.getBytes("UTF-8"));
         }
     }
 }

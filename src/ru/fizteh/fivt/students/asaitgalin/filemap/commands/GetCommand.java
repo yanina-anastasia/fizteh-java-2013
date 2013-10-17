@@ -1,35 +1,35 @@
-package ru.fizteh.fivt.students.asaitgalin.filemap.Commands;
+package ru.fizteh.fivt.students.asaitgalin.filemap.commands;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
-public class PutCommand implements Command {
+public class GetCommand implements Command {
     private Table storage;
 
-    public PutCommand(Table storage) {
+    public GetCommand(Table storage) {
         this.storage = storage;
     }
 
     @Override
     public String getName() {
-        return "put";
+        return "get";
     }
 
     @Override
     public void execute(String[] args) throws IOException {
-        String prev = storage.put(args[1], args[2]);
-        if (prev != null) {
-            System.out.println("overwrite");
-            System.out.println("old " + prev);
+        String value =  storage.get(args[1]);
+        if (value != null) {
+            System.out.println("found");
+            System.out.println(value);
         } else {
-            System.out.println("new");
+            System.out.println("not found");
         }
     }
 
     @Override
     public int getArgsCount() {
-        return 2;
+        return 1;
     }
 }
