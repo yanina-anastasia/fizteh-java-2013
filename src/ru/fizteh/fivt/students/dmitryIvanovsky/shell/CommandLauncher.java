@@ -45,9 +45,14 @@ public class CommandLauncher {
                 for (int i = 2; i <= countTokens; ++i) {
                     commandArgs.add(token.nextToken());
                 }
-                Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
                 try {
-                    return (Code) method.invoke(exampleClass, args);
+                    if (exampleClass.selfParsing()) {
+                        Object[] args = new Object[]{new String[]{query}};
+                        return (Code) method.invoke(exampleClass, args);
+                    } else {
+                        Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
+                        return (Code) method.invoke(exampleClass, args);
+                    }
                 } catch (Exception e) {
                     System.err.println(String.format("Ошибка выполнения команды \'%s\'", command));
                     return Code.ERROR;

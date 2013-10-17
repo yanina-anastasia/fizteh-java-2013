@@ -28,6 +28,10 @@ public class CommandShell implements CommandAbstract {
         return currentFile.toString();
     }
 
+    public boolean selfParsing() {
+        return false;
+    }
+
     public String startShellString() throws IOException {
         return String.format("%s$ ", currentFile.getCanonicalPath());
     }

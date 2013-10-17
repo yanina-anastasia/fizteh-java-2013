@@ -46,6 +46,10 @@ public class MyFileMap implements CommandAbstract {
         return dbMap.isEmpty();
     }
 
+    public boolean selfParsing() {
+        return true;
+    }
+
     public void exit() throws IOException {
         if (!isEmpty()) {
             closeDbFile();
@@ -136,8 +140,37 @@ public class MyFileMap implements CommandAbstract {
         return "$ ";
     }
 
+    public String[] myParsing(String[] args) {
+        String arg = args[0];
+        StringBuilder key = new StringBuilder();
+        StringBuilder value = new StringBuilder();
+        int i = 0;
+        while (i < arg.length() && arg.charAt(i) == ' ') {
+            ++i;
+        }
+        while (i < arg.length() && arg.charAt(i) != ' ') {
+            ++i;
+        }
+        while (i < arg.length() && arg.charAt(i) == ' ') {
+            ++i;
+        }
+        while (i < arg.length() && arg.charAt(i) != ' ') {
+            key.append(arg.charAt(i));
+            ++i;
+        }
+        while (i < arg.length() && arg.charAt(i) == ' ') {
+            ++i;
+        }
+        while (i < arg.length()) {
+            value.append(arg.charAt(i));
+            ++i;
+        }
+        return new String[]{key.toString(), value.toString()};
+    }
+
     public Code put(String[] args) {
-        if (args.length != 2) {
+        args = myParsing(args);
+        if (args[0].length() <= 0 || args[1].length() <= 0) {
             System.err.println("У команды put 2 аргумента");
             return Code.ERROR;
         }
@@ -154,7 +187,8 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public Code get(String[] args) {
-        if (args.length != 1) {
+        args = myParsing(args);
+        if (args[0].length() <= 0 || args[1].length() != 0) {
             System.err.println("У команды get 1 аргумент");
             return Code.ERROR;
         }
@@ -169,7 +203,8 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public Code remove(String[] args) {
-        if (args.length != 1) {
+        args = myParsing(args);
+        if (args[0].length() <= 0 || args[1].length() != 0) {
             System.err.println("У команды remove 1 аргумент");
             return Code.ERROR;
         }
