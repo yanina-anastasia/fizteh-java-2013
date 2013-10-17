@@ -117,6 +117,10 @@ public class Shell {
             for (int i = 0; i < s.length(); i++) {
                 if (Character.isSpaceChar(s.charAt(i))) {
                     spaceFound = true;
+                    if (endCommand != -1) {
+                        System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
+                        return -1;
+                    }
                 }
                 if (s.charAt(i) == ';' && endCommand == -1) {
                     endCommand = i;
