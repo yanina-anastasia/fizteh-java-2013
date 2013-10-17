@@ -19,15 +19,16 @@ public class MapBuilder {
         String value;
         while (database.getFilePointer() != database.length()) {
             keyLength = database.readInt();
-            if (keyLength > database.length() - database.getFilePointer() + 4) {
+            if (keyLength < 1 || keyLength > database.length() - database.getFilePointer() + 4) {
                 database.close();
                 throw new IOException("Incorrect key length in input.");
             }
             valueLength = database.readInt();
-            if (valueLength > database.length() - database.getFilePointer() + 4) {
+            if (valueLength < 1 || valueLength > database.length() - database.getFilePointer() + 4) {
                 database.close();
                 throw new IOException("Incorrect value length in input.");
             }
+
             byte[] keySymbols = new byte[keyLength];
             byte[] valueSymbols = new byte[valueLength];
             database.read(keySymbols);
