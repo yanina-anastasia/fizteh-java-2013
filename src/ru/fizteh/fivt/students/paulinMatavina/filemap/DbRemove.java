@@ -7,7 +7,7 @@ public class DbRemove implements Command {
     public int execute(String[] args, State state) {
         String key = args[0];
         if (((DbState) state).data.containsKey(key)) {
-            ((DbState) state).data.remove(args[1]);
+            ((DbState) state).data.remove(key);
             System.out.println("removed");
         } else {
             System.out.println("not found");
@@ -23,5 +23,10 @@ public class DbRemove implements Command {
     @Override
     public int getArgNum() {
         return 1;
+    }
+     
+    @Override
+    public boolean spaceAllowed() {
+        return false;
     }
 }

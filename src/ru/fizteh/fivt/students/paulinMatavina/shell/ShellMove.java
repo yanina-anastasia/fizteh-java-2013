@@ -48,4 +48,9 @@ public class ShellMove implements Command {
     public int getArgNum() {
         return 2;
     }
+    
+    @Override
+    public boolean spaceAllowed() {
+        return false;
+    }
 }

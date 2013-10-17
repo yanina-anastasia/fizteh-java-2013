@@ -18,6 +18,10 @@ public class DbPut implements Command {
     }
     
     @Override
+    public boolean spaceAllowed() {
+        return true;
+    }
+    @Override
     public String getName() {
         return "put";
     }

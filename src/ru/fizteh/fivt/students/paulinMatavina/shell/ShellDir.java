@@ -28,5 +28,10 @@ public class ShellDir implements Command {
     @Override
     public int getArgNum() {
         return 0;
+    }   
+    
+    @Override
+    public boolean spaceAllowed() {
+        return false;
     }
 }

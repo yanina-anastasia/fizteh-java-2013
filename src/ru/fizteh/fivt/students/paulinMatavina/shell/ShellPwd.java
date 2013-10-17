@@ -24,4 +24,9 @@ public class ShellPwd implements Command {
     public int getArgNum() {
         return 0;
     }
+    
+    @Override
+    public boolean spaceAllowed() {
+        return false;
+    }
 }

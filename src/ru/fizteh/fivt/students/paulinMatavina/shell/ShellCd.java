@@ -17,4 +17,9 @@ public class ShellCd implements Command {
     public int getArgNum() {
         return 1;
     }
+    
+    @Override
+    public boolean spaceAllowed() {
+        return false;
+    }
 }

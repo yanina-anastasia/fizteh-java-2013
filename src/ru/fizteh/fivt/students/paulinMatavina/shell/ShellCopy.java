@@ -55,5 +55,10 @@ public class ShellCopy implements Command {
     @Override
     public int getArgNum() {
         return 2;
+    } 
+    
+    @Override
+    public boolean spaceAllowed() {
+        return false;
     }
 }

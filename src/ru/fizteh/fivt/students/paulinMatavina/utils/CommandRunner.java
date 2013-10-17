@@ -39,12 +39,31 @@ public class CommandRunner {
         
         for (Command command : state.commands.values()) {
             if (command.getName().equals(nextCommand)) {
-                if (command.getArgNum() != tokenNum - 1) {
+                if (command.getArgNum() != tokenNum - 1 
+                        && (command.spaceAllowed() && command.getArgNum() > tokenNum)) {
                     System.err.println("Wrong arguments number: " 
                             + command.getArgNum() + " expected");
                     return 1;
                 }
+                
                 String[] args = new String[command.getArgNum()];
+                if (command.spaceAllowed()) {
+                    for (int i = 0; i < command.getArgNum() - 1; i++) {
+                        args[i] = token.nextToken();
+                    }
+                    
+                    int currSize = 0;
+                    for (int i = 0; i < command.getArgNum(); i++) {
+                        while (Character.toString(query.charAt(currSize)).matches("\\S")) {
+                            currSize++;
+                        }
+                        while (Character.toString(query.charAt(currSize)).matches("\\s")) {
+                            currSize++;
+                        } 
+                    }
+                    args[command.getArgNum() - 1] = query.substring(currSize).trim();
+                    return command.execute(args, state);
+                }                
                 for (int i = 0; i < command.getArgNum(); i++) {
                     args[i] = token.nextToken();
                 }

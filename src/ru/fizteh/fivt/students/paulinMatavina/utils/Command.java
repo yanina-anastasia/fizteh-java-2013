@@ -5,4 +5,5 @@ public interface Command {
 
     String getName();
     int getArgNum();
+    boolean spaceAllowed();
 }
