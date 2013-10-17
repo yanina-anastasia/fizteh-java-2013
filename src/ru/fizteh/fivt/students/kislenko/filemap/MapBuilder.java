@@ -13,16 +13,22 @@ public class MapBuilder {
             throw new FileNotFoundException("File not found.");
         }
         RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "r");
+        if (database.length() > MAX_FILE_SIZE) {
+            throw new IOException("Too big database file.");
+        }
         int keyLength;
         int valueLength;
         String key;
         String value;
         while (database.getFilePointer() != database.length()) {
-            if (database.getFilePointer() > MAX_FILE_SIZE) {
-                throw new IOException("Too big database file.");
-            }
             keyLength = database.readInt();
+            if (keyLength > database.length() - database.getFilePointer() + 4) {
+                throw new IOException("Incorrect key length in input.");
+            }
             valueLength = database.readInt();
+            if (valueLength > database.length() - database.getFilePointer() + 4) {
+                throw new IOException("Incorrect value length in input.");
+            }
             byte[] keySymbols = new byte[keyLength];
             byte[] valueSymbols = new byte[valueLength];
             database.read(keySymbols);
