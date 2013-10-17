@@ -6,14 +6,24 @@ import java.nio.file.*;
 import static java.nio.file.StandardCopyOption.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
-import java.util.Scanner;
+import java.util.HashMap;
+
 
 public class Shell {
 
 
     public static void main(String[] arg) {
         try {
-            Parser.parser(arg, MyFileSystem.class);
+            HashMap<String, String> commands = new HashMap<String, String>();
+            commands.put("cd", "changeDir");
+            commands.put("dir", "dir");
+            commands.put("mkdir", "makeDir");
+            commands.put("pwd", "printWorkingDir");
+            commands.put("rm", "remove");
+            commands.put("mv", "move");
+            commands.put("cp", "copy");
+            commands.put("exit", "exit");
+            Parser.parser(arg, MyFileSystem.class, commands);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);

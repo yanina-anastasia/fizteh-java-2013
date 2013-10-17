@@ -1,11 +1,11 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.shell;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class Parser {
-    public static void parser(String[] arg, Class workingClass) throws Exception {
+    public static void parser(String[] arg, Class workingClass, HashMap<String, String> commands) throws Exception {
         boolean flag = true;
         Scanner input = new Scanner(System.in);
         String[] commandString;
@@ -16,18 +16,19 @@ public class Parser {
                 if (input.hasNextLine()) {
                     inputString = input.nextLine();
                     commandString = inputString.split("[;]");
-                    manager(commandString, false, workingClass);
+                    manager(commandString, false, workingClass, commands);
                 } else {
                     System.exit(0);
                 }
             } else {
-                pack(arg, workingClass);
+                pack(arg, workingClass, commands);
                 flag = false;
             }
         }
     }
 
-    private static void manager(String[] commandString, boolean pack, Class workingClass) throws Exception {
+    private static void manager(String[] commandString, boolean pack, Class workingClass,
+                                HashMap<String, String> commands) throws Exception {
         int i;
         Object obj;
         obj = workingClass.newInstance();
@@ -35,15 +36,21 @@ public class Parser {
         for (i = 0; i < commandString.length; ++i) {
             String[] command = commandString[i].trim().split("\\s+");
             Method currentMethod = null;
+            if (!commands.containsKey(command[0])) {
+                System.err.println("Bad command");
+                System.exit(1);
+            } else {
+                command[0] = commands.get(command[0]);
+            }
             try {
                 currentMethod = workingClass.getMethod(command[0], parametrTypes);
                 try {
                     currentMethod.invoke(obj, (Object) command);
-                } catch (InvocationTargetException e) {
-                    throw new Exception(e.getCause().toString());
+                } catch (Exception e) {
+                    throw new Exception(e.getCause().getMessage());
                 }
             } catch (Exception e) {
-                System.err.println("parser: " + command[0] + ": Bad command or wrong number of arguments");
+                System.err.println("parser: " + command[0] + ": " + e.getMessage());
                 if (pack) {
                     System.exit(1);
                 }
@@ -51,7 +58,7 @@ public class Parser {
         }
     }
 
-    private static void pack(String[] arg, Class workingClass) throws Exception {
+    private static void pack(String[] arg, Class workingClass, HashMap<String, String> commands) throws Exception {
         StringBuilder builderArg;
         builderArg = new StringBuilder();
         int i;
@@ -60,7 +67,7 @@ public class Parser {
             builderArg.append(" ");
         }
         String[] command = builderArg.toString().split("[;]");
-        manager(command, true, workingClass);
+        manager(command, true, workingClass, commands);
 
     }
 

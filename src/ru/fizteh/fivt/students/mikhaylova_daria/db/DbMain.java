@@ -10,14 +10,19 @@ public class DbMain {
     private static String workingDirectoryName;
 
     public static void main(String[] arg) {
-            workingDirectoryName = System.getProperty("fizteh.db.dir");
-            try {
-                Parser.parser(arg, FileMap.class);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+        workingDirectoryName = System.getProperty("fizteh.db.dir");
+        HashMap<String,String> commandsList = new HashMap<String, String>();
+        commandsList.put("put", "put");
+        commandsList.put("get","get");
+        commandsList.put("remove", "remove");
+        commandsList.put("exit","exit");
+        try {
+            Parser.parser(arg, FileMap.class, commandsList);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
+    }
 
     static void writerDateBase() throws Exception {
         File workingDirectory = new File(workingDirectoryName);
