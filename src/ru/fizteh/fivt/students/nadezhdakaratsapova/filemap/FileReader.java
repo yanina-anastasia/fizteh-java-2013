@@ -26,7 +26,7 @@ public class FileReader {
                 List<Integer> offsets = new ArrayList<Integer>();
                 List<String> keysToMap = new ArrayList<String>();
                 int offset1 = inStream.readInt();
-                i += 4;
+                i += intSize;
                 ++i;
                 int arraySize = key.size();
                 byte[] keyInBytes = new byte[arraySize];
