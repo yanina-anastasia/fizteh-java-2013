@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class OpenFile {
-    public static boolean open(DBState curState) {
+    public static boolean open(DBState curState) throws IOException {
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
             System.err.println("Error with getting property");
@@ -14,25 +15,17 @@ public class OpenFile {
         File tmpFile = new File(curState.workingDirectory);
 
         if (!tmpFile.exists()) {
-            try {
-                if (!tmpFile.createNewFile()) {
+            if (!tmpFile.createNewFile()) {
                     System.err.println("Error with creating a directory");
                     return false;
                 } else {
                     curState.dbFile = new RandomAccessFile(tmpFile, "rw");
                 }
-            } catch (IOException e) {
-                System.err.println("Error with input/output");
-                return false;
-            }
-        } else {
+            } else {
             try {
-                if (!loadTable(curState)) {
-                    System.err.println("Error with loading file");
-                    return false;
-                }
-            } catch (IOException e) {
-                System.err.println("Error with input/output");
+                loadTable(curState);
+            } catch (EOFException e) {
+                System.err.println("Wrong format");
                 return false;
             }
         }
@@ -41,6 +34,9 @@ public class OpenFile {
 
     private static boolean loadTable(DBState curState) throws IOException {
         curState.dbFile = new RandomAccessFile(curState.workingDirectory, "rw");
+        if (curState.dbFile.length() == 0) {
+            return false;
+        }
         String key = null;
         String value = null;
         long curOffset;
