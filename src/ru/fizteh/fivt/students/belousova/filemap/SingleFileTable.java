@@ -13,7 +13,7 @@ public class SingleFileTable implements Table {
 
     public SingleFileTable(File data) throws IOException {
         if (!data.exists()) {
-            throw new IOException("file not exist");
+            throw new IOException("file doesn't exist");
         } else {
             dataFile = data;
             FileMapUtils.read(dataFile, dataBase);
@@ -42,7 +42,7 @@ public class SingleFileTable implements Table {
 
     @Override
     public int size() {
-        return 0;
+        throw new UnsupportedOperationException("this operation is not supported");
     }
 
     @Override
@@ -57,6 +57,6 @@ public class SingleFileTable implements Table {
 
     @Override
     public int rollback() {
-        return 0;
+        throw new UnsupportedOperationException("this operation is not supported");
     }
 }

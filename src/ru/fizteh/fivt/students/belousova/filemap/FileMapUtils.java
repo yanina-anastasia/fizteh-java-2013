@@ -3,8 +3,9 @@ package ru.fizteh.fivt.students.belousova.filemap;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +22,14 @@ public class FileMapUtils {
             try {
                 int position = 0;
                 String key1 = readKey(dis);
-                position += key1.length();
+                position += key1.getBytes(StandardCharsets.UTF_8).length;
                 int offset1 = dis.readInt();
                 int firstOffset = offset1;
                 position += 5;
 
                 while (position != firstOffset) {
                     String key2 = readKey(dis);
-                    position += key2.length();
+                    position += key2.getBytes(StandardCharsets.UTF_8).length;
                     int offset2 = dis.readInt();
                     position += 5;
                     String value = readValue(dis, offset1, offset2, position, fileLength);
@@ -48,14 +49,23 @@ public class FileMapUtils {
     }
 
     private static String readKey(DataInputStream dis) throws IOException {
-        List<Byte> buf = new ArrayList<Byte>();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte b = dis.readByte();
+        int length = 0;
         while (b != 0) {
-            buf.add(b);
+            bos.write(b);
             b = dis.readByte();
+            length ++;
+            if (length > 1024*1024) {
+                throw new IOException("wrong data format");
+            }
         }
-        String key = convertBytesToString(buf, "UTF_8");
-        return key;
+        if (length == 0) {
+            throw new IOException("wrong data format");
+        }
+
+        return bos.toString(StandardCharsets.UTF_8.toString());
     }
 
     private static String readValue(DataInputStream dis, int offset1,
@@ -64,7 +74,7 @@ public class FileMapUtils {
         dis.skip(offset1 - position);
         byte[] buffer = new byte[offset2 - offset1];
         dis.read(buffer);
-        String value = new String(buffer, "UTF_8");
+        String value = new String(buffer, StandardCharsets.UTF_8);
         dis.reset();
         return value;
     }
@@ -78,17 +88,17 @@ public class FileMapUtils {
             try {
                 long offset = 0;
                 for (String key : map.keySet()) {
-                    offset += key.getBytes("UTF_8").length + 5;
+                    offset += key.getBytes(StandardCharsets.UTF_8).length + 5;
                 }
 
                 List<String> values = new ArrayList<String>(map.keySet().size());
                 for (String key : map.keySet()) {
                     String value = map.get(key);
                     values.add(value);
-                    dos.write(key.getBytes("UTF_8"));
-                    dos.writeByte(0);
+                    dos.write(key.getBytes(StandardCharsets.UTF_8));
+                    dos.write('\0');
                     dos.writeInt((int) offset);
-                    offset += value.getBytes("UTF_8").length;
+                    offset += value.getBytes(StandardCharsets.UTF_8).length;
                 }
 
                 for (String value : values) {
@@ -101,17 +111,5 @@ public class FileMapUtils {
         } catch (IOException e) {
             throw new IOException("cannot write '" + file.getName() + "'", e);
         }
-    }
-
-    public static String convertBytesToString(Collection<Byte> collection,
-                                              String Encoding) throws UnsupportedEncodingException {
-        byte[] buf = new byte[collection.size()];
-        int i = 0;
-        for (Byte b : collection) {
-            buf[i] = b;
-            i++;
-        }
-        String s = new String(buf, Encoding);
-        return s;
     }
 }
