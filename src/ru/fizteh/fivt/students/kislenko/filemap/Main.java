@@ -20,7 +20,7 @@ public class Main {
             }
             mb.fillFile(state);
         } catch (IOException e) {
-            System.err.println("File not found.\n");
+            System.err.println(e.getMessage());
             System.exit(1);
         }
         System.exit(0);
