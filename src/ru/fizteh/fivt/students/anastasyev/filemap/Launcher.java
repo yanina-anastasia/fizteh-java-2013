@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -89,7 +90,7 @@ public class Launcher {
             System.err.println("Use: -Dfizteh.db.dir=<directory>");
             System.exit(1);
         }
-        fileMap = new FileMap(System.getProperty("fizteh.db.dir"));
+        fileMap = new FileMap(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
         allCommands = fileMap.getCommands();
         fileMap.addCommand(new PutCommand(fileMap));
         fileMap.addCommand(new GetCommand(fileMap));

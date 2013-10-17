@@ -33,7 +33,7 @@ public class FileMap {
     }
 
     public FileMap(String dbDir) {
-        fileMap = new File(dbDir + File.separator + "db.dat");
+        fileMap = new File(dbDir);
         try {
             openFileMap();
         } catch (FileNotFoundException e) {
@@ -78,6 +78,8 @@ public class FileMap {
             }
         } catch (IOException e) {
             throw new IOException("Error in read db.dat");
+        } catch (OutOfMemoryError e) {
+            throw new IOException("OutOfMemoryError in read db.dat");
         }
         input.close();
     }
