@@ -50,7 +50,7 @@ public class DatabaseContext {
         HashMap<String, String> map = new HashMap<String, String>();
         FileInputStream fstream = new FileInputStream(dbFile);
         try {
-            while (fstream.available() > 4) {
+            while (fstream.available() > 0) {
                 Map.Entry<String, String> newEntry = parseEntry(fstream);
                 map.put(newEntry.getKey(), newEntry.getValue());
             }
@@ -69,7 +69,7 @@ public class DatabaseContext {
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
         fstream.read(sizeBuf);
         int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
-        if (fstream.available() < keySize + valueSize) {
+        if (fstream.available() < (long) keySize + (long) valueSize) {
             throw new Exception("Error: malformed database");
         }
         byte[] keyBuf = new byte[keySize];
