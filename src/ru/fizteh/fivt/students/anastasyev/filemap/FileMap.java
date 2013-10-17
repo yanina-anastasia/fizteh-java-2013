@@ -76,12 +76,12 @@ public class FileMap {
             while (input.getFilePointer() < input.length()) {
                 read(input);
             }
-        } catch (IOException e) {
-            throw new IOException("Error in read db.dat");
         } catch (OutOfMemoryError e) {
             throw new IOException("db.dat has incorrect format");
         } catch (NegativeArraySizeException e) {
             throw new IOException("db.dat has incorrect format");
+        } catch (Exception e) {
+            throw new IOException("Error in read db.dat");
         }
         input.close();
     }
