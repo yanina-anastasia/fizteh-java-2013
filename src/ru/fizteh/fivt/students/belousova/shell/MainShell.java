@@ -7,16 +7,18 @@ import java.util.Map;
 
 public class MainShell {
     public static Map<String, Command> commandList = new HashMap<String, Command>();
+
     public static void main(String[] args) {
         ShellState state = new ShellState();
         makeCommandList(state);
 
         if (args.length == 0) {
-            ShellUtils.interactiveMode(System.in, state);
+            ShellUtils.interactiveMode(System.in, commandList);
         } else {
-            ShellUtils.batchMode(args, state);
+            ShellUtils.batchMode(args, commandList);
         }
     }
+
     private static void makeCommandList(ShellState state) {
         addCommand(new CommandCd(state));
         addCommand(new CommandPwd(state));
