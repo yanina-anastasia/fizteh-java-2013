@@ -10,17 +10,19 @@ import java.io.RandomAccessFile;
 public class FileMap extends UserShell {
     private RandomAccessFile dataFile;
 
-    public void setDataFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            try {
-                dataFile = new RandomAccessFile(path, "rw");
-            } catch (FileNotFoundException e) {
-                System.err.println("Cannot open file");
-                System.exit(1);
-            }
+    protected void printErrorAndExit(String errMessage) {
+        System.err.println(errMessage);
+        System.exit(1);
+    }
+
+    public void setDataFile(File file) {
+        try {
+            dataFile = new RandomAccessFile(file, "rw");
+        } catch (FileNotFoundException e) {
+            printErrorAndExit("Cannot open file");
         }
     }
+
     public String appendArgs(int num, String[] args) {
         StringBuffer str = new StringBuffer(args[num]);
         for (int i = num + 1; i < args.length; ++i) {
@@ -41,8 +43,7 @@ public class FileMap extends UserShell {
             dataFile.skipBytes(valueLong);
             return key;
         } catch (IOException e) {
-            System.err.println("Can't read key");
-            System.exit(1);
+            printErrorAndExit("Can't read file");
         }
         return "PANIC_KEY";
     }
@@ -58,8 +59,7 @@ public class FileMap extends UserShell {
             String value = new String(byteArray, "UTF-16");
             return value;
         } catch (IOException e) {
-            System.err.println("Can't read value");
-            System.exit(1);
+            printErrorAndExit("Can't read file");
         }
         return "PANIC_VALUE";
     }
@@ -75,8 +75,7 @@ public class FileMap extends UserShell {
                 currPointer = dataFile.getFilePointer();
             }
         } catch (IOException e) {
-            System.err.println("Can't find key");
-            System.exit(1);
+            printErrorAndExit("Can't read file");
         }
         return -1;
     }
@@ -97,8 +96,7 @@ public class FileMap extends UserShell {
             dataFile.writeChars(key);
             dataFile.writeChars(value);
         } catch (IOException e) {
-            System.err.println("Can't put");
-            System.exit(1);
+            printErrorAndExit("Can't put");
         }
     }
 
@@ -113,8 +111,7 @@ public class FileMap extends UserShell {
                 System.out.println(value);
             }
         } catch (IOException e) {
-            System.err.println("Can't get");
-            System.exit(1);
+            printErrorAndExit("Can't get");
         }
     }
 
@@ -127,8 +124,7 @@ public class FileMap extends UserShell {
             dest.seek(dest.length());
             dest.write(arr);
         } catch (IOException e) {
-            System.err.println("Can't rewrite file");
-            System.exit(1);
+            printErrorAndExit("Can't rewrite file");
         }
 
     }
@@ -149,15 +145,14 @@ public class FileMap extends UserShell {
             dataFile.setLength(tmpFile.length());
             tmpFile.close();
         } catch (IOException e) {
-            System.err.println("Can't remove");
-            System.exit(1);
+            printErrorAndExit("Can't remove");
         }
     }
 
     public void doRemove(String key) {
         long keyPointer = findKey(key);
         if (keyPointer == -1) {
-            UserShell.printError("not found");
+            System.out.println("not found");
         } else {
             delete(key);
             System.out.println("removed");
@@ -167,23 +162,24 @@ public class FileMap extends UserShell {
     @Override
     protected void execProc(String[] args) {
         try {
-            dataFile = new RandomAccessFile(System.getProperty("fizteh.db.dir") + "db.dat", "rw");
+            File data = new File(System.getProperty("fizteh.db.dir") + File.separatorChar + "db.dat");
+            setDataFile(data);
             if (args != null && args.length != 0) {
                 switch (args[0]) {
                 case "put":
                     if (args.length > 2) {
                         doPut(args[1], appendArgs(2, args));
                     } else {
-                        UserShell.printError("Incorrect number of args");
+                        printError("Incorrect number of args");
                     }
                     break;
                 case "get":
-                    if (UserShell.checkArgs(2, args)) {
+                    if (checkArgs(2, args)) {
                         doGet(args[1]);
                     }
                     break;
                 case "remove":
-                    if (UserShell.checkArgs(2, args)) {
+                    if (checkArgs(2, args)) {
                         doRemove(args[1]);
                     }
                     break;
@@ -197,8 +193,7 @@ public class FileMap extends UserShell {
                 dataFile.close();
             }
         } catch (IOException e) {
-            System.err.println("Cannot open or close file");
-            System.exit(1);
+            printErrorAndExit("Cannot open or close file");
         }
     }
 
