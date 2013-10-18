@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class WorkWithInput {
@@ -80,6 +82,22 @@ public class WorkWithInput {
                 Commands.executeProcess(extractArgumentsFromInputString(current));
             } else {
                 Commands.printError("Incorrect input");
+                try {
+                    FileMap.writeInDatabase();
+                } catch (FileNotFoundException e) {
+                    System.err.println("Can't read database");
+                    System.exit(1);
+                } catch (IOException e1) {
+                    System.err.println("Can't write in database");
+                    System.exit(1);
+                }
+                try {
+                    FileMap.dataBase.close();
+                } catch (IOException e2) {
+                    System.err.println("Can't close a database");
+                    System.exit(1);
+                }
+                System.exit(1);
             }
         }
         scanner.close();

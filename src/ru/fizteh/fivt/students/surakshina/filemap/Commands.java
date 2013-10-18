@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class Commands {
     public static void executeProcess(String[] input) {
         switch (input[0]) {
@@ -34,6 +37,21 @@ public class Commands {
             System.out.println(s);
         } else {
             System.err.println(s);
+            try {
+                FileMap.writeInDatabase();
+            } catch (FileNotFoundException e) {
+                System.err.println("Can't read database");
+                System.exit(1);
+            } catch (IOException e1) {
+                System.err.println("Can't write in database");
+                System.exit(1);
+            }
+            try {
+                FileMap.dataBase.close();
+            } catch (IOException e2) {
+                System.err.println("Can't close a database");
+                System.exit(1);
+            }
             System.exit(1);
         }
     }
