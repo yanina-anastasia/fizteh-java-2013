@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.fedoseev.filemap;
 
-import ru.fizteh.fivt.students.fedoseev.common.Abstract;
+import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
@@ -8,7 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public abstract class AbstractFileMap extends Abstract {
+public class AbstractFileMap extends AbstractFrame {
     private static final Map<String, String> content = new HashMap<String, String>();
     private static final int MAX_FILE_SIZE = 150100500;
     private static RandomAccessFile file;
@@ -19,11 +19,6 @@ public abstract class AbstractFileMap extends Abstract {
 
     public static Map<String, String> getMap() {
         return content;
-    }
-
-    public AbstractFileMap(File file) throws IOException {
-        super(file);
-        checkOpenFile();
     }
 
     @Override
@@ -41,25 +36,7 @@ public abstract class AbstractFileMap extends Abstract {
         }};
     }
 
-    @Override
-    public void runCommands(String cmd, int end) throws IOException {
-        Map<String, AbstractCommand> commands = getCommands();
-
-        if (!commands.containsKey(cmd.substring(0, end))) {
-            throw new IOException("\"ERROR: not existing command \"" + cmd.substring(0, end) + "\"");
-        }
-
-        AbstractCommand command = commands.get(cmd.substring(0, end));
-
-        if (Utils.getCommandArguments(cmd).length != command.getArgsCount()) {
-            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
-                    "\" command receives " + command.getArgsCount() + " arguments");
-        }
-
-        command.execute(Utils.getCommandArguments(cmd), state);
-    }
-
-    private void checkOpenFile() throws IOException {
+    public void checkOpenFile() throws IOException {
         if (state.getCurState().exists()) {
             try {
                 file = new RandomAccessFile(state.getCurState(), "rw");
@@ -73,7 +50,6 @@ public abstract class AbstractFileMap extends Abstract {
             } catch (IOException e) {
                 file.close();
                 System.err.println("ERROR: incorrect file format");
-                return;
             }
         } else {
             if (!state.getCurState().createNewFile()) {

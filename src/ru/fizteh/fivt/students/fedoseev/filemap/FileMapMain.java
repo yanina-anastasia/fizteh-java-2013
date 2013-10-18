@@ -1,25 +1,30 @@
 package ru.fizteh.fivt.students.fedoseev.filemap;
 
-import ru.fizteh.fivt.students.fedoseev.common.Shell;
-
 import java.io.File;
 import java.io.IOException;
 
 public class FileMapMain {
     public static void main(String[] args) throws IOException, InterruptedException {
-        File file = new File(System.getProperty("fizteh.db.dir"));
+        try {
+            File file = new File(System.getProperty("fizteh.db.dir"));
 
-        if ((file = file.getCanonicalFile().toPath().resolve("db.dat").toFile()) == null) {
+            file = file.getCanonicalFile().toPath().resolve("db.dat").toFile();
+
+            AbstractFileMap fileMap = new AbstractFileMap();
+            fileMap.setObjectCurState(file);
+            fileMap.checkOpenFile();
+
+            if (args.length != 0) {
+                fileMap.BatchMode(args);
+            } else {
+                fileMap.InteractiveMode();
+            }
+        } catch (NullPointerException e) {
             System.err.println("ERROR: cannot get property\n");
             System.exit(1);
-        }
-
-        if (args.length != 0) {
-            Shell bm = new FileMapBatchMode(file, args);
-            bm.run();
-        } else {
-            Shell im = new FileMapInteractiveMode(file);
-            im.run();
+        } catch (Exception e) {
+            System.err.println("ERROR: incorrect file\n");
+            System.exit(1);
         }
 
         System.exit(0);

@@ -1,19 +1,12 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
-import ru.fizteh.fivt.students.fedoseev.common.Abstract;
+import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractShell extends Abstract {
-    public AbstractShell(File dir) {
-        super(dir);
-    }
-
+public class AbstractShell extends AbstractFrame {
     @Override
     public Map<String, AbstractCommand> getCommands() {
         final CdCommand CD = new CdCommand();
@@ -35,23 +28,5 @@ public abstract class AbstractShell extends Abstract {
             put(DIR.getCmdName(), DIR);
             put(EXIT.getCmdName(), EXIT);
         }};
-    }
-
-    @Override
-    public void runCommands(String cmd, int end) throws IOException {
-        Map<String, AbstractCommand> commands = getCommands();
-
-        if (!commands.containsKey(cmd.substring(0, end))) {
-            throw new IOException("\"ERROR: not existing command \"" + cmd.substring(0, end) + "\"");
-        }
-
-        AbstractCommand command = commands.get(cmd.substring(0, end));
-
-        if (Utils.getCommandArguments(cmd).length != command.getArgsCount()) {
-            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
-                    "\" command receives " + command.getArgsCount() + " arguments");
-        }
-
-        command.execute(Utils.getCommandArguments(cmd), state);
     }
 }

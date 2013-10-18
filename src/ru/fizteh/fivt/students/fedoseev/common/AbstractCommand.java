@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
 
-public abstract class AbstractCommand implements Shell.Command {
+public abstract class AbstractCommand implements Frame.Command {
     private String cmdName;
     private int argsCount;
 
@@ -19,5 +19,5 @@ public abstract class AbstractCommand implements Shell.Command {
         return argsCount;
     }
 
-    public abstract void execute(String[] input, Abstract.ShellState state) throws IOException;
+    public abstract void execute(String[] input, AbstractFrame.FrameState state) throws IOException, InterruptedException;
 }
