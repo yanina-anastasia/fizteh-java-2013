@@ -3,10 +3,10 @@ package ru.fizteh.fivt.students.kislenko.shell;
 import java.util.Scanner;
 
 public class Shell {
-    private State state = new State();
+    private State state;
 
-    public Shell(State startingDir) {
-        state.setState(startingDir.getState());
+    public Shell(State startingState) {
+        state = startingState;
     }
 
     public void interactiveMode() {
@@ -14,7 +14,7 @@ public class Shell {
         CmdLauncher launcher = new CmdLauncher();
         boolean exitFlag = false;
         while (!exitFlag) {
-            System.out.print(state.getState().toString() + "$ ");
+            System.out.print("$ ");
             String input = scan.nextLine().trim();
             String[] commands = input.split("\\s*;\\s*");
             try {

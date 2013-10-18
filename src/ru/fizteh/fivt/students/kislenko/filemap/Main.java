@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
+import ru.fizteh.fivt.students.kislenko.shell.Shell;
+import ru.fizteh.fivt.students.kislenko.shell.State;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,15 +13,15 @@ public class Main {
         MapBuilder mb = new MapBuilder();
         try {
             Path db = new File(dbAddress).getCanonicalFile().toPath().resolve("db.dat");
-            State state = new State(db);
-            mb.buildMap(state);
+            State state = new FilemapState(db);
+            mb.buildMap((FilemapState) state);
             Shell shell = new Shell(state);
             if (args.length == 0) {
                 shell.interactiveMode();
             } else {
                 shell.batchMode(args);
             }
-            mb.fillFile(state);
+            mb.fillFile((FilemapState) state);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);

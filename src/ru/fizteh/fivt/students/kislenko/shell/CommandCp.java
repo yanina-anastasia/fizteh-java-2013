@@ -10,6 +10,10 @@ public class CommandCp implements Command {
         return "cp";
     }
 
+    public int getArgCount() {
+        return 2;
+    }
+
     private static void copyFile(File source, File dest) throws IOException {
         Path target = dest.toPath().resolve(source.getName());
         if (source.isFile()) {
@@ -29,7 +33,7 @@ public class CommandCp implements Command {
         }
         String source = args[0];
         String dest = args[1];
-        Path absolutePath = state.getState();
+        Path absolutePath = ((ShellState) state).getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (!destPath.getParent().toFile().exists()) {

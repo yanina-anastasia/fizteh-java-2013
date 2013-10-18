@@ -8,12 +8,16 @@ public class CommandMkdir implements Command {
         return "mkdir";
     }
 
+    public int getArgCount() {
+        return 1;
+    }
+
     public void run(State state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("mkdir: Command \"mkdir\" takes one argument.");
         }
         String dirName = args[0];
-        File newDir = new File(state.getState().resolve(dirName).toString());
+        File newDir = new File(((ShellState) state).getState().resolve(dirName).toString());
         if (newDir.exists())
             throw new IOException("mkdir: Directory already exists.");
         newDir.mkdir();

@@ -9,6 +9,10 @@ public class CommandRm implements Command {
         return "rm";
     }
 
+    public int getArgCount() {
+        return 1;
+    }
+
     private static void removing(Path target) throws IOException {
         File delFile = target.toFile();
         if (delFile.isFile()) {
@@ -40,13 +44,13 @@ public class CommandRm implements Command {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }
         String fileName = args[0];
-        Path absolutePath = state.getState();
+        Path absolutePath = ((ShellState) state).getState();
         Path target = absolutePath.resolve(fileName);
         if (target.toFile().exists()) {
             removing(target);
         } else {
             throw new IOException("rm: The file doesn't exist.");
         }
-        state.setState(validatePath(absolutePath));
+        ((ShellState) state).setState(validatePath(absolutePath));
     }
 }

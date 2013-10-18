@@ -1,13 +1,14 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Set;
 
 public class MapBuilder {
     private final long MAX_FILE_SIZE = 100000000;
 
-    void buildMap(State state) throws IOException {
+    void buildMap(FilemapState state) throws IOException {
         RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "r");
         if (database.length() > MAX_FILE_SIZE) {
             database.close();
@@ -40,7 +41,7 @@ public class MapBuilder {
         database.close();
     }
 
-    void fillFile(State state) throws IOException {
+    void fillFile(FilemapState state) throws IOException {
         RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "rw");
         database.setLength(0);
         Set<String> keySet = state.getMap().keySet();

@@ -1,15 +1,4 @@
 package ru.fizteh.fivt.students.kislenko.shell;
 
-import java.nio.file.Path;
-
-public class State {
-    private Path absolutePath;
-
-    public Path getState() {
-        return absolutePath;
-    }
-
-    public void setState(Path path) {
-        absolutePath = path;
-    }
+public abstract class State {
 }

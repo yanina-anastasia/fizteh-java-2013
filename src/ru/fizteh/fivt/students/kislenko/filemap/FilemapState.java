@@ -1,14 +1,16 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
+import ru.fizteh.fivt.students.kislenko.shell.State;
+
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class State {
+public class FilemapState extends State {
     private Map<String, String> storage;
     private Path path;
 
-    public State(Path p) {
+    public FilemapState(Path p) {
         storage = new TreeMap<String, String>();
         path = p;
     }
