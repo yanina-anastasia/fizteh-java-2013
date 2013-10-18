@@ -14,21 +14,6 @@ public class Shell {
 	private Map<String, Command> supportedCommands;
 	private static final String invitation = "$ ";
 
-	private static class WrongCommandException extends Exception {
-		public WrongCommandException() { 
-			super(); 
-		}
-		public WrongCommandException(String message) { 
-			super(message); 
-		}
-		public WrongCommandException(String message, Throwable cause) { 
-			super(message, cause); 
-		}
-		public WrongCommandException(Throwable cause) { 
-			super(cause); 
-		}
-	}
-
 	public class ShellState {
 		private	String currentDirectory;
 
@@ -69,27 +54,32 @@ public class Shell {
 
 		Shell shell = new Shell(commands);
 		Shell.ShellState state = shell.new ShellState(System.getProperty("user.dir"));
+		try {
+			shell.process(args, state);
+		} catch (WrongCommandException ex) {
+			System.err.println(ex.getMessage());
+			System.exit(1);
+		} catch (CommandFailException ex) {
+			System.err.println("error while processing command: " + ex.getMessage());
+			System.exit(2);
+		} catch (UserInterruptionException ex) {
+			System.exit(0);
+		}
+		
+		System.exit(0);
+	}
+
+	public void process(String[] args, Shell.ShellState state)
+	 throws WrongCommandException, CommandFailException, UserInterruptionException {
 
 		if (0 != args.length) {
 			
 			String arg = StringUtils.join(Arrays.asList(args), " ");
 
-			try {
-				shell.executeLine(arg, state);
-			} catch (WrongCommandException ex) {
-				System.err.println(ex.getMessage());
-				System.exit(1);
-			} catch (CommandFailException ex) {
-				System.err.println("error while processing command: " + ex.getMessage());
-				System.exit(2);
-			} catch (UserInterruptionException ex) {
-				System.exit(0);
-			}
+			executeLine(arg, state);
 		} else {
-			shell.interactiveMode(state);
+			interactiveMode(state);
 		}
-
-		System.exit(0);
 	}
 
 	private String[] parseLine(String commandLine) {
