@@ -10,6 +10,7 @@ abstract public class FileMapCommand implements Command {
 	private final String name;
 	private final int argNum;
 	protected FileMap fileMap;
+	protected final static String separator = System.getProperty("line.separator");
 
 	public String getName() {
 		return name;
@@ -19,10 +20,10 @@ abstract public class FileMapCommand implements Command {
 		return argNum;
 	}
 
-	FileMapCommand(String _name, int _argNum, FileMap _fileMap) {
-		name = _name;
-		argNum = _argNum;
-		fileMap = _fileMap;
+	FileMapCommand(String name, int argNum, FileMap fileMap) {
+		this.name = name;
+		this.argNum = argNum;
+		this.fileMap = fileMap;
 	}
 
 	abstract public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException, UserInterruptionException;

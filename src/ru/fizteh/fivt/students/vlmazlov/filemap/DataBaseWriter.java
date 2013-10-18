@@ -12,7 +12,7 @@ public class DataBaseWriter {
 	private RandomAccessFile dataBaseStorage;
 	private final FileMap fileMap;
 
-	public DataBaseWriter(String directory, String file, FileMap _fileMap) 
+	public DataBaseWriter(String directory, String file, FileMap fileMap) 
 	throws FileNotFoundException {
 		File dir = new File(directory);
 		if (!dir.exists()) {
@@ -20,16 +20,16 @@ public class DataBaseWriter {
 		}
 
 		dataBaseStorage = new RandomAccessFile(new File(dir, file), "rw");
-		fileMap = _fileMap;
+		this.fileMap = fileMap;
 	}
 
-	private int countOffSet() throws IOException {
+	private int countFirstOffSet() throws IOException {
 		int curOffset = 0;
 
 		Iterator<Map.Entry<String, String>> it = fileMap.getEntriesIterator();
 
 		while (it.hasNext()) {
-			curOffset += 2 + it.next().getKey().getBytes("UTF-8").length + 1 + 4;
+			curOffset += it.next().getKey().getBytes("UTF-8").length + 1 + 4;
 		}
 
 		return curOffset;
@@ -37,8 +37,8 @@ public class DataBaseWriter {
 	}
 
 	private void storeKey(String key, int offSet) throws IOException {
-		dataBaseStorage.writeUTF(key);
-		dataBaseStorage.writeByte('0');
+		dataBaseStorage.write(key.getBytes("UTF-8"));
+		dataBaseStorage.writeByte('\0');
 		dataBaseStorage.writeInt(offSet);
 	}
 
@@ -48,25 +48,25 @@ public class DataBaseWriter {
 
 			Iterator<Map.Entry<String, String>> it = fileMap.getEntriesIterator();
 
-			long curOffset = countOffSet(), writePosition;
+			long curOffset = countFirstOffSet(), writePosition;
 
 			while (it.hasNext()) {
 				Map.Entry<String, String> entry = it.next();
+				if (entry.getValue() == null) {
+					continue;
+				}
+
 				storeKey(entry.getKey(), (int)curOffset);
 				writePosition = dataBaseStorage.getFilePointer();
 
 				dataBaseStorage.seek(curOffset);
-				dataBaseStorage.writeUTF(entry.getValue());
+				dataBaseStorage.write(entry.getValue().getBytes("UTF-8"));
 				curOffset = dataBaseStorage.getFilePointer();
 				
 				dataBaseStorage.seek(writePosition);
 			}
 
-			it = fileMap.getEntriesIterator();
-
-			while (it.hasNext()) {
-				dataBaseStorage.writeUTF(it.next().getValue());
-			}
+			dataBaseStorage.getChannel().truncate(curOffset);
 		} finally {
 			QuietCloser.closeQuietly(dataBaseStorage);
 		}

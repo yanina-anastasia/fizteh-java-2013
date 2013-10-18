@@ -16,9 +16,9 @@ public class PutCommand extends FileMapCommand {
 		String oldValue = fileMap.addToFileMap(key, value);
 
 		if (oldValue == null) {
-			output = "new" + System.getProperty("line.separator");
+			output = "new" + separator;
 		} else {
-			output = "overwrite" + System.getProperty("line.separator") + oldValue + System.getProperty("line.separator");
+			output = "overwrite" + separator + oldValue + separator;
 		}
 
 		try {

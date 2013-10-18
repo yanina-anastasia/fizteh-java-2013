@@ -19,13 +19,13 @@ public class Main {
 
 		try {
 			reader = new DataBaseReader(System.getProperty("fizteh.db.dir"), "db.dat", fileMap);
+		} catch (StorageNotFoundException ex) {
+			isStored = false;
 		} catch (FileNotFoundException ex) {
 			System.err.println("Unable to retrieve entries from file: " + ex.getMessage());
 			System.exit(1);
-		} catch (IOException ex) {
-			isStored = false;
 		}
-
+		
 		if (isStored) {
 			try {
 				reader.retrieveFromFile();

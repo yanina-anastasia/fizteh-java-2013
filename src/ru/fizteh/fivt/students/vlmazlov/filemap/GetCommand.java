@@ -16,9 +16,9 @@ public class GetCommand extends FileMapCommand {
 		String value = fileMap.findInFileMap(key);
 
 		if (value == null) {
-			output = "not found" + System.getProperty("line.separator");
+			output = "not found" + separator;
 		} else {
-			output = "found" + System.getProperty("line.separator") + value + System.getProperty("line.separator");
+			output = "found" + separator + value + separator;
 		}
 
 		try {

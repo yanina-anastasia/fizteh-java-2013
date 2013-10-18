@@ -16,9 +16,9 @@ public class RemoveCommand extends FileMapCommand {
 		String oldValue = fileMap.removeFromFileMap(key);
 
 		if (oldValue == null) {
-			output = "not found" + System.getProperty("line.separator");
+			output = "not found" + separator;
 		} else {
-			output = "removed" + System.getProperty("line.separator");
+			output = "removed" + separator;
 		}
 
 		try {
