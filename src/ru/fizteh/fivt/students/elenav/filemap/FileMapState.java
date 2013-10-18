@@ -13,13 +13,14 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ru.fizteh.fivt.students.elenav.commands.ExitCommand;
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.elenav.commands.ExitFileMapCommand;
 import ru.fizteh.fivt.students.elenav.commands.GetCommand;
 import ru.fizteh.fivt.students.elenav.commands.PutCommand;
 import ru.fizteh.fivt.students.elenav.commands.RemoveCommand;
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
-public class FileMapState extends State implements Table {
+public class FileMapState extends FilesystemState implements Table {
 	
 	public FileMapState(String n, File f, PrintStream s) {
 		super(n, f, s);
@@ -29,25 +30,25 @@ public class FileMapState extends State implements Table {
 	
 	public void readFile() throws IOException {
 		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
-		boolean flag = true;
-		do {
-			try {
+		try {
+			do {
 				int keyLength = s.readInt();
 				int valueLength = s.readInt();
-				if (keyLength <= 0 || valueLength <= 0) {
+				if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
 					throw new IOException("Invalid input");
 				}
-				byte[] tempArr = null;
-				s.read(tempArr, 0, keyLength);
-				String key = new String(tempArr, StandardCharsets.UTF_8);
-				s.read(tempArr, 0, valueLength);
-				String value = new String(tempArr, StandardCharsets.UTF_8);
+				byte[] tempKey = new byte[keyLength];
+				s.read(tempKey);
+				String key = new String(tempKey, StandardCharsets.UTF_8);
+				byte[] tempValue = new byte[valueLength];
+				s.read(tempValue);
+				String value = new String(tempValue, StandardCharsets.UTF_8);
 				map.put(key, value);
-			} catch (EOFException e) {
-				break;
-			}
-		} while (flag);
-		s.close();
+			} while (s.available() > 0);
+			s.close();
+		} catch (EOFException e) {
+			throw new IOException("Can't read files");
+		}
 	}
 	
 	public void writeFile() throws IOException {
@@ -56,10 +57,12 @@ public class FileMapState extends State implements Table {
 		for (Entry<String, String> element : set) {
 			String key = element.getKey();
 			String value = element.getValue();
-			s.writeInt(key.getBytes(StandardCharsets.UTF_8).length);
-			s.writeInt(value.getBytes(StandardCharsets.UTF_8).length);
-			s.write(key.getBytes(StandardCharsets.UTF_8));
-			s.write(value.getBytes(StandardCharsets.UTF_8));
+			byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
+			s.writeInt(bkey.length);
+			byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
+			s.writeInt(bvalue.length);
+			s.write(bkey);
+			s.write(bvalue);
 		}
 		s.close();
 	}
@@ -68,7 +71,7 @@ public class FileMapState extends State implements Table {
 		GetCommand g = new GetCommand(this);
 		g.execute(key.split("\\s+"), getStream());
 		return null;
-	}
+	}                                                                                                                                                                                      
 
 	public String put(String key, String value) {
 		PutCommand c = new PutCommand(this);
@@ -99,7 +102,7 @@ public class FileMapState extends State implements Table {
 		commands.add(new GetCommand(this));
 		commands.add(new PutCommand(this));
 		commands.add(new RemoveCommand(this));
-		commands.add(new ExitCommand(this));
+		commands.add(new ExitFileMapCommand(this));
 	}
 	
 }

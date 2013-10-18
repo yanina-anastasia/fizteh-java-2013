@@ -3,10 +3,10 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class PrintWorkingDirectoryCommand extends AbstractCommand {
-	public PrintWorkingDirectoryCommand(State s) { 
+	public PrintWorkingDirectoryCommand(FilesystemState s) { 
 		super(s, "pwd", 0);
 	}
 	

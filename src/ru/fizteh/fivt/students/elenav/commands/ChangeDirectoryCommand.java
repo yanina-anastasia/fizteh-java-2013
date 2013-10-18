@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class ChangeDirectoryCommand extends AbstractCommand {
-	public ChangeDirectoryCommand(State s) { 
+	public ChangeDirectoryCommand(FilesystemState s) { 
 		super(s, "cd", 1); 
 	}
 	

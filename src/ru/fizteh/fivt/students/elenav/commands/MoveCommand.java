@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class MoveCommand extends AbstractCommand {
-	public MoveCommand(State s) { 
+	public MoveCommand(FilesystemState s) { 
 		super(s, "mv", 2);
 	}
 	

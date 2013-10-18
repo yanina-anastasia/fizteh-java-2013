@@ -3,11 +3,11 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class RemoveCommand extends AbstractCommand {
 
-	public RemoveCommand(State s) {
+	public RemoveCommand(FilesystemState s) {
 		super(s, "remove", 1);
 	}
 

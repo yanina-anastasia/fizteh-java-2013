@@ -2,10 +2,10 @@ package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class PrintDirectoryCommand extends AbstractCommand {
-	public PrintDirectoryCommand(State s) { 
+	public PrintDirectoryCommand(FilesystemState s) { 
 		super(s, "dir", 0);
 	}
 	

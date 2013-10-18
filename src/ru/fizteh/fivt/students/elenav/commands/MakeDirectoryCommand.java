@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class MakeDirectoryCommand extends AbstractCommand {
-	public MakeDirectoryCommand(State s) { 
+	public MakeDirectoryCommand(FilesystemState s) { 
 		super(s, "mkdir", 1);
 	}
 	

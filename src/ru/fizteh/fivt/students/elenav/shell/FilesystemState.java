@@ -10,14 +10,14 @@ import java.util.Scanner;
 import ru.fizteh.fivt.students.elenav.commands.AbstractCommand;
 import ru.fizteh.fivt.students.elenav.commands.Command;
 
-public abstract class State {
+public abstract class FilesystemState {
 	
 	private final PrintStream stream;
 	private File workingDirectory;
 	private final String name;
 	protected final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
 		
-	protected State(String n, File wd, PrintStream s) {
+	protected FilesystemState(String n, File wd, PrintStream s) {
 		stream = s;
 		workingDirectory = wd;
 		name = n;
@@ -62,7 +62,7 @@ public abstract class State {
 		}		
 	}
 	
-	public void interactiveMode() {
+	public void interactiveMode() throws IOException {
 		String command = "";
 		final boolean flag = true;
 		do {
@@ -72,17 +72,12 @@ public abstract class State {
 			command = command.trim();
 			String[] commands = command.split("\\s*;\\s*");
 			for (String c : commands) {
-				try {
-					execute(c);
-				}
-				catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
+				execute(c);
 			}
 		} while (flag);
 	}
 	
-	public void run(String[] args) {
+	public void run(String[] args) throws IOException {
 		if (args.length == 0) {
 			interactiveMode();
 		} else {
@@ -96,12 +91,7 @@ public abstract class State {
 			monoString = monoString.trim();
 			String[] commands = monoString.split("\\s*;\\s*");
 			for (String command : commands) {
-				try {
-					execute(command);
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-					System.exit(1);
-				}
+				execute(command);
 			}
 		}
 	}

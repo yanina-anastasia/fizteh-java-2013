@@ -3,14 +3,14 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.File;
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public abstract class AbstractCommand implements Command {
-	private final State state;
+	private final FilesystemState state;
 	private final String name;
 	private final int argNumber;
 	
-	AbstractCommand(State s, String nm, int n) {
+	AbstractCommand(FilesystemState s, String nm, int n) {
 		state = s;
 		name = nm;
 		argNumber = n;
@@ -24,7 +24,7 @@ public abstract class AbstractCommand implements Command {
 		return argNumber;
 	}
 
-	public State getState() {
+	public FilesystemState getState() {
 		return state;
 	}
 	

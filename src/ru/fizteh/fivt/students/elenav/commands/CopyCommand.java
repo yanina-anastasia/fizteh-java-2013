@@ -6,10 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
 public class CopyCommand extends AbstractCommand {
-	public CopyCommand(State s) { 
+	public CopyCommand(FilesystemState s) { 
 		super(s, "cp", 2);
 	}
 	public void execute(String args[], PrintStream s) throws IOException {

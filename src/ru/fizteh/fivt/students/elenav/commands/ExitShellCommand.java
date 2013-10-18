@@ -2,10 +2,10 @@ package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.State;
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
 
-public class ExitCommand extends AbstractCommand {
-	public ExitCommand(State s) {
+public class ExitShellCommand extends AbstractCommand {
+	public ExitShellCommand(FilesystemState s) {
 		super(s, "exit", 0);
 	}
 	
