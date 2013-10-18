@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Shell {
-
     public enum ExitCode {
         OK, 
         EXIT, 
@@ -82,23 +81,26 @@ public class Shell {
 
         if (source.equals(dest)) {
             // It's the same directory, nothing to do there.
-            System.err.println(cmd + ": '" + source.getAbsolutePath() + ": it's the same file!");
+            System.err.println(cmd + ": '" + source.getAbsolutePath()
+                    + ": it's the same file!");
             return ExitCode.ERR;
         }
-        
+
         if (!dest.exists()) {
             if (!dest.getParentFile().exists()) {
                 if (!dest.getParentFile().mkdirs()) {
-                    System.err.println(cmd + "can't create: '" + dest.getAbsolutePath());                    
+                    System.err.println(cmd + "can't create: '"
+                            + dest.getAbsolutePath());
                 }
             }
             try {
                 dest.createNewFile();
             } catch (IOException e) {
-                System.err.println(cmd + "can't create: '" + dest.getAbsolutePath());
+                System.err.println(cmd + "can't create: '"
+                        + dest.getAbsolutePath());
             }
         }
-            
+
         if (source.isDirectory() && !dest.isDirectory()) {
             System.err.println(cmd + ": '" + dest.getAbsolutePath()
                     + "' isn't a directory");
@@ -130,7 +132,6 @@ public class Shell {
                 break;
             }
         }
-
 
         if (source.isFile()) {
             File newFile = new File(dest.getAbsolutePath() + File.separator
@@ -394,9 +395,11 @@ public class Shell {
         input.close();
     }
 
-    public void main(String[] args) {
-        currPath = new File(System.getProperty("user.dir"));
-
+    public void exitWithError() {
+        System.exit(1);
+    }
+    
+    public void workWithUser(String[] args) {
         if (args.length == 0) {
             interactive();
         } else {
@@ -420,8 +423,14 @@ public class Shell {
             }
             input.close();
             if (!isOk) {
-                System.exit(1);
+                exitWithError();
             }
         }
+    }
+
+    public static void main(String[] args) {
+        currPath = new File(System.getProperty("user.dir"));
+        Shell myShell = new Shell();
+        myShell.workWithUser(args);
     }
 }

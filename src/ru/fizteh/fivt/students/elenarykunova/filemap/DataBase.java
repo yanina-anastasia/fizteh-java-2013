@@ -15,19 +15,29 @@ public class DataBase {
     public RandomAccessFile dataFile;
     
     public DataBase(String fileName) {
-        String filePath = System.getProperty("fizteh.db.dir") + File.separator + fileName;
-        File tmpFile = new File(filePath);
-        if (!tmpFile.exists()) {
-            try {
-                tmpFile.createNewFile();
-            } catch (IOException e) {
-                System.err.println("can't create file");
-                System.exit(1);
+        String dir = System.getProperty("fizteh.db.dir");
+        String filePath = null;
+        File tmpDir = new File(dir);
+        if (!tmpDir.exists()) {
+            System.err.println("can't open directory");
+            System.exit(1);
+        } else if (tmpDir.isDirectory()) {
+            filePath = dir + File.separator + fileName;
+            File tmpFile = new File(filePath);
+            if (!tmpFile.exists()) {
+                try {
+                    tmpFile.createNewFile();
+                } catch (IOException e) {
+                    System.err.println("can't create file");
+                    System.exit(1);
+                }
             }
+        } else {
+            filePath = dir;
         }
         
         try {
-            dataFile = new RandomAccessFile (filePath, "rw");
+            dataFile = new RandomAccessFile(filePath, "rw");
             load(dataFile);
         } catch (FileNotFoundException e) {
             System.err.println("can't access file");
@@ -35,12 +45,12 @@ public class DataBase {
         }
     }
     
-    public void load (RandomAccessFile dataFile) {
+    public void load(RandomAccessFile dataFile) {
         try {
             if (dataFile.length() == 0) {
                 return;
             }
-            long currPtr = dataFile.getFilePointer();
+            long currPtr = 0;
             long firstOffset = 0;
             long newOffset = 0;
             boolean firstTime = true;
@@ -62,8 +72,6 @@ public class DataBase {
                 dataFile.seek(newOffset);
                 value = dataFile.readUTF();
                 data.put(key, value);
-
-                dataFile.seek(currPtr);
             }
         } catch (IOException e) {
             System.err.println("can't read values from file");
@@ -71,11 +79,11 @@ public class DataBase {
         }
     }
     
-    public String put (String key, String value) {
+    public String put(String key, String value) {
         return data.put(key, value);
     }
     
-    public String get (String key) {
+    public String get(String key) {
         return data.get(key);
     }
     
@@ -122,8 +130,7 @@ public class DataBase {
                 dataFile.writeUTF(myEntry.getValue());
             }
             closeDataFile();
-        } 
-        catch (IOException e1) {
+        } catch (IOException e1) {
             System.err.println("can't write to file");
             closeDataFile();
             System.exit(1);

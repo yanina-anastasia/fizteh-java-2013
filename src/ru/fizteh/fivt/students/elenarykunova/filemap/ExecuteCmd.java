@@ -5,8 +5,15 @@ import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 public class ExecuteCmd extends Shell {
 
     DataBase db;
-    public ExecuteCmd(DataBase _db) {
-        db = _db;
+
+    public ExecuteCmd(DataBase argDb) {
+        db = argDb;
+    }
+
+    @Override
+    public void exitWithError() {
+        db.commitChanges();
+        System.exit(1);
     }
     
     @Override
@@ -28,6 +35,7 @@ public class ExecuteCmd extends Shell {
                 if (ans == null) {
                     System.out.println("new");
                 } else {
+                    System.out.println("overwrite");
                     System.out.println(ans);
                 }
                 return ExitCode.OK;
@@ -68,5 +76,4 @@ public class ExecuteCmd extends Shell {
         System.err.println(arg[0] + ": incorrect number of arguments");
         return ExitCode.ERR;
     }
-
 }
