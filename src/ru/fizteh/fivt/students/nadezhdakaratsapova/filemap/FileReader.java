@@ -19,6 +19,9 @@ public class FileReader {
                 while ((i < fileLength) && ((curByte = inStream.readByte()) != 0)) {
                     key.add(curByte);
                     ++i;
+                    if (i > 1024 * 1024) {
+                        throw new IOException("too big key");
+                    }
                 }
                 if (curByte != 0) {
                     throw new IOException("not allowable format of data");
