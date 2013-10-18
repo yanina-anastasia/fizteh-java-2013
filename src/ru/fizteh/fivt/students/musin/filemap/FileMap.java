@@ -107,15 +107,21 @@ public class FileMap {
             }
         }
         FileOutputStream outputStream = new FileOutputStream(location);
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            byte[] key = entry.getKey().getBytes("UTF-8");
-            byte[] value = entry.getValue().getBytes("UTF-8");
-            outputStream.write(ByteBuffer.allocate(4).putInt(key.length).array());
-            outputStream.write(ByteBuffer.allocate(4).putInt(value.length).array());
-            outputStream.write(key);
-            outputStream.write(value);
+        try
+        {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                byte[] key = entry.getKey().getBytes("UTF-8");
+                byte[] value = entry.getValue().getBytes("UTF-8");
+                outputStream.write(ByteBuffer.allocate(4).putInt(key.length).array());
+                outputStream.write(ByteBuffer.allocate(4).putInt(value.length).array());
+                outputStream.write(key);
+                outputStream.write(value);
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        } finally {
+            outputStream.close();
         }
-        outputStream.close();
     }
 
     public String put(String key, String value) {
