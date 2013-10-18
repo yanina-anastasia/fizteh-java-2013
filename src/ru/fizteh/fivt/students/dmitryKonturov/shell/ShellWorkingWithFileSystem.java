@@ -22,7 +22,14 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
                 throw new ShellException(getName(), "Lack of arguments");
             }
             try {
-                currentPath = currentPath.resolve(Paths.get(args[0])).normalize();
+                Path tmpPath = currentPath.resolve(Paths.get(args[0])).normalize();
+                if (Files.isDirectory(tmpPath)) {
+                    currentPath = tmpPath;
+                } else {
+                    throw new ShellException(getName(), tmpPath.toString() + " is not directory");
+                }
+            } catch (ShellException se) {
+                throw se;
             } catch (Exception e) {
                 throw new ShellException(getName(), String.format("\'%s\' :Cannot convert to path", args[0]));
             }
@@ -45,7 +52,7 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
             try {
                 Path tmpPath = currentPath.resolve(Paths.get(args[0]));
                 Files.createDirectory(tmpPath);
-            } catch(FileAlreadyExistsException e) {
+            } catch (FileAlreadyExistsException e) {
                 throw new ShellException(getName(), String.format("\'%s\' :File or directory already exists", args[0]));
             } catch (Exception e) {
                 throw new ShellException(getName(), "Cannot create directory: " + e.getMessage());
@@ -93,7 +100,7 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
                 if (Files.isDirectory(tmpPath)) {
                     File[] entries = tmpPath.toFile().listFiles();
                     if (entries != null) {
-                        for(File file : entries) {
+                        for (File file : entries) {
                             execute(new String[]{file.getAbsolutePath()});
                         }
                     }
@@ -124,7 +131,7 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
                 File tmpFile = currentPath.toFile();
                 File[] entries = tmpFile.listFiles();
                 if (entries != null) {
-                    for(File file : entries) {
+                    for (File file : entries) {
                         System.out.println(file.getName());
                     }
                 } else {
@@ -228,7 +235,7 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
 
     @Override
     protected String getGreetingString() {
-        return(currentPath.toString() + "$ ");
+        return (currentPath.toString() + "$ ");
     }
 
     public ShellWorkingWithFileSystem(String userPath) {
