@@ -25,6 +25,10 @@ public class FileMap {
 
     public boolean loadFromDisk() throws FileNotFoundException {
         map.clear();
+        if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
+            System.err.println("Unable to create a file, directory doesn't exist");
+            return false;
+        }
         if (!location.exists()) {
             System.err.println("Database file wasn't found");
             return true;
