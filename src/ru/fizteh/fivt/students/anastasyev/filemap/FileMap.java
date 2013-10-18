@@ -66,8 +66,8 @@ public class FileMap {
     }
 
     private void write(RandomAccessFile output, Element element) throws IOException {
-        output.writeInt(element.key.length());
-        output.writeInt(element.value.length());
+        output.writeInt(element.key.getBytes("UTF-8").length);
+        output.writeInt(element.value.getBytes("UTF-8").length);
         output.write(element.key.getBytes("UTF-8"));
         output.write(element.value.getBytes("UTF-8"));
     }

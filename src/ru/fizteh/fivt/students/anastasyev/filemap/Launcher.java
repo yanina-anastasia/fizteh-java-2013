@@ -16,7 +16,7 @@ public class Launcher {
     }
 
     private boolean launch(final String arg) throws IOException {
-        String[] commands = arg.split("\\s+");
+        String[] commands = arg.split("\\s+", 3);
         boolean result = false;
         int i = 0;
         for (; i < allCommands.size(); ++i) {
