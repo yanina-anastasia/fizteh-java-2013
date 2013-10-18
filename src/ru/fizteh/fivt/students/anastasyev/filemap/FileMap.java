@@ -52,8 +52,14 @@ public class FileMap {
         if (keyLength <= 0 || valueLength <= 0) {
             throw new IOException("db.dat has incorrect format");
         }
-        byte[] key = new byte[keyLength];
-        byte[] value = new byte[valueLength];
+        byte[] key;
+        byte[] value;
+        try {
+            key = new byte[keyLength];
+            value = new byte[valueLength];
+        } catch (OutOfMemoryError e) {
+            throw new IOException("db.dat has incorrect format");
+        }
         input.read(key);
         input.read(value);
         elementList.add(new Element(key, value));
@@ -72,38 +78,45 @@ public class FileMap {
                 throw new IOException("Can't create data file db.dat");
             }
         }
-        RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "r");
-        if (input.length() == 0) {
-            return;
-        }
+        RandomAccessFile input = null;
         try {
+            input = new RandomAccessFile(fileMap.toString(), "r");
+            if (input.length() == 0) {
+                return;
+            }
             while (input.getFilePointer() < input.length()) {
                 read(input);
             }
+        } catch (FileNotFoundException e) {
+            throw new IOException("File not found");
         } catch (IOException e) {
-            throw new IOException("Error in read db.dat");
+            throw new IOException("db.dat has incorrect format");
         } catch (Exception e) {
             throw new IOException("db.dat has incorrect format");
-        } catch (Error e) {
-            throw new IOException("db.dat has incorrect format");
+        } finally {
+            if (input != null) {
+                input.close();
+            }
         }
-        input.close();
     }
 
     public void saveFileMap() throws IOException {
-        RandomAccessFile output;
+        RandomAccessFile output = null;
         try {
             output = new RandomAccessFile(fileMap.toString(), "rw");
             output.setLength(0);
+            for (Element element : elementList) {
+                write(output, element);
+            }
         } catch (FileNotFoundException e) {
             throw new IOException("Can't find file to save");
         } catch (Exception e) {
             throw new IOException("Can't save FileMap");
+        } finally {
+            if (output != null) {
+                output.close();
+            }
         }
-        for (Element element : elementList) {
-            write(output, element);
-        }
-        output.close();
     }
 
     private int find(String key) {
