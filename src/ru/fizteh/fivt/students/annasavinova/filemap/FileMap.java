@@ -60,13 +60,17 @@ public class FileMap extends UserShell {
         try {
             int keyLong = dataFile.readInt();
             int valueLong = dataFile.readInt();
-            byte[] keyBytes = new byte[keyLong];
-            byte[] valueBytes = new byte[valueLong];
-            dataFile.read(keyBytes);
-            dataFile.read(valueBytes);
-            String key = new String(keyBytes);
-            String value = new String(valueBytes);
-            dataMap.put(key, value);
+            if (keyLong <= 0 || valueLong <= 0) {
+                printErrorAndExit("CannotLoadFile");
+            } else {
+                byte[] keyBytes = new byte[keyLong];
+                byte[] valueBytes = new byte[valueLong];
+                dataFile.read(keyBytes);
+                dataFile.read(valueBytes);
+                String key = new String(keyBytes);
+                String value = new String(valueBytes);
+                dataMap.put(key, value);
+            }
         } catch (IOException | OutOfMemoryError e) {
             printErrorAndExit("Cannot load file");
         }
