@@ -195,13 +195,18 @@ public class MyFileSystem {
 
     public static void move(String[] argFirst) throws Exception {
         String[] arg = argFirst[1].split("\\s+");
-        if (arg.length != 2) {
+        if (!(arg.length == 2)) {
             throw new Exception("Wrong number of arguments");
         }
-        String[] command = new String[] {"cp", arg[0], arg[1]};
+        String argF = arg[0] + " " + arg[1];
+        String[] command = new String[] {"cp", argF};
         copy(command);
         String[] command1 = new String[] {"rm", arg[0]};
-        remove(command1);
+        try {
+            remove(command1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void exit(String[] arg) {
