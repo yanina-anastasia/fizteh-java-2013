@@ -3,9 +3,9 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class RemoveCommand implements Command {
-    private FileMapLauncher fileMapLauncher;
+    private Launcher fileMapLauncher;
 
-    public RemoveCommand(FileMapLauncher myFileMapLauncher) {
+    public RemoveCommand(Launcher myFileMapLauncher) {
         fileMapLauncher = myFileMapLauncher;
     }
 

@@ -4,9 +4,9 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class PutCommand implements Command {
-    private FileMapLauncher fileMapLauncher;
+    private Launcher fileMapLauncher;
 
-    public PutCommand(FileMapLauncher myFileMapLauncher) {
+    public PutCommand(Launcher myFileMapLauncher) {
         fileMapLauncher = myFileMapLauncher;
     }
 

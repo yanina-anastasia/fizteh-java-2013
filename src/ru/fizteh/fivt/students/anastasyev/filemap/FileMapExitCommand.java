@@ -4,9 +4,9 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class FileMapExitCommand implements Command {
-    private FileMapLauncher fileMapLauncher;
+    private Launcher fileMapLauncher;
 
-    public FileMapExitCommand(FileMapLauncher myFileMapLauncher) {
+    public FileMapExitCommand(Launcher myFileMapLauncher) {
         fileMapLauncher = myFileMapLauncher;
     }
 

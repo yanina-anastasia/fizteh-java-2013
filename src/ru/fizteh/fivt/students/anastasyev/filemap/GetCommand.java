@@ -3,9 +3,9 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class GetCommand implements Command {
-    private FileMapLauncher fileMapLauncher;
+    private Launcher fileMapLauncher;
 
-    public GetCommand(FileMapLauncher myFileMapLauncher) {
+    public GetCommand(Launcher myFileMapLauncher) {
         fileMapLauncher = myFileMapLauncher;
     }
 
