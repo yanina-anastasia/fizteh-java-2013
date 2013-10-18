@@ -38,7 +38,7 @@ public class DatabaseContext {
         if (!dbDir.toFile().isDirectory()) {
             throw new Exception("fizteh.db.dir is not a directory!");
         }
-        dbFile = new File(dbDir.toString(), "/db.bat");
+        dbFile = new File(dbDir.toString(), "/db.dat");
         if (!dbFile.exists()) {
             dbFile.createNewFile();
         }
