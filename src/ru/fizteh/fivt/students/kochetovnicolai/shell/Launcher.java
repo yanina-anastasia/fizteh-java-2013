@@ -7,11 +7,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-class Launcher {
+public class Launcher {
 
     private HashMap<String, Executable> commands;
 
-    Launcher(HashMap<String, Executable> commandsMap) {
+    public Launcher(HashMap<String, Executable> commandsMap) {
         commands = commandsMap;
     }
 
@@ -76,6 +76,7 @@ class Launcher {
                 }
             }
         }
+        manager.setExit();
         return true;
     }
 }
