@@ -4,10 +4,10 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class FileMapExitCommand implements Command {
-    private Launcher launcher;
+    private FileMapLauncher fileMapLauncher;
 
-    public FileMapExitCommand(Launcher myLauncher) {
-        launcher = myLauncher;
+    public FileMapExitCommand(FileMapLauncher myFileMapLauncher) {
+        fileMapLauncher = myFileMapLauncher;
     }
 
     public final boolean exec(final String[] command) {
@@ -16,7 +16,7 @@ public class FileMapExitCommand implements Command {
             return false;
         }
         try {
-            launcher.getFileMap().saveFileMap();
+            fileMapLauncher.getFileMap().saveFileMap();
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

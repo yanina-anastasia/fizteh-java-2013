@@ -4,10 +4,10 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 public class PutCommand implements Command {
-    private Launcher launcher;
+    private FileMapLauncher fileMapLauncher;
 
-    public PutCommand(Launcher myLauncher) {
-        launcher = myLauncher;
+    public PutCommand(FileMapLauncher myFileMapLauncher) {
+        fileMapLauncher = myFileMapLauncher;
     }
 
     @Override
@@ -23,7 +23,7 @@ public class PutCommand implements Command {
                 builderArg2.append(command[i]).append(" ");
             }
             String arg2 = builderArg2.toString();
-            String str = launcher.getFileMap().put(arg1, arg2);
+            String str = fileMapLauncher.getFileMap().put(arg1, arg2);
             if (str.equals("new")) {
                 System.out.println("new");
             } else {
