@@ -13,15 +13,15 @@ public class Shell {
         allCommands.add(command);
     }
 
-    public final void executeCommand(final String[] command) {
+    public final void executeCommand(final CommandString command) {
         for (int i = 0; i < allCommands.size(); ++i) {
             if (allCommands.get(i).isMyCommand(command)) {
                 allCommands.get(i).run();
                 return;
             }
         }
-        if ((command.length > 0) && (!command[0].equals(""))) {
-            throw new InvalidCommandException(command[0]);
+        if ((command.length() > 0) && (!command.getArg(0).equals(""))) {
+            throw new InvalidCommandException(command.getArg(0));
         }
     }
 }

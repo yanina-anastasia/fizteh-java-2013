@@ -1,22 +1,22 @@
 package ru.fizteh.fivt.students.valentinbarishev.shell;
 
 public abstract class SimpleShellCommand implements ShellCommand {
-    private String name;
-    private int numberOfArgs;
-    private String[] args;
-    private String hint;
+    protected String name;
+    protected int numberOfArgs;
+    protected CommandString args;
+    protected String hint;
 
     @Override
     public void run() {
     }
 
     @Override
-    public final boolean isMyCommand(final String[] command) {
-        if (name.equals(command[0])) {
-            if (command.length > numberOfArgs) {
+    public boolean isMyCommand(final CommandString command) {
+        if (name.equals(command.getArg(0))) {
+            if (command.length() > numberOfArgs) {
                 throw new InvalidCommandException(name + ": too many arguments");
             }
-            if (command.length < numberOfArgs) {
+            if (command.length() < numberOfArgs) {
                 throw new InvalidCommandException(name + " " + hint);
             }
             args = command;
@@ -50,6 +50,10 @@ public abstract class SimpleShellCommand implements ShellCommand {
     }
 
     public String getArg(final int index) {
-        return args[index];
+        return args.getArg(index);
+    }
+
+    public String getSpacedArg(final int index) {
+        return args.getSpacedArg(index);
     }
 }

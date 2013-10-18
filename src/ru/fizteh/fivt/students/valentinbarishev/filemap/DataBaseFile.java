@@ -104,7 +104,7 @@ public final class DataBaseFile {
                 for (Node node : data) {
                     node.write(outputFile);
                 }
-                outputFile.setLength(outputFile.getFilePointer() + 1);
+                outputFile.setLength(outputFile.getFilePointer());
                 outputFile.close();
             }
         } catch (FileNotFoundException e) {
