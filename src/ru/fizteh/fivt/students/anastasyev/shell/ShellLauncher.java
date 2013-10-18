@@ -1,21 +1,18 @@
-package ru.fizteh.fivt.students.anastasyev.filemap;
+package ru.fizteh.fivt.students.anastasyev.shell;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
-import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
-public class Launcher {
-    private Vector<Command> allCommands;
-    private FileMap fileMap;
+public final class ShellLauncher {
+    private ShellLauncher() { }
+    private static Vector<Command> allCommands;
 
-    public FileMap getFileMap() {
-        return fileMap;
-    }
-
-    public boolean launch(final String arg) throws IOException {
+    private static boolean launch(final String arg) throws IOException {
+        if (arg.equals("")) {
+            return true;
+        }
         String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
@@ -32,15 +29,18 @@ public class Launcher {
         return result;
     }
 
-    public void interactiveMode() {
+    private static void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
-            System.out.print("$ ");
+            System.out.print(Shell.getUserDir().toPath().normalize() + "$ ");
             try {
                 String commands = scan.nextLine().trim();
                 String[] allArgs = commands.split(";");
                 for (String arg : allArgs) {
+                    if (arg.equals("exit")) {
+                        System.exit(0);
+                    }
                     if (!arg.equals("")) {
                         if (!launch(arg.trim())) {
                             break;
@@ -48,11 +48,6 @@ public class Launcher {
                     }
                 }
             } catch (NoSuchElementException e) {
-                try {
-                    fileMap.saveFileMap();
-                } catch (IOException e1) {
-                    System.err.println(e1.getMessage());
-                }
                 System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -60,7 +55,7 @@ public class Launcher {
         }
     }
 
-    public void packageMode(final String[] args) {
+    private static void packageMode(final String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
@@ -70,46 +65,22 @@ public class Launcher {
         try {
             for (String arg : allArgs) {
                 if (!launch(arg.trim())) {
-                    try {
-                        fileMap.saveFileMap();
-                    } catch (IOException e1) {
-                        System.err.println(e1.getMessage());
-                    }
                     System.exit(1);
                 }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            try {
-                fileMap.saveFileMap();
-            } catch (IOException e1) {
-                System.err.println(e1.getMessage());
-            }
             System.exit(1);
         }
     }
 
-    public void fileMapLauncher(String[] args) {
-        if (System.getProperty("fizteh.db.dir") == null) {
-            System.err.println("Set home data base's directory");
-            System.err.println("Use: -Dfizteh.db.dir=<directory>");
-            System.exit(1);
-        }
-        fileMap = new FileMap(System.getProperty("fizteh.db.dir") + File.separator + "db.dat");
-        allCommands = fileMap.getCommands();
-        fileMap.addCommand(new PutCommand(this));
-        fileMap.addCommand(new GetCommand(this));
-        fileMap.addCommand(new RemoveCommand(this));
-        fileMap.addCommand(new FileMapExitCommand(this));
+    public static void shellLauncher(final String[] args) {
+        Shell shell = new Shell();
+        allCommands = shell.getCommands();
         if (args.length == 0) {
             interactiveMode();
         } else {
             packageMode(args);
-        }
-        try {
-            fileMap.saveFileMap();
-        } catch (IOException e1) {
-            System.err.println(e1.getMessage());
         }
     }
 }
