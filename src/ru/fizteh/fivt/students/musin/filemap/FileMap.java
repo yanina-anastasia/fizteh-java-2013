@@ -126,10 +126,36 @@ public class FileMap {
         return (map.remove(key) != null);
     }
 
+    ArrayList<String> parseArguments(int argCount, String argString) {
+        ArrayList<String> args = new ArrayList<String>();
+        int argsRead = 0;
+        String last = "";
+        int start = 0;
+        for (int i = 0; i < argString.length(); i++) {
+            if (Character.isSpaceChar(argString.charAt(i))) {
+                if (start != i) {
+                    args.add(argString.substring(start, i));
+                    argsRead++;
+                }
+                start = i + 1;
+                if (argsRead == argCount - 1) {
+                    last = argString.substring(start, argString.length());
+                    break;
+                }
+            }
+        }
+        last = last.trim();
+        if (!last.equals("")) {
+            args.add(last);
+        }
+        return args;
+    }
+
     private Shell.ShellCommand[] commands = new Shell.ShellCommand[]{
-            new Shell.ShellCommand("put", new Shell.ShellExecutable() {
+            new Shell.ShellCommand("put", false, new Shell.ShellExecutable() {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
+                    args = parseArguments(2, args.get(0));
                     if (args.size() > 2) {
                         System.err.println("put: Too many arguments");
                         return -1;
@@ -151,11 +177,11 @@ public class FileMap {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     if (args.size() > 1) {
-                        System.err.println("put: Too many arguments");
+                        System.err.println("get: Too many arguments");
                         return -1;
                     }
                     if (args.size() < 1) {
-                        System.err.println("put: Too few arguments");
+                        System.err.println("get: Too few arguments");
                         return -1;
                     }
                     String value = get(args.get(0));
@@ -171,11 +197,11 @@ public class FileMap {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     if (args.size() > 1) {
-                        System.err.println("put: Too many arguments");
+                        System.err.println("remove: Too many arguments");
                         return -1;
                     }
                     if (args.size() < 1) {
-                        System.err.println("put: Too few arguments");
+                        System.err.println("remove: Too few arguments");
                         return -1;
                     }
                     if (remove(args.get(0))) {

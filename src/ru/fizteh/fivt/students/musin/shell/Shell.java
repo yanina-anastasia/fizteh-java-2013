@@ -46,6 +46,7 @@ public class Shell {
         for (int i = 0; i < comm.size(); i++) {
             String name = "";
             ArrayList<String> args = new ArrayList<String>();
+            ArrayList<String> selfParseArgs = new ArrayList<String>();
             boolean nameRead = false;
             start = 0;
             quote = false;
@@ -55,6 +56,7 @@ public class Shell {
                         if (!nameRead) {
                             name = comm.get(i).substring(start, j);
                             nameRead = true;
+                            selfParseArgs.add(comm.get(i).substring(j + 1, comm.get(i).length()));
                         } else {
                             args.add(comm.get(i).substring(start, j));
                         }
@@ -83,6 +85,7 @@ public class Shell {
             if (start != comm.get(i).length()) {
                 if (!nameRead) {
                     name = comm.get(i).substring(start, comm.get(i).length());
+                    selfParseArgs.add("");
                 } else {
                     args.add(comm.get(i).substring(start, comm.get(i).length()));
                 }
@@ -90,8 +93,14 @@ public class Shell {
             boolean commandFound = false;
             for (int j = 0; j < commands.size(); j++) {
                 if (commands.get(j).name.equals(name)) {
-                    if (commands.get(j).exec.execute(this, args) != 0) {
-                        return -1;
+                    if (commands.get(j).parsingRequired) {
+                        if (commands.get(j).exec.execute(this, args) != 0) {
+                            return -1;
+                        }
+                    } else {
+                        if (commands.get(j).exec.execute(this, selfParseArgs) != 0) {
+                            return -1;
+                        }
                     }
                     commandFound = true;
                     break;
@@ -163,10 +172,18 @@ public class Shell {
     public static class ShellCommand {
         String name;
         ShellExecutable exec;
+        boolean parsingRequired;
 
         public ShellCommand(String name, ShellExecutable exec) {
             this.name = name;
             this.exec = exec;
+            this.parsingRequired = true;
+        }
+
+        public ShellCommand(String name, boolean parsingRequired, ShellExecutable exec) {
+            this.name = name;
+            this.exec = exec;
+            this.parsingRequired = parsingRequired;
         }
     }
 }
