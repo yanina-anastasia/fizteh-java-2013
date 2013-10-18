@@ -34,7 +34,7 @@ public class CmdLauncher {
         return result;
     }
 
-    public void launch(State state, String input) throws IOException {
+    public void launch(Object state, String input) throws IOException {
         String command = getCommand(input.trim());
         String[] args = getArgs(input.trim());
         if (command.isEmpty()) {

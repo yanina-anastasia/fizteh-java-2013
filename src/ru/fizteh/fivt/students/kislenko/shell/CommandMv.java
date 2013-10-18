@@ -38,7 +38,7 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(Object state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("mv: Command \"mv\" takes one argument.");
         }

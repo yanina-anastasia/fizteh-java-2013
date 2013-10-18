@@ -7,5 +7,5 @@ public interface Command {
 
     public int getArgCount();
 
-    public void run(State state, String[] args) throws IOException;
+    public void run(Object state, String[] args) throws IOException;
 }

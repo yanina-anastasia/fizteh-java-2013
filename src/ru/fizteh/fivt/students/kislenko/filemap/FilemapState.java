@@ -1,12 +1,10 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
-import ru.fizteh.fivt.students.kislenko.shell.State;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class FilemapState extends State {
+public class FilemapState {
     private Map<String, String> storage;
     private Path path;
 
@@ -33,10 +31,6 @@ public class FilemapState extends State {
 
     public Map<String, String> getMap() {
         return storage;
-    }
-
-    public void setPath(Path p) {
-        path = p;
     }
 
     public Path getPath() {

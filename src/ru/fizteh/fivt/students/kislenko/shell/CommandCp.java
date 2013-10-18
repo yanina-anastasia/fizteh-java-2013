@@ -27,7 +27,7 @@ public class CommandCp implements Command {
         }
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(Object state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("cp: Command \"cp\" takes one argument.");
         }

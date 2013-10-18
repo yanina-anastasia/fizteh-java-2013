@@ -39,7 +39,7 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(Object state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }

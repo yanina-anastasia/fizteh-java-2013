@@ -13,7 +13,7 @@ public class CommandDir implements Command {
         return 0;
     }
 
-    public void run(State state, String[] empty) throws IOException {
+    public void run(Object state, String[] empty) throws IOException {
         if (empty.length > 0) {
             throw new IOException("pwd: Too many arguments.");
         }

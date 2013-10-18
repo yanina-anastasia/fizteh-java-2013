@@ -12,7 +12,7 @@ public class CommandMkdir implements Command {
         return 1;
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(Object state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("mkdir: Command \"mkdir\" takes one argument.");
         }

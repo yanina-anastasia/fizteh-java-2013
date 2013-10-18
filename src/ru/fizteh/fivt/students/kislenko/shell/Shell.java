@@ -3,10 +3,10 @@ package ru.fizteh.fivt.students.kislenko.shell;
 import java.util.Scanner;
 
 public class Shell {
-    private State state;
+    private Object state;
     CmdLauncher launcher = new CmdLauncher();
 
-    public Shell(State startingState, Command[] commands) {
+    public Shell(Object startingState, Command[] commands) {
         state = startingState;
         for (Command command : commands) {
             launcher.addCommand(command);
