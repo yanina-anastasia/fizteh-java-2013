@@ -70,8 +70,6 @@ public class Table {
             }
 
             i.close();
-        } else {
-            throw new IOException("File with database doesn't exist");
         }
     }
 
