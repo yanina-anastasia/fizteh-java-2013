@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class StartFileMap {
     public static void main(String[] args) {
         Shell shell = new Shell();
-
         try {
             if (!OpenFile.open(shell.curState)) {
                 System.err.println("Error with opening file");
@@ -19,7 +18,6 @@ public class StartFileMap {
             System.err.println("Error in IO");
             System.exit(1);
         }
-
         ArrayList<Command> cmdList = new ArrayList<Command>();
         Command cmd = new CommandPut();
         cmdList.add(cmd);

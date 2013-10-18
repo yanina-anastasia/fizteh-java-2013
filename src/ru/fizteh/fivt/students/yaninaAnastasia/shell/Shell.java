@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.yaninaAnastasia.filemap.DBState;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -21,19 +22,32 @@ public class Shell {
 
     String getCommandName(String command) {
         command = command.trim();
-        return (command.split(" "))[0];
+        return (command.split("\\s+"))[0];
     }
 
-    String[] getParams(String command) {
+    String[] getParams(String command, boolean flag) {
         command = command.trim();
         int spaceEntry = command.indexOf(' ');
         if (spaceEntry == -1) {
             String[] result = {};
             return result;
         } else {
-            String[] res = command.substring(spaceEntry + 1).trim().split("\\s+");
+            String[] res = {};
+            res = command.substring(spaceEntry + 1).trim().split("\\s+");
+            if (flag) {
+                StringBuilder paramsBuilder = new StringBuilder();
+                int i;
+                for (i = 1; i < res.length; i++) {
+                    paramsBuilder.append(res[i]);
+                    paramsBuilder.append(" ");
+                }
+                if (i != 1) {
+                    res[1] = paramsBuilder.toString();
+                    res = Arrays.copyOfRange(res, 0, 2);
+                }
+            }
             for (int i = 0; i < res.length; i++) {
-                res[i].trim();
+                res[i] = res[i].trim();
             }
             return res;
         }
@@ -49,11 +63,15 @@ public class Shell {
             return true;
         }
         String commandName = getCommandName(command);
-        String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
             System.err.println("Invalid input");
             return false;
         }
+        boolean flag = false;
+        if (cmds.get(commandName).getCmd() == "put") {
+            flag = true;
+        }
+        String[] params = getParams(command, flag);
         try {
             if (!cmds.get(commandName).exec(params, curState)) {
                 return false;

@@ -13,6 +13,7 @@ public class CommandPut extends Command {
         }
         if (args.length != 2) {
             System.err.println ("Invalid arguments");
+            System.err.println(args.length);
             return false;
         }
         String prevValue = myState.table.put(args[0], args[1]);

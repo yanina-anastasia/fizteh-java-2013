@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 
