@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.shell;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -12,11 +11,12 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MyFileSystem {
     private static File currentDirectory = new File(".");
 
-    public static void changeDir(String[] arg) throws Exception {
-        if (arg.length != 2) {
+    public static void changeDir(String[] argFirst) throws Exception {
+        String[] arg = argFirst[1].split("\\s+");
+        if (arg.length != 1) {
             throw new Exception("Wrong number of arguments");
         }
-        String pathString = arg[1];
+        String pathString = arg[0];
         File newDir = new File(pathString);
         if (!newDir.isAbsolute()) {
             newDir = currentDirectory.toPath().resolve(newDir.toPath()).toFile();
@@ -28,11 +28,12 @@ public class MyFileSystem {
         }
     }
 
-    public static void makeDir(String[] command) throws Exception {
-        if (command.length != 2) {
+    public static void makeDir(String[] commandFirst) throws Exception {
+        String[] command = commandFirst[1].split("\\s+");
+        if (command.length != 1) {
             throw new Exception("Wrong number of arguments");
         }
-        File newDir = new File(command[1]);
+        File newDir = new File(command[0]);
         if (!newDir.isAbsolute()) {
             newDir = currentDirectory.toPath().resolve(newDir.toPath()).normalize().toFile();
         }
@@ -48,8 +49,8 @@ public class MyFileSystem {
         System.out.println(currentDirectory.getAbsoluteFile().toPath().normalize().toString());
     }
 
-    public static void dir(String[] command) throws Exception {
-        if (command.length != 1) {
+    public static void dir(String[] commandFirst) throws Exception {
+        if (commandFirst.length != 1) {
             throw new Exception("Wrong number of arguments");
         }
         String[] s = currentDirectory.list();
@@ -59,21 +60,22 @@ public class MyFileSystem {
         }
     }
 
-    public static void remove(String[] command) throws Exception {
-        if (command.length != 2) {
+    public static void remove(String[] commandFirst) throws Exception {
+        String[] command = commandFirst[1].split("\\s+");
+        if (command.length != 1) {
             throw new Exception("Wrong number of arguments");
         }
-        if (command[1].equals(".")) {
-            command[1] = currentDirectory.toString();
+        if (command[0].equals(".")) {
+            command[0] = currentDirectory.toString();
         } else {
-            if (command[1].equals("..")) {
-                command[1] = currentDirectory.getParent();
+            if (command[0].equals("..")) {
+                command[0] = currentDirectory.getParent();
             }
         }
-        if (command[1].charAt(0) == '.') {
-            command[1] = command[1].substring(2);
+        if (command[0].charAt(0) == '.') {
+            command[0] = command[0].substring(2);
         }
-        File name = new File(command[1]);
+        File name = new File(command[0]);
         if (!name.toPath().isAbsolute()) {
             name = currentDirectory.toPath().resolve(name.toPath()).normalize().toFile();
         }
@@ -108,12 +110,13 @@ public class MyFileSystem {
         }
     }
 
-    public static void copy(String[] arg) throws Exception {
-        if (arg.length != 3) {
+    public static void copy(String[] argFirst) throws Exception {
+        String[] arg = argFirst[1].split("\\s+");
+        if (arg.length != 2) {
             throw new Exception("Wrong number of arguments");
         }
-        String sourceStr = arg[1];
-        String destination = arg[2];
+        String sourceStr = arg[0];
+        String destination = arg[1];
         if (sourceStr.equals(".")) {
             sourceStr = currentDirectory.toPath().toAbsolutePath().normalize().toString();
         } else {
@@ -190,17 +193,18 @@ public class MyFileSystem {
                 });
     }
 
-    public static void move(String[] arg) throws Exception {
-        if (arg.length != 3) {
+    public static void move(String[] argFirst) throws Exception {
+        String[] arg = argFirst[1].split("\\s+");
+        if (arg.length != 2) {
             throw new Exception("Wrong number of arguments");
         }
-        String[] command = new String[] {"cp", arg[1], arg[2]};
+        String[] command = new String[] {"cp", arg[0], arg[1]};
         copy(command);
-        String[] command1 = new String[] {"rm", arg[1]};
+        String[] command1 = new String[] {"rm", arg[0]};
         remove(command1);
     }
 
-    public static void exit (String[] arg) {
+    public static void exit(String[] arg) {
         System.exit(0);
     }
 }
