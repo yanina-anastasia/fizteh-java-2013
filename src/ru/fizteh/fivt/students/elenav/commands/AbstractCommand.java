@@ -1,15 +1,17 @@
-package ru.fizteh.fivt.students.elenav.shell;
+package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.File;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+
 public abstract class AbstractCommand implements Command {
-	private final ShellState shell;
+	private final FilesystemState state;
 	private final String name;
 	private final int argNumber;
 	
-	AbstractCommand(ShellState s, String nm, int n) {
-		shell = s;
+	AbstractCommand(FilesystemState s, String nm, int n) {
+		state = s;
 		name = nm;
 		argNumber = n;
 	}
@@ -21,20 +23,17 @@ public abstract class AbstractCommand implements Command {
 	public int getArgNumber() {
 		return argNumber;
 	}
-	
-	public File getWorkingDirectory() {
-		return shell.getWorkingDirectory();
-	}
-	
-	public void setWorkingDirectory(File f) {
-		shell.setWorkingDirectory(f);
+
+	public FilesystemState getState() {
+		return state;
 	}
 	
  	protected String absolutePath(String path) throws IOException {
  		File f = new File(path);
  		if (!f.isAbsolute()) {
- 			f = new File(getWorkingDirectory(), path);
+ 			f = new File(state.getWorkingDirectory(), path);
  		}
  		return f.getCanonicalPath().toString();
 	}
+
 }

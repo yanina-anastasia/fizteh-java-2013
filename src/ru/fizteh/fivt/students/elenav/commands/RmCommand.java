@@ -1,11 +1,13 @@
-package ru.fizteh.fivt.students.elenav.shell;
+package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class RemoveCommand extends AbstractCommand {
-	RemoveCommand(ShellState s) { 
+import ru.fizteh.fivt.students.elenav.shell.ShellState;
+
+public class RmCommand extends AbstractCommand {
+	public RmCommand(ShellState s) { 
 		super(s, "rm", 1);
 	}
 	
@@ -30,5 +32,6 @@ public class RemoveCommand extends AbstractCommand {
 			deleteRecursively(f.getAbsolutePath());
 		}
 	}
+
 }
 
