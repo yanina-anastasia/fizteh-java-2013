@@ -2,16 +2,11 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
+import ru.fizteh.fivt.students.anastasyev.shell.State;
 
 public class PutCommand implements Command {
-    private Launcher fileMapLauncher;
-
-    public PutCommand(Launcher myFileMapLauncher) {
-        fileMapLauncher = myFileMapLauncher;
-    }
-
     @Override
-    public boolean exec(String[] command) {
+    public boolean exec(State fileMap, String[] command) {
         if (command.length < 3) {
             System.err.println("put: Usage - put key value");
             return false;
@@ -23,7 +18,7 @@ public class PutCommand implements Command {
                 builderArg2.append(command[i]).append(" ");
             }
             String arg2 = builderArg2.toString();
-            String str = fileMapLauncher.getFileMap().put(arg1.trim(), arg2.trim());
+            String str = ((FileMap) fileMap).put(arg1.trim(), arg2.trim());
             if (str.equals("new")) {
                 System.out.println("new");
             } else {

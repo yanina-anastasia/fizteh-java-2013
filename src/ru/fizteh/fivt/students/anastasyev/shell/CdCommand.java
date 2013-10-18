@@ -16,7 +16,7 @@ public class CdCommand implements Command {
     }
 
     @Override
-    public final boolean exec(final String[] command) {
+    public final boolean exec(State state, final String[] command) {
         if (command.length != 2) {
             System.err.println("cd: Usage - cd <absolute path|relative path>");
             return false;

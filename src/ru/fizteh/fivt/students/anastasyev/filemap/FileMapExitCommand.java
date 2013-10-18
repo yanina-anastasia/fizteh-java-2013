@@ -2,21 +2,17 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
+import ru.fizteh.fivt.students.anastasyev.shell.State;
 
 public class FileMapExitCommand implements Command {
-    private Launcher fileMapLauncher;
-
-    public FileMapExitCommand(Launcher myFileMapLauncher) {
-        fileMapLauncher = myFileMapLauncher;
-    }
-
-    public final boolean exec(final String[] command) {
+    @Override
+    public final boolean exec(State fileMap, final String[] command) {
         if (command.length != 1) {
             System.err.println("exit: Usage - exit");
             return false;
         }
         try {
-            fileMapLauncher.getFileMap().saveFileMap();
+            ((FileMap) fileMap).saveFileMap();
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -24,6 +20,7 @@ public class FileMapExitCommand implements Command {
         return true;
     }
 
+    @Override
     public final String commandName() {
         return "exit";
     }
