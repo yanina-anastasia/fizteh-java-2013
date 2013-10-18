@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.nlevashov.DbMain;
+package ru.fizteh.fivt.students.nlevashov.filemap;
 
 import java.util.Vector;
 import java.util.Scanner;
@@ -85,7 +85,7 @@ public class FileMap {
         try {
             t = new Table(addr);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
             System.exit(1);
         }
         if (args.length == 0) {
@@ -103,7 +103,7 @@ public class FileMap {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    System.out.println(e);
                 }
             } while (flag);
         } else {
@@ -120,14 +120,14 @@ public class FileMap {
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
                 System.exit(1);
             }
         }
         try {
             t.refresh();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
             System.exit(1);
         }
     }

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.nlevashov.DbMain;
+package ru.fizteh.fivt.students.nlevashov.filemap;
 
 import java.io.IOException;
 import java.nio.file.Path;
