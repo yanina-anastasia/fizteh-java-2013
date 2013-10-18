@@ -39,6 +39,12 @@ public class FileMap {
 
     public static void main(String[] args) {
         interpreter.run(args);
+        try {
+            saveChanges();
+        } catch (Exception e) {
+            System.out.println("Error while saving changes: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     static void getDataFromFile() throws IOException {
@@ -121,7 +127,7 @@ class Put extends Command {
             String key = arguments[1];
 
             String value;
-            
+
             StringBuilder concatArgs = new StringBuilder();
             for (int i = 2; i < arguments.length; ++i) {
                 concatArgs.append(arguments[i]).append(" ");

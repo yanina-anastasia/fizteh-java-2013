@@ -50,7 +50,8 @@ public class Interpreter {
     private void executeCommands(String input) throws Exception {
         String[][] inputCommandsWithParams = parseCommands(input);
         for (int i = 0; i < inputCommandsWithParams.length; ++i) {
-            if (inputCommandsWithParams[i].length == 1 && inputCommandsWithParams[i][0].trim().equals("")) {
+            if (inputCommandsWithParams[i].length == 1
+                    && inputCommandsWithParams[i][0].trim().equals("")) {
                 continue;
             }
             Command cmd = commands.get(inputCommandsWithParams[i][0]);
