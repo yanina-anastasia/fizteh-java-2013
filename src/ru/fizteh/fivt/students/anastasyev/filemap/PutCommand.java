@@ -23,7 +23,7 @@ public class PutCommand implements Command {
                 builderArg2.append(command[i]).append(" ");
             }
             String arg2 = builderArg2.toString();
-            String str = fileMapLauncher.getFileMap().put(arg1, arg2);
+            String str = fileMapLauncher.getFileMap().put(arg1.trim(), arg2.trim());
             if (str.equals("new")) {
                 System.out.println("new");
             } else {
