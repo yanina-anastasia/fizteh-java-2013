@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class OpenFile {
     public static boolean open(DBState curState) throws IOException {
@@ -35,37 +33,66 @@ public class OpenFile {
             } catch (EOFException e) {
                 System.err.println("Wrong format");
                 return false;
+            } catch (IOException e) {
+                System.err.println("Wrong format");
+                return false;
             }
         }
         return true;
     }
 
-    private static boolean loadTable(DBState curState) throws IOException {
+    private static void loadTable(DBState curState) throws IOException {
         curState.dbFile = new RandomAccessFile(curState.workingDirectory, "rw");
         if (curState.dbFile.length() == 0) {
-            return false;
+            return;
         }
-        String key = null;
-        String value = null;
-        long curOffset;
-        long offset = 0;
-        boolean flag = true;
-        long cursor = 0;
+        long nextOffset = 0;
 
-        do {
-            curState.dbFile.seek(cursor);
-            key = curState.dbFile.readUTF();
-            curState.dbFile.readChar();
-            curOffset = curState.dbFile.readInt();
-            if (flag) {
-                offset = curOffset;
-                flag = false;
+        curState.dbFile.seek(0);
+        byte c = curState.dbFile.readByte();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        while (c != 0) {
+            out.write(c);
+            c = curState.dbFile.readByte();
+        }
+        String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
+        long firstOffset = curState.dbFile.readInt();
+        long currentOffset = firstOffset;
+        long cursor = curState.dbFile.getFilePointer();
+        String nextKey = key;
+
+        while (cursor < firstOffset) {
+            c = curState.dbFile.readByte();
+            out = new ByteArrayOutputStream();
+            while (c != 0) {
+                out.write(c);
+                c = curState.dbFile.readByte();
             }
+            nextKey = new String(out.toByteArray(), StandardCharsets.UTF_8);
+            nextOffset = curState.dbFile.readInt();
             cursor = curState.dbFile.getFilePointer();
-            curState.dbFile.seek(curOffset);
-            value = curState.dbFile.readUTF();
-            curState.table.put(key, value);
-        } while (cursor < offset);
-        return true;
+            curState.dbFile.seek(currentOffset);
+            int len = (int) (nextOffset - currentOffset);
+            if (len < 0) {
+                throw new IOException("File has incorrect format");
+            }
+            byte[] bytes = new byte[len];
+            curState.dbFile.read(bytes);
+            String putValue = new String(bytes, StandardCharsets.UTF_8);
+            curState.table.put(key, putValue);
+            curState.dbFile.seek(cursor);
+            key = nextKey;
+            currentOffset = nextOffset;
+        }
+        curState.dbFile.seek(currentOffset);
+        int len = (int) (curState.dbFile.length() - currentOffset);
+        if (len < 0) {
+            throw new IOException("File has incorrect format");
+        }
+        byte[] bytes = new byte[len];
+        curState.dbFile.read(bytes);
+        String putValue = new String(bytes, StandardCharsets.UTF_8);
+        curState.table.put(nextKey, putValue);
+        curState.dbFile.close();
     }
 }

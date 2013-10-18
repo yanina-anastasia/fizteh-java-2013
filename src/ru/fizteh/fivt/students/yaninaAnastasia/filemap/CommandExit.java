@@ -2,8 +2,10 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class CommandExit extends Command {
@@ -18,21 +20,30 @@ public class CommandExit extends Command {
             return false;
         }
         long offset = 0;
-        long cursor = 0;
+        File helper = new File(myState.workingDirectory + '~');
+        helper.createNewFile();
+        RandomAccessFile temp = new RandomAccessFile(helper, "rw");
         Set<String> keys = myState.table.keySet();
         for (String step : keys) {
-            offset += step.getBytes("UTF-8").length + 8;
+            offset += step.getBytes(StandardCharsets.UTF_8).length + 5;
         }
-        for (Map.Entry<String, String> step : myState.table.entrySet()) {
-            myState.dbFile.seek(cursor);
-            myState.dbFile.writeUTF(step.getKey());
-            myState.dbFile.writeChar('\0');
-            myState.dbFile.writeInt((int) offset);
-            cursor = myState.dbFile.getFilePointer();
-            myState.dbFile.seek(offset);
-            myState.dbFile.writeUTF(step.getValue());
-            offset = myState.dbFile.getFilePointer();
+        for (String step : myState.table.keySet()) {
+            byte[] bytesToWrite = step.getBytes(StandardCharsets.UTF_8);
+            temp.write(bytesToWrite);
+            temp.writeByte(0);
+            temp.writeInt((int) offset);
+            offset += myState.table.get(step).getBytes(StandardCharsets.UTF_8).length;
         }
+        for (String key : myState.table.keySet()) {
+            String value = myState.table.get(key);
+            temp.write(value.getBytes(StandardCharsets.UTF_8));
+        }
+        if (temp.length() == 0) {
+            helper.delete();
+        }
+        temp.close();
+        new File(myState.workingDirectory).delete();
+        helper.renameTo(new File(myState.workingDirectory));
         System.exit(0);
         return true;
     }
