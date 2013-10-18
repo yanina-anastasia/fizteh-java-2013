@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
+import ru.fizteh.fivt.students.asaitgalin.shell.Command;
+
 public class ExitCommand implements Command {
 
     @Override

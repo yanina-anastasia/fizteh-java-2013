@@ -5,7 +5,7 @@ public class StringUtils {
     public static String join(Iterable<?> objects, String separator) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
-        for (Object o: objects) {
+        for (Object o : objects) {
             if (!isFirst) {
                 sb.append(separator);
             } else {
