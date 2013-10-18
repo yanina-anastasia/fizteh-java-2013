@@ -74,17 +74,14 @@ public class WorkWithInput {
                         FileMap.writeInDatabase();
                     } catch (FileNotFoundException e) {
                         System.err.println("Can't read database");
+                        FileMap.closeFile(FileMap.dataBase);
                         System.exit(1);
                     } catch (IOException e1) {
                         System.err.println("Can't write in database");
+                        FileMap.closeFile(FileMap.dataBase);
                         System.exit(1);
                     }
-                    try {
-                        FileMap.dataBase.close();
-                    } catch (IOException e2) {
-                        System.err.println("Can't close a database");
-                        System.exit(1);
-                    }
+                    FileMap.closeFile(FileMap.dataBase);
                     System.exit(1);
                 }
             }
