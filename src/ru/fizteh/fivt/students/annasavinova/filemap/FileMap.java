@@ -108,7 +108,7 @@ public class FileMap extends UserShell {
         if (dataMap.get(key) == null) {
             System.out.println("new");
         } else {
-            System.out.println("owerwrite");
+            System.out.println("overwrite");
             System.out.println(dataMap.get(key));
         }
         dataMap.put(key, value);
