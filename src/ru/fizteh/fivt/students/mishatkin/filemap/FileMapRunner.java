@@ -1,40 +1,14 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
 
+import ru.fizteh.fivt.students.mishatkin.shell.CommandSource;
+import ru.fizteh.fivt.students.mishatkin.shell.ShellRunner;
+
 /**
  * Created by Vladimir Mishatkin on 10/15/13
  */
-public class FileMapRunner {
-	private CommandSource in;
-
+public class FileMapRunner extends ShellRunner{
 	public FileMapRunner(CommandSource in) {
-		this.in = in;
-	}
-
-	public void runReceiver(FileMapReceiver receiver) {
-		receiver.showPrompt();
-		boolean shouldBreakRunLoop = false;
-		while (!shouldBreakRunLoop) {
-			Command aCommand = null;
-			do {
-				try {
-					aCommand = in.nextCommand(receiver);
-					if (aCommand != null) {
-						aCommand.execute();
-					}
-				} catch (TimeToExitException e) {
-					shouldBreakRunLoop = true;
-				} catch (FileMapException e) {
-					System.err.println(e.getMessage());
-					in.clearBuffers();
-					if (!receiver.isInteractiveMode()) {
-						System.exit(1);
-					}
-				}
-			} while (in.hasUnexecutedCommands());
-			if (!shouldBreakRunLoop) {
-				receiver.showPrompt();
-			}
-		}
+		super(in);
 	}
 }

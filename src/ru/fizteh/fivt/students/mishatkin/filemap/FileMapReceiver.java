@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
+import ru.fizteh.fivt.students.mishatkin.shell.*;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Set;
@@ -7,30 +9,20 @@ import java.util.Set;
 /**
  * Created by Vladimir Mishatkin on 10/14/13
  */
-public class FileMapReceiver {
-
-	private boolean interactiveMode;
-
-	private PrintStream out;
+public class FileMapReceiver extends ShellReceiver {
 
 	private File dbFile;
 	private HashMap<String, String> dictionary = new HashMap<>();
 
-	public boolean isInteractiveMode() {
-		return interactiveMode;
-	}
-
-	public FileMapReceiver(String dbDirectory, String dbFileName, boolean isInteractiveMode, PrintStream out) throws MissingFileMapDatabaseException {
-		this.interactiveMode = isInteractiveMode;
-		this.out = out;
+	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws MissingFileMapDatabaseException {
+		super(out, interactiveMode);
 		FileInputStream in = null;
 		try {
 			assert dbDirectory != null;
 			dbFile = new File(new File( dbDirectory), dbFileName);
 			in = new FileInputStream(dbFile.getCanonicalFile());
-		} catch (FileNotFoundException e) {
-				throw  new MissingFileMapDatabaseException("DB fle not found.");
-		} catch (IOException ignored) {
+		} catch (IOException e) {
+				throw  new MissingFileMapDatabaseException("DB file not found.");
 		} finally {
 			DataInputStream dis = null;
 			try {
@@ -47,14 +39,18 @@ public class FileMapReceiver {
 						String key = new String(keyBinary, "UTF-8");
 						String value = new String(valueBinary, "UTF-8");
 						dictionary.put(key, value);
+					}catch (NullPointerException e) {
+						throw new MissingFileMapDatabaseException("DB file missing or corrupted.");
 					} catch (IOException e) {
 						hasNext = false;
 					}
 				}
 			} finally {
 				try {
-					dis.close();
-				} catch (IOException ignored) {
+					if (dis != null) {
+						dis.close();
+					}
+				} catch (NullPointerException | IOException ignored) {
 				}
 			}
 		}
@@ -95,34 +91,37 @@ public class FileMapReceiver {
 	}
 
 	public void exitCommand() throws TimeToExitException {
-		writeChangesToFile();
-		throw new TimeToExitException();
+		try {
+			writeChangesToFile();
+		} catch (ShellException e) {
+			System.out.println(e.getMessage());
+		}
+		super.exitCommand();
 	}
 
-	private void writeChangesToFile() {
+	private void writeChangesToFile() throws ShellException {
 		DataOutputStream dos = null;
-			try {
-				dos = new DataOutputStream(new FileOutputStream(dbFile));
-				Set<String> keys = dictionary.keySet();
-				for (String key : keys) {
-					try {
-						String value = dictionary.get(key);
-						dos.write(key.length());
-						dos.writeInt(key.length());
-						dos.writeInt(value.length());
-						dos.write(key.getBytes());
-						dos.write(value.getBytes());
-					} catch (IOException e) {
-						System.err.println("Internal error.");
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-			} finally {
+		try {
+			dos = new DataOutputStream(new FileOutputStream(dbFile));
+			Set<String> keys = dictionary.keySet();
+			for (String key : keys) {
 				try {
-					dos.close();
-				} catch (IOException ignored) {
+					String value = dictionary.get(key);
+					dos.writeInt(key.getBytes().length);
+					dos.writeInt(value.getBytes().length);
+					dos.write(key.getBytes());
+					dos.write(value.getBytes());
+				} catch (IOException e) {
+					System.err.println("Internal error.");
 				}
 			}
+		} catch (FileNotFoundException e) {
+			throw new ShellException("OK, now someone just took the file out of me, so I cannot even rewrite it.");
+		} finally {
+			try {
+				dos.close();
+			} catch (IOException ignored) {
+			}
+		}
 	}
 }
