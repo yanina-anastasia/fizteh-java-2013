@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.baldindima.shell;
 
 import java.io.IOException;
 
-public class main {
+public class Main {
 
 
     public static void main(final String[] args) throws IOException {
@@ -19,7 +19,7 @@ public class main {
             shell.addCommand(new ShellExit(fileFunctions));
             if (args.length > 0) {
                 shell.nonInteractiveMode(args);
-                shell.interactiveMode();
+                //shell.interactiveMode();
             } else {
                 shell.interactiveMode();
             }

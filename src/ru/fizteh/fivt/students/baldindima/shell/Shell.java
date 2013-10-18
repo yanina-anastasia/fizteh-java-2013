@@ -27,16 +27,18 @@ public class Shell {
                 try {
 
                     String commands = reader.readLine();
+                    
                     commands = commands.trim();
+                    if (!commands.isEmpty()){
                     String[] command = commands.split("[\\s]*[;][\\s]*");
                     for (String element : command) {
                         executeCommand(element);
+                    }
                     }
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
                 } finally {
                     System.out.print("$ ");
-                    ;
                 }
             }
         } catch (Exception e) {
@@ -68,7 +70,7 @@ public class Shell {
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            interactiveMode();
+     
         }
     }
 

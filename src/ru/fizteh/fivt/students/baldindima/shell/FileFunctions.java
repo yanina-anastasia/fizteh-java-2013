@@ -110,11 +110,14 @@ public class FileFunctions {
     }
 
     static void copy(File first, File second) throws IOException {
-        if (first.isFile()) {
+        
+    	if (first.isFile()) {
             if (first.equals(second)) {
                 throw new IOException("Cannot copy file to itself");
             }
-
+            if (second.isDirectory()){
+            	second = new File(second.getCanonicalPath() + File.separator + first.getName());
+            }
             FileInputStream in = null;
             FileOutputStream out = null;
             try {
@@ -133,11 +136,14 @@ public class FileFunctions {
                 toClose(in);
                 toClose(out);
             }
+            
         } else {
             if (!second.mkdir()) {
                 if (!second.exists()) {
                     throw new IOException("No such file or directory");
                 }
+                second = new File(second.getCanonicalPath() + File.separator + first.getName());
+                second.mkdir();
             }
             for (String s : first.list()) {
                 copy(getAbsolute(first.getAbsoluteFile() + File.separator + s),
