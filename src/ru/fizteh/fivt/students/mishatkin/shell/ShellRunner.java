@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
+import ru.fizteh.fivt.students.kamilTalipov.shell.PrintDirContain;
+
 /**
  * ShellRunner.java
  * Created by Vladimir Mishatkin on 9/23/13
@@ -25,6 +27,9 @@ public class ShellRunner {
 						aCommand.execute();
 					}
 				} catch (TimeToExitException e) {
+					if (!e.getMessage().equals("")) {
+						System.err.println(e.getMessage());
+					}
 					shouldBreakRunLoop = true;
 				} catch (ShellException e) {
 					System.err.println(e.getMessage());
