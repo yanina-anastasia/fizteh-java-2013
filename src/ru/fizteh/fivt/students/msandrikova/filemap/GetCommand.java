@@ -1,8 +1,7 @@
 package ru.fizteh.fivt.students.msandrikova.filemap;
 
-import java.io.File;
-
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
+import ru.fizteh.fivt.students.msandrikova.shell.Shell;
 
 public class GetCommand extends Command {
 
@@ -11,20 +10,21 @@ public class GetCommand extends Command {
 	}
 
 	@Override
-	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
-			return currentDirectory;
+	public void execute(String[] argumentsList, Shell myShell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+			return;
 		}
-		DBMap myDBMap = new DBMap(currentDirectory, isInteractive);
+		if(!myShell.getIsFileMap()) {
+			myShell.setIsFileMap(true);
+			myShell.initMyDBMap();
+		}
 		String value;
-		if((value = myDBMap.get(argumentsList[1])) == null){
+		if((value = myShell.getMyDBMap().get(argumentsList[1])) == null){
 			System.out.println("not found");
 		} else {
 			System.out.println("found");
 			System.out.println(value);
 		}
-		myDBMap.writeFile();
-		return currentDirectory;
 	}
 
 }

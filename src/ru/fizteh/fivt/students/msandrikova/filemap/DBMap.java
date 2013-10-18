@@ -42,13 +42,26 @@ public class DBMap {
 				try {
 					try {
 						keyLength = reader.readInt();
+						if(keyLength <= 0 || keyLength > 10*10*10*10*10*10) {
+							Utils.generateAnError("Incorrect length of key.", "DBMap", false);
+						}
 						counter++;
+						
 						valueLength = reader.readInt();
+						if(valueLength <= 0 || valueLength > 10*10*10*10*10*10) {
+							Utils.generateAnError("Incorrect length of value.", "DBMap", false);
+						}
 						counter++;
-						key = reader.readUTF();
+						
+						byte[] keyByteArray = new byte[keyLength];
+						reader.read(keyByteArray, 0, keyLength);
+						key = new String(keyByteArray);
 						counter++;
 					
-						value = reader.readUTF();
+						byte[] valueByteArray = new byte[valueLength];
+						reader.read(valueByteArray, 0, valueLength);
+						value = new String(valueByteArray);
+						counter++;
 					
 						counter++;
 						if(key.getBytes("UTF8").length != keyLength || value.getBytes("UTF8").length != valueLength) {
@@ -83,8 +96,8 @@ public class DBMap {
 				try {
 					writer.writeInt(key.getBytes("UTF8").length);
 					writer.writeInt(value.getBytes("UTF8").length);
-					writer.writeUTF(key);
-					writer.writeUTF(value);
+					writer.write(key.getBytes("UTF8"), 0, key.getBytes("UTF8").length);
+					writer.write(value.getBytes("UTF8"), 0, value.getBytes("UTF8").length);
 				} catch (UnsupportedEncodingException e) {
 				} catch (IOException e) {}
 			}
@@ -92,7 +105,6 @@ public class DBMap {
 				writer.close();
 			} catch (IOException e) {}
 		} catch (FileNotFoundException e) {}
-		
 	}
 	
 	public String put(String key, String value) {

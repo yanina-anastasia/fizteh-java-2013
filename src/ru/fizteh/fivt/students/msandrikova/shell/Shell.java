@@ -7,12 +7,16 @@ import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 
+import ru.fizteh.fivt.students.msandrikova.filemap.DBMap;
+
 
 public class Shell {
 
 	private Map < String, Command > commandsList;
 	private File currentDirectory = new File("").getAbsoluteFile();
 	private boolean isInteractive = false;
+	private boolean isFileMap = false;
+	private DBMap myDBMap;
 	
 	private void InitMap(Command[] commands) {
 		Map< String, Command > m = new HashMap<String, Command>();
@@ -22,7 +26,33 @@ public class Shell {
 		this.commandsList = Collections.unmodifiableMap(m);
 	}
 	
+	public boolean getIsInteractive() {
+		return this.isInteractive;
+	}
 	
+	public boolean getIsFileMap() {
+		return this.isFileMap;
+	}
+	
+	public DBMap getMyDBMap() {
+		return this.myDBMap;
+	}
+	
+	public File getCurrentDirectory() {
+		return this.currentDirectory;
+	}
+	
+	public void setIsFileMap(boolean isFileMap) {
+		this.isFileMap = isFileMap;
+	}
+	
+	public void initMyDBMap() {
+		this.myDBMap = new DBMap(this.currentDirectory, this.isInteractive);
+	}
+	
+	public void setCurrentDirectory(File currentDirectory) {
+		this.currentDirectory = currentDirectory;
+	}
 	
 	private void executeOfInstructionLine(String instructionLine) {
 		String[] instructionsList = new String[]{};
@@ -34,11 +64,14 @@ public class Shell {
 				continue;
 			}
 			if(this.commandsList.containsKey(argumentsList[0])) {
-				this.currentDirectory = this.commandsList.get(argumentsList[0]).execute(argumentsList, isInteractive, this.currentDirectory);
+				this.commandsList.get(argumentsList[0]).execute(argumentsList, this);
 			} else {
 				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] + "\"", "", isInteractive);
 				continue;
 			}
+		}
+		if(this.isFileMap) {
+			this.myDBMap.writeFile();
 		}
 	}
 	

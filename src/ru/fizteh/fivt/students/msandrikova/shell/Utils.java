@@ -38,11 +38,7 @@ public class Utils {
 		if(!newFile.getParentFile().exists()) {
 			return false;
 		}
-		try {
-			if(!newFile.createNewFile()) {
-				return false;
-			}
-		} catch (SecurityException e) {
+		if(!newFile.createNewFile()) {
 			return false;
 		}
 		return true;

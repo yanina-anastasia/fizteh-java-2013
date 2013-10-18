@@ -14,7 +14,7 @@ public class Launcher {
 	
 
 	public static void main(String[] args) {
-		String currentDirectory = System.getProperty("fizteh.db.dir");
+		String currentDirectory = "."; //System.getProperty("fizteh.db.dir");
 		Shell myShell = new Shell(commands, currentDirectory);
 		myShell.execute(args);
 	}
