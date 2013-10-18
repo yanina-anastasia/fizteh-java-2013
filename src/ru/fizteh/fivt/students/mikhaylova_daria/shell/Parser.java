@@ -35,29 +35,31 @@ public class Parser {
         Class[] parametrTypes = new Class[] {String[].class};
         for (i = 0; i < commandString.length; ++i) {
             String[] command = commandString[i].trim().split("\\s+", 2);
-            Method currentMethod = null;
-            if (!commands.containsKey(command[0])) {
-                System.err.println("Bad command");
-                if (pack) {
-                    System.exit(1);
-                }
-            } else {
-                command[0] = commands.get(command[0]);
-            }
-            try {
-                currentMethod = workingClass.getMethod(command[0], parametrTypes);
-                try {
-                    currentMethod.invoke(obj, (Object) command);
-                } catch (Exception e) {
-                    System.err.println(e.getCause().getMessage());
+            if (command[0].length() != 0) {
+                Method currentMethod = null;
+                if (!commands.containsKey(command[0])) {
+                    System.err.println("Bad command");
                     if (pack) {
                         System.exit(1);
                     }
+                } else {
+                    command[0] = commands.get(command[0]);
                 }
-            } catch (Exception e) {
-                System.err.println("parser: " + command[0] + ": " + "not found");
-                if (pack) {
-                    System.exit(1);
+                try {
+                    currentMethod = workingClass.getMethod(command[0], parametrTypes);
+                    try {
+                        currentMethod.invoke(obj, (Object) command);
+                    } catch (Exception e) {
+                        System.err.println(e.getCause().getMessage());
+                        if (pack) {
+                            System.exit(1);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("parser: " + command[0] + ": " + "not found");
+                    if (pack) {
+                        System.exit(1);
+                    }
                 }
             }
         }
