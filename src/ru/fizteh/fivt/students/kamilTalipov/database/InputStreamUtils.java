@@ -17,6 +17,9 @@ public class InputStreamUtils {
     }
 
     public static String readString(FileInputStream input, int length) throws IOException {
+        if (length <= 0) {
+            throw new IOException("Length must be positive number");
+        }
         byte[] buffer = new byte[length];
         int bytesRead = input.read(buffer);
         if (bytesRead != length) {

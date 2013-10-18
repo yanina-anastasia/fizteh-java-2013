@@ -4,6 +4,6 @@ public interface Command {
     String getName();
     int getNumberOfArguments();
     boolean equalName(String name);
-    
+
     void run(Shell shell, String[] args) throws IllegalArgumentException;
 }

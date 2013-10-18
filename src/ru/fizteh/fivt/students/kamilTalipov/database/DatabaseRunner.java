@@ -15,17 +15,13 @@ public class DatabaseRunner {
             System.err.println(e.getMessage());
             System.exit(1);
         }
+
         Command[] commands = new Command[] {new PutCommand(database),
-                                            new GetCommand(database),
-                                            new RemoveCommand(database),
-                                            new Exit()};
-        Shell shell = new Shell(commands);
+                new GetCommand(database),
+                new RemoveCommand(database),
+                new Exit()};
         try {
-            if (args.length == 0) {
-                shell.interactiveMode();
-            } else {
-                shell.packageMode(args);
-            }
+            Shell.run(commands, args);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);

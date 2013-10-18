@@ -5,18 +5,22 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class PutCommand extends SimpleCommand {
     public PutCommand(Database database) {
-        super("put", 2);
+        super("put", -2);
         this.database = database;
     }
 
     @Override
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
-        if (numberOfArguments != args.length) {
-            throw new IllegalArgumentException(name + ": expected " + numberOfArguments
-                                                + " but " + args.length + " got");
+        if (args.length < 2) {
+            throw new IllegalArgumentException(name + ": need at least two arguments");
+        }
+        StringBuilder value = new StringBuilder();
+        for (int i = 1; i < args.length; ++i) {
+            value.append(args[i]);
+            value.append(" ");
         }
 
-        String oldValue = database.put(args[0], args[1]);
+        String oldValue = database.put(args[0], value.toString());
         if (oldValue == null) {
             System.out.println("new");
         } else {
