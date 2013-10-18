@@ -20,6 +20,14 @@ public class Directory {
                 temp.changePath(args[1]);
             }
             File totalPath = temp.getPath();
+            if (!totalPath.exists()) {
+                System.err.println("dir: " + args[1] + ": No such file or directory");
+                return false;
+            }
+            if (!totalPath.isDirectory()) {
+                System.err.println("dir: " + args[1] + ": Not a directory");
+                return false;
+            }
             String[] result = totalPath.list();
             if (result == null) {
                 return true;

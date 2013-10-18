@@ -44,6 +44,7 @@ public class Remove {
 
             if (!toDelete.exists()) {
                 System.err.println("rm: " + args[1] + ": " + "No such file or directory");
+                return false;
             }
             if (toDelete.isDirectory()) {
                 deleteDirectory(toDelete);

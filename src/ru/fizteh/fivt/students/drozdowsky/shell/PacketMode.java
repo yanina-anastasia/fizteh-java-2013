@@ -32,7 +32,7 @@ public class PacketMode {
         int last = -1;
 
         for (int j = 0; j < concatenateArgs.length(); j++) {
-            if (concatenateArgs.charAt(j) == ';' || concatenateArgs.charAt(j) == ' ') {
+            if (concatenateArgs.charAt(j) == ';' || concatenateArgs.charAt(j) == ' ' || concatenateArgs.charAt(j) == '\t') {
                 if (last + 1 != j) {
                     tempArgs.add(concatenateArgs.substring(last + 1, j));
                 }

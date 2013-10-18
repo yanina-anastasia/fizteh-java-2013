@@ -29,6 +29,10 @@ public class ChangeDirectory {
                     path.changePath(args[1]);
                 }
             } else {
+                if (!test.exists()) {
+                    System.err.println("cd: " + args[1] + ": No such file or directory");
+                    return false;
+                }
                 System.err.println("cd: " + args[1] + ": Not a directory");
                 return false;
             }

@@ -50,15 +50,28 @@ public class PathController {
     }
 
     private void setPath(String newPath) throws IOException {
-        File testParentDirectory = new File(newPath).getParentFile();
+        ArrayList<String> currentPath = parsePath(newPath);
+        if (currentPath.size() == 0) {
+            name = "/";
+            parentDirectory = null;
+            return;
+        }
+        StringBuilder finalPath = new StringBuilder();
+        finalPath.append("/");
+        for (String aCurrentPath : currentPath) {
+            finalPath.append(aCurrentPath);
+            finalPath.append("/");
+        }
+
+        File testParentDirectory = new File(finalPath.toString()).getParentFile();
         if (testParentDirectory == null) {
             parentDirectory = testParentDirectory;
-            name = newPath;
+            name = finalPath.toString();
         } else if (!testParentDirectory.exists() || !testParentDirectory.isDirectory()) {
             throw new IOException("No such file or directory");
         } else {
             parentDirectory = testParentDirectory;
-            name = new File(newPath).getName();
+            name = new File(finalPath.toString()).getName();
         }
     }
 
@@ -74,16 +87,21 @@ public class PathController {
     private ArrayList<String> parsePath(String path) {
         ArrayList<String> result = new ArrayList<String>();
         int last = -1;
+        path = path + "/";
         for (int i = 0; i < path.length(); i++) {
              if (path.charAt(i) == '/') {
                 if (last + 1 != i) {
-                result.add(path.substring(last + 1, i));
+                    String curSubstring = path.substring(last + 1, i);
+                    if (curSubstring.equals("..")) {
+                        if (result.size() > 0) {
+                            result.remove(result.size() - 1);
+                        }
+                    } else if (!curSubstring.equals(".")) {
+                        result.add(curSubstring);
+                    }
                 }
                 last = i;
             }
-        }
-        if (last + 1 != path.length()) {
-            result.add(path.substring(last + 1, path.length()));
         }
         return result;
     }
@@ -93,18 +111,7 @@ public class PathController {
             throw new IOException("Not a directory");
         }
 
-        ArrayList<String> currentPath = parsePath(getPath().getAbsolutePath());
-        ArrayList<String> modificatorPath = parsePath(modificator);
-        for (String aModificatorPath : modificatorPath) {
-            if (aModificatorPath.equals("..")) {
-                if (currentPath.size() != 0) {
-                    currentPath.remove(currentPath.size() - 1);
-                }
-            } else if (!aModificatorPath.equals(".")) {
-                currentPath.add(aModificatorPath);
-            }
-        }
-
+        ArrayList<String> currentPath = parsePath(getPath() + "/" + modificator);
         if (currentPath.size() == 0) {
             name = "/";
             parentDirectory = null;
