@@ -14,5 +14,6 @@ public class ExitCommand extends AbstractCommand {
         AbstractFileMap.commitFile();
 
         Thread.currentThread().interrupt();
+        AbstractFileMap.getFile().close();
     }
 }
