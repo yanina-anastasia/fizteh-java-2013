@@ -10,9 +10,11 @@ import java.util.HashMap;
 public class Launcher {
 
     private HashMap<String, Executable> commands;
+    private StringParser stringParser;
 
-    public Launcher(HashMap<String, Executable> commandsMap) {
+    public Launcher(HashMap<String, Executable> commandsMap, StringParser parser) {
         commands = commandsMap;
+        stringParser = parser;
     }
 
     public boolean launch(String[] args, Manager manager) throws IOException {
@@ -48,7 +50,7 @@ public class Launcher {
             }
             String[] commandList = commandSet.split(";");
             for (String commandName : commandList) {
-                String[] tokens = commandName.trim().split("[\\s]+");
+                String[] tokens = stringParser.parse(commandName);
 
                 if (tokens.length == 0 || tokens[0].equals("")) {
                     continue;
