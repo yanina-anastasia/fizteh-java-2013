@@ -30,8 +30,9 @@ public class FileMapState extends FilesystemState implements Table {
 	
 	public void readFile() throws IOException {
 		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
-		try {
-			do {
+		boolean flag = true;
+		do {
+			try {
 				int keyLength = s.readInt();
 				int valueLength = s.readInt();
 				if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
@@ -44,11 +45,13 @@ public class FileMapState extends FilesystemState implements Table {
 				s.read(tempValue);
 				String value = new String(tempValue, StandardCharsets.UTF_8);
 				map.put(key, value);
-			} while (s.available() > 0);
+			} catch (EOFException e) {
+				break;
+			}
+			} while (flag);
 			s.close();
-		} catch (EOFException e) {
-			throw new IOException("Can't read files");
-		}
+		
+	
 	}
 	
 	public void writeFile() throws IOException {
