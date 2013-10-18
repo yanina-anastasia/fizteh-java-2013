@@ -67,7 +67,7 @@ public class FileMap extends UserShell {
             String key = new String(keyBytes);
             String value = new String(valueBytes);
             dataMap.put(key, value);
-        } catch (IOException e) {
+        } catch (IOException | OutOfMemoryError e) {
             printErrorAndExit("Cannot load file");
         }
     }
