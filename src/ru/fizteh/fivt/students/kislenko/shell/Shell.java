@@ -4,14 +4,17 @@ import java.util.Scanner;
 
 public class Shell {
     private State state;
+    CmdLauncher launcher = new CmdLauncher();
 
-    public Shell(State startingState) {
+    public Shell(State startingState, Command[] commands) {
         state = startingState;
+        for (Command command : commands) {
+            launcher.addCommand(command);
+        }
     }
 
     public void interactiveMode() {
         Scanner scan = new Scanner(System.in);
-        CmdLauncher launcher = new CmdLauncher();
         boolean exitFlag = false;
         while (!exitFlag) {
             System.out.print("$ ");

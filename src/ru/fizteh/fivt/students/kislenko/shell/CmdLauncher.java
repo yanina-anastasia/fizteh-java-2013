@@ -25,12 +25,16 @@ public class CmdLauncher {
         commandList.put(mv.getName(), mv);
         commandList.put(rm.getName(), rm);*/
 
-        Command put = new CommandPut();
+        /*Command put = new CommandPut();
         Command get = new CommandGet();
         Command rem = new CommandRemove();
         commandList.put(put.getName(), put);
         commandList.put(get.getName(), get);
-        commandList.put(rem.getName(), rem);
+        commandList.put(rem.getName(), rem);       */
+    }
+
+    public void addCommand(Command command) {
+        commandList.put(command.getName(), command);
     }
 
     private String getCommand(String inputString) {
@@ -55,7 +59,7 @@ public class CmdLauncher {
     }
 
     public void launch(State state, String input) throws IOException {
-        fillCmdList();
+        //fillCmdList();
         String command = getCommand(input.trim());
         String[] args = getArgs(input.trim());
         if (command.isEmpty()) {
