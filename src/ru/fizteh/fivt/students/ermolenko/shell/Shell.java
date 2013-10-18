@@ -7,14 +7,18 @@ import java.util.Scanner;
 
 public class Shell {
 
-    private State state = new State();
+    private ShellState state;
 
     public Shell(File currentDirectory) {
+        state = new ShellState();
         currentDirectory = currentDirectory.getAbsoluteFile();
         state.setPath((currentDirectory.toPath()));
     }
 
-    public State getState() {
+    public Shell() {
+    }
+
+    public ShellState getState() {
         return state;
     }
 
@@ -22,7 +26,7 @@ public class Shell {
         state.setPath(inState);
     }
 
-    public void batchState(Shell shell, String[] args) throws IOException {
+    public void batchState(String[] args, Executor exec) throws IOException {
         StringBuilder tmp = new StringBuilder();
 
         //слили все слова в одну строку
@@ -34,12 +38,15 @@ public class Shell {
         String[] command = tmp.toString().split("\\;");
 
         String cmd = "";
-        Execurtor exec = new Execurtor();
+        //Executor exec = new Executor();
 
         //подаем команды на выполнение
         for (int i = 0; i < command.length - 1; ++i) {
 
             cmd = command[i].trim();
+            if (cmd.equals("exit")) {
+                break;
+            }
             try {
                 exec.execute(this, cmd);
             } catch (Exception e) {
@@ -49,21 +56,19 @@ public class Shell {
         }
     }
 
-    public void interactiveState() throws IOException {
+    public void interactiveState(Executor exec) throws IOException {
         Scanner scanner = new Scanner(System.in);
-        Execurtor exec = new Execurtor();
-        String input;
+        //ShellExecutor exec = new ShellExecutor();
         String[] cmd;
         while (true) {
-            System.out.print(state.getPath().toString() + "$ ");
+            System.out.print("$ ");
             cmd = scanner.nextLine().trim().split("\\s*;\\s*");
             try {
                 for (String aCmd : cmd) {
-                    if (!aCmd.equals("exit")) {
-                        exec.execute(this, aCmd);
-                    } else {
-                        System.exit(0);
+                    if (cmd.equals("exit")) {
+                        break;
                     }
+                    exec.execute(this, aCmd);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
