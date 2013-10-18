@@ -9,30 +9,6 @@ import ru.fizteh.fivt.students.kislenko.filemap.*;
 public class CmdLauncher {
     private Map<String, Command> commandList = new HashMap<String, Command>();
 
-    private void fillCmdList() {
-        /*Command cd = new CommandCd();
-        Command cp = new CommandCp();
-        Command dir = new CommandDir();
-        Command mkdir = new CommandMkdir();
-        Command pwd = new CommandPwd();
-        Command mv = new CommandMv();
-        Command rm = new CommandRm();
-        commandList.put(cd.getName(), cd);
-        commandList.put(cp.getName(), cp);
-        commandList.put(dir.getName(), dir);
-        commandList.put(mkdir.getName(), mkdir);
-        commandList.put(pwd.getName(), pwd);
-        commandList.put(mv.getName(), mv);
-        commandList.put(rm.getName(), rm);*/
-
-        /*Command put = new CommandPut();
-        Command get = new CommandGet();
-        Command rem = new CommandRemove();
-        commandList.put(put.getName(), put);
-        commandList.put(get.getName(), get);
-        commandList.put(rem.getName(), rem);       */
-    }
-
     public void addCommand(Command command) {
         commandList.put(command.getName(), command);
     }
@@ -59,7 +35,6 @@ public class CmdLauncher {
     }
 
     public void launch(State state, String input) throws IOException {
-        //fillCmdList();
         String command = getCommand(input.trim());
         String[] args = getArgs(input.trim());
         if (command.isEmpty()) {
