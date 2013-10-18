@@ -17,7 +17,7 @@ public class DBCommands {
         }
 
         public boolean check(String[] parts) {
-            return ((parts.length - 1) == countOfArguments);
+            return ((parts.length - 1) >= countOfArguments);
         }
 
         public Code perform(String[] args) {

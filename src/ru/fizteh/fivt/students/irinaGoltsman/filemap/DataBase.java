@@ -135,13 +135,18 @@ public class DataBase {
 
     public static Code put(String[] args) {
         String key = args[1];
-        String value = args[2];
         if (dbStorage.containsKey(key)) {
             System.out.println("overwrite");
             System.out.println(dbStorage.get(key));
         } else {
             System.out.println("new");
         }
+        StringBuilder tmp = new StringBuilder();
+        for (int i = 2; i < args.length; i++) {
+            tmp.append(args[i]);
+            tmp.append(' ');
+        }
+        String value = tmp.toString();
         dbStorage.put(key, value);
         return Code.OK;
     }
