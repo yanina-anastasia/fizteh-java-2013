@@ -33,6 +33,7 @@ public class FileMapReceiver extends ShellReceiver {
 				boolean hasNext = true;
 				while (hasNext) {
 					try {
+						dis.mark(1024 * 1024); // 1 MB
 						int keyLength = dis.readInt();
 						int valueLength = dis.readInt();
 						byte[] keyBinary = new byte[keyLength];
@@ -124,7 +125,9 @@ public class FileMapReceiver extends ShellReceiver {
 			throw new ShellException("OK, now someone just took the file out of me, so I cannot even rewrite it.");
 		} finally {
 			try {
-				dos.close();
+				if (dos != null) {
+					dos.close();
+				}
 			} catch (IOException ignored) {
 			}
 		}
