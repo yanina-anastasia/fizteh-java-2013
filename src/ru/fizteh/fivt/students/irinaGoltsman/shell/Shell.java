@@ -15,19 +15,6 @@ public class Shell {
     }
 
     public static Code shell(String[] args) {
-        MapOfCommands cm = new MapOfCommands();
-        cm.addCommand(new ShellCommands.Exit());
-        cm.addCommand(new ShellCommands.Copy());
-        cm.addCommand(new ShellCommands.Dir());
-        cm.addCommand(new ShellCommands.MakeDir());
-        cm.addCommand(new ShellCommands.ChangeDirectory());
-        cm.addCommand(new ShellCommands.Move());
-        cm.addCommand(new ShellCommands.PrintWorkDirectory());
-        cm.addCommand(new ShellCommands.Remove());
-        cm.addCommand(new DBCommands.Put());
-        cm.addCommand(new DBCommands.Get());
-        cm.addCommand(new DBCommands.Remove());
-
         if (args.length == 0) {  //Интерактивный режим
             Scanner scan = new Scanner(System.in);
             System.out.print("$ ");
@@ -86,5 +73,24 @@ public class Shell {
             }
         }
         return Code.OK;
+    }
+
+    public static void main(String[] args) {
+        MapOfCommands cm = new MapOfCommands();
+        cm.addCommand(new ShellCommands.Exit());
+        cm.addCommand(new ShellCommands.Copy());
+        cm.addCommand(new ShellCommands.Dir());
+        cm.addCommand(new ShellCommands.MakeDir());
+        cm.addCommand(new ShellCommands.ChangeDirectory());
+        cm.addCommand(new ShellCommands.Move());
+        cm.addCommand(new ShellCommands.PrintWorkDirectory());
+        cm.addCommand(new ShellCommands.Remove());
+        Code returnCode = shell(args);
+        if (returnCode == Code.EXIT) {
+            System.exit(0);
+        }
+        if (returnCode != Code.OK) {
+            System.exit(1);
+        }
     }
 }

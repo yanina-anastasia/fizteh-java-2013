@@ -20,6 +20,11 @@ public class DbMain {
             }
             System.exit(1);
         }
+        MapOfCommands cm = new MapOfCommands();
+        cm.addCommand(new ShellCommands.Exit());
+        cm.addCommand(new DBCommands.Put());
+        cm.addCommand(new DBCommands.Get());
+        cm.addCommand(new DBCommands.Remove());
         Code codeOfShell = Shell.shell(args);
         if (codeOfShell == Code.ERROR || codeOfShell == Code.SYSTEM_ERROR) {
             myDataBase.emergencyExit();
