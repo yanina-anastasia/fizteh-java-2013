@@ -141,13 +141,10 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public String[] myParsing(String[] args) {
-        String arg = args[0];
+        String arg = args[0].trim();
         StringBuilder key = new StringBuilder();
         StringBuilder value = new StringBuilder();
         int i = 0;
-        while (i < arg.length() && arg.charAt(i) == ' ') {
-            ++i;
-        }
         while (i < arg.length() && arg.charAt(i) != ' ') {
             ++i;
         }
