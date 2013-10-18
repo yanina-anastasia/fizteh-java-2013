@@ -20,25 +20,25 @@ public class PacketMode {
     }
 
     public void start() {
-        StringBuilder concatenateArgs = new StringBuilder();
+        StringBuilder totalArgs = new StringBuilder();
 
         for (String arg : args) {
-            concatenateArgs.append(arg);
-            concatenateArgs.append(" ");
+            totalArgs.append(arg);
+            totalArgs.append(" ");
         }
-        concatenateArgs.append(';');
+        totalArgs.append(';');
 
         ArrayList<String> tempArgs = new ArrayList<String>();
         int last = -1;
 
-        for (int j = 0; j < concatenateArgs.length(); j++) {
-            if (concatenateArgs.charAt(j) == ';' || concatenateArgs.charAt(j) == ' ' || concatenateArgs.charAt(j) == '\t') {
+        for (int j = 0; j < totalArgs.length(); j++) {
+            if (totalArgs.charAt(j) == ';' || totalArgs.charAt(j) == ' ' || totalArgs.charAt(j) == '\t') {
                 if (last + 1 != j) {
-                    tempArgs.add(concatenateArgs.substring(last + 1, j));
+                    tempArgs.add(totalArgs.substring(last + 1, j));
                 }
                 last = j;
 
-                if (concatenateArgs.charAt(j) == ';' && tempArgs.size() != 0) {
+                if (totalArgs.charAt(j) == ';' && tempArgs.size() != 0) {
                     if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
                         if (exitOnFailure) {
                             System.exit(1);
