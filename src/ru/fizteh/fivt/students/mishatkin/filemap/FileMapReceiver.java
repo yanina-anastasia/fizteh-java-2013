@@ -20,9 +20,12 @@ public class FileMapReceiver extends ShellReceiver {
 		try {
 			assert dbDirectory != null;
 			dbFile = new File(new File( dbDirectory), dbFileName);
+			if (!dbFile.exists() || (dbFile.exists() && dbFile.isDirectory())) {
+				dbFile.createNewFile();
+			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
 		} catch (IOException e) {
-				throw  new MissingFileMapDatabaseException("DB file not found.");
+			throw new MissingFileMapDatabaseException("DB file not found.");
 		} finally {
 			DataInputStream dis = null;
 			try {
@@ -64,8 +67,10 @@ public class FileMapReceiver extends ShellReceiver {
 	}
 
 	public void putCommand(String key, String value) {
-		if (dictionary.get(key) != null) {
+		String oldValue = dictionary.get(key);
+		if (oldValue != null) {
 			out.println("overwrite");
+			out.println(oldValue);
 		} else {
 			out.println("new");
 		}
@@ -76,7 +81,7 @@ public class FileMapReceiver extends ShellReceiver {
 		if (dictionary.remove(key) != null){
 			out.println("removed");
 		} else {
-			out.println("not removed");
+			out.println("not found");
 		}
 	}
 
