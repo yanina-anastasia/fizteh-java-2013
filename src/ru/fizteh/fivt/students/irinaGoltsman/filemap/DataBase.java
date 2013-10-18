@@ -15,77 +15,185 @@ public class DataBase {
     static HashMap<String, String> dbStorage = new HashMap<>();  //1 - ключ, 2 - значение
     static Path pathDbFile = null;
 
-    public void load(String pathInput) throws Exception {
+    public Code load(String pathInput) {
         pathDbFile = Paths.get(pathInput);
         pathDbFile = pathDbFile.resolve(name);
-        dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
-        dbStorage = new HashMap<>();
-
-        if (dbFile.length() == 0) {
-            return;
+        try {
+            dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
+        } catch (FileNotFoundException e) {
+            System.err.println("File " + name + " is not found");
+            return Code.ERROR;
         }
-        long pointer = dbFile.getFilePointer();
-        String key = "";
-        String value = "";
-        long length = dbFile.length();
+        dbStorage = new HashMap<>();
+        long length = 0;
+        try {
+            length = dbFile.length();
+        } catch (IOException e) {
+            System.err.println(e);
+            return Code.SYSTEM_ERROR;
+        }
+        if (length == 0) {
+            return Code.OK;
+        }
+        long pointer = 0;
+        try {
+            pointer = dbFile.getFilePointer();
+        } catch (IOException e) {
+            System.err.println(e);
+            return Code.SYSTEM_ERROR;
+        }
         while (length > 0) {
-            int lengthOfKey = dbFile.readInt();
+            int lengthOfKey = 0;
+            try {
+                lengthOfKey = dbFile.readInt();
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             length -= 4;
-            int lengthOfValue = dbFile.readInt();
+            int lengthOfValue;
+            try {
+                lengthOfValue = dbFile.readInt();
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             length -= 4;
             byte[] bytesOfKey = new byte[lengthOfKey];
-            int countOfBytesWasRead = dbFile.read(bytesOfKey);
+            int countOfBytesWasRead = 0;
+            try {
+                countOfBytesWasRead = dbFile.read(bytesOfKey);
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             if (countOfBytesWasRead == -1) {
-                throw (new Exception("Wrong format of db"));
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
             } else {
                 length -= countOfBytesWasRead;
             }
             byte[] bytesOfValue = new byte[lengthOfValue];
-            countOfBytesWasRead = dbFile.read(bytesOfValue);
+            try {
+                countOfBytesWasRead = dbFile.read(bytesOfValue);
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             if (countOfBytesWasRead == -1) {
-                throw (new Exception("Wrong format of db"));
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
             } else {
                 length -= countOfBytesWasRead;
             }
-            dbStorage.put(new String(bytesOfKey, "UTF-8"), new String(bytesOfValue, "UTF-8"));
+            String key;
+            try {
+                key = new String(bytesOfKey, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
+            String value;
+            try {
+                value = new String(bytesOfValue, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
+            dbStorage.put(key, value);
         }
+        return Code.OK;
     }
 
-    public void load() throws Exception {
+    public Code load() {
         String path = System.getProperty(pathToDataBaseDirectory);
         pathDbFile = Paths.get(path);
         pathDbFile = pathDbFile.resolve(name);
-        dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
-        dbStorage = new HashMap<>();
-
-        if (dbFile.length() == 0) {
-            return;
+        try {
+            dbFile = new RandomAccessFile(pathDbFile.toFile(), "rw");
+        } catch (FileNotFoundException e) {
+            System.err.println("File " + name + " is not found");
+            return Code.ERROR;
         }
-        long pointer = dbFile.getFilePointer();
-        String key = "";
-        String value = "";
-        long length = dbFile.length();
+        dbStorage = new HashMap<>();
+        long length = -1;
+        try {
+            length = dbFile.length();
+        } catch (IOException e) {
+            System.err.println(e);
+            return Code.SYSTEM_ERROR;
+        }
+        if (length == 0) {
+            return Code.OK;
+        }
+        long pointer = 0;
+        try {
+            pointer = dbFile.getFilePointer();
+        } catch (IOException e) {
+            System.err.println(e);
+            return Code.SYSTEM_ERROR;
+        }
         while (length > 0) {
-            int lengthOfKey = dbFile.readInt();
+            int lengthOfKey = 0;
+            try {
+                lengthOfKey = dbFile.readInt();
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             length -= 4;
-            int lengthOfValue = dbFile.readInt();
+            int lengthOfValue;
+            try {
+                lengthOfValue = dbFile.readInt();
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             length -= 4;
             byte[] bytesOfKey = new byte[lengthOfKey];
-            int countOfBytesWasRead = dbFile.read(bytesOfKey);
+            int countOfBytesWasRead = 0;
+            try {
+                countOfBytesWasRead = dbFile.read(bytesOfKey);
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             if (countOfBytesWasRead == -1) {
-                throw (new Exception("Wrong format of db"));
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
             } else {
                 length -= countOfBytesWasRead;
             }
             byte[] bytesOfValue = new byte[lengthOfValue];
-            countOfBytesWasRead = dbFile.read(bytesOfValue);
+            try {
+                countOfBytesWasRead = dbFile.read(bytesOfValue);
+            } catch (IOException e) {
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
+            }
             if (countOfBytesWasRead == -1) {
-                throw (new Exception("Wrong format of db"));
+                System.err.println("Wrong format of db");
+                return Code.ERROR;
             } else {
                 length -= countOfBytesWasRead;
             }
-            dbStorage.put(new String(bytesOfKey, "UTF-8"), new String(bytesOfValue, "UTF-8"));
+            String key;
+            try {
+                key = new String(bytesOfKey, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
+            String value;
+            try {
+                value = new String(bytesOfValue, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
+            dbStorage.put(key, value);
         }
+        return Code.OK;
     }
 
     public Code close() {

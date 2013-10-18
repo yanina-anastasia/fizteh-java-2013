@@ -8,16 +8,9 @@ public class DbMain {
     public static void main(String[] args) {
         //String path = "C:\\Users\\Ira\\IdeaProjects\\fizteh-java-2013\\src\\ru\\fizteh\\db\\dir";
         DataBase myDataBase = new DataBase();
-        try {
-            //myDataBase.load(path);
-            myDataBase.load();
-        } catch (Exception e) {
-            System.err.println("Error while loading db");
-            System.err.println(e);
-            Code closeCode = myDataBase.emergencyExit();
-            if (closeCode != Code.OK) {
-                System.err.println("Error while emergency exit");
-            }
+        //Code returnCodeOfLoad = myDataBase.load(path);
+        Code returnCodeOfLoading = myDataBase.load();
+        if (returnCodeOfLoading != Code.OK) {
             System.exit(1);
         }
         MapOfCommands cm = new MapOfCommands();
