@@ -17,7 +17,9 @@ public class Utils {
 		} else {
 			System.err.println("Error: " + description);
 		}
-		System.exit(1);
+		if(!isInteractive) {
+			System.exit(1);
+		}
 	}
 	
 	
