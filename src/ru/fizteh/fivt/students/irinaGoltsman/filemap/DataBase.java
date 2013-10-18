@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
+import ru.fizteh.fivt.students.irinaGoltsman.shell.*;
+
 import java.io.*;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
@@ -86,23 +88,38 @@ public class DataBase {
         }
     }
 
-    public void close() throws Exception {
-        dbFile.seek(0);
-        dbFile.setLength(0);
-        for (String key : dbStorage.keySet()) {
-            byte[] bytesOfKey = key.getBytes("UTF-8");
-            byte[] bytesOfValue = dbStorage.get(key).getBytes("UTF-8");
-            dbFile.writeInt(bytesOfKey.length);
-            dbFile.writeInt(bytesOfValue.length);
-            dbFile.write(bytesOfKey);
-            dbFile.write(bytesOfValue);
+    public Code close() {
+        try {
+            dbFile.seek(0);
+            dbFile.setLength(0);
+            for (String key : dbStorage.keySet()) {
+                byte[] bytesOfKey = key.getBytes("UTF-8");
+                byte[] bytesOfValue = dbStorage.get(key).getBytes("UTF-8");
+                dbFile.writeInt(bytesOfKey.length);
+                dbFile.writeInt(bytesOfValue.length);
+                dbFile.write(bytesOfKey);
+                dbFile.write(bytesOfValue);
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+            try {
+                dbFile.close();
+            } catch (Exception e2) {
+                System.err.println(e2);
+            }
+            return Code.SYSTEM_ERROR;
         }
-        dbFile.close();
+        return Code.OK;
     }
 
-    public void emergencyExit() throws Exception {
-        dbFile.seek(0);
-        dbFile.close();
+    public Code emergencyExit() {
+        try {
+            dbFile.close();
+        } catch (Exception e) {
+            System.err.println(e);
+            return Code.SYSTEM_ERROR;
+        }
+        return Code.OK;
     }
 
     public static Code get(String[] args) {

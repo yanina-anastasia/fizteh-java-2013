@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinaGoltsman.filemap;
+package ru.fizteh.fivt.students.irinaGoltsman.shell;
 
 public interface Command {
     //Получить название команды

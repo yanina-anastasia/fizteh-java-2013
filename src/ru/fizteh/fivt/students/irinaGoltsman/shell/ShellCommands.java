@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinaGoltsman.filemap;
+package ru.fizteh.fivt.students.irinaGoltsman.shell;
 
 import java.io.*;
 import java.nio.file.Files;

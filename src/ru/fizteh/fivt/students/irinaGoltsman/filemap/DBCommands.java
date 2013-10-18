@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
+import ru.fizteh.fivt.students.irinaGoltsman.shell.*;
+
+
 public class DBCommands {
     public static class Put implements Command {
         protected final String name = "put";

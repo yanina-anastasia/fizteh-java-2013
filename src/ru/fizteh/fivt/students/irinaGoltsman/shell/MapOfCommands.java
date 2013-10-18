@@ -1,6 +1,9 @@
-package ru.fizteh.fivt.students.irinaGoltsman.filemap;
+package ru.fizteh.fivt.students.irinaGoltsman.shell;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class MapOfCommands {
     private static Map<String, Command> commands = new HashMap<String, Command>();
