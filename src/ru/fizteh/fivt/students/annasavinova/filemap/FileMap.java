@@ -61,7 +61,7 @@ public class FileMap extends UserShell {
             int keyLong = dataFile.readInt();
             int valueLong = dataFile.readInt();
             if (keyLong <= 0 || valueLong <= 0) {
-                printErrorAndExit("CannotLoadFile");
+                printErrorAndExit("Cannot Load File");
             } else {
                 byte[] keyBytes = new byte[keyLong];
                 byte[] valueBytes = new byte[valueLong];
@@ -72,6 +72,11 @@ public class FileMap extends UserShell {
                 dataMap.put(key, value);
             }
         } catch (IOException | OutOfMemoryError e) {
+            try {
+                dataFile.close();
+            } catch (IOException e1) {
+                printErrorAndExit("Cannot load file");
+            }
             printErrorAndExit("Cannot load file");
         }
     }
@@ -85,6 +90,11 @@ public class FileMap extends UserShell {
                 loadKeyAndValue();
             }
         } catch (IOException e) {
+            try {
+                dataFile.close();
+            } catch (IOException e1) {
+                printErrorAndExit("Cannot load file");
+            }
             printErrorAndExit("Cannot load file");
         }
     }
@@ -101,10 +111,15 @@ public class FileMap extends UserShell {
                 dataFile.write(key.getBytes("UTF-8"));
                 dataFile.write(value.getBytes("UTF-8"));
             }
-            dataFile.close();
-            dataMap.clear();
         } catch (IOException e) {
             printErrorAndExit("Cannot unload file correctly");
+        } finally {
+            dataMap.clear();
+            try {
+                dataFile.close();
+            } catch (IOException e) {
+                printErrorAndExit("Cannot unload file");
+            }
         }
     }
 
