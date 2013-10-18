@@ -52,17 +52,15 @@ public class FileMap {
         if (keyLength <= 0 || valueLength <= 0) {
             throw new IOException("db.dat has incorrect format");
         }
-        byte[] key;
-        byte[] value;
         try {
-            key = new byte[keyLength];
-            value = new byte[valueLength];
+            byte[] key = new byte[keyLength];
+            byte[] value = new byte[valueLength];
+            input.read(key);
+            input.read(value);
+            elementList.add(new Element(key, value));
         } catch (OutOfMemoryError e) {
             throw new IOException("db.dat has incorrect format");
         }
-        input.read(key);
-        input.read(value);
-        elementList.add(new Element(key, value));
     }
 
     private void write(RandomAccessFile output, Element element) throws IOException {
