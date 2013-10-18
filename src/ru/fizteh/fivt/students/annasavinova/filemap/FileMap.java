@@ -15,6 +15,16 @@ public class FileMap extends UserShell {
     private HashMap<String, String> dataMap;
 
     @Override
+    public String[] getArgsFromString(String str) {
+        str = str.trim();
+        if (str != null) {
+            return str.split("[\\s]+", 3);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void printError(String errStr) {
         if (isPacket) {
             unloadFile();
