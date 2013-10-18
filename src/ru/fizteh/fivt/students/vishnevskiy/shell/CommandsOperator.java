@@ -51,7 +51,6 @@ public class CommandsOperator {
             command.execute(fileSystemOperator, args);
         } catch (ShellException e) {
             System.err.println(e.getMessage());
-            System.err.flush();
             return 1;
         }
         return 0;
