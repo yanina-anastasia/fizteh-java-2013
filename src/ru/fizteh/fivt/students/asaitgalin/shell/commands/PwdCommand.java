@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
+import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
 import java.io.IOException;

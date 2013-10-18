@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.asaitgalin.shell.commands;
+package ru.fizteh.fivt.students.asaitgalin.shell;
 
 import java.io.IOException;
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
 public class DirCommand implements Command {
