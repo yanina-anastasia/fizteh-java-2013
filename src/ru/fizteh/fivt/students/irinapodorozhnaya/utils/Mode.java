@@ -7,13 +7,8 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
 
 public class Mode {
 	 private Mode() {}
-	 public static void batchMode(String[] args, State st) {
-		 try {
-			 parseAndExecute(joinString(args), st);
-		 } catch (IOException e) {
-			 System.err.println(e.getMessage());
-			 System.exit(1);
-		 }
+	 public static void batchMode(String[] args, State st) throws IOException {
+		parseAndExecute(joinString(args), st); 
 	 }
 
 	 public static String joinString(String[] args) {

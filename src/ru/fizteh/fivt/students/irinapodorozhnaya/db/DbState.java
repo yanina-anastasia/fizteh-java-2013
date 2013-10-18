@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.db;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -73,6 +74,7 @@ public class DbState extends State {
 			key = nextKey;
 			currentOffset = nextOffset;
 		}
+		dbFile.seek(currentOffset);
 		data.put(nextKey, readValue(dbFile.length() - currentOffset));
 		dbFile.close();
 	}
@@ -82,23 +84,19 @@ public class DbState extends State {
 		if ( len < 0) {
 			throw new IOException("File has incorrect format");
 		}
-		byte[] bytes = new byte[(int) l];
+		byte[] bytes = new byte[len];
 		dbFile.read(bytes);
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	String readKey() throws IOException {
 		byte c = dbFile.readByte();
-		ArrayList<Byte> v =  new ArrayList<>();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		while (c != 0) {
-			v.add(c);
+			out.write(c);
 			c = dbFile.readByte();
 		}
-		byte[] bytes = new byte[v.size()];
-		for (int i = 0; i < v.size(); ++i) {
-			bytes[i] = v.get(i);
-		}
-		return new String(bytes, StandardCharsets.UTF_8);
+		return new String(out.toByteArray(), StandardCharsets.UTF_8);
 	}
 
 	public void commitDiff() throws IOException {
