@@ -30,11 +30,13 @@ public final class DataBaseFile {
                 }
                 key = new byte[keyLength];
                 value = new byte[valueLength];
-                inputFile.read(key);
-                inputFile.read(value);
+                try {
+                    inputFile.read(key);
+                    inputFile.read(value);
+                } catch (Error e) {
+                    throw new DataBaseWrongFileFormat("Some key or value are too large in " + file.getName());
+                }
             } catch (Exception e) {
-                throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
-            } catch (Error e) {
                 throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
             }
         }
@@ -98,14 +100,19 @@ public final class DataBaseFile {
     public void save() {
         try {
             if (data.size() == 0) {
-                file.delete();
+                if (!file.delete()) {
+                    throw new DataBaseException("Cannot delete a file!");
+                }
             } else {
                 RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
-                for (Node node : data) {
-                    node.write(outputFile);
+                try {
+                    for (Node node : data) {
+                        node.write(outputFile);
+                    }
+                    outputFile.setLength(outputFile.getFilePointer());
+                } finally {
+                    outputFile.close();
                 }
-                outputFile.setLength(outputFile.getFilePointer());
-                outputFile.close();
             }
         } catch (FileNotFoundException e) {
             throw new DataBaseException("File save error!");
@@ -126,7 +133,6 @@ public final class DataBaseFile {
 
     public String put(final String keyStr, final String valueStr) {
         try {
-            boolean result = false;
             byte[] key = keyStr.getBytes("UTF-8");
             byte[] value = valueStr.getBytes("UTF-8");
 
