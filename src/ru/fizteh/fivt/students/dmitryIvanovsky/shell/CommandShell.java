@@ -75,7 +75,7 @@ public class CommandShell implements CommandAbstract {
                     }
                 }
             } else {
-                if (fileDestination.equals(fileSource)) {
+                if (fileDestination.getCanonicalFile().equals(fileSource.getCanonicalFile())) {
                     System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
                     return Code.ERROR;
                 }

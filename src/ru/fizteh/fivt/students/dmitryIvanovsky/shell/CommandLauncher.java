@@ -30,7 +30,7 @@ public class CommandLauncher {
         }
     }
 
-    public Code runCommand(String query) {
+    public Code runCommand(String query, boolean isInteractiveMode) {
         query = query.trim();
         StringTokenizer token = new StringTokenizer(query);
         int countTokens = token.countTokens();
@@ -62,16 +62,18 @@ public class CommandLauncher {
                 return Code.ERROR;
             }
         } else {
-            System.err.println("Пустой ввод");
+            if (!isInteractiveMode) {
+                System.err.println("Пустой ввод");
+            }
             return Code.ERROR;
         }
     }
 
-    public Code runCommands(String query) {
+    public Code runCommands(String query, boolean isInteractiveMode) {
         String[] command;
         command = query.split(";");
         for (String q : command) {
-            Code res = runCommand(q);
+            Code res = runCommand(q, isInteractiveMode);
             if (res != Code.OK) {
                 return res;
             }
@@ -94,7 +96,7 @@ public class CommandLauncher {
                 if (query.length() == 0) {
                     continue;
                 }
-                Code res = runCommands(query);
+                Code res = runCommands(query, true);
                 if (res == Code.EXIT) {
                     return;
                 }
@@ -113,7 +115,7 @@ public class CommandLauncher {
             }
             String query = builder.toString();
             exampleClass.exit();
-            return runCommands(query);
+            return runCommands(query, false);
         } else {
             interactiveMode();
             exampleClass.exit();
