@@ -35,7 +35,7 @@ public class Shell {
 
 class MyShell {
     File path;
-    MyShell () {
+    MyShell() {
         path = new File(".");
     }
 
@@ -50,27 +50,30 @@ class MyShell {
             }
             String commands = input.nextLine();
             if (commands.length() != 0) {
-                runCommands(commands);
+                runCommands(commands, false);
             }
         }
     }
 
     public void useSimpleMode(String commands) {
-        runCommands(commands);
+        runCommands(commands, true);
     }
 
-    private void runCommands(String commands) {
+    private void runCommands(String commands, boolean isSimple) {
         String[] commandsList = commands.split(";");
         for (String command : commandsList) {
             try {
-                runCommand(command);
+                runCommand(command, isSimple);
             } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
+                if (isSimple) {
+                    System.exit(0);
+                }
             }
         }
     }
 
-    private void runCommand(String commandWithArguments) {
+    private void runCommand(String commandWithArguments, boolean isSimple) {
         commandWithArguments = commandWithArguments.trim();
         if (commandWithArguments.length() == 0) {
             return;
@@ -81,14 +84,16 @@ class MyShell {
         if (command.equals("cd")) {
             if (tokensAmount != 2) {
                 throw new IllegalArgumentException("cd: invalid usage");
-            }  else {
+            } else {
                 String newPath = tokenizer.nextToken();
                 try {
                     myCd(newPath);
                 } catch (IllegalArgumentException e) {
                     System.err.println("cd: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
-
             }
         } else if (command.equals("mkdir")) {
             if (tokensAmount != 2) {
@@ -99,6 +104,9 @@ class MyShell {
                     myMkdir(name);
                 } catch (IllegalArgumentException e) {
                     System.err.println("mkdir: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
 
@@ -111,6 +119,9 @@ class MyShell {
                     myPwd();
                 } catch (IllegalArgumentException e) {
                     System.err.println("pwd: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
 
@@ -125,6 +136,9 @@ class MyShell {
                     myRemove(name);
                 } catch (IllegalArgumentException e) {
                     System.err.println("rm: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
             }
@@ -139,8 +153,14 @@ class MyShell {
                     myCopyMove(source, destination, true);
                 } catch (IllegalArgumentException e) {
                     System.err.println("cp: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 } catch (Exception e) {
                     System.err.println("cp: Can't copy from " + source + " to " + destination);
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
             }
@@ -155,8 +175,14 @@ class MyShell {
                     myCopyMove(source, destination, false);
                 } catch (IllegalArgumentException e) {
                     System.err.println("mv: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 } catch (Exception e) {
                     System.err.println("mv: Can't move from " + source + " to " + destination);
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
             }
@@ -169,6 +195,9 @@ class MyShell {
                     myDir();
                 } catch (IllegalArgumentException e) {
                     System.err.println("dir: " + e.getMessage());
+                    if (isSimple) {
+                        System.exit(0);
+                    }
                 }
 
             }
@@ -234,12 +263,13 @@ class MyShell {
             throw new IllegalArgumentException(name + ": No such file or directory");
         }
         File[] children = currFile.listFiles();
-        if (children != null)
+        if (children != null) {
             if (currFile.isDirectory()) {
                 for (File child : children) {
                     myRemove(child.toString());
                 }
             }
+        }
         if (!currFile.delete()) {
             throw new IllegalArgumentException(name + ": Can't delete");
         }
@@ -254,7 +284,7 @@ class MyShell {
         }
     }
 
-    private void myCopyMove(String sourceName, String destinationName, boolean isItCopy) throws Exception{
+    private void myCopyMove(String sourceName, String destinationName, boolean isItCopy) throws Exception {
         File source = new File(getFullPath(sourceName));
         File destination = new File(getFullPath(destinationName));
         if (source.isDirectory()) {
@@ -299,4 +329,3 @@ class MyShell {
         System.exit(0);
     }
 }
-
