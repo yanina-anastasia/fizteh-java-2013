@@ -69,11 +69,12 @@ public class FileReader {
                         }
                         table.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
                     } else {
-                        Integer offset = inStream.readInt();
+                        int offset = inStream.readInt();
                         i += intSize;
                         arraySize = key.size();
                         offset1 -= arraySize + separatorSize + intSize;
-                        Integer offsetValue = offset - prevOffset;
+                        int offsetValue = offset - prevOffset;
+                        prevOffset = offset;
                         keysToMap.add(new String(keyInBytes, StandardCharsets.UTF_8));
                         offsets.add(offsetValue);
                         keyInBytes = new byte[arraySize];
