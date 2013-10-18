@@ -14,19 +14,55 @@ public class MapOfCommands {
         }
     }
 
+    public static String[] splitCommand(String command) {
+        StringBuilder str = new StringBuilder(command);
+        while (str.charAt(0) == ' ' || str.charAt(0) == '\t') {
+            str.delete(0, 1);
+        }
+        int currentChar = 0;
+        while (currentChar < str.length() && str.charAt(currentChar) != ' ' && str.charAt(currentChar) != '\t') {
+            currentChar++;
+        }
+        String nameOfCommand = str.substring(0, currentChar);
+        str.delete(0, currentChar);
+        while (str.length() != 0 && (str.charAt(0) == ' ' || str.charAt(0) == '\t')) {
+            str.delete(0, 1);
+        }
+        if (str.length() == 0) {
+            String[] result = new String[1];
+            result[0] = nameOfCommand;
+            return result;
+        }
+        currentChar = 0;
+        while (currentChar < str.length() && str.charAt(currentChar) != ' ' && str.charAt(currentChar) != '\t') {
+            currentChar++;
+        }
+        String firstArgument = str.substring(0, currentChar);
+        str.delete(0, currentChar);
+        while (str.length() != 0 && (str.charAt(0) == ' ' || str.charAt(0) == '\t')) {
+            str.delete(0, 1);
+        }
+        if (str.length() == 0) {
+            String[] result = new String[2];
+            result[0] = nameOfCommand;
+            result[1] = firstArgument;
+            return result;
+        }
+        currentChar = str.length() - 1;
+        while (str.length() != 0 && (str.charAt(currentChar) == ' ' || str.charAt(currentChar) == '\t')) {
+            str.delete(currentChar, currentChar + 1);
+            currentChar = str.length() - 1;
+        }
+        String secondArgument = str.toString();
+        String[] result = new String[3];
+        result[0] = nameOfCommand;
+        result[1] = firstArgument;
+        result[2] = secondArgument;
+        return result;
+    }
+
     public static Code commandProcessing(String command) {
-        StringTokenizer st = new StringTokenizer(command, " \t", false);
-        ArrayList<String> parts = new ArrayList<String>();
-        while (st.hasMoreElements()) {
-            String tmp = (String) st.nextElement();
-            if (!tmp.equals("")) {
-                parts.add(tmp);
-            }
-        }
-        String[] partsOfCommand = new String[parts.size()];
-        for (int i = 0; i < parts.size(); i++) {
-            partsOfCommand[i] = parts.get(i);
-        }
+        String[] partsOfCommand = splitCommand(command);
         String nameOfCommand = partsOfCommand[0];
         if (!commands.containsKey(nameOfCommand)) {
             System.err.println("Command '" + nameOfCommand + "' is not available or does not exist");

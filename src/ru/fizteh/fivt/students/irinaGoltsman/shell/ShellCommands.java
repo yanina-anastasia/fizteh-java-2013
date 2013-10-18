@@ -113,7 +113,16 @@ public class ShellCommands {
         }
 
         public boolean check(String[] parts) {
-            return ((parts.length - 1) == countOfArguments);
+            if ((parts.length - 1) != countOfArguments) {
+                return false;
+            }
+            String destination = parts[2];
+            int numberOfWords = destination.split(" ").length;
+            if (numberOfWords > 1) {
+                return false;
+            }
+            numberOfWords = destination.split("\t").length;
+            return (numberOfWords == 1);
         }
 
         public Code perform(String[] parts) {
@@ -170,7 +179,16 @@ public class ShellCommands {
         }
 
         public boolean check(String[] parts) {
-            return ((parts.length - 1) == countOfArguments);
+            if ((parts.length - 1) != countOfArguments) {
+                return false;
+            }
+            String destination = parts[2];
+            int numberOfWords = destination.split(" ").length;
+            if (numberOfWords > 1) {
+                return false;
+            }
+            numberOfWords = destination.split("\t").length;
+            return (numberOfWords == 1);
         }
 
         public Code perform(String[] parts) {

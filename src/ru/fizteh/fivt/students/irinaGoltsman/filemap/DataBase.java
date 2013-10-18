@@ -141,12 +141,7 @@ public class DataBase {
         } else {
             System.out.println("new");
         }
-        StringBuilder tmp = new StringBuilder();
-        for (int i = 2; i < args.length; i++) {
-            tmp.append(args[i]);
-            tmp.append(' ');
-        }
-        String value = tmp.toString();
+        String value = args[2];
         dbStorage.put(key, value);
         return Code.OK;
     }
