@@ -111,6 +111,7 @@ public class FileMap {
             outputStream.write(key);
             outputStream.write(value);
         }
+        outputStream.close();
     }
 
     public String put(String key, String value) {
