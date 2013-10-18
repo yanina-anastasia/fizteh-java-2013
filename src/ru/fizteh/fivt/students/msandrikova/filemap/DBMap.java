@@ -42,13 +42,13 @@ public class DBMap {
 				try {
 					try {
 						keyLength = reader.readInt();
-						if(keyLength <= 0 || keyLength > 10*10*10*10*10*10) {
+						if(keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
 							Utils.generateAnError("Incorrect length of key.", "DBMap", false);
 						}
 						counter++;
 						
 						valueLength = reader.readInt();
-						if(valueLength <= 0 || valueLength > 10*10*10*10*10*10) {
+						if(valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
 							Utils.generateAnError("Incorrect length of value.", "DBMap", false);
 						}
 						counter++;
