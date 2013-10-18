@@ -121,28 +121,7 @@ public class Shell {
     public int runArgs(String[] args) {
         StringBuilder sb = new StringBuilder();
         for (String s : args) {
-            boolean spaceFound = false;
-            int endCommand = -1;
-            for (int i = 0; i < s.length(); i++) {
-                if (Character.isSpaceChar(s.charAt(i))) {
-                    spaceFound = true;
-                    if (endCommand != -1) {
-                        System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
-                        return -1;
-                    }
-                }
-                if (s.charAt(i) == ';' && endCommand == -1) {
-                    endCommand = i;
-                }
-            }
-            if (spaceFound && endCommand == -1) {
-                sb = sb.append("\"").append(s).append("\" ");
-            } else if (spaceFound && endCommand != -1) {
-                sb = sb.append("\"").append(s.substring(0, endCommand)).append("\"");
-                sb = sb.append(s.substring(endCommand, s.length())).append(" ");
-            } else {
-                sb = sb.append(s).append(" ");
-            }
+            sb.append(s).append(" ");
         }
         String argString = sb.toString();
         return parseString(argString);
