@@ -5,5 +5,7 @@ import java.io.IOException;
 public interface Command {
     public String getName();
 
-    public void run(State state, String[] args) throws IOException;
+    public int getArgCount();
+
+    public void run(Object state, String[] args) throws IOException;
 }

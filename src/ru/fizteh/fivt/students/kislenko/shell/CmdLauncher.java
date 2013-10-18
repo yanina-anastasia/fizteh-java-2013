@@ -4,25 +4,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.fizteh.fivt.students.kislenko.filemap.*;
+
 public class CmdLauncher {
     private Map<String, Command> commandList = new HashMap<String, Command>();
 
-    private void fillCmdList() {
-        CommandCd cd = new CommandCd();
-        CommandCp cp = new CommandCp();
-        CommandDir dir = new CommandDir();
-        CommandMkdir mkdir = new CommandMkdir();
-        CommandPwd pwd = new CommandPwd();
-        CommandMv mv = new CommandMv();
-        CommandRm rm = new CommandRm();
-
-        commandList.put(cd.getName(), cd);
-        commandList.put(cp.getName(), cp);
-        commandList.put(dir.getName(), dir);
-        commandList.put(mkdir.getName(), mkdir);
-        commandList.put(pwd.getName(), pwd);
-        commandList.put(mv.getName(), mv);
-        commandList.put(rm.getName(), rm);
+    public void addCommand(Command command) {
+        commandList.put(command.getName(), command);
     }
 
     private String getCommand(String inputString) {
@@ -40,21 +28,24 @@ public class CmdLauncher {
             return new String[0];
         }
         String[] result = inputString.substring(start + 1, inputString.length()).trim().split("\\s+");
-        for (String s : result) {
-            s = s.trim();
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = result[i].trim();
         }
         return result;
     }
 
-    public void launch(State state, String input) throws IOException {
-        fillCmdList();
+    public void launch(Object state, String input) throws IOException {
         String command = getCommand(input.trim());
+        String[] args = getArgs(input.trim());
         if (command.isEmpty()) {
             throw new IOException("Empty input.");
         }
         if (!commandList.containsKey(command)) {
             throw new IOException("Wrong command.");
         }
-        commandList.get(command).run(state, getArgs(input));
+        if (args.length != commandList.get(command).getArgCount()) {
+            throw new IOException("Incorrect argument count.");
+        }
+        commandList.get(command).run(state, args);
     }
 }

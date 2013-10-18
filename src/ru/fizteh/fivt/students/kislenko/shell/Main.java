@@ -6,9 +6,11 @@ public class Main {
     public static void main(String[] args) {
         File startingDirectory = new File("");
         startingDirectory = startingDirectory.getAbsoluteFile();
-        State starting = new State();
+        ShellState starting = new ShellState();
         starting.setState(startingDirectory.toPath());
-        Shell shell = new Shell(starting);
+        Command[] commandList = new Command[]{new CommandCd(), new CommandCp(), new CommandDir(),
+                new CommandMkdir(), new CommandMv(), new CommandPwd(), new CommandRm()};
+        Shell shell = new Shell(starting, commandList);
         if (args.length == 0) {
             shell.interactiveMode();
         } else {

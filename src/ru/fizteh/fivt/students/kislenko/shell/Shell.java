@@ -3,18 +3,21 @@ package ru.fizteh.fivt.students.kislenko.shell;
 import java.util.Scanner;
 
 public class Shell {
-    private State state = new State();
+    private Object state;
+    CmdLauncher launcher = new CmdLauncher();
 
-    public Shell(State startingDir) {
-        state.setState(startingDir.getState());
+    public Shell(Object startingState, Command[] commands) {
+        state = startingState;
+        for (Command command : commands) {
+            launcher.addCommand(command);
+        }
     }
 
     public void interactiveMode() {
         Scanner scan = new Scanner(System.in);
-        CmdLauncher launcher = new CmdLauncher();
         boolean exitFlag = false;
         while (!exitFlag) {
-            System.out.print(state.getState().toString() + "$ ");
+            System.out.print("$ ");
             String input = scan.nextLine().trim();
             String[] commands = input.split("\\s*;\\s*");
             try {
