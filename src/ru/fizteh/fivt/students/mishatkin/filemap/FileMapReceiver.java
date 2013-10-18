@@ -43,10 +43,10 @@ public class FileMapReceiver extends ShellReceiver {
 						String key = new String(keyBinary, "UTF-8");
 						String value = new String(valueBinary, "UTF-8");
 						dictionary.put(key, value);
-					}catch (NullPointerException e) {
-						throw new MissingFileMapDatabaseException("DB file missing or corrupted.");
-					} catch (IOException e) {
+					} catch (EOFException e) {
 						hasNext = false;
+					} catch (NullPointerException | IOException e) {
+						throw new MissingFileMapDatabaseException("DB file missing or corrupted.");
 					}
 				}
 			} finally {
