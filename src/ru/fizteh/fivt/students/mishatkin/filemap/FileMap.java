@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class FileMap {
 	public static void main(String[] args) {
-		System.setProperty("fizteh.db.dir", "/home/sane/Documents/JavaMipt/DBTest");
+		// 好 ! System.setProperty("fizteh.db.dir", "/home/sane/Documents/JavaMipt/DBTest");
 		CommandSource source = (args.length > 0) ? new BatchCommandSource(args)
 		                                         : new StandardInputCommandSource(new Scanner(System.in));
 		FileMapRunner runner = new FileMapRunner(source);
