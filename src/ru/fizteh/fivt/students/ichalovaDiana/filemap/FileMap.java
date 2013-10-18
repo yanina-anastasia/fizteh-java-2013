@@ -33,6 +33,12 @@ public class FileMap {
             getDataFromFile();
         } catch (Exception e) {
             System.out.println("Error while opening database: " + e.getMessage());
+            try {
+                if (dbFile != null)
+                    dbFile.close();
+            } catch (IOException e1) {
+                System.out.println("Error while closing database: " + e1.getMessage());
+            }
             System.exit(1);
         }
     }
@@ -41,10 +47,12 @@ public class FileMap {
         interpreter.run(args);
         try {
             saveChanges();
+            dbFile.close();
         } catch (Exception e) {
             System.out.println("Error while saving changes: " + e.getMessage());
             System.exit(1);
         }
+        
     }
 
     static void getDataFromFile() throws IOException {
