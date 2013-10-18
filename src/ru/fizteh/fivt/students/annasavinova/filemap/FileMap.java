@@ -17,17 +17,15 @@ public class FileMap extends UserShell {
     @Override
     public void printError(String errStr) {
         if (isPacket) {
-            System.err.println(errStr);
             unloadFile();
-            System.exit(1);
+            printErrorAndExit(errStr);
         } else {
             System.out.println(errStr);
         }
     }
-    
+
     protected void printErrorAndExit(String errMessage) {
         System.err.println(errMessage);
-        unloadFile();
         System.exit(1);
     }
 
@@ -60,7 +58,7 @@ public class FileMap extends UserShell {
             String value = new String(valueBytes);
             dataMap.put(key, value);
         } catch (IOException e) {
-            printErrorAndExit("Can't read file");
+            printErrorAndExit("Cannot load file");
         }
     }
 
@@ -92,7 +90,7 @@ public class FileMap extends UserShell {
             dataFile.close();
             dataMap.clear();
         } catch (IOException e) {
-            printErrorAndExit("Cannot unload file");
+            printErrorAndExit("Cannot unload file correctly");
         }
     }
 
@@ -157,6 +155,9 @@ public class FileMap extends UserShell {
 
     public static void main(String[] args) {
         FileMap tmp = new FileMap();
+        if (System.getProperty("fizteh.db.dir") == null) {
+            tmp.printErrorAndExit("have no file");
+        }
         File data = new File(System.getProperty("fizteh.db.dir") + File.separatorChar + "db.dat");
         tmp.loadFile(data);
         tmp.exec(args);
