@@ -46,6 +46,7 @@ public class FileMap {
             System.err.println("Not a directory");
             System.exit(1);
         }
+        return;
     }
 
     private static void readDatabase() throws IOException {
@@ -65,8 +66,8 @@ public class FileMap {
             }
             currentPosition = (int) dataBase.getFilePointer();
             dataBase.seek(offsetOfValueSecond);
-            value = dataBase.readUTF();    
-            fileMap.put(key, value);    
+            value = dataBase.readUTF();
+            fileMap.put(key, value);
         }
         dataBase.setLength(0);
         dataBase.close();

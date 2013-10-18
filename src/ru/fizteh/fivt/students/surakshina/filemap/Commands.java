@@ -5,10 +5,13 @@ import java.io.IOException;
 
 public class Commands {
     public static void executeProcess(String[] input) {
+        if (input == null) {
+            return;
+        }
         switch (input[0]) {
         case "put":
-            if (input.length >= 3) {
-                put(input);
+            if (input.length == 3) {
+                put(input[1], input[2]);
             } else {
                 printError("Incorrect number of arguments");
             }
@@ -56,14 +59,7 @@ public class Commands {
         }
     }
 
-    private static void put(String[] input) {
-        String key = input[1];
-        StringBuffer tmp = new StringBuffer();
-        for (int i = 2; i < input.length; ++i) {
-            tmp = tmp.append(input[i]);
-            tmp = tmp.append(" ");
-        }
-        String value = tmp.toString();
+    private static void put(String key, String value) {
         if (FileMap.fileMap.containsKey(key)) {
             if (FileMap.fileMap.get(key) != null) {
                 System.out.println("overwrite\n" + FileMap.fileMap.get(key));

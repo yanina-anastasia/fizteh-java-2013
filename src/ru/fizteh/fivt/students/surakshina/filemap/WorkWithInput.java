@@ -14,23 +14,11 @@ public class WorkWithInput {
     }
 
     private static String[] extractArgumentsFromInputString(String input) {
-        int index = 0;
-        input = input.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
-        Scanner scanner = new Scanner(input);
-        while (scanner.hasNext()) {
-            scanner.next();
-            ++index;
+        input = input.trim();
+        if (input.isEmpty()) {
+            return null;
         }
-        scanner.close();
-        String[] commands = new String[index];
-        scanner = new Scanner(input);
-        int i = 0;
-        while (scanner.hasNext()) {
-            commands[i] = scanner.next();
-            ++i;
-        }
-        scanner.close();
-        return commands;
+        return input.split("[\\s]+", 3);
     }
 
     private static void doInteractiveMode() {
@@ -39,12 +27,11 @@ public class WorkWithInput {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             cur = scanner.nextLine();
-            cur = cur.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
+            cur = cur.trim();
             Scanner scanner1 = new Scanner(cur);
             scanner1.useDelimiter("[ ]*;[ ]*");
             while (scanner1.hasNext()) {
                 String current = scanner1.next();
-                current = current.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
                 if (current.equals("exit")) {
                     scanner.close();
                     scanner1.close();
@@ -77,27 +64,29 @@ public class WorkWithInput {
         scanner.useDelimiter("[ ]*;[ ]*");
         while (scanner.hasNext()) {
             String current = scanner.next();
-            current = current.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
-            if (!current.isEmpty()) {
-                Commands.executeProcess(extractArgumentsFromInputString(current));
-            } else {
-                Commands.printError("Incorrect input");
-                try {
-                    FileMap.writeInDatabase();
-                } catch (FileNotFoundException e) {
-                    System.err.println("Can't read database");
-                    System.exit(1);
-                } catch (IOException e1) {
-                    System.err.println("Can't write in database");
+            current = current.trim();
+            if (!current.equals("exit")) {
+                if (!current.isEmpty()) {
+                    Commands.executeProcess(extractArgumentsFromInputString(current));
+                } else {
+                    Commands.printError("Incorrect input");
+                    try {
+                        FileMap.writeInDatabase();
+                    } catch (FileNotFoundException e) {
+                        System.err.println("Can't read database");
+                        System.exit(1);
+                    } catch (IOException e1) {
+                        System.err.println("Can't write in database");
+                        System.exit(1);
+                    }
+                    try {
+                        FileMap.dataBase.close();
+                    } catch (IOException e2) {
+                        System.err.println("Can't close a database");
+                        System.exit(1);
+                    }
                     System.exit(1);
                 }
-                try {
-                    FileMap.dataBase.close();
-                } catch (IOException e2) {
-                    System.err.println("Can't close a database");
-                    System.exit(1);
-                }
-                System.exit(1);
             }
         }
         scanner.close();
