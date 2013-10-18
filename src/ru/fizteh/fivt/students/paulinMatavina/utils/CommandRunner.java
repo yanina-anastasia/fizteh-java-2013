@@ -39,8 +39,8 @@ public class CommandRunner {
         
         for (Command command : state.commands.values()) {
             if (command.getName().equals(nextCommand)) {
-                if (command.getArgNum() != tokenNum - 1 
-                        && (command.spaceAllowed() && command.getArgNum() >= tokenNum)) {
+                if ((!command.spaceAllowed() && command.getArgNum() != tokenNum - 1) 
+                        || (command.spaceAllowed() && command.getArgNum() >= tokenNum)) {
                     System.err.println("Wrong arguments number: " 
                             + command.getArgNum() + " expected");
                     return 1;

@@ -32,7 +32,6 @@ public class DbState extends State{
     private void fileCheck() {
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {
-            System.err.println("filemap: database file does not exist, trying to create");
             try {
                 dbTempFile.createNewFile();
             } catch (IOException e) {
@@ -101,20 +100,20 @@ public class DbState extends State{
         String value = "";
         String key2 = "";
         
-        do {            
-            position = (int) dbFile.getFilePointer();
+        do {    
             if (position < firstOffset) { 
                 key2 = getKeyFromFile(position);
                 endOffset = dbFile.readInt();
                 value = getValueFromFile(startOffset, endOffset);
+                position += key.getBytes().length + 5;
             } else {
                 value = getValueFromFile(startOffset, (int) dbFile.length());
+                position += key.getBytes().length + 5;
             }
             data.put(key, value);
             key = key2;
             startOffset = endOffset;
-        } while (position < firstOffset 
-                && dbFile.getFilePointer() < dbFile.length());
+        } while (position <= firstOffset);
     }
 
     public void commit() throws IOException {
