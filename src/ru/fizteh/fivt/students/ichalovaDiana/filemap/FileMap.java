@@ -114,7 +114,7 @@ class Put extends Command {
     @Override
     protected void execute(String... arguments) throws Exception {
         try {
-            if (arguments.length <= ARG_NUM) {
+            if (arguments.length < ARG_NUM) {
                 throw new IllegalArgumentException("Illegal number of arguments");
             }
 
