@@ -75,9 +75,13 @@ public abstract class AbstractFileMap extends Abstract {
                 System.err.println("ERROR: incorrect file format");
                 return;
             }
+        } else {
+            if (!state.getCurState().createNewFile()) {
+                throw new IOException("ERROR: cannot create db.dat");
+            } else {
+                checkOpenFile();
+            }
         }
-
-        file.close();
     }
 
     private void readFile() throws IOException {
