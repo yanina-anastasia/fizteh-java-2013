@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.ermolenko.filemap;
 
+import ru.fizteh.fivt.students.ermolenko.shell.Shell;
+import ru.fizteh.fivt.students.ermolenko.shell.Command;
+
 import java.io.IOException;
-import java.util.Map;
 
 public class Get implements Command {
 
@@ -9,9 +11,9 @@ public class Get implements Command {
         return "get";
     }
 
-    public void executeCmd(Map<String, String> dataBase, String[] args) throws IOException {
+    public void executeCmd(Shell filemap, String[] args) throws IOException {
         String key = args[0];
-        String value = dataBase.get(key);
+        String value = ((FileMap) filemap).getFileMapState().getDataBase().get(key);
         if (value == null) {
             System.out.println("not found");
         } else {

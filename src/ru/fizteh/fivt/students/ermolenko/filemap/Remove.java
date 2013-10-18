@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.ermolenko.filemap;
 
 import java.io.IOException;
-import java.util.Map;
+
+import ru.fizteh.fivt.students.ermolenko.shell.Command;
+import ru.fizteh.fivt.students.ermolenko.shell.Shell;
 
 public class Remove implements Command {
 
@@ -9,9 +11,9 @@ public class Remove implements Command {
         return "remove";
     }
 
-    public void executeCmd(Map<String, String> dataBase, String[] args) throws IOException {
+    public void executeCmd(Shell filemap, String[] args) throws IOException {
         String key = args[0];
-        String value = dataBase.remove(key);
+        String value = ((FileMap) filemap).getFileMapState().getDataBase().remove(key);
         if (value == null) {
             System.out.println("not found");
         } else {
