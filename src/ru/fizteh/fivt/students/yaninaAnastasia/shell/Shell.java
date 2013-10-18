@@ -106,7 +106,7 @@ public class Shell {
         }
     }
 
-    public void pocket(String [] args) {
+    public void pocket(String[] args) {
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);

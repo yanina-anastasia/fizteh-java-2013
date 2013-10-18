@@ -16,12 +16,12 @@ public class OpenFile {
 
         if (!tmpFile.exists()) {
             if (!tmpFile.createNewFile()) {
-                    System.err.println("Error with creating a directory");
-                    return false;
-                } else {
-                    curState.dbFile = new RandomAccessFile(tmpFile, "rw");
-                }
+                System.err.println("Error with creating a directory");
+                return false;
             } else {
+                curState.dbFile = new RandomAccessFile(tmpFile, "rw");
+            }
+        } else {
             try {
                 loadTable(curState);
             } catch (EOFException e) {

@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
 
-import java.io.*;
+import java.io.IOException;
 
 public abstract class Command {
     public Command() {

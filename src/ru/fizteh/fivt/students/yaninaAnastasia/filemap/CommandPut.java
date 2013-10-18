@@ -5,14 +5,14 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 import java.io.IOException;
 
 public class CommandPut extends Command {
-    public boolean exec (String[] args, State curState) throws IOException {
+    public boolean exec(String[] args, State curState) throws IOException {
         DBState myState = DBState.class.cast(curState);
         if (myState.table == null) {
             System.err.println("no table");
             return false;
         }
         if (args.length != 2) {
-            System.err.println ("Invalid arguments");
+            System.err.println("Invalid arguments");
             System.err.println(args.length);
             return false;
         }
@@ -26,7 +26,7 @@ public class CommandPut extends Command {
         return true;
     }
 
-    public String getCmd () {
+    public String getCmd() {
         return "put";
 
     }
