@@ -96,6 +96,7 @@ public abstract class AbstractFileMap extends Abstract {
                 int offset = file.readInt();
 
                 if (offset < 0 || offset > file.length()) {
+                    file.close();
                     throw new IOException("ERROR: incorrect input");
                 }
 
