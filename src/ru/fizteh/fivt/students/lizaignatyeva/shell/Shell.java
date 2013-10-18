@@ -67,7 +67,7 @@ class MyShell {
             } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
                 if (isSimple) {
-                    System.exit(0);
+                    System.exit(1);
                 }
             }
         }
@@ -91,7 +91,7 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("cd: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
             }
@@ -105,7 +105,7 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("mkdir: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
@@ -120,7 +120,7 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("pwd: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
@@ -137,7 +137,7 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("rm: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
@@ -154,12 +154,12 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("cp: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 } catch (Exception e) {
                     System.err.println("cp: Can't copy from " + source + " to " + destination);
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
@@ -176,12 +176,12 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("mv: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 } catch (Exception e) {
                     System.err.println("mv: Can't move from " + source + " to " + destination);
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
@@ -196,7 +196,7 @@ class MyShell {
                 } catch (IllegalArgumentException e) {
                     System.err.println("dir: " + e.getMessage());
                     if (isSimple) {
-                        System.exit(0);
+                        System.exit(1);
                     }
                 }
 
