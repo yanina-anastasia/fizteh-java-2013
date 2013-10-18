@@ -15,7 +15,7 @@ public class Launcher {
         return fileMap;
     }
 
-    public boolean launch(final String arg) throws IOException {
+    private boolean launch(final String arg) throws IOException {
         String[] commands = arg.split("\\s+");
         boolean result = false;
         int i = 0;
@@ -32,7 +32,7 @@ public class Launcher {
         return result;
     }
 
-    public void interactiveMode() {
+    private void interactiveMode() {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
@@ -60,7 +60,7 @@ public class Launcher {
         }
     }
 
-    public void packageMode(final String[] args) {
+    private void packageMode(final String[] args) {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
