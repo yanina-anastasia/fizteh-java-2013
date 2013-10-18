@@ -11,7 +11,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String pwd = System.getProperty("user.dir");
         Shell shell = new Shell(pwd);
-        //FileSystemRoutine.integrate(shell);
         String db = System.getProperty("fizteh.db.dir");
         try {
             FileMap fileMap = new FileMap((Paths.get(db)).resolve("db.dat").toFile());
