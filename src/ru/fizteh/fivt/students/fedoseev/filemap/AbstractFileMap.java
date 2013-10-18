@@ -66,11 +66,11 @@ public abstract class AbstractFileMap extends Abstract {
 
                 if (file.length() > MAX_FILE_SIZE) {
                     file.close();
-                    throw new IOException("ERROR: too big file.");
+                    throw new IOException("ERROR: too big file");
                 }
 
                 readFile();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 file.close();
                 System.err.println("ERROR: incorrect file format");
                 return;
@@ -82,6 +82,8 @@ public abstract class AbstractFileMap extends Abstract {
                 checkOpenFile();
             }
         }
+
+        file.close();
     }
 
     private void readFile() throws IOException {
@@ -96,7 +98,6 @@ public abstract class AbstractFileMap extends Abstract {
                 int offset = file.readInt();
 
                 if (offset < 0 || offset > file.length()) {
-                    file.close();
                     throw new IOException("ERROR: incorrect input");
                 }
 
