@@ -11,6 +11,14 @@ public class OpenFile {
         if (path == null) {
             System.err.println("Error with getting property");
         }
+        if (!(new File(path).exists())) {
+            System.err.println("The path from the property does not exist");
+            System.exit(1);
+        }
+        if (new File(path).isFile()) {
+            System.err.println("The path from the property is not a directory");
+            System.exit(1);
+        }
         curState.workingDirectory = new File(path, "db.dat").toString();
         File tmpFile = new File(curState.workingDirectory);
 
