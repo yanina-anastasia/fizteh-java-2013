@@ -28,28 +28,24 @@ public class Shell {
     String[] getParams(String command, boolean flag) {
         command = command.trim();
         int spaceEntry = command.indexOf(' ');
+        String[] res = {};
         if (spaceEntry == -1) {
             String[] result = {};
             return result;
         } else {
-            String[] res = {};
-            res = command.substring(spaceEntry + 1).trim().split("\\s+");
-            if (flag) {
-                StringBuilder paramsBuilder = new StringBuilder();
-                int i;
-                for (i = 1; i < res.length; i++) {
-                    paramsBuilder.append(res[i]);
-                    paramsBuilder.append(" ");
+            if (!flag) {
+                res = command.substring(spaceEntry + 1).trim().split("\\s+");
+                for (int i = 0; i < res.length; i++) {
+                    res[i] = res[i].trim();
                 }
-                if (i != 1) {
-                    res[1] = paramsBuilder.toString();
-                    res = Arrays.copyOfRange(res, 0, 2);
-                }
+                return res;
+            } else {
+                String elem0 = command.substring(spaceEntry + 1).trim().split("\\s+")[0];
+                String temp = command.substring(spaceEntry + 1).trim();
+                String elem1 = temp.substring(temp.indexOf(' ') + 1);
+                String[] answer = {elem0.trim(), elem1.trim()};
+                return answer;
             }
-            for (int i = 0; i < res.length; i++) {
-                res[i] = res[i].trim();
-            }
-            return res;
         }
     }
 
