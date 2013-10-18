@@ -69,7 +69,8 @@ public class DatabaseContext {
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
         fstream.read(sizeBuf);
         int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
-        if (fstream.available() < (long) keySize + (long) valueSize) {
+        if (fstream.available() < (long) keySize + (long) valueSize
+                || keySize <= 0 || valueSize <= 0) {
             throw new Exception("Error: malformed database");
         }
         byte[] keyBuf = new byte[keySize];
