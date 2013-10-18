@@ -77,7 +77,7 @@ public class PathController {
 
     public void changePath(String newPath) throws IOException {
         newPath = newPath.trim();
-        if (newPath.charAt(0) == '/') {
+        if (newPath.length() > 0 && newPath.charAt(0) == '/') {
             setPath(newPath);
         } else {
             modifyPath(newPath);
