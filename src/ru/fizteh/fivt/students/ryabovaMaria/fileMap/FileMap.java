@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.Map;
@@ -115,15 +116,21 @@ public class FileMap {
     }
     
     public static void main(String[] args) {
-        currentDir = new File(System.getProperty("fizteh.db.dir"));
+        String getPropertyString = System.getProperty("user.dir");
+        if (getPropertyString == null) {
+            System.err.println("I can't find this directory");
+            System.exit(1);
+        }
+        currentDir = new File(getPropertyString);
         try {
             loadFile();
+        } catch (FileNotFoundException e) {
         } catch (Exception e) {
-            System.err.println(e + " I can't read from db.dat");
+            System.err.println(e.getMessage() + " I can't read from db.dat");
             System.exit(1);
         }
         commands = new FileMapCommands(loadList);
-        shell = new Shell(commands, "fizteh.db.dir");
+        shell = new Shell(commands, "user.dir");
         int argc = args.length;
         if (argc == 0) {
             Shell.interactive();
