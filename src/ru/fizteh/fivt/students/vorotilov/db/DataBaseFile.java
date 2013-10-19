@@ -35,8 +35,14 @@ public class DataBaseFile {
                 }
                 byte[] key = new byte[keyLength];
                 byte[] value = new byte[valueLength];
-                dbFile.read(key);
-                dbFile.read(value);
+                long readedBytes = 0;
+                while (readedBytes != keyLength) {
+                    readedBytes += dbFile.read(key);
+                }
+                readedBytes = 0;
+                while (readedBytes != valueLength) {
+                    readedBytes += dbFile.read(value);
+                }
                 dbMap.put(new String(key, Charset.forName("UTF-8")), new String(value, Charset.forName("UTF-8")));
             }
         } catch (FileNotFoundException e) {
