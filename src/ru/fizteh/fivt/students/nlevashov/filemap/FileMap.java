@@ -85,7 +85,7 @@ public class FileMap {
         try {
             t = new Table(addr);
         } catch (Exception e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
             System.exit(1);
         }
         if (args.length == 0) {
@@ -103,7 +103,7 @@ public class FileMap {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
+                    System.out.println(e.getMessage());
                 }
             } while (flag);
         } else {
@@ -120,14 +120,14 @@ public class FileMap {
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println(e.getMessage());
                 System.exit(1);
             }
         }
         try {
             t.refresh();
         } catch (Exception e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
             System.exit(1);
         }
     }
