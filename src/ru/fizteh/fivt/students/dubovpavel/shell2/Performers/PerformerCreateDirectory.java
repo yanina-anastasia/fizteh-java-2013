@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
 
-import ru.fizteh.fivt.students.dubovpavel.shell2.Command;
-import ru.fizteh.fivt.students.dubovpavel.shell2.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 
 import java.io.File;
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
+import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
-public class PerformerCreateDirectory extends Performer {
+public class PerformerCreateDirectory extends PerformerShell {
     public boolean pertains(Command command) {
         return command.getHeader().equals("mkdir") && command.argumentsCount() == 1;
     }

@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
 
-import ru.fizteh.fivt.students.dubovpavel.shell2.Command;
-import ru.fizteh.fivt.students.dubovpavel.shell2.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 
 import java.io.File;
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
+import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
-public class PerformerMove extends Performer {
+public class PerformerMove extends PerformerShell {
     private class PerformerMoveException extends Exception {
         public PerformerMoveException(String msg) {
             super(msg);

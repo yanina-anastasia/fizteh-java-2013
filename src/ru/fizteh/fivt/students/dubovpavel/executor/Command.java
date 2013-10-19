@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dubovpavel.filemap;
+package ru.fizteh.fivt.students.dubovpavel.executor;
 
 import java.util.ArrayList;
 

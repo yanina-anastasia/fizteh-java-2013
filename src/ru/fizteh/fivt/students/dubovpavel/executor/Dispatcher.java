@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.dubovpavel.filemap;
-
-import ru.fizteh.fivt.students.dubovpavel.filemap.Performers.*;
+package ru.fizteh.fivt.students.dubovpavel.executor;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -10,9 +8,7 @@ public class Dispatcher {
     private int invalidSequences, invalidOperations;
     private ArrayList<Performer> performers;
     private boolean forwarding;
-    private boolean shutdown;
-    private final String dbPathProperty = "fizteh.db.dir";
-    private DataBase dataBase;
+    protected boolean shutdown;
 
     public class DispatcherException extends Exception {
         public DispatcherException(String msg) {
@@ -29,21 +25,13 @@ public class Dispatcher {
     public Dispatcher(boolean forwarding) {
         invalidSequences = 0;
         parser = new Parser();
-        performers = new ArrayList<Performer>();
-        performers.add(new PerformerPut());
-        performers.add(new PerformerGet());
-        performers.add(new PerformerRemove());
-        performers.add(new PerformerExit());
-        performers.add(new PerformerHalt());
         this.forwarding = forwarding;
-        String path = System.getProperty(dbPathProperty);
-        if(path == null) {
-            callbackWriter(MessageType.ERROR, String.format("'%s' property is null", dbPathProperty));
-            shutdown = true;
-        } else {
-            shutdown = false;
-            dataBase = new DataBase(path, this);
-        }
+        performers = new ArrayList<Performer>();
+        shutdown = false;
+    }
+
+    public void addPerformer(Performer performer) {
+        performers.add(performer);
     }
 
     public String callbackWriter(MessageType type, String msg) {
@@ -65,10 +53,6 @@ public class Dispatcher {
         return !shutdown;
     }
 
-    public DataBaseHandler<String, String> getDataBase() {
-        return dataBase;
-    }
-
     public void sortOut(String commandSequence) throws DispatcherException {
         try {
             ArrayList<Command> commands = parser.getCommands(this, commandSequence);
@@ -85,7 +69,7 @@ public class Dispatcher {
                     if(!performed) {
                         callbackWriter(MessageType.ERROR, String.format("%s is not correct", command.getDescription()));
                     }
-                } catch(Performer.PerformerException e) {
+                } catch(PerformerException e) {
                     invalidOperations++;
                     if(forwarding) {
                         throw new DispatcherException(e.getMessage());

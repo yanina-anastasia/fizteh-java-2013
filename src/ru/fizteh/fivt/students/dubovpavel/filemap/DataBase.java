@@ -1,17 +1,18 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataBase implements DataBaseHandler<String, String> {
-    private Dispatcher dispatcher;
+    private DispatcherFileMap dispatcher;
     private String directory;
     private final String charset = "UTF-8";
     private final int MAXLENGTH = 1 << 20;
     HashMap<String, String> dict = new HashMap<String, String>();
 
-    public DataBase(String directory, Dispatcher dispatcher) {
+    public DataBase(String directory, DispatcherFileMap dispatcher) {
         this.dispatcher = dispatcher;
         this.directory = directory;
         DataInputStream db = null;
@@ -27,13 +28,13 @@ public class DataBase implements DataBaseHandler<String, String> {
                 if(keyLength <= 0 || keyLength > MAXLENGTH) {
                     throw new DataBaseException(String.format("Key length must be in [1; %d]", MAXLENGTH));
                 }
-                byte[] keyBuffer = new byte[keyLength];
-                db.readFully(keyBuffer, 0, keyLength);
-                String key = new String(keyBuffer, charset);
                 int valueLength = db.readInt();
                 if(valueLength <= 0 || valueLength > MAXLENGTH) {
                     throw new DataBaseException(String.format("Value length must be in [1; %d]", MAXLENGTH));
                 }
+                byte[] keyBuffer = new byte[keyLength];
+                db.readFully(keyBuffer, 0, keyLength);
+                String key = new String(keyBuffer, charset);
                 byte[] valueBuffer = new byte[valueLength];
                 db.readFully(valueBuffer, 0, valueLength);
                 String value = new String(valueBuffer, charset);
@@ -64,12 +65,12 @@ public class DataBase implements DataBaseHandler<String, String> {
         try {
             db = new DataOutputStream(new FileOutputStream(new File(directory, "db.dat")));
             for(Map.Entry<String, String> entry: dict.entrySet()) {
-                byte[] buffer = entry.getKey().getBytes(charset);
-                db.writeInt(buffer.length);
-                db.write(buffer);
-                buffer = entry.getValue().getBytes(charset);
-                db.writeInt(buffer.length);
-                db.write(buffer);
+                byte[] key = entry.getKey().getBytes(charset);
+                byte[] value = entry.getValue().getBytes(charset);
+                db.writeInt(key.length);
+                db.writeInt(value.length);
+                db.write(key);
+                db.write(value);
             }
         } catch(IOException e) {
             throw new DataBaseException(String.format("Database saving: IOException: %s", e.getMessage()));
