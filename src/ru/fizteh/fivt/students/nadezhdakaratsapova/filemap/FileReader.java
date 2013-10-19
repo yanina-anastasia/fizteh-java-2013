@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileReader {
-    void loadDataFromFile(File file, DataTable table) {
+    void loadDataFromFile(FileMapState state) {
         try {
-            if (file.length() != 0) {
-                DataInputStream inStream = new DataInputStream(new FileInputStream(file));
+            if (state.getDataFile().length() != 0) {
+                DataInputStream inStream = new DataInputStream(new FileInputStream(state.getDataFile()));
                 int i = 0;
-                long fileLength = file.length();
+                long fileLength = state.getDataFile().length();
                 List<Byte> key = new ArrayList<Byte>();
                 byte curByte = 1;
                 int intSize = 4;
@@ -60,7 +60,7 @@ public class FileReader {
                             while (j < offsetsSize) {
                                 byte[] b = new byte[offsets.get(j)];
                                 inStream.read(b, 0, offsets.get(j));
-                                table.add(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
+                                state.add(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
                                 i += offsets.get(j);
                                 ++j;
                             }
@@ -70,7 +70,7 @@ public class FileReader {
                         for (int k = 0; i < fileLength; ++k, ++i) {
                             b[k] = inStream.readByte();
                         }
-                        table.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
+                        state.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
                     } else {
                         int offset = inStream.readInt();
                         i += intSize;
@@ -92,7 +92,7 @@ public class FileReader {
                 inStream.close();
             }
         } catch (FileNotFoundException e) {
-            System.err.println(file.getName() + " was not found");
+            System.err.println(state.getDataFile().getName() + " was not found");
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

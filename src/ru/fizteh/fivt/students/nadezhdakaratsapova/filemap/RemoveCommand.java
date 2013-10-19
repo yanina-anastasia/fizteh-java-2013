@@ -1,14 +1,23 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+
 import java.io.IOException;
 
 public class RemoveCommand implements Command {
+
+    FileMapState curState;
+
+    public RemoveCommand(FileMapState state) {
+        curState = state;
+    }
+
     public String getName() {
         return "remove";
     }
 
-    public void execute(String[] args, DataTable dataTable) throws IOException {
-        String value = dataTable.remove(args[1]);
+    public void execute(String[] args) throws IOException {
+        String value = curState.remove(args[1]);
         if (value == null) {
             System.out.println("not found");
         } else {

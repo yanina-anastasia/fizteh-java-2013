@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Shell;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.StringMethods;
 
 import java.io.File;
@@ -9,25 +10,38 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
+        FileWriter fileWriter = new FileWriter();
         try {
+            System.setProperty("fizteh.db.dir", "/home/hope/");
             File dataFile = new File(System.getProperty("fizteh.db.dir"), "db.dat");
-            FileMapController fileMap = new FileMapController(dataFile);
+
             if (!dataFile.exists()) {
                 dataFile.createNewFile();
             }
-            fileMap.addCommand(new GetCommand());
-            fileMap.addCommand(new PutCommand());
-            fileMap.addCommand(new RemoveCommand());
-            fileMap.addCommand(new ExitCommand());
+            FileMapState state = new FileMapState(dataFile);
+            Shell fileMap = new Shell();
+            fileMap.addCommand(new GetCommand(state));
+            fileMap.addCommand(new PutCommand(state));
+            fileMap.addCommand(new RemoveCommand(state));
+            fileMap.addCommand(new ExitCommand(state));
+            FileReader fileReader = new FileReader();
+            fileReader.loadDataFromFile(state);
             if (args.length == 0) {
                 fileMap.interactiveMode();
             } else {
                 String arguments = StringMethods.join(Arrays.asList(args), " ");
-                fileMap.batchMode(arguments);
+                try {
+                    fileMap.batchMode(arguments);
+                    fileWriter.writeDataToFile(state);
+                } catch (IOException e) {
+                    fileWriter.writeDataToFile(state);
+                    System.err.println(e.getMessage());
+                }
             }
 
         } catch (IOException e) {
             System.err.println("not managed to create file");
+            System.exit(1);
         }
     }
 }

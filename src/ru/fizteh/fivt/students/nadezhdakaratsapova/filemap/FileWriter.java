@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Set;
 
 public class FileWriter {
-    public void writeDataToFile(File file, DataTable table) {
+    public void writeDataToFile(FileMapState state) {
         try {
-            DataOutputStream outStream = new DataOutputStream(new FileOutputStream(file));
-            Set<String> keys = table.getKeys();
+            DataOutputStream outStream = new DataOutputStream(new FileOutputStream(state.getDataFile()));
+            Set<String> keys = state.getKeys();
             List<String> values = new ArrayList<String>(keys.size());
             int intSize = 4;
             int separatorSize = 1;
@@ -23,7 +23,7 @@ public class FileWriter {
                 outStream.write(b);
                 outStream.writeByte('\0');
                 outStream.writeInt(offset);
-                String value = table.getValue(s);
+                String value = state.getValue(s);
                 values.add(value);
                 offset += value.getBytes().length;
             }
@@ -32,7 +32,7 @@ public class FileWriter {
             }
             outStream.close();
         } catch (FileNotFoundException e) {
-            System.err.println(file.getName() + " was not found");
+            System.err.println(state.getDataFile().getName() + " was not found");
         } catch (IOException e) {
             System.err.println("mistake in record");
         }
