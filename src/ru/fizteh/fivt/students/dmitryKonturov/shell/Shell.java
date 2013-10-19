@@ -13,7 +13,7 @@ public class Shell {
                 builder.append(" ");
             }
             try {
-                shell.executeQuery(builder.toString());
+                shell.packageMode(builder.toString());
             } catch (ShellEmulator.ShellException se) {
                 System.err.println(se);
                 System.exit(1);

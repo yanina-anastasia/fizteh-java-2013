@@ -12,11 +12,11 @@ public class ShellEmulator {
         abstract void execute(String[] args) throws ShellEmulator.ShellException;
     }
 
-    protected class ShellException extends Exception {
+    public class ShellException extends Exception {
         private final String command;
         private final String message;
 
-        ShellException(String com, String c) {
+        public ShellException(String com, String c) {
             command = com;
             message = c;
         }
@@ -41,8 +41,18 @@ public class ShellEmulator {
         return("$ ");
     }
 
+    protected String[] shellParseArguments(String bigArg) {
+        StringTokenizer tokenizer = new StringTokenizer(bigArg.trim());
+        int argNum = tokenizer.countTokens();
+        String[] args = new String[argNum];
+        for (int i = 0; i < argNum; ++i) {
+            args[i] = tokenizer.nextToken();
+        }
+        return args;
+    }
+
     protected void executeCommand(String query) throws ShellException {
-        StringTokenizer tokenizer = new StringTokenizer(query);
+        /*StringTokenizer tokenizer = new StringTokenizer(query);
         int argNum = tokenizer.countTokens();
         if (argNum == 0) {
             return; // empty query
@@ -59,15 +69,47 @@ public class ShellEmulator {
             throw new ShellException(commandName, "No such command.");
         }
 
-        currentCommand.execute(commandArgs);
+        currentCommand.execute(commandArgs);*/
+
+        String commandName = null;
+        String[] arguments = new String[0];
+        try {
+            String[] commandAndArgument = query.trim().split("\\s", 2);
+            commandName = "";
+            arguments = new String[0];
+            if (commandAndArgument.length > 0) {
+                commandName = commandAndArgument[0];
+            }
+
+            if (!(commandName.length() > 0)) {
+                return; //empty command
+            }
+
+            if (commandAndArgument.length > 1) {
+                arguments = shellParseArguments(commandAndArgument[1]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ShellCommand currentCommand = mapCommand.get(commandName);
+        if (currentCommand == null) {
+            throw new ShellException(commandName, "No such command");
+        }
+
+        currentCommand.execute(arguments);
     }
 
-    public void executeQuery(String query) throws ShellException {
+    private void executeQuery(String query) throws ShellException {
         Scanner scanner = new Scanner(query.trim());
         scanner.useDelimiter(";");
-        while (scanner.hasNext()) {
-            String commandWithArgs = scanner.next();
-            executeCommand(commandWithArgs);
+        try {
+            while (scanner.hasNext()) {
+                String commandWithArgs = scanner.next();
+                executeCommand(commandWithArgs);
+            }
+        } catch (IllegalStateException e) {
+            throw new ShellException("executeQuery", "Scanner is closed.");
         }
     }
 
@@ -75,6 +117,10 @@ public class ShellEmulator {
         String greeting = getGreetingString();
         System.out.print(greeting);
         System.out.flush();
+    }
+
+    public void packageMode(String query) throws ShellException {
+        executeQuery(query);
     }
 
     public void interactiveMode() {
@@ -89,8 +135,9 @@ public class ShellEmulator {
                 System.err.println(sh);
             } catch (Exception e) {
                 System.err.println("Unhandled exception: " + e.getMessage());
+            } finally {
+                printGreeting();
             }
-            printGreeting();
         }
     }
 
