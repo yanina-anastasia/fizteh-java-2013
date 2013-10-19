@@ -8,6 +8,7 @@ public class DataBase implements DataBaseHandler<String, String> {
     private Dispatcher dispatcher;
     private String directory;
     private final String charset = "UTF-8";
+    private final int MAXLENGTH = 1 << 20;
     HashMap<String, String> dict = new HashMap<String, String>();
 
     public DataBase(String directory, Dispatcher dispatcher) {
@@ -23,15 +24,15 @@ public class DataBase implements DataBaseHandler<String, String> {
                 } catch (EOFException e) {
                     break;
                 }
-                if(keyLength <= 0) {
-                    throw new DataBaseException("Read negative key length");
+                if(keyLength <= 0 || keyLength > MAXLENGTH) {
+                    throw new DataBaseException(String.format("Key length must be in [1; %d]", MAXLENGTH));
                 }
                 byte[] keyBuffer = new byte[keyLength];
                 db.readFully(keyBuffer, 0, keyLength);
                 String key = new String(keyBuffer, charset);
                 int valueLength = db.readInt();
-                if(valueLength <= 0) {
-                    throw new DataBaseException("Read negative value length");
+                if(valueLength <= 0 || valueLength > MAXLENGTH) {
+                    throw new DataBaseException(String.format("Value length must be in [1; %d]", MAXLENGTH));
                 }
                 byte[] valueBuffer = new byte[valueLength];
                 db.readFully(valueBuffer, 0, valueLength);
