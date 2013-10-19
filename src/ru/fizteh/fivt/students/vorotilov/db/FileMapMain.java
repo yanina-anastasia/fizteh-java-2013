@@ -64,9 +64,9 @@ public class FileMapMain {
             currentDataBase = new DataBaseFile(currentFile);
             ConsoleInput shellInputCommands;
             if (interactiveMode) {
-                shellInputCommands = new InteractiveInput();
+                shellInputCommands = new DbInteractiveInput();
             } else {
-                shellInputCommands = new PackageInput(args);
+                shellInputCommands = new DbPackageInput(args);
             }
             while (shellInputCommands.hasNext()) {
                 processCommand(shellInputCommands.getNext());
