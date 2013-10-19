@@ -60,6 +60,10 @@ public class FileMapMain {
     public static void main(String[] args) {
         interactiveMode = (args.length == 0);
         try {
+            if (System.getProperty("fizteh.db.dir") == null) {
+                System.out.println("No db directory");
+                System.exit(1);
+            }
             File currentFile = new File(System.getProperty("fizteh.db.dir"), DEFAULT_FILE_NAME).getCanonicalFile();
             currentDataBase = new DataBaseFile(currentFile);
             ConsoleInput shellInputCommands;
