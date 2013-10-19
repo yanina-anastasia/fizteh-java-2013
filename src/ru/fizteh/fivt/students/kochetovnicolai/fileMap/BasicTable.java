@@ -156,7 +156,8 @@ public class BasicTable extends FileManager implements Table {
         try {
             keySize = inputStream.readInt();
             valueSize = inputStream.readInt();
-            if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize + valueSize) {
+            if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize
+                    || inputStream.available() < valueSize || inputStream.available() < keySize + valueSize) {
                 throw new IOException("invalid string size");
             }
         } catch (IOException e) {
