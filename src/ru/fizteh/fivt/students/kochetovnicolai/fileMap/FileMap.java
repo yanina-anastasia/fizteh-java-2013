@@ -21,7 +21,13 @@ public class FileMap {
     }
 
     public static void main(String[] args) {
-        File tableDirectory = new File(System.getProperty("fizteh.db.dir"));
+        File tableDirectory = null;
+        try {
+            tableDirectory = new File(System.getProperty("fizteh.db.dir"));
+        } catch (NullPointerException e) {
+            System.err.println("property fizteh.db.dir not found");
+            System.exit(1);
+        }
         TableManager manager = null;
         try {
             manager = new TableManager(tableDirectory, "db.dat");
