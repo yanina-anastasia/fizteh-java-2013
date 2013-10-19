@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.surakshina.shell;
 
 import java.util.Scanner;
 
-abstract public class Shell {
+public abstract class Shell {
     public String currentPath = System.getProperty("user.dir");
     public static boolean isInteractive = false;
 
@@ -77,7 +77,7 @@ abstract public class Shell {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             cur = scanner.nextLine();
-            cur = cur.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
+            cur = rewriteInput(cur);
             Scanner scanner1 = new Scanner(cur);
             scanner1.useDelimiter("[ ]*;[ ]*");
             while (scanner1.hasNext()) {

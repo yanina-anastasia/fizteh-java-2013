@@ -196,6 +196,9 @@ public class ShellCommands extends Shell {
                 printError("Incorrect number of arguments");
             }
             break;
+        case "exit": {
+            System.exit(0);
+        }
         default:
             printError("Incorrect input");
         }
