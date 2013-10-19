@@ -13,6 +13,7 @@ public class DbMain {
     public static void main(final String[] args) {
         try {
             Shell shell = new Shell();
+
             if (!System.getProperties().containsKey("fizteh.db.dir")) {
                 System.err.println("Please set database directory!");
                 System.err.println("-Dfizteh.db.dir=<directory name>");

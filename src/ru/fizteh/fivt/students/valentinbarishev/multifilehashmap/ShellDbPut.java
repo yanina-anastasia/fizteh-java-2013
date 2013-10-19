@@ -18,7 +18,7 @@ public final class ShellDbPut  extends SimpleShellCommand {
             System.out.println("no table");
             return;
         }
-        String str = dataBase.put(getArg(1), getArg(2));
+        String str = dataBase.put(getArg(1), getSpacedArg(2));
         if (str.isEmpty()) {
             System.out.println("new");
         } else {
