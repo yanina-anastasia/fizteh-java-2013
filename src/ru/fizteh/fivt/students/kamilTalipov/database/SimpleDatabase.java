@@ -4,7 +4,16 @@ import java.io.FileNotFoundException;
 
 public class SimpleDatabase implements Database{
     public SimpleDatabase(String databaseDirectory) throws FileNotFoundException, DatabaseException {
-        FileUtils.makeDir(databaseDirectory);
+        if (databaseDirectory == null) {
+            throw new DatabaseException("You should enter property fizteh.db.dir");
+        }
+
+        try {
+            FileUtils.makeDir(databaseDirectory);
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("File: " + databaseDirectory + " not a directory");
+        }
+
         table = new SimpleTable(databaseDirectory);
     }
 

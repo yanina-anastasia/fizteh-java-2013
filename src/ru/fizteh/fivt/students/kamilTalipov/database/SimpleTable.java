@@ -11,12 +11,14 @@ import java.util.Map;
 
 public class SimpleTable implements Table {
     public SimpleTable(String workingDirectory) throws FileNotFoundException, DatabaseException {
-        dbFile = FileUtils.makeFile(workingDirectory, "db.dat");
+        try {
+            dbFile = FileUtils.makeFile(workingDirectory, "db.dat");
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Couldn't open db.dat file");
+        }
         table = new HashMap<String, String>();
         readTable();
     }
-
-
 
     @Override
     public String getName() {
@@ -94,7 +96,11 @@ public class SimpleTable implements Table {
                 output.write(value);
             }
         } finally {
-            output.close();
+            try {
+                output.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
