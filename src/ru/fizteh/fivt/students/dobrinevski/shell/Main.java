@@ -1,8 +1,4 @@
-package ru.fizteh.fivt.students.dobrinevski.shell;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+package shell;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,7 +13,7 @@ public class Main {
                 sl.executeCommands(builder.toString());
             } catch (SException e) {
                 System.err.println(e);
-                System.exit(-1);
+                System.exit(1);
             }
 
         } else {

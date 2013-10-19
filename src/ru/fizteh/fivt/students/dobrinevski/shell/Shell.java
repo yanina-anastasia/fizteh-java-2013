@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.dobrinevski.shell;
+package shell;
 
-import java.util.Scanner;
 import java.io.File;
 import java.nio.file.*;
+import java.util.Scanner;
 
 public class Shell {
     private File currentDir;
@@ -28,7 +28,7 @@ public class Shell {
             remove(args);
 
         } else if (commandName.equals("cp")) {
-            copyOrMove(args,  false);
+            copyOrMove(args, false);
 
         } else if (commandName.equals("mv")) {
             copyOrMove(args, true);
@@ -99,16 +99,14 @@ public class Shell {
 
     private void cd(String[] args) throws SException {
         try {
-            checkLen(args[0], args.length - 1 , 1);
+            checkLen(args[0], args.length - 1, 1);
             File tmpFile = new File(pathAppend(args[1]));
             if (tmpFile.isDirectory()) {
                 currentDir = tmpFile;
+            } else if (!tmpFile.exists()) {
+                throw new SException(args[0], "\'" + args[1] + "\': No such file or directory");
             } else {
-                if (!tmpFile.exists()) {
-                    throw new SException(args[0], "\'" + args[1] + "\': No such file or directory" );
-                } else {
-                    throw new SException(args[0], "\'" + args[1] + "\': Not a directory" );
-                }
+                throw new SException(args[0], "\'" + args[1] + "\': Not a directory");
             }
         } catch (SException se) {
             throw se;
@@ -169,7 +167,8 @@ public class Shell {
                 throw new SException(args[0], "Cannot be removed: File does not exist");
             }
             if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
-                throw new SException(args[0], "\'" + args[1] + "\': Cannot be removed: First of all, leave this directory");
+                throw new SException(args[0], "\'" + args[1] +
+                        "\': Cannot be removed: First of all, leave this directory");
             }
 
             File fileToRemove = new File(pathAppend(args[1]));
@@ -182,13 +181,15 @@ public class Shell {
                         toRemove[1] = file.getPath();
                         remove(toRemove);
                     } catch (Exception e) {
-                        throw new SException(args[0], "\'" + file.getCanonicalPath() + "\' : File cannot be removed: " + e.getMessage() + " ");
+                        throw new SException(args[0], "\'" + file.getCanonicalPath()
+                                + "\' : File cannot be removed: " + e.getMessage() + " ");
                     }
                 }
             }
             try {
                 if (!Files.deleteIfExists(pathToRemove)) {
-                    throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath() + "\' : File cannot be removed ");
+                    throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath()
+                            + "\' : File cannot be removed ");
                 }
             } catch (DirectoryNotEmptyException e) {
                 throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath() + "\' : Directory not empty");
@@ -202,14 +203,9 @@ public class Shell {
         }
     }
 
-    private void copyOrMove(String[] args, boolean MC) throws SException {
+    private void copyOrMove(String[] args, boolean moveOrCopy) throws SException {
         String commandName;
-        if (MC) {
-            commandName = "move";
-        }
-        else {
-            commandName = "copy";
-        }
+        commandName = moveOrCopy ? "move" : "copy";
         try {
             checkLen(args[0], args.length - 1, 2);
             Path curDir = Paths.get(currentDir.getCanonicalPath());
@@ -226,17 +222,16 @@ public class Shell {
 
             if (Files.isDirectory(dstPath)) {
                 dstPath = dstPath.resolve(srcPath.getFileName()).normalize();
-            } else {
-                if (Files.isDirectory(srcPath) && Files.exists(dstPath)) {
-                    throw new SException(commandName, "File that isn\'t directory.");
-                }
+            } else if (Files.isDirectory(srcPath) && Files.exists(dstPath)) {
+                throw new SException(commandName, "File that isn\'t directory.");
             }
 
             if (dstPath.startsWith(srcPath)) {
-                throw new SException(commandName, "Cannot move/copy file: cycle copy:" + srcPath.toString() + " -> " + dstPath.toString());
+                throw new SException(commandName, "Cannot move/copy file: cycle copy:"
+                        + srcPath.toString() + " -> " + dstPath.toString());
             }
 
-            if (MC) {
+            if (moveOrCopy) {
                 Files.move(srcPath, dstPath, StandardCopyOption.REPLACE_EXISTING);
             } else {
                 Files.copy(srcPath, dstPath, StandardCopyOption.REPLACE_EXISTING);
@@ -250,7 +245,7 @@ public class Shell {
                     nw[0] = args[0];
                     nw[1] = srcPath.resolve(name).normalize().toString();
                     nw[2] = dstPath.resolve(name).normalize().toString();
-                    copyOrMove(nw, MC);
+                    copyOrMove(nw, moveOrCopy);
                 }
             }
         } catch (SException se) {
@@ -281,6 +276,7 @@ public class Shell {
 class SException extends Exception {
     private final String command;
     private final String message;
+
     SException(String c, String m) {
         command = c;
         message = m;
