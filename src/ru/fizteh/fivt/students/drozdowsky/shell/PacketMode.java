@@ -27,11 +27,13 @@ public class PacketMode {
             int last = -1;
             for (int i = 0; i < arg.length(); i++) {
                 if (arg.charAt(i) == ';') {
-                    tempArgs.add(arg.substring(last + 1, i));
-                    last = i;
-                    if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
-                        if (exitOnFailure) {
-                            System.exit(1);
+                    if (last + 1 != i) {
+                        tempArgs.add(arg.substring(last + 1, i));
+                        last = i;
+                        if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
+                            if (exitOnFailure) {
+                                System.exit(1);
+                            }
                         }
                     }
                     tempArgs.clear();
