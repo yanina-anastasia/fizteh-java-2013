@@ -15,7 +15,7 @@ public class Shell extends UserShell {
         return new File(currPath + File.separator + arg);
     }
 
-    public static void doMkdir(String arg) {
+    public void doMkdir(String arg) {
         File currFile = createFile(arg);
         if (currFile.exists()) {
             printError("mkdir: cannot create a directory '" + arg + "': such directory exists");
@@ -24,7 +24,7 @@ public class Shell extends UserShell {
         }
     }
 
-    public static void doDelete(File currFile) {
+    public void doDelete(File currFile) {
         if (currFile.exists()) {
             if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
                 if (!currFile.delete()) {
@@ -41,7 +41,7 @@ public class Shell extends UserShell {
         }
     }
 
-    public static void doRm(String arg) {
+    public void doRm(String arg) {
         File currFile = createFile(arg);
         if (!currFile.exists()) {
             printError("rm: cannot remove '" + arg + "': No such file or directory");
@@ -50,7 +50,7 @@ public class Shell extends UserShell {
         }
     }
 
-    public static void doCd(String arg) {
+    public void doCd(String arg) {
         File currFile = createFile(arg);
         if (currFile.exists()) {
             try {
@@ -63,7 +63,7 @@ public class Shell extends UserShell {
         }
     }
 
-    public static void doDir() {
+    public void doDir() {
         File currFile = new File(currPath);
         File[] list = currFile.listFiles();
         if (list != null) {
@@ -75,7 +75,7 @@ public class Shell extends UserShell {
         }
     }
 
-    private static boolean isParent(File sourse, File dest) {
+    private boolean isParent(File sourse, File dest) {
         try {
             String destPath = dest.getParentFile().getCanonicalPath();
             String soursePath = sourse.getCanonicalPath() + File.separator;
@@ -88,7 +88,7 @@ public class Shell extends UserShell {
         return false;
     }
 
-    public static void doCp(String[] args) {
+    public void doCp(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
         File destFile = createFile(args[2] + File.separator + args[1]);
@@ -116,7 +116,7 @@ public class Shell extends UserShell {
         }
     }
 
-    public static void doMv(String[] args) {
+    public void doMv(String[] args) {
         File currFile = createFile(args[1]);
         File tmpFile = createFile(args[2]);
         File destFile = createFile(args[2] + File.separator + args[1]);

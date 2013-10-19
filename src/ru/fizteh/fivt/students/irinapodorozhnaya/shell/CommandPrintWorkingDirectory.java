@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.IOException;
 
+
 public class CommandPrintWorkingDirectory extends AbstractCommand {	
 	public CommandPrintWorkingDirectory(StateShell st) {
 		super(0, st);;
@@ -12,6 +13,6 @@ public class CommandPrintWorkingDirectory extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) throws IOException {
-		getState().out.println(getState().currentDir.getCanonicalPath());
+		getState().getOutputStream().println(getState().getCurrentDir().getCanonicalPath());
 	}
 }
