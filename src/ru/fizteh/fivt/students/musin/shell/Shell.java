@@ -51,7 +51,7 @@ public class Shell {
             start = 0;
             quote = false;
             for (int j = 0; j < comm.get(i).length(); j++) {
-                if (!quote && Character.isSpaceChar(comm.get(i).charAt(j))) {
+                if (!quote && Character.isWhitespace(comm.get(i).charAt(j))) {
                     if (start != j) {
                         if (!nameRead) {
                             name = comm.get(i).substring(start, j);
@@ -70,11 +70,11 @@ public class Shell {
                     }
                     if (quote) {
                         args.add(comm.get(i).substring(start, j));
-                        if (j + 1 != comm.get(i).length() && !Character.isSpaceChar(comm.get(i).charAt(j + 1))) {
+                        if (j + 1 != comm.get(i).length() && !Character.isWhitespace(comm.get(i).charAt(j + 1))) {
                             System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
                             return -1;
                         }
-                    } else if (!Character.isSpaceChar(comm.get(i).charAt(j - 1))) {
+                    } else if (!Character.isWhitespace(comm.get(i).charAt(j - 1))) {
                         System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
                         return -1;
                     }

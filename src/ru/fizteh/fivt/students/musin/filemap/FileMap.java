@@ -2,11 +2,7 @@ package ru.fizteh.fivt.students.musin.filemap;
 
 import ru.fizteh.fivt.students.musin.shell.Shell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +19,18 @@ public class FileMap {
         maxLength = 1 << 24;
     }
 
+    private int readBytes(DataInputStream input, int bytes, byte[] buffer) throws IOException {
+        int len = 0;
+        while (len != bytes) {
+            int k = input.read(buffer, len, bytes - len);
+            if (k == -1) {
+                return len;
+            }
+            len += k;
+        }
+        return len;
+    }
+
     public boolean loadFromDisk() throws FileNotFoundException {
         map.clear();
         if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
@@ -33,49 +41,54 @@ public class FileMap {
             System.err.println("Database file wasn't found");
             return true;
         }
-        FileInputStream inputStream = new FileInputStream(location);
+        DataInputStream inputStream = new DataInputStream(new FileInputStream(location));
         byte[] buffer;
         ByteBuffer cast;
         boolean error = false;
         try {
             while (true) {
                 buffer = new byte[4];
-                int bytesRead = inputStream.read(buffer, 0, 4);
-                if (bytesRead == -1) {
+                int bytesRead = readBytes(inputStream, 4, buffer);
+                if (bytesRead == 0) {
                     break;
                 }
                 if (bytesRead != 4) {
-                    System.err.println("Database loading failed: Wrong data format");
+                    System.err.println("Database loading failed: Wrong key length format");
                     error = true;
                     break;
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int keyLength = cast.getInt();
-                bytesRead = inputStream.read(buffer, 0, 4);
+                bytesRead = readBytes(inputStream, 4, buffer);
                 if (bytesRead != 4) {
-                    System.err.println("Database loading failed: Wrong data format");
+                    System.err.println("Database loading failed: Wrong value length format");
                     error = true;
                     break;
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int valueLength = cast.getInt();
-                if (keyLength > maxLength || valueLength > maxLength || keyLength <= 0 || valueLength <= 0) {
-                    System.err.println("Database loading failed: Wrong data format");
+                if (keyLength > maxLength || valueLength > maxLength) {
+                    System.err.println("Database loading failed: Field length too big");
+                    error = true;
+                    break;
+                }
+                if (keyLength <= 0 || valueLength <= 0) {
+                    System.err.println("Database loading failed: Field length should be positive");
                     error = true;
                     break;
                 }
                 buffer = new byte[keyLength];
-                bytesRead = inputStream.read(buffer, 0, keyLength);
+                bytesRead = readBytes(inputStream, keyLength, buffer);
                 if (bytesRead != keyLength) {
-                    System.err.println("Database loading failed: Wrong data format");
+                    System.err.println("Database loading failed: Wrong key length");
                     error = true;
                     break;
                 }
                 String key = new String(buffer, "UTF-8");
                 buffer = new byte[valueLength];
-                bytesRead = inputStream.read(buffer, 0, valueLength);
+                bytesRead = readBytes(inputStream, valueLength, buffer);
                 if (bytesRead != valueLength) {
-                    System.err.println("Database loading failed: Wrong data format");
+                    System.err.println("Database loading failed: Wrong value length");
                     error = true;
                     break;
                 }
@@ -107,8 +120,7 @@ public class FileMap {
             }
         }
         FileOutputStream outputStream = new FileOutputStream(location);
-        try
-        {
+        try {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 byte[] key = entry.getKey().getBytes("UTF-8");
                 byte[] value = entry.getValue().getBytes("UTF-8");
@@ -142,7 +154,7 @@ public class FileMap {
         String last = "";
         int start = 0;
         for (int i = 0; i < argString.length(); i++) {
-            if (Character.isSpaceChar(argString.charAt(i))) {
+            if (Character.isWhitespace(argString.charAt(i))) {
                 if (start != i) {
                     args.add(argString.substring(start, i));
                     argsRead++;
