@@ -39,35 +39,42 @@ public class FileMap {
                     dbFile.close();
                 }
             } catch (IOException e1) {
-                System.out.println("Error while closing database: "
-                    + ((e1.getMessage() != null) ? e1.getMessage() : "unkonown error"));
+                System.out
+                        .println("Error while closing database: "
+                                + ((e1.getMessage() != null) ? e1.getMessage()
+                                        : "unkonown error"));
             }
             System.exit(1);
         }
     }
 
     public static void main(String[] args) {
-        interpreter.run(args);
-        
-        int exitCode = 0;
-        
         try {
-            saveChanges();
+            interpreter.run(args);
         } catch (Exception e) {
-            exitCode = 1;
-            System.out.println("Error while saving changes: " + e.getMessage()); 
-        }
-        
-        try {
-            if (dbFile != null) {
-                dbFile.close();
+            System.out.println("Error while running: " + e.getMessage());
+        } finally {
+
+            int exitCode = 0;
+
+            try {
+                saveChanges();
+            } catch (Exception e) {
+                exitCode = 1;
+                System.out.println("Error while saving changes: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println("Error while closing database: "
-                + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
-        } 
-        
-        System.exit(exitCode);
+
+            try {
+                if (dbFile != null) {
+                    dbFile.close();
+                }
+            } catch (IOException e) {
+                System.out.println("Error while closing database: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
+            }
+
+            System.exit(exitCode);
+        }
     }
 
     static void getDataFromFile() throws IOException {

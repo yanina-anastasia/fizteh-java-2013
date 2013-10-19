@@ -38,7 +38,12 @@ public class Shell {
         if (args.length == 0) {
             interpreter.runInteractiveMode();
         } else {
-            interpreter.runBatchMode(args);
+            try {
+                interpreter.runBatchMode(args);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
         }
     }
 
