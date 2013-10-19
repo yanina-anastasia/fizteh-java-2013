@@ -29,13 +29,13 @@ public class PacketMode {
                 if (arg.charAt(i) == ';') {
                     if (last + 1 != i) {
                         tempArgs.add(arg.substring(last + 1, i));
-                        last = i;
                         if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
                             if (exitOnFailure) {
                                 System.exit(1);
                             }
                         }
                     }
+                    last = i;
                     tempArgs.clear();
                 }
             }
