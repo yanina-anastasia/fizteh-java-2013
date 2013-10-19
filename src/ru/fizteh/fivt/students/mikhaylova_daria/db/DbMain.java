@@ -21,7 +21,6 @@ public class DbMain {
         try {
             readerDateBase();
         } catch (Exception e) {
-            System.err.println(e.getMessage() + ": File will be created");
         }
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
@@ -90,6 +89,10 @@ public class DbMain {
 
     static void readerDateBase() throws Exception {
         File workingDirectory = new File(workingDirectoryName);
+        if (!workingDirectory.isDirectory()) {
+            System.err.println(workingDirectory.toString() + " is not found or is not directory");
+            System.exit(1);
+        }
         RandomAccessFile dateBase = null;
         try {
             dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "r");
