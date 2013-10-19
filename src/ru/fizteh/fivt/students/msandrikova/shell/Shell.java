@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import ru.fizteh.fivt.students.msandrikova.filemap.DBMap;
 
@@ -47,7 +49,13 @@ public class Shell {
 	}
 	
 	public void initMyDBMap() {
-		this.myDBMap = new DBMap(this.currentDirectory, this.isInteractive);
+		try {
+			this.myDBMap = new DBMap(this.currentDirectory, this.isInteractive);
+		} catch (FileNotFoundException e) {
+			Utils.generateAnError("Fatal error during reading", "DBMap", false);
+		} catch (IOException e) {
+			Utils.generateAnError("Fatal error during reading", "DBMap", false);
+		}
 	}
 	
 	public void setCurrentDirectory(File currentDirectory) {
@@ -71,7 +79,13 @@ public class Shell {
 			}
 		}
 		if(this.isFileMap) {
-			this.myDBMap.writeFile();
+			try {
+				this.myDBMap.writeFile();
+			} catch (FileNotFoundException e) {
+				Utils.generateAnError("Fatal error during writing", "DBMap", false);
+			} catch (IOException e) {
+				Utils.generateAnError("Fatal error during writing", "DBMap", false);
+			}
 		}
 	}
 	

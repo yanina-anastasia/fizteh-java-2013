@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.msandrikova.filemap;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
@@ -21,16 +21,14 @@ public class PutCommand extends Command {
 			myShell.setIsFileMap(true);
 			myShell.initMyDBMap();
 		}
-		try {
-			if(argumentsList[1].getBytes("UTF8").length >= 10*10*10*10*10*10) {
-				Utils.generateAnError("Key length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
-				return;
-			}
-			if(argumentsList[2].getBytes("UTF8").length >= 10*10*10*10*10*10) {
-				Utils.generateAnError("Value length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
-				return;
-			}
-		} catch (UnsupportedEncodingException e) {}
+		if(argumentsList[1].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
+			Utils.generateAnError("Key length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
+			return;
+		}
+		if(argumentsList[2].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
+			Utils.generateAnError("Value length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
+			return;
+		}
 		
 		String oldValue;
 		if((oldValue = myShell.getMyDBMap().put(argumentsList[1], argumentsList[2])) == null){
