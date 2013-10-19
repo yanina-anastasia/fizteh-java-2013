@@ -125,6 +125,12 @@ public class Shell {
         String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
+                String[] ar = {};
+                try {
+                    cmds.get("exit").exec(ar, curState);
+                } catch (IOException e) {
+                    System.exit(1);
+                }
                 System.exit(1);
             }
         }
