@@ -63,6 +63,9 @@ public class InteractiveMode {
         while (true) {
             System.out.print("$ ");
             String[] args = scanArgs(in);
+            if (args.length == 0) {
+                System.exit(0);
+            }
             PacketMode pm = new PacketMode(args, workingDirectory);
             pm.start();
         }
