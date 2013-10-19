@@ -35,25 +35,7 @@ public class Main {
         commandMap.put("exit", new CommandExit());
 
         if (args.length == 0) { // Interactive mode
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("$ ");
-            while (scanner.hasNextLine()){
-                String string = scanner.nextLine();
-                try {
-                    parseCommands(string, commandMap, state);
-                } catch (IOException ex) {
-                    System.err.println(ex.getMessage());
-                } catch (ExitException ex) {
-                    try {
-                        state.writeTable(dbName);
-                    } catch (IOException exc) {
-                        System.err.println(exc.getMessage());
-                        System.exit(1);
-                    }
-                    System.exit(0);
-                }
-                System.out.print("$ ");
-            }
+            interactiveMode(commandMap, state, dbName);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -61,8 +43,25 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
+            batchMode(commands, commandMap, state, dbName);
+        }
+
+        try {
+             state.writeTable(dbName);
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+            System.exit(1);
+        }
+
+    }
+
+    private static void interactiveMode(Map<String, Command> commandMap, State state, File dbName) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("$ ");
+        while (scanner.hasNextLine()){
+            String string = scanner.nextLine();
             try {
-                parseCommands(commands, commandMap, state);
+                parseCommands(string, commandMap, state);
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
@@ -74,15 +73,24 @@ public class Main {
                 }
                 System.exit(0);
             }
+            System.out.print("$ ");
         }
+    }
 
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state, File dbName) {
         try {
-             state.writeTable(dbName);
+            parseCommands(commands, commandMap, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
-            System.exit(1);
+        } catch (ExitException ex) {
+            try {
+                state.writeTable(dbName);
+            } catch (IOException exc) {
+                System.err.println(exc.getMessage());
+                System.exit(1);
+            }
+            System.exit(0);
         }
-
     }
 
     private static void parseCommands(String commands, Map<String, Command> commandMap, State state) throws IOException, ExitException {

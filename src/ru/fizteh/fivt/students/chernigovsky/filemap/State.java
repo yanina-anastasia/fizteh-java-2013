@@ -25,16 +25,26 @@ public class State {
         BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
         DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
         try {
-            while (dataInputStream.available() > 0) {
-                int keyLength = dataInputStream.readInt();
-                int valueLength = dataInputStream.readInt();
+            while (true) {
+                int keyLength;
+                int valueLength;
+
+                try {
+                    keyLength = dataInputStream.readInt();
+                } catch (EOFException ex) {
+                    break;
+                }
+                valueLength = dataInputStream.readInt();
+
                 if (keyLength <= 0 || valueLength <= 0 || keyLength > 1048576 || valueLength > 1048576) {
                     throw new IOException("Wrong string size");
                 }
                 byte[] keyBytes = new byte[keyLength];
                 byte[] valueBytes = new byte[valueLength];
+
                 dataInputStream.readFully(keyBytes);
                 dataInputStream.readFully(valueBytes);
+
                 if (keyBytes.length != keyLength || valueBytes.length != valueLength) {
                     throw new IOException("Corrupted database");
                 }
@@ -44,8 +54,6 @@ public class State {
             }
         } finally {
             dataInputStream.close();
-            bufferedInputStream.close();
-            fileInputStream.close();
         }
     }
 
@@ -63,8 +71,6 @@ public class State {
             }
         } finally {
             dataOutputStream.close();
-            bufferedOutputStream.close();
-            fileOutputStream.close();
         }
 
     }
