@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Shell {
     private String currentPath = System.getProperty("user.dir");
-    protected boolean isInteractive = false;
+    public static boolean isInteractive = false;
 
     protected void checkInput(String[] args) {
         if (args.length == 0) {

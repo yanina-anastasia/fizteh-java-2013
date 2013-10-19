@@ -37,7 +37,7 @@ public class Commands extends Shell {
     }
 
     @Override
-    protected void printError(String s) {
+    public void printError(String s) {
         if (isInteractive) {
             System.out.println(s);
         } else {

@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 public class FileMap {
     public static String workingDirectory = System.getProperty("fizteh.db.dir");
@@ -58,120 +61,85 @@ public class FileMap {
         }
     }
 
-    private static void readDatabase() throws IOException {
-        char current = '0';
-        StringBuffer keyFirst = new StringBuffer();
-        StringBuffer keySecond = new StringBuffer();
-        StringBuffer value = new StringBuffer();
-        int currentPosition = (int) dataBase.getFilePointer();
-        current = (char) dataBase.readByte();
-        keyFirst = keyFirst.append(current);
-        while (current != 0) {
-            current = (char) dataBase.readByte();
-            keyFirst = keyFirst.append(current);
+    public static String getKey() throws IOException {
+        Byte c = 0;
+        Vector<Byte> vector = new Vector<Byte>();
+        c = dataBase.readByte();
+        while (c != 0) {
+            vector.add(c);
+            c = Byte.valueOf(dataBase.readByte());
         }
-        dataBase.skipBytes(1);
-        keyFirst = keyFirst.delete(keyFirst.length() - 1, keyFirst.length());
-        current = '0';
-        dataBase.seek((int) dataBase.getFilePointer() - 1);
-        int offsetOfValueFirst = dataBase.readInt();
+        byte[] res = new byte[vector.size()];
+        for (int i = 0; i < vector.size(); i++) {
+            res[i] = vector.elementAt(i).byteValue();
+        }
+        String result = new String(res, "UTF-8");
+        return result;
+    }
+
+    public static String getValue(int offsetOfValueSecond) throws IOException {
+        int first = (int) dataBase.getFilePointer();
+        byte[] tmp = new byte[(int) (offsetOfValueSecond - first)];
+        dataBase.read(tmp);
+        String result = new String(tmp, "UTF-8");
+        return result;
+    }
+
+    private static void readDatabase() throws IOException {
+        String keyFirst;
+        String keySecond = null;
+        String value;
+        int currentPosition = (int) dataBase.getFilePointer();
+        int offsetOfValueFirst = 0;
+        int firstOffset = 0;
+        int offsetOfValueSecond = 0;
+        dataBase.seek(currentPosition);
+        keyFirst = getKey();
+        offsetOfValueFirst = dataBase.readInt();
         if (offsetOfValueFirst > 0) {
-            if (offsetOfValueFirst == ((int) dataBase.getFilePointer() + 1)) {
-                currentPosition = offsetOfValueFirst;
-                while (currentPosition != dataBase.length()) {
-                    current = (char) dataBase.readByte();
-                    value = value.append(current);
+            currentPosition = (int) dataBase.getFilePointer();
+            firstOffset = offsetOfValueFirst;
+            do {
+                dataBase.seek(currentPosition);
+                if (currentPosition < firstOffset) {
+                    keySecond = getKey();
+                    offsetOfValueSecond = dataBase.readInt();
                     currentPosition = (int) dataBase.getFilePointer();
+                } else if (currentPosition == offsetOfValueFirst) {
+                    offsetOfValueSecond = (int) dataBase.length();
+                    ++currentPosition;
                 }
-                fileMap.put(keyFirst.toString(), value.toString());
-                value.delete(0, value.length());
-                keyFirst.delete(0, keyFirst.length());
-            } else {
-                final int endOfOffset = offsetOfValueFirst;
-                int startOffset = offsetOfValueFirst;
-                while (current != 0) {
-                    current = (char) dataBase.readByte();
-                    keySecond = keySecond.append(current);
-                }
-                dataBase.skipBytes(1);
-                keySecond = keySecond.delete(keySecond.length() - 1, keySecond.length());
-                current = '0';
-                dataBase.seek((int) dataBase.getFilePointer() - 1);
-                int offsetOfValueSecond = dataBase.readInt();
-                currentPosition = (int) dataBase.getFilePointer();
-                dataBase.seek(startOffset - 1);
-                int currentPointer = (int) dataBase.getFilePointer();
-                while (currentPointer != (offsetOfValueSecond - 1)) {
-                    current = (char) dataBase.readByte();
-                    value = value.append(current);
-                    currentPointer = (int) dataBase.getFilePointer();
-                }
-                current = '0';
-                dataBase.skipBytes(1);
-                startOffset = offsetOfValueSecond;
-                fileMap.put(keyFirst.toString(), value.toString());
-                value.delete(0, value.length());
-                keyFirst.delete(0, keyFirst.length());
-                while (currentPosition != (endOfOffset - 1)) {
-                    dataBase.seek(currentPosition);
-                    while (current != 0) {
-                        current = (char) dataBase.readByte();
-                        keyFirst = keyFirst.append(current);
-                    }
-                    dataBase.skipBytes(1);
-                    keyFirst = keyFirst.delete(keyFirst.length() - 1, keyFirst.length());
-                    current = '0';
-                    dataBase.seek((int) dataBase.getFilePointer() - 1);
-                    offsetOfValueFirst = dataBase.readInt();
-                    currentPosition = (int) dataBase.getFilePointer();
-                    dataBase.seek(startOffset - 1);
-                    while (currentPointer != (offsetOfValueFirst - 1)) {
-                        current = (char) dataBase.readByte();
-                        value = value.append(current);
-                        currentPointer = (int) dataBase.getFilePointer();
-                    }
-                    current = '0';
-                    startOffset = offsetOfValueFirst;
-                    fileMap.put(keySecond.toString(), value.toString());
-                    value.delete(0, value.length());
-                    keySecond.delete(0, keySecond.length());
-                    keySecond = keySecond.append(keyFirst);
-                    keyFirst.delete(0, keyFirst.length());
-                }
-                dataBase.seek(offsetOfValueFirst - 1);
-                while (currentPointer != dataBase.length()) {
-                    current = (char) dataBase.readByte();
-                    value = value.append(current);
-                    currentPointer = (int) dataBase.getFilePointer();
-                }
-                fileMap.put(keySecond.toString(), value.toString());
-                value.delete(0, value.length());
-            }
+                dataBase.seek(firstOffset);
+                value = getValue(offsetOfValueSecond);
+                fileMap.put(keyFirst, value);
+                keyFirst = keySecond;
+                firstOffset = offsetOfValueSecond;
+            } while (currentPosition <= offsetOfValueFirst);
         } else {
             System.err.println("Offset is negative");
-            dataBase.close();
+            closeFile(dataBase);
             System.exit(1);
         }
-        dataBase.setLength(0);
-        dataBase.close();
     }
 
     static void writeInDatabase() throws IOException {
         dataBase = new RandomAccessFile(workingDirectory + File.separator + "db.dat", "rw");
         int lengthOfkeys = 0;
-        for (String key : fileMap.keySet()) {
-            lengthOfkeys += (key.getBytes("UTF-8").length);
+        Set<Map.Entry<String, String>> set = fileMap.entrySet();
+        for (Map.Entry<String, String> entry : set) {
+            lengthOfkeys += (entry.getKey().getBytes("UTF-8").length + 1 + 4);
         }
-        lengthOfkeys += (5 * fileMap.keySet().size());
-        for (String key : fileMap.keySet()) {
-            dataBase.write(key.getBytes("UTF-8"));
+        dataBase.setLength(0);
+        dataBase.seek(0);
+        for (Map.Entry<String, String> myEntry : set) {
+            dataBase.write(myEntry.getKey().getBytes("UTF-8"));
             dataBase.writeByte(0);
-            dataBase.writeInt(lengthOfkeys + 1);
-            lengthOfkeys += (fileMap.get(key).getBytes("UTF-8").length);
+            dataBase.writeInt(lengthOfkeys);
+            lengthOfkeys += myEntry.getValue().getBytes("UTF-8").length;
         }
-        for (String key : fileMap.keySet()) {
-            dataBase.write(fileMap.get(key).getBytes("UTF-8"));
+        for (Map.Entry<String, String> myEntry : set) {
+            dataBase.write(myEntry.getValue().getBytes("UTF-8"));
         }
-        dataBase.close();
+        closeFile(dataBase);
     }
 }
