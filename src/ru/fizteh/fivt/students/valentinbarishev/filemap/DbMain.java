@@ -34,6 +34,10 @@ public class DbMain {
                 System.out.print("$ ");
                 while (true) {
                     try {
+                        if (!scanner.hasNext()) {
+                            System.exit(0);
+                        }
+
                         String command = scanner.nextLine();
 
                         if (Main.checkTerminate(command)) {
