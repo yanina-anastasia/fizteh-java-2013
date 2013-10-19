@@ -60,22 +60,30 @@ public class DatabaseContext {
         return map;
     }
     
+    private static void safeRead(FileInputStream fstream, byte[] buf, int readCount) throws Exception {
+        int bytesRead = 0;
+        if (readCount < 0 || fstream.available() < readCount) {
+            throw new Exception("Error: malformed database");
+        }
+        while (bytesRead < readCount) {
+            int readNow = fstream.read(buf, bytesRead, readCount - bytesRead);
+            if (readNow < 0) {
+                throw new Exception("Error: malformed database");
+            }
+            bytesRead += readNow;
+        }
+    }
+    
     private static Map.Entry<String, String> parseEntry(FileInputStream fstream) throws Exception {
-        if (fstream.available() < 8) {
-            throw new Exception("Error: malformed database");
-        }
         byte[] sizeBuf = new byte[4];
-        fstream.read(sizeBuf);
+        safeRead(fstream, sizeBuf, 4);
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
-        fstream.read(sizeBuf);
+        safeRead(fstream, sizeBuf, 4);
         int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
-        if (fstream.available() < (long) keySize + (long) valueSize || keySize <= 0 || valueSize <= 0) {
-            throw new Exception("Error: malformed database");
-        }
         byte[] keyBuf = new byte[keySize];
-        fstream.read(keyBuf);
+        safeRead(fstream, keyBuf, keySize);
         byte[] valueBuf = new byte[valueSize];
-        fstream.read(valueBuf);
+        safeRead(fstream, valueBuf, valueSize);
         return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, "UTF-8"), new String(valueBuf, "UTF-8"));
     }
     
