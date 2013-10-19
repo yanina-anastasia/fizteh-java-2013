@@ -25,7 +25,7 @@ public class Move {
             pathTo.changePath(args[2]);
 
             if (pathFrom.getPath().equals(pathTo.getPath())) {
-                System.err.println(args[1] + " and "+ args[2] + " are identical (not moved).");
+                System.err.println(args[1] + " and " + args[2] + " are identical (not moved).");
                 return false;
             }
 
