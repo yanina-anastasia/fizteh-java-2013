@@ -36,8 +36,7 @@ public class BasicTable extends FileManager implements Table {
         }
         DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile));
         oldRecordNumber = 0;
-        while (readNextString(inputStream) != null) {
-            readNextString(inputStream);
+        while (readNextPair(inputStream) != null) {
             oldRecordNumber++;
         }
         inputStream.close();
@@ -91,28 +90,27 @@ public class BasicTable extends FileManager implements Table {
     @Override
     public int commit() {
         int updated = changes.size();
-        try {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
             File buffer = new File(currentFile.getAbsolutePath() + '~');
-            DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile));
             DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(buffer));
             String nextKey;
             String nextValue;
-            while ((nextKey = readNextString(inputStream)) != null) {
-                nextValue = readNextString(inputStream);
+            String[] pair;
+            while ((pair = readNextPair(inputStream)) != null) {
+                nextKey = pair[0];
+                nextValue = pair[1];
                 if (changes.containsKey(nextKey)) {
                     nextValue = changes.get(nextKey);
                     changes.remove(nextKey);
                 }
                 if (nextValue != null) {
-                    writeNextString(outputStream, nextKey);
-                    writeNextString(outputStream, nextValue);
+                    writeNextPair(outputStream, nextKey, nextValue);
                 }
             }
             Set<Entry<String, String>> entries = changes.entrySet();
             for (Entry<String, String> entry : entries) {
                 if (entry.getValue() != null) {
-                    writeNextString(outputStream, entry.getKey());
-                    writeNextString(outputStream, entry.getValue());
+                    writeNextPair(outputStream, entry.getKey(), entry.getValue());
                 }
             }
             inputStream.close();
@@ -139,40 +137,45 @@ public class BasicTable extends FileManager implements Table {
         return canceled;
     }
 
-    protected void writeNextString(DataOutputStream outputStream, String string) throws IOException {
-        byte[] bytes = string.getBytes("UTF-8");
-        outputStream.writeInt(bytes.length);
-        outputStream.write(bytes);
+    protected void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
+        byte[] keyBytes = key.getBytes("UTF-8");
+        byte[] valueBytes = value.getBytes("UTF-8");
+        outputStream.writeInt(keyBytes.length);
+        outputStream.writeInt(valueBytes.length);
+        outputStream.write(keyBytes);
+        outputStream.write(valueBytes);
     }
 
-    protected String readNextString(DataInputStream inputStream) throws IOException {
+    protected String[] readNextPair(DataInputStream inputStream) throws IOException {
         int keySize;
+        int valueSize;
         try {
             keySize = inputStream.readInt();
-            if (keySize < 1) {
+            valueSize = inputStream.readInt();
+            if (keySize < 1 || valueSize < 1) {
                 throw new IOException("invalid string size");
             }
         } catch (IOException e) {
             return null;
         }
-        byte[] bytes = new byte[keySize];
-        if (inputStream.read(bytes) != keySize) {
+        byte[] keyBytes = new byte[keySize];
+        byte[] valueBytes = new byte[valueSize];
+        if (inputStream.read(keyBytes) != keySize || inputStream.read(valueBytes) != valueSize) {
             throw new IOException("unexpected end of file");
         }
-        return new String(bytes, "UTF-8");
+        String[] pair = new String[2];
+        pair[0] = new String(keyBytes, "UTF-8");
+        pair[1] = new String(valueBytes, "UTF-8");
+        return pair;
     }
 
     protected String readValue(String key) {
-        DataInputStream inputStream;
-        try {
-            inputStream = new DataInputStream(new FileInputStream(currentFile));
-            String nextKey;
-            String nextValue;
-            while ((nextKey = readNextString(inputStream)) != null) {
-                nextValue = readNextString(inputStream);
-                if (nextKey.equals(key)) {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
+            String[] pair;
+            while ((pair = readNextPair(inputStream)) != null) {
+                if (pair[0].equals(key)) {
                     inputStream.close();
-                    return nextValue;
+                    return pair[1];
                 }
             }
             inputStream.close();
