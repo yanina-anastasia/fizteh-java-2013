@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class SimpleTable implements Table {
     public SimpleTable(String workingDirectory) throws FileNotFoundException, DatabaseException {
-        System.out.println(MAX_KEY_LEN);
         try {
             dbFile = FileUtils.makeFile(workingDirectory, "db.dat");
         } catch (IllegalArgumentException e) {
