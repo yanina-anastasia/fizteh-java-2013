@@ -17,7 +17,7 @@ public class DataBaseFile {
         private byte[] value;
 
         public int getZeroByte() {
-            return key[0];
+            return key[0] + 256;
         }
 
         public Node(final byte[] newKey, final byte[] newValue) {

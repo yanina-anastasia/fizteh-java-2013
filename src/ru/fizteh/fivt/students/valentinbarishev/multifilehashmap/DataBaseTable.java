@@ -17,7 +17,7 @@ public final class DataBaseTable {
 
         tableDirFile = new File(tableDir);
         if (!tableDirFile.exists() || !tableDirFile.isDirectory()) {
-            throw new DataBaseException(tableDir + "not exists!");
+            throw new DataBaseException(tableDir + " not exists!");
         }
     }
 
@@ -48,6 +48,10 @@ public final class DataBaseTable {
         if (!new File(tableDir + File.separator + tableName).exists()) {
             return false;
         }
+
+        save();
+
+        dataBase = null;
         currentTable = tableName;
         dataBase = new MultiDataBase(tableDir + File.separator + tableName);
         return true;
@@ -63,6 +67,12 @@ public final class DataBaseTable {
 
     public boolean remove(final String keyStr) {
         return dataBase.remove(keyStr);
+    }
+
+    public void save() {
+        if (exist()) {
+            dataBase.save();
+        }
     }
 
     public boolean exist() {

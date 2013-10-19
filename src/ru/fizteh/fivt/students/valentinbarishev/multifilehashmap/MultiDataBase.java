@@ -2,22 +2,90 @@ package ru.fizteh.fivt.students.valentinbarishev.multifilehashmap;
 
 import ru.fizteh.fivt.students.valentinbarishev.filemap.DataBaseException;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.DataBaseFile;
+import ru.fizteh.fivt.students.valentinbarishev.filemap.DataBaseWrongFileFormat;
+
 import java.io.File;
 import java.io.IOException;
 
 public final class MultiDataBase {
     private String dataBaseDirectory;
+    private DataBaseFile[] files;
+
+    public final class  DirFile {
+        private int nDir;
+        private int nFile;
+
+        public DirFile(int key) {
+            key += 256;
+            nDir = key % 16;
+            nFile = (key / 16) % 16;
+        }
+
+        private String getNDirectory() {
+            return Integer.toString(nDir) + ".dir";
+        }
+
+        private String getNFile() {
+            return Integer.toString(nFile) + ".dat";
+        }
+
+        private int getHash() {
+            return nDir * 16 + nFile;
+        }
+    }
 
     public MultiDataBase(final String dbDirectory) throws IOException {
         dataBaseDirectory = dbDirectory;
+        isCorrect();
+        files = new DataBaseFile[256];
+        loadFiles();
     }
 
-    private String getNDirectory(final int key) {
-        return Integer.toString(key % 16) + ".dir";
+    private void checkNames(final String[] dirs, final String secondName) {
+        for (int i = 0; i < dirs.length; ++i) {
+            String[] name = dirs[i].split("\\.");
+            if (name.length != 2 || !name[1].equals(secondName)) {
+                throw new MultiDataBaseException(dataBaseDirectory + " wrong file in path " + dirs[i]);
+            }
+
+            int firstName;
+            try {
+                firstName = Integer.parseInt(name[0]);
+            } catch (NumberFormatException e) {
+                throw new MultiDataBaseException(dataBaseDirectory +  " wrong file first name " + dirs[i]);
+            }
+
+            if ((firstName < 0) || firstName > 15) {
+                throw new MultiDataBaseException(dataBaseDirectory + " wrong file first name " + dirs[i]);
+            }
+        }
     }
 
-    private String getNFile(final int key) {
-        return Integer.toString((key / 16) % 16) + ".dat";
+    private void isCorrectDirectory(String dirName) {
+        File file = new File(dirName);
+        if (file.isFile()) {
+            throw new MultiDataBaseException(dirName + " isn't a directory!");
+        }
+        String[] dirs = file.list();
+        checkNames(dirs, "dat");
+        for (int i = 0; i  < dirs.length; ++i) {
+            if (new File(dirName + File.separator + dirs[i]).isDirectory()) {
+                throw new MultiDataBaseException(dirName + File.separator + dirs[i] + " isn't a file!");
+            }
+        }
+    }
+
+    private void isCorrect() {
+        File file = new File(dataBaseDirectory);
+        if (file.isFile()) {
+            throw new MultiDataBaseException(dataBaseDirectory + " isn't directory!");
+        }
+
+        String[] dirs = file.list();
+        checkNames(dirs, "dir");
+        for (int i = 0; i < dirs.length; ++i) {
+            isCorrectDirectory(dataBaseDirectory + File.separator + dirs[i]);
+        }
     }
 
     private void tryAddDirectory(final String name) {
@@ -40,51 +108,77 @@ public final class MultiDataBase {
         }
     }
 
-    private String getFullName(final int key) {
-        return dataBaseDirectory + File.separator + getNDirectory(key) + File.separator + getNFile(key);
+    private String getFullName(final DirFile node) {
+        return dataBaseDirectory + File.separator + node.getNDirectory() + File.separator + node.getNFile();
+    }
+
+    public void loadFiles() {
+        try {
+            for (int i = 0; i < 16; ++i) {
+                tryAddDirectory(Integer.toString(i) + ".dir");
+                for (int j = 0; j < 16; ++j) {
+                    DirFile node = new DirFile(i + j * 16);
+                    MultiDataBaseFile file = new MultiDataBaseFile(getFullName(node), node.nDir, node.nFile);
+                    files[node.getHash()] =  file;
+                }
+            }
+        } catch (DataBaseWrongFileFormat e) {
+            save();
+            throw e;
+        }
+    }
+
+    public int getZero(String key) {
+        return key.getBytes()[0] + 256;
     }
 
     public String put(final String keyStr, final String valueStr) {
-        byte key = (byte) keyStr.charAt(0);
-        tryAddDirectory(getNDirectory(key));
-        DataBaseFile file = new DataBaseFile(getFullName(key));
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getHash()];
         String result = file.put(keyStr, valueStr);
-        file.save();
         return result;
     }
 
     public String get(final String keyStr) {
-        byte key = (byte) keyStr.charAt(0);
-        tryAddDirectory(getNDirectory(key));
-        DataBaseFile file = new DataBaseFile(getFullName(key));
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getHash()];
         return file.get(keyStr);
     }
 
     public boolean remove(final String keyStr) {
-        byte key = (byte) keyStr.charAt(0);
-        tryAddDirectory(getNDirectory(key));
-        DataBaseFile file = new DataBaseFile(getFullName(key));
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getHash()];
         boolean result = file.remove(keyStr);
-        file.save();
-        tryDeleteDirectory(getNDirectory(key));
         return result;
     }
 
     public void drop() {
         for (byte i = 0; i < 16; ++i) {
             for (byte j = 0; j < 16; ++j) {
-                File file = new File(getFullName(i + j * 16));
+                File file = new File(getFullName(new DirFile(i + j * 16)));
                 if (file.exists()) {
                     if (!file.delete()) {
                         throw new DataBaseException("Cannot delete a file!");
                     }
                 }
             }
-            tryDeleteDirectory(getNDirectory(i));
+            tryDeleteDirectory(Integer.toString(i) + ".dir");
         }
     }
 
     public String getBaseDirectory() {
         return dataBaseDirectory;
     }
+
+    public void save() {
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (files[new DirFile((i + j * 16)).getHash()] != null) {
+                    files[new DirFile((i + j * 16)).getHash()].save();
+                }
+            }
+            tryDeleteDirectory(Integer.toString(i) + ".dir");
+        }
+    }
+
 }
