@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.nio.file.Path;
 
-public class ShellState extends State {
+public class ShellState {
     private Path path;
 
     public Path getPath() {

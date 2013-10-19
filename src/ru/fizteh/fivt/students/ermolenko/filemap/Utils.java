@@ -1,106 +1,80 @@
 package ru.fizteh.fivt.students.ermolenko.filemap;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Utils {
 
-    private static String readKey(DataInputStream stream) throws IOException {
-        List<Byte> buf = new ArrayList<Byte>();
-        byte b;
-        b = stream.readByte();
+    private static final long MAX_SIZE = 1024 * 1024;
 
+    private static String readKey(DataInputStream dataStream) throws IOException {
+
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        byte b = dataStream.readByte();
+        int length = 0;
         while (b != 0) {
-            buf.add(b);
-            try {
-                b = stream.readByte();
-            } catch (IOException e) {
-                e.printStackTrace();
+            byteOutputStream.write(b);
+            b = dataStream.readByte();
+            length++;
+            if (length > MAX_SIZE) {
+                throw new IOException("wrong data format");
             }
         }
+        if (length == 0) {
+            throw new IOException("wrong data format");
+        }
 
-        return byteToString(buf, "UTF-8");
+        return byteOutputStream.toString(StandardCharsets.UTF_8.toString());
     }
 
-    private static String readValue(DataInputStream dis, long offset1, long offset2, long position) throws IOException {
-        dis.mark(1024 * 1024);
+    private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len) throws IOException {
+        dis.mark((int) len);
         dis.skip(offset1 - position);
         byte[] buffer = new byte[(int) (offset2 - offset1)];
         dis.read(buffer);
-        String value = new String(buffer, "UTF-8");
+        String value = new String(buffer, StandardCharsets.UTF_8);
         dis.reset();
         return value;
-    }
-
-    public static String byteToString(List<Byte> mas, String Encoding) throws UnsupportedEncodingException {
-        byte[] buf = new byte[mas.size()];
-        int i = 0;
-        for (Byte b : mas) {
-            buf[i] = (byte) b;
-            ++i;
-        }
-        return new String(buf, Encoding);
     }
 
     public static void readDataBase(FileMapState state) throws IOException {
         if (state.getDataFile().length() == 0) {
             return;
         }
-        InputStream currentStream = null;
-        try {
-            currentStream = new FileInputStream(state.getDataFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        InputStream currentStream = new FileInputStream(state.getDataFile());
         BufferedInputStream bufferStream = new BufferedInputStream(currentStream, 4096);
         DataInputStream dataStream = new DataInputStream(bufferStream);
-        long pos = 0;
-        //прочитали первый ключ
-        String key1 = readKey(dataStream);
-        pos += key1.length();
-        long biasing1 = 0;
-        try {
-            //считали смещение
-            biasing1 = dataStream.readInt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        long firstValue = biasing1;
-        pos += 5;
 
-        while (pos != firstValue) {
-            String key2 = readKey(dataStream);
-            pos += key2.length();
-            long biasing2 = 0;
-            try {
-                biasing2 = dataStream.readInt();
-            } catch (IOException e) {
-                e.printStackTrace();
+        int fileLength = (int) state.getDataFile().length();
+
+        try {
+            int position = 0;
+            String key1 = readKey(dataStream);
+            position += key1.getBytes(StandardCharsets.UTF_8).length;
+            int offset1 = dataStream.readInt();
+            int firstOffset = offset1;
+            position += 5;
+
+            while (position != firstOffset) {
+                String key2 = readKey(dataStream);
+                position += key2.getBytes(StandardCharsets.UTF_8).length;
+                int offset2 = dataStream.readInt();
+                position += 5;
+                String value = readValue(dataStream, offset1, offset2, position, fileLength);
+                state.getDataBase().put(key1, value);
+                offset1 = offset2;
+                key1 = key2;
             }
-            pos += 5;
-            String value = null;
-            try {
-                value = readValue(dataStream, biasing1, biasing2, pos);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String value = readValue(dataStream, offset1, fileLength, position, fileLength);
             state.getDataBase().put(key1, value);
-            biasing1 = biasing2;
-            key1 = key2;
+        } finally {
+            closeStream(dataStream);
         }
-        String value = null;
-        try {
-            value = readValue(dataStream, biasing1, state.getDataFile().length(), pos);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        state.getDataBase().put(key1, value);
 
-        closeStream(dataStream);
-        closeStream(bufferStream);
-        closeStream(currentStream);
     }
 
     private static void closeStream(Closeable stream) throws IOException {
@@ -115,23 +89,21 @@ public class Utils {
         long biasing = 0;
 
         for (String key : dataBase.keySet()) {
-            biasing += key.getBytes("UTF-8").length + 5;
+            biasing += key.getBytes(StandardCharsets.UTF_8).length + 5;
         }
         List<String> values = new ArrayList<String>(dataBase.keySet().size());
         for (String key : dataBase.keySet()) {
             String value = dataBase.get(key);
             values.add(value);
-            dataStream.write(key.getBytes("UTF-8"));
+            dataStream.write(key.getBytes(StandardCharsets.UTF_8));
             dataStream.writeByte(0);
             dataStream.writeInt((int) biasing);
-            biasing += value.getBytes("UTF-8").length;
+            biasing += value.getBytes(StandardCharsets.UTF_8).length;
         }
 
         for (String value : values) {
             dataStream.write(value.getBytes());
         }
         closeStream(dataStream);
-        closeStream(bufferStream);
-        closeStream(currentStream);
     }
 }

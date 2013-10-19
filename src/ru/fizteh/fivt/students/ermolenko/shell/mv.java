@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class mv implements Command {
+public class Mv implements Command {
 
     public String getName() {
         return "mv";

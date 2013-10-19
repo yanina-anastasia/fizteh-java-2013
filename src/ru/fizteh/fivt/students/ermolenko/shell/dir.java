@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class dir implements Command {
+public class Dir implements Command {
 
     public String getName() {
         return "dir";

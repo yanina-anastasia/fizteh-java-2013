@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class rm implements Command {
+public class Rm implements Command {
 
     public String getName() {
         return "rm";

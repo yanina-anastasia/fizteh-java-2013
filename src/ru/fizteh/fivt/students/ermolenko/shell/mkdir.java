@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class mkdir implements Command {
+public class Mkdir implements Command {
 
     public String getName() {
         return "mkdir";

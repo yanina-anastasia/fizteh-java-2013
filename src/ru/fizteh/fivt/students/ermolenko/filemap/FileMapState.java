@@ -1,13 +1,10 @@
 package ru.fizteh.fivt.students.ermolenko.filemap;
 
-import ru.fizteh.fivt.students.ermolenko.shell.State;
-
 import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileMapState extends State {
+public class FileMapState {
 
     //для хранения <key, value>
     public Map<String, String> dataBase;
@@ -19,16 +16,6 @@ public class FileMapState extends State {
 
     public File getDataFile() {
         return dataFile;
-    }
-
-    private Path path;
-
-    public Path getPath() {
-        return path;
-    }
-
-    public void setPath(Path inPath) {
-        path = inPath;
     }
 
     public FileMapState(File currentFile) {

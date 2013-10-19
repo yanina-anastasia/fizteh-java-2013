@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.IOException;
 
-public class pwd implements Command {
+public class Pwd implements Command {
 
     public String getName() {
         return "pwd";

@@ -7,19 +7,19 @@ public class ShellExecutor extends Executor {
     }
 
     public void list() {
-        Command pwd = new pwd();
+        Command pwd = new Pwd();
         mapOfCmd.put(pwd.getName(), pwd);
-        Command cd = new cd();
+        Command cd = new Cd();
         mapOfCmd.put(cd.getName(), cd);
-        Command mkdir = new mkdir();
+        Command mkdir = new Mkdir();
         mapOfCmd.put(mkdir.getName(), mkdir);
-        Command cp = new cp();
+        Command cp = new Cp();
         mapOfCmd.put(cp.getName(), cp);
-        Command mv = new mv();
+        Command mv = new Mv();
         mapOfCmd.put(mv.getName(), mv);
-        Command dir = new dir();
+        Command dir = new Dir();
         mapOfCmd.put(dir.getName(), dir);
-        Command rm = new rm();
+        Command rm = new Rm();
         mapOfCmd.put(rm.getName(), rm);
     }
 }
