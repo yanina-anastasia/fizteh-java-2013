@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.mescherinilya.filemap;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
@@ -47,7 +48,12 @@ public class FileMap {
                     System.err.println(command.getName() + ": Wrong count of arguments!");
                     return false;
                 }
-                command.execute(cmdArgs);
+                try {
+                    command.execute(cmdArgs);
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                    return false;
+                }
             } else {
                 System.err.println("Unknown command: " + cmdName);
                 return false;
@@ -69,37 +75,86 @@ public class FileMap {
 
     }
 
+    public static void readDatabase() throws Exception {
+        database = new RandomAccessFile(databaseLocation, "r");
+
+        if (database.length() == 0) {
+            return;
+        }
+
+        ArrayList<Integer> offsets = new ArrayList<Integer>();
+        ArrayList<String> keys = new ArrayList<String>();
+
+        try {
+            do {
+                ArrayList<Byte> keySymbols = new ArrayList<Byte>();
+                byte b = database.readByte();
+                while (b != 0) {
+                    keySymbols.add(b);
+                    b = database.readByte();
+                }
+                byte[] bytes = new byte[keySymbols.size()];
+                for (int i = 0; i < bytes.length; ++i) {
+                    bytes[i] = keySymbols.get(i);
+                }
+                keys.add(new String(bytes, "UTF-8"));
+
+                int offset = database.readInt();
+                if (!offsets.isEmpty() &&
+                        (offset <= offsets.get(offsets.size() - 1))) {
+                    System.out.println(Integer.toHexString(offset) + " " + Integer.toHexString(offsets.get(offsets.size()-1)));
+                    throw new IncorrectFileFormatException("Bad offset value");
+                }
+                offsets.add(offset);
+
+
+            } while (database.getFilePointer() != offsets.get(0));
+        } catch (EOFException e) {
+            throw new IncorrectFileFormatException("Suddenly the end of the file was reached");
+        }
+
+        offsets.add((int) database.length());
+
+        for (int i = 0; i < offsets.size(); ++i) {
+            System.out.println(offsets.get(i).toString());
+        }
+
+        ArrayList<String> values = new ArrayList<String>();
+
+        for (int i = 0; i < keys.size(); ++i) {
+            byte[] bytes = new byte[offsets.get(i+1) - offsets.get(i)];
+            database.read(bytes);
+            values.add(new String(bytes, "UTF-8"));
+        }
+
+        for (int i = 0; i < keys.size(); ++i) {
+            storage.put(keys.get(i), values.get(i));
+        }
+
+    }
+
     public static void main(String[] args) {
 
         commandList = new HashMap<String, Command>();
         commandList.put("put", new CommandPut());
         commandList.put("get", new CommandGet());
         commandList.put("remove", new CommandRemove());
+        commandList.put("commit", new CommandCommit());
 
         storage = new TreeMap<String, String>();
-        databaseLocation = new File(System.getProperty("fizteh.db.dir")).getAbsoluteFile();
+
+        databaseLocation = new File(System.getProperty("fizteh.db.dir"), "db.dat").getAbsoluteFile();
+
         //databaseLocation = new File("C:\\Users\\Хозяин\\Documents\\GitHub\\fizteh-java-2013\\src\\ru\\fizteh\\fivt\\students" +
         //        "\\mescherinilya\\filemap\\dbmain.txt").getAbsoluteFile();
 
         try {
-            database = new RandomAccessFile(databaseLocation, "rw");
 
-            int keyLength;
-            int valueLength;
-            String key;
-            String value;
-            while (database.getFilePointer() != database.length()) {
-                keyLength = database.readInt();
-                valueLength = database.readInt();
-                byte[] keySymbols = new byte[keyLength];
-                byte[] valueSymbols = new byte[valueLength];
-                database.read(keySymbols);
-                database.read(valueSymbols);
-                key = new String(keySymbols, "UTF-8");
-                value = new String(valueSymbols, "UTF-8");
-                storage.put(key, value);
-            }
+            readDatabase();
 
+        } catch (IncorrectFileFormatException ie) {
+            System.out.println("Incorrect database format: " + ie.getMessage());
+            System.exit(1);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(1);
@@ -116,25 +171,11 @@ public class FileMap {
 
                 batchMode(sb.toString());
             }
-        } catch (Exception e) {
-            try {
-                database.setLength(0);
-                Set<String> keySet = storage.keySet();
-                for (String key : keySet) {
-                    database.writeInt(key.length());
-                    database.writeInt(storage.get(key).length());
-                    database.write(key.getBytes("UTF-8"));
-                    database.write(storage.get(key).getBytes("UTF-8"));
-                }
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
-                System.exit(1);
-            }
-
-            if (e.getClass() == Pizdation.class) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+        } catch (TimeToExitException te) {
+            System.exit(0);
+        } catch (Throwable e) {
+            System.err.println("Something bad has occured.");
+            System.exit(1);
         }
 
         System.exit(0);

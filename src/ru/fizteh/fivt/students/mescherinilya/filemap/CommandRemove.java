@@ -12,14 +12,14 @@ public class CommandRemove implements Command {
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public void execute(String[] args) {
         if (FileMap.storage.containsKey(args[0])) {
             FileMap.storage.remove(args[0]);
             System.out.println("removed");
         } else {
             System.out.println("not found");
         }
-        return false;
+
     }
 
     @Override

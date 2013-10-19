@@ -6,7 +6,7 @@ public interface Command {
 
     public int getArgsCount();
 
-    public boolean execute(String[] args);
+    public void execute(String[] args) throws Exception;
 
 
 }

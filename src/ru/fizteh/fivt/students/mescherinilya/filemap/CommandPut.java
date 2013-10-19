@@ -12,14 +12,14 @@ public class CommandPut implements Command {
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public void execute(String[] args) {
         if (FileMap.storage.containsKey(args[0])) {
             System.out.println("overwrite\n" + FileMap.storage.get(args[0]));
         } else {
             System.out.println("new");
         }
         FileMap.storage.put(args[0], args[1]);
-        return false;
+
     }
 
     @Override

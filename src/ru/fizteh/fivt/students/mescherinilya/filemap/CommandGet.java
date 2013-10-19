@@ -12,13 +12,13 @@ public class CommandGet implements Command {
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public void execute(String[] args) {
         if (FileMap.storage.containsKey(args[0])) {
             System.out.println("found\n" + FileMap.storage.get(args[0]));
         } else {
             System.out.println("not found");
         }
-        return false;
+
     }
 
     @Override
