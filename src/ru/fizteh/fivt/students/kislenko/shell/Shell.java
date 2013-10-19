@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Shell<State> {
     private State state;
-    CmdLauncher launcher = new CmdLauncher();
+    private CmdLauncher launcher = new CmdLauncher();
 
     public Shell(State startingState, Command[] commands) {
         state = startingState;
