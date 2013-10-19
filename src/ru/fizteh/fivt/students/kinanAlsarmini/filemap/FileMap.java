@@ -97,6 +97,8 @@ class FileMap {
 
         while (!terminated) {
             try {
+                System.out.print("$ ");
+
                 String currentCommand = in.readLine();
 
                 if (currentCommand == null) {
