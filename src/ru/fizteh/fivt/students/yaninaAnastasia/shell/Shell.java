@@ -50,7 +50,7 @@ public class Shell {
             } else {
                 String[] answer = command.split("[\\s]+", 3);
                 if (answer.length == 3) {
-                String[] result = {answer[1], answer[2]};
+                    String[] result = {answer[1], answer[2]};
                     return result;
                 } else {
                     String[] result = {answer[1]};
@@ -99,16 +99,20 @@ public class Shell {
         while (true) {
             Scanner scan = new Scanner(System.in);
             System.out.print("$ ");
-            while (scan.hasNextLine()) {
-                String input = new String();
-                input = scan.nextLine();
-                String[] commandArray = input.split(";");
-                for (final String command : commandArray) {
-                    if (!processCommand(command)) {
-                        System.getProperty("line.separator");
+            try {
+                while (scan.hasNextLine()) {
+                    String input = new String();
+                    input = scan.nextLine();
+                    String[] commandArray = input.split(";");
+                    for (final String command : commandArray) {
+                        if (!processCommand(command)) {
+                            System.getProperty("line.separator");
+                        }
                     }
+                    System.out.print("$ ");
                 }
-                System.out.print("$ ");
+            } catch (Exception e) {
+                System.exit(1);
             }
             scan.close();
             return;
