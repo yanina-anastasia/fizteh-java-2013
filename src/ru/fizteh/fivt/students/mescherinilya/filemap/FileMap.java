@@ -100,8 +100,8 @@ public class FileMap {
                 keys.add(new String(bytes, "UTF-8"));
 
                 int offset = database.readInt();
-                if (!offsets.isEmpty() &&
-                        (offset <= offsets.get(offsets.size() - 1))) {
+                if (offset <= 0 ||
+                        !offsets.isEmpty() && offset <= offsets.get(offsets.size() - 1)) {
                     System.out.println(Integer.toHexString(offset) + " " + Integer.toHexString(offsets.get(offsets.size()-1)));
                     throw new IncorrectFileFormatException("Bad offset value");
                 }
@@ -114,10 +114,6 @@ public class FileMap {
         }
 
         offsets.add((int) database.length());
-
-        for (int i = 0; i < offsets.size(); ++i) {
-            System.out.println(offsets.get(i).toString());
-        }
 
         ArrayList<String> values = new ArrayList<String>();
 
