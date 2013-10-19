@@ -14,7 +14,7 @@ public class Move {
     }
 
     public boolean execute() {
-        if (args.length < 3) {
+        if (args.length != 3) {
             System.err.println("usage: mv file|directory file|directory");
             return false;
         }
@@ -25,7 +25,8 @@ public class Move {
             pathTo.changePath(args[2]);
 
             if (pathFrom.getPath().equals(pathTo.getPath())) {
-                return true;
+                System.err.println(args[1] + " and "+ args[2] + " are identical (not moved).");
+                return false;
             }
 
             Copy cp = new Copy(path, args);

@@ -20,25 +20,15 @@ public class PacketMode {
     }
 
     public void start() {
-        StringBuilder totalArgs = new StringBuilder();
-
-        for (String arg : args) {
-            totalArgs.append(arg);
-            totalArgs.append(" ");
-        }
-        totalArgs.append(';');
+        args[args.length - 1] = args[args.length - 1] + ";";
 
         ArrayList<String> tempArgs = new ArrayList<String>();
-        int last = -1;
-
-        for (int j = 0; j < totalArgs.length(); j++) {
-            if (totalArgs.charAt(j) == ';' || totalArgs.charAt(j) == ' ' || totalArgs.charAt(j) == '\t') {
-                if (last + 1 != j) {
-                    tempArgs.add(totalArgs.substring(last + 1, j));
-                }
-                last = j;
-
-                if (totalArgs.charAt(j) == ';' && tempArgs.size() != 0) {
+        for (String arg : args) {
+            int last = -1;
+            for (int i = 0; i < arg.length(); i++) {
+                if (arg.charAt(i) == ';') {
+                    tempArgs.add(arg.substring(last + 1, i));
+                    last = i;
                     if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), workingDirectory)) {
                         if (exitOnFailure) {
                             System.exit(1);
@@ -46,6 +36,9 @@ public class PacketMode {
                     }
                     tempArgs.clear();
                 }
+            }
+            if (last + 1 != arg.length()) {
+                tempArgs.add(arg.substring(last + 1, arg.length()));
             }
         }
     }

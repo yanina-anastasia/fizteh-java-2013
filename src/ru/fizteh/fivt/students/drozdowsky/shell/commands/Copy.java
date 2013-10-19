@@ -18,22 +18,25 @@ public class Copy {
         this.args = args;
     }
 
-    public void copy(File from, File to) throws IOException, SecurityException {
+    public boolean copy(File from, File to) throws IOException, SecurityException {
         if (!from.exists()) {
             System.err.println("cp: " + args[1] + ": " + "No such file or directory");
+            return false;
         }
         if (from.isDirectory()) {
             if (to.exists() && !to.isDirectory()) {
                 System.err.println("cp: " + args[2] + ": " + "Not a directory");
-                return;
+                return false;
             }
             copyDirectory(from, to);
         } else {
             if (to.exists() && !to.isFile()) {
                 System.err.println("cp: " + args[2] + ": " + "Not a file");
+                return false;
             }
             copyFile(from, to);
         }
+        return true;
     }
 
     public void copyFile(File from, File to) throws IOException, SecurityException {
@@ -60,8 +63,8 @@ public class Copy {
     }
 
     public boolean execute() {
-        if (args.length < 3) {
-            System.err.println("usage: rm file|directory file|directory");
+        if (args.length != 3) {
+            System.err.println("usage: cp file|directory file|directory");
             return false;
         }
         try {
@@ -71,11 +74,11 @@ public class Copy {
             pathTo.changePath(args[2]);
 
             if (pathFrom.getPath().equals(pathTo.getPath())) {
-                return true;
+                System.err.println(args[1] + " and "+ args[2] + " are identical (not copied).");
+                return false;
             }
 
-            copy(pathFrom.getPath(), pathTo.getPath());
-            return true;
+            return copy(pathFrom.getPath(), pathTo.getPath());
         } catch (SecurityException e) {
             System.err.println("cp: " + "Permission denied");
         } catch (IOException e) {

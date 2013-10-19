@@ -38,7 +38,7 @@ public class InteractiveMode {
             for (int i = 0; i < temp.length(); i++) {
                 if (temp.charAt(i) == '\"') {
                     openQuotes = !openQuotes;
-                } else if (!openQuotes && temp.charAt(i) == ' ') {
+                } else if (!openQuotes && (temp.charAt(i) == ' ' || temp.charAt(i) == '\t')) {
                     lastArgumentEnded = true;
                 } else {
                     if (lastArgumentEnded) {

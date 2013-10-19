@@ -14,7 +14,7 @@ public class MakeDirectory {
     }
 
     public boolean execute() {
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.err.println("usage: mkdir directory");
             return false;
         }

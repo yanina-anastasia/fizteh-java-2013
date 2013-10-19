@@ -33,7 +33,7 @@ public class Remove {
     }
 
     public boolean execute() {
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.err.println("usage: rm file|directory");
             return false;
         }
