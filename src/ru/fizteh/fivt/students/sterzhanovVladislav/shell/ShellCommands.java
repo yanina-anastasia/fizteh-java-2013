@@ -13,7 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 
 public class ShellCommands {
-    public static class Cd extends Command {
+    public static class Cd extends ShellCommand {
         @Override
         public void innerExecute() throws Exception {
             Path newPath = Paths.get(args[1]);
@@ -39,7 +39,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Mkdir extends Command {
+    public static class Mkdir extends ShellCommand {
         @Override
         public void innerExecute() throws Exception {
             Path newPath = Paths.get(args[1]);
@@ -63,7 +63,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Pwd extends Command {
+    public static class Pwd extends ShellCommand {
         @Override
         public void innerExecute() {
             parentShell.out.println(parentShell.getWorkingDir());
@@ -83,7 +83,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Rm extends Command {
+    public static class Rm extends ShellCommand {
         @Override
         public void innerExecute() throws IOException, Exception {
             Path path = Paths.get(args[1]);
@@ -129,7 +129,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Cp extends Command {
+    public static class Cp extends ShellCommand {
         @Override
         public void innerExecute() throws Exception, IOException {
             Path source = Paths.get(args[1]);
@@ -194,7 +194,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Mv extends Command {
+    public static class Mv extends ShellCommand {
         @Override
         public void innerExecute() throws Exception {
             Command cp = new Cp("cp", args[1], args[2]).setShell(parentShell);
@@ -217,7 +217,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Dir extends Command {
+    public static class Dir extends ShellCommand {
         @Override
         public void innerExecute() {
             Path cwd = parentShell.getWorkingDir();
@@ -240,7 +240,7 @@ public class ShellCommands {
         }
     }
     
-    public static class Exit extends Command {
+    public static class Exit extends ShellCommand {
         @Override
         public void innerExecute() {
             parentShell.exit(0);

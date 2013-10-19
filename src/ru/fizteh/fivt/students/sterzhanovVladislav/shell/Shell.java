@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.sterzhanovVladislav.shell;
 
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -73,13 +75,16 @@ public class Shell {
         if (cmdLine.trim().isEmpty()) {
             return null;
         }
-        String[] tokens = cmdLine.trim().split("[\t ]+");
-        String cmdName = tokens[0];
-        if (!cmdMap.containsKey(cmdName)) {
+        Matcher cmdNameMatcher = Pattern.compile("[\t ]*([^\t ]+)[\t ]*").matcher(cmdLine);
+        String cmdName = null;
+        if (cmdNameMatcher.find()) {
+            cmdName = cmdNameMatcher.group(1);
+        }
+        if (cmdName == null || !cmdMap.containsKey(cmdName)) {
             throw new IllegalArgumentException("Illegal command");
         }
         Command cmd = cmdMap.get(cmdName).newCommand().setShell(this);
-        cmd.args = tokens;
+        cmd.args = cmd.getParser().parseArgs(cmdLine);
         return cmd;
     }
     

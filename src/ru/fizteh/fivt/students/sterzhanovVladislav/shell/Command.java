@@ -5,14 +5,15 @@ import java.io.IOException;
 public abstract class Command {
     protected Shell parentShell;
     public abstract Command newCommand();
+    public abstract CommandParser getParser();
     public abstract void innerExecute() throws Exception, IOException;
     
     private int argc;
     public String[] args;
     
     void execute() throws IllegalArgumentException, Exception {
-        if (argc != args.length) {
-            throw new IllegalArgumentException("Unable to handle " + (args.length - 1) + " arguments");
+        if (args == null || args.length < argc)  {
+            throw new IllegalArgumentException("Wrong number of arguments given");
         }
         if (parentShell == null) {
             throw new Exception("Cannot execute a command without a shell attached");
@@ -29,6 +30,7 @@ public abstract class Command {
         parentShell = newShell;
         return this;
     }
+    
  
     public Command(int argCount) {
         setArgc(argCount);

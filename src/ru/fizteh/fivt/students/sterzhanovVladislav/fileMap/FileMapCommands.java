@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.Command;
+import ru.fizteh.fivt.students.sterzhanovVladislav.shell.CommandParser;
+import ru.fizteh.fivt.students.sterzhanovVladislav.shell.DefaultCommandParser;
 
 public class FileMapCommands {
     public static class Put extends FileMapCommand {
@@ -19,6 +21,11 @@ public class FileMapCommands {
         @Override
         public Command newCommand() {
             return new Put().setContext(dbContext);
+        }
+
+        @Override
+        public CommandParser getParser() {
+            return new FileMapPutCommandParser();
         }
         
         Put() {
@@ -46,6 +53,11 @@ public class FileMapCommands {
             return new Get().setContext(dbContext);
         }
         
+        @Override
+        public CommandParser getParser() {
+            return new DefaultCommandParser();
+        }
+
         Get() {
             super(2);
         }
@@ -69,6 +81,11 @@ public class FileMapCommands {
         @Override
         public Command newCommand() {
             return new Remove().setContext(dbContext);
+        }
+        
+        @Override
+        public CommandParser getParser() {
+            return new DefaultCommandParser();
         }
         
         Remove() {
