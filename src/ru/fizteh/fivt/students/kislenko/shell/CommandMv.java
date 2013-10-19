@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class CommandMv implements Command {
+public class CommandMv implements Command<ShellState> {
     public String getName() {
         return "mv";
     }
@@ -38,13 +38,13 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(Object state, String[] args) throws IOException {
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("mv: Command \"mv\" takes one argument.");
         }
         String source = args[0];
         String dest = args[1];
-        Path absolutePath = ((ShellState) state).getState();
+        Path absolutePath = state.getState();
         Path sourcePath = absolutePath.resolve(source).normalize();
         Path destPath = absolutePath.resolve(dest).normalize();
         if (!destPath.getParent().toFile().exists()) {
@@ -76,7 +76,7 @@ public class CommandMv implements Command {
                 moveFile(sourceEntry, destPath.toFile());
             }
             sourcePath.toFile().delete();
-            ((ShellState) state).setState(validatePath(absolutePath));
+            state.setState(validatePath(absolutePath));
         } else {
             throw new IOException("mv: Incorrect file names.");
         }

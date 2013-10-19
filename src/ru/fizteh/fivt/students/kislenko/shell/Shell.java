@@ -2,11 +2,11 @@ package ru.fizteh.fivt.students.kislenko.shell;
 
 import java.util.Scanner;
 
-public class Shell {
-    private Object state;
+public class Shell<State> {
+    private State state;
     CmdLauncher launcher = new CmdLauncher();
 
-    public Shell(Object startingState, Command[] commands) {
+    public Shell(State startingState, Command[] commands) {
         state = startingState;
         for (Command command : commands) {
             launcher.addCommand(command);
