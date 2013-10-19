@@ -1,8 +1,7 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.students.vyatkina.database.Table;
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.vyatkina.shell.Command;
-
 
 public class GetCommand implements Command {
 

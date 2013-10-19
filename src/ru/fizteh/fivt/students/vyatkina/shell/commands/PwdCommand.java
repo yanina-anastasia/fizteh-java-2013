@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.vyatkina.shell.Command;
 import ru.fizteh.fivt.students.vyatkina.shell.FileManager;
 
 import java.io.PrintStream;
+import java.util.concurrent.ExecutionException;
 
 public class PwdCommand implements Command {
 
@@ -15,8 +16,12 @@ public class PwdCommand implements Command {
     }
 
     @Override
-    public void execute (String[] args) {
+    public void execute (String[] args) throws ExecutionException {
+       try {
        System.out.println (fileManager.getCurrentDirectoryString ());
+       } catch (RuntimeException e) {
+           throw new ExecutionException (e.fillInStackTrace ());
+       }
     }
 
     @Override

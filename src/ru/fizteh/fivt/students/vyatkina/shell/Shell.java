@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class Shell {
 
@@ -95,11 +96,11 @@ public class Shell {
                     }
                     commandsToExecute.add (new CommandToExecute (cmd,args));
                 } else {
-                    throw new RuntimeException ("Wrong number of arguments in " + cmd.getName () + ": needed: " + argsNumber
+                    throw new IllegalArgumentException ("Wrong number of arguments in " + cmd.getName () + ": needed: " + argsNumber
                             + " have: " + (splitted.length - 1));
                 }
             } else {
-                throw new RuntimeException ("Unknown command: [" + splitted[0] + "]");
+                throw new IllegalArgumentException ("Unknown command: [" + splitted[0] + "]");
             }
         }
     return commandsToExecute;
@@ -119,7 +120,7 @@ public class Shell {
 
             COMMAND_MAP.get ("exit").execute (new String [0]);
 
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | ExecutionException e) {
             System.out.println (e.getMessage ());
             System.exit (-1);
         }
@@ -137,7 +138,7 @@ public class Shell {
             for (CommandToExecute cmd: commandsToExecute) {
                  cmd.command.execute (cmd.args);
             }
-            } catch (RuntimeException e) {
+            } catch (IllegalArgumentException | ExecutionException e) {
                 System.out.println(e.getMessage ());
             }
         }

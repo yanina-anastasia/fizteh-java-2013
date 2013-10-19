@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.vyatkina.shell.FileManager;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
 public class MkdirCommand implements Command {
 
@@ -16,12 +17,12 @@ public class MkdirCommand implements Command {
     }
 
     @Override
-    public void execute (String[] args)  {
+    public void execute (String[] args) throws ExecutionException{
         Path newDir = Paths.get (args[0]);
         try {
         fileManager.makeDirectory (newDir);
-        } catch (IOException e) {
-            throw new IllegalArgumentException ("Failed to make a directory [" + newDir + "]");
+        } catch (IOException | RuntimeException e) {
+            throw new ExecutionException (e.fillInStackTrace ());
         }
 
     }

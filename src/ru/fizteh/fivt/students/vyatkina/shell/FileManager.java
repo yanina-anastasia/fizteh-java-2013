@@ -23,7 +23,7 @@ public class FileManager {
 
     Path currentDirectory = Paths.get ("").toAbsolutePath ();
 
-    public void changeCurrentDirectory (Path newDirectory) throws IllegalArgumentException {
+    public void changeCurrentDirectory (Path newDirectory) throws IllegalArgumentException, IOException {
         Path oldDirectory = currentDirectory;
 
         if (newDirectory.isAbsolute ()) {
@@ -44,7 +44,7 @@ public class FileManager {
 
         }
         catch (IOException e) {
-            throw new RuntimeException ("Unable to enter directory [" + newDirectory + "]: some root problems");
+            throw new IOException ("Unable to enter directory [" + newDirectory + "]: some root problems");
         }
     }
 
@@ -95,7 +95,7 @@ public class FileManager {
         }
     }
 
-    public void copyFile (Path fromPath, Path toPath) {
+    public void copyFile (Path fromPath, Path toPath) throws IOException {
         if (!fromPath.isAbsolute ()) {
         fromPath = currentDirectory.resolve (fromPath);
         }
@@ -114,8 +114,8 @@ public class FileManager {
                         Integer.MAX_VALUE, new CopyDirectoryVisitor (fromPath, destination));
 
             }
-            catch (IOException io) {
-                throw new IllegalArgumentException ("Fail to copy [" + fromPath + "] to [" + toPath + "] " + io);
+            catch (IOException | RuntimeException e) {
+                throw new IOException ("Fail to copy [" + fromPath + "] to [" + toPath + "] " + e);
             }
         } else {
             throw new IllegalArgumentException ("Fail to copy [" + fromPath + "] to [" + toPath + "] file doesn't exist");
@@ -186,7 +186,7 @@ public class FileManager {
         }
     }
 
-    public void deleteFile (Path file) throws RuntimeException {
+    public void deleteFile (Path file) throws IOException {
         if (!file.isAbsolute ()) {
         file = currentDirectory.resolve (file);
         }
@@ -196,8 +196,8 @@ public class FileManager {
             try {
                 Files.walkFileTree (file, new DeleteDirectoryVisitor ());
             }
-            catch (IOException e) {
-                throw new RuntimeException ("Unable to delete file [" + file + "] " + e);
+            catch (IOException | RuntimeException e) {
+                throw new IOException ("Unable to delete file [" + file + "] " + e);
             }
         }
     }
@@ -238,7 +238,7 @@ public class FileManager {
         }
     }
 
-    public void moveFile (Path fromPath, Path toPath) throws RuntimeException {
+    public void moveFile (Path fromPath, Path toPath) throws IOException {
         if (!fromPath.isAbsolute ())  {
         fromPath = currentDirectory.resolve (fromPath);
         }
@@ -247,14 +247,14 @@ public class FileManager {
         }
 
         if (Files.notExists (fromPath) || (Files.isDirectory (toPath) && Files.notExists (toPath))) {
-            throw new RuntimeException ("Fail to move [" + fromPath + "] to [" + toPath + "] one of files doesn't exist");
+            throw new IOException ("Fail to move [" + fromPath + "] to [" + toPath + "] one of files doesn't exist");
         }
         try {
             Path destination = Files.isDirectory (toPath) ? toPath.resolve (fromPath.getFileName ()) : toPath;
             Files.move (fromPath, destination, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException e) {
-            throw new RuntimeException ("Fail to move [" + fromPath + "] to [" + toPath + "] " + e);
+            throw new IOException ("Fail to move [" + fromPath + "] to [" + toPath + "] " + e);
         }
     }
 }

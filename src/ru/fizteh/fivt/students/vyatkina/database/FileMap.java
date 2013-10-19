@@ -6,7 +6,9 @@ import ru.fizteh.fivt.students.vyatkina.database.commands.PutCommand;
 import ru.fizteh.fivt.students.vyatkina.database.commands.RemoveCommand;
 import ru.fizteh.fivt.students.vyatkina.shell.Command;
 import ru.fizteh.fivt.students.vyatkina.shell.Shell;
+import ru.fizteh.fivt.students.vyatkina.database.SingleTable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -14,7 +16,7 @@ import java.util.Set;
 
 public class FileMap {
 
-    static Set <Command> getFileMapCommands (Table table) {
+    static Set <Command> getFileMapCommands (SingleTable table) {
         Set commands = new HashSet ();
         commands.add ( new GetCommand (table));
         commands.add ( new PutCommand (table));
@@ -24,12 +26,16 @@ public class FileMap {
     }
 
     public static void main (String[] args) {
-        Path directory = Paths.get (System.getProperty ("fizteh.db.dir"));
-        if (directory == null) {
-            directory = Paths.get ("");
+        String input = System.getProperty ("fizteh.db.dir");
+        Path databasePath;
+        if (input != null) {
+             databasePath = Paths.get (input);
+        } else {
+            System.err.println ("This is SingleDatabase. To run program, give it propereties -Dfizteh.db.dir=<directory>");
+            return;
         }
-        Table table = new SingleTable ("MyLittleTable",directory);
-
+        try {
+        SingleTable table = new SingleTable ("MyLittleTable",databasePath);
         Shell shell;
         if (args.length == 0) {
             shell = new Shell (getFileMapCommands (table), Shell.Mode.INTERACTIVE);
@@ -38,6 +44,10 @@ public class FileMap {
             shell = new Shell (getFileMapCommands (table), Shell.Mode.PACKET);
         }
         shell.startWork (args);
+        } catch (IOException e) {
+            System.err.println (e.getMessage ());
+            System.exit (-1);
+        }
 
     }
 
