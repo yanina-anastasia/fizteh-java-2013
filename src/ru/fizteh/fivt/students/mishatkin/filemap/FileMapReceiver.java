@@ -14,7 +14,13 @@ public class FileMapReceiver extends ShellReceiver {
 	private File dbFile;
 	private HashMap<String, String> dictionary = new HashMap<>();
 
-	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws MissingFileMapDatabaseException {
+	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
+	private boolean isValidStringLength(int size) {
+		return size > 0 && size < TERRIBLE_FILE_SIZE;
+	}
+	
+	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
 		FileInputStream in = null;
 		try {
@@ -25,7 +31,7 @@ public class FileMapReceiver extends ShellReceiver {
 			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
 		} catch (IOException e) {
-			throw new MissingFileMapDatabaseException("DB file not found.");
+			throw new FileMapDatabaseException("DB file not found.");
 		} finally {
 			DataInputStream dis = null;
 			try {
@@ -36,6 +42,9 @@ public class FileMapReceiver extends ShellReceiver {
 						dis.mark(1024 * 1024); // 1 MB
 						int keyLength = dis.readInt();
 						int valueLength = dis.readInt();
+						if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
+							throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
+						}
 						byte[] keyBinary = new byte[keyLength];
 						byte[] valueBinary = new byte[valueLength];
 						dis.read(keyBinary, 0, keyLength);
@@ -45,8 +54,8 @@ public class FileMapReceiver extends ShellReceiver {
 						dictionary.put(key, value);
 					} catch (EOFException e) {
 						hasNext = false;
-					} catch (NullPointerException | IOException e) {
-						throw new MissingFileMapDatabaseException("DB file missing or corrupted.");
+					} catch (IOException e) {
+						throw new FileMapDatabaseException("DB file missing or corrupted.");
 					}
 				}
 			} finally {

@@ -5,8 +5,8 @@ import ru.fizteh.fivt.students.mishatkin.shell.ShellException;
 /**
  * Created by Vladimir Mishatkin on 10/15/13
  */
-public class MissingFileMapDatabaseException extends ShellException {
-	public MissingFileMapDatabaseException(String s) {
+public class FileMapDatabaseException extends ShellException {
+	public FileMapDatabaseException(String s) {
 		super(s);
 	}
 }
