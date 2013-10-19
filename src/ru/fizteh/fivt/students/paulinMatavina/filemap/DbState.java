@@ -76,10 +76,15 @@ public class DbState extends State{
     }
     
     private String getValueFromFile(int offset, int endOffset) throws IOException {
+        if (offset < 0 || endOffset < 0) {
+            System.err.println("filemap: reading database: wrong file format");
+            System.exit(1);
+        }
         dbFile.seek(offset);
         byte tempByte;
         Vector<Byte> byteVect = new Vector<Byte>();
-        while ((int) dbFile.getFilePointer() < endOffset) { 
+        while (dbFile.getFilePointer() < dbFile.length()
+                    && (int) dbFile.getFilePointer() < endOffset) { 
             tempByte = dbFile.readByte();
             byteVect.add(tempByte);
         }        
@@ -100,20 +105,20 @@ public class DbState extends State{
         String value = "";
         String key2 = "";
         
-        do {    
-            if (position < firstOffset) { 
+        do {  
+            position += key.getBytes().length + 5;
+            if (position < firstOffset) {   
                 key2 = getKeyFromFile(position);
                 endOffset = dbFile.readInt();
                 value = getValueFromFile(startOffset, endOffset);
-                position += key.getBytes().length + 5;
+                
             } else {
                 value = getValueFromFile(startOffset, (int) dbFile.length());
-                position += key.getBytes().length + 5;
             }
             data.put(key, value);
             key = key2;
             startOffset = endOffset;
-        } while (position <= firstOffset);
+        } while (position <= firstOffset); 
     }
 
     public void commit() throws IOException {
