@@ -66,7 +66,11 @@ public class Table {
                     for (int j = 0; j < keys.size(); j++) {
                         int valueLength = offsets.get(j + 1).intValue() - offsets.get(j).intValue();
                         byte[] buf = new byte[valueLength];
-                        i.read(buf, 0, valueLength);
+                        for(int t = 0; t < valueLength; t++) {
+                            buf[t] = i.read();
+                            if (buf[t] == -1) throw new IOException("EOF too early");
+                        }
+                        //i.read(buf, 0, valueLength);
                         map.put(keys.get(j), new String(buf, "UTF8"));
                     }
                 }
