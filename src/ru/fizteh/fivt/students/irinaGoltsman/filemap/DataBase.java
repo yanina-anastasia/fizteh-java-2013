@@ -148,6 +148,10 @@ public class DataBase {
                 System.err.println("Wrong format of db: length of key and length of value must be positive integers.");
                 return Code.ERROR;
             }
+            if (lengthOfKey >= length) {
+                System.err.println("Wrong format of db: length of key ​​do not match content.");
+                return Code.ERROR;
+            }
             byte[] bytesOfKey = new byte[lengthOfKey];
             int countOfBytesWasRead = 0;
             try {
@@ -161,6 +165,10 @@ public class DataBase {
                 return Code.ERROR;
             }
             length -= countOfBytesWasRead;
+            if (lengthOfValue >= length) {
+                System.err.println("Wrong format of db: length of value ​​do not match content.");
+                return Code.ERROR;
+            }
             byte[] bytesOfValue = new byte[lengthOfValue];
             try {
                 countOfBytesWasRead = dbFile.read(bytesOfValue);
@@ -174,9 +182,19 @@ public class DataBase {
             }
             length -= countOfBytesWasRead;
             String key;
-            key = new String(bytesOfKey);
+            try {
+                key = new String(bytesOfKey, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
             String value;
-            value = new String(bytesOfValue);
+            try {
+                value = new String(bytesOfValue, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                System.err.println(e);
+                return Code.SYSTEM_ERROR;
+            }
             dbStorage.put(key, value);
         }
         return Code.OK;
