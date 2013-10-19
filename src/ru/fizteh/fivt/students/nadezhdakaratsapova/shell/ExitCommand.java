@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.shell;
 import java.io.IOException;
 
 public class ExitCommand implements Command {
+
     public String getName() {
         return "exit";
     }

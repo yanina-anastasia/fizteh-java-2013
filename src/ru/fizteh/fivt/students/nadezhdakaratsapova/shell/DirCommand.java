@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 public class DirCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public DirCommand(ShellState state) {
         curState = state;

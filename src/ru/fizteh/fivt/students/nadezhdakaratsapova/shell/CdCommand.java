@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class CdCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public CdCommand(ShellState state) {
         curState = state;

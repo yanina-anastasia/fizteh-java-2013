@@ -5,8 +5,9 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import java.io.IOException;
 
 public class ExitCommand implements Command {
-    FileMapState curState;
-    FileWriter fileWriter = new FileWriter();
+
+    private FileMapState curState;
+    private FileWriter fileWriter = new FileWriter();
 
     public ExitCommand(FileMapState state) {
         curState = state;

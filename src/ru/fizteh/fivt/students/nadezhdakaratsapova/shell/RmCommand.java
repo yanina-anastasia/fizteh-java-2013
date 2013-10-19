@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class RmCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public RmCommand(ShellState state) {
         curState = state;

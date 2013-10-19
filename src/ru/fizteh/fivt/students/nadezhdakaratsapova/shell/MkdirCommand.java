@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class MkdirCommand implements Command {
-    ShellState curState;
+
+    private ShellState curState;
 
     public MkdirCommand(ShellState state) {
         curState = state;

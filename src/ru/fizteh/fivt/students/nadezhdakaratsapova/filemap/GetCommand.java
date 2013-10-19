@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class GetCommand implements Command {
 
-    FileMapState curState;
+    private FileMapState curState;
 
     public GetCommand(FileMapState state) {
         curState = state;

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class PutCommand implements Command {
 
-    FileMapState curState;
+    private FileMapState curState;
 
     public PutCommand(FileMapState state) {
         curState = state;

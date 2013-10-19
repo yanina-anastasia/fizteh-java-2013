@@ -6,7 +6,7 @@ import java.nio.file.Files;
 
 public class MvCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public MvCommand(ShellState state) {
         curState = state;

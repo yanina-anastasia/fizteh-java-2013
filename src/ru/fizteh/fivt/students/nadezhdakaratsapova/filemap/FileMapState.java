@@ -19,7 +19,7 @@ public class FileMapState {
         dataFile = file;
     }
 
-    void add(String key, String value) {
+    public void add(String key, String value) {
         dataStorage.put(key, value);
     }
 

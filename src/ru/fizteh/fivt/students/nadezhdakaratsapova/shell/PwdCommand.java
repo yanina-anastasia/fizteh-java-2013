@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class PwdCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public PwdCommand(ShellState state) {
         curState = state;

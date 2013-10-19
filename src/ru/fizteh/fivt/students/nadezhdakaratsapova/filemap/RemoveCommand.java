@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class RemoveCommand implements Command {
 
-    FileMapState curState;
+    private FileMapState curState;
 
     public RemoveCommand(FileMapState state) {
         curState = state;

@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 public class CpCommand implements Command {
 
-    ShellState curState;
+    private ShellState curState;
 
     public CpCommand(ShellState state) {
         curState = state;
