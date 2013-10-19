@@ -63,6 +63,12 @@ public class FileMapMain {
             if (System.getProperty("fizteh.db.dir") == null) {
                 System.out.println("No db directory");
                 System.exit(1);
+            } else {
+                File tempFile = new File(System.getProperty("fizteh.db.dir"));
+                if (!tempFile.exists()) {
+                    System.out.println("No db directory");
+                    System.exit(1);
+                }
             }
             File currentFile = new File(System.getProperty("fizteh.db.dir"), DEFAULT_FILE_NAME).getCanonicalFile();
             currentDataBase = new DataBaseFile(currentFile);
