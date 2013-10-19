@@ -31,12 +31,21 @@ public class FileMap {
 		dataBaseFile = new RandomAccessFile(currentDirectory, "rwd");
 	}
 	
-    private String readString(long readPosition, long finishPosition) throws IOException {
-        byte[] bytes = new byte[(int)(finishPosition - readPosition)];
-        dataBaseFile.seek(readPosition);
-        dataBaseFile.read(bytes);
-        return new String(bytes, "UTF-8");
-}
+	private String readString(int readPosition, int finishPosition) throws IOException {
+		int readLength = finishPosition - readPosition;
+		if ((readLength <= 0) || (readLength > 1024 * 1024)) {  //max string length is declared as 1Mb
+			dataBaseFile.close();
+			throw new IOException("wrong string format");
+		}
+		if ((readPosition > (int)dataBaseFile.length()) || (finishPosition > (int)dataBaseFile.length())) {  
+			dataBaseFile.close();
+			throw new IOException("offset exceeds the limit");
+		}
+		byte[] bytes = new byte[readLength];
+		dataBaseFile.seek(readPosition);
+		dataBaseFile.read(bytes);
+		return new String(bytes, "UTF-8");
+	}
 	
 	public void readDataFromFile(Shell usedShell) throws IOException {	
 		openFile(usedShell);
@@ -47,20 +56,24 @@ public class FileMap {
 		
 		String readKey = null;
 		String previousKey = null;
-		long positionOfValues = Long.MAX_VALUE;
-		long readPosition = 0;
-		long previousOffset = Long.MAX_VALUE;
+		int positionOfValues = Integer.MAX_VALUE;
+		int readPosition = 0;
+		int previousOffset = -1;
 		dataBaseFile.seek(readPosition);
 
 		while (readPosition < positionOfValues) {
 			while ((dataBaseFile.getFilePointer() < dataBaseFile.length()) && !(dataBaseFile.readByte() == '\0')) {}
 			
-			long nextOffset = dataBaseFile.readInt();
-			long keyPosition = dataBaseFile.getFilePointer();
-			previousKey = readKey;
-			readKey = readString(readPosition, dataBaseFile.getFilePointer() - 5);
+			int nextOffset = dataBaseFile.readInt();
+			if (nextOffset < 0) {
+				throw new IOException("negative offset");
+			}
 			
-			if (previousOffset == Long.MAX_VALUE) {
+			int keyPosition = (int)dataBaseFile.getFilePointer();
+			previousKey = readKey;
+			readKey = readString(readPosition, (int)dataBaseFile.getFilePointer() - 5);
+	
+			if (previousOffset == -1) {
 				positionOfValues = nextOffset;
 			} else {
 				currentTable.put(previousKey, readString(previousOffset, nextOffset));
@@ -68,8 +81,7 @@ public class FileMap {
 			
 			previousOffset = nextOffset;		
 			dataBaseFile.seek(keyPosition);
-			readPosition = dataBaseFile.getFilePointer();
-			System.out.println(nextOffset);
+			readPosition = (int)dataBaseFile.getFilePointer();
 		} 
 	
 		currentTable.put(readKey, readString(previousOffset, (int)dataBaseFile.length()));
@@ -80,6 +92,8 @@ public class FileMap {
 
 	public void writeDataToFile(Shell usedShell) throws IOException {
 		openFile(usedShell);
+		dataBaseFile.getChannel().truncate(0);
+		
 		int offset = 0;		
 		for (String key: getCurrentTable().keySet()) {
 			offset += 5 + key.getBytes("UTF-8").length;
