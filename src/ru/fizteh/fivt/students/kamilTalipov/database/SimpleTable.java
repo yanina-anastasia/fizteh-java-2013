@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class SimpleTable implements Table {
     public SimpleTable(String workingDirectory) throws FileNotFoundException, DatabaseException {
+        System.out.println(MAX_KEY_LEN);
         try {
             dbFile = FileUtils.makeFile(workingDirectory, "db.dat");
         } catch (IllegalArgumentException e) {
@@ -69,6 +70,9 @@ public class SimpleTable implements Table {
             while (input.available() > 0) {
                 int keyLen = readInt(input);
                 int valueLen = readInt(input);
+                if (keyLen > MAX_KEY_LEN || valueLen > MAX_VALUE_LEN) {
+                    throw new DatabaseException("Database file have incorrect format");
+                }
                 String key = readString(input, keyLen);
                 String value = readString(input, valueLen);
                 table.put(key, value);
@@ -106,4 +110,7 @@ public class SimpleTable implements Table {
 
     private final File dbFile;
     private HashMap<String, String> table;
+
+    private static final int MAX_KEY_LEN = 1 << 24;
+    private static final int MAX_VALUE_LEN = 1 << 24;
 }
