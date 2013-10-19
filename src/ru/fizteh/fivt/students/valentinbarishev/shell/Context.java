@@ -58,7 +58,7 @@ final class Context {
 
     public void makeFullDir(final String name) throws IOException {
         File dir = new File(name);
-        if (!dir.mkdirs()) {
+        if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("Cannot create dirs! " + name);
         }
     }
@@ -96,8 +96,7 @@ final class Context {
         recursiveRemove(new File(newPath));
     }
 
-    private void copyFile(final String src, final String dest)
-            throws IOException {
+    private void copyFile(final String src, final String dest) throws IOException {
         File file = new File(dest);
 
         if (file.isDirectory()) {
@@ -148,13 +147,18 @@ final class Context {
         if (source.equals(destination)) {
             throw new InvalidCommandException("Cannot move myself to myself.");
         }
+
         if (file.isFile()) {
             copyFile(source, destination);
         } else {
             if (!new File(destination).exists()) {
-                throw new InvalidCommandException("Can't copy to" + " non-existent directory");
+                if (!new File(destination).mkdir()) {
+                    throw new InvalidCommandException("Destination dir creation error!");
+                }
+                recursiveCopy(source, destination, "");
+            } else {
+                recursiveCopy(source, destination, File.separator + (file.getName()));
             }
-            recursiveCopy(source, destination, File.separator + (file.getName()));
         }
     }
 
