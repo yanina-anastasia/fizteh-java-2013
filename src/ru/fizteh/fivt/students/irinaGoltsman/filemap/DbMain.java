@@ -19,7 +19,7 @@ public class DbMain {
         cm.addCommand(new DBCommands.Get());
         cm.addCommand(new DBCommands.Remove());
         Code codeOfShell = Shell.shell(args);
-        if (codeOfShell == Code.ERROR || codeOfShell == Code.SYSTEM_ERROR) {
+        if (codeOfShell == Code.SYSTEM_ERROR) {
             myDataBase.emergencyExit();
         } else {
             Code closeCode = myDataBase.close();
