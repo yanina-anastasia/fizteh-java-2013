@@ -32,15 +32,13 @@ public class DataBaseFile {
                 if ((long) keyLength + (long) valueLength > dbFile.length() - dbFile.getFilePointer()) {
                     throw new DataBaseFileDamaged();
                 }
-                char[] key = new char[keyLength];
-                char[] value = new char[valueLength];
-                for (int i = 0; i < keyLength; ++i) {
-                    key[i] = dbFile.readChar();
-                }
-                for (int i = 0; i < valueLength; ++i) {
-                    value[i] = dbFile.readChar();
-                }
-                dbMap.put(new String(key), new String(value));
+                /*byte[] key = new byte[keyLength];
+                byte[] value = new byte[valueLength];
+                dbFile.read(key);
+                dbFile.read(value);
+                dbMap.put(new String(key, Charset.forName("UTF-8")), new String(value, Charset.forName("UTF-8")));
+                */
+                dbMap.put(dbFile.readUTF(), dbFile.readUTF());
             }
         } catch (FileNotFoundException e) {
             System.out.println("can't open data base file: '" + dbFilePath.getCanonicalPath() + "' file not found");
@@ -95,8 +93,8 @@ public class DataBaseFile {
                 Map.Entry<String, String> tempEntry = i.next();
                 dbFile.writeInt(tempEntry.getKey().length());
                 dbFile.writeInt(tempEntry.getValue().length());
-                dbFile.writeChars(tempEntry.getKey());
-                dbFile.writeChars(tempEntry.getValue());
+                dbFile.writeUTF(tempEntry.getKey());
+                dbFile.writeUTF(tempEntry.getValue());
             }
             dbFile.setLength(dbFile.getFilePointer());
         } catch (IOException e) {
