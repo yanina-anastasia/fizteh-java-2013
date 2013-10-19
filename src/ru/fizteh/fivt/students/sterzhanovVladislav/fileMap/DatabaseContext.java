@@ -80,6 +80,9 @@ public class DatabaseContext {
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
         safeRead(fstream, sizeBuf, 4);
         int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
+        if (keySize < 0 || valueSize < 0 || fstream.available() < (long) keySize + (long) valueSize) {
+            throw new Exception("Error: malformed database");
+        }
         byte[] keyBuf = new byte[keySize];
         safeRead(fstream, keyBuf, keySize);
         byte[] valueBuf = new byte[valueSize];

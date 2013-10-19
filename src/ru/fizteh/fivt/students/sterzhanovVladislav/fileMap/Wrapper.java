@@ -17,10 +17,12 @@ public class Wrapper {
         String dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.out.println("fizteh.db.dir not set");
+            System.exit(-1);
         }
         Path dbPath = Paths.get(dbDir);
         if (dbPath == null) {
             System.out.println("fizteh.db.dir did not resolve to a valid directory");
+            System.exit(-1);
         }
         try {
             context = new DatabaseContext(dbPath);
