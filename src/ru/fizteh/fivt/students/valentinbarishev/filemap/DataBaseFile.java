@@ -33,7 +33,7 @@ public final class DataBaseFile {
                     value = new byte[valueLength];
                     inputFile.read(key);
                     inputFile.read(value);
-                } catch (Error e) {
+                } catch (OutOfMemoryError e) {
                     throw new DataBaseWrongFileFormat("Some key or value are too large in " + file.getName());
                 }
             } catch (Exception e) {
