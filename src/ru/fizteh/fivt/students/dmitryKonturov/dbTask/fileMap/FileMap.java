@@ -7,10 +7,13 @@ import java.nio.file.Paths;
 public class FileMap {
 
     public static void main(String[] args) {
-        String dbDir = ".";
+        String dbDir = "/home/kontr/testDir";
         final String fileName = "db.dat";
         try {
             dbDir = System.getProperty("fizteh.db.dir");
+            if (dbDir == null) {
+                throw new Exception("null pointer.");
+            }
         } catch (Exception e) {
             System.err.println("Couldn't read property.");
             System.exit(1);

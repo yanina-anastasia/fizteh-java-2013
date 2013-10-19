@@ -179,9 +179,13 @@ public class FileMapShell extends ShellEmulator{
 
     private int readInt(FileInputStream input) throws IOException {
         byte[] number = new byte[4];
-        int wasRead = input.read(number);
-        if (wasRead < 4) {
-            throw new IOException("Cannot read int");
+        int wasRead = 0;
+        while (wasRead < 4) {
+            int tmpRead = input.read(number, wasRead, 4 - wasRead);
+            if (tmpRead == -1) {
+                throw new EOFException();
+            }
+            wasRead += tmpRead;
         }
         return ByteBuffer.wrap(number).getInt();
     }
@@ -192,14 +196,22 @@ public class FileMapShell extends ShellEmulator{
                 int keyLen = readInt(input);
                 int valueLen = readInt(input);
                 byte[] key = new byte[keyLen];
-                int numRead = input.read(key);
-                if (numRead < keyLen) {
-                    throw new ShellException("loadFile", "Not all data was read");
-                }
                 byte[] value = new byte[valueLen];
-                numRead = input.read(value);
-                if (numRead < valueLen) {
-                    throw new ShellException("loadFile", "Not all data was read");
+                int wasRead = 0;
+                while (wasRead < keyLen) {
+                    int tmpRead = input.read(key, wasRead, keyLen - wasRead);
+                    if (tmpRead == -1) {
+                        throw new EOFException();
+                    }
+                    wasRead += tmpRead;
+                }
+                wasRead = 0;
+                while (wasRead < valueLen) {
+                    int tmpRead = input.read(value, wasRead, valueLen - wasRead);
+                    if (tmpRead == -1) {
+                        throw new EOFException();
+                    }
+                    wasRead += tmpRead;
                 }
 
                 String keyStr = new String(key, "UTF-8");
