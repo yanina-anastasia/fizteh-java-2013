@@ -7,10 +7,17 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
 public class Put implements Command {
     private static final String NAME = "put";
+
     public Put() {}
+
     public String getName() {
         return NAME;
     }
+
+    public int getArgsNum() {
+        return 2;
+    }
+
     public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
         if (args.length < 2) {
             throw new FileMapException("put: arguments expected");

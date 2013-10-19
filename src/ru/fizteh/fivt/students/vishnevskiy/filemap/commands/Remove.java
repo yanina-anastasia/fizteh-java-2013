@@ -8,10 +8,17 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
 public class Remove implements Command {
     private static final String NAME = "remove";
+
     public Remove() {}
+
     public String getName() {
         return NAME;
     }
+
+    public int getArgsNum() {
+        return 1;
+    }
+
     public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
         if (args.length == 0) {
             throw new FileMapException("remove: arguments expected");

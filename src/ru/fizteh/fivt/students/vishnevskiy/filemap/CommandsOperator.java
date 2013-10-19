@@ -28,10 +28,16 @@ public class CommandsOperator {
 
     public int runCommand(String line) {
         try {
-            line = line.replaceAll("\\s+", " ").trim();
-            String[] commandAndArgs = line.split(" ");
-            String commandName = commandAndArgs[0];
-            String[] args = Arrays.copyOfRange(commandAndArgs, 1, commandAndArgs.length);
+//            line = line.replaceAll("\\s+", " ").trim();
+//            String[] commandAndArgs = line.split(" ");
+//            String commandName = commandAndArgs[0];
+//            String[] args = Arrays.copyOfRange(commandAndArgs, 1, commandAndArgs.length);
+            int i = 0;
+            while (line.charAt(i) == ' ') {
+                ++i;
+            }
+            line = line.substring(i);
+            String commandName = line.split("\\s", 2)[0];
             Command command = commandsTable.get(commandName);
             if (command == null) {
                 if (commandName.equals("")) {
@@ -39,8 +45,8 @@ public class CommandsOperator {
                 } else {
                     throw new FileMapException(commandName + ": command not found");
                 }
-
             }
+            String[] args = Arrays.copyOfRange(line.split("\\s+", command.getArgsNum() + 1), 1, command.getArgsNum() + 1);
             command.execute(singleFileMap, args);
         } catch (FileMapException e) {
             System.err.println(e.getMessage());

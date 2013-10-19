@@ -7,10 +7,17 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
 public class Get implements Command {
     private static final String NAME = "get";
+
     public Get() {}
+
     public String getName() {
         return NAME;
     }
+
+    public int getArgsNum() {
+        return 1;
+    }
+
     public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
         if (args.length == 0) {
             throw new FileMapException("get: arguments expected");

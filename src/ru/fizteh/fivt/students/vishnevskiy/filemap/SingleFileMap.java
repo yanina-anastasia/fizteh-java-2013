@@ -16,8 +16,7 @@ public class SingleFileMap {
             FileReader reader = new FileReader(datebase);
             reader.readFile(map);
         } catch (FileNotFoundException e) {
-            System.err.println("Datebase file not found");
-            System.exit(1);
+            // do nothing
         } catch (IOException e) {
             System.err.println("Failed to read datebase file");
             System.exit(1);

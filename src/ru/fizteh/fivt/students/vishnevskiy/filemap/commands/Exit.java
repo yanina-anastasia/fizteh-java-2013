@@ -7,10 +7,17 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
 public class Exit implements Command {
     private static final String NAME = "exit";
+
     public Exit() {}
+
     public String getName() {
         return NAME;
     }
+
+    public int getArgsNum() {
+        return 0;
+    }
+
     public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
         if (args.length > 0) {
             throw new FileMapException("exit: no arguments needed");

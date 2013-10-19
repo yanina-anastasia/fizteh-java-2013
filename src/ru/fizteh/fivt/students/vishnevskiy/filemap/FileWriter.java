@@ -9,13 +9,23 @@ import java.io.File;
 
 public class FileWriter {
     private RandomAccessFile stream;
+    private File datebase;
 
     public FileWriter(File file) throws IOException {
-        stream = new RandomAccessFile(file, "rw");
+        this.datebase = file;
+        if (!datebase.exists()) {
+            datebase.createNewFile();
+        }
+        stream = new RandomAccessFile(datebase, "rw");
         stream.setLength(0);
     }
 
     public void writeFile(Map<String, String> map) throws IOException {
+        if (map.isEmpty()) {
+            stream.close();
+            datebase.delete();
+            return;
+        }
         Set<String> keysSet = map.keySet();
         long offset = 0;
         for (String key : keysSet) {
@@ -31,6 +41,7 @@ public class FileWriter {
         for (String value : map.values()) {
             stream.write(value.getBytes("UTF-8"));
         }
+        stream.close();
     }
 
 }

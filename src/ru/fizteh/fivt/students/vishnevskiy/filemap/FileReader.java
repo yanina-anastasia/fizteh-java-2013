@@ -55,6 +55,7 @@ public class FileReader {
 
     public void readFile(Map<String, String> map) throws IOException {
         if (stream.length() == 0) {
+            stream.close();
             return;
         }
         String key1 = readNextKey();
@@ -70,6 +71,7 @@ public class FileReader {
         }
         String value = readNextValue(offset1, stream.length());
         map.put(key1, value);
+        stream.close();
     }
 
 }
