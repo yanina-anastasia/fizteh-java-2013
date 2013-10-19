@@ -16,6 +16,9 @@ public class FileMap {
     
     public static void loadFile() throws Exception {
         File dbFile = currentDir.toPath().resolve("db.dat").toFile();
+        if (!dbFile.isFile()) {
+            throw new Exception("db.dat is not a file");
+        }
         RandomAccessFile db;
         db = new RandomAccessFile(dbFile, "r");
         try {
@@ -126,7 +129,7 @@ public class FileMap {
             loadFile();
         } catch (FileNotFoundException e) {
         } catch (Exception e) {
-            System.err.println(e.getMessage() + " I can't read from db.dat");
+            System.err.println(e.getMessage() + ": I can't read from db.dat");
             System.exit(1);
         }
         commands = new FileMapCommands(loadList);
