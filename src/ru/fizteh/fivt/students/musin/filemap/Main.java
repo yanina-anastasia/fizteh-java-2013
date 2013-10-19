@@ -12,6 +12,9 @@ public class Main {
         String pwd = System.getProperty("user.dir");
         Shell shell = new Shell(pwd);
         String db = System.getProperty("fizteh.db.dir");
+        if (db == null) {
+            System.err.println("Database file not specified");
+        }
         try {
             FileMap fileMap = new FileMap((Paths.get(db)).resolve("db.dat").toFile());
             if (!fileMap.loadFromDisk()) {
