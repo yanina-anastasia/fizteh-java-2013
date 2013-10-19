@@ -90,12 +90,10 @@ public class DataBaseFile {
             dbFile.seek(0);
             while (i.hasNext()) {
                 Map.Entry<String, String> tempEntry = i.next();
-                dbFile.writeInt(tempEntry.getKey().length());
-                dbFile.writeInt(tempEntry.getValue().length());
-                dbFile.writeUTF(tempEntry.getKey());
-                dbFile.seek(dbFile.getFilePointer() - 1);
-                dbFile.writeUTF(tempEntry.getValue());
-                dbFile.seek(dbFile.getFilePointer() - 1);
+                dbFile.writeInt(tempEntry.getKey().getBytes("UTF-8").length);
+                dbFile.writeInt(tempEntry.getValue().getBytes("UTF-8").length);
+                dbFile.write(tempEntry.getKey().getBytes("UTF-8"));
+                dbFile.write(tempEntry.getValue().getBytes("UTF-8"));
             }
             dbFile.setLength(dbFile.getFilePointer());
         } catch (IOException e) {
