@@ -29,7 +29,7 @@ public class StartShell {
         if (args.length == 0) {
             shell.interActive();
         } else {
-            shell.pocket(args, 0);
+            shell.pocket(args);
         }
     }
 }

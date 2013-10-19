@@ -48,11 +48,15 @@ public class Shell {
                 }
                 return res;
             } else {
-                String elem0 = command.substring(spaceEntry + 1).trim().split("\\s+")[0];
-                String temp = command.substring(spaceEntry + 1).trim();
-                String elem1 = temp.substring(temp.indexOf(' ') + 1);
-                String[] answer = {elem0.trim(), elem1.trim()};
-                return answer;
+                String[] answer = command.split("[\\s]+", 3);
+                if (answer.length == 3) {
+                String[] result = {answer[1], answer[2]};
+                    return result;
+                } else {
+                    String[] result = {answer[1]};
+                    return result;
+                }
+
             }
         }
     }
@@ -84,6 +88,7 @@ public class Shell {
             System.err.println("Error: illegal arguments");
             return false;
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Error with input/output");
             return false;
         }
@@ -110,7 +115,7 @@ public class Shell {
         }
     }
 
-    public void pocket(String[] args, int program) {
+    public void pocket(String[] args) {
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);
@@ -120,15 +125,6 @@ public class Shell {
         String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
-                if (program == 1) {
-                    String[] temp = {};
-                    try {
-                        cmds.get("exit").exec(temp, curState);
-                    } catch (IOException e) {
-                        System.err.println("Error IO");
-                        System.exit(1);
-                    }
-                }
                 System.exit(1);
             }
         }
