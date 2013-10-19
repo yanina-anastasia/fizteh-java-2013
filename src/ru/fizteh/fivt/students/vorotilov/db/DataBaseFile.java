@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,13 +33,11 @@ public class DataBaseFile {
                 if ((long) keyLength + (long) valueLength > dbFile.length() - dbFile.getFilePointer()) {
                     throw new DataBaseFileDamaged();
                 }
-                /*byte[] key = new byte[keyLength];
+                byte[] key = new byte[keyLength];
                 byte[] value = new byte[valueLength];
                 dbFile.read(key);
                 dbFile.read(value);
                 dbMap.put(new String(key, Charset.forName("UTF-8")), new String(value, Charset.forName("UTF-8")));
-                */
-                dbMap.put(dbFile.readUTF(), dbFile.readUTF());
             }
         } catch (FileNotFoundException e) {
             System.out.println("can't open data base file: '" + dbFilePath.getCanonicalPath() + "' file not found");
@@ -94,7 +93,9 @@ public class DataBaseFile {
                 dbFile.writeInt(tempEntry.getKey().length());
                 dbFile.writeInt(tempEntry.getValue().length());
                 dbFile.writeUTF(tempEntry.getKey());
+                dbFile.seek(dbFile.getFilePointer() - 1);
                 dbFile.writeUTF(tempEntry.getValue());
+                dbFile.seek(dbFile.getFilePointer() - 1);
             }
             dbFile.setLength(dbFile.getFilePointer());
         } catch (IOException e) {
