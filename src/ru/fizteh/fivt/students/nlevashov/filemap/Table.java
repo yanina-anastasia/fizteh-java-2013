@@ -18,48 +18,44 @@ public class Table {
         map = new HashMap<String, String>();
         if (Files.exists(addr)) {
             BufferedInputStream i = new BufferedInputStream(Files.newInputStream(addr));
-            
             try {
-                Vector<String> keys = new Vector<String>();
-                Vector<Integer> offsets = new Vector<Integer>();
-
                 int c = i.read();
-                int pos = 1;
                 if (c != -1) {
-                    byte[] key = new byte[1024];
-                    int keyLength = 0;
+                    int pos = 1;
+                    Vector<String> keys = new Vector<String>();
+                    Vector<Integer> offsets = new Vector<Integer>();
+                    Vector<Byte> key = new Vector<Byte>();
                     do {
-                        key[keyLength] = (byte) c;
-                        keyLength++;
+                        key.add((byte) c);
                         c = i.read();
                         pos++;
                     } while (c != '\0');
-                    byte[] shortKey = new byte[keyLength];
-                    System.arraycopy(key, 0, shortKey, 0, keyLength);
+                    byte[] shortKey = new byte[key.size()];
+                    for (int j = 0; j < key.size(); j++) {
+                       shortKey[j] = key.get(j);
+                    }
                     keys.add(new String(shortKey, "UTF8"));
 
-                    offsets.add(i.read() * 256 * 256 * 256 + i.read() * 256 * 256 + i.read() * 256 + i.read());
+                    offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
                     pos += 4;
 
-                    int k = 1;
                     while (!(offsets.get(0) == pos)) {
-                        keyLength = 0;
+                        key.clear();
                         c = i.read();
                         pos++;
                         do {
-                            key[keyLength] = (byte) c;
-                            keyLength++;
+                            key.add((byte) c);
                             c = i.read();
                             pos++;
                         } while (c != '\0');
-                        shortKey = new byte[keyLength];
-                        System.arraycopy(key, 0, shortKey, 0, keyLength);
+                        shortKey = new byte[key.size()];
+                        for (int j = 0; j < key.size(); j++) {
+                           shortKey[j] = key.get(j);
+                        }
                         keys.add(new String(shortKey, "UTF8"));
 
-                        offsets.add(i.read() * 256 * 256 * 256 + i.read() * 256 * 256 + i.read() * 256 + i.read());
+                        offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
                         pos += 4;
-
-                        k++;
                     }
 
                     offsets.add((int) Files.size(addr));
@@ -67,10 +63,9 @@ public class Table {
                         int valueLength = offsets.get(j + 1).intValue() - offsets.get(j).intValue();
                         byte[] buf = new byte[valueLength];
                         for(int t = 0; t < valueLength; t++) {
-                            buf[t] = i.read();
+                            buf[t] = (byte) i.read();
                             if (buf[t] == -1) throw new IOException("EOF too early");
                         }
-                        //i.read(buf, 0, valueLength);
                         map.put(keys.get(j), new String(buf, "UTF8"));
                     }
                 }
@@ -110,9 +105,9 @@ public class Table {
                     o.write('\0');
 
                     int offset = head + valuesLengthSum.get(i);
-                    o.write((byte) (offset / 256 / 256 / 256));
-                    o.write((byte) (offset / 256 / 256 % 256));
-                    o.write((byte) (offset / 256 % 256));
+                    o.write((byte) (offset >>> 24));
+                    o.write((byte) ((offset >>> 16) % 256));
+                    o.write((byte) ((offset >>> 8) % 256));
                     o.write((byte) (offset % 256));
 
                     i++;
