@@ -21,15 +21,24 @@ class FileMap {
 
         databaseFile = new File(System.getProperty("fizteh.db.dir"), "db.dat"); // dis or dat
 
-        if (!databaseFile.exists() || !databaseFile.isFile()) {
-            System.err.println("db.dat doesn't exist or isn't a proper file.");
+        if (!databaseFile.exists()) {
+            try {
+                databaseFile.createNewFile();
+            } catch (IOException e) {
+                System.err.println("db.dat can't be created.");
+                System.exit(1);
+            }
+        }
+
+        if (!databaseFile.isFile()) {
+            System.err.println("db.dat isn't a proper file.");
             System.exit(1);
         }
 
         table = new Table();
 
-        tableReader = new TableReader(databaseFile);
         try {
+            tableReader = new TableReader(databaseFile);
             tableReader.readTable(table);
             tableReader.close();
         } catch (IOException e) {
