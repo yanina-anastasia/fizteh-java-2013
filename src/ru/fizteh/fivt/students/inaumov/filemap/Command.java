@@ -5,5 +5,6 @@ public interface Command {
 	
 	public int getArgumentsNumber();
 	
-	public void execute(String[] args, FileMapState fileMapState) throws IncorrectArgumentsException, UserInterruptionException;
+	public void execute(String[] args, ShellState fileMapState)
+            throws IllegalArgumentException, UserInterruptionException;
 }

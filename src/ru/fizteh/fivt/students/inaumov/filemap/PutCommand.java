@@ -5,8 +5,8 @@ public class PutCommand extends AbstractCommand {
 		super("put", 2);
 	}
 	
-	public void execute(String[] args, FileMapState fileMapState) 
-			throws IncorrectArgumentsException {
+	public void execute(String[] args, ShellState fileMapState)
+			throws IllegalArgumentException {
 		String oldValue = fileMapState.table.put(args[1], args[2]);
 		
 		if (oldValue == null) {

@@ -5,8 +5,8 @@ public class ExitCommand extends AbstractCommand {
 		super("exit", 0);
 	}
 	
-	public void execute(String[] args, FileMapState fileMapState) 
-			throws UserInterruptionException, IncorrectArgumentsException {
+	public void execute(String[] args, ShellState fileMapState)
+			throws UserInterruptionException, IllegalArgumentException {
 		fileMapState.table.commit();
 		throw new UserInterruptionException();
 	}

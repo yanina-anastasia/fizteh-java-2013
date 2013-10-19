@@ -5,7 +5,7 @@ public class CommitCommand extends AbstractCommand {
 		super("commit", 0);
 	}
 	
-	public void execute(String[] args, FileMapState fileMapState) {	
+	public void execute(String[] args, ShellState fileMapState) {
 		int savedChangesNumber = fileMapState.table.commit();
 		System.out.println(savedChangesNumber);
 	}
