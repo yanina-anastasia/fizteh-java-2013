@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.kamilTalipov.database;
 import java.io.FileNotFoundException;
 
 public class SimpleDatabase implements Database{
-    public SimpleDatabase(String databaseDirectory) throws FileNotFoundException {
+    public SimpleDatabase(String databaseDirectory) throws FileNotFoundException, DatabaseException {
         FileUtils.makeDir(databaseDirectory);
         table = new SimpleTable(databaseDirectory);
     }

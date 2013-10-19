@@ -14,6 +14,9 @@ public class DatabaseRunner {
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
             System.exit(1);
+        } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
 
         Command[] commands = new Command[] {new PutCommand(database),

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleTable implements Table {
-    public SimpleTable(String workingDirectory) throws FileNotFoundException {
+    public SimpleTable(String workingDirectory) throws FileNotFoundException, DatabaseException {
         dbFile = FileUtils.makeFile(workingDirectory, "db.dat");
         table = new HashMap<String, String>();
         readTable();
@@ -61,7 +61,7 @@ public class SimpleTable implements Table {
         }
     }
 
-    private void readTable() throws FileNotFoundException {
+    private void readTable() throws FileNotFoundException, DatabaseException{
         FileInputStream input = new FileInputStream(dbFile);
         try {
             while (input.available() > 0) {
@@ -72,7 +72,7 @@ public class SimpleTable implements Table {
                 table.put(key, value);
             }
         } catch (IOException e) {
-            System.err.println("Database file have incorrect format");
+            throw new DatabaseException("Database file have incorrect format");
         } finally {
             try {
                 input.close();
@@ -84,13 +84,18 @@ public class SimpleTable implements Table {
 
     private void writeTable() throws IOException {
         FileOutputStream output = new FileOutputStream(dbFile);
-        for (Map.Entry<String, String> entry : table.entrySet()) {
-            byte[] key = entry.getKey().getBytes("UTF-8");
-            byte[] value = entry.getValue().getBytes("UTF-8");
-            output.write(ByteBuffer.allocate(Integer.SIZE / 8).putInt(key.length).array());
-            output.write(ByteBuffer.allocate(Integer.SIZE / 8).putInt(value.length).array());
-            output.write(key);
-            output.write(value);
+        try {
+            for (Map.Entry<String, String> entry : table.entrySet()) {
+                byte[] key = entry.getKey().getBytes("UTF-8");
+                byte[] value = entry.getValue().getBytes("UTF-8");
+                output.write(ByteBuffer.allocate(4).putInt(key.length).array());
+                output.write(ByteBuffer.allocate(4).putInt(value.length).array());
+                output.write(key);
+                output.write(value);
+            }
+        }
+        finally {
+            output.close();
         }
     }
 
