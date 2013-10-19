@@ -83,7 +83,7 @@ public class DataBase {
         dataBaseFile = new File (dataBaseDirectory, name);
         if (!dataBaseFile.exists()) {
             dataBaseFile.createNewFile();
-            raDataBaseFile = new RandomAccessFile(dataBaseFile, "w");
+            raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
             return;
         } else {
             raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
