@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Shell<State> {
     private State state;
-    private CmdLauncher launcher = new CmdLauncher();
+    private CmdLauncher<State> launcher = new CmdLauncher<State>();
 
     public Shell(State startingState, Command[] commands) {
         state = startingState;
@@ -41,7 +41,7 @@ public class Shell<State> {
         }
         String input = sb.toString();
         String[] commands = input.split("\\s*;\\s*");
-        CmdLauncher launcher = new CmdLauncher();
+        CmdLauncher<State> launcher = new CmdLauncher<State>();
         for (String command : commands) {
             command = command.trim();
             if (command.equals("exit")) {
