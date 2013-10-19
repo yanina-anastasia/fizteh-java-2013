@@ -33,10 +33,16 @@ public class DbState extends State{
     public void exitWithError(int errCode) {
         try {
             commit();
-            dbFile.close();
         } catch (IOException e) {
             System.out.println("filemap: error while writing data to the disk");
             System.exit(1);
+        } finally {
+            try {
+                dbFile.close();
+            } catch (IOException e) {
+                System.err.println("filemap: error in file closing");
+                System.exit(1);
+            }
         }
         System.exit(errCode);
     }
