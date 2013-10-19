@@ -106,10 +106,12 @@ public class FileMap extends UserShell {
             for (Map.Entry<String, String> entry : entries) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                dataFile.writeInt(key.getBytes("UTF-8").length);
-                dataFile.writeInt(value.getBytes("UTF-8").length);
-                dataFile.write(key.getBytes("UTF-8"));
-                dataFile.write(value.getBytes("UTF-8"));
+                byte[] keyBytes = key.getBytes("UTF-8");
+                byte[] valueBytes = value.getBytes();
+                dataFile.writeInt(keyBytes.length);
+                dataFile.writeInt(valueBytes.length);
+                dataFile.write(keyBytes);
+                dataFile.write(valueBytes);
             }
         } catch (IOException e) {
             printErrorAndExit("Cannot unload file correctly");
