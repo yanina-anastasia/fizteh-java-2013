@@ -4,12 +4,19 @@ import java.io.File;
 import java.io.IOException;
 
 public class MkdirCommand implements Command {
+    ShellState curState;
+
+    public MkdirCommand(ShellState state) {
+        curState = state;
+
+    }
+
     public String getName() {
         return "mkdir";
     }
 
-    public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
-        File newDir = new File(currentDirectory.getCurDir(), args[1]);
+    public void execute(String[] args) throws IOException {
+        File newDir = new File(curState.getCurDir(), args[1]);
         if (newDir.exists()) {
             throw new IOException("mkdir: Directory already exists");
         } else {

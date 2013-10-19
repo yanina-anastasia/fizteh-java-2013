@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.shell;
 
 import java.io.File;
 
-public class CurrentDirectory {
+public class ShellState {
     private File curDir;
 
     File getCurDir() {
