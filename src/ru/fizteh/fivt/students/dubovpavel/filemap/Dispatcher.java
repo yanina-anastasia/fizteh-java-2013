@@ -65,7 +65,7 @@ public class Dispatcher {
         return !shutdown;
     }
 
-    public DataBase getDataBase() {
+    public DataBaseHandler<String, String> getDataBase() {
         return dataBase;
     }
 
