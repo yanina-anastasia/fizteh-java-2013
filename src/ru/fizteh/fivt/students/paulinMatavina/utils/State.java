@@ -15,4 +15,8 @@ public abstract class State {
     public void add(Command command) {
         commands.put(command.getName(), command);
     } 
+    
+    public void exitWithError(int errCode) {
+        System.exit(errCode);
+    }
 }

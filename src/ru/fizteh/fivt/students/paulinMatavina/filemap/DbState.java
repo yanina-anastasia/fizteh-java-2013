@@ -29,6 +29,17 @@ public class DbState extends State{
         }
     }
     
+    @Override
+    public void exitWithError(int errCode) {
+        try {
+            commit();
+        } catch (IOException e) {
+            System.out.println("filemap: error while writing data to the disk");
+            System.exit(1);
+        }
+        System.exit(errCode);
+    }
+    
     private void fileCheck() {
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {

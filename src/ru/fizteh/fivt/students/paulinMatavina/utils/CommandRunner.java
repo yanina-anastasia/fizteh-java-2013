@@ -12,7 +12,7 @@ public class CommandRunner {
                 str.append(" ");
             }
             int status = executeQueryLine(str.toString(), state);
-            System.exit(status);
+            state.exitWithError(status);
         } else {
             Scanner scanner = new Scanner(System.in);
             while (true) {
@@ -27,7 +27,7 @@ public class CommandRunner {
             } 
         }
     }
-     
+    
     private static int execute(String query, State state) {
         query = query.trim();
         if (query.equals("")) {
