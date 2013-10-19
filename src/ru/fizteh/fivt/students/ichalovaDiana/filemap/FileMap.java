@@ -32,12 +32,15 @@ public class FileMap {
                     .resolve("db.dat").toFile(), "rw");
             getDataFromFile();
         } catch (Exception e) {
-            System.out.println("Error while opening database: " + e.getMessage());
+            System.out.println("Error while opening database: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
             try {
-                if (dbFile != null)
+                if (dbFile != null) {
                     dbFile.close();
+                }
             } catch (IOException e1) {
-                System.out.println("Error while closing database: " + e1.getMessage());
+                System.out.println("Error while closing database: "
+                    + ((e1.getMessage() != null) ? e1.getMessage() : "unkonown error"));
             }
             System.exit(1);
         }
@@ -45,14 +48,26 @@ public class FileMap {
 
     public static void main(String[] args) {
         interpreter.run(args);
+        
+        int exitCode = 0;
+        
         try {
             saveChanges();
-            dbFile.close();
         } catch (Exception e) {
-            System.out.println("Error while saving changes: " + e.getMessage());
-            System.exit(1);
+            exitCode = 1;
+            System.out.println("Error while saving changes: " + e.getMessage()); 
         }
         
+        try {
+            if (dbFile != null) {
+                dbFile.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error while closing database: "
+                + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
+        } 
+        
+        System.exit(exitCode);
     }
 
     static void getDataFromFile() throws IOException {
