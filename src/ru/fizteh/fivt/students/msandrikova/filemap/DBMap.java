@@ -66,7 +66,7 @@ public class DBMap {
 					mapDB.put(key, value);
 				} catch(EOFException e) {
 					if(counter != 0) {
-						Utils.generateAnError("Incorrect amount of tokens in file", "DBMap", false);
+						Utils.generateAnError("Incorrect amount of tokens in given file", "DBMap", false);
 					}
 					break;
 				}

@@ -52,9 +52,9 @@ public class Shell {
 		try {
 			this.myDBMap = new DBMap(this.currentDirectory, this.isInteractive);
 		} catch (FileNotFoundException e) {
-			Utils.generateAnError("Fatal error during reading", "DBMap", false);
+			Utils.generateAnError("Fatal error during reading.", "DBMap", false);
 		} catch (IOException e) {
-			Utils.generateAnError("Fatal error during reading", "DBMap", false);
+			Utils.generateAnError("Fatal error during reading.", "DBMap", false);
 		}
 	}
 	

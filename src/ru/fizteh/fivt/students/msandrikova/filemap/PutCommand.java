@@ -22,11 +22,11 @@ public class PutCommand extends Command {
 			myShell.initMyDBMap();
 		}
 		if(argumentsList[1].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
-			Utils.generateAnError("Key length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError("Key length must be less than 1 MB.", this.getName(), myShell.getIsInteractive());
 			return;
 		}
 		if(argumentsList[2].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
-			Utils.generateAnError("Value length should be less than 1 MB.", this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError("Value length must be less than 1 MB.", this.getName(), myShell.getIsInteractive());
 			return;
 		}
 		
