@@ -37,7 +37,7 @@ public class Table {
                     keys.add(new String(shortKey, "UTF8"));
 
                     offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
-                    if (offsets.get(0) >= Files.size(addr)) {
+                    if ((offsets.get(0) >= Files.size(addr)) || (offsets.get(0) <= 0)) {
                         throw new IOException("bad offset");
                     }
                     pos += 4;
@@ -58,7 +58,7 @@ public class Table {
                         keys.add(new String(shortKey, "UTF8"));
 
                         offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
-                        if ((offsets.get(offsets.size() - 1) >= Files.size(addr)) || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
+                        if ((offsets.get(offsets.size() - 1) >= Files.size(addr)) || (offsets.get(offsets.size() - 1) <= 0) || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
                             throw new IOException("bad offset");
                         }
                         pos += 4;
