@@ -69,12 +69,13 @@ public class Launcher {
                     }
                 }
 
-                if (!success && isPackage) {
-                    return false;
-                }
-
                 if (manager.timeToExit()) {
                     return true;
+                }
+
+                if (!success && isPackage) {
+                    manager.setExit();
+                    return false;
                 }
             }
         }
