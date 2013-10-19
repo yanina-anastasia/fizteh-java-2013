@@ -28,9 +28,9 @@ public final class DataBaseFile {
                 if ((keyLength <= 0) || (valueLength <= 0)) {
                     throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
                 }
-                key = new byte[keyLength];
-                value = new byte[valueLength];
                 try {
+                    key = new byte[keyLength];
+                    value = new byte[valueLength];
                     inputFile.read(key);
                     inputFile.read(value);
                 } catch (Error e) {
