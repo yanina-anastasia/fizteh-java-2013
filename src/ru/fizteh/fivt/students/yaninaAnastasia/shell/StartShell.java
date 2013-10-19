@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class StartShell {
     public static void main(String[] args) {
-        Shell shell = new Shell();
+        Shell shell = new Shell(0);
         State curState = new ShellState();
         ArrayList<Command> cmdList = new ArrayList<Command>();
         Command cmd = new CdCommand();

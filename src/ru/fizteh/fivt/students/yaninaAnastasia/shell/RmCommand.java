@@ -17,13 +17,14 @@ public class RmCommand extends Command {
         }
     }
     public boolean exec(String[] args, State curState) throws IOException {
+        ShellState myState = ShellState.class.cast(curState);
         if (args.length != 1) {
             System.err.println("Invalid arguments");
             return false;
         }
         File temp = new File(args[0]);
         if (!temp.isAbsolute()) {
-            temp = new File(curState.workingDirectory, args[0]);
+            temp = new File(myState.workingDirectory, args[0]);
         }
         File file = temp;
         recRemove(file);

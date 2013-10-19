@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
 import ru.fizteh.fivt.students.yaninaAnastasia.filemap.DBState;
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,8 +11,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Shell {
-    public DBState curState = new DBState();
+    public State curState;
     private HashMap<String, Command> cmds = new HashMap<String, Command>();
+
+    public Shell(int program) {
+        if (program == 1) {
+            this.curState = new DBState();
+        } else {
+            this.curState = new ShellState();
+        }
+    }
 
     public void fillHashMap(ArrayList<Command> cmdList) {
         for (Command itCmd : cmdList) {

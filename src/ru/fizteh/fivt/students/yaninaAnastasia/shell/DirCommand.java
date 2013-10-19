@@ -7,12 +7,13 @@ import java.io.IOException;
 
 public class DirCommand extends Command {
     public final boolean exec(String[] args, State curState) throws IOException {
+        ShellState myState = ShellState.class.cast(curState);
         if (args.length != 0) {
             System.out.println("Invalid number of arguments");
             return false;
         }
         try {
-            String [] listFile = new File(curState.workingDirectory).list();
+            String [] listFile = new File(myState.workingDirectory).list();
             for (String child : listFile) {
                 System.out.println(child);
             }

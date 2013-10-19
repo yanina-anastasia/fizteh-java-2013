@@ -4,7 +4,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class OpenFile {
-    public static boolean open(DBState curState) throws IOException {
+    public static boolean open(State curState) throws IOException {
+        DBState myState = DBState.class.cast(curState);
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
             System.err.println("Error with getting property");
@@ -17,7 +18,7 @@ public class OpenFile {
             System.err.println("The path from the property is not a directory");
             System.exit(1);
         }
-        curState.workingDirectory = new File(path, "db.dat").toString();
+        myState.workingDirectory = new File(path, "db.dat").toString();
         File tmpFile = new File(curState.workingDirectory);
 
         if (!tmpFile.exists()) {
@@ -25,11 +26,11 @@ public class OpenFile {
                 System.err.println("Error with creating a directory");
                 return false;
             } else {
-                curState.dbFile = new RandomAccessFile(tmpFile, "rw");
+                myState.dbFile = new RandomAccessFile(tmpFile, "rw");
             }
         } else {
             try {
-                loadTable(curState);
+                loadTable(myState);
             } catch (EOFException e) {
                 System.err.println("Wrong format");
                 return false;
