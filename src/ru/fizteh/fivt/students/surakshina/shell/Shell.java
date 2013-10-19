@@ -8,15 +8,15 @@ import java.util.Scanner;
 
 public class Shell {
     private String currentPath = System.getProperty("user.dir");
-    static boolean isInteractive = false;
+    protected boolean isInteractive = false;
 
-    private void checkInput(String[] args) {
+    protected void checkInput(String[] args) {
         if (args.length == 0) {
             isInteractive = true;
         }
     }
 
-    void printError(String s) {
+    protected void printError(String s) {
         if (isInteractive) {
             System.out.println(s);
         } else {
@@ -38,7 +38,7 @@ public class Shell {
         }
     }
 
-    private String[] extractArgumentsFromInputString(String input) {
+    protected String[] extractArgumentsFromInputString(String input) {
         int index = 0;
         input = input.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
         Scanner scanner = new Scanner(input);
@@ -58,7 +58,7 @@ public class Shell {
         return commands;
     }
 
-    private String makeNewInputString(String[] str) {
+    protected String makeNewInputString(String[] str) {
         StringBuffer result = new StringBuffer();
         for (int i = 0; i < str.length; ++i) {
             result.append(str[i]);
@@ -247,7 +247,7 @@ public class Shell {
         }
     }
 
-    private void doPackageMode(String[] input) {
+    protected void doPackageMode(String[] input) {
         String newInput = makeNewInputString(input);
         Scanner scanner = new Scanner(newInput);
         scanner.useDelimiter("[ ]*;[ ]*");
@@ -263,7 +263,7 @@ public class Shell {
         scanner.close();
     }
 
-    private void doInInteractiveMode() {
+    protected void doInteractiveMode() {
         System.out.print("$ ");
         String cur;
         Scanner scanner = new Scanner(System.in);
@@ -291,13 +291,17 @@ public class Shell {
         scanner.close();
     }
 
+    public void workWithShell(String[] args) {
+        checkInput(args);
+        if (isInteractive) {
+            doInteractiveMode();
+        } else {
+            doPackageMode(args);
+        }
+    }
+
     public static void main(String[] args) {
         Shell sh = new Shell();
-        sh.checkInput(args);
-        if (isInteractive) {
-            sh.doInInteractiveMode();
-        } else {
-            sh.doPackageMode(args);
-        }
+        sh.workWithShell(args);
     }
 }

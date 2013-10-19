@@ -2,9 +2,10 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
-public class Commands {
-    public static void executeProcess(String[] input) {
+public class Commands extends Shell {
+    public void executeProcess(String[] input) {
         if (input == null) {
             return;
         }
@@ -35,8 +36,9 @@ public class Commands {
         }
     }
 
-    public static void printError(String s) {
-        if (WorkWithInput.isInteractive) {
+    @Override
+    protected void printError(String s) {
+        if (isInteractive) {
             System.out.println(s);
         } else {
             System.err.println(s);

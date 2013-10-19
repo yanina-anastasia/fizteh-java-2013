@@ -28,7 +28,8 @@ public class FileMap {
                 closeFile(dataBase);
                 System.exit(1);
             }
-            WorkWithInput.check(args);
+            WorkWithInput input = new WorkWithInput();
+            input.workWithShell(args);
             try {
                 writeInDatabase();
             } catch (FileNotFoundException e) {
