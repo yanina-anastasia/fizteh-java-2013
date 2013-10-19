@@ -5,9 +5,9 @@ import java.util.Vector;
 import java.io.File;
 
 public class InteractiveMode {
-    private File db;
+    private Database db;
 
-    public InteractiveMode(File db) {
+    public InteractiveMode(Database db) {
         this.db = db;
     }
 
@@ -16,25 +16,24 @@ public class InteractiveMode {
         Vector<StringBuilder> tempArgs = new Vector<StringBuilder>();
         boolean openQuotes = false;
         boolean lastArgumentEnded = true;
-        String temp;
+        String temp = "";
 
         while (true) {
             if (openQuotes) {
                 System.out.print("> ");
             }
 
-            if (!in.hasNextLine()) {
+            if (!in.hasNextLine() || (temp = in.nextLine()).equals("")) {
                 if (!openQuotes) {
+                    db.close();
                     System.exit(0);
                 } else {
                     System.err.println("unexpected EOF while looking for matching \'\"\'");
                     System.err.println("syntax error: unexpected end of file");
                     args.clear();
-                    break;
+                    return args.toArray(new String[args.size()]);
                 }
             }
-
-            temp = in.nextLine();
 
             for (int i = 0; i < temp.length(); i++) {
                 if (temp.charAt(i) == '\"') {
@@ -64,8 +63,10 @@ public class InteractiveMode {
         while (true) {
             System.out.print("$ ");
             String[] args = scanArgs(in);
-            PacketMode pm = new PacketMode(args, db, false);
-            pm.start();
+            if (args.length != 0) {
+                PacketMode pm = new PacketMode(db, args, false);
+                pm.start();
+            }
         }
     }
 }

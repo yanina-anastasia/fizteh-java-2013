@@ -15,30 +15,28 @@ public class InteractiveMode {
         Vector<StringBuilder> tempArgs = new Vector<StringBuilder>();
         boolean openQuotes = false;
         boolean lastArgumentEnded = true;
-        String temp;
+        String temp = "";
 
         while (true) {
             if (openQuotes) {
                 System.out.print("> ");
             }
 
-            if (!in.hasNextLine()) {
+            if (!in.hasNextLine() || (temp = in.nextLine()).equals("")) {
                 if (!openQuotes) {
                     System.exit(0);
                 } else {
                     System.err.println("unexpected EOF while looking for matching \'\"\'");
                     System.err.println("syntax error: unexpected end of file");
                     args.clear();
-                    break;
+                    return args.toArray(new String[args.size()]);
                 }
             }
-
-            temp = in.nextLine();
 
             for (int i = 0; i < temp.length(); i++) {
                 if (temp.charAt(i) == '\"') {
                     openQuotes = !openQuotes;
-                } else if (!openQuotes && (temp.charAt(i) == ' ' || temp.charAt(i) == '\t')) {
+                } else if (!openQuotes && temp.charAt(i) == ' ') {
                     lastArgumentEnded = true;
                 } else {
                     if (lastArgumentEnded) {
@@ -63,11 +61,10 @@ public class InteractiveMode {
         while (true) {
             System.out.print("$ ");
             String[] args = scanArgs(in);
-            if (args.length == 0) {
-                System.exit(0);
+            if (args.length != 0) {
+                PacketMode pm = new PacketMode(args, workingDirectory);
+                pm.start();
             }
-            PacketMode pm = new PacketMode(args, workingDirectory);
-            pm.start();
         }
     }
 }

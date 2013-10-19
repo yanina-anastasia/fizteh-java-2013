@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
 
@@ -8,18 +9,18 @@ public class Main {
         String dbDirectory = System.getProperty("fizteh.db.dir");
         File dbPath = new File(dbDirectory + "/db.dat");
 
-        if (!dbPath.exists()) {
-            System.err.println(dbPath.getAbsolutePath() + ": No such file or directory");
+        try {
+            Database db = new Database(dbPath);
+            if (args.length == 0) {
+                InteractiveMode im = new InteractiveMode(db);
+                im.start();
+            } else {
+                PacketMode pm = new PacketMode(db, args, true);
+                pm.start();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
-        } else if (!dbPath.isFile()) {
-            System.err.println(dbPath.getAbsolutePath() + ": Not a file");
-            System.exit(1);
-        } else if (args.length == 0) {
-            InteractiveMode im = new InteractiveMode(dbPath);
-            im.start();
-        } else {
-            PacketMode pm = new PacketMode(args, dbPath, true);
-            pm.start();
         }
     }
 }

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.io.File;
 
 public class PacketMode {
-    private File db;
+    private Database db;
     String[] args;
     boolean exitOnFailure;
 
-    public PacketMode(String[] args, File db, boolean exitOnFailure) {
+    public PacketMode(Database db, String[] args, boolean exitOnFailure) {
         this.db = db;
         this.args = args;
         this.exitOnFailure = exitOnFailure;
@@ -24,8 +24,9 @@ public class PacketMode {
                 if (arg.charAt(i) == ';') {
                     if (last + 1 != i) {
                         tempArgs.add(arg.substring(last + 1, i));
-                        if (!Utils.executeCommand(tempArgs.toArray(new String[tempArgs.size()]), db)) {
+                        if (!Utils.executeCommand(db, tempArgs.toArray(new String[tempArgs.size()]))) {
                             if (exitOnFailure) {
+                                db.close();
                                 System.exit(1);
                             }
                         }
