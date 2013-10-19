@@ -37,11 +37,19 @@ public class DataBaseFile {
                 byte[] value = new byte[valueLength];
                 long readedBytes = 0;
                 while (readedBytes != keyLength) {
-                    readedBytes += dbFile.read(key);
+                    int nowReaded = dbFile.read(key);
+                    if (nowReaded == -1) {
+                        throw new IOException();
+                    }
+                    readedBytes += nowReaded;
                 }
                 readedBytes = 0;
                 while (readedBytes != valueLength) {
-                    readedBytes += dbFile.read(value);
+                    int nowReaded = dbFile.read(value);
+                    if (nowReaded == -1) {
+                        throw new IOException();
+                    }
+                    readedBytes += nowReaded;
                 }
                 dbMap.put(new String(key, Charset.forName("UTF-8")), new String(value, Charset.forName("UTF-8")));
             }
