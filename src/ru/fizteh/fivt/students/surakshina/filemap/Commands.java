@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Scanner;
 
 import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
