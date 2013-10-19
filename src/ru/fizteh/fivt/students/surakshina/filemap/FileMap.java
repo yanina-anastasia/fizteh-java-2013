@@ -62,12 +62,12 @@ public class FileMap {
     }
 
     public static String getKey() throws IOException {
-        Byte c = 0;
+        byte c = 0;
         Vector<Byte> vector = new Vector<Byte>();
         c = dataBase.readByte();
         while (c != 0) {
             vector.add(c);
-            c = Byte.valueOf(dataBase.readByte());
+            c = dataBase.readByte();
         }
         byte[] res = new byte[vector.size()];
         for (int i = 0; i < vector.size(); i++) {
@@ -79,8 +79,14 @@ public class FileMap {
 
     public static String getValue(int offsetOfValueSecond) throws IOException {
         int first = (int) dataBase.getFilePointer();
-        byte[] tmp = new byte[(int) (offsetOfValueSecond - first)];
-        dataBase.read(tmp);
+        byte[] tmp;
+        if (offsetOfValueSecond != first) {
+            tmp = new byte[(int) (offsetOfValueSecond - first)];
+            dataBase.read(tmp);
+        } else {
+            tmp = new byte[(int) (dataBase.length() - offsetOfValueSecond)];
+            dataBase.read(tmp);
+        }
         String result = new String(tmp, "UTF-8");
         return result;
     }
@@ -114,7 +120,12 @@ public class FileMap {
                 fileMap.put(keyFirst, value);
                 keyFirst = keySecond;
                 firstOffset = offsetOfValueSecond;
-            } while (currentPosition <= offsetOfValueFirst);
+            } while (currentPosition < offsetOfValueFirst);
+            if (keyFirst != null) {
+                value = getValue(offsetOfValueSecond);
+                fileMap.put(keyFirst, value);
+            }
+
         } else {
             System.err.println("Offset is negative");
             closeFile(dataBase);
