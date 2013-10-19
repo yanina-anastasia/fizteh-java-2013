@@ -17,5 +17,6 @@ public abstract class AbstractCommand implements Command {
 		return argumentsNumber;
 	}
 	
-	public abstract void execute(String[] args, FileMapState fileMapState) throws IncorrectArgumentsException, UserInterruptionException;
+	public abstract void execute(String[] args, ShellState fileMapState)
+            throws IllegalArgumentException, UserInterruptionException;
 }

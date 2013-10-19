@@ -5,8 +5,8 @@ public class SizeCommand extends AbstractCommand {
 		super("size", 0);
 	}
 
-	public void execute(String[] args, FileMapState fileMapState) 
-			throws IncorrectArgumentsException, UserInterruptionException {
+	public void execute(String[] args, ShellState fileMapState)
+			throws IllegalArgumentException, UserInterruptionException {
 		System.out.println(fileMapState.table.size());
 	}
 }

@@ -5,8 +5,8 @@ public class RemoveCommand extends AbstractCommand {
 		super("remove", 1);
 	}
 	
-	public void execute(String[] args, FileMapState fileMapState) 
-			throws IncorrectArgumentsException {
+	public void execute(String[] args, ShellState fileMapState)
+			throws IllegalArgumentException {
 		String oldValue = fileMapState.table.remove(args[1]);
 		if (oldValue == null) {
 			System.out.println("not found");

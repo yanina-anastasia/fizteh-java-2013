@@ -5,7 +5,7 @@ public class GetCommand extends AbstractCommand {
 		super("get", 1);
 	}
 	
-	public void execute(String[] args, FileMapState fileMapState) throws IncorrectArgumentsException {
+	public void execute(String[] args, ShellState fileMapState) throws IllegalArgumentException {
 		String value = fileMapState.table.get(args[1]);
 		if (value == null) {
 			System.out.println("not found");

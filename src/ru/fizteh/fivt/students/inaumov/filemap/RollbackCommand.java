@@ -5,7 +5,7 @@ public class RollbackCommand extends AbstractCommand {
 		super("rollback", 0);
 	}
 
-	public void execute(String[] args, FileMapState fileMapState) {
+	public void execute(String[] args, ShellState fileMapState) {
 		int unsavedChangesNumber = fileMapState.table.rollback();
 		System.out.println(unsavedChangesNumber);
 	}

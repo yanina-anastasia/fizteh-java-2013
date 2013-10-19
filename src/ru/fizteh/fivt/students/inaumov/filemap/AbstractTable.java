@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import java.io.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,7 +24,7 @@ public abstract class AbstractTable implements Table {
 	public WriteHandler writeHandler;
 	public ReadHandler readHandler;
 	
-	private class WriteHandler {
+	private class WriteHandler implements Closeable {
 		
 		private RandomAccessFile outputFile = null;
 		
@@ -30,7 +32,7 @@ public abstract class AbstractTable implements Table {
 			try {
 				outputFile = new RandomAccessFile(fileName, "rw");
 			} catch (FileNotFoundException exception) {
-				throw new IOException("can't create file " + fileName);
+			    throw new IOException("can't create file " + fileName);
 			}
 			outputFile.setLength(0);
 		}
@@ -43,16 +45,12 @@ public abstract class AbstractTable implements Table {
 			outputFile.write(value.getBytes("UTF-8"));
 		}
 		
-		public void closeFile() {
-			try {
-				outputFile.close();
-			} catch (IOException exception) {
-				
-			}
+		public void close() throws IOException {
+			outputFile.close();
 		}
 		
 	}
-	private class ReadHandler {
+	private class ReadHandler implements Closeable {
 		
 		private RandomAccessFile inputFile = null;
 		
@@ -79,33 +77,29 @@ public abstract class AbstractTable implements Table {
 
 		public String readEntry() throws IOException {
 			int stringLength = readInteger();
-			System.out.println("::readEntry(): length = " + stringLength);
+			//System.out.println("::readEntry(): length = " + stringLength);
 			String entry = readString(stringLength);
-			System.out.println("::readEntry(): entry = " + entry);
+			//System.out.println("::readEntry(): entry = " + entry);
 			return entry;
 		}
 		
 		public boolean readEnd() throws IOException {
 			if (inputFile == null) {
-				System.err.println("AbstractTable::readEnd(): inputFile == null");
+				//System.err.println("AbstractTable::readEnd(): inputFile == null");
 				return true;
 			}
 			
 			if (inputFile.getFilePointer() <= inputFile.length() - 1) {
-				System.out.println("AbstractTable::readEnd(): fileptr = " + inputFile.getFilePointer());
-				System.out.println("AbstractTable::readEnd(): filelength = " + inputFile.length());
+				//System.out.println("AbstractTable::readEnd(): fileptr = " + inputFile.getFilePointer());
+				//System.out.println("AbstractTable::readEnd(): filelength = " + inputFile.length());
 				return false;
 			}
 			
 			return true;
 		}
 		
-		public void closeFile() {
-			try {
-				inputFile.close();
-			} catch (IOException exception) {
-				System.err.println("can't close file " + inputFile.toString());
-			}
+		public void close() throws IOException {
+			inputFile.close();
 		}
 		
 	}
@@ -113,12 +107,12 @@ public abstract class AbstractTable implements Table {
 	public abstract void loadTable() throws IOException;
 	public abstract void saveTable() throws IOException;
 	
-	public AbstractTable(String dir, String tableName) throws IOException, IncorrectArgumentsException {
+	public AbstractTable(String dir, String tableName) throws IOException, IllegalArgumentException {
 		if (dir == null) {
-			throw new IncorrectArgumentsException("directory can't be null");
+			throw new IllegalArgumentException("directory can't be null");
 		}
 		if (tableName == null) {
-			throw new IncorrectArgumentsException("table name can't be null");
+			throw new IllegalArgumentException("table name can't be null");
 		}
 		
 		this.tableName = tableName;
@@ -135,9 +129,9 @@ public abstract class AbstractTable implements Table {
 		return dir;
 	}
 	
-	public String get(String key) throws IncorrectArgumentsException {
+	public String get(String key) throws IllegalArgumentException {
 		if (key == null) {
-			throw new IncorrectArgumentsException("key can't be null");
+			throw new IllegalArgumentException("key can't be null");
 		}
 		
 		if (modifiedTableHash.containsKey(key)) {
@@ -150,29 +144,29 @@ public abstract class AbstractTable implements Table {
 		return null;
 	}
 
-	public String put(String key, String value) throws IncorrectArgumentsException {
+	public String put(String key, String value) throws IllegalArgumentException {
 		if (key == null) {
-			throw new IncorrectArgumentsException("key can't be null");
+			throw new IllegalArgumentException("key can't be null");
 		}
 		if (value == null) {
-			throw new IncorrectArgumentsException("value can't be null");
+			throw new IllegalArgumentException("value can't be null");
 		}
 		
 		if (!modifiedTableHash.containsKey(key) && !tableHash.containsKey(key)
 			|| tableHash.containsKey(key) && deleted.contains(key)) {
 			tableSize += 1;
 		}
-		modifiedTableHash.put(key, value);
+
+		String oldValue = getOldValue(key);
+        modifiedTableHash.put(key, value);
 		unsavedChangesNumber += 1;
-		
-		String oldValue = tableHash.get(key);
 		
 		return oldValue;
 	}
 
-	public String remove(String key) throws IncorrectArgumentsException {
+	public String remove(String key) throws IllegalArgumentException {
 		if (key == null) {
-			throw new IncorrectArgumentsException("key can't be null");
+			throw new IllegalArgumentException("key can't be null");
 		}
 		
 		String oldValue = null;
@@ -203,7 +197,16 @@ public abstract class AbstractTable implements Table {
 	public int getUnsavedChangesNumber() {
 		return unsavedChangesNumber;
 	}
-	
+
+    private String getOldValue(String key) {
+        String oldValue = modifiedTableHash.get(key);
+        if (oldValue == null && !deleted.contains(key)) {
+            oldValue =  tableHash.get(key);
+        }
+
+        return oldValue;
+    }
+
 	public int commit() {
 		for (Map.Entry<String, String> nextEntry: modifiedTableHash.entrySet()) {
 			tableHash.put(nextEntry.getKey(), nextEntry.getValue());
@@ -241,42 +244,40 @@ public abstract class AbstractTable implements Table {
 	}
 	
 	protected void loadFromFile(String fileName) throws IOException {
-		System.out.println("AbstractTable::loadFromFile: looking for file " + fileName + "...");
-		File file = new File(fileName);	
+		//System.out.println("AbstractTable::loadFromFile: looking for file " + fileName + "...");
+		File file = new File(fileName);
 		if (!file.exists()) {
-			System.out.println("AbstractTable::loadFromFile: file " + fileName + " doesn't exist");
-			file.createNewFile();
-			System.out.println("AbstractTable::loadFromFile: created " + fileName);
+			//System.out.println("AbstractTable::loadFromFile: file " + fileName + " doesn't exist");
 			return;
 		}
 		
-		System.out.println("AbstractTable::loadFromFile: file " + fileName + " found");
-		System.out.println("AbstractTable::loadFromFile: loading " + fileName + "...");
+		//System.out.println("AbstractTable::loadFromFile: file " + fileName + " found");
+		//System.out.println("AbstractTable::loadFromFile: loading " + fileName + "...");
 		
 		ReadHandler readHandler = new ReadHandler(fileName);
 		while (!readHandler.readEnd()) {
 			String key = readHandler.readEntry();
 			String value = readHandler.readEntry();
 			tableHash.put(key, value);
-			System.out.println("AbstractTable::loadFromFile: loaded: (" + key + ", " + value + ")");
+			//System.out.println("AbstractTable::loadFromFile: loaded: (" + key + ", " + value + ")");
 		}
 		
-		System.out.println("AbstractTable::loadFromFile: loading complete");
+		//System.out.println("AbstractTable::loadFromFile: loading complete");
 		
 		tableSize = tableHash.size();
-		readHandler.closeFile();
+		readHandler.close();
 	}
 	
 	protected void saveToFile(String fileName) throws IOException {
-		System.out.println("AbstractTable::saveToFile: saving " + fileName + "...");
+		//System.out.println("AbstractTable::saveToFile: saving " + fileName + "...");
 		
 		WriteHandler writeHandler = new WriteHandler(fileName);
 		for (Map.Entry<String, String> nextEntry: tableHash.entrySet()) {
 			writeHandler.writeEntry(nextEntry.getKey(), nextEntry.getValue());
-			System.out.println("AbstractTable::saveToFile: saved: (" + nextEntry.getKey() + ", " + nextEntry.getValue() + ")");
+			//System.out.println("AbstractTable::saveToFile: saved: (" + nextEntry.getKey() + ", " + nextEntry.getValue() + ")");
 		}
 		
-		System.out.println("AbstractTable::saveToFile: saving complete");
-		writeHandler.closeFile();
+		//System.out.println("AbstractTable::saveToFile: saving complete");
+		writeHandler.close();
 	}
 }
