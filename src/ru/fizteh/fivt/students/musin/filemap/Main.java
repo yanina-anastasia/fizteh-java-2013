@@ -14,6 +14,7 @@ public class Main {
         String db = System.getProperty("fizteh.db.dir");
         if (db == null) {
             System.err.println("Database file not specified");
+            System.exit(-1);
         }
         try {
             FileMap fileMap = new FileMap((Paths.get(db)).resolve("db.dat").toFile());
