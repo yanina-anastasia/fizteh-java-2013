@@ -24,7 +24,7 @@ public class OpenFile {
         if (!tmpFile.exists()) {
             if (!tmpFile.createNewFile()) {
                 System.err.println("Error with creating a directory");
-                return false;
+                System.exit(1);
             } else {
                 myState.dbFile = new RandomAccessFile(tmpFile, "rw");
             }
@@ -33,9 +33,11 @@ public class OpenFile {
                 loadTable(myState);
             } catch (EOFException e) {
                 System.err.println("Wrong format");
+                myState.dbFile.close();
                 return false;
             } catch (IOException e) {
                 System.err.println("Wrong format");
+                myState.dbFile.close();
                 return false;
             }
         }
@@ -75,6 +77,8 @@ public class OpenFile {
             curState.dbFile.seek(currentOffset);
             int len = (int) (nextOffset - currentOffset);
             if (len < 0) {
+                out.close();
+                curState.dbFile.close();
                 throw new IOException("File has incorrect format");
             }
             byte[] bytes = new byte[len];
@@ -88,6 +92,8 @@ public class OpenFile {
         curState.dbFile.seek(currentOffset);
         int len = (int) (curState.dbFile.length() - currentOffset);
         if (len < 0) {
+            out.close();
+            curState.dbFile.close();
             throw new IOException("File has incorrect format");
         }
         byte[] bytes = new byte[len];

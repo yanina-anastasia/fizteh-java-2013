@@ -31,7 +31,7 @@ public class StartFileMap {
         if (args.length == 0) {
             shell.interActive();
         } else {
-            shell.pocket(args);
+            shell.pocket(args, 1);
         }
     }
 }

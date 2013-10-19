@@ -110,7 +110,7 @@ public class Shell {
         }
     }
 
-    public void pocket(String[] args) {
+    public void pocket(String[] args, int program) {
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);
@@ -120,6 +120,15 @@ public class Shell {
         String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
+                if (program == 1) {
+                    String[] temp = {};
+                    try {
+                        cmds.get("exit").exec(temp, curState);
+                    } catch (IOException e) {
+                        System.err.println("Error IO");
+                        System.exit(1);
+                    }
+                }
                 System.exit(1);
             }
         }
