@@ -38,7 +38,7 @@ public class ShellRunner {
 						System.exit(1);
 					}
 				}
-			} while (in.hasUnexecutedCommands());
+			} while (in.hasUnexecutedCommands() && !shouldBreakRunLoop);
 			if (!shouldBreakRunLoop) {
 				receiver.showPrompt();
 			}
