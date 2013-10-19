@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.fedoseev.shell;
+package ru.fizteh.fivt.students.fedoseev.common;
 
 public class Utils {
     private Utils() {

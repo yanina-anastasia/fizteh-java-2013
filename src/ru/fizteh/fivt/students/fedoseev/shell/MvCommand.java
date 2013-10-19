@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
+import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -7,8 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class MvCommand extends AbstractCommand {
-    public MvCommand(String cmdName, Integer argsCount) {
-        super(cmdName, argsCount);
+    public MvCommand() {
+        super("mv", 2);
     }
 
     private static void move(File source, File destination) throws IOException {
@@ -26,7 +29,8 @@ public class MvCommand extends AbstractCommand {
         source.delete();
     }
 
-    public void execute(String[] input, AbstractShell.ShellState state) throws IOException {
+    @Override
+    public void execute(String[] input, AbstractFrame.FrameState state) throws IOException {
         final File source = new File(state.getCurState().toPath().resolve(input[0]).toString());
         File destination = new File(state.getCurState().toPath().resolve(input[1]).toString());
         FileFilter filter = new FileFilter() {
