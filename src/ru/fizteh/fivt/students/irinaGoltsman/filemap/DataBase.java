@@ -25,7 +25,7 @@ public class DataBase {
             return Code.ERROR;
         }
         dbStorage = new HashMap<>();
-        long length = 0;
+        long length = -1;
         try {
             length = dbFile.length();
         } catch (IOException e) {
@@ -35,13 +35,6 @@ public class DataBase {
         if (length == 0) {
             return Code.OK;
         }
-        long pointer = 0;
-        try {
-            pointer = dbFile.getFilePointer();
-        } catch (IOException e) {
-            System.err.println(e);
-            return Code.SYSTEM_ERROR;
-        }
         while (length > 0) {
             int lengthOfKey = 0;
             try {
@@ -50,7 +43,6 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            length -= 4;
             int lengthOfValue;
             try {
                 lengthOfValue = dbFile.readInt();
@@ -58,7 +50,15 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            length -= 4;
+            length -= 8;
+            if (lengthOfKey <= 0 || lengthOfValue <= 0) {
+                System.err.println("Wrong format of db: length of key and length of value must be positive integers.");
+                return Code.ERROR;
+            }
+            if (lengthOfKey >= length) {
+                System.err.println("Wrong format of db: length of key ​​do not match content.");
+                return Code.ERROR;
+            }
             byte[] bytesOfKey = new byte[lengthOfKey];
             int countOfBytesWasRead = 0;
             try {
@@ -67,11 +67,14 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            if (countOfBytesWasRead == -1) {
+            if (countOfBytesWasRead != lengthOfKey) {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
-            } else {
-                length -= countOfBytesWasRead;
+            }
+            length -= countOfBytesWasRead;
+            if (lengthOfValue >= length) {
+                System.err.println("Wrong format of db: length of value ​​do not match content.");
+                return Code.ERROR;
             }
             byte[] bytesOfValue = new byte[lengthOfValue];
             try {
@@ -80,12 +83,11 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            if (countOfBytesWasRead == -1) {
+            if (countOfBytesWasRead != lengthOfValue) {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
-            } else {
-                length -= countOfBytesWasRead;
             }
+            length -= countOfBytesWasRead;
             String key;
             try {
                 key = new String(bytesOfKey, "UTF-8");
@@ -126,13 +128,6 @@ public class DataBase {
         if (length == 0) {
             return Code.OK;
         }
-        long pointer = 0;
-        try {
-            pointer = dbFile.getFilePointer();
-        } catch (IOException e) {
-            System.err.println(e);
-            return Code.SYSTEM_ERROR;
-        }
         while (length > 0) {
             int lengthOfKey = 0;
             try {
@@ -141,7 +136,6 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            length -= 4;
             int lengthOfValue;
             try {
                 lengthOfValue = dbFile.readInt();
@@ -149,7 +143,15 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            length -= 4;
+            length -= 8;
+            if (lengthOfKey <= 0 || lengthOfValue <= 0) {
+                System.err.println("Wrong format of db: length of key and length of value must be positive integers.");
+                return Code.ERROR;
+            }
+            if (lengthOfKey >= length) {
+                System.err.println("Wrong format of db: length of key ​​do not match content.");
+                return Code.ERROR;
+            }
             byte[] bytesOfKey = new byte[lengthOfKey];
             int countOfBytesWasRead = 0;
             try {
@@ -158,11 +160,14 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            if (countOfBytesWasRead == -1) {
+            if (countOfBytesWasRead != lengthOfKey) {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
-            } else {
-                length -= countOfBytesWasRead;
+            }
+            length -= countOfBytesWasRead;
+            if (lengthOfValue >= length) {
+                System.err.println("Wrong format of db: length of value ​​do not match content.");
+                return Code.ERROR;
             }
             byte[] bytesOfValue = new byte[lengthOfValue];
             try {
@@ -171,12 +176,11 @@ public class DataBase {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
             }
-            if (countOfBytesWasRead == -1) {
+            if (countOfBytesWasRead != lengthOfValue) {
                 System.err.println("Wrong format of db");
                 return Code.ERROR;
-            } else {
-                length -= countOfBytesWasRead;
             }
+            length -= countOfBytesWasRead;
             String key;
             try {
                 key = new String(bytesOfKey, "UTF-8");
