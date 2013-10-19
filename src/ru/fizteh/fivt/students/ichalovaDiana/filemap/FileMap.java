@@ -176,6 +176,8 @@ class Put extends Command {
             } else {
                 System.out.println("new");
             }
+            
+            FileMap.saveChanges();
 
         } catch (Exception e) {
             throw new Exception(arguments[0] + ": " + e.getMessage());

@@ -11,7 +11,7 @@ public class Interpreter {
         this.commands = commands;
     }
 
-    public void run(String[] args) throws Exception {
+    public void run(String[] args) {
         if (args.length == 0) {
             runInteractiveMode();
         } else {
@@ -34,12 +34,17 @@ public class Interpreter {
         userInput.close();
     }
 
-    public void runBatchMode(String[] args) throws Exception {
+    public void runBatchMode(String[] args) {
         StringBuilder concatArgs = new StringBuilder();
         for (String item : args) {
             concatArgs.append(item).append(" ");
         }
-        executeCommands(concatArgs.toString());
+        try {
+            executeCommands(concatArgs.toString());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     private void executeCommands(String input) throws Exception {
