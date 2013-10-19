@@ -29,6 +29,9 @@ public class DataBaseFile {
                 if (keyLength <= 0 || valueLength <= 0) {
                     throw new DataBaseFileDamaged();
                 }
+                if ((long) keyLength + (long) valueLength > dbFile.length() - dbFile.getFilePointer()) {
+                    throw new DataBaseFileDamaged();
+                }
                 char[] key = new char[keyLength];
                 char[] value = new char[valueLength];
                 for (int i = 0; i < keyLength; ++i) {
@@ -46,8 +49,8 @@ public class DataBaseFile {
             System.out.println("can't create new db file: '" + e.getProblematicFile() + "'");
             throw new DataBaseOpenFailed();
         } catch (IOException | DataBaseFileDamaged e) {
-            System.out.println("can't read db file, it's damaged");
-            throw new DataBaseOpenFailed();
+            System.out.println("can't read db file, it's damaged, exit without saving");
+            System.exit(1);
         }
     }
 
