@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.irinaGoltsman.shell;
 
-import ru.fizteh.fivt.students.irinaGoltsman.filemap.DBCommands;
-
 import java.util.Scanner;
 
 public class Shell {
