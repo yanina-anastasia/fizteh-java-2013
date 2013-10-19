@@ -104,9 +104,6 @@ final class Context {
             file = new File(newDest);
         }
 
-        if (file.exists()) {
-            throw new IOException("File already exists " + dest);
-        }
         if (!file.createNewFile()) {
             throw new IOException("Cannot create file " + dest);
         }
