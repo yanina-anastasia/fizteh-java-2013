@@ -61,7 +61,7 @@ public class SimpleTable implements Table {
         }
     }
 
-    private void readTable() throws FileNotFoundException, DatabaseException{
+    private void readTable() throws FileNotFoundException, DatabaseException {
         FileInputStream input = new FileInputStream(dbFile);
         try {
             while (input.available() > 0) {
@@ -93,8 +93,7 @@ public class SimpleTable implements Table {
                 output.write(key);
                 output.write(value);
             }
-        }
-        finally {
+        } finally {
             output.close();
         }
     }
