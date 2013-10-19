@@ -10,11 +10,15 @@ import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public final class DataBaseFile {
+public class DataBaseFile {
 
     public final class Node {
         private byte[] key;
         private byte[] value;
+
+        public int getZeroByte() {
+            return key[0];
+        }
 
         public Node(final byte[] newKey, final byte[] newValue) {
             key = newKey;
@@ -28,14 +32,14 @@ public final class DataBaseFile {
                 if ((keyLength <= 0) || (valueLength <= 0)) {
                     throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
                 }
-                key = new byte[keyLength];
-                value = new byte[valueLength];
                 try {
-                    inputFile.read(key);
-                    inputFile.read(value);
-                } catch (Error e) {
+                    key = new byte[keyLength];
+                    value = new byte[valueLength];
+                } catch (OutOfMemoryError e) {
                     throw new DataBaseWrongFileFormat("Some key or value are too large in " + file.getName());
                 }
+                inputFile.read(key);
+                inputFile.read(value);
             } catch (Exception e) {
                 throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
             }
@@ -59,9 +63,9 @@ public final class DataBaseFile {
 
     }
 
-    private final String fileName;
-    private File file;
-    private List<Node> data;
+    protected final String fileName;
+    protected File file;
+    protected List<Node> data;
 
     public DataBaseFile(final String newFileName) {
         fileName = newFileName;
