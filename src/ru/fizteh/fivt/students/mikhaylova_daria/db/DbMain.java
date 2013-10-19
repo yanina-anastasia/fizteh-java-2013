@@ -14,6 +14,10 @@ public class DbMain {
 
     public static void main(String[] arg) {
         workingDirectoryName = System.getProperty("fizteh.db.dir");
+        if (workingDirectoryName == null) {
+            System.err.println("Property not found");
+            System.exit(1);
+        }
         try {
             readerDateBase();
         } catch (Exception e) {
@@ -26,10 +30,16 @@ public class DbMain {
         commandsList.put("exit", "exit");
         try {
             Parser.parser(arg, FileMap.class, commandsList);
-            writerDateBase();
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
+        } finally {
+            try {
+                writerDateBase();
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
         }
     }
 
@@ -87,6 +97,10 @@ public class DbMain {
             throw new Exception("File is not found " + e.getMessage());
         } catch (Exception e) {
             throw new Exception("Opening isn't possible");
+        }
+        if (dateBase.length() == 0) {
+            dateBase.close();
+            return;
         }
         try {
             HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
