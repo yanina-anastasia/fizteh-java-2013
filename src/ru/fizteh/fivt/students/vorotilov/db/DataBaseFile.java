@@ -12,7 +12,7 @@ import java.util.Set;
 public class DataBaseFile {
 
     private RandomAccessFile dbFile;
-    private HashMap<String, byte[]> dbMap;
+    private HashMap<String, String> dbMap;
 
     public DataBaseFile(File dbFilePath) throws IOException {
         try {
@@ -29,11 +29,15 @@ public class DataBaseFile {
                 if (keyLength <= 0 || valueLength <= 0) {
                     throw new DataBaseFileDamaged();
                 }
-                byte[] key = new byte[keyLength];
-                byte[] value = new byte[valueLength];
-                dbFile.read(key);
-                dbFile.read(value);
-                dbMap.put(new String(key), value);
+                char[] key = new char[keyLength];
+                char[] value = new char[valueLength];
+                for (int i = 0; i < keyLength; ++i) {
+                    key[i] = dbFile.readChar();
+                }
+                for (int i = 0; i < valueLength; ++i) {
+                    value[i] = dbFile.readChar();
+                }
+                dbMap.put(new String(key), new String(value));
             }
         } catch (FileNotFoundException e) {
             System.out.println("can't open data base file: '" + dbFilePath.getCanonicalPath() + "' file not found");
@@ -44,30 +48,30 @@ public class DataBaseFile {
         }
     }
 
-    public void put(String newKey, byte[] newValue) throws IOException {
-        byte[] currentValue = dbMap.get(newKey);
+    public void put(String newKey, String newValue) throws IOException {
+        String currentValue = dbMap.get(newKey);
         if (currentValue == null) {
             System.out.println("new");
         } else {
             System.out.println("overwrite");
-            System.out.println(new String(currentValue));
+            System.out.println(currentValue);
         }
         dbMap.put(newKey, newValue);
     }
 
-    public byte[] get(String newKey) throws IOException {
-        byte[] currentValue = dbMap.get(newKey);
+    public String get(String newKey) throws IOException {
+        String currentValue = dbMap.get(newKey);
         if (currentValue == null) {
             System.out.println("not found");
         } else {
             System.out.println("found");
-            System.out.println(new String(currentValue));
+            System.out.println(currentValue);
         }
         return currentValue;
     }
 
-    public byte[] remove(String newKey) throws IOException {
-        byte[] currentValue = dbMap.remove(newKey);
+    public String remove(String newKey) throws IOException {
+        String currentValue = dbMap.remove(newKey);
         if (currentValue == null) {
             System.out.println("not found");
         } else {
@@ -78,15 +82,15 @@ public class DataBaseFile {
 
     public void save() {
         try {
-            Set<Map.Entry<String, byte[]>> dbSet = dbMap.entrySet();
-            Iterator<Map.Entry<String, byte[]>> i = dbSet.iterator();
+            Set<Map.Entry<String, String>> dbSet = dbMap.entrySet();
+            Iterator<Map.Entry<String, String>> i = dbSet.iterator();
             dbFile.seek(0);
             while (i.hasNext()) {
-                Map.Entry<String, byte[]> tempEntry = i.next();
+                Map.Entry<String, String> tempEntry = i.next();
                 dbFile.writeInt(tempEntry.getKey().length());
-                dbFile.writeInt(tempEntry.getValue().length);
-                dbFile.write(tempEntry.getKey().getBytes());
-                dbFile.write(tempEntry.getValue());
+                dbFile.writeInt(tempEntry.getValue().length());
+                dbFile.writeChars(tempEntry.getKey());
+                dbFile.writeChars(tempEntry.getValue());
             }
             dbFile.setLength(dbFile.getFilePointer());
         } catch (IOException e) {

@@ -25,7 +25,7 @@ public class FileMapMain {
                         System.out.println("put: must get 2 parameters");
                         throw new WrongCommand();
                     } else {
-                        currentDataBase.put(parsedCommand[1], parsedCommand[2].getBytes());
+                        currentDataBase.put(parsedCommand[1], parsedCommand[2]);
                     }
                     break;
                 case "get":
