@@ -19,7 +19,7 @@ public class FileMap {
     private static void interactiveMode(CommandsOperator commandsOperator) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
-        while (scanner.hasNextLine()) {
+        while (scanner.hasNext()) {
             String line = scanner.nextLine();
             executeLine(line, commandsOperator);
             System.out.print("$ ");

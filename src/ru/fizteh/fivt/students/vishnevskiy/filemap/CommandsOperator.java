@@ -46,7 +46,12 @@ public class CommandsOperator {
                     throw new FileMapException(commandName + ": command not found");
                 }
             }
-            String[] args = Arrays.copyOfRange(line.split("\\s+", command.getArgsNum() + 1), 1, command.getArgsNum() + 1);
+            String[] args = line.split("\\s+", command.getArgsNum() + 1);
+            i = 1;
+            while ((i < args.length) && (!args[i].isEmpty())) {
+                ++i;
+            }
+            args = Arrays.copyOfRange(args, 1, i);
             command.execute(singleFileMap, args);
         } catch (FileMapException e) {
             System.err.println(e.getMessage());
