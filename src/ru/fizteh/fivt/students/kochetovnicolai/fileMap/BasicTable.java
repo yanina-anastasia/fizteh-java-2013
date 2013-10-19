@@ -34,10 +34,14 @@ public class BasicTable extends FileManager implements Table {
                 throw new IOException("couldn't create file db.dat");
             }
         }
-        DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile));
+        FileInputStream fileInputStream = new FileInputStream(currentFile);
+        DataInputStream inputStream = new DataInputStream(fileInputStream);
         oldRecordNumber = 0;
         while (readNextPair(inputStream) != null) {
             oldRecordNumber++;
+        }
+        if (fileInputStream.read() != -1) {
+            throw new IOException("invalid file");
         }
         inputStream.close();
         changes = new HashMap<>();
@@ -152,7 +156,7 @@ public class BasicTable extends FileManager implements Table {
         try {
             keySize = inputStream.readInt();
             valueSize = inputStream.readInt();
-            if (keySize < 1 || valueSize < 1) {
+            if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize + valueSize) {
                 throw new IOException("invalid string size");
             }
         } catch (IOException e) {
