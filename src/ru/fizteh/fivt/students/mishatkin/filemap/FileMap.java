@@ -21,7 +21,7 @@ public class FileMap {
 		try {
 			receiver = new FileMapReceiver(dbDirectory, dbFileName, (args.length == 0), System.out);
 			runner.run(receiver);
-		} catch (MissingFileMapDatabaseException e) {
+		} catch (FileMapDatabaseException e) {
 			System.err.println(e.getMessage());
 		}
 	}
