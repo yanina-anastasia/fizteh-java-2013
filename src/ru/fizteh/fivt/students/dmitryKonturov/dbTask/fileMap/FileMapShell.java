@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileMapShell extends ShellEmulator{
+public class FileMapShell extends ShellEmulator {
     private final Path dbFilePath;
     protected final String dbName;
     private Map<String, String> dbMap;
@@ -194,7 +194,18 @@ public class FileMapShell extends ShellEmulator{
         try (FileInputStream input = new FileInputStream(dbFilePath.toFile())) {
             while (input.available() > 0) {
                 int keyLen = readInt(input);
+                if (keyLen < 0) {
+                    throw new ShellException("Load file", "Negative key length");
+                } else if (keyLen > input.available()) {
+                    throw new ShellException("Load file", "Key length is bigger than file length.");
+                }
                 int valueLen = readInt(input);
+                if (valueLen < 0) {
+                    throw new ShellException("Load file", "Negative value length");
+                } else if (valueLen > input.available()) {
+                    throw new ShellException("Load file", "Value length is greater than the length of rest file");
+                }
+
                 byte[] key = new byte[keyLen];
                 byte[] value = new byte[valueLen];
                 int wasRead = 0;
