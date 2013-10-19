@@ -22,6 +22,7 @@ public class CommandRunner {
                     executeQueryLine(queryLine, state);
                 } else {
                     scanner.close();
+                    state.exitWithError(0);
                     return;
                 }
             } 
