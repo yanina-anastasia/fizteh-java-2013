@@ -250,7 +250,8 @@ public class FileMapShell extends ShellEmulator {
         try {
             loadDbFileToMap();
         } catch (ShellException e) {
-            System.err.println(e.toString());
+            System.err.println("Incorrect input file: " + e.toString());
+            System.exit(7);
         } catch (FileNotFoundException e) {
             System.err.println("File not found");
         }
