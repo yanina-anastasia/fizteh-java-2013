@@ -2,9 +2,26 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
+
 import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
 public class Commands extends Shell {
+    @Override
+    protected String[] extractArgumentsFromInputString(String input) {
+        input = input.trim();
+        if (input.isEmpty()) {
+            return null;
+        }
+        return input.split("[\\s]+", 3);
+    }
+
+    @Override
+    protected String rewriteInput(String current) {
+        return current;
+    }
+
+    @Override
     public void executeProcess(String[] input) {
         if (input == null) {
             return;

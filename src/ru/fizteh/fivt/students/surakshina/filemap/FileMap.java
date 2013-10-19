@@ -31,7 +31,7 @@ public class FileMap {
                 closeFile(dataBase);
                 System.exit(1);
             }
-            WorkWithInput input = new WorkWithInput();
+            Commands input = new Commands();
             input.workWithShell(args);
             try {
                 writeInDatabase();
