@@ -14,7 +14,7 @@ public class DataBaseFile {
     private RandomAccessFile dbFile;
     private HashMap<String, String> dbMap;
 
-    public DataBaseFile(File dbFilePath) throws IOException {
+    public DataBaseFile(File dbFilePath) throws IOException, DataBaseOpenFailed {
         try {
             if (!dbFilePath.exists()) {
                 if (!dbFilePath.createNewFile()) {
@@ -41,10 +41,13 @@ public class DataBaseFile {
             }
         } catch (FileNotFoundException e) {
             System.out.println("can't open data base file: '" + dbFilePath.getCanonicalPath() + "' file not found");
+            throw new DataBaseOpenFailed();
         } catch (CantCreateDbFile e) {
             System.out.println("can't create new db file: '" + e.getProblematicFile() + "'");
+            throw new DataBaseOpenFailed();
         } catch (IOException | DataBaseFileDamaged e) {
             System.out.println("can't read db file, it's damaged");
+            throw new DataBaseOpenFailed();
         }
     }
 
@@ -95,6 +98,7 @@ public class DataBaseFile {
             dbFile.setLength(dbFile.getFilePointer());
         } catch (IOException e) {
             System.out.println("can't save data base file");
+            System.exit(1);
         }
     }
 
@@ -104,6 +108,7 @@ public class DataBaseFile {
             dbFile.close();
         } catch (IOException e) {
             System.out.println("can't close data base file");
+            System.exit(1);
         }
     }
 }

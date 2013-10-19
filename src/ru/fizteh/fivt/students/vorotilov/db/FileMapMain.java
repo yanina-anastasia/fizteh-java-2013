@@ -74,7 +74,7 @@ public class FileMapMain {
         } catch (ExitCommand | NoNextCommand e) {
             currentDataBase.close();
             System.exit(0);
-        } catch (IOException | WrongCommand e) {
+        } catch (IOException | WrongCommand | DataBaseOpenFailed e) {
             currentDataBase.close();
             System.exit(1);
         }
