@@ -1,4 +1,4 @@
-package shell;
+package ru.fiztex.fivt.students.dobrinevski.shell;
 
 import java.io.File;
 import java.nio.file.*;
