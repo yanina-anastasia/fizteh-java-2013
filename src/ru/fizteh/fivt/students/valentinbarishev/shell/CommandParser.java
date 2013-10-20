@@ -21,7 +21,7 @@ public final class CommandParser {
         }
     }
 
-    public String[] getCommand() {
+    public CommandString getCommand() {
         String command = "";
         for (int i = 0; i < commands.length(); ++i) {
             if (commands.charAt(i) == ';') {
@@ -31,16 +31,7 @@ public final class CommandParser {
             }
         }
 
-        StringBuilder builder = new StringBuilder(command.trim());
-        for (int i = 0; i < builder.length() - 1; ) {
-            if ((builder.charAt(i) == ' ') && (builder.charAt(i + 1)) == ' ') {
-                builder.deleteCharAt(i);
-                continue;
-            }
-            ++i;
-        }
-        command = builder.toString();
-        return command.split(" ");
+        return new CommandString(command);
     }
 
     public boolean isEmpty() {
