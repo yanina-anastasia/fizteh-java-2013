@@ -19,7 +19,7 @@ public interface TableProvider {
      * Создаёт таблицу с указанным названием.
      *
      * @param name Название таблицы.
-     * @return Объект, представляющий таблицу.
+     * @return Объект, представляющий таблицу. Если таблица уже существует, возвращает null.
      * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
      */
     Table createTable(String name);
