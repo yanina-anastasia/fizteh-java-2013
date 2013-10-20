@@ -132,7 +132,7 @@ public class FileMap {
             loadFile();
         } catch (FileNotFoundException e) {
         } catch (Exception e) {
-            System.err.println(e + ": I can't read from db.dat");
+            System.err.println("Incorrect files db.dat");
             System.exit(1);
         }
         commands = new FileMapCommands(loadList);

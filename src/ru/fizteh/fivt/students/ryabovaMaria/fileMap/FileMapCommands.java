@@ -39,7 +39,12 @@ public class FileMapCommands extends  AbstractCommands{
             list.put(lexems[0], lexems[1]);
             System.out.println("new");
         }
-        
+        try { 
+            FileMap.writeIntoFile();
+        } catch (Exception e) {
+            System.err.println("I can't write into db.dat");
+            System.exit(1);
+        }
     }
     
     public static void get() throws Exception {
@@ -62,6 +67,12 @@ public class FileMapCommands extends  AbstractCommands{
             System.out.println("removed");
         } else {
             System.out.println("not found");
+        }
+        try { 
+            FileMap.writeIntoFile();
+        } catch (Exception e) {
+            System.err.println("I can't write into db.dat");
+            System.exit(1);
         }
     }
     
