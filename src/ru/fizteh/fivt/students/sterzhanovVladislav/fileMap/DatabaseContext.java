@@ -13,6 +13,9 @@ import java.nio.ByteBuffer;
 
 public class DatabaseContext {
     
+    private static final int MAX_KEY_SIZE = 1 << 24;
+    private static final int MAX_VALUE_SIZE = 1 << 24;
+    
     private HashMap<String, String> dataBase = null;
     private File dbFile; 
     private Path dbDir;
@@ -62,7 +65,7 @@ public class DatabaseContext {
     
     private static void safeRead(FileInputStream fstream, byte[] buf, int readCount) throws Exception {
         int bytesRead = 0;
-        if (readCount < 0 || fstream.available() < readCount) {
+        if (readCount < 0) {
             throw new Exception("Error: malformed database");
         }
         while (bytesRead < readCount) {
@@ -80,7 +83,7 @@ public class DatabaseContext {
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
         safeRead(fstream, sizeBuf, 4);
         int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
-        if (keySize < 0 || valueSize < 0 || fstream.available() < (long) keySize + (long) valueSize) {
+        if (keySize <= 0 || valueSize <= 0 || keySize > MAX_KEY_SIZE || valueSize > MAX_VALUE_SIZE) {
             throw new Exception("Error: malformed database");
         }
         byte[] keyBuf = new byte[keySize];
