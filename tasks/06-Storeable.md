@@ -11,7 +11,7 @@
 ### Контракт
 
 Контракт изменён, необходимо реализовать интерфейсы из пакета structured:
-[ru.fizteh.fivt.storage.structured](src/ru/fizteh/fivt/storage/structured) (Table, TableProvider, TableProviderFactory).
+[ru.fizteh.fivt.storage.structured](../src/ru/fizteh/fivt/storage/structured) (Table, TableProvider, TableProviderFactory).
 Добавляется интерфейс Storeable.
 
 Каждый метод каждого интерфейса должен быть покрыт модульными тестами (с помощью [JUnit](http://junit.org/)).
