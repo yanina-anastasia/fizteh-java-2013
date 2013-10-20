@@ -27,6 +27,12 @@ public class FileMap {
                 }
             }
             fileMap.put(arg[0], arg[1]);
+            try {
+                DbMain.writerDateBase();
+            } catch (Exception e) {
+                System.err.println("Writing error");
+                System.exit(1);
+            }
         }
 
         public static void get(String[] arg) throws IOException {
@@ -59,6 +65,12 @@ public class FileMap {
                 System.out.println("removed");
             } else {
                 System.out.println("not found");
+            }
+            try {
+                DbMain.writerDateBase();
+            } catch (Exception e) {
+                System.err.println("Writing error");
+                System.exit(1);
             }
         }
 
