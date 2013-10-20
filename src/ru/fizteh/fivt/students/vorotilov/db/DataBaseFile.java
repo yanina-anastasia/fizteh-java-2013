@@ -117,12 +117,15 @@ public class DataBaseFile {
     }
 
     public void close() {
-        save();
         try {
             dbFile.close();
         } catch (IOException e) {
             System.out.println("can't close data base file");
             System.exit(1);
         }
+    }
+
+    public boolean isEmpty() {
+        return dbMap.isEmpty();
     }
 }

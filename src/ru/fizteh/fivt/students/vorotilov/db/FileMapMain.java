@@ -82,9 +82,11 @@ public class FileMapMain {
                 processCommand(shellInputCommands.getNext());
             }
         } catch (ExitCommand | NoNextCommand e) {
+            currentDataBase.save();
             currentDataBase.close();
             System.exit(0);
         } catch (IOException | WrongCommand | DataBaseOpenFailed e) {
+            currentDataBase.save();
             currentDataBase.close();
             System.exit(1);
         }
