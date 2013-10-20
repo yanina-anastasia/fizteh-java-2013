@@ -22,51 +22,60 @@ public class DataBase {
         if (!dbDirectory.isDirectory()) {
             throw new DbDirectoryException("proposed object is not a directory");
         }
-        for (File i: dbDirectory.listFiles()) {
-            int numberOfSubdir;
-            try {
-                numberOfSubdir = Integer.parseInt(i.getName());
-                if (numberOfSubdir < 0 || numberOfSubdir > 15) {
-                    throw new DbDirectoryException("db-root directory contains not 0..15 directory");
-                } else if (!i.isDirectory()) {
-                    throw new DbDirectoryException("sub object is not directory");
-                }
-            } catch (NumberFormatException e) {
-                throw new DbDirectoryException("db root directory contains not 0..15 directory");
-            }
-            for (File j: i.listFiles()) {
-                int numberOfDbFile;
+        File[] subDirs = dbDirectory.listFiles();
+        if (subDirs != null) {
+            for (File i: subDirs) {
+                int numberOfSubdir;
                 try {
-                    if (!j.isFile()) {
-                        throw new DbDirectoryException("db object is not file");
+                    numberOfSubdir = Integer.parseInt(i.getName());
+                    if (numberOfSubdir < 0 || numberOfSubdir > 15) {
+                        throw new DbDirectoryException("db-root directory contains not 0..15 directory");
+                    } else if (!i.isDirectory()) {
+                        throw new DbDirectoryException("sub object is not directory");
                     }
-                    String[] dbFileName = j.getName().split("[.]");
-                    numberOfDbFile = Integer.parseInt(dbFileName[0]);
-                    if (numberOfDbFile < 0 || numberOfDbFile > 15
-                         || !dbFileName[1].equals(".dat") || dbFileName.length != 2) {
-                        throw new DbDirectoryException("db sub directory contains not 0.dat ... 15.dat");
-                    } else {
+                } catch (NumberFormatException e) {
+                    throw new DbDirectoryException("db root directory contains not 0..15 directory");
+                }
+                File[] listSubFiles = i.listFiles();
+                if (listSubFiles != null) {
+                    for (File j: listSubFiles) {
+                        int numberOfDbFile;
                         try {
-                            db[numberOfSubdir][numberOfDbFile] = new DataBaseFile(j);
-                        } catch (DataBaseOpenFailed e) {
-                            System.out.print("can't open db file");
-                            System.exit(1);
+                            if (!j.isFile()) {
+                                throw new DbDirectoryException("db object is not file");
+                            }
+                            String[] dbFileName = j.getName().split("[.]");
+                            numberOfDbFile = Integer.parseInt(dbFileName[0]);
+                            if (numberOfDbFile < 0 || numberOfDbFile > 15
+                                    || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
+                                throw new DbDirectoryException("db sub directory contains not 0.dat ... 15.dat");
+                            } else {
+                                try {
+                                    db[numberOfSubdir][numberOfDbFile] = new DataBaseFile(j);
+                                } catch (DataBaseOpenFailed e) {
+                                    System.out.print("can't open db file");
+                                    System.exit(1);
+                                }
+                            }
+                        }  catch (NumberFormatException e) {
+                            throw new DbDirectoryException("db sub directory contains not 0.dat ... 15.dat");
                         }
                     }
-                }  catch (NumberFormatException e) {
-                    throw new DbDirectoryException("db sub directory contains not 0.dat ... 15.dat");
                 }
             }
         }
     }
 
-    private DataBaseFile getRequiredFile(int ndirectory, int nfile) throws IOException, DataBaseOpenFailed {
+    private DataBaseFile getRequiredFile(int ndirectory, int nfile)
+            throws IOException, DataBaseOpenFailed, DbDirectoryException {
         if (db[ndirectory][nfile] != null) {
             return db[ndirectory][nfile];
         } else {
             File subDir = new File(dbDirectory, Integer.toString(ndirectory));
             if (!subDir.exists()) {
-                subDir.mkdir();
+                if (!subDir.mkdir()) {
+                    throw new DbDirectoryException("can't create sub dir");
+                }
             }
             File subFile = new File(subDir, Integer.toString(nfile) + ".dat");
             db[ndirectory][nfile] = new DataBaseFile(subFile);
@@ -74,23 +83,23 @@ public class DataBase {
         return db[ndirectory][nfile];
     }
 
-    public void put(String newKey, String newValue) throws IOException, DataBaseOpenFailed {
-        int hashcode = newKey.hashCode();
+    public void put(String newKey, String newValue) throws IOException, DataBaseOpenFailed, DbDirectoryException {
+        int hashcode = Math.abs(newKey.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         wasFileModified[ndirectory][nfile] = true;
         getRequiredFile(ndirectory, nfile).put(newKey, newValue);
     }
 
-    public String get(String newKey) throws IOException, DataBaseOpenFailed {
-        int hashcode = newKey.hashCode();
+    public String get(String newKey) throws IOException, DataBaseOpenFailed, DbDirectoryException {
+        int hashcode = Math.abs(newKey.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         return getRequiredFile(ndirectory, nfile).get(newKey);
     }
 
-    public String remove(String newKey) throws IOException, DataBaseOpenFailed {
-        int hashcode = newKey.hashCode();
+    public String remove(String newKey) throws IOException, DataBaseOpenFailed, DbDirectoryException {
+        int hashcode = Math.abs(newKey.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         String removedValue = getRequiredFile(ndirectory, nfile).remove(newKey);

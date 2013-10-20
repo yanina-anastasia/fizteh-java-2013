@@ -48,14 +48,22 @@ public class MultiFileHashMap {
                     } else {
                         try {
                             File newDataBase = new File(homeDirectory, parsedCommand[1]);
+                            if (currentDataBase != null && newDataBase.equals(currentDataBase.dbDirectory)) {
+                                System.out.println(parsedCommand[1] + " is already used");
+                            }
                             if (!newDataBase.exists()) {
                                 System.out.println(parsedCommand[1] + " not exists");
                                 throw new WrongCommand();
                             } else {
+                                if (currentDataBase != null) {
+                                    currentDataBase.save();
+                                    currentDataBase.close();
+                                }
                                 currentDataBase = new DataBase(newDataBase);
                                 System.out.println("using " + parsedCommand[1]);
                             }
                         } catch (DbDirectoryException e) {
+                            System.out.println(e.getMessage());
                             System.exit(1);
                         }
                     }
@@ -69,14 +77,14 @@ public class MultiFileHashMap {
                         if (!dbToDrop.exists()) {
                             System.out.println(parsedCommand[1] + " not exists");
                             throw new WrongCommand();
-                        }
-                        else {
-                            if (currentDataBase.dbDirectory.equals(dbToDrop)) {
+                        } else {
+                            if (currentDataBase != null && currentDataBase.dbDirectory.equals(dbToDrop)) {
                                 currentDataBase.close();
                                 currentDataBase = null;
                             }
                             try {
                                 FileUtil.recursiveDelete(homeDirectory, dbToDrop);
+                                System.out.println("dropped");
                             } catch (FileWasNotDeleted e) {
                                 System.out.println("drop: can't delete file ' "
                                         + e.getProblematicFile().getCanonicalPath() + "'");
@@ -96,6 +104,9 @@ public class MultiFileHashMap {
                             currentDataBase.put(parsedCommand[1], parsedCommand[2]);
                         } catch (DataBaseOpenFailed e) {
                             System.out.println("can't create new db file");
+                        } catch (DbDirectoryException e) {
+                            System.out.println(e.getMessage());
+                            System.exit(1);
                         }
                     }
                     break;
@@ -111,6 +122,9 @@ public class MultiFileHashMap {
                             currentDataBase.get(parsedCommand[1]);
                         } catch (DataBaseOpenFailed e) {
                             System.out.println("can't create new db file");
+                        } catch (DbDirectoryException e) {
+                            System.out.println(e.getMessage());
+                            System.exit(1);
                         }
                     }
                     break;
@@ -126,6 +140,9 @@ public class MultiFileHashMap {
                             currentDataBase.remove(parsedCommand[1]);
                         } catch (DataBaseOpenFailed e) {
                             System.out.println("can't create new db file");
+                        } catch (DbDirectoryException e) {
+                            System.out.println(e.getMessage());
+                            System.exit(1);
                         }
                     }
                     break;
@@ -166,12 +183,16 @@ public class MultiFileHashMap {
                 processCommand(shellInputCommands.getNext());
             }
         } catch (ExitCommand | NoNextCommand e) {
-            currentDataBase.save();
-            currentDataBase.close();
+            if (currentDataBase != null) {
+                currentDataBase.save();
+                currentDataBase.close();
+            }
             System.exit(0);
         } catch (IOException | WrongCommand e) {
-            currentDataBase.save();
-            currentDataBase.close();
+            if (currentDataBase != null) {
+                currentDataBase.save();
+                currentDataBase.close();
+            }
             System.exit(1);
         }
     }
