@@ -96,27 +96,35 @@ public class Shell {
     }
 
     public void interActive() {
-        while (true) {
-            Scanner scan = new Scanner(System.in);
-            System.out.print("$ ");
-            try {
-                while (scan.hasNextLine()) {
-                    String input = new String();
-                    input = scan.nextLine();
-                    String[] commandArray = input.split(";");
-                    for (final String command : commandArray) {
-                        if (!processCommand(command)) {
-                            System.getProperty("line.separator");
-                        }
+        Scanner scan = new Scanner(System.in);
+        System.out.print("$ ");
+        try {
+            while (scan.hasNextLine()) {
+                String input = scan.nextLine();
+                String[] commandArray = input.split(";");
+                for (final String command : commandArray) {
+                    if (!processCommand(command)) {
+                        System.getProperty("line.separator");
                     }
-                    System.out.print("$ ");
                 }
-            } catch (Exception e) {
+                System.out.print("$ ");
+            }
+        } catch (Exception e) {
+            String[] ar = {};
+            try {
+                cmds.get("exit").exec(ar, curState);
+            } catch (IOException r) {
                 System.exit(1);
             }
-            scan.close();
-            return;
+            System.exit(1);
         }
+        String[] ar = {};
+        try {
+            cmds.get("exit").exec(ar, curState);
+        } catch (IOException e) {
+            System.exit(1);
+        }
+        scan.close();
     }
 
     public void pocket(String[] args) {

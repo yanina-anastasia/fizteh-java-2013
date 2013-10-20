@@ -9,6 +9,7 @@ public class OpenFile {
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
             System.err.println("Error with getting property");
+            System.exit(1);
         }
         if (!(new File(path).exists())) {
             System.err.println("The path from the property does not exist");
@@ -20,17 +21,18 @@ public class OpenFile {
         }
         myState.workingDirectory = new File(path, "db.dat").toString();
         File tmpFile = new File(curState.workingDirectory);
+        RandomAccessFile temp = null;
 
         if (!tmpFile.exists()) {
             if (!tmpFile.createNewFile()) {
                 System.err.println("Error with creating a directory");
                 return false;
             } else {
-                myState.dbFile = new RandomAccessFile(tmpFile, "rw");
+                temp = new RandomAccessFile(tmpFile, "rw");
             }
         } else {
             try {
-                loadTable(myState);
+                loadTable(temp, myState);
             } catch (EOFException e) {
                 System.err.println("Wrong format");
                 return false;
@@ -42,58 +44,58 @@ public class OpenFile {
         return true;
     }
 
-    private static void loadTable(DBState curState) throws IOException {
-        curState.dbFile = new RandomAccessFile(curState.workingDirectory, "rw");
-        if (curState.dbFile.length() == 0) {
+    private static void loadTable(RandomAccessFile temp, DBState curState) throws IOException {
+        temp = new RandomAccessFile(curState.workingDirectory, "rw");
+        if (temp.length() == 0) {
             return;
         }
         long nextOffset = 0;
 
-        curState.dbFile.seek(0);
-        byte c = curState.dbFile.readByte();
+        temp.seek(0);
+        byte c = temp.readByte();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         while (c != 0) {
             out.write(c);
-            c = curState.dbFile.readByte();
+            c = temp.readByte();
         }
         String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
-        long firstOffset = curState.dbFile.readInt();
+        long firstOffset = temp.readInt();
         long currentOffset = firstOffset;
-        long cursor = curState.dbFile.getFilePointer();
+        long cursor = temp.getFilePointer();
         String nextKey = key;
 
         while (cursor < firstOffset) {
-            c = curState.dbFile.readByte();
+            c = temp.readByte();
             out = new ByteArrayOutputStream();
             while (c != 0) {
                 out.write(c);
-                c = curState.dbFile.readByte();
+                c = temp.readByte();
             }
             nextKey = new String(out.toByteArray(), StandardCharsets.UTF_8);
-            nextOffset = curState.dbFile.readInt();
-            cursor = curState.dbFile.getFilePointer();
-            curState.dbFile.seek(currentOffset);
+            nextOffset = temp.readInt();
+            cursor = temp.getFilePointer();
+            temp.seek(currentOffset);
             int len = (int) (nextOffset - currentOffset);
             if (len < 0) {
                 throw new IOException("File has incorrect format");
             }
             byte[] bytes = new byte[len];
-            curState.dbFile.read(bytes);
+            temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
             curState.table.put(key, putValue);
-            curState.dbFile.seek(cursor);
+            temp.seek(cursor);
             key = nextKey;
             currentOffset = nextOffset;
         }
-        curState.dbFile.seek(currentOffset);
-        int len = (int) (curState.dbFile.length() - currentOffset);
+        temp.seek(currentOffset);
+        int len = (int) (temp.length() - currentOffset);
         if (len < 0) {
             throw new IOException("File has incorrect format");
         }
         byte[] bytes = new byte[len];
-        curState.dbFile.read(bytes);
+        temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
         curState.table.put(nextKey, putValue);
-        curState.dbFile.close();
+        temp.close();
     }
 }
