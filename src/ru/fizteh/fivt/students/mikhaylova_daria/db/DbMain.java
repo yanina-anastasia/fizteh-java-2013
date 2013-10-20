@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -21,6 +18,8 @@ public class DbMain {
         try {
             readerDateBase();
         } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
@@ -28,17 +27,16 @@ public class DbMain {
         commandsList.put("remove", "remove");
         commandsList.put("exit", "exit");
         try {
-            Parser.parser(arg, FileMap.class, commandsList);
+            try {
+                Parser.parser(arg, FileMap.class, commandsList);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            } finally {
+                writerDateBase();
+            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
-        } finally {
-            try {
-                writerDateBase();
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
         }
     }
 
@@ -78,7 +76,7 @@ public class DbMain {
                 Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
                 dateBase.writeInt(lastOffsetInt);
                 dateBase.seek(currentPosition);
-             }
+            }
         } catch (Exception e) {
             System.err.println("Unknown error");
             dateBase.close();
@@ -90,20 +88,18 @@ public class DbMain {
     static void readerDateBase() throws Exception {
         File workingDirectory = new File(workingDirectoryName);
         if (!workingDirectory.isDirectory()) {
-            System.err.println(workingDirectory.toString() + " is not found or is not directory");
-            System.exit(1);
+            throw new IOException(workingDirectoryName + " is not directory");
+        }
+        if (!workingDirectory.exists()) {
+            throw new IOException(workingDirectoryName + " doesn't exist");
         }
         RandomAccessFile dateBase = null;
         try {
             dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "r");
         } catch (FileNotFoundException e) {
-            throw new Exception("File is not found " + e.getMessage());
+            return;
         } catch (Exception e) {
             throw new Exception("Opening isn't possible");
-        }
-        if (dateBase.length() == 0) {
-            dateBase.close();
-            return;
         }
         try {
             HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
@@ -205,7 +201,10 @@ public class DbMain {
         }
         return key;
     }
- }
+}
+
+
+
 
 
 
