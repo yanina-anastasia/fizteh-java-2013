@@ -1,4 +1,4 @@
-package ru.fiztex.fivt.students.dobrinevski.shell;
+package ru.fizteh.fivt.students.dobrinevski.shell;
 
 import java.io.File;
 import java.nio.file.*;
@@ -12,7 +12,9 @@ public class Shell {
     }
 
     private void executeCommand(String command) throws SException {
-        if (command.trim().isEmpty()) return;
+        if (command.trim().isEmpty()) {
+            return;
+        }
         String[] args = command.trim().split("[\t ]+");
         String commandName = args[0];
         if (commandName.equals("cd")) {
@@ -80,7 +82,7 @@ public class Shell {
             try {
                 executeCommands(commands);
             } catch (SException e) {
-                scan.close();
+            //    scan.close();
                 System.out.println(e);
             }
             try {

@@ -1,4 +1,4 @@
-package ru.fiztex.fivt.students.dobrinevski.shell;
+package ru.fizteh.fivt.students.dobrinevski.shell;
 
 public class Main {
     public static void main(String[] args) {
