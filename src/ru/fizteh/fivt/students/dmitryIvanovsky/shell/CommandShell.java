@@ -6,11 +6,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class CommandShell implements CommandAbstract {
 
     File currentFile;
+
+    public Map<String, String> mapComamnd() {
+        Map<String, String> commandList = new HashMap<String, String>(){ {
+            put("dir", "dir");
+            put("mv", "mv");
+            put("cp", "cp");
+            put("rm", "rm");
+            put("pwd", "pwd");
+            put("mkdir", "mkdir");
+            put("cd", "cd");
+        }};
+        return commandList;
+    }
+
+    public Map<String, Boolean> mapSelfParsing() {
+        Map<String, Boolean> commandList = new HashMap<String, Boolean>(){ {
+            put("dir", false);
+            put("mv", false);
+            put("cp", false);
+            put("rm", false);
+            put("pwd", false);
+            put("mkdir", false);
+            put("cd", false);
+        }};
+        return commandList;
+    }
 
     public CommandShell() {
         currentFile = new File(".");
@@ -26,10 +55,6 @@ public class CommandShell implements CommandAbstract {
 
     public String getCurrentFile() {
         return currentFile.toString();
-    }
-
-    public boolean selfParsing() {
-        return false;
     }
 
     public String startShellString() throws IOException {

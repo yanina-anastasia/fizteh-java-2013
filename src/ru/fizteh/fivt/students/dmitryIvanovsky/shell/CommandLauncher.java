@@ -17,16 +17,18 @@ public class CommandLauncher {
     }
 
     CommandAbstract exampleClass;
-    Map<String, String> commandList;
+    Map<String, String> mapCommand;
     Map<String, Method> commandMethod;
+    Map<String, Boolean> mapSelfParsing;
 
-    public CommandLauncher(CommandAbstract exampleClass, Map<String, String> commandList) throws NoSuchMethodException {
+    public CommandLauncher(CommandAbstract exampleClass) throws NoSuchMethodException {
         this.exampleClass = exampleClass;
-        this.commandList = commandList;
+        this.mapSelfParsing = exampleClass.mapSelfParsing();
+        this.mapCommand = exampleClass.mapComamnd();
         commandMethod = new HashMap<String, Method>();
         Class[] paramTypes = new Class[]{String[].class};
-        for (String key : commandList.keySet()) {
-            commandMethod.put(key, exampleClass.getClass().getMethod(key, paramTypes));
+        for (String key : mapCommand.keySet()) {
+            commandMethod.put(key, exampleClass.getClass().getMethod(mapCommand.get(key), paramTypes));
         }
     }
 
@@ -39,14 +41,14 @@ public class CommandLauncher {
             String command = token.nextToken().toLowerCase();
             if (command.equals("exit") && countTokens == 1) {
                 return Code.EXIT;
-            } else if (commandList.containsKey(command)) {
+            } else if (mapCommand.containsKey(command)) {
                 Method method = commandMethod.get(command);
                 Vector<String> commandArgs = new Vector<>();
                 for (int i = 2; i <= countTokens; ++i) {
                     commandArgs.add(token.nextToken());
                 }
                 try {
-                    if (exampleClass.selfParsing()) {
+                    if (mapSelfParsing.get(command)) {
                         Object[] args = new Object[]{new String[]{query}};
                         return (Code) method.invoke(exampleClass, args);
                     } else {
@@ -54,6 +56,7 @@ public class CommandLauncher {
                         return (Code) method.invoke(exampleClass, args);
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     System.err.println(String.format("Ошибка выполнения команды \'%s\'", command));
                     return Code.ERROR;
                 }
@@ -114,11 +117,25 @@ public class CommandLauncher {
                 builder.append(' ');
             }
             String query = builder.toString();
-            exampleClass.exit();
-            return runCommands(query, false);
+            Code res;
+
+            try {
+                res = runCommands(query, false);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                exampleClass.exit();
+            }
+            return res;
+
         } else {
-            interactiveMode();
-            exampleClass.exit();
+            try {
+                interactiveMode();
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                exampleClass.exit();
+            }
             return Code.OK;
         }
     }
