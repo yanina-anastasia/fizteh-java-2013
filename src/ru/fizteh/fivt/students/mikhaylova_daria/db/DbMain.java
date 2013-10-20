@@ -87,11 +87,11 @@ public class DbMain {
 
     static void readerDateBase() throws Exception {
         File workingDirectory = new File(workingDirectoryName);
-        if (!workingDirectory.isDirectory()) {
-            throw new IOException(workingDirectoryName + " is not directory");
-        }
         if (!workingDirectory.exists()) {
             throw new IOException(workingDirectoryName + " doesn't exist");
+        }
+        if (!workingDirectory.isDirectory()) {
+            throw new IOException(workingDirectoryName + " is not directory");
         }
         RandomAccessFile dateBase = null;
         try {
@@ -106,7 +106,7 @@ public class DbMain {
             HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
             String key = readKey(dateBase);
             if (keyAndValueLength.containsKey(key)) {
-                System.err.println("1Bad dates");
+                System.err.println("Bad dates");
                 dateBase.close();
                 System.exit(1);
             }
@@ -114,7 +114,7 @@ public class DbMain {
             try {
                 offset = dateBase.readInt();
             } catch (EOFException e) {
-                System.err.println("1Bad file");
+                System.err.println("Bad file");
                 dateBase.close();
                 System.exit(1);
             }
