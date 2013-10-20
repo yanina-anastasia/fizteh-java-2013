@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+
 
 public class CommandMove extends AbstractCommand {
 	public CommandMove(StateShell st) {

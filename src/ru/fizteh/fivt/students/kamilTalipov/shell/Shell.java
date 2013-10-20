@@ -14,6 +14,16 @@ public class Shell {
         this.commands = commands;
     }
 
+    public static void run(Command[] commands, String[] args) throws IOException, IllegalArgumentException {
+        Shell shell = new Shell(commands);
+
+        if (args.length == 0) {
+            shell.interactiveMode();
+        } else {
+            shell.packageMode(args);
+        }
+    }
+
     public void interactiveMode() throws IOException, IllegalArgumentException {
         wasExit = false;
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
