@@ -12,7 +12,7 @@ public abstract class Command {
     public String[] args;
     
     void execute() throws IllegalArgumentException, Exception {
-        if (args == null || args.length < argc)  {
+        if (args == null || args.length != argc)  {
             throw new IllegalArgumentException("Wrong number of arguments given");
         }
         if (parentShell == null) {
