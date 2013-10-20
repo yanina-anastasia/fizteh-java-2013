@@ -199,6 +199,7 @@ public class ShellCommands extends Shell {
         case "exit": {
             System.exit(0);
         }
+            break;
         default:
             printError("Incorrect input");
         }

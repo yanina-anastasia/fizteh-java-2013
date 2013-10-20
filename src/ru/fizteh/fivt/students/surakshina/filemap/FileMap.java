@@ -15,38 +15,43 @@ public class FileMap {
     static HashMap<String, String> fileMap = new HashMap<String, String>();
 
     public static void main(String[] args) throws FileNotFoundException {
-        File directory = new File(workingDirectory);
-        if (directory.isDirectory()) {
-            dataBase = new RandomAccessFile(workingDirectory + File.separator + "db.dat", "rw");
-            try {
-                if (dataBase.length() != 0) {
-                    readDatabase();
+        if (workingDirectory != null) {
+            File directory = new File(workingDirectory);
+            if (directory.isDirectory()) {
+                dataBase = new RandomAccessFile(workingDirectory + File.separator + "db.dat", "rw");
+                try {
+                    if (dataBase.length() != 0) {
+                        readDatabase();
+                    }
+                } catch (FileNotFoundException e) {
+                    System.err.println("Can't read database");
+                    closeFile(dataBase);
+                    System.exit(1);
+                } catch (IOException e1) {
+                    System.err.println("Can't read from database");
+                    closeFile(dataBase);
+                    System.exit(1);
                 }
-            } catch (FileNotFoundException e) {
-                System.err.println("Can't read database");
+                Commands input = new Commands();
+                input.workWithShell(args);
+                try {
+                    writeInDatabase();
+                } catch (FileNotFoundException e) {
+                    System.err.println("Can't read database");
+                    closeFile(dataBase);
+                    System.exit(1);
+                } catch (IOException e1) {
+                    System.err.println("Can't write in database");
+                    closeFile(dataBase);
+                    System.exit(1);
+                }
                 closeFile(dataBase);
-                System.exit(1);
-            } catch (IOException e1) {
-                System.err.println("Can't read from database");
-                closeFile(dataBase);
-                System.exit(1);
-            }
-            Commands input = new Commands();
-            input.workWithShell(args);
-            try {
-                writeInDatabase();
-            } catch (FileNotFoundException e) {
-                System.err.println("Can't read database");
-                closeFile(dataBase);
-                System.exit(1);
-            } catch (IOException e1) {
-                System.err.println("Can't write in database");
-                closeFile(dataBase);
+            } else {
+                System.err.println("Not a directory");
                 System.exit(1);
             }
-            closeFile(dataBase);
         } else {
-            System.err.println("Not a directory");
+            System.err.println("No file");
             System.exit(1);
         }
         return;
