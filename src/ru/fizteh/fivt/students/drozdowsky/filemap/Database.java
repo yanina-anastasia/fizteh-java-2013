@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
-import com.sun.tools.javac.util.Pair;
+//import com.sun.tools.javac.util.Pair;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -10,11 +10,13 @@ import java.util.HashMap;
 public class Database {
     private File dbPath;
     private HashMap<String, String> db;
+    private boolean changed;
 
     static final int BUFFSIZE = 100000;
 
     public Database(File dbPath) throws IOException {
         this.dbPath = dbPath;
+        changed = false;
         db = new HashMap<String, String>();
         validityCheck();
         if (dbPath.exists()) {
@@ -31,7 +33,9 @@ public class Database {
     }
 
     public void close() {
-        writeDB();
+        if (changed) {
+            writeDB();
+        }
     }
 
     private void fatalError(String error) throws IOException {
@@ -66,6 +70,7 @@ public class Database {
             System.out.println("overwrite\n" + db.get(args[1]));
         }
         db.put(args[1], args[2]);
+        changed = true;
         return true;
     }
 
@@ -81,6 +86,7 @@ public class Database {
             db.remove(args[1]);
             System.out.println("removed");
         }
+        changed = true;
         return true;
     }
 
