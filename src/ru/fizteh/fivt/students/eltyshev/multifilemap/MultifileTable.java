@@ -79,11 +79,13 @@ public class MultifileTable extends AbstractTable {
 
     private int getDirNumber(String key) {
         byte[] bytes = key.getBytes(CHARSET);
-        return bytes[0] % BUCKET_COUNT;
+        int firstSymbol = bytes[0] + 128;
+        return firstSymbol % BUCKET_COUNT;
     }
 
     private int getFileNumber(String key) {
         byte[] bytes = key.getBytes(CHARSET);
-        return bytes[0] / BUCKET_COUNT % FILES_PER_DIR;
+        int firstSymbol = bytes[0] + 128;
+        return firstSymbol / BUCKET_COUNT % FILES_PER_DIR;
     }
 }
