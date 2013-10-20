@@ -101,6 +101,10 @@ public class DbMain {
         } catch (Exception e) {
             throw new Exception("Opening isn't possible");
         }
+        if (dateBase.length() == 0) {
+            dateBase.close();
+            return;
+        }
         try {
             HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
             HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
