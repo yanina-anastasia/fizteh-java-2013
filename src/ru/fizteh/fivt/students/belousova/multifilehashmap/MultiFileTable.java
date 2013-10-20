@@ -1,30 +1,25 @@
-package ru.fizteh.fivt.students.belousova.filemap;
+package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.belousova.utils.FileMapUtils;
+import ru.fizteh.fivt.students.belousova.utils.MultiFileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SingleFileTable implements Table {
+public class MultiFileTable implements Table {
     private Map<String, String> dataBase = new HashMap<String, String>();
-    private File dataFile;
+    private File dataDirectory;
 
-    public SingleFileTable(File data) throws IOException {
-        if (!data.exists()) {
-            throw new IOException("file doesn't exist");
-        } else {
-            dataFile = data;
-            Requirements req = new FileMapRequirements();
-            FileMapUtils.read(dataFile, dataBase, req);
-        }
+    public MultiFileTable(File data) throws IOException {
+        dataDirectory = data;
+        MultiFileUtils.read(dataDirectory, dataBase);
     }
 
     @Override
     public String getName() {
-        return null;
+        return dataDirectory.getName();
     }
 
     @Override
@@ -50,7 +45,7 @@ public class SingleFileTable implements Table {
     @Override
     public int commit() {
         try {
-            FileMapUtils.write(dataFile, dataBase);
+            MultiFileUtils.write(dataDirectory, dataBase);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

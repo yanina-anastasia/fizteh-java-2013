@@ -1,16 +1,13 @@
-package ru.fizteh.fivt.students.belousova.filemap;
+package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.belousova.multifilehashmap.TimeToExit;
 import ru.fizteh.fivt.students.belousova.shell.Command;
-
-import java.io.IOException;
 
 public class CommandExit implements Command {
     private final String name = "exit";
-    private Table state;
+    private MultiFileShellState state;
 
-    public CommandExit(Table state) {
+    public CommandExit(MultiFileShellState state) {
         this.state = state;
     }
 
@@ -26,7 +23,9 @@ public class CommandExit implements Command {
 
     @Override
     public void execute(String[] args) {
-        state.commit();
+        if (state.getCurrentTable() != null) {
+            state.commitCurrentTable();
+        }
         System.out.println("exit");
         System.exit(0);
     }

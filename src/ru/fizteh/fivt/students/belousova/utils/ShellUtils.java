@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
+import ru.fizteh.fivt.students.belousova.multifilehashmap.TimeToExit;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class ShellUtils {
             stringHandle("exit", commandList);
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            System.exit(1);
+            throw new TimeToExit();
         }
     }
 
