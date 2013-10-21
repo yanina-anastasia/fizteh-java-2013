@@ -9,44 +9,45 @@ import java.util.Set;
 
 public class TableController {
     private final long MAX_FILE_SIZE = 100000000;
-    private long inputLength;
 
     public TableController(Path databasePath, String tableName) {
         File newTable = databasePath.resolve(tableName).toFile();
         if (newTable.exists()) {
             newTable.mkdir();
         }
-        inputLength = 0;
     }
 
     public void readTable(MultiFileHashMapState state) throws IOException {
         File[] files = new File[16];
         for (int i = 0; i < 16; ++i) {
-            files[i] = state.getWorkingPath().resolve((i + 1) + ".dat").toFile();
+            files[i] = state.getWorkingPath().resolve(i + ".dat").toFile();
             if (!files[i].exists()) {
                 files[i].createNewFile();
             }
         }
         RandomAccessFile[] table = new RandomAccessFile[16];
+        int inputLength = 0;
         for (int i = 0; i < 16; ++i) {
             table[i] = new RandomAccessFile(files[i], "r");
+            inputLength += table[i].length();
         }
-        try {
-            for (int i = 0; i < 16; ++i) {
-                readFile(state, table[i]);
+        if (inputLength > MAX_FILE_SIZE) {
+            Set<String> keySet = state.getMap().keySet();
+            for (String key : keySet) {
+                state.delValue(key);
             }
-        } finally {
             closeDescriptors(table);
             deleteUnnecessaryFiles(files);
+            throw new IOException("Too big database file.");
         }
+        for (int i = 0; i < 16; ++i) {
+            readFile(state, table[i]);
+        }
+        closeDescriptors(table);
+        deleteUnnecessaryFiles(files);
     }
 
     private void readFile(MultiFileHashMapState state, RandomAccessFile database) throws IOException {
-        inputLength += database.length();
-        if (inputLength > MAX_FILE_SIZE) {
-            database.close();
-            throw new IOException("Too big database file.");
-        }
         int keyLength;
         int valueLength;
         String key;
@@ -78,7 +79,7 @@ public class TableController {
         RandomAccessFile[] database = new RandomAccessFile[16];
         File[] files = new File[16];
         for (int i = 0; i < 16; ++i) {
-            files[i] = state.getWorkingPath().resolve((i + 1) + ".dat").toFile();
+            files[i] = state.getWorkingPath().resolve(i + ".dat").toFile();
             if (!files[i].exists()) {
                 files[i].createNewFile();
             }

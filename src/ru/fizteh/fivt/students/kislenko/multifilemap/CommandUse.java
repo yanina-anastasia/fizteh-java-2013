@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 public class CommandUse implements Command<MultiFileHashMapState> {
     public String getName() {
@@ -26,6 +27,7 @@ public class CommandUse implements Command<MultiFileHashMapState> {
             if (state.getCurrentTableController() != null) {
                 state.getCurrentTableController().fillTable(state);
             }
+            state.getMap().clear();
             state.setWorkingPath(args[0]);
             state.getCurrentTableController().readTable(state);
             state.setWorkingPath(args[0]);
