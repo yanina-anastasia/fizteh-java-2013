@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class StartFileMap {
     public static void main(String[] args) {
-        Shell shell = new Shell(1);
+        Shell shell = new Shell(new DBState());
         try {
             if (!OpenFile.open(shell.curState)) {
                 System.err.println("Error with opening file");

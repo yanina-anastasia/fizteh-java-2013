@@ -14,12 +14,8 @@ public class Shell {
     public State curState;
     private HashMap<String, Command> cmds = new HashMap<String, Command>();
 
-    public Shell(int program) {
-        if (program == 1) {
-            this.curState = new DBState();
-        } else {
-            this.curState = new ShellState();
-        }
+    public Shell(State state) {
+        curState = state;
     }
 
     public void fillHashMap(ArrayList<Command> cmdList) {
