@@ -11,8 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class FileMap extends UserShell {
-    private RandomAccessFile dataFile;
-    private HashMap<String, String> dataMap;
+    protected RandomAccessFile dataFile;
+    protected HashMap<String, String> dataMap;
+    protected File pathFile;
 
     @Override
     public String[] getArgsFromString(String str) {
@@ -39,8 +40,9 @@ public class FileMap extends UserShell {
         System.exit(1);
     }
 
-    public void setDataFile(File file) {
+    public void setFile(File file) {
         try {
+            pathFile = file;
             dataFile = new RandomAccessFile(file, "rw");
         } catch (FileNotFoundException e) {
             printErrorAndExit("Cannot open file");
@@ -56,7 +58,7 @@ public class FileMap extends UserShell {
         return str.toString();
     }
 
-    private void loadKeyAndValue() {
+    protected void loadKeyAndValue() {
         try {
             int keyLong = dataFile.readInt();
             int valueLong = dataFile.readInt();
@@ -83,7 +85,7 @@ public class FileMap extends UserShell {
 
     protected void loadFile(File data) {
         dataMap = new HashMap<>();
-        setDataFile(data);
+        setFile(data);
         try {
             dataFile.seek(0);
             while (dataFile.getFilePointer() != dataFile.length()) {
@@ -99,8 +101,29 @@ public class FileMap extends UserShell {
         }
     }
 
+    protected void doDelete(File currFile) {
+        if (currFile.exists()) {
+            if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
+                if (!currFile.delete()) {
+                    printErrorAndExit("Cannot remove file");
+                }
+            } else {
+                while (currFile.listFiles().length != 0) {
+                    doDelete(currFile.listFiles()[0]);
+                }
+                if (!currFile.delete()) {
+                    printErrorAndExit("Cannot remove file");
+                }
+            }
+        }
+    }
+
     protected void unloadFile() {
         try {
+            if (dataMap.isEmpty()) {
+                doDelete(pathFile);
+                return;
+            }
             dataFile.setLength(0);
             Set<Map.Entry<String, String>> entries = dataMap.entrySet();
             for (Map.Entry<String, String> entry : entries) {
