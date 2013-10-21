@@ -53,7 +53,6 @@ public class CommandExit extends Command {
                 System.exit(1);
             }
         }
-        System.exit(0);
         return true;
     }
 

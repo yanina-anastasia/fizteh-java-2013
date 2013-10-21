@@ -10,7 +10,6 @@ public class ExitCommand extends Command {
             System.out.println("Invalid number of arguments");
             return false;
         }
-        System.exit(0);
         return true;
     }
 

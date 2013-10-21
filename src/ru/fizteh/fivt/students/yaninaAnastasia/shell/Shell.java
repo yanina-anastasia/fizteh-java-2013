@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
-import ru.fizteh.fivt.students.yaninaAnastasia.filemap.DBState;
 import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
 
 import java.io.IOException;
@@ -80,6 +79,9 @@ public class Shell {
             if (!cmds.get(commandName).exec(params, curState)) {
                 return false;
             }
+            if (cmds.get(commandName).getCmd() == "exit") {
+                System.exit(0);
+            }
         } catch (IllegalArgumentException e) {
             System.err.println("Error: illegal arguments");
             return false;
@@ -109,6 +111,7 @@ public class Shell {
             String[] ar = {};
             try {
                 cmds.get("exit").exec(ar, curState);
+                System.exit(0);
             } catch (IOException r) {
                 System.exit(1);
             }
@@ -117,6 +120,7 @@ public class Shell {
         String[] ar = {};
         try {
             cmds.get("exit").exec(ar, curState);
+            System.exit(0);
         } catch (IOException e) {
             System.exit(1);
         }
@@ -136,6 +140,7 @@ public class Shell {
                 String[] ar = {};
                 try {
                     cmds.get("exit").exec(ar, curState);
+                    System.exit(1);
                 } catch (IOException e) {
                     System.exit(1);
                 }

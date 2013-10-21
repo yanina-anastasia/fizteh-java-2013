@@ -6,15 +6,17 @@ import java.io.File;
 import java.io.IOException;
 
 public class RmCommand extends Command {
-    private void recRemove(File file) throws IOException {
+    private boolean recRemove(File file) throws IOException {
         if (file.isDirectory()) {
             for (File innerFile : file.listFiles()) {
                 recRemove(innerFile);
             }
         }
         if (!file.delete()) {
-            throw new IOException("Error while deleting");
+            System.err.println("Error while deleting");
+            return false;
         }
+        return true;
     }
     public boolean exec(String[] args, State curState) throws IOException {
         ShellState myState = ShellState.class.cast(curState);
@@ -27,9 +29,11 @@ public class RmCommand extends Command {
             temp = new File(myState.workingDirectory, args[0]);
         }
         File file = temp;
-        recRemove(file);
-
-        return true;
+        if (!recRemove(file)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public String getCmd() {
