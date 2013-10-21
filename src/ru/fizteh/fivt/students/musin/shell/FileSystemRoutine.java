@@ -224,7 +224,7 @@ public class FileSystemRoutine {
             }
         }
         if (!file.delete()) {
-            System.err.printf("file '%s' can't be deleted\n");
+            System.err.printf("file '%s' can't be deleted\n", file.getName());
             return false;
         }
         return result;

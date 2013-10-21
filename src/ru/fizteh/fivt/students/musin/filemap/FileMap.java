@@ -36,6 +36,15 @@ public class FileMap {
         return location;
     }
 
+    public String[] getKeysList() {
+        String[] result = new String[map.size()];
+        int i = 0;
+        for (String entry : map.keySet()) {
+            result[i++] = entry;
+        }
+        return result;
+    }
+
     private int readBytes(DataInputStream input, int bytes, byte[] buffer) throws IOException {
         int len = 0;
         while (len != bytes) {

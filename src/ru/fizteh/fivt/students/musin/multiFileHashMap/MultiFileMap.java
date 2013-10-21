@@ -36,6 +36,22 @@ public class MultiFileMap {
         return location;
     }
 
+    public boolean validate() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (String key : map[i][j].getKeysList()) {
+                    int hashCode = key.hashCode();
+                    int dir = hashCode % 16;
+                    int file = hashCode / 16 % 16;
+                    if (dir != i || file != j) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean loadFromDisk() {
         clear();
         if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
@@ -63,6 +79,10 @@ public class MultiFileMap {
                     }
                 }
             }
+        }
+        if (!validate()) {
+            System.err.println("Wrong data format: key distribution among files is incorrect");
+            return false;
         }
         return true;
     }
