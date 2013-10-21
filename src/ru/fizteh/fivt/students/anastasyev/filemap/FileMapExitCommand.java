@@ -12,7 +12,7 @@ public class FileMapExitCommand implements Command {
             return false;
         }
         try {
-            ((FileMap) fileMap).saveFileMap();
+            fileMap.save();
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
