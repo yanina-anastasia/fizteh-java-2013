@@ -24,6 +24,18 @@ public class FileMap {
         maxLength = 1 << 24;
     }
 
+    public void clear() {
+        map.clear();
+    }
+
+    public boolean empty() {
+        return map.isEmpty();
+    }
+
+    public File getFile() {
+        return location;
+    }
+
     private int readBytes(DataInputStream input, int bytes, byte[] buffer) throws IOException {
         int len = 0;
         while (len != bytes) {
@@ -36,7 +48,7 @@ public class FileMap {
         return len;
     }
 
-    public boolean loadFromDisk() throws FileNotFoundException {
+    public boolean loadFromDisk() {
         map.clear();
         if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
             System.err.println("Unable to create a file, directory doesn't exist");
@@ -46,7 +58,17 @@ public class FileMap {
             System.err.println("Database file wasn't found");
             return true;
         }
-        DataInputStream inputStream = new DataInputStream(new FileInputStream(location));
+        if (location.exists() && !location.isFile()) {
+            System.err.printf("%s is not a file", location.getName());
+            return false;
+        }
+        DataInputStream inputStream;
+        try {
+            inputStream = new DataInputStream(new FileInputStream(location));
+        } catch (FileNotFoundException e) {
+            System.err.println(e);
+            return false;
+        }
         byte[] buffer;
         ByteBuffer cast;
         boolean error = false;
@@ -113,18 +135,19 @@ public class FileMap {
         return (!error);
     }
 
-    public void writeToDisk() throws Exception {
+    public boolean writeToDisk() throws Exception {
         if (location.exists() && location.isDirectory()) {
             System.err.println("Database can't be written to the specified location");
-            return;
+            return false;
         }
         if (!location.exists()) {
             if (!location.createNewFile()) {
                 System.err.println("Database can't be written to the specified location");
-                return;
+                return false;
             }
         }
         FileOutputStream outputStream = new FileOutputStream(location);
+        boolean error = false;
         try {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 byte[] key = entry.getKey().getBytes("UTF-8");
@@ -136,8 +159,15 @@ public class FileMap {
             }
         } catch (Exception e) {
             System.err.println(e);
+            error = true;
         } finally {
-            outputStream.close();
+            try {
+                outputStream.close();
+            } catch (Exception e) {
+                System.err.println(e);
+                error = true;
+            }
+            return (!error);
         }
     }
 
