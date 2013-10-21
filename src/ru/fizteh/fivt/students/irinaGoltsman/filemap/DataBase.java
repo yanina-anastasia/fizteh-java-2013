@@ -15,25 +15,26 @@ public class DataBase {
     static HashMap<String, String> dbStorage = new HashMap<>();  //1 - ключ, 2 - значение
     static Path pathDbFile = null;
 
-    public class lineOfDB {
+    public class LineOfDB {
         public long length = 0;
         public String key = "";
         public String value = "";
 
-        public lineOfDB() {}
+        public LineOfDB() {
+        }
 
-        public lineOfDB(long length, String key, String value) {
+        public LineOfDB(long length, String key, String value) {
             this.length = length;
             this.key = key;
             this.value = value;
         }
     }
 
-    public lineOfDB readLineOfDB(long inputLength) {
+    public LineOfDB readLineOfDB(long inputLength) {
         long length = inputLength;
         int lengthOfKey;
         int lengthOfValue;
-        lineOfDB empty = new lineOfDB();
+        LineOfDB empty = new LineOfDB();
         try {
             lengthOfKey = dbFile.readInt();
             lengthOfValue = dbFile.readInt();
@@ -74,23 +75,22 @@ public class DataBase {
             return empty;
         }
         long lengthOfLine = inputLength - length;
-        lineOfDB result = new lineOfDB(lengthOfLine, key, value);
+        LineOfDB result = new LineOfDB(lengthOfLine, key, value);
         return result;
     }
 
-    public byte[] readKeyOrValue(int inputLength) {
-        byte[] bytes = new byte[inputLength];
-        int currentLength = inputLength;
+    public byte[] readKeyOrValue(int length) {
+        byte[] bytes = new byte[length];
         int countOfBytesWasRead = 0;
         while (true) {
             try {
-                countOfBytesWasRead = dbFile.read(bytes);
+                countOfBytesWasRead = dbFile.read(bytes, countOfBytesWasRead, length - countOfBytesWasRead);
             } catch (IOException e) {
                 System.err.println("Wrong format of db");
                 bytes = new byte[0];
                 return bytes;
             }
-            if (countOfBytesWasRead == currentLength) {
+            if (countOfBytesWasRead == length) {
                 break;
             }
             if (countOfBytesWasRead == -1) {
@@ -98,7 +98,6 @@ public class DataBase {
                 bytes = new byte[0];
                 return bytes;
             }
-            currentLength -= countOfBytesWasRead;
         }
         return bytes;
     }
@@ -107,6 +106,7 @@ public class DataBase {
         String path = System.getProperty(pathToDataBaseDirectory);
         return (load(path));
     }
+
     public Code load(String inputPath) {
         if (inputPath == null) {
             System.err.println("Error with path to data base directory.");
@@ -132,7 +132,7 @@ public class DataBase {
             return Code.OK;
         }
         while (length > 0) {
-            lineOfDB line = readLineOfDB(length);
+            LineOfDB line = readLineOfDB(length);
             if (line.length == 0) {
                 return Code.ERROR;
             }
