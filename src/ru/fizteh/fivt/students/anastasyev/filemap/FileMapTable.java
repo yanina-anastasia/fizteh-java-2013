@@ -126,6 +126,11 @@ public class FileMapTable extends State {
                         }
                     }
                 }
+                if (dbDir.listFiles().length == 0) {
+                    if (!dbDir.delete()) {
+                        throw new IOException("Can't remove empty fileMaps directory");
+                    }
+                }
             }
         }
         System.out.println("using " + tableName);
