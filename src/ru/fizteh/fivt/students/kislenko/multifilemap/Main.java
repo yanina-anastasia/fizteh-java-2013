@@ -11,7 +11,21 @@ public class Main {
     public static void main(String[] args) {
         String dbAddress = System.getProperty("fizteh.db.dir");
         try {
-            Path db = new File(dbAddress).getCanonicalFile().toPath();
+            File dbDir = new File(dbAddress).getCanonicalFile();
+            if (!dbDir.isDirectory()) {
+                System.err.println("Incorrect database directory.");
+                System.exit(1);
+            }
+            File[] tables = dbDir.listFiles();
+            if (tables != null) {
+                for (File table : tables) {
+                    if (table.getName().matches("([0-9]|1[0-5]).dir") && !table.isDirectory()) {
+                        System.err.println("Incorrect table format.");
+                        System.exit(1);
+                    }
+                }
+            }
+            Path db = dbDir.toPath();
             MultiFileHashMapState state = new MultiFileHashMapState(db);
             Command[] commandList = new Command[]{new CommandRemove(), new CommandPut(), new CommandCreate(),
                     new CommandDrop(), new CommandGet(), new CommandUse()};
