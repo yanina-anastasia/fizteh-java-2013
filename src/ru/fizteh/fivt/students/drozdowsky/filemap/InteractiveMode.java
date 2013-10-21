@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.drozdowsky.filemap;
 
 import java.util.Scanner;
 import java.util.Vector;
-import java.io.File;
 
 public class InteractiveMode {
     private Database db;

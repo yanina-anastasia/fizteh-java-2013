@@ -1,12 +1,5 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.nio.ByteBuffer;
-
-import com.sun.tools.javac.util.Pair;
-
 public class Utils {
 
     public static boolean executeCommand(Database db, String[] args) {

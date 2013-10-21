@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
 import java.util.ArrayList;
-import java.io.File;
 
 public class PacketMode {
     private Database db;
