@@ -86,7 +86,14 @@ public class FileMapTable extends State {
         }
         if (deleteTable == currentFileMapTable) {
             currentFileMapTable = null;
-            mapsTable = new FileMap[16][16];
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    if (mapsTable[i][j] != null) {
+                        mapsTable[i][j].delete();
+                        mapsTable[i][j] = null;
+                    }
+                }
+            }
         }
         try {
             remove(deleteTable.toPath());
