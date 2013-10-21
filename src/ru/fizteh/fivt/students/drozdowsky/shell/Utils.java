@@ -38,7 +38,7 @@ public class Utils {
         } else if (command.equals("exit")) {
             System.exit(0);
         } else {
-            System.err.println(args[0] + " command not found");
+            System.err.println(args[0] + ": command not found");
             return false;
         }
         return true;
