@@ -61,6 +61,10 @@ public class MultiFileMap {
         if (!location.exists()) {
             return true;
         }
+        if (location.exists() && !location.isDirectory()) {
+            System.err.println("Specified location is not a directory");
+            return false;
+        }
         for (int dir = 0; dir < size; dir++) {
             String relative = String.format("%d.dir", dir);
             File directory = new File(location, relative);
