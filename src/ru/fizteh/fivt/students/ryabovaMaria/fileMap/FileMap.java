@@ -122,7 +122,7 @@ public class FileMap {
     }
     
     public static void main(String[] args) {
-        String getPropertyString = System.getProperty("user.dir");
+        String getPropertyString = System.getProperty("fizteh.db.dir");
         if (getPropertyString == null) {
             System.err.println("I can't find this directory");
             System.exit(1);
