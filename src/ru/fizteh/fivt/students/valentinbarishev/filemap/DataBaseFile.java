@@ -66,13 +66,28 @@ public class DataBaseFile {
     protected final String fileName;
     protected File file;
     protected List<Node> data;
+    private int fileNumber;
+    private int direcotryNumber;
 
-    public DataBaseFile(final String newFileName) {
+    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber) {
         fileName = newFileName;
         file = new File(fileName);
         data = new ArrayList<Node>();
+        fileNumber = newFileNumber;
+        direcotryNumber = newDirectoryNumber;
         open();
         load();
+        check();
+    }
+
+    public boolean check() {
+        for (Node node : data) {
+            if (!((node.getZeroByte() % 16 == direcotryNumber) && ((node.getZeroByte() / 16) % 16 == fileNumber))) {
+                throw new DataBaseWrongFileFormat("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
+                        + " in file " + fileName);
+            }
+        }
+        return true;
     }
 
     private void open() {

@@ -3,9 +3,9 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 public class ShellDbGet extends SimpleShellCommand {
-    private DataBase dataBase;
+    private DataBaseTable dataBase;
 
-    public ShellDbGet(final DataBase newBase) {
+    public ShellDbGet(final DataBaseTable newBase) {
         setName("get");
         setNumberOfArgs(2);
         setHint("usage: get <key>");
@@ -14,6 +14,10 @@ public class ShellDbGet extends SimpleShellCommand {
 
     @Override
     public void run() {
+        if (!dataBase.exist()) {
+            System.out.println("no table");
+            return;
+        }
         String str = dataBase.get(getArg(1));
         if (str.isEmpty()) {
             System.out.println("not found");
