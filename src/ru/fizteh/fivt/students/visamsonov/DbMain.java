@@ -6,6 +6,9 @@ import ru.fizteh.fivt.students.visamsonov.shell.CommandExit;
 import ru.fizteh.fivt.students.visamsonov.shell.CommandPut;
 import ru.fizteh.fivt.students.visamsonov.shell.CommandGet;
 import ru.fizteh.fivt.students.visamsonov.shell.CommandRemove;
+import ru.fizteh.fivt.students.visamsonov.shell.CommandCreate;
+import ru.fizteh.fivt.students.visamsonov.shell.CommandUse;
+import ru.fizteh.fivt.students.visamsonov.shell.CommandDrop;
 import ru.fizteh.fivt.students.visamsonov.shell.CommandTalkToMe;
 import ru.fizteh.fivt.students.visamsonov.util.TerminateRuntimeException;
 import java.io.*;
@@ -13,20 +16,14 @@ import java.io.*;
 public class DbMain {
 
 	public static void main (String[] args) {
-		ShellState shellState;
-		try {
-			shellState = new ShellState();
-		}
-		catch (IOException e) {
-			System.err.printf("Error: %s\n", e.getMessage());
-			System.exit(1);
-			return;
-		}
-		Shell shell = new Shell(shellState);
+		Shell shell = new Shell(new ShellState());
 		shell.addCommand(new CommandExit());
 		shell.addCommand(new CommandPut());
 		shell.addCommand(new CommandGet());
 		shell.addCommand(new CommandRemove());
+		shell.addCommand(new CommandCreate());
+		shell.addCommand(new CommandUse());
+		shell.addCommand(new CommandDrop());
 		shell.addCommand(new CommandTalkToMe());
 		if (args.length == 0) {
 			shell.interactiveMode();
