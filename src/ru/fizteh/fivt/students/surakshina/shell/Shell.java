@@ -41,7 +41,7 @@ public abstract class Shell {
         return result.toString();
     }
 
-    abstract protected void executeProcess(String[] input);
+    protected abstract void executeProcess(String[] input);
 
     protected void doPackageMode(String[] input) {
         String newInput = makeNewInputString(input);
