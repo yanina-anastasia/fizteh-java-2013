@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.drozdowsky.shell.commands;
 
 import ru.fizteh.fivt.students.drozdowsky.shell.PathController;
 import java.io.File;
-import java.io.IOException;
 
 public class Directory {
     private PathController path;
@@ -15,7 +14,11 @@ public class Directory {
 
     public boolean execute() {
         try {
-            PathController temp = new PathController(path);
+            if (args.length != 1) {
+                System.err.println("usage: dir");
+                return false;
+            }
+            /* PathController temp = new PathController(path);
             if (args.length > 1) {
                 temp.changePath(args[1]);
             }
@@ -27,7 +30,8 @@ public class Directory {
             if (!totalPath.isDirectory()) {
                 System.err.println("dir: " + args[1] + ": Not a directory");
                 return false;
-            }
+            }                     */
+            File totalPath = path.getPath();
             String[] result = totalPath.list();
             if (result == null) {
                 return true;
@@ -38,8 +42,6 @@ public class Directory {
             }
         } catch (SecurityException e) {
             System.out.println(e);
-        } catch (IOException e) {
-            System.err.println("cp: " + e.getMessage());
         }
         return true;
     }

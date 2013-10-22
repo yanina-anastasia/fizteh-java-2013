@@ -15,19 +15,16 @@ public class ChangeDirectory {
 
     public boolean execute() {
         try {
-            PathController test = new PathController(path);
-            if (args.length == 0) {
-                test.changePath("~");
-            } else {
-                test.changePath(args[1]);
+            if (args.length != 2) {
+                System.err.println("usage: cd <absolute path|relative path>");
+                return false;
             }
+            PathController test = new PathController(path);
+
+            test.changePath(args[1]);
 
             if (test.isDirectory()) {
-                if (args.length == 0) {
-                    path.changePath("~");
-                } else {
-                    path.changePath(args[1]);
-                }
+                path.changePath(args[1]);
             } else {
                 if (!test.exists()) {
                     System.err.println("cd: " + args[1] + ": No such file or directory");
