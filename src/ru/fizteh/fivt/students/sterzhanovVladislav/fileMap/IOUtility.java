@@ -30,25 +30,26 @@ public class IOUtility {
                 if (!file.isFile() || !file.getName().matches("^([0-9]|[1][0-5])\\.dat$")) {
                     throw new Exception("Malformed database");
                 }
-                parseFileIntoDB(file, map);
+                int dirID = Integer.parseInt(subdir.getName().replaceAll("\\.dir", ""));
+                int fileID = Integer.parseInt(file.getName().replaceAll("\\.dat", ""));
+                parseFileIntoDB(file, map, dirID, fileID);
             }
         }
         return map;
     }
 
-    public static void parseFileIntoDB(File dbFile, HashMap<String, String> map) 
+    public static void parseFileIntoDB(File dbFile, HashMap<String, String> map, int checkDirID, int checkFileID) 
             throws FileNotFoundException, IOException, Exception {
-        // TODO: check for consistent keys
-        
         try (FileInputStream fstream = new FileInputStream(dbFile)) {
             while (fstream.available() > 0) {
-                Map.Entry<String, String> newEntry = parseEntry(fstream);
+                Map.Entry<String, String> newEntry = parseEntry(fstream, checkDirID, checkFileID);
                 map.put(newEntry.getKey(), newEntry.getValue());
             }
         }
     }
 
-    public static Map.Entry<String, String> parseEntry(FileInputStream fstream) throws Exception {
+    public static Map.Entry<String, String> parseEntry(FileInputStream fstream, int checkDirID, int checkFileID) 
+            throws Exception {
         byte[] sizeBuf = new byte[4];
         safeRead(fstream, sizeBuf, 4);
         int keySize = ByteBuffer.wrap(sizeBuf).getInt();
@@ -61,6 +62,12 @@ public class IOUtility {
         safeRead(fstream, keyBuf, keySize);
         byte[] valueBuf = new byte[valueSize];
         safeRead(fstream, valueBuf, valueSize);
+        byte b = keyBuf[0];
+        int directoryID = b % 16;
+        int fileID = b / 16 % 16;
+        if (directoryID != checkDirID || fileID != checkFileID) {
+            throw new Exception("Error: malformed database");
+        }
         return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, "UTF-8"), new String(valueBuf, "UTF-8"));
     }
 
