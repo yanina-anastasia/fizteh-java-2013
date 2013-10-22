@@ -36,7 +36,7 @@ public class IOUtility {
         return map;
     }
 
-    public static void parseFileIntoDB(File dbFile, HashMap <String, String> map) 
+    public static void parseFileIntoDB(File dbFile, HashMap<String, String> map) 
             throws FileNotFoundException, IOException, Exception {
         // TODO: check for consistent keys
         
