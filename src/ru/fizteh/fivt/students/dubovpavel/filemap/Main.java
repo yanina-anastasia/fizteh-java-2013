@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
-import ru.fizteh.fivt.students.dubovpavel.filemap.Performers.*;
+import ru.fizteh.fivt.students.dubovpavel.filemap.performers.*;
 import ru.fizteh.fivt.students.dubovpavel.executor.Feeder;
 
 public class Main {

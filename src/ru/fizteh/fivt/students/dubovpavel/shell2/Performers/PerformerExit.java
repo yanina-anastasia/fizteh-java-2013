@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
+package ru.fizteh.fivt.students.dubovpavel.shell2.performers;
 
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Command;

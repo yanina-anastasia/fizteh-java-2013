@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dubovpavel.filemap.Performers;
+package ru.fizteh.fivt.students.dubovpavel.filemap.performers;
 
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DispatcherFileMap;
