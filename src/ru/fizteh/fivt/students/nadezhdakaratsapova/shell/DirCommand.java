@@ -5,13 +5,21 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class DirCommand implements Command {
+
+    private ShellState curState;
+
+    public DirCommand(ShellState state) {
+        curState = state;
+
+    }
+
     public String getName() {
         return "dir";
     }
 
-    public void execute(CurrentDirectory currentDirectory, String[] args) {
-        if (currentDirectory.getCurDir().isDirectory()) {
-            File[] fileList = currentDirectory.getCurDir().getAbsoluteFile().listFiles();
+    public void execute(String[] args) {
+        if (curState.getCurDir().isDirectory()) {
+            File[] fileList = curState.getCurDir().getAbsoluteFile().listFiles();
             Arrays.sort(fileList, new Comparator<File>() {
                 @Override
                 public int compare(File o1, File o2) {

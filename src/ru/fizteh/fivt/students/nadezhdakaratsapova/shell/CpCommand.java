@@ -6,18 +6,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CpCommand implements Command {
+
+    private ShellState curState;
+
+    public CpCommand(ShellState state) {
+        curState = state;
+
+    }
+
     public String getName() {
         return "cp";
     }
 
-    public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
+    public void execute(String[] args) throws IOException {
         File source = new File(args[1]);
         if (!source.isAbsolute()) {
-            source = new File(currentDirectory.getCurDir(), args[1]);
+            source = new File(curState.getCurDir(), args[1]);
         }
         File destination = new File(args[2]);
         if (!destination.isAbsolute()) {
-            destination = new File(currentDirectory.getCurDir(), args[2]);
+            destination = new File(curState.getCurDir(), args[2]);
         }
         if (!source.exists()) {
             throw new IOException("cp: " + source.getCanonicalPath() + " was not found");
