@@ -6,7 +6,7 @@ public class PwdCommand implements Command {
     }
 
     @Override
-    public final boolean exec(final String[] command) {
+    public final boolean exec(State state, final String[] command) {
         if (command.length != 1) {
             System.err.println("pwd: Usage - pwd");
             return false;

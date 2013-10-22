@@ -1,37 +1,19 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import ru.fizteh.fivt.students.dubovpavel.executor.Feeder;
+import ru.fizteh.fivt.students.dubovpavel.shell2.Performers.*;
 
 public class Main {
     public static void main(String[] args) {
-        Dispatcher dispatcher;
-        if(args.length != 0) {
-            dispatcher = new Dispatcher(true);
-            StringBuilder concatenator = new StringBuilder();
-            for(int i = 0; i < args.length; i++) {
-                concatenator.append(args[i]);
-                concatenator.append(' ');
-            }
-            try {
-                dispatcher.sortOut(concatenator.toString());
-            } catch(Dispatcher.DispatcherException e) {
-                System.exit(-1);
-            }
-        } else {
-            dispatcher = new Dispatcher(false);
-            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-            while(dispatcher.online()) {
-                System.out.print("$ ");
-                try {
-                    dispatcher.sortOut(input.readLine());
-                } catch(IOException e) {
-                    throw new RuntimeException(e.getMessage()); // Something should go totally wrong.
-                } catch(Dispatcher.DispatcherException e) {
-                    throw new RuntimeException("Dispatcher exception forwarding was set in the interactive mode");
-                }
-            }
-        }
+        DispatcherShellBuilder dispatcherShellBuilder = new DispatcherShellBuilder();
+        dispatcherShellBuilder.addPerformer(new PerformerChangeDirectory());
+        dispatcherShellBuilder.addPerformer(new PerformerCopy());
+        dispatcherShellBuilder.addPerformer(new PerformerCreateDirectory());
+        dispatcherShellBuilder.addPerformer(new PerformerExit());
+        dispatcherShellBuilder.addPerformer(new PerformerMove());
+        dispatcherShellBuilder.addPerformer(new PerformerPrintDirectoryContent());
+        dispatcherShellBuilder.addPerformer(new PerformerPrintWorkingDirectory());
+        dispatcherShellBuilder.addPerformer(new PerformerRemove());
+        Feeder.feed(dispatcherShellBuilder, args);
     }
 }

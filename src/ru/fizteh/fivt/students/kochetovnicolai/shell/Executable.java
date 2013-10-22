@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-interface Executable {
+public interface Executable {
 
     boolean execute(String[] args);
 

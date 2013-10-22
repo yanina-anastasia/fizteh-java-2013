@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.util.Vector;
 
-public class Shell {
+public class Shell extends State {
     private static File userDir;
     private Vector<Command> commands;
 
@@ -17,7 +17,7 @@ public class Shell {
         commands.add(new MvCommand());
         commands.add(new PwdCommand());
         commands.add(new RmCommand());
-        commands.add(new ExitCommand());
+        commands.add(new ru.fizteh.fivt.students.anastasyev.shell.ExitCommand());
     }
 
     public final void addCommand(final Command command) {
