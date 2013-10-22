@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.dubovpavel.shell2;
-
-import ru.fizteh.fivt.students.dubovpavel.shell2.Performers.*;
+package ru.fizteh.fivt.students.dubovpavel.executor;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -10,7 +8,7 @@ public class Dispatcher {
     private int invalidSequences, invalidOperations;
     private ArrayList<Performer> performers;
     private boolean forwarding;
-    private boolean shutdown;
+    protected boolean shutdown;
 
     public class DispatcherException extends Exception {
         public DispatcherException(String msg) {
@@ -27,17 +25,13 @@ public class Dispatcher {
     public Dispatcher(boolean forwarding) {
         invalidSequences = 0;
         parser = new Parser();
-        performers = new ArrayList<Performer>();
-        performers.add(new PerformerChangeDirectory());
-        performers.add(new PerformerCopy());
-        performers.add(new PerformerCreateDirectory());
-        performers.add(new PerformerExit());
-        performers.add(new PerformerMove());
-        performers.add(new PerformerPrintDirectoryContent());
-        performers.add(new PerformerPrintWorkingDirectory());
-        performers.add(new PerformerRemove());
         this.forwarding = forwarding;
+        performers = new ArrayList<Performer>();
         shutdown = false;
+    }
+
+    public void addPerformer(Performer performer) {
+        performers.add(performer);
     }
 
     public String callbackWriter(MessageType type, String msg) {
@@ -75,7 +69,7 @@ public class Dispatcher {
                     if(!performed) {
                         callbackWriter(MessageType.ERROR, String.format("%s is not correct", command.getDescription()));
                     }
-                } catch(Performer.PerformerException e) {
+                } catch(PerformerException e) {
                     invalidOperations++;
                     if(forwarding) {
                         throw new DispatcherException(e.getMessage());

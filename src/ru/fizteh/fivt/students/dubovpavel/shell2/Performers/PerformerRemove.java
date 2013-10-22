@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
 
-import ru.fizteh.fivt.students.dubovpavel.shell2.Command;
-import ru.fizteh.fivt.students.dubovpavel.shell2.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 
 import java.io.File;
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
+import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
-public class PerformerRemove extends Performer {
+public class PerformerRemove extends PerformerShell {
     private class PerformerRemoveException extends Exception {
         public PerformerRemoveException(String file) {
             super(file);
