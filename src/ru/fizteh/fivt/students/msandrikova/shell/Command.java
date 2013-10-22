@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.msandrikova.shell;
 
-import java.io.File;
-
-abstract class Command {
+public abstract class Command {
 	
 	private String name;
 	private int argNum;
@@ -32,6 +30,5 @@ abstract class Command {
 		return true;
 	}
 	
-	public abstract File execute(String[] argumentsList, boolean isInteractive, File currentDirectory);
-	
+	public abstract void execute(String[] argumentsList, Shell myShell);
 }
