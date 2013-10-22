@@ -2,22 +2,23 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
     
 import java.util.HashMap;
 import ru.fizteh.fivt.students.ryabovaMaria.shell.AbstractCommands;
-import static ru.fizteh.fivt.students.ryabovaMaria.shell.AbstractCommands.lexems;
 
 public class FileMapCommands extends  AbstractCommands{
-    public static HashMap<String, String> list;
+    public HashMap<String, String> list;
     
     public FileMapCommands(HashMap<String, String> myList) {
         list = myList;
     }
-    private static void parse() {
+    
+    private void parse() {
         String[] tempLexems = new String[0];
         if (lexems.length > 1) {
             tempLexems = lexems[1].split("[ \t\n\r]+", 2);
         }
         lexems = tempLexems;
     }
-    private static void checkTheNumbOfArgs(int n, String commandName) throws Exception {
+    
+    private void checkTheNumbOfArgs(int n, String commandName) throws Exception {
         if (lexems.length < n) {
             throw new Exception(commandName + ": there is no enough arguments.");
         }
@@ -26,7 +27,7 @@ public class FileMapCommands extends  AbstractCommands{
         }
     }
     
-    public static void put() throws Exception {
+    public void put() throws Exception {
         parse();
         checkTheNumbOfArgs(2, "put");
         if (list.containsKey(lexems[0])) {
@@ -47,11 +48,11 @@ public class FileMapCommands extends  AbstractCommands{
         }
     }
     
-    public static void get() throws Exception {
+    public void get() throws Exception {
         parse();
         checkTheNumbOfArgs(1, "get");
         if (list.containsKey(lexems[0])) {
-            String value = list.get(lexems[1]);
+            String value = list.get(lexems[0]);
             System.out.println("found");
             System.out.println(value);
         } else {
@@ -59,7 +60,7 @@ public class FileMapCommands extends  AbstractCommands{
         }
     }
     
-    public static void remove() throws Exception {
+    public void remove() throws Exception {
         parse();
         checkTheNumbOfArgs(1, "remove");
         if (list.containsKey(lexems[0])) {
@@ -76,7 +77,7 @@ public class FileMapCommands extends  AbstractCommands{
         }
     }
     
-    public static void exit() {
+    public void exit() {
         try { 
             FileMap.writeIntoFile();
         } catch (Exception e) {
