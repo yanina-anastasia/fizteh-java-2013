@@ -12,7 +12,7 @@ public class Exit implements Command {
     }
 
     public void executeCmd(Shell filemap, String[] args) throws IOException {
-        Utils.write(((FileMap) filemap).getFileMapState().getDataBase(), ((FileMap) filemap).getFileMapState().getDataFile());
+        FileMapUtils.write(((FileMap) filemap).getFileMapState().getDataBase(), ((FileMap) filemap).getFileMapState().getDataFile());
         System.exit(0);
     }
 }

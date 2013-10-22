@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Utils {
+public class FileMapUtils {
 
     private static final long MAX_SIZE = 1024 * 1024;
 
@@ -17,7 +17,11 @@ public class Utils {
         int length = 0;
         while (b != 0) {
             byteOutputStream.write(b);
-            b = dataStream.readByte();
+            try {
+                b = dataStream.readByte();
+            } catch (EOFException e) {
+                throw new IOException("wrong data format");
+            }
             length++;
             if (length > MAX_SIZE) {
                 throw new IOException("wrong data format");
@@ -74,7 +78,6 @@ public class Utils {
         } finally {
             closeStream(dataStream);
         }
-
     }
 
     private static void closeStream(Closeable stream) throws IOException {

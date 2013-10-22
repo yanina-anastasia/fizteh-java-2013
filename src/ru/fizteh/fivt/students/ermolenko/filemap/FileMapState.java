@@ -7,8 +7,8 @@ import java.util.Map;
 public class FileMapState {
 
     //для хранения <key, value>
-    public Map<String, String> dataBase;
-    public File dataFile;
+    private Map<String, String> dataBase;
+    private File dataFile;
 
     public Map<String, String> getDataBase() {
         return dataBase;
@@ -21,5 +21,9 @@ public class FileMapState {
     public FileMapState(File currentFile) {
         dataBase = new HashMap<String, String>();
         dataFile = currentFile;
+    }
+
+    public void setDataBase(Map<String, String> map) {
+        dataBase = map;
     }
 }

@@ -12,6 +12,10 @@ public class Get implements Command {
     }
 
     public void executeCmd(Shell filemap, String[] args) throws IOException {
+        if (args.length != 1) {
+            System.out.println("incorrect number of arguments");
+            return;
+        }
         String key = args[0];
         String value = ((FileMap) filemap).getFileMapState().getDataBase().get(key);
         if (value == null) {

@@ -8,6 +8,10 @@ public class FileMapMain {
 
 
         String currentProperty = System.getProperty("fizteh.db.dir");
+        if (currentProperty == null) {
+            System.err.println("Bullshit.");
+            System.exit(0);
+        }
         File base = new File(currentProperty);
         if (!base.exists()) {
             base.createNewFile();
@@ -15,14 +19,9 @@ public class FileMapMain {
 
         try {
             base = base.getCanonicalFile().toPath().resolve("db.dat").toFile();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
 
-        FileMap filemap = new FileMap(base);
-        FileMapExecutor exec = new FileMapExecutor();
-        try {
+            FileMap filemap = new FileMap(base);
+            FileMapExecutor exec = new FileMapExecutor();
             if (args.length > 0) {
                 filemap.batchState(args, exec);
             } else {
