@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class ShellCommands extends AbstractCommands {
-    private static void parse() throws Exception {
+    private void parse() throws Exception {
         String[] tempLexems = new String[0];
         if (lexems.length > 1) {
             tempLexems = lexems[1].split("[ \t\n\r]+");
@@ -14,7 +14,7 @@ public class ShellCommands extends AbstractCommands {
         lexems = tempLexems;
     }
     
-    public static void cd() throws Exception {
+    public void cd() throws Exception {
         parse();
         if (lexems.length == 0) {
             throw new Exception("cd: there is no arguments.");
@@ -31,7 +31,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void mkdir() throws Exception {
+    public void mkdir() throws Exception {
         parse();
         if (lexems.length == 0) {
             throw new Exception("mkdir: there id no arguments.");
@@ -50,7 +50,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void pwd() throws Exception {
+    public void pwd() throws Exception {
         parse();
         if (lexems.length > 0) {
             throw new Exception("pwd: there is no arguments.");
@@ -58,7 +58,7 @@ public class ShellCommands extends AbstractCommands {
         System.out.println(currentDir);
     }
     
-    private static void delete(Path name) throws Exception {
+    private void delete(Path name) throws Exception {
         if (name.toFile().isDirectory()) {
             String[] list = name.toFile().list();
             for (int i = 0; i < list.length; ++i) {
@@ -76,7 +76,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void rm() throws Exception {
+    public void rm() throws Exception {
         parse();
         if (lexems.length == 0) {
             throw new Exception("rm: there is no arguments.");
@@ -97,7 +97,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
     
-    private static void myCopy(boolean needDelete, 
+    private void myCopy(boolean needDelete, 
                               Path sourcePath, 
                               Path destPath) throws Exception {
         if (sourcePath.toFile().isDirectory() 
@@ -125,7 +125,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void cp() throws Exception {
+    public void cp() throws Exception {
         parse();
         if (lexems.length < 2) {
             throw new Exception("cp: there is no enough arguments.");
@@ -150,7 +150,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void mv() throws Exception {
+    public void mv() throws Exception {
         parse();
         if (lexems.length < 2) {
             throw new Exception("mv: there is no enough arguments.");
@@ -175,7 +175,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void dir() throws Exception {
+    public void dir() throws Exception {
         parse();
         if (lexems.length > 0) {
             throw new Exception("dir: there is some arguments.");
@@ -186,7 +186,7 @@ public class ShellCommands extends AbstractCommands {
         }
     }
         
-    public static void exit() {
+    public void exit() {
         System.exit(0);
     }
 }
