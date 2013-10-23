@@ -1,24 +1,18 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dbTask.fileMap;
 
-import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 public class FileMap {
 
     public static void main(String[] args) {
-        String dbDir = "/home/kontr/testDir";
+        String dbDir;
         final String fileName = "db.dat";
-        try {
-            dbDir = System.getProperty("fizteh.db.dir");
-            if (dbDir == null) {
-                throw new Exception("null pointer.");
-            }
-        } catch (Exception e) {
-            System.err.println("Couldn't read property.");
+        dbDir = System.getProperty("fizteh.db.dir");
+        if (dbDir == null) {
+            System.err.println("Empty property.");
             System.exit(1);
         }
-
         try {
             FileMapShell shell = new FileMapShell(Paths.get(dbDir), fileName);
             if (args.length > 0) {
@@ -31,20 +25,22 @@ public class FileMap {
                     shell.packageMode(builder.toString());
                 } catch (FileMapShell.ShellException e) {
                     System.err.println(e);
-                    System.exit(3);
+                    try {
+                        shell.closeDbFile();
+                    } catch (Exception exc) {
+                        System.err.println(exc.toString());
+                    }
+                    System.exit(1);
                 }
             } else {
                 shell.interactiveMode();
             }
-        } catch (IOException e) {
-            System.err.println(String.format("Couldn't load and use db.dat in %s: " + e.getMessage(), dbDir));
-            System.exit(2);
         } catch (InvalidPathException e) {
             System.err.println(String.format("Couldn't transform %s to Path", dbDir));
-            System.exit(4);
-        } catch (Exception e) {
-            System.err.println("Something bad occurred: " + e.getMessage());
-            System.exit(5);
+            System.exit(1);
+        } catch (FileMapShell.ShellException e) {
+            System.err.println("Something bad occurred: " + e.toString());
+            System.exit(1);
         }
     }
 

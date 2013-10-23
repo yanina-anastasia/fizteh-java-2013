@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -151,12 +152,12 @@ public class FileMapShell extends ShellEmulator {
         }
     }
 
-    private void closeDbFile() throws FileNotFoundException, ShellException {
+    public void closeDbFile() throws FileNotFoundException, ShellException {
         FileOutputStream output = new FileOutputStream(dbFilePath.toFile());
         try {
             for (Map.Entry<String, String> entry : dbMap.entrySet()) {
-                byte[] key = entry.getKey().getBytes("UTF-8");
-                byte[] value = entry.getValue().getBytes("UTF-8");
+                byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+                byte[] value = entry.getValue().getBytes(StandardCharsets.UTF_8);
                 int keyLen = key.length;
                 int valueLen = value.length;
                 output.write(ByteBuffer.allocate(4).putInt(keyLen).array());
@@ -164,8 +165,6 @@ public class FileMapShell extends ShellEmulator {
                 output.write(key);
                 output.write(value);
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new ShellException("dbclose", "utf is unsupported");
         } catch (IOException e) {
             throw new ShellException("dbclose", "Couldn't write to file. Data was lost");
         } finally {
@@ -177,67 +176,68 @@ public class FileMapShell extends ShellEmulator {
         }
     }
 
-    private int readInt(FileInputStream input) throws IOException {
-        byte[] number = new byte[4];
+    private void myRead(FileInputStream input, byte[] toRead, int length) throws IOException {
         int wasRead = 0;
-        while (wasRead < 4) {
-            int tmpRead = input.read(number, wasRead, 4 - wasRead);
+        while (wasRead < length) {
+            int tmpRead = input.read(toRead, wasRead, length - wasRead);
             if (tmpRead == -1) {
                 throw new EOFException();
             }
             wasRead += tmpRead;
         }
+    }
+
+    private int readInt(FileInputStream input) throws IOException {
+        byte[] number = new byte[4];
+        myRead(input, number, 4);
         return ByteBuffer.wrap(number).getInt();
     }
 
     private void loadDbFileToMap() throws IOException, ShellException {
-        try (FileInputStream input = new FileInputStream(dbFilePath.toFile())) {
-            while (input.available() > 0) {
-                int keyLen = readInt(input);
-                if (keyLen < 0) {
-                    throw new ShellException("Load file", "Negative key length");
-                } else if (keyLen > input.available()) {
-                    throw new ShellException("Load file", "Key length is bigger than file length.");
-                }
-                int valueLen = readInt(input);
-                if (valueLen < 0) {
-                    throw new ShellException("Load file", "Negative value length");
-                } else if (valueLen > input.available()) {
-                    throw new ShellException("Load file", "Value length is greater than the length of rest file");
-                }
-
-                byte[] key = new byte[keyLen];
-                byte[] value = new byte[valueLen];
-                int wasRead = 0;
-                while (wasRead < keyLen) {
-                    int tmpRead = input.read(key, wasRead, keyLen - wasRead);
-                    if (tmpRead == -1) {
-                        throw new EOFException();
-                    }
-                    wasRead += tmpRead;
-                }
-                wasRead = 0;
-                while (wasRead < valueLen) {
-                    int tmpRead = input.read(value, wasRead, valueLen - wasRead);
-                    if (tmpRead == -1) {
-                        throw new EOFException();
-                    }
-                    wasRead += tmpRead;
-                }
-
-                String keyStr = new String(key, "UTF-8");
-                String valueStr = new String(value, "UTF-8");
-                if (dbMap.put(keyStr, valueStr) != null) {
-                    throw new ShellException("loadFile", "Not all keys are different");
-                }
-            }
-        } catch (UnsupportedEncodingException e) {
-            System.err.println("UTF-8 encoding isn't supported");
-            System.exit(10);
+        FileInputStream input = new FileInputStream(dbFilePath.toFile());
+        long bytesToRead;
+        try{
+            bytesToRead = dbFilePath.toFile().length();
+        } catch (SecurityException e) {
+            throw new ShellException("Load file", "Access denied");
         }
+        while (bytesToRead > 0) {
+            int keyLen = readInt(input);
+            bytesToRead -= 4;
+            if (keyLen < 0) {
+                throw new ShellException("Load file", "Negative key length");
+            } else if ((long) keyLen > bytesToRead) {
+                throw new ShellException("Load file", "Key length is bigger than file length.");
+            }
+            int valueLen = readInt(input);
+            bytesToRead -= 4;
+            if (valueLen < 0) {
+                throw new ShellException("Load file", "Negative value length");
+            } else if ((long) valueLen > bytesToRead) {
+                throw new ShellException("Load file", "Value length is greater than the length of rest file");
+            }
+
+            if ((long) (keyLen + valueLen) > bytesToRead) {
+                throw  new ShellException("Load file", "Incorrect key or value length");
+            }
+
+            byte[] key = new byte[keyLen];
+            byte[] value = new byte[valueLen];
+            myRead(input, key, keyLen);
+            myRead(input, value, valueLen);
+
+            bytesToRead -= (long) (keyLen + valueLen);
+
+            String keyStr = new String(key, StandardCharsets.UTF_8);
+            String valueStr = new String(value, StandardCharsets.UTF_8);
+            if (dbMap.put(keyStr, valueStr) != null) {
+                throw new ShellException("loadFile", "Not all keys are different");
+            }
+        }
+
     }
 
-    public FileMapShell(Path dbDir, String dbName) throws IOException {
+    public FileMapShell(Path dbDir, String dbName) throws ShellException {
         ShellCommand[] commandList = new ShellCommand[]{new PutCommand(),
                                                         new GetCommand(),
                                                         new RemoveCommand(),
@@ -251,9 +251,11 @@ public class FileMapShell extends ShellEmulator {
             loadDbFileToMap();
         } catch (ShellException e) {
             System.err.println("Incorrect input file: " + e.toString());
-            System.exit(7);
+            throw new ShellException("Fail to load data base", "");
         } catch (FileNotFoundException e) {
             System.err.println("File not found");
+        } catch (IOException e) {
+            throw new ShellException("Fail to load database", "IOExceptinon");
         }
     }
 }
