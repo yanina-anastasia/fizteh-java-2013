@@ -21,7 +21,7 @@ public class MultiFilemapBuilder {
 
     public void finish(MultiFileHashMapState state) throws IOException {
         if (state.getCurrentTable() != null) {
-            Utils.fillTable(state.getCurrentTable());
+            Utils.dumpTable(state.getCurrentTable());
         }
     }
 }

@@ -1,14 +1,14 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class Utils {
-    final static private int MAX_FILE_SIZE = 100000000 / 256;
+    final static private int MAX_TABLE_SIZE = 100000000;
+    final static private int MAX_FILE_SIZE = 50000000;
 
 //    static public void readTable(Table table) throws IOException {
 //        File tableDir = new File (table.getName());
@@ -44,9 +44,15 @@ public class Utils {
         int valueLength;
         String key;
         String value;
+        table.setSize(table.getSize() + datafile.length());
+        if (table.getSize() > MAX_TABLE_SIZE) {
+            dumpTable(table);
+            table.getMap().clear();
+        }
         if (datafile.length() > MAX_FILE_SIZE) {
             throw new IOException("Too big datafile.");
         }
+        table.setSize(table.getSize() + datafile.length());
         while (datafile.getFilePointer() != datafile.length()) {
             keyLength = datafile.readInt();
             if (keyLength < 1 || keyLength > datafile.length() - datafile.getFilePointer() + 4) {
@@ -69,10 +75,11 @@ public class Utils {
         }
     }
 
-    public static void fillTable(Table table) throws IOException {
+    public static void dumpTable(Table table) throws IOException {
         if (table == null) {
             return;
         }
+        table.setSize(0);
         File[] dirs = new File[16];
         File[][] files = new File[16][16];
         RandomAccessFile[][] database = new RandomAccessFile[16][16];
@@ -87,7 +94,9 @@ public class Utils {
                     files[i][j].createNewFile();
                 }
                 database[i][j] = new RandomAccessFile(files[i][j], "rw");
-                database[i][j].setLength(0);
+                if (table.isUsing(i, j)) {
+                    database[i][j].setLength(0);
+                }
             }
         }
         Set<String> keySet = table.getMap().keySet();
@@ -95,11 +104,6 @@ public class Utils {
             byte b = key.getBytes()[0];
             int dirNumber = b % 16;
             int fileNumber = b / 16 % 16;
-            if (database[dirNumber][fileNumber].getFilePointer() > MAX_FILE_SIZE) {
-                closeDescriptors(database);
-                deleteUnnecessaryFiles(dirs, files);
-                throw new IOException("Too big database file.");
-            }
             database[dirNumber][fileNumber].writeInt(key.getBytes(StandardCharsets.UTF_8).length);
             database[dirNumber][fileNumber].writeInt(table.get(key).getBytes(StandardCharsets.UTF_8).length);
             database[dirNumber][fileNumber].write(key.getBytes(StandardCharsets.UTF_8));
@@ -107,6 +111,7 @@ public class Utils {
         }
         closeDescriptors(database);
         deleteUnnecessaryFiles(dirs, files);
+        setUsings(table);
     }
 
     private static void deleteUnnecessaryFiles(File[] dirs, File[][] files) throws IOException {
@@ -117,6 +122,7 @@ public class Utils {
                     f.close();
                     files[i][j].delete();
                 }
+                f.close();
             }
         }
         for (File dir : dirs) {
@@ -130,6 +136,14 @@ public class Utils {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 files[i][j].close();
+            }
+        }
+    }
+
+    private static void setUsings(Table table) {
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                table.setUsing(i, j, false);
             }
         }
     }

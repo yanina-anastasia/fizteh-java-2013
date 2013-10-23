@@ -22,7 +22,7 @@ public class CommandUse implements Command<MultiFileHashMapState> {
         File newPath = state.getPath().resolve(args[0]).toFile();
         if (newPath.exists()) {
             if (table != null) {
-                Utils.fillTable(table);
+                Utils.dumpTable(table);
             }
             if (!state.getWorkingTableName().equals("")) {
                 if (table != null) {
@@ -31,7 +31,6 @@ public class CommandUse implements Command<MultiFileHashMapState> {
             }
             state.setWorkingPath(args[0]);
             state.setCurrentTable(args[0]);
-            //Utils.readTable(state.getCurrentTable());
             state.setWorkingPath(args[0]);
             System.out.println("using " + args[0]);
         } else {

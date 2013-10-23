@@ -9,6 +9,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
     private String name;
     private Map<String, String> storage;
     private boolean[][] uses;
+    private long byteSize;
 
     public Table(String tableName) {
         name = tableName;
@@ -18,6 +19,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
             for (int j = 0; j < 16; ++j)
                 uses[i][j] = false;
         }
+        byteSize = 0;
     }
 
     @Override
@@ -85,5 +87,13 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
     public Path getPath() {
         File f = new File(name);
         return f.toPath();
+    }
+
+    public void setSize(long inc) {
+        byteSize += inc;
+    }
+
+    public long getSize() {
+        return byteSize;
     }
 }
