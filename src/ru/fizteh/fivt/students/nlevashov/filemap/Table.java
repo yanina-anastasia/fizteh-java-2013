@@ -58,7 +58,9 @@ public class Table {
                         keys.add(new String(shortKey, "UTF8"));
 
                         offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
-                        if ((offsets.get(offsets.size() - 1) >= Files.size(addr)) || (offsets.get(offsets.size() - 1) <= 0) || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
+                        if ((offsets.get(offsets.size() - 1) >= Files.size(addr))
+                            || (offsets.get(offsets.size() - 1) <= 0)
+                            || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
                             throw new IOException("bad offset");
                         }
                         pos += 4;
@@ -68,17 +70,19 @@ public class Table {
                     for (int j = 0; j < keys.size(); j++) {
                         int valueLength = offsets.get(j + 1).intValue() - offsets.get(j).intValue();
                         byte[] buf = new byte[valueLength];
-                        for(int t = 0; t < valueLength; t++) {
+                        for (int t = 0; t < valueLength; t++) {
                             buf[t] = (byte) i.read();
-                            if (buf[t] == -1) throw new IOException("EOF too early");
+                            if (buf[t] == -1) {
+                                throw new IOException("EOF too early");
+                            }
                         }
                         map.put(keys.get(j), new String(buf, "UTF8"));
                     }
                 }
-            } catch (IOException e) {
-                throw e;
-            } finally {
                 i.close();
+            } catch (IOException e) {
+                i.close();
+                throw e;
             }
         }
     }
@@ -105,8 +109,7 @@ public class Table {
                 }
                 head += map.size() * 5;
 
-                i = 0;
-                for (Map.Entry<String, String> entry : map.entrySet()) {
+                for (i = 0; i < map.size(); i++) {
                     o.write(keys[i], 0, keys[i].length);
                     o.write('\0');
 
@@ -115,19 +118,16 @@ public class Table {
                     o.write((byte) ((offset >>> 16) % 256));
                     o.write((byte) ((offset >>> 8) % 256));
                     o.write((byte) (offset % 256));
-
-                    i++;
                 }
 
-                i = 0;
-                for (Map.Entry<String, String> entry : map.entrySet()) {
+                for (i = 0; i < map.size(); i++) {
                     o.write(values[i], 0, values[i].length);
-                    i++;
                 }
-            } catch (IOException e) {
-                throw e;
-            } finally {
+
                 o.close();
+            } catch (IOException e) {
+                o.close();
+                throw e;
             }
         }
     }

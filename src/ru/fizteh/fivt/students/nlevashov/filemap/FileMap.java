@@ -1,7 +1,8 @@
 package ru.fizteh.fivt.students.nlevashov.filemap;
 
+import ru.fizteh.fivt.students.nlevashov.mode;
+
 import java.util.Vector;
-import java.util.Scanner;
 import java.io.File;
 import java.nio.file.Path;
 
@@ -47,40 +48,13 @@ public class FileMap {
         }
     }
 
-    public static boolean execute(String cmd) throws Exception {
-        Vector<String> tokens = parse(cmd, " ");
-        if (tokens.size() != 0) {
-            switch (tokens.get(0)) {
-                case "put":
-                    if (tokens.size() != 3) {
-                        throw new Exception("put: wrong arguments number");
-                    }
-                    put(tokens.get(1), tokens.get(2));
-                    break;
-                case "get":
-                    if (tokens.size() != 2) {
-                        throw new Exception("get: wrong arguments number");
-                    }
-                    get(tokens.get(1));
-                    break;
-                case "remove":
-                    if (tokens.size() != 2) {
-                        throw new Exception("remove: wrong arguments number");
-                    }
-                    remove(tokens.get(1));
-                    break;
-                case "exit": {
-                    return false;
-                }
-                default:
-                    throw new Exception("Wrong command: " + cmd);
-            }
-        }
-        return true;
-    }
-
     public static void main(String[] args) {
-        File f = new File(System.getProperty("fizteh.db.dir"));
+        String path = System.getProperty("fizteh.db.dir");
+        if (path == null) {
+            System.err.println("Property \"fizteh.db.dir\" wasn't set");
+            System.exit(1);
+        }
+        File f = new File(path);
         Path addr = f.toPath().resolve("db.dat");
         try {
             t = new Table(addr);
@@ -88,42 +62,46 @@ public class FileMap {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-        if (args.length == 0) {
-            Scanner sc = new Scanner(System.in);
-            boolean flag = true;
-            do {
-                try {
-                    System.out.print("$ ");
-                    String cmdline = sc.nextLine();
-                    Vector<String> commands = parse(cmdline, ";");
-                    for (String s : commands) {
-                        if (!execute(s)) {
-                            flag = false;
-                            break;
+
+        try {
+            Mode.start(args, new Mode.Executor() {
+                public boolean execute(String cmd) throws Exception {
+                    Vector<String> tokens = parse(cmd, " ");
+                    if (tokens.size() != 0) {
+                        switch (tokens.get(0)) {
+                            case "put":
+                                if (tokens.size() != 3) {
+                                    throw new Exception("put: wrong arguments number");
+                                }
+                                put(tokens.get(1), tokens.get(2));
+                                break;
+                            case "get":
+                                if (tokens.size() != 2) {
+                                    throw new Exception("get: wrong arguments number");
+                                }
+                                get(tokens.get(1));
+                                break;
+                            case "remove":
+                                if (tokens.size() != 2) {
+                                    throw new Exception("remove: wrong arguments number");
+                                }
+                                remove(tokens.get(1));
+                                break;
+                            case "exit": {
+                                return false;
+                            }
+                            default:
+                                throw new Exception("Wrong command: " + cmd);
                         }
                     }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    return true;
                 }
-            } while (flag);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (String s : args) {
-                sb.append(s).append(' ');
-            }
-            String cmdline = sb.toString();
-            Vector<String> commands = parse(cmdline, ";");
-            try {
-                for (String s : commands) {
-                    if (!execute(s)) {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+            });
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
+
         try {
             t.refresh();
         } catch (Exception e) {
