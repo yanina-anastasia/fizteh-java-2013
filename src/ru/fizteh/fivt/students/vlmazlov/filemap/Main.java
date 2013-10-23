@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.vlmazlov.shell.Shell;
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import ru.fizteh.fivt.students.vlmazlov.shell.WrongCommandException;
 import ru.fizteh.fivt.students.vlmazlov.shell.UserInterruptionException;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
 import ru.fizteh.fivt.students.vlmazlov.shell.Command;
 import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 public class Main {
 	public static void main(String[] args) {
 		FileMap fileMap = new FileMap(); 
+
 		boolean isStored = true;
 		DataBaseReader reader = null;
 
@@ -22,35 +24,40 @@ public class Main {
 		} catch (StorageNotFoundException ex) {
 			isStored = false;
 		} catch (FileNotFoundException ex) {
-			System.err.println("Unable to retrieve entries from file: " + ex.getMessage());
+			System.err.println("Unable to retrieve entries from file");
 			System.exit(1);
+		} catch (ValidityCheckFailedException ex) {
+			System.err.println("Validity check failed: " + ex.getMessage());
+			System.exit(2);
 		}
 		
 		if (isStored) {
 			try {
-				reader.retrieveFromFile();
+				reader.read();
 			} catch (IOException ex) {
-				System.err.println("Unable to retrieve entries from file: " + ex.getMessage());
-				System.exit(2);
+				System.err.println("Unable to retrieve entries from file");
+				System.exit(3);
+			} catch (ValidityCheckFailedException ex) {
+				System.err.println("Validity check failed: " + ex.getMessage());
+				System.exit(8);
 			}
 		}
 
 		Command[] commands = {
-			new PutCommand(fileMap), new GetCommand(fileMap), 
-			new RemoveCommand(fileMap), new ExitCommand()
+			new PutCommand(), new GetCommand(), 
+			new RemoveCommand(), new ExitCommand()
 		};
 
-		Shell shell = new Shell(commands);
-		Shell.ShellState state = shell.new ShellState(System.getProperty("fizteh.db.dir"));
+		Shell<FileMap> shell = new Shell<FileMap>(commands, fileMap);
 
 		try {
-			shell.process(args, state);
+			shell.process(args);
 		} catch (WrongCommandException ex) {
 			System.err.println(ex.getMessage());
-			System.exit(3);
+			System.exit(4);
 		} catch (CommandFailException ex) {
 			System.err.println("error while processing command: " + ex.getMessage());
-			System.exit(4);
+			System.exit(5);
 		} catch (UserInterruptionException ex) {
 		}
 
@@ -59,15 +66,15 @@ public class Main {
 		try {
 			writer = new DataBaseWriter(System.getProperty("fizteh.db.dir"), "db.dat", fileMap);
 		} catch (FileNotFoundException ex) {
-			System.err.println("Unable to store entries in the file: " + ex.getMessage());
-			System.exit(5);
+			System.err.println("Unable to store entries in the file");
+			System.exit(6);
 		}
 
 		try {
-			writer.storeInFile();
+			writer.write();
 		} catch (IOException ex) {
 			System.err.println("Unable to store entries in the file: " + ex.getMessage());
-			System.exit(6);
+			System.exit(7);
 		}
 
 		System.exit(0);

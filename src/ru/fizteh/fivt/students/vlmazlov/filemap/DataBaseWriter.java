@@ -7,19 +7,25 @@ import java.util.Map;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.io.RandomAccessFile;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 
 public class DataBaseWriter {
 	private RandomAccessFile dataBaseStorage;
 	private final FileMap fileMap;
 
-	public DataBaseWriter(String directory, String file, FileMap fileMap) 
+	public DataBaseWriter(String root, String file, FileMap fileMap)
 	throws FileNotFoundException {
-		File dir = new File(directory);
-		if (!dir.exists()) {
-			throw new FileNotFoundException("Specified directory doesn't exist");
+		this(new File(root), file, fileMap);
+	}
+
+	public DataBaseWriter(File root, String file, FileMap fileMap) 
+	throws FileNotFoundException {
+		
+		if (root == null) {
+			throw new FileNotFoundException("Directory not specified");
 		}
 
-		dataBaseStorage = new RandomAccessFile(new File(dir, file), "rw");
+		dataBaseStorage = new RandomAccessFile(new File(root, file), "rw");
 		this.fileMap = fileMap;
 	}
 
@@ -42,7 +48,7 @@ public class DataBaseWriter {
 		dataBaseStorage.writeInt(offSet);
 	}
 
-	public void storeInFile() throws IOException {	
+	public void write() throws IOException {	
 		
 		try {
 

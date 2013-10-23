@@ -2,8 +2,9 @@ package ru.fizteh.fivt.students.vlmazlov.shell;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.IOException;
 
-public abstract class AbstractCommand implements Command {
+public abstract class AbstractCommand<T> implements Command<T> {
 	private final String name;
 	private final int argNum;
 
@@ -15,10 +16,18 @@ public abstract class AbstractCommand implements Command {
 		return argNum;
 	}
 
-	AbstractCommand(String _name, int _argNum) {
-		name = _name;
-		argNum = _argNum;
+	protected void displayMessage(String message, OutputStream out) throws CommandFailException {
+		try {
+			out.write(message.getBytes());
+		} catch (IOException ex) {
+			throw new CommandFailException(getName() + ": Unable to display result message");
+		}
 	}
 
-	abstract public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException, UserInterruptionException;
+	public AbstractCommand(String name, int argNum) {
+		this.name = name;
+		this.argNum = argNum;
+	}
+
+	abstract public void execute(String[] args, T state, OutputStream out) throws CommandFailException, UserInterruptionException;
 }
