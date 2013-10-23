@@ -17,19 +17,22 @@ public class CommandDrop implements Command<MultiFileHashMapState> {
 
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
         File db = state.getPath().resolve(args[0]).toFile();
-        if (!args[0].matches("([0-9]|1[0-5]).dir")) {
-            throw new IOException("Incorrect table name");
-        }
         if (!db.exists()) {
             System.out.println(args[0] + " not exists");
         } else {
             if (db.listFiles() != null) {
-                for (File entry : db.listFiles()) {
-                    entry.delete();
+                for (File dbDir : db.listFiles()) {
+                    if (dbDir.listFiles() != null) {
+                        for (File entry : dbDir.listFiles()) {
+                            entry.delete();
+                        }
+                    }
+                    dbDir.delete();
                 }
             }
             if (args[0].equals(state.getWorkingTableName())) {
-                state.getMap().clear();
+                state.getCurrentTable().clear();
+                state.setCurrentTable("");
                 state.setWorkingPath("");
             }
             db.delete();

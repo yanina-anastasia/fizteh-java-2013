@@ -4,7 +4,6 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 public class CommandUse implements Command<MultiFileHashMapState> {
     public String getName() {
@@ -19,17 +18,20 @@ public class CommandUse implements Command<MultiFileHashMapState> {
         if (state.getWorkingPath().getFileName().toString().equals(args[0])) {
             return;
         }
-        if (!args[0].matches("([0-9]|1[0-5]).dir")) {
-            throw new IOException("Incorrect table name");
-        }
+        Table table = state.getCurrentTable();
         File newPath = state.getPath().resolve(args[0]).toFile();
         if (newPath.exists()) {
-            if (state.getCurrentTableController() != null) {
-                state.getCurrentTableController().fillTable(state);
+            if (table != null) {
+                Utils.fillTable(table);
             }
-            state.getMap().clear();
+            if (!state.getWorkingTableName().equals("")) {
+                if (table != null) {
+                    table.clear();
+                }
+            }
             state.setWorkingPath(args[0]);
-            state.getCurrentTableController().readTable(state);
+            state.setCurrentTable(args[0]);
+            //Utils.readTable(state.getCurrentTable());
             state.setWorkingPath(args[0]);
             System.out.println("using " + args[0]);
         } else {

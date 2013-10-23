@@ -19,9 +19,6 @@ public class CommandCreate implements Command<MultiFileHashMapState> {
         if (db.exists()) {
             System.out.println(args[0] + " exists");
         } else {
-            if (!args[0].matches("([0-9]|1[0-5]).dir")) {
-                throw new IOException("Incorrect table name");
-            }
             state.createTable(args[0]);
             db.mkdir();
             System.out.println("created");

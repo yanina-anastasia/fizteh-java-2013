@@ -20,8 +20,8 @@ public class MultiFilemapBuilder {
     }
 
     public void finish(MultiFileHashMapState state) throws IOException {
-        if (state.getCurrentTableController() != null) {
-            state.getCurrentTableController().fillTable(state);
+        if (state.getCurrentTable() != null) {
+            Utils.fillTable(state.getCurrentTable());
         }
     }
 }

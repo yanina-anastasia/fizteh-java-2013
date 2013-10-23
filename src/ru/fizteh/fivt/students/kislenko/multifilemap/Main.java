@@ -11,6 +11,7 @@ public class Main {
     public static void main(String[] args) {
         String dbAddress = System.getProperty("fizteh.db.dir");
         try {
+            dbAddress = "database";
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (!dbDir.isDirectory()) {
                 System.err.println("Incorrect database directory.");
@@ -19,7 +20,7 @@ public class Main {
             File[] tables = dbDir.listFiles();
             if (tables != null) {
                 for (File table : tables) {
-                    if (table.getName().matches("([0-9]|1[0-5]).dir") && !table.isDirectory()) {
+                    if (!table.isDirectory()) {
                         System.err.println("Incorrect table format.");
                         System.exit(1);
                     }

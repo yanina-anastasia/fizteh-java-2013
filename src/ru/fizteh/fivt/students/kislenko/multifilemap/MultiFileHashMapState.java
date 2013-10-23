@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MultiFileHashMapState {
-    private Map<String, String> currentStorage;
-    private Map<String, TableController> databases;
     private Path databasePath;
     private String workingTableName;
+    private Table currentTable;
+    private TableProvider tables;
 
     public MultiFileHashMapState(Path p) {
-        currentStorage = new TreeMap<String, String>();
-        databases = new TreeMap<String, TableController>();
         databasePath = p;
         workingTableName = "";
+        TableProviderFactory factory = new TableProviderFactory();
+        tables = factory.create(p.toString());
     }
 
     public Path getPath() {
@@ -22,12 +22,11 @@ public class MultiFileHashMapState {
     }
 
     public void deleteTable(String tableName) {
-        databases.remove(tableName);
+        tables.removeTable(tableName);
     }
 
     public void createTable(String tableName) {
-        TableController tc = new TableController(databasePath, tableName);
-        databases.put(tableName, tc);
+        tables.createTable(databasePath.resolve(tableName).toString());
     }
 
     public String getWorkingTableName() {
@@ -38,11 +37,11 @@ public class MultiFileHashMapState {
         workingTableName = tableName;
     }
 
-    public TableController getCurrentTableController() {
+    public Table getCurrentTable() {
         if (workingTableName.equals("")) {
             return null;
         } else {
-            return databases.get(workingTableName);
+            return currentTable;
         }
     }
 
@@ -50,23 +49,7 @@ public class MultiFileHashMapState {
         return databasePath.resolve(workingTableName);
     }
 
-    public void putValue(String key, String value) {
-        currentStorage.put(key, value);
-    }
-
-    public String getValue(String key) {
-        return currentStorage.get(key);
-    }
-
-    public void delValue(String key) {
-        currentStorage.remove(key);
-    }
-
-    public boolean hasKey(String key) {
-        return currentStorage.containsKey(key);
-    }
-
-    public Map<String, String> getMap() {
-        return currentStorage;
+    public void setCurrentTable(String name) {
+        currentTable = tables.getTable(databasePath.resolve(name).toString());
     }
 }
