@@ -7,8 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class Utils {
-    final static private int MAX_TABLE_SIZE = 100000000;
-    final static private int MAX_FILE_SIZE = 50000000;
+    final static private int MAX_TABLE_SIZE = 100;
+    final static private int MAX_FILE_SIZE = 50;
 
 //    static public void readTable(Table table) throws IOException {
 //        File tableDir = new File (table.getName());
@@ -25,7 +25,7 @@ public class Utils {
 //        }
 //    }
 
-    static public void connectFile(Table table, String key) throws IOException {
+    static public void loadFile(Table table, String key) throws IOException {
         byte nDirectory = getDirNumber(key);
         byte nFile = getFileNumber(key);
         if (!table.isUsing(nDirectory, nFile) && table.getPath().toFile().exists()) {
@@ -50,6 +50,7 @@ public class Utils {
             table.getMap().clear();
         }
         if (datafile.length() > MAX_FILE_SIZE) {
+            datafile.close();
             throw new IOException("Too big datafile.");
         }
         table.setSize(table.getSize() + datafile.length());

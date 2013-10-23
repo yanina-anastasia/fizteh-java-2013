@@ -21,7 +21,7 @@ public class CommandGet implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Utils.connectFile(table, args[0]);
+        Utils.loadFile(table, args[0]);
         String value = table.get(args[0]);
         if (value != null) {
             System.out.println("found\n" + value);

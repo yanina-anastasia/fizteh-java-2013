@@ -89,8 +89,8 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         return f.toPath();
     }
 
-    public void setSize(long inc) {
-        byteSize += inc;
+    public void setSize(long newSize) {
+        byteSize = newSize;
     }
 
     public long getSize() {
