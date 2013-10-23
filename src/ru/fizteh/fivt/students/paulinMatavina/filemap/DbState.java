@@ -14,11 +14,15 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class DbState extends State{
     public HashMap<String, String> data;
     public RandomAccessFile dbFile;
-    private String path;
+    public String path;
     
-    public DbState() {
-        path = System.getProperty("fizteh.db.dir") + File.separator + "db.dat";
+    public DbState(String dbPath) {
+        path = dbPath;
         commands = new HashMap<String, Command>();
+        this.add(new DbGet());
+        this.add(new DbPut());
+        this.add(new DbExit());
+        this.add(new DbRemove());
         fileCheck();
         data = new HashMap<String, String>();
         try {
@@ -110,7 +114,7 @@ public class DbState extends State{
         return byteVectToStr(byteVect);
     }
     
-    private void loadData() throws IOException {
+    public void loadData() throws IOException {
         if (dbFile.length() == 0) {
                 return;
         } 
@@ -159,5 +163,25 @@ public class DbState extends State{
             dbFile.write(value);
             offset += value.length;
         }
+    }
+    
+    public int put(String[] args) {
+        Command put = new DbPut();
+        return put.execute(args, this);
+    }
+    
+    public int get(String[] args) {
+        Command get = new DbGet();
+        return get.execute(args, this);
+    }
+    
+    public int remove(String[] args) {
+        Command remove = new DbRemove();
+        return remove.execute(args, this);
+    }
+    
+    public int exit(String[] args) {
+        Command exit = new DbExit();
+        return exit.execute(args, this);
     }
 }
