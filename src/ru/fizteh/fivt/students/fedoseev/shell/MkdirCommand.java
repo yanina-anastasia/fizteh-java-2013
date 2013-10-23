@@ -1,18 +1,17 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MkdirCommand extends AbstractCommand {
+public class MkdirCommand extends AbstractCommand<ShellState> {
     public MkdirCommand() {
         super("mkdir", 1);
     }
 
     @Override
-    public void execute(String[] input, AbstractFrame.FrameState state) throws IOException {
+    public void execute(String[] input, ShellState state) throws IOException {
         File newDir = new File(state.getCurState().toPath().resolve(input[0]).toString());
 
         if (!newDir.mkdirs()) {

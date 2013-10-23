@@ -3,10 +3,16 @@ package ru.fizteh.fivt.students.fedoseev.shell;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AbstractShell extends AbstractFrame {
+public class AbstractShell extends AbstractFrame<ShellState> {
+    public AbstractShell(File dir) {
+        state = new ShellState();
+        state.setCurState(dir);
+    }
+
     @Override
     public Map<String, AbstractCommand> getCommands() {
         final CdCommand CD = new CdCommand();

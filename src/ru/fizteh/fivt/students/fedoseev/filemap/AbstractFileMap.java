@@ -2,16 +2,21 @@ package ru.fizteh.fivt.students.fedoseev.filemap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class AbstractFileMap extends AbstractFrame {
+public class AbstractFileMap extends AbstractFrame<FileMapState> {
     private static final Map<String, String> content = new HashMap<String, String>();
     private static final int MAX_FILE_SIZE = 150100500;
     private static RandomAccessFile file;
+
+    public AbstractFileMap(File file) throws IOException {
+        state = new FileMapState();
+        state.setCurState(file);
+        checkOpenFile();
+    }
 
     public static RandomAccessFile getFile() {
         return file;

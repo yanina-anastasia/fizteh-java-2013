@@ -5,14 +5,13 @@ import java.io.IOException;
 
 public class FileMapMain {
     public static void main(String[] args) throws IOException, InterruptedException {
+        System.setProperty("fizteh.db.dir", "C:\\Users\\Кирилл\\");
         try {
             File file = new File(System.getProperty("fizteh.db.dir"));
 
             file = file.getCanonicalFile().toPath().resolve("db.dat").toFile();
 
-            AbstractFileMap fileMap = new AbstractFileMap();
-            fileMap.setObjectCurState(file);
-            fileMap.checkOpenFile();
+            AbstractFileMap fileMap = new AbstractFileMap(file);
 
             if (args.length != 0) {
                 fileMap.BatchMode(args);

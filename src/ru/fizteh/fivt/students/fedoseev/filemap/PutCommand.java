@@ -1,17 +1,16 @@
 package ru.fizteh.fivt.students.fedoseev.filemap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 
 import java.io.IOException;
 
-public class PutCommand extends AbstractCommand {
+public class PutCommand extends AbstractCommand<FileMapState> {
     public PutCommand() {
         super("put", 2);
     }
 
     @Override
-    public void execute(String[] input, AbstractFrame.FrameState state) throws IOException {
+    public void execute(String[] input, FileMapState state) throws IOException {
         String keyValue = AbstractFileMap.getMap().put(input[0], input[1]);
 
         if (keyValue == null) {
