@@ -7,8 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class Utils {
-    final static private int MAX_TABLE_SIZE = 100;
-    final static private int MAX_FILE_SIZE = 50;
+    final static private int MAX_TABLE_SIZE = 100000000;
+    final static private int MAX_FILE_SIZE = 50000000;
 
 //    static public void readTable(Table table) throws IOException {
 //        File tableDir = new File (table.getName());
