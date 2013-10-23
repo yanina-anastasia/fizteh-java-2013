@@ -24,11 +24,14 @@ public class UseCommand extends AbstractCommand<MultifileMapShellState> {
             shellState.table = shellState.tableProvider.getTable(parameters.get(0));
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            return;
         } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
+            return;
         }
         if (oldTable != null) {
             oldTable.commit();
         }
+        System.out.println(String.format("using %s", shellState.table.getName()));
     }
 }
