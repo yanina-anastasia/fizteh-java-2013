@@ -16,8 +16,8 @@ public class Get implements Command {
             System.out.println("incorrect number of arguments");
             return;
         }
-        String key = args[0];
-        String value = ((FileMap) filemap).getFileMapState().getDataBase().get(key);
+
+        String value = ((FileMap) filemap).getFileMapState().getDataBase().get(args[0]);
         if (value == null) {
             System.out.println("not found");
         } else {

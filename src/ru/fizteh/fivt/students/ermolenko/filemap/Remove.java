@@ -8,16 +8,18 @@ import java.io.IOException;
 public class Remove implements Command {
 
     public String getName() {
+
         return "remove";
     }
 
     public void executeCmd(Shell filemap, String[] args) throws IOException {
+
         if (args.length != 1) {
             System.out.println("incorrect number of arguments");
             return;
         }
-        String key = args[0];
-        String value = ((FileMap) filemap).getFileMapState().getDataBase().remove(key);
+
+        String value = ((FileMap) filemap).getFileMapState().getDataBase().remove(args[0]);
         if (value == null) {
             System.out.println("not found");
         } else {

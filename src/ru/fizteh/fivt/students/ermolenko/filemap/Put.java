@@ -8,17 +8,18 @@ import java.io.IOException;
 public class Put implements Command {
 
     public String getName() {
+
         return "put";
     }
 
     public void executeCmd(Shell filemap, String[] args) throws IOException {
+
         if (args.length != 2) {
             System.out.println("incorrect number of arguments");
             return;
         }
-        String key = args[0];
-        String value = args[1];
-        String oldValue = ((FileMap) filemap).getFileMapState().getDataBase().put(key, value);
+
+        String oldValue = ((FileMap) filemap).getFileMapState().getDataBase().put(args[0], args[1]);
         if (oldValue == null) {
             System.out.println("new");
         } else {
