@@ -20,6 +20,10 @@ public class Main {
             System.err.println("Database location is invalid");
             System.exit(-1);
         }
+        if (!fileMapManager.isValidContent()) {
+            System.err.println("Database folder contains files");
+            System.exit(-1);
+        }
         Shell shell = new Shell(pwd);
         fileMapManager.integrate(shell);
         int exitCode = 0;

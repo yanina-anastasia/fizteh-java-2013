@@ -22,6 +22,18 @@ public class FileMapManager {
         return true;
     }
 
+    public boolean isValidContent() {
+        if (!isValidLocation()) {
+            return false;
+        }
+        for (File f : location.listFiles()) {
+            if (!f.isDirectory()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean switchMap(String name) {
         if (!isValidLocation()) {
             System.err.println("Database location is invalid");
