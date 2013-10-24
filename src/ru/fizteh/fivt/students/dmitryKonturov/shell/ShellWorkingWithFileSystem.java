@@ -247,7 +247,7 @@ public class ShellWorkingWithFileSystem extends ShellEmulator {
                                                          new CopyFile(),
                                                          new MoveFile(),
                                                          new ExitCommand()};
-        replaceCommandList(commandsList);
+        addToCommandList(commandsList);
         currentPath = Paths.get(userPath);
     }
 

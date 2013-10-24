@@ -14,7 +14,7 @@ public class Shell {
             }
             try {
                 shell.packageMode(builder.toString());
-            } catch (ShellEmulator.ShellException se) {
+            } catch (ShellException se) {
                 System.err.println(se);
                 System.exit(1);
             }

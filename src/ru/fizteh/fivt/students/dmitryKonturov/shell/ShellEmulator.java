@@ -4,37 +4,29 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class ShellEmulator {
+public abstract class ShellEmulator {
 
-    protected interface ShellCommand {
+    public interface ShellCommand {
         String getName();
 
-        abstract void execute(String[] args) throws ShellEmulator.ShellException;
+        abstract void execute(String[] args) throws ShellException;
     }
-
-    public class ShellException extends Exception {
-        private final String command;
-        private final String message;
-
-        public ShellException(String com, String c) {
-            command = com;
-            message = c;
-        }
-
-        @Override
-        public String toString() {
-            return (command + ": " + message);
-        }
-    }
-
 
     private HashMap <String, ShellCommand> mapCommand = new HashMap<>();
 
-    protected void replaceCommandList(ShellCommand[] commandList) {
+    protected void clearCommandList() {
         mapCommand.clear();
+    }
+
+    protected void addToCommandList(ShellCommand[] commandList) {
+        //mapCommand.clear();
         for (ShellCommand command : commandList) {
             mapCommand.put(command.getName(), command);
         }
+    }
+
+    protected void justBeforeExecutingAction(String commandName) {
+
     }
 
     protected String getGreetingString() {
@@ -97,6 +89,7 @@ public class ShellEmulator {
             throw new ShellException(commandName, "No such command");
         }
 
+        justBeforeExecutingAction(commandName);
         currentCommand.execute(arguments);
     }
 
@@ -132,9 +125,9 @@ public class ShellEmulator {
             try {
                 executeQuery(query);
             } catch (ShellException sh) {
-                System.err.println(sh);
+                System.err.println(sh.toString());
             } catch (Exception e) {
-                System.err.println("Unhandled exception: " + e.getMessage());
+                System.err.println("Unhandled exception: " + e.toString());
             } finally {
                 printGreeting();
             }

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dbTask.fileMap;
 
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
+import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 public class FileMapShell extends ShellEmulator {
     private final Path dbFilePath;
+    private Path dbDir;
     protected final String dbName;
     private Map<String, String> dbMap;
 
@@ -313,7 +315,8 @@ public class FileMapShell extends ShellEmulator {
                                                         new RemoveCommand(),
                                                         new ExitCommand()
                                                        };
-        replaceCommandList(commandList);
+        addToCommandList(commandList);
+        this.dbDir = dbDir;
         this.dbName = dbName;
         this.dbFilePath = dbDir.resolve(dbName);
         this.dbMap = new HashMap<>();

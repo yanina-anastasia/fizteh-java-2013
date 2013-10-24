@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dbTask.fileMap;
 
+import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
+
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -30,7 +32,7 @@ public class FileMap {
                 }
                 try {
                     shell.packageMode(builder.toString());
-                } catch (FileMapShell.ShellException e) {
+                } catch (ShellException e) {
                     System.err.println(e);
                     try {
                         shell.closeDbFile();
@@ -45,7 +47,7 @@ public class FileMap {
         } catch (InvalidPathException e) {
             System.err.println(String.format("Couldn't transform %s to Path", dbDir));
             System.exit(1);
-        } catch (FileMapShell.ShellException e) {
+        } catch (ShellException e) {
             System.err.println("Something bad occurred: " + e.toString());
             System.exit(1);
         }
