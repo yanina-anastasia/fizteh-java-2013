@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
-import ru.fizteh.fivt.students.dubovpavel.filemap.performers.*;
 import ru.fizteh.fivt.students.dubovpavel.executor.Feeder;
+import ru.fizteh.fivt.students.dubovpavel.filemap.performers.*;
 
 public class Main {
     public static void main(String[] args) {

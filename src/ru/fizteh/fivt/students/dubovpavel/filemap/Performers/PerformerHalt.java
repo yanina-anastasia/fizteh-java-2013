@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap.performers;
 
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DispatcherFileMap;
-import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
 public class PerformerHalt<D extends Dispatcher> extends Performer<D> {

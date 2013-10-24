@@ -5,7 +5,6 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageAccessible;
 
 public class PerformerSafeDataBaseOperationWrapper<D extends Dispatcher & DataBaseAccessible> extends Performer<D> {
     private Performer performer;

@@ -1,9 +1,8 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.io.File;
 
 public class DataBaseWrapper extends DataBase  {
     private DispatcherFileMap dispatcher;

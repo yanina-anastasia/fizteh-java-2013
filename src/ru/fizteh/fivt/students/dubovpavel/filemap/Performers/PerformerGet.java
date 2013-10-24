@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap.performers;
 
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DispatcherFileMap;
-import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
+import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
 
 public class PerformerGet<D extends Dispatcher & DataBaseAccessible<String, String>> extends Performer<D> {
     public boolean pertains(Command command) {

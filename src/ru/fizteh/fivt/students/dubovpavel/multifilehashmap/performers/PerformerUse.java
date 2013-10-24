@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.dubovpavel.multifilehashmap.performers;
 import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageAccessible;
 
 public class PerformerUse<D extends Dispatcher & StorageAccessible> extends Performer<D> {

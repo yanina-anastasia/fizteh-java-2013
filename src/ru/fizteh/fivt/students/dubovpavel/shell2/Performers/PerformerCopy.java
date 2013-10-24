@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2.performers;
 
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import ru.fizteh.fivt.students.dubovpavel.executor.Command;
-import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
 public class PerformerCopy extends PerformerShell {
     private class PerformerCopyException extends Exception {

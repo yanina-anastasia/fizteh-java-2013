@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.dubovpavel.executor;
 
-import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
-
 import java.util.ArrayList;
 
 public abstract class DispatcherBuilder {

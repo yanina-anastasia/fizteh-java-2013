@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.dubovpavel.multifilehashmap;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DispatcherFileMap;
 
 public class DispatcherMultiFileHashMap extends Dispatcher implements DataBaseAccessible<String, String>, StorageAccessible {
     protected Storage storage;
