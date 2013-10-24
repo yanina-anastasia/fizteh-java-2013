@@ -14,12 +14,13 @@ public class CommandRemove implements Command<MultiFileHashMapState> {
     }
 
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
-        Table table = state.getCurrentTable();
+        MyTable table = state.getCurrentTable();
         if (table == null) {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Utils.loadFile(table, args[0]);
+        TwoLayeredString key = new TwoLayeredString(args[0]);
+        Utils.loadFile(table, key);
         String value = table.get(args[0]);
         if (value != null) {
             state.getCurrentTable().remove(args[0]);

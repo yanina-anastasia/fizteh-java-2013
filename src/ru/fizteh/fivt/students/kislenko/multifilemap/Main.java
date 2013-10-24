@@ -11,6 +11,7 @@ public class Main {
     public static void main(String[] args) {
         String dbAddress = System.getProperty("fizteh.db.dir");
         try {
+            dbAddress = "database";
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (!dbDir.isDirectory()) {
                 System.err.println("Incorrect database directory.");

@@ -2,9 +2,7 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 public class CommandGet implements Command<MultiFileHashMapState> {
     public String getName() {
@@ -16,12 +14,13 @@ public class CommandGet implements Command<MultiFileHashMapState> {
     }
 
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
-        Table table = state.getCurrentTable();
+        MyTable table = state.getCurrentTable();
         if (table == null) {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Utils.loadFile(table, args[0]);
+        TwoLayeredString key = new TwoLayeredString(args[0]);
+        Utils.loadFile(table, key);
         String value = table.get(args[0]);
         if (value != null) {
             System.out.println("found\n" + value);

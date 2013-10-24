@@ -18,7 +18,7 @@ public class CommandUse implements Command<MultiFileHashMapState> {
         if (state.getWorkingPath().getFileName().toString().equals(args[0])) {
             return;
         }
-        Table table = state.getCurrentTable();
+        MyTable table = state.getCurrentTable();
         File newPath = state.getPath().resolve(args[0]).toFile();
         if (newPath.exists()) {
             if (table != null) {

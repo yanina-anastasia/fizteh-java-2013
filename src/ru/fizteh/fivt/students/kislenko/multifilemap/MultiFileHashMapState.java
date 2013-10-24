@@ -1,13 +1,11 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class MultiFileHashMapState {
     private Path databasePath;
     private String workingTableName;
-    private Table currentTable;
+    private MyTable currentTable;
     private TableProvider tables;
 
     public MultiFileHashMapState(Path p) {
@@ -37,7 +35,7 @@ public class MultiFileHashMapState {
         workingTableName = tableName;
     }
 
-    public Table getCurrentTable() {
+    public MyTable getCurrentTable() {
         if (workingTableName.equals("")) {
             return null;
         } else {

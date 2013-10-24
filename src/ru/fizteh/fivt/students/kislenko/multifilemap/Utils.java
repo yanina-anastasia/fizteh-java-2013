@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class Utils {
-    final static private int MAX_TABLE_SIZE = 100000000;
-    final static private int MAX_FILE_SIZE = 50000000;
+    final static private int MAX_TABLE_SIZE = 100 * 1024 * 1024;
+    final static private int MAX_FILE_SIZE = 50 * 1024 * 1024;
 
-//    static public void readTable(Table table) throws IOException {
+//    static public void readTable(MyTable table) throws IOException {
 //        File tableDir = new File (table.getName());
 //        if (tableDir.listFiles() != null) {
 //            for (File dir : tableDir.listFiles()) {
@@ -27,7 +28,7 @@ public class Utils {
 //        }
 //    }
 
-    static public void loadFile(Table table, String key) throws IOException {
+    public static void loadFile(MyTable table, TwoLayeredString key) throws IOException {
         byte nDirectory = getDirNumber(key);
         byte nFile = getFileNumber(key);
         if (!table.isUsing(nDirectory, nFile) && table.getPath().toFile().exists()) {
@@ -41,7 +42,7 @@ public class Utils {
         }
     }
 
-    static public void readFile(Table table, RandomAccessFile datafile) throws IOException {
+    public static void readFile(MyTable table, RandomAccessFile datafile) throws IOException {
         int keyLength;
         int valueLength;
         String key;
@@ -78,12 +79,13 @@ public class Utils {
         }
     }
 
-    public static void dumpTable(Table table) throws IOException {
+    public static void dumpTable(MyTable table) throws IOException {
         if (table == null) {
             return;
         }
         table.setSize(0);
         File[] dirs = new File[16];
+        Map<String, TwoLayeredString> strings = new HashMap<String, TwoLayeredString>();
         Map<Integer, File> files = new TreeMap<Integer, File>();
         Map<Integer, RandomAccessFile> datafiles = new TreeMap<Integer, RandomAccessFile>();
         for (int i = 0; i < 16; ++i) {
@@ -104,12 +106,12 @@ public class Utils {
                 }
             }
         }
-        Set<String> keySet = table.getMap().keySet();
-        for (String key : keySet) {
-            datafiles.get(getHash(key)).writeInt(key.getBytes(StandardCharsets.UTF_8).length);
-            datafiles.get(getHash(key)).writeInt(table.get(key).getBytes(StandardCharsets.UTF_8).length);
-            datafiles.get(getHash(key)).write(key.getBytes(StandardCharsets.UTF_8));
-            datafiles.get(getHash(key)).write(table.get(key).getBytes(StandardCharsets.UTF_8));
+        Set<TwoLayeredString> keySet = table.getMap().keySet();
+        for (TwoLayeredString key : keySet) {
+            datafiles.get(getHash(key)).writeInt(key.getKey().getBytes(StandardCharsets.UTF_8).length);
+            datafiles.get(getHash(key)).writeInt(table.get(key.getKey()).getBytes(StandardCharsets.UTF_8).length);
+            datafiles.get(getHash(key)).write(key.getKey().getBytes(StandardCharsets.UTF_8));
+            datafiles.get(getHash(key)).write(table.get(key.getKey()).getBytes(StandardCharsets.UTF_8));
         }
         closeDescriptors(datafiles);
         deleteUnnecessaryFiles(dirs, files);
@@ -138,7 +140,7 @@ public class Utils {
         }
     }
 
-    private static void setUsings(Table table) {
+    private static void setUsings(MyTable table) {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 table.setUsing(i, j, false);
@@ -146,7 +148,7 @@ public class Utils {
         }
     }
 
-    private static int getHash(String key) {
+    private static int getHash(TwoLayeredString key) {
         return 16 * getDirNumber(key) + getFileNumber(key);
     }
 
@@ -154,11 +156,11 @@ public class Utils {
         return 16 * dir + file;
     }
 
-    public static byte getDirNumber(String key) {
+    public static byte getDirNumber(TwoLayeredString key) {
         return (byte) (Math.abs(key.getBytes()[0]) % 16);
     }
 
-    public static byte getFileNumber(String key) {
+    public static byte getFileNumber(TwoLayeredString key) {
         return (byte) ((Math.abs(key.getBytes()[0]) / 16) % 16);
     }
 }

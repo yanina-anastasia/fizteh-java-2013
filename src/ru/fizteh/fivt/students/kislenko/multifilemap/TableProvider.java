@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TableProvider implements ru.fizteh.fivt.storage.strings.TableProvider {
-    private Map<String, Table> tables = new HashMap<String, Table>();
+    private Map<String, MyTable> tables = new HashMap<String, MyTable>();
 
     @Override
-    public Table getTable(String name) {
+    public MyTable getTable(String name) {
         return tables.get(name);
     }
 
     @Override
-    public Table createTable(String name) {
-        Table table = new Table(name);
+    public MyTable createTable(String name) {
+        MyTable table = new MyTable(name);
         tables.put(name, table);
         return table;
     }

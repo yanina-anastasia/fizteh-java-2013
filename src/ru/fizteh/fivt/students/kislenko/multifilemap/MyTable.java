@@ -1,19 +1,23 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Table implements ru.fizteh.fivt.storage.strings.Table {
+public class MyTable implements Table {
     private String name;
-    private Map<String, String> storage;
+    private Map<TwoLayeredString, String> storage;
+    private Map<String, TwoLayeredString> strings;
     private boolean[][] uses;
     private long byteSize;
 
-    public Table(String tableName) {
+    public MyTable(String tableName) {
         name = tableName;
-        storage = new HashMap<String, String>();
+        storage = new HashMap<TwoLayeredString, String>();
+        strings = new HashMap<String, TwoLayeredString>();
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j)
@@ -32,7 +36,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        return storage.get(key);
+        return storage.get(strings.get(key));
     }
 
     @Override
@@ -40,7 +44,9 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        return storage.put(key, value);
+        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+        strings.put(key, twoLayeredKey);
+        return storage.put(twoLayeredKey, value);
     }
 
     @Override
@@ -48,7 +54,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        return storage.remove(key);
+        return storage.remove(strings.get(key));
     }
 
     @Override
@@ -58,14 +64,12 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
     @Override
     public int commit() {
-        System.out.println("Yo dawg i heard you like java classes.");
-        System.out.println("So I put a class in a class so you can make object within make object.");
-        return 100500;
+        throw new UnsupportedOperationException("WTF???");
     }
 
     @Override
     public int rollback() {
-        return 14 / 88;
+        throw new UnsupportedOperationException("WTF???");
     }
 
     public boolean isUsing(int nDirectory, int nFile) {
@@ -80,7 +84,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         storage.clear();
     }
 
-    public Map<String, String> getMap() {
+    public Map<TwoLayeredString, String> getMap() {
         return storage;
     }
 
