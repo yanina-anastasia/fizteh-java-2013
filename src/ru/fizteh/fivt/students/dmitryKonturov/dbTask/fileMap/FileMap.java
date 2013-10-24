@@ -10,13 +10,11 @@ public class FileMap {
     public static void main(String[] args) {
         String dbDir;
         final String fileName = "db.dat";
-        dbDir = "/home/kontr/testDir";
-        /* todo
         dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.err.println("Empty property.");
             System.exit(1);
-        } */
+        }
         try {
             Path dbDirPath = Paths.get(dbDir);
             if (!Files.isDirectory(dbDirPath)) {
