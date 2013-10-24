@@ -35,7 +35,7 @@ public class DBMap {
 	public boolean checkHash(int dirNumber, int DBNumber) {
 		Set<String> keySet = this.mapDB.keySet();
 		for(String key : keySet) {
-			int hashcode = key.hashCode();
+			int hashcode = Math.abs(key.hashCode());
 			int ndirectory = hashcode % 16;
 			int nfile = hashcode / 16 % 16;
 			if(dirNumber != ndirectory || DBNumber != nfile) {
