@@ -41,8 +41,8 @@ public class MultiFileMap {
             for (int j = 0; j < size; j++) {
                 for (String key : map[i][j].getKeysList()) {
                     int hashCode = key.hashCode();
-                    int dir = hashCode % 16;
-                    int file = hashCode / 16 % 16;
+                    int dir = (hashCode % 16 + 16) % 16;
+                    int file = ((hashCode / 16 % 16) + 16) % 16;
                     if (dir != i || file != j) {
                         return false;
                     }
@@ -150,22 +150,22 @@ public class MultiFileMap {
 
     public String put(String key, String value) {
         int hashCode = key.hashCode();
-        int dir = hashCode % 16;
-        int file = hashCode / 16 % 16;
+        int dir = (hashCode % 16 + 16) % 16;
+        int file = ((hashCode / 16 % 16) + 16) % 16;
         return map[dir][file].put(key, value);
     }
 
     public String get(String key) {
         int hashCode = key.hashCode();
-        int dir = hashCode % 16;
-        int file = hashCode / 16 % 16;
+        int dir = (hashCode % 16 + 16) % 16;
+        int file = ((hashCode / 16 % 16) + 16) % 16;
         return map[dir][file].get(key);
     }
 
     public boolean remove(String key) {
         int hashCode = key.hashCode();
-        int dir = hashCode % 16;
-        int file = hashCode / 16 % 16;
+        int dir = (hashCode % 16 + 16) % 16;
+        int file = ((hashCode / 16 % 16) + 16) % 16;
         return map[dir][file].remove(key);
     }
 
