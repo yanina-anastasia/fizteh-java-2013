@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class Utils {
     final static private int MAX_TABLE_SIZE = 100000000;
@@ -34,8 +37,8 @@ public class Utils {
                 RandomAccessFile file = new RandomAccessFile(temp, "r");
                 readFile(table, file);
                 file.close();
-                table.setUsing(nDirectory, nFile, true);
             }
+            table.setUsing(nDirectory, nFile, true);
         }
     }
 
@@ -82,48 +85,46 @@ public class Utils {
         }
         table.setSize(0);
         File[] dirs = new File[16];
-        File[][] files = new File[16][16];
-        RandomAccessFile[][] database = new RandomAccessFile[16][16];
+        Map<Integer, File> files = new TreeMap<Integer, File>();
+        Map<Integer, RandomAccessFile> datafiles = new TreeMap<Integer, RandomAccessFile>();
         for (int i = 0; i < 16; ++i) {
             dirs[i] = table.getPath().resolve(i + ".dir").toFile();
             if (!dirs[i].exists()) {
                 dirs[i].mkdir();
             }
             for (int j = 0; j < 16; ++j) {
-                files[i][j] = table.getPath().resolve(i + ".dir").resolve(j + ".dat").toFile();
-                if (!files[i][j].exists()) {
-                    files[i][j].createNewFile();
-                }
-                database[i][j] = new RandomAccessFile(files[i][j], "rw");
                 if (table.isUsing(i, j)) {
-                    database[i][j].setLength(0);
+                    File tempFile = new File(table.getPath().resolve(i + ".dir").resolve(j + ".dat").toString());
+                    files.put(16 * i + j, tempFile);
+                    if (!files.get(16 * i + j).exists()) {
+                        files.get(16 * i + j).createNewFile();
+                    }
+                    RandomAccessFile tempDatafile = new RandomAccessFile(files.get(16 * i + j), "rw");
+                    datafiles.put(16 * i + j, tempDatafile);
+                    datafiles.get(16 * i + j).setLength(0);
                 }
             }
         }
         Set<String> keySet = table.getMap().keySet();
         for (String key : keySet) {
-            int dirNumber = getDirNumber(key);
-            int fileNumber = getFileNumber(key);
-            database[dirNumber][fileNumber].writeInt(key.getBytes(StandardCharsets.UTF_8).length);
-            database[dirNumber][fileNumber].writeInt(table.get(key).getBytes(StandardCharsets.UTF_8).length);
-            database[dirNumber][fileNumber].write(key.getBytes(StandardCharsets.UTF_8));
-            database[dirNumber][fileNumber].write(table.get(key).getBytes(StandardCharsets.UTF_8));
+            datafiles.get(getHash(key)).writeInt(key.getBytes(StandardCharsets.UTF_8).length);
+            datafiles.get(getHash(key)).writeInt(table.get(key).getBytes(StandardCharsets.UTF_8).length);
+            datafiles.get(getHash(key)).write(key.getBytes(StandardCharsets.UTF_8));
+            datafiles.get(getHash(key)).write(table.get(key).getBytes(StandardCharsets.UTF_8));
         }
-        closeDescriptors(database);
+        closeDescriptors(datafiles);
         deleteUnnecessaryFiles(dirs, files);
         setUsings(table);
     }
 
-    private static void deleteUnnecessaryFiles(File[] dirs, File[][] files) throws IOException {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                RandomAccessFile f = new RandomAccessFile(files[i][j], "rw");
-                if (f.length() == 0) {
-                    f.close();
-                    files[i][j].delete();
-                }
+    private static void deleteUnnecessaryFiles(File[] dirs, Map<Integer, File> files) throws IOException {
+        for (Integer i : files.keySet()) {
+            RandomAccessFile f = new RandomAccessFile(files.get(i), "rw");
+            if (f.length() == 0) {
                 f.close();
+                files.get(i).delete();
             }
+            f.close();
         }
         for (File dir : dirs) {
             if (dir.listFiles().length == 0) {
@@ -132,11 +133,9 @@ public class Utils {
         }
     }
 
-    private static void closeDescriptors(RandomAccessFile[][] files) throws IOException {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                files[i][j].close();
-            }
+    private static void closeDescriptors(Map<Integer, RandomAccessFile> datafiles) throws IOException {
+        for (Integer i : datafiles.keySet()) {
+            datafiles.get(i).close();
         }
     }
 
@@ -148,11 +147,15 @@ public class Utils {
         }
     }
 
+    private static int getHash(String key) {
+        return 16 * getDirNumber(key) + getFileNumber(key);
+    }
+
     public static byte getDirNumber(String key) {
-        return (byte) (key.getBytes()[0] % 16);
+        return (byte) (Math.abs(key.getBytes()[0]) % 16);
     }
 
     public static byte getFileNumber(String key) {
-        return (byte) (((key.getBytes()[0] / 16) + 16) % 16);
+        return (byte) ((Math.abs(key.getBytes()[0]) / 16) % 16);
     }
 }
