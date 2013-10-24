@@ -23,24 +23,21 @@ public class Shell {
     }
 
     public void setState(Path inState) {
+
         state.setPath(inState);
     }
 
     public void batchState(String[] args, Executor exec) throws IOException {
-        StringBuilder tmp = new StringBuilder();
 
-        //слили все слова в одну строку
+        StringBuilder tmp = new StringBuilder();
         for (String arg : args) {
             tmp.append(arg).append(" ");
         }
 
-        //создали массив команд
         String[] command = tmp.toString().split("\\;");
 
         String cmd = "";
-        //Executor exec = new Executor();
 
-        //подаем команды на выполнение
         for (int i = 0; i < command.length - 1; ++i) {
 
             cmd = command[i].trim();
@@ -57,17 +54,16 @@ public class Shell {
     }
 
     public void interactiveState(Executor exec) throws IOException {
+
         Scanner scanner = new Scanner(System.in);
-        //ShellExecutor exec = new ShellExecutor();
+
         String[] cmd;
         while (true) {
             System.out.print("$ ");
             cmd = scanner.nextLine().trim().split("\\s*;\\s*");
+
             try {
                 for (String aCmd : cmd) {
-                    if (cmd.equals("exit")) {
-                        break;
-                    }
                     exec.execute(this, aCmd);
                 }
             } catch (Exception e) {

@@ -21,5 +21,7 @@ public class ShellExecutor extends Executor {
         mapOfCmd.put(dir.getName(), dir);
         Command rm = new Rm();
         mapOfCmd.put(rm.getName(), rm);
+        Command exit = new Exit();
+        mapOfCmd.put(exit.getName(), exit);
     }
 }
