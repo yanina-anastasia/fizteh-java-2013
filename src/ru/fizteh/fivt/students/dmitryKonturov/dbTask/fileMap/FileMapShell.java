@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -190,8 +191,6 @@ public class FileMapShell extends ShellEmulator {
         super.packageMode(query);
         try {
             closeDbFile();
-        } catch (FileNotFoundException ignored) {
-
         } catch (ShellException e) {
             System.err.println(e.toString());
         }
@@ -202,15 +201,29 @@ public class FileMapShell extends ShellEmulator {
         super.interactiveMode();
         try {
             closeDbFile();
-        } catch (FileNotFoundException ignored) {
-
         } catch (ShellException e) {
             System.err.println(e.toString());
         }
     }
 
-    public void closeDbFile() throws FileNotFoundException, ShellException {
-        FileOutputStream output = new FileOutputStream(dbFilePath.toFile());
+    public void closeDbFile() throws ShellException {
+        FileOutputStream output;
+        try{
+            output = new FileOutputStream(dbFilePath.toFile());
+        } catch (Exception e) {
+            try {
+                Files.deleteIfExists(dbFilePath);
+                Files.createFile(dbFilePath);
+            } catch (Exception ioexc) {
+                throw new ShellException("Fail to write to database", "IO + Security problems");
+            }
+            try {
+                output = new FileOutputStream(dbFilePath.toFile());
+            } catch (Exception exc) {
+                throw new ShellException("Fail to write to database", "IO + Security problems");
+            }
+            System.err.println("Old file overwrote.");
+        }
         try {
             for (Map.Entry<String, String> entry : dbMap.entrySet()) {
                 byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
