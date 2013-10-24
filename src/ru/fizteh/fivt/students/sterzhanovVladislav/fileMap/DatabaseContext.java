@@ -37,7 +37,7 @@ public class DatabaseContext {
         Path dbPath = Paths.get(dbRoot.normalize() + "/" + dbName);
         File dbDir = dbPath.toFile();
         if (!dbDir.exists() || !dbDir.isDirectory()) {
-            throw new Exception("tablename not exists");
+            throw new Exception(dbName + " not exists");
         }
         dataBase = IOUtility.parseDatabase(dbPath);
         activeDir = dbPath;

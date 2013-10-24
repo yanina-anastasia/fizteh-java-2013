@@ -163,7 +163,7 @@ public class FileMapCommands {
             Path dbPath = Paths.get(dbContext.getRootDir().normalize() + "/" + args[1]);
             File dbDir = dbPath.toFile();
             if (!dbDir.exists() || !dbDir.isDirectory()) {
-                throw new Exception("tablename not exists");
+                throw new Exception(args[1] + " not exists");
             }
             if (dbPath.equals(dbContext.getActiveDir())) {
                 throw new Exception("unable to drop: database in use");
