@@ -36,18 +36,27 @@ public class MultiFileHashMapTable implements Table {
     @Override
     public String get(String key) {
 
+        if (key == null) {
+            throw new IllegalArgumentException("Incorrect key to get.");
+        }
         return dataBase.get(key);
     }
 
     @Override
     public String put(String key, String value) {
 
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Incorrect key/value to put.");
+        }
         return dataBase.put(key, value);
     }
 
     @Override
     public String remove(String key) {
 
+        if (key == null) {
+            throw new IllegalArgumentException("Incorrect key to remove.");
+        }
         return dataBase.remove(key);
     }
 
@@ -57,12 +66,9 @@ public class MultiFileHashMapTable implements Table {
     }
 
     @Override
-    public int commit() {
-        try {
-            MultiFileHashMapUtils.write(dataFile, dataBase);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public int commit() throws IOException {
+
+        MultiFileHashMapUtils.write(dataFile, dataBase);
         return 0;
     }
 
