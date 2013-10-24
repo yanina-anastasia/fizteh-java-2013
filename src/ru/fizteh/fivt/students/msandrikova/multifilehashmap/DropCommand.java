@@ -24,6 +24,7 @@ public class DropCommand extends Command {
 			
 		} catch (IllegalArgumentException e) {
 			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			return;
 		} catch (IllegalStateException e) {
 			System.out.println(argumentsList[1] + " not exists");
 		}

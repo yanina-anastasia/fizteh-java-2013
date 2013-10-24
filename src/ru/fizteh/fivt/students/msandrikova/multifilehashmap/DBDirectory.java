@@ -25,7 +25,14 @@ public class DBDirectory {
 						+ this.name + "\" can not be a directory.", "DBDirectory", false);
 			}
 			DBMap newDB = new DBMap(this.directoryPath, name);
-			this.mapOfDB.put(nameNumber, newDB);
+			if(!newDB.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
+				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
+			}
+			if(newDB.getSize() == 0) {
+				newDB.delete();
+			} else {
+				this.mapOfDB.put(nameNumber, newDB);
+			}
 		}
 	}
 
@@ -134,6 +141,10 @@ public class DBDirectory {
 	}
 	
 	public void delete() {
-		this.directoryPath.delete();
+		try {
+			Utils.remover(this.directoryPath, "remove", false);
+		} catch (IOException e) {
+			Utils.generateAnError("Fatal error during deleting", "remove", false);
+		}
 	}
 }

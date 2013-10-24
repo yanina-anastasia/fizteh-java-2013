@@ -23,6 +23,7 @@ public class CreateCommand extends Command {
 			newTable = myShell.getState().getTableProvider().createTable(argumentsList[1]);
 		} catch (IllegalArgumentException e) {
 			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			return;
 		}
 		
 		if(newTable == null) {

@@ -27,6 +27,7 @@ public class RemoveCommand extends Command {
 				oldValue = myShell.getState().getDBMap().remove(argumentsList[1]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else if(myShell.getState().getIsMultiFileHashMap()) {
 			if(myShell.getState().getCurrentTable() == null) {
@@ -37,6 +38,7 @@ public class RemoveCommand extends Command {
 				oldValue = myShell.getState().getCurrentTable().remove(argumentsList[1]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else {
 			Utils.generateAnError("If you want to use this command shell's state should "

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +51,20 @@ public class MyTableProvider implements TableProvider {
 			return null;
 		}
 		File tablePath = new File(this.currentDirectory, name);
+		try {
+			if(!tablePath.getCanonicalFile().getName().equals(name)) {
+				throw new IllegalArgumentException("Incorrect name for table: \"" + name + "\".");
+			}
+		} catch (IOException e) {
+			Utils.generateAnError("Can not work with file " + name, "create", false);
+		}
 		if(tablePath.exists()) {
 			if(tablePath.isDirectory()) {
 				Table newTable = new MyTable(this.currentDirectory, name);
 				this.mapOfTables.put(name, newTable);
 				return null;
 			} else {
-				Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "getTable", false);
+				Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "create", false);
 			}
 		}
 		Table newTable = new MyTable(this.currentDirectory, name);
@@ -76,13 +84,17 @@ public class MyTableProvider implements TableProvider {
 					Table newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
-					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "getTable", false);
+					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "drop", false);
 				}
 			} else {
 				throw new IllegalStateException();
 			}
 		}
-		tablePath.delete();
+		try {
+			Utils.remover(tablePath, "drop", false);
+		} catch (IOException e) {
+			Utils.generateAnError("Fatal error during deleting", "drop", false);
+		}
 		this.mapOfTables.remove(name);
 	}
 

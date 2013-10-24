@@ -32,6 +32,19 @@ public class DBMap {
 		this.readFile();
 	}
 	
+	public boolean checkHash(int dirNumber, int DBNumber) {
+		Set<String> keySet = this.mapDB.keySet();
+		for(String key : keySet) {
+			int hashcode = key.hashCode();
+			int ndirectory = hashcode % 16;
+			int nfile = hashcode / 16 % 16;
+			if(dirNumber != ndirectory || DBNumber != nfile) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	private void readFile() throws IOException, FileNotFoundException {
 		int keyLength;
 		int valueLength;
@@ -41,37 +54,30 @@ public class DBMap {
 		try {
 			reader = new DataInputStream(new FileInputStream(this.currentFile));
 			while(true) {
-				int counter = 0;
 				try {
 					keyLength = reader.readInt();
+				} catch(EOFException e) {
+					break;
+				}
 					if(keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
 						Utils.generateAnError("Incorrect length of key.", "DBMap", false);
 					}
-					counter++;
 					
 					valueLength = reader.readInt();
 					if(valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
 						Utils.generateAnError("Incorrect length of value.", "DBMap", false);
 					}
-					counter++;
 					
 					byte[] keyByteArray = new byte[keyLength];
 					reader.read(keyByteArray, 0, keyLength);
 					key = new String(keyByteArray);
-					counter++;
 					
 					byte[] valueByteArray = new byte[valueLength];
 					reader.read(valueByteArray, 0, valueLength);
 					value = new String(valueByteArray);
-					counter++;
 					
 					mapDB.put(key, value);
-				} catch(EOFException e) {
-					if(counter != 0) {
-						Utils.generateAnError("Incorrect amount of tokens in given file", "DBMap", false);
-					}
-					break;
-				}
+				
 			}
 		} finally {
 			reader.close();

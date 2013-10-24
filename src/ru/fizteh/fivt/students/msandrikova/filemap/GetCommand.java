@@ -26,6 +26,7 @@ public class GetCommand extends Command {
 				value = myShell.getState().getDBMap().get(argumentsList[1]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else if(myShell.getState().getIsMultiFileHashMap()) {
 			if(myShell.getState().getCurrentTable() == null) {
@@ -36,6 +37,7 @@ public class GetCommand extends Command {
 				value = myShell.getState().getCurrentTable().get(argumentsList[1]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else {
 			Utils.generateAnError("If you want to use this command shell's state should "

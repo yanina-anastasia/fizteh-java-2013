@@ -37,6 +37,7 @@ public class PutCommand extends Command {
 				oldValue = myShell.getState().getDBMap().put(argumentsList[1], argumentsList[2]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else if(myShell.getState().getIsMultiFileHashMap()) {
 			if(myShell.getState().getCurrentTable() == null) {
@@ -47,6 +48,7 @@ public class PutCommand extends Command {
 				oldValue = myShell.getState().getCurrentTable().put(argumentsList[1], argumentsList[2]);
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+				return;
 			}
 		} else {
 			Utils.generateAnError("If you want to use this command shell's state should "

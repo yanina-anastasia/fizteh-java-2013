@@ -145,4 +145,9 @@ public class Utils {
 		return instructionLine.split("\\s*;\\s*", -1);
 	}
 	
+	public static int getNameNumber(String name) {
+		String[] tokens = name.split("[.]");
+		return Integer.parseInt(tokens[0]);
+	}
+	
 }

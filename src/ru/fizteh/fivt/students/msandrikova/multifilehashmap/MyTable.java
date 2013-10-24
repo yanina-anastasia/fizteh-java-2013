@@ -36,7 +36,11 @@ public class MyTable implements Table {
 						+ this.name + ".", "create", false);
 			}
 			DBDirectory newDirectory = new DBDirectory(this.tablePath, name);
-			this.mapOfDirectories.put(nameNumber, newDirectory);
+			if(newDirectory.getDBCount() == 0){
+				newDirectory.delete();
+			} else {
+				this.mapOfDirectories.put(nameNumber, newDirectory);
+			}
 		}
 	}
 
@@ -117,6 +121,7 @@ public class MyTable implements Table {
 		}
 		if(answer != null) {
 			if(currentDirectory.getDBCount() == 0){
+				this.mapOfDirectories.remove(ndirectory);
 				currentDirectory.delete();
 			}
 			this.size--;

@@ -23,6 +23,7 @@ public class UseCommand extends Command {
 			currentTable = myShell.getState().getTableProvider().getTable(argumentsList[1]);
 		} catch (IllegalArgumentException e) {
 			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			return;
 		}
 		
 		if(currentTable == null) {
