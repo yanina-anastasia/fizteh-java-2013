@@ -38,8 +38,6 @@ public class DBMap {
 			int hashcode = key.hashCode();
 			int ndirectory = hashcode % 16;
 			int nfile = hashcode / 16 % 16;
-			nfile = Math.abs(nfile);
-			ndirectory = Math.abs(ndirectory);
 			if(dirNumber != ndirectory || DBNumber != nfile) {
 				return false;
 			}

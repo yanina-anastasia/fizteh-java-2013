@@ -86,7 +86,6 @@ public class MyTable implements Table {
 	public String get(String key) throws IllegalArgumentException {
 		int hashcode = key.hashCode();
 		int ndirectory = hashcode % 16;
-		ndirectory = Math.abs(ndirectory);
 		String answer = null;
 		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory != null) {
@@ -99,7 +98,6 @@ public class MyTable implements Table {
 	public String put(String key, String value) throws IllegalArgumentException {
 		int hashcode = key.hashCode();
 		int ndirectory = hashcode % 16;
-		ndirectory = Math.abs(ndirectory);
 		String answer = null;
 		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory == null) {
@@ -123,7 +121,6 @@ public class MyTable implements Table {
 	public String remove(String key) throws IllegalArgumentException {
 		int hashcode = key.hashCode();
 		int ndirectory = hashcode % 16;
-		ndirectory = Math.abs(ndirectory);
 		String answer = null;
 		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory != null) {
