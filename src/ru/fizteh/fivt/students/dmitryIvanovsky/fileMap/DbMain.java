@@ -9,6 +9,7 @@ public class DbMain {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
         String path = System.getProperty("fizteh.db.dir");
+        System.out.println(path);
         runDb(args, path);
     }
 
