@@ -311,7 +311,7 @@ public class FileMapShell extends ShellEmulator {
         } catch (FileNotFoundException e) {
             System.err.println("File not found: data wasn't read");
         } catch (IOException e) {
-            throw new ShellException("Fail to load database", "IOExceptinon");
+            throw new ShellException("Fail to load database", "IOExceptinon" + e.getMessage());
         }
     }
 }
