@@ -22,6 +22,7 @@ public class RemoveCommand implements Command {
                     return false;
                 }
                 System.err.println(e.getMessage());
+                return false;
             }
             if (db == null) {
                 System.out.println("not found");

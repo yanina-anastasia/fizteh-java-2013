@@ -28,6 +28,7 @@ public class PutCommand implements Command {
                     return true;
                 }
                 System.err.println(e.getMessage());
+                return false;
             }
             if (db == null) {
                 try {

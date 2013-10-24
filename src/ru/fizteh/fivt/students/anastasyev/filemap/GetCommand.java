@@ -22,6 +22,7 @@ public class GetCommand implements Command {
                     return false;
                 }
                 System.err.println(e.getMessage());
+                return false;
             }
             if (db == null) {
                 System.out.println("not found");
