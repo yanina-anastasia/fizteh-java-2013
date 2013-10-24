@@ -17,6 +17,7 @@ public class DbMain {
         try {
             fileMapCommand = new MyFileMap(path);
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Ошибка загрузки базы данных");
             System.exit(1);
         }

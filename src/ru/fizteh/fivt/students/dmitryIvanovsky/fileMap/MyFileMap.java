@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -19,6 +20,7 @@ public class MyFileMap implements CommandAbstract {
     private final CommandShell mySystem;
     String useNameTable;
     Map<String, Map<String, String>> dbData;
+    HashSet<String> setMap;
     boolean err;
     boolean out;
 
@@ -73,7 +75,9 @@ public class MyFileMap implements CommandAbstract {
         this.pathTables = Paths.get(pathT);
         this.mySystem = new CommandShell(pathT, false, false);
         this.dbData = new HashMap(){};
-        if (loadDb() == Code.ERROR) {
+        this.setMap = new HashSet<String>();
+
+        if (checkBdDir(pathTables) == Code.ERROR) {
             throw new ErrorFileMap("Ошибка загрузки базы");
         }
 
@@ -87,13 +91,27 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public void exit() throws IOException {
-        closeDb();
+        closeAllDb();
     }
 
-    private Code loadDb() {
+    private Code checkBdDir(Path pathTables) {
+        File currentFile = pathTables.toFile();
+        for (File nameMap : currentFile.listFiles()) {
+            if (!nameMap.isDirectory()) {
+                errPrint(nameMap.getAbsolutePath() + " не папка");
+                return Code.ERROR;
+            } else {
+                setMap.add(nameMap.getName());
+            }
+        }
+        return Code.OK;
+    }
+
+    private Code loadDb(String nameMap) {
         try {
-            File currentFile = pathTables.toFile();
-            for (String nameMap : currentFile.list()) {
+            //File currentFile = pathTables.toFile();
+            //for (String nameMap : currentFile.list()) {
+                //String nameMap =
                 File currentFileMap = pathTables.resolve(nameMap).toFile();
                 if (!currentFileMap.isDirectory()) {
                     errPrint(currentFileMap.getAbsolutePath() + " не директория");
@@ -104,8 +122,8 @@ public class MyFileMap implements CommandAbstract {
                 File[] listFileMap = currentFileMap.listFiles();
 
                 if (listFileMap == null || listFileMap.length == 0) {
-                    errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
-                    return Code.ERROR;
+                    //errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
+                    return Code.OK;
                 }
 
                 for (File nameDir : listFileMap) {
@@ -143,7 +161,9 @@ public class MyFileMap implements CommandAbstract {
                         }
                     }
                 }
-            }
+
+
+            //}
             return Code.OK;
         } catch (Exception e) {
             return Code.ERROR;
@@ -265,11 +285,13 @@ public class MyFileMap implements CommandAbstract {
         }
     }
 
-    public void closeDb() throws IOException {
+    public void closeAllDb() throws IOException {
         for (String nameMap : dbData.keySet()) {
             mySystem.rm(new String[]{pathTables.resolve(nameMap).toString()});
             mySystem.mkdir(new String[]{pathTables.resolve(nameMap).toString()});
-
+            if (dbData.get(nameMap).isEmpty()) {
+                continue;
+            }
             Map<String, String>[][] arrayMap = new HashMap[16][16];
             boolean[] useDir = new boolean[16];
             for (String key : dbData.get(nameMap).keySet()) {
@@ -471,7 +493,13 @@ public class MyFileMap implements CommandAbstract {
             return Code.ERROR;
         } else {
             String nameTable = args[0];
-            if (dbData.containsKey(nameTable)) {
+            if (setMap.contains(nameTable)) {
+                if (!dbData.containsKey(nameTable)) {
+                    if (loadDb(nameTable) != Code.OK) {
+                        errPrint("Ошибка формата хранения таблицы " + nameTable);
+                        return Code.ERROR;
+                    }
+                }
                 if (!nameTable.equals(useNameTable)) {
                     useNameTable = nameTable;
                 }
@@ -485,7 +513,7 @@ public class MyFileMap implements CommandAbstract {
         }
     }
 
-    public Code drop(String[] args) throws ErrorFileMap {
+    public Code drop(String[] args) {
         if (args.length != 1) {
             errPrint("У команды drop 1 аргумент");
             return Code.ERROR;
@@ -494,8 +522,12 @@ public class MyFileMap implements CommandAbstract {
             if (nameTable.equals(useNameTable)) {
                 useNameTable = "";
             }
-            if (dbData.containsKey(nameTable)) {
-                dbData.remove(nameTable);
+            if (setMap.contains(nameTable)) {
+                if (dbData.containsKey(nameTable)) {
+                    dbData.remove(nameTable);
+                }
+                mySystem.rm(new String[]{pathTables.resolve(nameTable).toString()});
+                setMap.remove(nameTable);
                 outPrint("dropped");
                 return Code.OK;
             } else {
@@ -511,11 +543,13 @@ public class MyFileMap implements CommandAbstract {
             return Code.ERROR;
         } else {
             String nameTable = args[0];
-            if (dbData.containsKey(nameTable)) {
+            if (setMap.contains(nameTable)) {
                 outPrint(nameTable + " exists");
                 return Code.ERROR;
             } else {
-                dbData.put(nameTable, new HashMap<String, String>());
+                mySystem.mkdir(new String[]{pathTables.resolve(nameTable).toString()});
+                setMap.add(nameTable);
+                //dbData.put(nameTable, new HashMap<String, String>());
                 outPrint("created");
                 return Code.OK;
             }
