@@ -81,6 +81,8 @@ public class FileMapUtils {
                 offset1 = offset2;
                 key1 = key2;
             }
+            System.out.println(fileLength);
+            System.out.println(offset1);
             System.out.println("read_value_begin");
             String value = readValue(dataStream, offset1, fileLength, position, fileLength);
             System.out.println(value + "read_value_end");
