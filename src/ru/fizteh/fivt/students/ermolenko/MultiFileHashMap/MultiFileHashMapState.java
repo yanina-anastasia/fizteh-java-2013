@@ -9,31 +9,15 @@ public class MultiFileHashMapState {
 
     private MultiFileHashMapTableProvider provider;
     private MultiFileHashMapTable currentTable;
-    private int flag;
     //ЗАЧЕМ???
     //private File dataFile;
 
     public MultiFileHashMapState(File inFile) throws IOException {
 
-        flag = 0;
         //dataFile = inFile;
         currentTable = null;
         MultiFileHashMapTableProviderFactory factory = new MultiFileHashMapTableProviderFactory();
         provider = (MultiFileHashMapTableProvider) factory.create(inFile.getPath());
-    }
-
-    public int getFlag() {
-
-        return flag;
-    }
-
-    public void changeFlag() {
-
-        if (0 == flag) {
-            flag = 1;
-        } else {
-            flag = 0;
-        }
     }
 
     /*
@@ -43,8 +27,9 @@ public class MultiFileHashMapState {
     }
     */
     public Table createTable(String name) throws IOException {
-
-        return provider.createTable(name);
+        Table tmp = provider.createTable(name);
+        currentTable = (MultiFileHashMapTable) tmp;
+        return tmp;
     }
 
     public Table getTable(String name) throws IOException {

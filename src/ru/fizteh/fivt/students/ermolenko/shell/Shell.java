@@ -59,7 +59,6 @@ public class Shell {
 
         String[] cmd;
         while (true) {
-            System.out.println("4");
             System.out.print("$ ");
             cmd = scanner.nextLine().trim().split("\\s*;\\s*");
 

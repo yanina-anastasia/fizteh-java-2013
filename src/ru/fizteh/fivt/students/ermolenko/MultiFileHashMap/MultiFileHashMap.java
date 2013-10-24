@@ -14,7 +14,7 @@ public class MultiFileHashMap extends Shell {
         state = new MultiFileHashMapState(currentFile);
     }
 
-    public MultiFileHashMapState getMFHMState() {
+    public MultiFileHashMapState getMultiFileHashMapState() {
 
         return state;
     }

@@ -16,12 +16,13 @@ public class CmdDrop implements Command {
     @Override
     public void executeCmd(Shell shell, String[] args) throws IOException {
 
-        if (((MultiFileHashMap) shell).getMFHMState().getTable(args[0]) == null) {
+        if (((MultiFileHashMap) shell).getMultiFileHashMapState().getTable(args[0]) == null) {
             System.out.println(args[0] + " not exists");
             return;
         } else {
-            if (((MultiFileHashMap) shell).getMFHMState().getCurrentTable().getName().equals(args[0])) {
-                ((MultiFileHashMap) shell).getMFHMState().deleteCurrentTable();
+            if (((MultiFileHashMap) shell).getMultiFileHashMapState().getCurrentTable().getName().equals(args[0])) {
+                ((MultiFileHashMap) shell).getMultiFileHashMapState().deleteCurrentTable();
+                ((MultiFileHashMap) shell).getMultiFileHashMapState().setCurrentTable(null);
                 System.out.println("dropped");
             }
         }

@@ -14,13 +14,10 @@ public class FileMapMain {
         File base = new File(currentProperty);
         if (!base.exists()) {
             base.createNewFile();
-            System.out.println("1");
         }
 
         try {
             base = base.getCanonicalFile().toPath().resolve("db.dat").toFile();
-            System.out.println("2");
-            System.out.println(base.toString());
             FileMap filemap = new FileMap(base);
 
             FileMapExecutor exec = new FileMapExecutor();

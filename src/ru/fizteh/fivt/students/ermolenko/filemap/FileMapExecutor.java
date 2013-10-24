@@ -6,10 +6,12 @@ import ru.fizteh.fivt.students.ermolenko.shell.Command;
 public class FileMapExecutor extends Executor {
 
     public FileMapExecutor() {
+
         list();
     }
 
     public void list() {
+
         Command put = new Put();
         mapOfCmd.put(put.getName(), put);
         Command get = new Get();

@@ -35,6 +35,7 @@ public class FileMapUtils {
     }
 
     private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len) throws IOException {
+
         dis.mark((int) len);
         dis.skip(offset1 - position);
         byte[] buffer = new byte[(int) (offset2 - offset1)];
@@ -45,6 +46,7 @@ public class FileMapUtils {
     }
 
     public static void readDataBase(FileMapState state) throws IOException {
+
         if (state.getDataFile().length() == 0) {
             return;
         }
@@ -75,8 +77,6 @@ public class FileMapUtils {
                 offset1 = offset2;
                 key1 = key2;
             }
-            System.out.println(fileLength);
-            System.out.println(offset1);
             String value = readValue(dataStream, offset1, fileLength, position, fileLength);
             state.getDataBase().put(key1, value);
         } finally {
@@ -86,6 +86,7 @@ public class FileMapUtils {
     }
 
     private static void closeStream(Closeable stream) throws IOException {
+
         stream.close();
     }
 

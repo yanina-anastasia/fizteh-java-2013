@@ -20,11 +20,11 @@ public class MultiFileHashMapPut implements Command {
             System.out.println("incorrect number of arguments");
             return;
         }
-        if (((MultiFileHashMap) shell).getMFHMState().getCurrentTable() == null) {
+        if (((MultiFileHashMap) shell).getMultiFileHashMapState().getCurrentTable() == null) {
             System.out.println("no table");
             return;
         }
-        String value = ((MultiFileHashMap) shell).getMFHMState().putToCurrentTable(args[0], args[1]);
+        String value = ((MultiFileHashMap) shell).getMultiFileHashMapState().putToCurrentTable(args[0], args[1]);
         if (null == value) {
             System.out.println("new");
         } else {

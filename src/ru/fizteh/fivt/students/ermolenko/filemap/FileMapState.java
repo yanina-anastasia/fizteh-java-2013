@@ -11,19 +11,23 @@ public class FileMapState {
     private File dataFile;
 
     public Map<String, String> getDataBase() {
+
         return dataBase;
     }
 
     public File getDataFile() {
+
         return dataFile;
     }
 
     public FileMapState(File currentFile) {
+
         dataBase = new HashMap<String, String>();
         dataFile = currentFile;
     }
 
     public void setDataBase(Map<String, String> map) {
+
         dataBase = map;
     }
 }

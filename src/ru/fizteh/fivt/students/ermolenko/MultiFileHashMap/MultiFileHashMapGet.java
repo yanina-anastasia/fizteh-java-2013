@@ -20,11 +20,11 @@ public class MultiFileHashMapGet implements Command {
             System.out.println("incorrect number of arguments");
             return;
         }
-        if (((MultiFileHashMap) shell).getMFHMState().getCurrentTable() == null) {
+        if (((MultiFileHashMap) shell).getMultiFileHashMapState().getCurrentTable() == null) {
             System.out.println("no table");
             return;
         }
-        String value = ((MultiFileHashMap) shell).getMFHMState().getFromCurrentTable(args[0]);
+        String value = ((MultiFileHashMap) shell).getMultiFileHashMapState().getFromCurrentTable(args[0]);
         if (null == value) {
             System.out.println("not found");
         } else {
