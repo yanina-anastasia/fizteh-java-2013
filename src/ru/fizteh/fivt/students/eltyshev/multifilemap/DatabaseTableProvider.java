@@ -47,7 +47,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         if (tables.containsKey(name)) {
-            throw new IllegalStateException("tablename exists");
+            throw new IllegalStateException(String.format("%s exists", name));
         }
 
         MultifileTable table = new MultifileTable(databaseDirectoryPath, name);
@@ -61,7 +61,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         if (!tables.containsKey(name)) {
-            throw new IllegalStateException("tablename not exists");
+            throw new IllegalStateException(String.format("%s not exists", name));
         }
 
         tables.remove(name);
