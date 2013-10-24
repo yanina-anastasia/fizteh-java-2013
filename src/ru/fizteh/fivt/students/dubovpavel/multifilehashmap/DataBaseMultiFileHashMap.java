@@ -57,7 +57,7 @@ public class DataBaseMultiFileHashMap extends DataBase {
                                 Distribution<Integer, Integer> distr = getDistribution(key);
                                 if(i != distr.getDir() || j != distr.getChunk()) {
                                     throw new DataBaseException(
-                                            String.format("Key '%s' should not belong to this chunk. The whole chunk denied", key));
+                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key));
                                 }
                             }
                             chunksCollector.putAll(dict);
