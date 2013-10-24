@@ -17,10 +17,7 @@ public class PutCommand extends Command {
 		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
-		if(!myShell.getIsFileMap()) {
-			myShell.setIsFileMap(true);
-			myShell.initMyDBMap();
-		}
+
 		if(argumentsList[1].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
 			Utils.generateAnError("Key length must be less than 1 MB.", this.getName(), myShell.getIsInteractive());
 			return;
@@ -30,13 +27,40 @@ public class PutCommand extends Command {
 			return;
 		}
 		
-		String oldValue;
-		if((oldValue = myShell.getMyDBMap().put(argumentsList[1], argumentsList[2])) == null){
+		String oldValue = null;
+		
+		if(myShell.getState().getIsFileMap()) {
+			if(myShell.getState().getDBMap() == null) {
+				myShell.getState().setDBMap(myShell.getCurrentDirectory());
+			}
+			try {
+				oldValue = myShell.getState().getDBMap().put(argumentsList[1], argumentsList[2]);
+			} catch (IllegalArgumentException e) {
+				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			}
+		} else if(myShell.getState().getIsMultiFileHashMap()) {
+			if(myShell.getState().getCurrentTable() == null) {
+				System.out.println("no table");
+				return;
+			}
+			try {
+				oldValue = myShell.getState().getCurrentTable().put(argumentsList[1], argumentsList[2]);
+			} catch (IllegalArgumentException e) {
+				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			}
+		} else {
+			Utils.generateAnError("If you want to use this command shell's state should "
+					+ "have type isFileMap or isMultiFileHashMap.", this.getName(), myShell.getIsInteractive());
+			return;
+		}
+
+		if(oldValue == null) {
 			System.out.println("new");
 		} else {
 			System.out.println("overwrite");
 			System.out.println(oldValue);
 		}
+
 	}
 
 }
