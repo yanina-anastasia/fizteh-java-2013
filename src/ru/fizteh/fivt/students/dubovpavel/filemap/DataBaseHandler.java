@@ -9,5 +9,6 @@ public interface DataBaseHandler <K, V> {
     public abstract V put(K key, V value);
     public abstract V get(K key);
     public abstract void save() throws DataBaseException;
+    public abstract void open() throws DataBaseException;
     public abstract V remove(K key);
 }

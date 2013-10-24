@@ -9,6 +9,13 @@ public abstract class DispatcherBuilder {
     protected boolean forwarding;
     protected ArrayList<Performer> performers;
 
+    protected Dispatcher setPerformers(Dispatcher dispatcher) {
+        for(Performer performer : performers) {
+            dispatcher.addPerformer(performer);
+        }
+        return dispatcher;
+    }
+
     public DispatcherBuilder() {
         clear();
     }

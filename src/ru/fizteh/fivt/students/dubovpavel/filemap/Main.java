@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Feeder;
 public class Main {
     public static void main(String[] args) {
         DispatcherFileMapBuilder dispatcherFileMapBuilder = new DispatcherFileMapBuilder();
+        dispatcherFileMapBuilder.setRepoPath("fizteh.db.dir");
         dispatcherFileMapBuilder.addPerformer(new PerformerExit());
         dispatcherFileMapBuilder.addPerformer(new PerformerGet());
         dispatcherFileMapBuilder.addPerformer(new PerformerHalt());
