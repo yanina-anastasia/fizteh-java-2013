@@ -118,6 +118,49 @@ public class FileMapShell extends ShellEmulator {
         }
     }
 
+    //-------------------------------------------------------
+    /*
+    private class CreateCommand implements ShellCommand {
+        @Override
+        public String getName() {
+            return "create";
+        }
+
+        @Override
+        public void execute(String[] args) {
+            //todo
+        }
+    }
+
+    private class DropCommand implements ShellCommand {
+        @Override
+        public String getName() {
+            return "drop";
+        }
+
+        @Override
+        public void execute(String[] args) {
+            //todo
+        }
+    }
+
+    private class UseCommand implements ShellCommand {
+        @Override
+        public String getName() {
+            return "use";
+        }
+
+        @Override
+        public void execute(String[] args) {
+            //todo
+        }
+    }
+
+
+    */
+    //-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+
     private String[] getKeyValueArgPair(String bigArg) throws ShellException {
         String[] tmpStr = bigArg.split("\\s", 2);
         if (tmpStr.length >= 2) {
@@ -147,8 +190,22 @@ public class FileMapShell extends ShellEmulator {
         super.packageMode(query);
         try {
             closeDbFile();
-        } catch (FileNotFoundException e) {
-            throw new ShellException("closeDb", "File not found.");
+        } catch (FileNotFoundException ignored) {
+
+        } catch (ShellException e) {
+            System.err.println(e.toString());
+        }
+    }
+
+    @Override
+    public void interactiveMode() {
+        super.interactiveMode();
+        try {
+            closeDbFile();
+        } catch (FileNotFoundException ignored) {
+
+        } catch (ShellException e) {
+            System.err.println(e.toString());
         }
     }
 
@@ -250,10 +307,9 @@ public class FileMapShell extends ShellEmulator {
         try {
             loadDbFileToMap();
         } catch (ShellException e) {
-            System.err.println("Incorrect input file: " + e.toString());
-            throw new ShellException("Fail to load data base", "");
+            throw new ShellException("Incorrect input file", e.toString());
         } catch (FileNotFoundException e) {
-            System.err.println("File not found");
+            System.err.println("File not found: data wasn't read");
         } catch (IOException e) {
             throw new ShellException("Fail to load database", "IOExceptinon");
         }

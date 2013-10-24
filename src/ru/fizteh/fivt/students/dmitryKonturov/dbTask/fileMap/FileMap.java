@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dbTask.fileMap;
 
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileMap {
@@ -8,13 +10,20 @@ public class FileMap {
     public static void main(String[] args) {
         String dbDir;
         final String fileName = "db.dat";
+        dbDir = "/home/kontr/testDir";
+        /* todo
         dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.err.println("Empty property.");
             System.exit(1);
-        }
+        } */
         try {
-            FileMapShell shell = new FileMapShell(Paths.get(dbDir), fileName);
+            Path dbDirPath = Paths.get(dbDir);
+            if (!Files.isDirectory(dbDirPath)) {
+                System.err.println("Property is not directory.");
+                System.exit(1);
+            }
+            FileMapShell shell = new FileMapShell(dbDirPath, fileName);
             if (args.length > 0) {
                 StringBuilder builder = new StringBuilder();
                 for (String arg : args) {
