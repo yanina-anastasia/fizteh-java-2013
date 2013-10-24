@@ -45,8 +45,15 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        strings.put(key, twoLayeredKey);
-        return storage.put(twoLayeredKey, value);
+        if (strings.get(key) != null) {
+            String oldValue = storage.remove(strings.get(key));
+            strings.put(key, twoLayeredKey);
+            storage.put(twoLayeredKey, value);
+            return oldValue;
+        } else {
+            strings.put(key, twoLayeredKey);
+            return storage.put(twoLayeredKey, value);
+        }
     }
 
     @Override
