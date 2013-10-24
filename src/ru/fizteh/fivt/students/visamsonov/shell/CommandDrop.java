@@ -21,7 +21,7 @@ public class CommandDrop extends CommandAbstract {
 			return false;
 		}
 		catch (IllegalStateException e) {
-			getOutStream().println(e.getMessage());
+			getErrStream().println(e.getMessage());
 			return false;
 		}
 		getOutStream().println("dropped");

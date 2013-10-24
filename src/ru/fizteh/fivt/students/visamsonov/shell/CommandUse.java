@@ -16,7 +16,7 @@ public class CommandUse extends CommandAbstract {
 			}
 			state.database = state.tableProvider.getTable(args);
 			if (state.database == null) {
-				printError("\"" + args + "\" not exists");
+				getErrStream().println(args + " not exists");
 				return false;
 			}
 		}
