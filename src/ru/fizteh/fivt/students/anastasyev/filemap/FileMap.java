@@ -6,7 +6,7 @@ import java.util.*;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
 
-import static java.lang.Math.abs;
+//import static java.lang.Math.abs;
 
 public class FileMap extends State {
     private File fileMap;
@@ -138,9 +138,9 @@ public class FileMap extends State {
                 throw new IOException("Error in read strings in " + nfile + ".dat");
             }
             String key = new String(keyBytes);
-            if (abs(key.hashCode() % 16) != ndirectory || abs(key.hashCode() / 16 % 16) != nfile) {
+            /*if (abs(key.hashCode() % 16) != ndirectory || abs(key.hashCode() / 16 % 16) != nfile) {
                 throw new IOException(nfile + ".dat has incorrect format");
-            }
+            }*/
             String value = new String(valueBytes);
             elementHashMap.put(key, value);
         } catch (OutOfMemoryError e) {
