@@ -65,20 +65,25 @@ public class FileMapUtils {
             position += 5;
             System.out.println("4");
             while (position != firstOffset) {
+                if (firstOffset > fileLength) {
+                    System.out.println("hitrez");
+                }
                 System.out.println("read_key_begin");
                 String key2 = readKey(dataStream);
-                System.out.println("read_key_end");
+                System.out.println(key2 + "read_key_end");
                 position += key2.getBytes(StandardCharsets.UTF_8).length;
                 int offset2 = dataStream.readInt();
                 position += 5;
                 System.out.println("read_value_begin");
                 String value = readValue(dataStream, offset1, offset2, position, fileLength);
-                System.out.println("read_value_end");
+                System.out.println(value + "read_value_end");
                 state.getDataBase().put(key1, value);
                 offset1 = offset2;
                 key1 = key2;
             }
+            System.out.println("read_value_begin");
             String value = readValue(dataStream, offset1, fileLength, position, fileLength);
+            System.out.println(value + "read_value_end");
             state.getDataBase().put(key1, value);
         } finally {
             closeStream(dataStream);
