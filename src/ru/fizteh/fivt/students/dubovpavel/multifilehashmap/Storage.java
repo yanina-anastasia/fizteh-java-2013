@@ -36,19 +36,20 @@ public class Storage {
         dir = new File(path);
         cursor = null;
         if(!dir.isDirectory()) {
-            dispatcherMultiFileHashMap.callbackWriter(Dispatcher.MessageType.ERROR,
+            dispatcherMultiFileHashMap.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("Storage loading: '%s' is not a directory. Empty storage applied", dir.getPath()));
-        }
-        for(File folder: dir.listFiles()) {
-            if(folder.isDirectory()) {
-                DataBaseMultiFileHashMap dataBase = new DataBaseMultiFileHashMap(folder);
-                try {
-                    dataBase.open();
-                } catch(DataBaseHandler.DataBaseException e) {
-                    dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
-                            String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
+        } else {
+            for(File folder: dir.listFiles()) {
+                if(folder.isDirectory()) {
+                    DataBaseMultiFileHashMap dataBase = new DataBaseMultiFileHashMap(folder);
+                    try {
+                        dataBase.open();
+                    } catch(DataBaseHandler.DataBaseException e) {
+                        dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                                String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
+                    }
+                    storage.put(folder.getName(), dataBase);
                 }
-                storage.put(folder.getName(), dataBase);
             }
         }
     }
