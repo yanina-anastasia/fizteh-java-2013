@@ -7,6 +7,10 @@ public class Main {
 
     public static void main(String[] args) {
         String dbDirectory = System.getProperty("fizteh.db.dir");
+        if (dbDirectory == null) {
+            System.err.println("No database location");
+            System.exit(1);
+        }
         File dbPath = new File(dbDirectory + "/db.dat");
 
         try {

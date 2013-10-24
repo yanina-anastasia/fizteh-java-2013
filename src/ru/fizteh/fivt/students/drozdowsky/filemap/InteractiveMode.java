@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
 import java.util.Scanner;
-import java.util.Vector;
 
 public class InteractiveMode {
     private Database db;
@@ -11,19 +10,16 @@ public class InteractiveMode {
     }
 
     private String[] scanArgs(Scanner in) {
-        Vector<String> args = new Vector<String>();
-        Vector<StringBuilder> tempArgs = new Vector<StringBuilder>();
-        boolean lastArgumentEnded = true;
         String[] temp = new String[1];
 
         if (!in.hasNextLine()) {
+            db.close();
             System.exit(0);
         }
         temp[0] = in.nextLine();
 
         return temp;
     }
-
 
     public void start() {
         Scanner in = new Scanner(System.in);

@@ -31,7 +31,10 @@ public class Move {
 
             Copy cp = new Copy(path, args);
             if (cp.execute()) {
-                Remove rm = new Remove(path, args);
+                String[] args2 = new String[2];
+                args2[1] = args[1];
+                args2[0] = args[0];
+                Remove rm = new Remove(path, args2);
                 return rm.execute();
             }
             return false;

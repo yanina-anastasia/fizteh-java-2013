@@ -52,7 +52,7 @@ public class Database {
         if (db.get(args[1]) == null) {
             System.out.println("not found");
         } else {
-            System.out.println("found\n" + db.get(args[1]));
+            System.out.println("found" + System.lineSeparator() + db.get(args[1]));
         }
         return true;
     }
@@ -70,7 +70,7 @@ public class Database {
         if (db.get(args[1]) == null) {
             System.out.println("new");
         } else {
-            System.out.println("overwrite\n" + db.get(args[1]));
+            System.out.println("overwrite" + System.lineSeparator() + db.get(args[1]));
         }
         db.put(args[1], args[2]);
         changed = true;
@@ -94,11 +94,10 @@ public class Database {
     }
 
     private void readDB() throws IOException {
-        try {
+        try (FileInputStream inputDB = new FileInputStream(dbPath)) {
             ArrayList<Pair<String, Integer>> offset = new ArrayList<Pair<String, Integer>>();
-            FileInputStream inputDB = new FileInputStream(dbPath);
 
-            Byte next;
+            byte next;
             int byteRead = 0;
             ByteBuffer key = ByteBuffer.allocate(BUFFSIZE);
 
@@ -166,8 +165,7 @@ public class Database {
     }
 
     private void writeDB() {
-        try {
-            FileOutputStream out = new FileOutputStream(dbPath);
+        try (FileOutputStream out = new FileOutputStream(dbPath)) {
             ArrayList<Integer> length = new ArrayList<Integer>();
             ArrayList<String> values = new ArrayList<String>();
             ArrayList<String> keys = new ArrayList<String>();
