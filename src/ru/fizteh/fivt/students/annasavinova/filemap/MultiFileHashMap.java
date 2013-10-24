@@ -28,18 +28,12 @@ public class MultiFileHashMap extends FileMap {
         for (String key : keys) {
             byte b = 0;
             try {
-                b = key.getBytes("UTF-8")[0];
+                b = (byte) Math.abs(key.getBytes("UTF-8")[0]);
             } catch (UnsupportedEncodingException e) {
                 System.err.println("Cannot get hashcode");
             }
             int ndirectory = b % 16;
-            if (ndirectory < 0) {
-                ndirectory += 16;
-            }
             int nfile = b / 16 % 16;
-            if (nfile < 0) {
-                nfile += 16;
-            }
             if (ndirectory != dirNum || nfile != fileNum) {
                 printErrorAndExit("Incorrect input files");
             }
@@ -164,18 +158,12 @@ public class MultiFileHashMap extends FileMap {
                         } else {
                             byte b = 0;
                             try {
-                                b = args[1].getBytes("UTF-8")[0];
+                                b = (byte) Math.abs(args[1].getBytes("UTF-8")[0]);
                             } catch (UnsupportedEncodingException e) {
                                 System.err.println("Cannot get hashcode");
                             }
                             int ndirectory = b % 16;
-                            if (ndirectory < 0) {
-                                ndirectory += 16;
-                            }
                             int nfile = b / 16 % 16;
-                            if (nfile < 0) {
-                                nfile += 16;
-                            }
                             dataArray[ndirectory * 16 + nfile].execProc(args);
                         }
                     } else {
