@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 import ru.fizteh.fivt.students.dubovpavel.shell2.performers.PerformerRemove;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,23 +59,46 @@ public class Storage {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("%s exists", key));
         } else {
-            storage.put(key, new DataBaseMultiFileHashMap(new File(dir, key)));
+            File newData = new File(dir, key);
+            try {
+                if(!newData.getCanonicalFile().getName().equals(key)) {
+                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "Can not create table with this name");
+                    return;
+                }
+            } catch(IOException e) {
+                throw new RuntimeException(e.getMessage()); // See the note for PerformerShell
+            }
+            if(!newData.exists()) {
+                if(!newData.mkdir()) {
+                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                            String.format("Can not create directory '%s'", newData.getPath()));
+                    return;
+                }
+            } else if(!newData.isDirectory()) {
+                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                        String.format("'%s' exists and it is not a directory", newData.getPath()));
+                return;
+            }
+            storage.put(key, new DataBaseMultiFileHashMap(newData));
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
         }
     }
 
     public void drop(String key) {
         if(storage.containsKey(key)) {
-            try {
-                new PerformerRemove().removeObject(storage.get(key).getPath());
-                if(cursor != null && cursor.getPath().getName().equals(key)) {
-                    cursor = null;
+            if(storage.get(key).getPath().exists()) {
+                try {
+                    new PerformerRemove().removeObject(storage.get(key).getPath());
+                } catch(PerformerRemove.PerformerRemoveException e) {
+                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("Drop: Can not remove: %s", e.getMessage()));
+                    return;
                 }
-                storage.remove(key);
-                dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "dropped");
-            } catch(PerformerRemove.PerformerRemoveException e) {
-                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("Drop: %s", e.getMessage()));
             }
+            if(cursor != null && cursor.getPath().getName().equals(key)) {
+                cursor = null;
+            }
+            storage.remove(key);
+            dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "dropped");
         } else {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("%s not exists", key));
         }
