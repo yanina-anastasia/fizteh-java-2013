@@ -34,7 +34,7 @@ public class TableDirectory implements TableProvider {
 		}
 		File table = new File(dbDirectory, name);
 		if (table.isDirectory()) {
-			throw new IllegalArgumentException("\"" + name + "\" exists");
+			throw new IllegalArgumentException(name + " exists");
 		}
 		if (!table.mkdir()) {
 			throw new IllegalArgumentException();
@@ -74,7 +74,7 @@ public class TableDirectory implements TableProvider {
 		}
 		File table = new File(dbDirectory, name);
 		if (!table.isDirectory()) {
-			throw new IllegalStateException("\"" + name + "\" not exists");
+			throw new IllegalStateException(name + " not exists");
 		}
 		if (!delete(dbDirectory, name)) {
 			throw new IllegalArgumentException();

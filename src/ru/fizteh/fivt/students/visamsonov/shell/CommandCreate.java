@@ -14,7 +14,7 @@ public class CommandCreate extends CommandAbstract {
 			state.tableProvider.createTable(args);
 		}
 		catch (IllegalArgumentException e) {
-			printError(e.getMessage());
+			getOutStream().println(e.getMessage());
 			return false;
 		}
 		getOutStream().println("created");
