@@ -103,7 +103,7 @@ public class DataBaseMultiFileHashMap extends DataBase {
             File sub = generateChunksDir(i);
             for(int j = 0; j < chunksCount; j++) {
                 if(!distribution[i][j].isEmpty()) {
-                    if(!sub.mkdir()) {
+                    if(!sub.isDirectory() && !sub.mkdir()) {
                         dict = backUp;
                         throw new DataBaseException(String.format("Chunk (%d, *): Can not create directory", i));
                     }

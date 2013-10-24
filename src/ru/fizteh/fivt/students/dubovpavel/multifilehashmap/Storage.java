@@ -68,16 +68,12 @@ public class Storage {
             } catch(IOException e) {
                 throw new RuntimeException(e.getMessage()); // See the note for PerformerShell
             }
-            if(!newData.exists()) {
+            if(!newData.isDirectory()) {
                 if(!newData.mkdir()) {
                     dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                             String.format("Can not create directory '%s'", newData.getPath()));
                     return;
                 }
-            } else if(!newData.isDirectory()) {
-                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                        String.format("'%s' exists and it is not a directory", newData.getPath()));
-                return;
             }
             storage.put(key, new DataBaseMultiFileHashMap(newData));
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
@@ -86,7 +82,7 @@ public class Storage {
 
     public void drop(String key) {
         if(storage.containsKey(key)) {
-            if(storage.get(key).getPath().exists()) {
+            if(storage.get(key).getPath().isDirectory()) {
                 try {
                     new PerformerRemove().removeObject(storage.get(key).getPath());
                 } catch(PerformerRemove.PerformerRemoveException e) {
