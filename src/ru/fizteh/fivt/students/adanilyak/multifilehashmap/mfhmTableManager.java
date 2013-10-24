@@ -37,14 +37,8 @@ public class mfhmTableManager implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
-
-        if (!allTablesMap.containsKey(tableName)) {
-            return null;
-        }
-
-        File tableFile = new File(allTablesDirectory, tableName);
         try {
-            return new mfhmTableStorage(tableFile);
+            return allTablesMap.get(tableName);
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
             return null;

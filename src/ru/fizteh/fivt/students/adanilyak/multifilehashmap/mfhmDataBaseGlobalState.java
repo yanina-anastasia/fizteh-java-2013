@@ -58,6 +58,9 @@ public class mfhmDataBaseGlobalState {
     }
 
     public void removeTable(String tableName) {
+        if (currentTable.getName().equals(tableName)) {
+            currentTable = null;
+        }
         currentTableManager.removeTable(tableName);
     }
 

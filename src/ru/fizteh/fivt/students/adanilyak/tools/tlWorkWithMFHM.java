@@ -15,6 +15,7 @@ public class tlWorkWithMFHM {
     private static void makeUpParsedMap(Map<String, String>[][] mapReadyForWrite, Map<String, String> dataBase) {
         for (String key : dataBase.keySet()) {
             int hashCode = key.hashCode();
+            hashCode *= Integer.signum(hashCode);
             int indexDir = hashCode % 16;
             int indexDat = hashCode / 16 % 16;
 
