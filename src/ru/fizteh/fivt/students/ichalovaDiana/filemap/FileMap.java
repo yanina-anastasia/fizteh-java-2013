@@ -289,7 +289,7 @@ public class FileMap {
                         .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
 
                 currentDatabase.remove(key);
-                System.out.println("AAA");
+
                 currentDatabase.close();
 
             } catch (Exception e) {
