@@ -63,7 +63,7 @@ public class DataBaseMultiFileHashMap extends DataBase {
                             chunksCollector.putAll(dict);
                         } catch(DataBaseException e) {
                             allReadSuccessfully = false;
-                            exceptionMessage = String.format("\nChunk (%d, %d): %s", i, j, e.getMessage());
+                            exceptionMessage += String.format("\nChunk (%d, %d): %s", i, j, e.getMessage());
                         }
                     }
                 }
