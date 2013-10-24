@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.dzvonarev.shell;
 
-public class Pwd {
+import java.util.Vector;
 
-    public static void printCurrDir() {
-        System.out.println(Main.getCurrentDirectory());
+public class Pwd implements CommandInterface {
+
+    public void execute(Vector<String> args) {
+        System.out.println(Shell.getCurrentDirectory());
     }
 
 }

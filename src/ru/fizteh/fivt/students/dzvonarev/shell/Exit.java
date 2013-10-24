@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.dzvonarev.shell;
 
-public class Exit {
+import java.util.Vector;
 
-    public static void exitShell(int status) {
-        System.exit(status);
+public class Exit implements CommandInterface {
+
+    public void execute(Vector<String> args) {
+        System.exit(0);
     }
 
 }
