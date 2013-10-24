@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.lizaignatyeva.shell;
 
+import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.nio.*;
@@ -8,6 +9,8 @@ import java.util.Arrays;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandFactory;
 
 public class Shell {
+    static Hashtable<String, Command> commandsMap = new Hashtable<String, Command>();
+
     public static File path;
     public static CommandFactory factory;
 
@@ -38,9 +41,21 @@ public class Shell {
         return builder.toString();
     }
 
+    public static void addCommands() {
+        commandsMap.put("cd", new CdCommand());
+        commandsMap.put("mkdir", new MkdirCommand());
+        commandsMap.put("pwd", new PwdCommand());
+        commandsMap.put("rm", new RmCommand());
+        commandsMap.put("cp", new CpCommand());
+        commandsMap.put("mv", new MvCommand());
+        commandsMap.put("dir", new DirCommand());
+        commandsMap.put("exit", new ExitCommand());
+    }
+
     public static void main(String[] args) {
         path = new File(".");
-        factory = new CommandFactory();
+        addCommands();
+        factory = new CommandFactory(commandsMap);
         if (args.length != 0) {
             String commands = concatenateWithDelimiter(args, " ");
             runCommands(commands);
