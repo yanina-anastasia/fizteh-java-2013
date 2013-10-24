@@ -26,6 +26,9 @@ public class MultiFileHashMap extends FileMap {
         Set<String> keys = map.keySet();
         for (String key : keys) {
             byte b = key.getBytes()[0];
+            if (b < 0) {
+                b = (byte) -b;
+            }
             if (b % 16 != dirNum || b / 16 % 16 != fileNum) {
                 printErrorAndExit("Incorrect input files");
             }
@@ -69,11 +72,12 @@ public class MultiFileHashMap extends FileMap {
                 for (int j = 0; j < 16; ++j) {
                     dataArray[i * 16 + j].unloadFile();
                 }
-                File currentDir = new File(rootDir + currTable + File.separatorChar + i + ".dir");
+                File currentDir = getDirWithNum(i);
                 if (currentDir.list().length == 0) {
                     doDelete(currentDir);
                 }
             }
+            hasLoadingMaps = false;
         }
     }
 
@@ -148,6 +152,9 @@ public class MultiFileHashMap extends FileMap {
                             System.out.println("no table");
                         } else {
                             byte b = args[1].getBytes()[0];
+                            if (b < 0) {
+                                b = (byte) -b;
+                            }
                             int ndirectory = b % 16;
                             int nfile = b / 16 % 16;
                             dataArray[ndirectory * 16 + nfile].execProc(args);
