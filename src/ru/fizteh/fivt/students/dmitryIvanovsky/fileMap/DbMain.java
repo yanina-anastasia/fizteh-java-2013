@@ -17,7 +17,6 @@ public class DbMain {
         try {
             fileMapCommand = new MyFileMap(path);
         } catch (Exception e) {
-            //e.printStackTrace();
             System.err.println("Ошибка загрузки базы данных");
             System.exit(1);
         }
@@ -37,7 +36,6 @@ public class DbMain {
                 System.exit(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println("Ошибка выполнения");
             System.exit(1);
         }
