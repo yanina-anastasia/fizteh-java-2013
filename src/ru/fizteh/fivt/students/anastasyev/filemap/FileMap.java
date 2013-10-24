@@ -6,8 +6,6 @@ import java.util.*;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
 
-import static java.lang.Math.abs;
-
 public class FileMap extends State {
     private File fileMap;
     private HashMap<String, String> elementHashMap = new HashMap<String, String>();
@@ -45,7 +43,7 @@ public class FileMap extends State {
             throw new IOException("Error in key/value reading");
         }
         if (keyLength <= 0 || valueLength <= 0) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
         try {
             byte[] keyBytes = new byte[keyLength];
@@ -53,13 +51,13 @@ public class FileMap extends State {
             input.read(keyBytes);
             input.read(valueBytes);
             if (keyBytes.length != keyLength || valueBytes.length != valueLength) {
-                throw new IOException("Error in read strings in db.dat");
+                throw new IOException("Error in read strings in " + nfile + ".dat");
             }
             String key = new String(keyBytes);
             String value = new String(valueBytes);
             elementHashMap.put(key, value);
         } catch (OutOfMemoryError e) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
     }
 
@@ -88,7 +86,7 @@ public class FileMap extends State {
     private void openFileMapWithCheck() throws Exception {
         if (!fileMap.exists()) {
             if (!fileMap.createNewFile()) {
-                throw new IOException("Can't create data file db.dat");
+                throw new IOException("Can't create data file " + nfile + ".dat");
             }
         }
         RandomAccessFile input = null;
@@ -101,17 +99,17 @@ public class FileMap extends State {
                 readWithCheck(input);
             }
         } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("db.dat - File not found");
+            throw new FileNotFoundException(nfile + ".dat - File not found");
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception("In db.dat something goes very-very wrong");
+            throw new Exception("In " + nfile + ".dat something goes very-very wrong");
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    System.err.println("Can't close file db.dat");
+                    System.err.println("Can't close file " + nfile + ".dat");
                 }
             }
         }
@@ -127,7 +125,7 @@ public class FileMap extends State {
             throw new IOException("Error in key/value reading");
         }
         if (keyLength <= 0 || valueLength <= 0) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
         try {
             byte[] keyBytes = new byte[keyLength];
@@ -135,16 +133,16 @@ public class FileMap extends State {
             input.read(keyBytes);
             input.read(valueBytes);
             if (keyBytes.length != keyLength || valueBytes.length != valueLength) {
-                throw new IOException("Error in read strings in db.dat");
+                throw new IOException("Error in read strings in " + nfile + ".dat");
             }
             String key = new String(keyBytes);
-            if (abs(key.hashCode() % 16) != ndirectory || abs(key.hashCode() / 16 % 16) != nfile) {
-                throw new IOException("db.dat has incorrect format");
+            if ((key.hashCode() % 16 + 16) % 16 != ndirectory || ((key.hashCode() / 16 % 16) + 16) % 16 != nfile) {
+                throw new IOException(ndirectory + ".dir" + File.separator + nfile + ".dat has wrong key: " + key);
             }
             String value = new String(valueBytes);
             elementHashMap.put(key, value);
         } catch (OutOfMemoryError e) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
     }
 
@@ -158,7 +156,7 @@ public class FileMap extends State {
     private void openFileMap() throws Exception {
         if (!fileMap.exists()) {
             if (!fileMap.createNewFile()) {
-                throw new IOException("Can't create data file db.dat");
+                throw new IOException("Can't create data file " + nfile + ".dat");
             }
         }
         RandomAccessFile input = null;
@@ -171,17 +169,17 @@ public class FileMap extends State {
                 read(input);
             }
         } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("db.dat - File not found");
+            throw new FileNotFoundException(nfile + ".dat - File not found");
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception("In db.dat something goes very-very wrong");
+            throw new Exception("In " + nfile + ".dat something goes very-very wrong");
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    System.err.println("Can't close file db.dat");
+                    System.err.println("Can't close file " + nfile + ".dat");
                 }
             }
         }
@@ -205,7 +203,7 @@ public class FileMap extends State {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    System.err.println("Can't close file db.dat");
+                    System.err.println("Can't close file " + nfile + ".dat");
                 }
             }
         }
