@@ -119,7 +119,7 @@ public class DataBaseFile {
     public void save() {
         try {
             if (data.size() == 0) {
-                if (!file.delete()) {
+                if ((file.exists()) && (!file.delete())) {
                     throw new DataBaseException("Cannot delete a file!");
                 }
             } else {
