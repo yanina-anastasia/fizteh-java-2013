@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -95,13 +94,13 @@ public class Utils {
             for (int j = 0; j < 16; ++j) {
                 if (table.isUsing(i, j)) {
                     File tempFile = new File(table.getPath().resolve(i + ".dir").resolve(j + ".dat").toString());
-                    files.put(16 * i + j, tempFile);
-                    if (!files.get(16 * i + j).exists()) {
-                        files.get(16 * i + j).createNewFile();
+                    files.put(getNumber(i, j), tempFile);
+                    if (!files.get(getNumber(i, j)).exists()) {
+                        files.get(getNumber(i, j)).createNewFile();
                     }
-                    RandomAccessFile tempDatafile = new RandomAccessFile(files.get(16 * i + j), "rw");
-                    datafiles.put(16 * i + j, tempDatafile);
-                    datafiles.get(16 * i + j).setLength(0);
+                    RandomAccessFile tempDatafile = new RandomAccessFile(files.get(getNumber(i, j)), "rw");
+                    datafiles.put(getNumber(i, j), tempDatafile);
+                    datafiles.get(getNumber(i, j)).setLength(0);
                 }
             }
         }
@@ -149,6 +148,10 @@ public class Utils {
 
     private static int getHash(String key) {
         return 16 * getDirNumber(key) + getFileNumber(key);
+    }
+
+    private static int getNumber(int dir, int file) {
+        return 16 * dir + file;
     }
 
     public static byte getDirNumber(String key) {
