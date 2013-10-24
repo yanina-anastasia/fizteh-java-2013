@@ -7,7 +7,7 @@ public final class DataBase {
     private String dataBaseDirectory;
     private DataBaseFile[] files;
 
-    public final class  DirFile {
+    public final class DirFile {
         private int nDir;
         private int nFile;
 
@@ -15,6 +15,11 @@ public final class DataBase {
             key += 256;
             nDir = key % 16;
             nFile = (key / 16) % 16;
+        }
+
+        public DirFile(int newDir, int newFile) {
+            nDir = newDir;
+            nFile = newFile;
         }
 
         private String getNDirectory() {
@@ -25,7 +30,7 @@ public final class DataBase {
             return Integer.toString(nFile) + ".dat";
         }
 
-        private int getHash() {
+        public  int getId() {
             return nDir * 16 + nFile;
         }
     }
@@ -65,7 +70,7 @@ public final class DataBase {
         String[] dirs = file.list();
         checkNames(dirs, "dat");
         for (int i = 0; i  < dirs.length; ++i) {
-            if (new File(dirName + File.separator + dirs[i]).isDirectory()) {
+            if (new File(dirName, dirs[i]).isDirectory()) {
                 throw new MultiDataBaseException(dirName + File.separator + dirs[i] + " isn't a file!");
             }
         }
@@ -115,7 +120,7 @@ public final class DataBase {
                 for (int j = 0; j < 16; ++j) {
                     DirFile node = new DirFile(i + j * 16);
                     DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
-                    files[node.getHash()] =  file;
+                    files[node.getId()] =  file;
                 }
             }
         } catch (DataBaseWrongFileFormat e) {
@@ -126,28 +131,26 @@ public final class DataBase {
 
     public String put(final String keyStr, final String valueStr) {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getHash()];
-        String result = file.put(keyStr, valueStr);
-        return result;
+        DataBaseFile file = files[node.getId()];
+        return file.put(keyStr, valueStr);
     }
 
     public String get(final String keyStr) {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getHash()];
+        DataBaseFile file = files[node.getId()];
         return file.get(keyStr);
     }
 
     public boolean remove(final String keyStr) {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getHash()];
-        boolean result = file.remove(keyStr);
-        return result;
+        DataBaseFile file = files[node.getId()];
+        return file.remove(keyStr);
     }
 
     public void drop() {
         for (byte i = 0; i < 16; ++i) {
             for (byte j = 0; j < 16; ++j) {
-                File file = new File(getFullName(new DirFile(i + j * 16)));
+                File file = new File(getFullName(new DirFile(i, j)));
                 if (file.exists()) {
                     if (!file.delete()) {
                         throw new DataBaseException("Cannot delete a file!");
@@ -161,8 +164,8 @@ public final class DataBase {
     public void save() {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                if (files[new DirFile((i + j * 16)).getHash()] != null) {
-                    files[new DirFile((i + j * 16)).getHash()].save();
+                if (files[new DirFile(i, j).getId()] != null) {
+                    files[new DirFile(i, j).getId()].save();
                 }
             }
             tryDeleteDirectory(Integer.toString(i) + ".dir");

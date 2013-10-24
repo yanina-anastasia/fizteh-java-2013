@@ -47,7 +47,7 @@ public class DbMain {
         System.out.print("$ ");
         while (true) {
             try {
-                if (!scanner.hasNext()) {
+                if (!scanner.hasNextLine()) {
                     throw new ShellExitException("Ctrl + D exit!");
                 }
 
