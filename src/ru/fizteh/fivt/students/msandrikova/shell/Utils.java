@@ -150,4 +150,12 @@ public class Utils {
 		return Integer.parseInt(tokens[0]);
 	}
 	
+	public static int getNDirectory(String key) {
+		return 	Math.abs(key.hashCode()) % 16;
+	}
+	
+	public static int getNFile(String key) {
+		return 	Math.abs(key.hashCode()) / 16 % 16;
+	}
+	
 }

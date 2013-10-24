@@ -69,8 +69,7 @@ public class DBDirectory {
 	}
 
 	public String get(String key) throws IllegalArgumentException {
-		int hashcode = Math.abs(key.hashCode());
-		int nfile = hashcode / 16 % 16;
+		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DBMap currentDB = this.mapOfDB.get(nfile);
 		if(currentDB != null) {
@@ -80,8 +79,7 @@ public class DBDirectory {
 	}
 
 	public String put(String key, String value) throws IllegalArgumentException {
-		int hashcode = Math.abs(key.hashCode());
-		int nfile = hashcode / 16 % 16;
+		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DBMap currentDB = this.mapOfDB.get(nfile);
 		if(currentDB == null) {
@@ -96,8 +94,7 @@ public class DBDirectory {
 	}
 
 	public String remove(String key) throws IllegalArgumentException {
-		int hashcode = Math.abs(key.hashCode());
-		int nfile = hashcode / 16 % 16;
+		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DBMap currentDB = this.mapOfDB.get(nfile);
 		if(currentDB != null) {
