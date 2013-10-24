@@ -99,11 +99,11 @@ public class MultiFileTable implements Table {
     }
 
     private int getKeyDir(String key) {
-        return key.hashCode() % DIR_COUNT;
+        return Math.abs(key.hashCode()) % DIR_COUNT;
     }
 
     private int getKeyFile(String key) {
-        return key.hashCode() / DIR_COUNT % FILES_PER_DIR;
+        return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
     }
 
 }
