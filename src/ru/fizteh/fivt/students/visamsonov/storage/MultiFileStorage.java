@@ -24,10 +24,7 @@ class MultiFileStorage implements Table {
 	}
 
 	private Table getAppropriate (String key) {
-		int randomData = key.getBytes()[0];
-		if (randomData < 0) {
-			randomData += 256;
-		}
+		int randomData = math.abs(key.getBytes()[0]);
 		int dirNumber = randomData % NUMBER_OF_DIRS;
 		int nfile = (randomData / NUMBER_OF_DIRS) % NUMBER_OF_FILES;
 		File subdirectory = new File(directory, dirNumber + ".dir");
