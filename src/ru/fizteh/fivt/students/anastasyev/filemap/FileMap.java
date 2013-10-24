@@ -137,7 +137,7 @@ public class FileMap extends State {
             }
             String key = new String(keyBytes);
             if ((key.hashCode() % 16 + 16) % 16 != ndirectory || ((key.hashCode() / 16 % 16) + 16) % 16 != nfile) {
-                throw new IOException(nfile + ".dat has incorrect format");
+                throw new IOException(nfile + ".dat has wrong key: " + key);
             }
             String value = new String(valueBytes);
             elementHashMap.put(key, value);
