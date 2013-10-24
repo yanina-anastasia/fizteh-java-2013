@@ -102,9 +102,8 @@ public class Utils {
         }
         Set<String> keySet = table.getMap().keySet();
         for (String key : keySet) {
-            byte b = key.getBytes()[0];
-            int dirNumber = b % 16;
-            int fileNumber = b / 16 % 16;
+            int dirNumber = getDirNumber(key);
+            int fileNumber = getFileNumber(key);
             database[dirNumber][fileNumber].writeInt(key.getBytes(StandardCharsets.UTF_8).length);
             database[dirNumber][fileNumber].writeInt(table.get(key).getBytes(StandardCharsets.UTF_8).length);
             database[dirNumber][fileNumber].write(key.getBytes(StandardCharsets.UTF_8));
@@ -154,6 +153,6 @@ public class Utils {
     }
 
     public static byte getFileNumber(String key) {
-        return (byte) (key.getBytes()[0] / 16 % 16);
+        return (byte) (((key.getBytes()[0] / 16) + 16) % 16);
     }
 }
