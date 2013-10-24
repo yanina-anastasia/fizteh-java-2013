@@ -16,6 +16,7 @@ public class MyTable implements Table {
 	private File tablePath;
 	private Map<Integer, DBDirectory> mapOfDirectories = new HashMap<Integer, DBDirectory>();
 	private int MAX_DIRECTORIES_AMOUNT = 16;
+	private int MAX_TABLE_SIZE = 1000*1000*100;
 	
 	private void setSize() {
 		this.size = 0;
@@ -63,6 +64,9 @@ public class MyTable implements Table {
 			}
 		}
 		this.setSize();
+		if(this.size > this.MAX_TABLE_SIZE) {
+			Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
+		}
 	}
 	
 	private DBDirectory createDirectory(int nameNumber) throws IOException, FileNotFoundException {
@@ -106,6 +110,9 @@ public class MyTable implements Table {
 		answer = currentDirectory.put(key, value);
 		if(answer == null) {
 			this.size++;
+			if(this.size > this.MAX_TABLE_SIZE) {
+				Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
+			}
 		}
 		return answer;
 	}
