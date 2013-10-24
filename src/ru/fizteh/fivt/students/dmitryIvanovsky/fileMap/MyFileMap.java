@@ -55,11 +55,21 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public MyFileMap(String pathT) throws ErrorFileMap, IOException {
-        File file = new File(pathT);
+        this.out = true;
+        this.err = true;
+        File file = null;
+        try {
+            file = new File(pathT);
+        } catch (Exception e) {
+            errPrint(pathT + " папка не открывается");
+            throw new ErrorFileMap(pathT + " папка не открывается");
+        }
         if (!file.exists()) {
+            errPrint(pathT + " не существует");
             throw new ErrorFileMap(pathT + " не существует");
         }
         if (!file.isDirectory()) {
+            errPrint(pathT + " не папка");
             throw new ErrorFileMap(pathT + " не папка");
         }
         this.useNameTable = "";
@@ -67,8 +77,6 @@ public class MyFileMap implements CommandAbstract {
         this.mySystem = new CommandShell(pathT, false, false);
         this.dbData = new HashMap(){};
         this.setEmptyTable = new HashSet<String>();
-        this.out = true;
-        this.err = true;
         if (loadDb() == Code.ERROR) {
             throw new ErrorFileMap("Ошибка загрузки базы");
         }
