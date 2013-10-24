@@ -14,7 +14,7 @@ public class SingleFileTable implements Table {
 
     public SingleFileTable(File data) throws IOException {
         if (!data.exists()) {
-            throw new IOException("file doesn't exist");
+            data.createNewFile();
         } else {
             dataFile = data;
             Requirements req = new FileMapRequirements();
