@@ -341,7 +341,7 @@ public class MyFileMap implements CommandAbstract {
         } catch (Exception e) {
             errPrint("Ошибка записи базы");
         }  finally {
-            try{
+            try {
                 dbFile.close();
             } catch (Exception e) {
                 errPrint(randomFile.getAbsolutePath() + " не закрылся");
