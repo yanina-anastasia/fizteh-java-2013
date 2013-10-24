@@ -1,16 +1,20 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
-        //String path = "/home/deamoon/Music/deamoonSql";
+        //String path = "deamoonSql";
         String path = System.getProperty("fizteh.db.dir");
-        System.out.println(path);
-        runDb(args, path);
+        Path pathTables = Paths.get(".").resolve(path);
+        //System.out.println(pathTables.toFile().getCanonicalPath());
+        runDb(args, pathTables.toFile().getCanonicalPath());
     }
 
     public static void runDb(String[] args, String path) throws IOException {
@@ -18,7 +22,7 @@ public class DbMain {
         try {
             fileMapCommand = new FileMap(path);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.err.println("Ошибка загрузки базы данных");
             System.exit(1);
         }

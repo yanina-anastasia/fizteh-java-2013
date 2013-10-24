@@ -73,7 +73,7 @@ public class FileMap implements CommandAbstract {
         }
         this.useNameTable = "";
         this.pathTables = Paths.get(pathT);
-        this.mySystem = new CommandShell(pathT, true, true);
+        this.mySystem = new CommandShell(pathT, false, false);
         this.dbData = new HashMap(){};
         this.setMap = new HashSet<String>();
 
