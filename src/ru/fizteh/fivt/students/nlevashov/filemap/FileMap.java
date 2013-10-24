@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.nlevashov.filemap;
 
-import ru.fizteh.fivt.students.nlevashov.mode;
+import ru.fizteh.fivt.students.nlevashov.mode.Mode;
 
 import java.util.Vector;
 import java.io.File;

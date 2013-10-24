@@ -79,10 +79,8 @@ public class Table {
                         map.put(keys.get(j), new String(buf, "UTF8"));
                     }
                 }
+            } finally {
                 i.close();
-            } catch (IOException e) {
-                i.close();
-                throw e;
             }
         }
     }
@@ -123,11 +121,8 @@ public class Table {
                 for (i = 0; i < map.size(); i++) {
                     o.write(values[i], 0, values[i].length);
                 }
-
+            } finally {
                 o.close();
-            } catch (IOException e) {
-                o.close();
-                throw e;
             }
         }
     }
@@ -142,5 +137,13 @@ public class Table {
 
     public String remove(String key) {
         return map.remove(key);
+    }
+
+    public boolean isEmpty() {
+        return (map.size() == 0);
+    }
+
+    public Path getAddress() {
+        return addr;
     }
 }
