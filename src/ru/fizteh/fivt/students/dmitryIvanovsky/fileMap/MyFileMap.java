@@ -374,7 +374,7 @@ public class MyFileMap implements CommandAbstract {
     }
 
     public String startShellString() {
-        return "$ ";
+        return " $ ";
     }
 
     public String[] myParsing(String[] args) {
