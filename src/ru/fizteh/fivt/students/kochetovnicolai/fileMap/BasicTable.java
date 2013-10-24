@@ -20,6 +20,9 @@ public class BasicTable extends FileManager implements Table {
     protected int recordNumber;
     protected int oldRecordNumber;
 
+    protected BasicTable() {
+    }
+
     public BasicTable(File tableDirectory, String name) throws IOException {
         currentPath = tableDirectory;
         tableName = name;
@@ -175,6 +178,9 @@ public class BasicTable extends FileManager implements Table {
     }
 
     protected String readValue(String key) {
+        if (currentFile == null) {
+            return null;
+        }
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
             String[] pair;
             while ((pair = readNextPair(inputStream)) != null) {

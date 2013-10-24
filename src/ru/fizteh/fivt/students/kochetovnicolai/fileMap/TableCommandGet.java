@@ -19,6 +19,10 @@ public class TableCommandGet implements Executable {
     @Override
     public boolean execute(String[] args) {
         Table table = manager.getCurrentTable();
+        if (table == null) {
+            manager.printMessage("no table");
+            return false;
+        }
         String value = table.get(args[1]);
         if (value == null) {
             manager.printMessage("not found");

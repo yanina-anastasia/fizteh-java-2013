@@ -1,38 +1,28 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.kochetovnicolai.shell.Manager;
+import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
 import java.io.IOException;
 
-public class TableManager implements Manager {
+public class TableManager extends FileManager {
 
-    BasicTable currentTable;
+    protected BasicTable currentTable;
+
+    protected TableManager() {
+    }
 
     public TableManager(File tableDirectory, String tableName) throws IOException {
         currentTable = new BasicTable(tableDirectory, tableName);
     }
 
     @Override
-    public boolean timeToExit() {
-        return currentTable.timeToExit();
-    }
-
-    @Override
-    public void printMessage(final String message) {
-        currentTable.printMessage(message);
-    }
-
-    @Override
-    public void printSuggestMessage() {
-        currentTable.printSuggestMessage();
-    }
-
-    @Override
     public void setExit() {
-        currentTable.commit();
-        currentTable.setExit();
+        if (currentTable != null) {
+            currentTable.commit();
+        }
+        super.setExit();
     }
 
     public Table getCurrentTable() {
