@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -25,7 +26,12 @@ public class MultiFileHashMap extends FileMap {
     private void checkKeysInMap(HashMap<String, String> map, int fileNum, int dirNum) {
         Set<String> keys = map.keySet();
         for (String key : keys) {
-            byte b = key.getBytes()[0];
+            byte b = 0;
+            try {
+                b = key.getBytes("UTF-8")[0];
+            } catch (UnsupportedEncodingException e) {
+                System.err.println("Cannot get hashcode");
+            }
             if (b < 0) {
                 b = (byte) -b;
             }
@@ -151,7 +157,12 @@ public class MultiFileHashMap extends FileMap {
                         if (currTable.equals("")) {
                             System.out.println("no table");
                         } else {
-                            byte b = args[1].getBytes()[0];
+                            byte b = 0;
+                            try {
+                                b = args[1].getBytes("UTF-8")[0];
+                            } catch (UnsupportedEncodingException e) {
+                                System.err.println("Cannot get hashcode");
+                            }
                             if (b < 0) {
                                 b = (byte) -b;
                             }
