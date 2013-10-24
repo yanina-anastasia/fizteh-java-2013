@@ -1,11 +1,17 @@
 package ru.fizteh.fivt.students.kinanAlsarmini.filemap;
 
+import ru.fizteh.fivt.students.kinanAlsarmini.shell.Shell;
+import ru.fizteh.fivt.students.kinanAlsarmini.shell.ExternalCommand;
+
 class PutCommand extends ExternalCommand {
-    public PutCommand() {
+    private Table table;
+
+    public PutCommand(Table table) {
         super("put", 2);
+        this.table = table;
     }
 
-    public void execute(String[] args, Table table) {
+    public void execute(String[] args, Shell shell) {
         if (table.exists(args[0])) {
             System.out.println("overwrite");
             System.out.println(table.get(args[0]));

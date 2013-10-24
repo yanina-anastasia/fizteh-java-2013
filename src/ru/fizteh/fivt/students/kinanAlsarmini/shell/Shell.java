@@ -8,18 +8,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-class Shell {
+public class Shell {
     private boolean terminated;
     private Path currentPath;
     private ExternalCommand[] possibleCommands;
 
-    public Shell() {
+    public Shell(ExternalCommand[] possibleCommands) {
+        this.possibleCommands = possibleCommands;
+
         terminated = false;
 
         currentPath = Utilities.getAbsolutePath(Paths.get(""));
+    }
 
-        possibleCommands = new ExternalCommand[] {new CopyCommand(), new RemoveCommand(),
-            new MakeDirCommand(), new MoveCommand(), new DirCommand()};
+    public void terminate() {
+        terminated = true;
     }
 
     private void runCommand(String command) throws IOException {
@@ -29,46 +32,26 @@ class Shell {
             throw new IllegalArgumentException("Empty command.");
         }
 
-        if (tokens[0].equals("exit")) {
-            if (tokens.length != 1) {
-                throw new IllegalArgumentException("exit doesn't take any arguments.");
-            }
+        boolean foundCommand = false;
+        for (ExternalCommand ex: possibleCommands) {
+            if (tokens[0].equals(ex.getName())) {
+                foundCommand = true;
 
-            terminated = true;
-        } else if (tokens[0].equals("pwd")) {
-            if (tokens.length != 1) {
-                throw new IllegalArgumentException("pwd doesn't take any arguments.");
-            }
-
-            System.out.println(currentPath.toString());
-        } else if (tokens[0].equals("cd")) {
-            if (tokens.length != 2) {
-                throw new IllegalArgumentException("cd takes only 1 argument.");
-            }
-
-            changeDirectory(tokens[1]);
-        } else {
-            boolean foundCommand = false;
-            for (ExternalCommand ex : possibleCommands) {
-                if (tokens[0].equals(ex.getName())) {
-                    foundCommand = true;
-
-                    if (tokens.length - 1 != ex.getArgNumber()) {
-                        throw new IllegalArgumentException(tokens[0] + " takes "
-                                + Integer.toString(tokens.length - 1) + " argument.");
-                    }
-
-                    ex.execute(Arrays.copyOfRange(tokens, 1, tokens.length), this);
+                if (tokens.length - 1 != ex.getArgNumber()) {
+                    throw new IllegalArgumentException(tokens[0] + " takes "
+                            + ex.getArgNumber() + " argument(s).");
                 }
-            }
 
-            if (!foundCommand) {
-                throw new IllegalArgumentException("Unknown command.");
+                ex.execute(Arrays.copyOfRange(tokens, 1, tokens.length), this);
             }
+        }
+
+        if (!foundCommand) {
+            throw new IllegalArgumentException("Unknown command.");
         }
     }
 
-    private void changeDirectory(String extPath) {
+    public void changeDirectory(String extPath) {
         Path pextPath = Paths.get(extPath).normalize();
         Path tempPath = Utilities.joinPaths(currentPath, pextPath);
 
@@ -79,7 +62,7 @@ class Shell {
         currentPath = tempPath;
     }
 
-    Path getCurrentPath() {
+    public Path getCurrentPath() {
         return currentPath;
     }
 

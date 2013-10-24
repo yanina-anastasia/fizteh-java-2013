@@ -4,7 +4,6 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,12 +19,11 @@ class TableWriter {
     }
 
     public void writeTable(Table table) throws IOException {
-        Set<Map.Entry<String,String>> rows = table.listRows();
+        Set<Map.Entry<String, String>> rows = table.listRows();
 
-        for (Map.Entry<String,String> row : rows) {
+        for (Map.Entry<String, String> row : rows) {
             outputStream.writeInt(row.getKey().getBytes("UTF-8").length);
             outputStream.writeInt(row.getValue().getBytes("UTF-8").length);
-            System.out.println(row.getKey() + " " + row.getKey().getBytes("UTF-8").length);
             outputStream.write(row.getKey().getBytes("UTF-8"));
             outputStream.write(row.getValue().getBytes("UTF-8"));
         }

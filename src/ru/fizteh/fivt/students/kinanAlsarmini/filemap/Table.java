@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 class Table {
-    private HashMap<String,String> hMap;
+    private HashMap<String, String> hMap;
 
     public Table() {
-        hMap = new HashMap<String,String>();
+        hMap = new HashMap<String, String>();
     }
 
     public boolean exists(String k) {
@@ -27,7 +27,7 @@ class Table {
         hMap.remove(k);
     }
 
-    public Set<Map.Entry<String,String>> listRows() {
+    public Set<Map.Entry<String, String>> listRows() {
         return hMap.entrySet();
     }
 };

@@ -23,7 +23,7 @@ class TableReader {
 
             bytesLeft -= 8;
 
-            if (keyLength < 0 || valueLength < 0 || keyLength >= 10000 || valueLength >= 10000) {
+            if (keyLength < 0 || valueLength < 0) {
                 throw new IllegalArgumentException("TableReader: bad file format: invalid length for key / value.");
             }
 
@@ -39,9 +39,10 @@ class TableReader {
             if (tRead < 0 || tRead != valueLength) {
                 throw new IllegalArgumentException("TableReader: bad file format.");
             }
-            String value = new String(bValue, "UTF-8");
 
+            String value = new String(bValue, "UTF-8");
             table.put(key, value);
+
             bytesLeft -= keyLength + valueLength;
         }
     }
