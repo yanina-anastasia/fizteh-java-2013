@@ -63,6 +63,7 @@ public class FileMap extends UserShell {
             int keyLong = dataFile.readInt();
             int valueLong = dataFile.readInt();
             if (keyLong <= 0 || valueLong <= 0) {
+                dataFile.close();
                 printErrorAndExit("Cannot Load File");
             } else {
                 byte[] keyBytes = new byte[keyLong];
@@ -105,6 +106,11 @@ public class FileMap extends UserShell {
         if (currFile.exists()) {
             if (!currFile.isDirectory() || currFile.listFiles().length == 0) {
                 if (!currFile.delete()) {
+                    try {
+                        dataFile.close();
+                    } catch (IOException e) {
+                        printErrorAndExit("Cannot remove file");
+                    }
                     printErrorAndExit("Cannot remove file");
                 }
             } else {
@@ -112,6 +118,11 @@ public class FileMap extends UserShell {
                     doDelete(currFile.listFiles()[0]);
                 }
                 if (!currFile.delete()) {
+                    try {
+                        dataFile.close();
+                    } catch (IOException e) {
+                        printErrorAndExit("Cannot remove file");
+                    }
                     printErrorAndExit("Cannot remove file");
                 }
             }
