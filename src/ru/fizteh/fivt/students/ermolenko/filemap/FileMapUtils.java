@@ -58,6 +58,7 @@ public class FileMapUtils {
         try {
             int position = 0;
             String key1 = readKey(dataStream);
+            System.out.println("4");
             position += key1.getBytes(StandardCharsets.UTF_8).length;
             int offset1 = dataStream.readInt();
             int firstOffset = offset1;
@@ -78,6 +79,7 @@ public class FileMapUtils {
         } finally {
             closeStream(dataStream);
         }
+        System.out.println("5");
     }
 
     private static void closeStream(Closeable stream) throws IOException {

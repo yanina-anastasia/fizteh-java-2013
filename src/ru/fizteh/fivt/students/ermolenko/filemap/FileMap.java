@@ -15,6 +15,7 @@ public class FileMap extends Shell {
 
     public FileMap(File currentFile) throws IOException {
         state = new FileMapState(currentFile);
+        System.out.println("3");
         FileMapUtils.readDataBase(state);
     }
 }

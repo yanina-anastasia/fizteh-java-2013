@@ -22,7 +22,7 @@ public class FileMapMain {
             System.out.println("2");
             System.out.println(base.toString());
             FileMap filemap = new FileMap(base);
-            System.out.println("3");
+
             FileMapExecutor exec = new FileMapExecutor();
             if (args.length > 0) {
                 filemap.batchState(args, exec);
