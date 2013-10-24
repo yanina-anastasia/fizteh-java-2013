@@ -16,7 +16,15 @@ import java.io.*;
 public class DbMain {
 
 	public static void main (String[] args) {
-		Shell shell = new Shell(new ShellState());
+		Shell shell;
+		try {
+			shell = new Shell(new ShellState());
+		}
+		catch (IOException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+			return;
+		}
 		shell.addCommand(new CommandExit());
 		shell.addCommand(new CommandPut());
 		shell.addCommand(new CommandGet());
