@@ -20,6 +20,7 @@ public class FileMapMain {
         try {
             base = base.getCanonicalFile().toPath().resolve("db.dat").toFile();
             System.out.println("2");
+            System.out.println(base.toString());
             FileMap filemap = new FileMap(base);
             FileMapExecutor exec = new FileMapExecutor();
             if (args.length > 0) {
