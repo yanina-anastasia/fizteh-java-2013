@@ -8,8 +8,6 @@ import java.nio.file.Path;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import static java.lang.Math.abs;
-
 public class FileMapTable extends State {
     private File multiFileHashMapDir;
     private File currentFileMapTable = null;
@@ -146,8 +144,8 @@ public class FileMapTable extends State {
     }
 
     public void deleteFileMap(int hashCode) throws IOException {
-        mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)].delete();
-        mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)] = null;
+        mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16].delete();
+        mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16] = null;
     }
 
     @Override
@@ -170,20 +168,22 @@ public class FileMapTable extends State {
             throw new IOException("no table");
         }
 
-        return mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)];
+        return mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16];
     }
 
     public FileMap openFileMap(int hashCode) throws IOException {
-        File dir = new File(currentFileMapTable.toString() + File.separator + abs(hashCode % 16) + ".dir");
+        int dirHash = (hashCode % 16 + 16) % 16;
+        int datHash = ((hashCode / 16 % 16) + 16) % 16;
+        File dir = new File(currentFileMapTable.toString() + File.separator + dirHash + ".dir");
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                throw new IOException("Can't create " + abs(hashCode % 16) + ".dir");
+                throw new IOException("Can't create " + dirHash + ".dir");
             }
         }
-        String datName = dir.toString() + File.separator + abs(hashCode / 16 % 16) + ".dat";
-        if (mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)] == null) {
-            mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)] = new FileMap(datName);
+        String datName = dir.toString() + File.separator + datHash + ".dat";
+        if (mapsTable[dirHash][datHash] == null) {
+            mapsTable[dirHash][datHash] = new FileMap(datName);
         }
-        return mapsTable[abs(hashCode % 16)][abs(hashCode / 16 % 16)];
+        return mapsTable[dirHash][datHash];
     }
 }
