@@ -6,9 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +19,6 @@ public class MyFileMap implements CommandAbstract {
     private final CommandShell mySystem;
     String useNameTable;
     Map<String, Map<String, String>> dbData;
-    Set<String> setEmptyTable;
     boolean err;
     boolean out;
 
@@ -54,7 +51,7 @@ public class MyFileMap implements CommandAbstract {
         this.mySystem = null;
     }
 
-    public MyFileMap(String pathT) throws ErrorFileMap, IOException {
+    public MyFileMap(String pathT) throws ErrorFileMap {
         this.out = true;
         this.err = true;
         File file = null;
@@ -76,7 +73,6 @@ public class MyFileMap implements CommandAbstract {
         this.pathTables = Paths.get(pathT);
         this.mySystem = new CommandShell(pathT, false, false);
         this.dbData = new HashMap(){};
-        this.setEmptyTable = new HashSet<String>();
         if (loadDb() == Code.ERROR) {
             throw new ErrorFileMap("Ошибка загрузки базы");
         }
@@ -94,7 +90,7 @@ public class MyFileMap implements CommandAbstract {
         closeDb();
     }
 
-    private Code loadDb() throws IOException {
+    private Code loadDb() {
         try {
             File currentFile = pathTables.toFile();
             for (String nameMap : currentFile.list()) {
@@ -180,14 +176,22 @@ public class MyFileMap implements CommandAbstract {
         return nfile;
     }
 
-    public Code loadDbMapFile(File randomFile, Map dbMap, String nameDir) throws IOException {
+    public Code loadDbMapFile(File randomFile, Map dbMap, String nameDir) {
         if (randomFile.isDirectory()) {
             errPrint(randomFile.getAbsolutePath() + " не файл");
             return Code.ERROR;
         }
         int intDir = getCode(nameDir);
         int intFile = getCode(randomFile.getName());
-        RandomAccessFile dbFile = new RandomAccessFile(randomFile, "rw");
+
+        RandomAccessFile dbFile = null;
+        try {
+            dbFile = new RandomAccessFile(randomFile, "rw");
+        } catch (Exception e) {
+            errPrint(randomFile.getAbsolutePath() + " файл не открылся");
+            return Code.ERROR;
+        }
+
         Code res = Code.OK;
         try {
             if (dbFile.length() == 0) {
@@ -251,7 +255,12 @@ public class MyFileMap implements CommandAbstract {
         } catch (Exception e) {
             res = Code.ERROR;
         } finally {
-            dbFile.close();
+            try {
+                dbFile.close();
+            } catch (Exception e) {
+                errPrint(randomFile.getAbsolutePath() + " не закрылся");
+                res = Code.ERROR;
+            }
             return res;
         }
     }
@@ -299,7 +308,13 @@ public class MyFileMap implements CommandAbstract {
         if (curMap == null || curMap.isEmpty()) {
             return;
         }
-        RandomAccessFile dbFile = new RandomAccessFile(randomFile, "rw");
+        RandomAccessFile dbFile = null;
+        try {
+            dbFile = new RandomAccessFile(randomFile, "rw");
+        } catch (Exception e) {
+            errPrint(randomFile.getAbsolutePath() + " не открылся");
+            throw new IOException();
+        }
         try {
             dbFile.setLength(0);
             dbFile.seek(0);
@@ -326,7 +341,12 @@ public class MyFileMap implements CommandAbstract {
         } catch (Exception e) {
             errPrint("Ошибка записи базы");
         }  finally {
-            dbFile.close();
+            try{
+                dbFile.close();
+            } catch (Exception e) {
+                errPrint(randomFile.getAbsolutePath() + " не закрылся");
+                throw new IOException();
+            }
         }
 
     }
@@ -381,10 +401,9 @@ public class MyFileMap implements CommandAbstract {
     public Code multiPut(String[] args) {
         if (useNameTable.equals("")) {
             outPrint("no table");
-            return Code.OK;
+            return Code.ERROR;
         } else {
             if (put(args) != Code.ERROR) {
-                setEmptyTable.remove(useNameTable);
                 return Code.OK;
             } else {
                 return Code.ERROR;
@@ -411,7 +430,7 @@ public class MyFileMap implements CommandAbstract {
     public Code multiGet(String[] args) {
         if (useNameTable.equals("")) {
             outPrint("no table");
-            return Code.OK;
+            return Code.ERROR;
         } else {
             return get(args);
         }
@@ -436,12 +455,9 @@ public class MyFileMap implements CommandAbstract {
     public Code multiRemove(String[] args) {
         if (useNameTable.equals("")) {
             outPrint("no table");
-            return Code.OK;
+            return Code.ERROR;
         } else {
             if (remove(args) != Code.ERROR) {
-                if (dbData.get(useNameTable).isEmpty()) {
-                    setEmptyTable.add(useNameTable);
-                }
                 return Code.OK;
             } else {
                 return Code.ERROR;
@@ -449,7 +465,7 @@ public class MyFileMap implements CommandAbstract {
         }
     }
 
-    public Code use(String[] args) throws IOException {
+    public Code use(String[] args) throws ErrorFileMap {
         if (args.length != 1) {
             errPrint("У команды use 1 аргумент");
             return Code.ERROR;
@@ -469,7 +485,7 @@ public class MyFileMap implements CommandAbstract {
         }
     }
 
-    public Code drop(String[] args) throws IOException {
+    public Code drop(String[] args) throws ErrorFileMap {
         if (args.length != 1) {
             errPrint("У команды drop 1 аргумент");
             return Code.ERROR;
@@ -479,7 +495,6 @@ public class MyFileMap implements CommandAbstract {
                 useNameTable = "";
             }
             if (dbData.containsKey(nameTable)) {
-                setEmptyTable.remove(nameTable);
                 dbData.remove(nameTable);
                 outPrint("dropped");
                 return Code.OK;
@@ -500,7 +515,6 @@ public class MyFileMap implements CommandAbstract {
                 outPrint(nameTable + " exists");
                 return Code.ERROR;
             } else {
-                setEmptyTable.add(nameTable);
                 dbData.put(nameTable, new HashMap<String, String>());
                 outPrint("created");
                 return Code.OK;
