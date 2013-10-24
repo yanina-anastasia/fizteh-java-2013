@@ -12,12 +12,12 @@ public final class DataBase {
         private int nFile;
 
         public DirFile(int key) {
-            key += 256;
+            key = Math.abs(key);
             nDir = key % 16;
             nFile = (key / 16) % 16;
         }
 
-        public DirFile(int newDir, int newFile) {
+        public DirFile(final int newDir, final int newFile) {
             nDir = newDir;
             nFile = newFile;
         }
@@ -62,7 +62,7 @@ public final class DataBase {
         }
     }
 
-    private void isCorrectDirectory(String dirName) {
+    private void isCorrectDirectory(final String dirName) {
         File file = new File(dirName);
         if (file.isFile()) {
             throw new MultiDataBaseException(dirName + " isn't a directory!");
