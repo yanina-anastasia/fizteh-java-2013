@@ -18,14 +18,16 @@ import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 public class DBMap {
 	private File currentFile;
 	Map<String, String> mapDB = new HashMap<String, String>();
+	private String name;
 	
 	
-	public DBMap(File currentDirectory, boolean isInteractive) throws FileNotFoundException, IOException {
-		this.currentFile = new File(currentDirectory, "db.dat");
+	public DBMap(File currentDirectory, String name) throws FileNotFoundException, IOException {
+		this.name  = name;
+		this.currentFile = new File(currentDirectory, name);
 		if(!this.currentFile.exists()) {
-			try {
-				this.currentFile.createNewFile();
-			} catch (IOException e) {}
+			this.currentFile.createNewFile();
+		} else if(this.currentFile.isDirectory()) {
+			Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DBMap", false);
 		}
 		this.readFile();
 	}
@@ -88,26 +90,49 @@ public class DBMap {
 			String value;
 			for(String key : keySet) {
 				value = mapDB.get(key);
-				writer.writeInt(key.getBytes(StandardCharsets.UTF_8).length);
-				writer.writeInt(value.getBytes(StandardCharsets.UTF_8).length);
-				writer.write(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length);
-				writer.write(value.getBytes(StandardCharsets.UTF_8), 0, value.getBytes(StandardCharsets.UTF_8).length);
+				byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
+				byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+				writer.writeInt(keyBytes.length);
+				writer.writeInt(valueBytes.length);
+				writer.write(keyBytes, 0, keyBytes.length);
+				writer.write(valueBytes, 0, valueBytes.length);
 			}
 		} finally {
 			writer.close();
 		}
 	}
 	
-	public String put(String key, String value) {
+	public String put(String key, String value) throws IllegalArgumentException {
+		if(key == null || value == null) {
+			throw new IllegalArgumentException("Key and name can not be null");
+		}
 		return mapDB.put(key, value);
 	}
 	
-	public String get(String key) {
+	public String get(String key) throws IllegalArgumentException {
+		if(key == null) {
+			throw new IllegalArgumentException("Key can not be null");
+		}
 		return(mapDB.get(key));
 	}
 	
-	public String remove(String key) {
+	public String remove(String key) throws IllegalArgumentException {
+		if(key == null) {
+			throw new IllegalArgumentException("Key can not be null");
+		}
 		return mapDB.remove(key);
+	}
+
+	public String getName() {
+		return this.name;
+	}
+	
+	public int getSize() {
+		return this.mapDB.size();
+	}
+	
+	public void delete() {
+		this.currentFile.delete();
 	}
 
 }

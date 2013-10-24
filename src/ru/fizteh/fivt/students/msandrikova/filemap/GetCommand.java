@@ -1,7 +1,8 @@
-package ru.fizteh.fivt.students.msandrikova.filemap;
+package ru.fizteh.fivt.students.msandrikova.filemap; 
 
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
+import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
 public class GetCommand extends Command {
 
@@ -14,17 +15,39 @@ public class GetCommand extends Command {
 		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
-		if(!myShell.getIsFileMap()) {
-			myShell.setIsFileMap(true);
-			myShell.initMyDBMap();
+		
+		String value = null;
+		
+		if(myShell.getState().getIsFileMap()) {
+			if(myShell.getState().getDBMap() == null) {
+				myShell.getState().setDBMap(myShell.getCurrentDirectory());
+			}
+			try {
+				value = myShell.getState().getDBMap().get(argumentsList[1]);
+			} catch (IllegalArgumentException e) {
+				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			}
+		} else if(myShell.getState().getIsMultiFileHashMap()) {
+			if(myShell.getState().getCurrentTable() == null) {
+				System.out.println("no table");
+				return;
+			}
+			try {
+				value = myShell.getState().getCurrentTable().get(argumentsList[1]);
+			} catch (IllegalArgumentException e) {
+				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			}
+		} else {
+			Utils.generateAnError("If you want to use this command shell's state should "
+					+ "have type isFileMap or isMultiFileHashMap.", this.getName(), myShell.getIsInteractive());
+			return;
 		}
-		String value;
-		if((value = myShell.getMyDBMap().get(argumentsList[1])) == null){
+		
+		if(value == null){
 			System.out.println("not found");
 		} else {
-			System.out.println("found");
-			System.out.println(value);
-		}
+				System.out.println("found");
+				System.out.println(value);
+		}	
 	}
-
 }
