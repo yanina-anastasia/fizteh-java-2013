@@ -9,10 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MultiFileMapUtils {
-    public MultiFileMapUtils() {
-
-    }
-
     public static boolean save(MultiDBState myState) {
         if (myState.table == null) {
             return true;
