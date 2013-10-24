@@ -176,11 +176,11 @@ public class MultiDbState extends State{
     
     public int getFolderNum(String key) {
         byte[] bytes = key.getBytes();
-        return (bytes[0] % 16);
+        return (Math.abs(bytes[0]) % 16);
     }
     
     public int getFileNum(String key) {
         byte[] bytes = key.getBytes();
-        return (bytes[0] / 16 % 16);
+        return (Math.abs(bytes[0]) / 16 % 16);
     }
 }
