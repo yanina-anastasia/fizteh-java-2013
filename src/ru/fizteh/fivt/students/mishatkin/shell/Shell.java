@@ -11,13 +11,11 @@ import java.util.*;
  *
  */
 public class Shell {
-	public static boolean isArgumentsMode;
 	public static void main(String args[]) {
 		InputStream inputStream = System.in;
-		isArgumentsMode = (args.length > 0);
-		CommandSource in = isArgumentsMode ? new ArgumentsCommandSource(args) :
+		CommandSource in = (args.length > 0) ? new BatchCommandSource(args) :
 				new StandardInputCommandSource(new Scanner(inputStream));
-		ShellReceiver receiver = new ShellReceiver();
+		ShellReceiver receiver = new ShellReceiver(System.out, args.length == 0);
 		ShellRunner runner = new ShellRunner(in);
 		runner.run(receiver);
 	}

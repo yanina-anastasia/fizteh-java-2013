@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
 /**
- * DirectoryCommand.java
+ * DirCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class DirectoryCommand extends Command {
-	DirectoryCommand(CommandReceiver receiver) {
+public class DirCommand extends ShellCommand {
+	public DirCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(0);
-		type = CommandType.DIR;
 	}
 
 	@Override

@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
 /**
- * PrintWorkingDirectoryCommand.java
+ * PwdCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class PrintWorkingDirectoryCommand extends Command {
-	PrintWorkingDirectoryCommand(CommandReceiver receiver) {
+public class PwdCommand extends ShellCommand {
+	public PwdCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(0);
-		type = CommandType.PWD;
 	}
 
 	@Override

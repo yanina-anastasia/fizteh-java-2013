@@ -1,18 +1,16 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
-
 /**
- * MakeDirectoryCommand.java
+ * RmCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class MakeDirectoryCommand extends Command {
-	MakeDirectoryCommand(CommandReceiver receiver) {
+public class RmCommand extends ShellCommand {
+	public RmCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(1);
-		type = CommandType.MKDIR;
 	}
 
 	@Override
 	public void execute() throws ShellException {
-		receiver.makeDirectoryCommand(args[0]);
+		receiver.removeCommand(args[0]);
 	}
 }

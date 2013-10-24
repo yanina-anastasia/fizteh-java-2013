@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
 
 /**
- * MoveCommand.java
+ * MvCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class MoveCommand extends Command {
-	MoveCommand(CommandReceiver receiver) {
+public class MvCommand extends ShellCommand {
+	public MvCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(2);
-		type = CommandType.MV;
 	}
 
 	@Override

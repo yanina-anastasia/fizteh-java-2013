@@ -1,17 +1,17 @@
 package ru.fizteh.fivt.students.mishatkin.shell;
+
 /**
- * RemoveCommand.java
+ * MkdirCommand.java
  * Created by Vladimir Mishatkin on 9/25/13
  */
-public class RemoveCommand extends Command {
-	RemoveCommand(CommandReceiver receiver) {
+public class MkdirCommand extends ShellCommand {
+	public MkdirCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(1);
-		type = CommandType.RM;
 	}
 
 	@Override
 	public void execute() throws ShellException {
-		receiver.removeCommand(args[0]);
+		receiver.makeDirectoryCommand(args[0]);
 	}
 }
