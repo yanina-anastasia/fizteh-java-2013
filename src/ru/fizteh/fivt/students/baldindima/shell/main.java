@@ -5,7 +5,7 @@ import java.io.IOException;
 public class Main {
 
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, ExitException {
         try {
             Shell shell = new Shell();
             FileFunctions fileFunctions = new FileFunctions();
@@ -16,7 +16,7 @@ public class Main {
             shell.addCommand(new ShellMv(fileFunctions));
             shell.addCommand(new ShellCp(fileFunctions));
             shell.addCommand(new ShellDir(fileFunctions));
-            shell.addCommand(new ShellExit(fileFunctions));
+            shell.addCommand(new ShellExit());
             if (args.length > 0) {
                 shell.nonInteractiveMode(args);
                 //shell.interactiveMode();

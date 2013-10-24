@@ -2,12 +2,14 @@ package ru.fizteh.fivt.students.baldindima.shell;
 
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.baldindima.filemap.DataBase;
+
 public class ShellExit implements ShellCommand {
 	private String name = "exit";
-	private FileFunctions fileFunctions;
+	private DataBase dataBase;
 	private String[] arguments;
-	public ShellExit(final FileFunctions newFileFunctions){
-		fileFunctions = newFileFunctions;
+	public ShellExit(){
+		
 	}
 	public boolean isItCommand(final String[] commands) throws IOException{
 		if (commands[0].equals(name)){
@@ -20,8 +22,8 @@ public class ShellExit implements ShellCommand {
 		}
 		return false;
 	}
-	public void run() throws IOException{
-		System.exit(0);
+	public void run() throws  ExitException{
+		throw new ExitException ();
 	}
 
 }

@@ -13,6 +13,16 @@ public class FileFunctions {
         pwd = new File("").getAbsoluteFile();
     }
 
+    public static File toFile(String path) throws IOException{
+    	File file = new File(path);
+    	if (file.isAbsolute()){
+    		pwd = file.getCanonicalFile();
+    		return file.getCanonicalFile();
+    	} else {
+    		pwd = new File(path).getCanonicalFile();
+    	}
+    	return pwd;
+    }
     public static void changeDir(String path) throws IOException {
         File f = getAbsolute(path);
         if (f.exists() && f.isDirectory()) {

@@ -14,47 +14,55 @@ public class Shell {
         shellCommands = new ArrayList<ShellCommand>();
     }
 
-    final void addCommand(final ShellCommand command) {
+    public final void addCommand(final ShellCommand command) {
         shellCommands.add(command);
     }
 
-    final void interactiveMode() throws IOException {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(System.in));
+    public final void interactiveMode() throws IOException {
+        //BufferedReader reader = null;
+       // try {
+            Scanner reader = new Scanner(System.in);
+            String commands = "";
             System.out.print("$ ");
+            if (reader.hasNextLine()){
+            	commands = reader.nextLine();
+            } else {
+            	System.exit(0);
+            }
+            
             while (true) {
                 try {
-
-                    String commands = reader.readLine();
-                    
                     commands = commands.trim();
                     if (!commands.isEmpty()){
                     String[] command = commands.split("[\\s]*[;][\\s]*");
                     for (String element : command) {
                         executeCommand(element);
                     }
+                    System.out.print("$ ");
+                    if (reader.hasNextLine()){
+                    	commands = reader.nextLine();
+                    } else {
+                    	System.exit(0);
+                    }
                     }
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
-                } finally {
                     System.out.print("$ ");
-                }
+                    if (reader.hasNextLine()){
+                    	commands = reader.nextLine();
+                    } else {
+                    	System.exit(0);
+                    }
+                    
+                    
+                } 
             }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (Exception e) {
-                }
-            }
-        }
+            
+                
 
     }
 
-    final void nonInteractiveMode(String[] args) throws IOException {
+    public final void nonInteractiveMode(String[] args) throws IOException, ExitException {
         try {
             StringBuilder userCommands = new StringBuilder();
 
@@ -66,7 +74,6 @@ public class Shell {
             String[] toParseCommands = commandsInOneString.split("[\\s]*[;][\\s]*");
             for (String element : toParseCommands) {
                 executeCommand(element);
-
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -75,7 +82,7 @@ public class Shell {
         }
     }
 
-    static void executeCommand(String command) throws IOException {
+    static void executeCommand(String command) throws IOException, ExitException {
         String[] commands = command.split("[\\s]+");
         boolean isItCommand = false;
         for (int i = 0; i < shellCommands.size(); ++i) {
@@ -88,5 +95,6 @@ public class Shell {
             throw new IOException(command + " No such command");
         }
     }
+
 
 }
