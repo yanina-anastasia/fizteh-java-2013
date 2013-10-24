@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 import java.io.IOException;
 
 public class Exit implements Command {
+
     @Override
     public String getName() {
         return "exit";
