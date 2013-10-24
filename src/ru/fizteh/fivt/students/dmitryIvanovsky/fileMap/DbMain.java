@@ -13,9 +13,9 @@ public class DbMain {
     }
 
     public static void runDb(String[] args, String path) throws IOException {
-        MyFileMap fileMapCommand = null;
+        FileMap fileMapCommand = null;
         try {
-            fileMapCommand = new MyFileMap(path);
+            fileMapCommand = new FileMap(path);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Ошибка загрузки базы данных");

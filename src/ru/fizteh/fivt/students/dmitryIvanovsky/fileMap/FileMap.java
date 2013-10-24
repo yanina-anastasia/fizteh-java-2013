@@ -15,7 +15,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandAbstract;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 
-public class MyFileMap implements CommandAbstract {
+public class FileMap implements CommandAbstract {
     private final Path pathTables;
     private final CommandShell mySystem;
     String useNameTable;
@@ -48,12 +48,12 @@ public class MyFileMap implements CommandAbstract {
         return commandList;
     }
 
-    public MyFileMap() {
+    public FileMap() {
         this.pathTables = null;
         this.mySystem = null;
     }
 
-    public MyFileMap(String pathT) throws ErrorFileMap {
+    public FileMap(String pathT) throws ErrorFileMap {
         this.out = true;
         this.err = true;
         File file = null;
@@ -73,7 +73,7 @@ public class MyFileMap implements CommandAbstract {
         }
         this.useNameTable = "";
         this.pathTables = Paths.get(pathT);
-        this.mySystem = new CommandShell(pathT, false, false);
+        this.mySystem = new CommandShell(pathT, true, true);
         this.dbData = new HashMap(){};
         this.setMap = new HashSet<String>();
 
