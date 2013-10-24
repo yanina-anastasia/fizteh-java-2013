@@ -1,13 +1,12 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
-import ru.fizteh.fivt.students.anastasyev.shell.State;
 
 import java.io.IOException;
 
-public class RemoveCommand implements Command {
+public class RemoveCommand implements Command<FileMapTable> {
     @Override
-    public boolean exec(State state, String[] command) {
+    public boolean exec(FileMapTable state, String[] command) {
         if (command.length != 2) {
             System.err.println("remove: Usage - remove key");
             return false;
@@ -15,7 +14,7 @@ public class RemoveCommand implements Command {
         try {
             FileMap db = null;
             try {
-                db = (FileMap) state.getMyState(command[1].hashCode());
+                db = state.getMyState(command[1].hashCode());
             } catch (IOException e) {
                 if (e.getMessage().equals("no table")) {
                     System.out.println("no table");
@@ -30,7 +29,7 @@ public class RemoveCommand implements Command {
             }
             String str = db.remove(command[1]);
             if (db.isEmpty()) {
-                ((FileMapTable) state).deleteFileMap(command[1].hashCode());
+                state.deleteFileMap(command[1].hashCode());
             }
             if (str.equals("not found")) {
                 System.out.println("not found");

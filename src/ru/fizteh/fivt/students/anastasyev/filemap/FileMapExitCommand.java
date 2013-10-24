@@ -2,11 +2,10 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import java.io.IOException;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
-import ru.fizteh.fivt.students.anastasyev.shell.State;
 
-public class FileMapExitCommand implements Command {
+public class FileMapExitCommand implements Command<FileMapTable> {
     @Override
-    public final boolean exec(State fileMap, final String[] command) {
+    public final boolean exec(FileMapTable fileMap, final String[] command) {
         if (command.length != 1) {
             System.err.println("exit: Usage - exit");
             return false;

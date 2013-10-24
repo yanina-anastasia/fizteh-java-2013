@@ -3,11 +3,10 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
-import ru.fizteh.fivt.students.anastasyev.shell.State;
 
-public class PutCommand implements Command {
+public class PutCommand implements Command<FileMapTable> {
     @Override
-    public boolean exec(State state, String[] command) {
+    public boolean exec(FileMapTable state, String[] command) {
         if (command.length < 3) {
             System.err.println("put: Usage - put key value");
             return false;
@@ -21,7 +20,7 @@ public class PutCommand implements Command {
             String arg2 = builderArg2.toString();
             FileMap db = null;
             try {
-                db = (FileMap) state.getMyState(arg1.trim().hashCode());
+                db = state.getMyState(arg1.trim().hashCode());
             } catch (IOException e) {
                 if (e.getMessage().equals("no table")) {
                     System.out.println("no table");
@@ -32,7 +31,7 @@ public class PutCommand implements Command {
             }
             if (db == null) {
                 try {
-                    db = ((FileMapTable) state).openFileMap((arg1.trim().hashCode()));
+                    db = state.openFileMap((arg1.trim().hashCode()));
                 } catch (IOException e) {
                     throw e;
                 }

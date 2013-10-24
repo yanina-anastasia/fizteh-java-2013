@@ -1,19 +1,18 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
-import ru.fizteh.fivt.students.anastasyev.shell.State;
 
 import java.io.IOException;
 
-public class UseCommand implements Command {
+public class UseCommand implements Command<FileMapTable> {
     @Override
-    public boolean exec(State state, String[] command) {
+    public boolean exec(FileMapTable state, String[] command) {
         if (command.length != 2) {
             System.err.println("use: Usage - use tablename");
             return false;
         }
         try {
-            ((FileMapTable) state).useTable(command[1]);
+            state.useTable(command[1]);
         } catch (IOException e) {
             System.err.println("use: " + e.getMessage());
             return false;
