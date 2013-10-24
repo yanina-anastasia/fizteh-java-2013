@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import java.io.IOException;
-
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
+
+import java.io.IOException;
 
 public class PutCommand implements Command<FileMapTable> {
     @Override

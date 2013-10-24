@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
+
 import java.io.IOException;
 
 public class CreateCommand implements Command<FileMapTable> {

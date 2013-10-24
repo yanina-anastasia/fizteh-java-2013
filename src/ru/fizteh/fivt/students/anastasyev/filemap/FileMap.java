@@ -1,10 +1,16 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import java.io.*;
-import java.util.*;
-
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 public class FileMap extends State {
     private File fileMap;
@@ -61,21 +67,18 @@ public class FileMap extends State {
         }
     }
 
-    public FileMap(String dbDir, int directory, int file) {
+    public FileMap(String dbDir, int directory, int file) throws IOException {
         fileMap = new File(dbDir);
         ndirectory = directory;
         nfile = file;
         try {
             openFileMapWithCheck();
         } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            throw new IOException("File " + nfile + ".dat not found");
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            throw new IOException(e.getMessage());
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            throw new IOException(e.getMessage());
         }
         commands.add(new PutCommand());
         commands.add(new GetCommand());
@@ -136,8 +139,9 @@ public class FileMap extends State {
                 throw new IOException("Error in read strings in " + nfile + ".dat");
             }
             String key = new String(keyBytes);
-            if ((key.hashCode() % 16 + 16) % 16 != ndirectory || ((key.hashCode() / 16 % 16) + 16) % 16 != nfile) {
-                throw new IOException(ndirectory + ".dir" + File.separator + nfile + ".dat has wrong key");
+            int hashcode = Math.abs(key.hashCode());
+            if (hashcode % 16 != ndirectory || hashcode / 16 % 16 != nfile) {
+                throw new IOException(ndirectory + ".dir" + File.separator + nfile + ".dat has wrong key: " + key);
             }
             String value = new String(valueBytes);
             elementHashMap.put(key, value);

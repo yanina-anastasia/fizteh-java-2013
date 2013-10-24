@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -144,8 +145,9 @@ public class FileMapTable extends State {
     }
 
     public void deleteFileMap(int hashCode) throws IOException {
-        mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16].delete();
-        mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16] = null;
+        int absHash = Math.abs(hashCode);
+        mapsTable[absHash % 16][absHash / 16 % 16].delete();
+        mapsTable[absHash % 16][absHash / 16 % 16] = null;
     }
 
     @Override
@@ -154,10 +156,10 @@ public class FileMapTable extends State {
             return;
         }
         for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    if (mapsTable[i][j] != null) {
-                        mapsTable[i][j].save();
-                    }
+            for (int j = 0; j < 16; ++j) {
+                if (mapsTable[i][j] != null) {
+                    mapsTable[i][j].save();
+                }
             }
         }
     }
@@ -167,13 +169,14 @@ public class FileMapTable extends State {
         if (currentFileMapTable == null) {
             throw new IOException("no table");
         }
-
-        return mapsTable[(hashCode % 16 + 16) % 16][((hashCode / 16 % 16) + 16) % 16];
+        int absHash = Math.abs(hashCode);
+        return mapsTable[absHash % 16][absHash / 16 % 16];
     }
 
     public FileMap openFileMap(int hashCode) throws IOException {
-        int dirHash = (hashCode % 16 + 16) % 16;
-        int datHash = ((hashCode / 16 % 16) + 16) % 16;
+        int absHash = Math.abs(hashCode);
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
         File dir = new File(currentFileMapTable.toString() + File.separator + dirHash + ".dir");
         if (!dir.exists()) {
             if (!dir.mkdir()) {
