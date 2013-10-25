@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 public class MultiFileMapShell extends ShellEmulator {
 
-    protected final Path dataBasesWorkspace;
+    final Path dataBasesWorkspace;
     protected String currentDatabaseName;
     protected SimpleDatabase currentDatabase;
 

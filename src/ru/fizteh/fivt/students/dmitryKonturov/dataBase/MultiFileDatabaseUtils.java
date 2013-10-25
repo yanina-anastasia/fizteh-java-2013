@@ -14,7 +14,7 @@ class MultiFileDatabaseUtils {
 
     }
 
-    static private MultiFileMapShell shell;
+    private static MultiFileMapShell shell;
 
     static void setShell(MultiFileMapShell newShell) {
         shell = newShell;

@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 class CheckDatabasesWorkspace {
 
     private static int getNumberFromPath(Path file) throws DatabaseException {
-        try{
+        try {
             String fileName = file.toFile().getName();
             int result = 0;
             if (Character.isDigit(fileName.charAt(0))) {

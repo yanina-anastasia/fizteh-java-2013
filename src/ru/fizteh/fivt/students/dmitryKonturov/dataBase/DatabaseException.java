@@ -5,8 +5,8 @@ package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
  */
 
 public class DatabaseException extends Exception {
-    final private String message;
-    final private String reason;
+    private final String message;
+    private final String reason;
 
     DatabaseException(String msg, String rsn) {
         this.message = msg;
