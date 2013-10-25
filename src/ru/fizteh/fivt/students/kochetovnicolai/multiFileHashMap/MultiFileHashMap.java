@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MultiFileHashMap {private HashMap<String, Executable> commands;
+public class MultiFileHashMap {
+
+    private HashMap<String, Executable> commands;
 
     private MultiFileHashMap(DistributedTableManager manager) {
         commands = new HashMap<>();
