@@ -20,12 +20,16 @@ public class PutCommand extends SimpleCommand {
             value.append(" ");
         }
 
-        String oldValue = database.put(args[0], value.toString());
-        if (oldValue == null) {
-            System.out.println("new");
-        } else {
-            System.out.println("overwrite");
-            System.out.println(oldValue);
+        try {
+            String oldValue = database.put(args[0], value.toString());
+            if (oldValue == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(oldValue);
+            }
+        } catch (NoTableSelectedException e) {
+            System.err.println("no table");
         }
     }
 

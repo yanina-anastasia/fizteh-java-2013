@@ -8,9 +8,9 @@ import java.io.FileNotFoundException;
 
 public class DatabaseRunner {
     public static void main(String[] args) {
-        Database database = null;
+        MultiTableDatabase database = null;
         try {
-            database = new SimpleDatabase(System.getProperty("fizteh.db.dir"));
+            database = new HashDatabase(System.getProperty("fizteh.db.dir"));
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -22,6 +22,9 @@ public class DatabaseRunner {
         Command[] commands = new Command[] {new PutCommand(database),
                 new GetCommand(database),
                 new RemoveCommand(database),
+                new CreateCommand(database),
+                new DropCommand(database),
+                new UseCommand(database),
                 new Exit()};
         try {
             Shell.run(commands, args);
