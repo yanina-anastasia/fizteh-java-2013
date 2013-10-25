@@ -13,8 +13,7 @@ public class CommandCreate implements Command {
     public void execute(State state, String[] args) throws IOException, ExitException {
         File table = new File(state.getDbDirectory(), args[1]);
         if (table.exists()) {
-            System.out.print(args[1]);
-            System.out.println(" exists");
+            System.out.println(args[1] + " exists");
         } else {
             table.mkdir();
             if (!table.exists()) {

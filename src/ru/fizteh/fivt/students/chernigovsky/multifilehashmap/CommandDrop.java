@@ -21,8 +21,7 @@ public class CommandDrop implements Command {
             System.out.println("dropped");
 
         } else {
-            System.out.print(args[1]);
-            System.out.println(" not exists");
+            System.out.println(args[1] + " not exists");
         }
     }
 

@@ -22,14 +22,6 @@ public class Main {
 
         State state = new State(dbDirectory);
 
-        /*try {
-            state.readTable(dbFolder);
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
-            System.exit(1);
-        }*/
-
-
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());
         commandMap.put("remove", new CommandRemove());
