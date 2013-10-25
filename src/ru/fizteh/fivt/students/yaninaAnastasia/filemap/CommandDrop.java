@@ -23,12 +23,30 @@ public class CommandDrop extends Command {
         }
         File temp = new File(path, args[0]);
         if (temp.exists()) {
-            temp.delete();
+            for (File stepDir: temp.listFiles()) {
+                for (File stepFile: stepDir.listFiles()) {
+                    if (stepFile.exists()) {
+                        stepFile.delete();
+                    }
+                }
+                if (stepDir.exists()) {
+                    stepDir.delete();
+                }
+            }
+            if (temp.length() == 0) {
+                temp.delete();
+            } else {
+                System.err.println("The " + args[0] + " directory was not deleted");
+            }
         } else {
             System.out.println(args[0] + " not exists");
             return false;
         }
         myState.myDatabase.database.remove(args[0]);
+        if (args[0].equals(myState.curTableName)) {
+            myState.table = null;
+            myState.curTableName = "";
+        }
         System.out.print("dropped");
         return true;
     }

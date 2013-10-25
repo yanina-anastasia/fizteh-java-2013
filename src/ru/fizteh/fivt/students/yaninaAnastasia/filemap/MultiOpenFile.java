@@ -41,12 +41,22 @@ public class MultiOpenFile {
         for (File table : new File(path).listFiles()) {
             curTable = table.getName();
             File[] files = new File(path, curTable).listFiles();
+            for (File step : files) {
+                if (step.isFile()) {
+                    System.err.println("The " + curTable + " is not a directory");
+                    System.exit(1);
+                }
+            }
             if (files == null) {
                 myState.myDatabase.database.put(curTable, loadingTable);
                 continue;
             }
             for (int i = 0; i < 16; i++) {
                 File currentDir = getDirWithNum(i);
+                if (currentDir.isFile()) {
+                    System.err.println("The " + currentDir.toString() + " is not a directory");
+                    System.exit(1);
+                }
                 if (!currentDir.exists()) {
                     continue;
                 } else {
@@ -57,7 +67,7 @@ public class MultiOpenFile {
                                 File tmpFile = new File(currentFile.toString());
                                 RandomAccessFile temp = new RandomAccessFile(tmpFile, "r");
                                 try {
-                                    loadTable(temp, loadingTable);
+                                    loadTable(temp, loadingTable, i, j);
                                 } catch (EOFException e) {
                                     System.err.println("Wrong format");
                                     return false;
@@ -79,7 +89,7 @@ public class MultiOpenFile {
         return true;
     }
 
-    private static void loadTable(RandomAccessFile temp, HashMap<String, String> table) throws IOException {
+    private static void loadTable(RandomAccessFile temp, HashMap<String, String> table, int i, int j) throws IOException {
         if (temp.length() == 0) {
             return;
         }
@@ -96,7 +106,6 @@ public class MultiOpenFile {
         long currentOffset = firstOffset;
         long cursor = temp.getFilePointer();
         String nextKey = key;
-
         while (cursor < firstOffset) {
             c = temp.readByte();
             out = new ByteArrayOutputStream();
@@ -115,7 +124,11 @@ public class MultiOpenFile {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            table.put(key, putValue);
+            if (i == MultiFileMapUtils.getDirectoryNum(key) && j == MultiFileMapUtils.getFileNum(key)) {
+                table.put(key, putValue);
+            } else {
+                throw new IOException("File has incorrect format");
+            }
             temp.seek(cursor);
             key = nextKey;
             currentOffset = nextOffset;
@@ -128,7 +141,11 @@ public class MultiOpenFile {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        table.put(nextKey, putValue);
+        if (i == MultiFileMapUtils.getDirectoryNum(key) && j == MultiFileMapUtils.getFileNum(key)) {
+            table.put(nextKey, putValue);
+        } else {
+            throw new IOException("File has incorrect format");
+        }
         temp.close();
     }
 }
