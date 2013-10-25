@@ -54,6 +54,39 @@ public class FileMapCommands extends AbstractCommands {
         }
     }
     
+    public void isCorrect(File tempTableFile) throws Exception {
+        String[] listOfDirs = tempTableFile.list();
+        for (int i = 0; i < listOfDirs.length; ++i) {
+            boolean ok = false;
+            for (int j = 0; j < 16; ++i) {
+                String validName = String.valueOf(j) + ".dir";
+                if (listOfDirs[i].equals(validName)) {
+                    ok = true;
+                    break;
+                }
+            }
+            if (ok) {
+                File curDirPath = tempTableFile.toPath().resolve(listOfDirs[i]).toFile();
+                String[] listOfFiles = curDirPath.list();
+                for (int j = 0; j < listOfFiles.length; ++j) {
+                    boolean okFile = false;
+                    for (int k = 0; k < 16; ++k) {
+                        String validName = String.valueOf(k) + ".dat";
+                        if (listOfFiles[j].equals(validName)) {
+                            okFile = true;
+                            break;
+                        }
+                    }
+                    if (!okFile) {
+                        throw new Exception("Incorrect file");
+                    }
+                }
+            } else {
+                throw new Exception("Incorrect file");
+            }
+        }
+    }
+    
     public void use() throws Exception {
         String tableName = lexems[1];
         File tempTableFile = currentDir.toPath().resolve(tableName).normalize().toFile();
@@ -63,6 +96,11 @@ public class FileMapCommands extends AbstractCommands {
             if (!tempTableFile.isDirectory()) {
                 System.out.println(tableName + " not exists");
             } else {
+                try {
+                    isCorrect(tempTableFile);
+                } catch (Exception e) {
+                    throw new Exception("Incorrect file");
+                }
                 tableFile = tempTableFile;
                 usingTable = true;
                 System.out.println("using " + tableName);
