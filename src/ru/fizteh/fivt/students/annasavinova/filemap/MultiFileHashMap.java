@@ -13,6 +13,16 @@ public class MultiFileHashMap extends UserShell {
     private static String rootDir = System.getProperty("fizteh.db.dir") + File.separatorChar;
     private FileMap[] dataArray = new FileMap[256];
     private boolean hasLoadingMaps = false;
+    
+    @Override
+    public String[] getArgsFromString(String str) {
+        str = str.trim();
+        if (str != null) {
+            return str.split("[\\s]+", 3);
+        } else {
+            return null;
+        }
+    }
 
     protected File getDirWithNum(int dirNum) {
         File res = new File(rootDir + currTable + File.separatorChar + dirNum + ".dir");
