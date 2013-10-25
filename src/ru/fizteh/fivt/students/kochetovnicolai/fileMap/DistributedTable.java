@@ -1,18 +1,28 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class DistributedTable extends BasicTable {
+public class DistributedTable extends FileManager implements Table {
+
+    protected File currentFile;
+    protected String tableName;
+    protected HashMap<String, String> changes;
+    protected int recordNumber;
+    protected int oldRecordNumber;
 
     protected final int partsNumber = 16;
     protected File[] directoriesList = new File[partsNumber];
     protected File[][] filesList = new File[partsNumber][partsNumber];
 
-    int unsavedChanges() {
-        return changes.size();
+    @Override
+    public String getName() {
+        return tableName;
     }
 
     private byte getFirstByte(String s) {
@@ -59,19 +69,39 @@ public class DistributedTable extends BasicTable {
     }
 
     @Override
+    public int rollback() {
+        int canceled = recordNumber - oldRecordNumber;
+        recordNumber = oldRecordNumber;
+        changes.clear();
+        return canceled;
+    }
+
+    @Override
      public String get(String key) throws IllegalArgumentException {
         byte firstByte = getFirstByte(key);
         currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
         currentPath = directoriesList[firstByte % partsNumber];
-        return super.get(key);
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        if (!changes.containsKey(key)) {
+            changes.put(key, readValue(key));
+        }
+        return changes.get(key);
     }
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-            byte firstByte = getFirstByte(key);
-            currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
-            currentPath = directoriesList[firstByte % partsNumber];
-            return super.put(key, value);
+        byte firstByte = getFirstByte(key);
+        currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
+        currentPath = directoriesList[firstByte % partsNumber];
+        if (key == null || value == null) {
+            throw new IllegalArgumentException();
+        }
+        if (get(key) == null) {
+            recordNumber++;
+        }
+        return changes.put(key, value);
     }
 
     @Override
@@ -170,5 +200,73 @@ public class DistributedTable extends BasicTable {
         }
         printMessage(tableName + ": cannot commit changes: i/o error occurred");
         return 0;
+    }
+
+    @Override
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        if (get(key) != null) {
+            recordNumber--;
+        }
+        return changes.put(key, null);
+    }
+
+    @Override
+    public int size() {
+        return recordNumber;
+    }
+
+    protected void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
+        byte[] keyBytes = key.getBytes("UTF-8");
+        byte[] valueBytes = value.getBytes("UTF-8");
+        outputStream.writeInt(keyBytes.length);
+        outputStream.writeInt(valueBytes.length);
+        outputStream.write(keyBytes);
+        outputStream.write(valueBytes);
+    }
+
+    protected String[] readNextPair(DataInputStream inputStream) throws IOException {
+        int keySize;
+        int valueSize;
+        try {
+            keySize = inputStream.readInt();
+            valueSize = inputStream.readInt();
+            if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize
+                    || inputStream.available() < valueSize || inputStream.available() < keySize + valueSize) {
+                throw new IOException("invalid string size");
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        byte[] keyBytes = new byte[keySize];
+        byte[] valueBytes = new byte[valueSize];
+        if (inputStream.read(keyBytes) != keySize || inputStream.read(valueBytes) != valueSize) {
+            throw new IOException("unexpected end of file");
+        }
+        String[] pair = new String[2];
+        pair[0] = new String(keyBytes, "UTF-8");
+        pair[1] = new String(valueBytes, "UTF-8");
+        return pair;
+    }
+
+    protected String readValue(String key) {
+        if (currentFile == null) {
+            return null;
+        }
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
+            String[] pair;
+            while ((pair = readNextPair(inputStream)) != null) {
+                if (pair[0].equals(key)) {
+                    inputStream.close();
+                    return pair[1];
+                }
+            }
+            inputStream.close();
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

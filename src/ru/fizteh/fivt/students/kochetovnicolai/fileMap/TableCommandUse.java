@@ -25,7 +25,7 @@ public class TableCommandUse implements Executable {
             if (manager.getCurrentTable() != null) {
                 manager.getCurrentTable().commit();
             }
-            manager.setCurrentTable(manager.createTable(args[1]));
+            manager.setCurrentTable(manager.getTable(args[1]));
             manager.printMessage("using " + args[1]);
             return true;
         } catch (IllegalArgumentException e) {

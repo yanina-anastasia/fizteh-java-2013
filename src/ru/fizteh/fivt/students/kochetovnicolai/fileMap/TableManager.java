@@ -1,13 +1,14 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class TableManager extends FileManager {
+public class TableManager extends FileManager implements TableProvider {
 
     protected DistributedTable currentTable;
 
@@ -29,6 +30,7 @@ public class TableManager extends FileManager {
         currentTable = table;
     }
 
+    @Override
     public DistributedTable getTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
@@ -39,6 +41,7 @@ public class TableManager extends FileManager {
         return createTable(name);
     }
 
+    @Override
     public DistributedTable createTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
@@ -54,6 +57,7 @@ public class TableManager extends FileManager {
         return tables.get(name);
     }
 
+    @Override
     public void removeTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
@@ -77,5 +81,14 @@ public class TableManager extends FileManager {
 
     public Table getCurrentTable() {
         return currentTable;
+    }
+
+    @Override
+    public void printSuggestMessage() {
+        outputStream.print(currentPath.getName() + File.separator);
+        if (currentTable != null) {
+            outputStream.print(currentTable.getName());
+        }
+        outputStream.print("$ ");
     }
 }
