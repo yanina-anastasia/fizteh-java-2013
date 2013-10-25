@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
+import java.io.IOException;
 
 public class CommandsOperator {
     private Map<String, Command> commandsTable = new HashMap<String, Command>();
@@ -22,8 +23,16 @@ public class CommandsOperator {
     }
 
     public CommandsOperator() {
-        loadClasses();
-        singleFileMap = new SingleFileMap(new File(System.getProperty("fizteh.db.dir") + "/db.dat"));
+        try {
+            loadClasses();
+            File datebase = new File(System.getProperty("fizteh.db.dir") + "/db.dat");
+            if (!datebase.isAbsolute()) {
+                throw new IOException("Wrong path to datebase file");
+            }
+            singleFileMap = new SingleFileMap(new File(System.getProperty("fizteh.db.dir") + "/db.dat"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public int runCommand(String line) {
