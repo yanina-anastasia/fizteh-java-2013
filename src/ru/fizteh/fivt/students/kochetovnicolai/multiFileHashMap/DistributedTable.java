@@ -17,6 +17,14 @@ public class DistributedTable extends BasicTable {
         return changes.size();
     }
 
+    private byte getFirstByte(String s) {
+        try {
+            return (byte) Math.abs(s.getBytes("UTF-8")[0]);
+        } catch (UnsupportedEncodingException e) {
+            return 0;
+        }
+    }
+
     DistributedTable(File tableDirectory, String name) throws IOException {
         currentPath = new File(tableDirectory.getPath() + File.separator + name);
         tableName = name;
@@ -35,8 +43,7 @@ public class DistributedTable extends BasicTable {
                     DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile));
                     String[] pair;
                     while ((pair = readNextPair(inputStream)) != null) {
-                        byte firstByte = pair[0].getBytes("UTF-8")[0];
-                        firstByte = (byte) (firstByte > 0 ? firstByte : -firstByte);
+                        byte firstByte = getFirstByte(pair[0]);
                         if (firstByte % partsNumber != i || (firstByte / partsNumber) % partsNumber != j) {
                             throw new IOException("Invalid key in file " + currentFile.getAbsolutePath());
                         }
@@ -55,28 +62,18 @@ public class DistributedTable extends BasicTable {
 
     @Override
      public String get(String key) throws IllegalArgumentException {
-        try {
-            Byte firstByte = key.getBytes("UTF-8")[0];
-            firstByte = (byte) (firstByte > 0 ? firstByte : -firstByte);
-            currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
-            currentPath = directoriesList[firstByte % partsNumber];
-            return super.get(key);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("WTF-8");
-        }
+        byte firstByte = getFirstByte(key);
+        currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
+        currentPath = directoriesList[firstByte % partsNumber];
+        return super.get(key);
     }
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        try {
-            Byte firstByte = key.getBytes("UTF-8")[0];
-            firstByte = (byte) (firstByte > 0 ? firstByte : -firstByte);
+            byte firstByte = getFirstByte(key);
             currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
             currentPath = directoriesList[firstByte % partsNumber];
             return super.put(key, value);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("WTF-8");
-        }
     }
 
     @Override
@@ -123,8 +120,7 @@ public class DistributedTable extends BasicTable {
             Set<Map.Entry<String, String>> entries = changes.entrySet();
             for (Map.Entry<String, String> entry : entries) {
                 if (entry.getValue() != null) {
-                    byte firstByte = entry.getKey().getBytes("UTF-8")[0];
-                    firstByte = (byte) (firstByte > 0 ? firstByte : -firstByte);
+                    byte firstByte = getFirstByte(entry.getKey());
                     DataOutputStream outputStream = outputStreams[firstByte % partsNumber]
                             [(firstByte / partsNumber) % partsNumber];
                     writeNextPair(outputStream, entry.getKey(), entry.getValue());

@@ -23,7 +23,7 @@ public class DistributedTableCommandCreate implements Executable {
             return false;
         }
         try {
-            DistributedTable table = manager.createTable(args[1]);
+            manager.createTable(args[1]);
             manager.printMessage("created");
             return true;
         } catch (IllegalArgumentException e) {

@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.kochetovnicolai.multiFileHashMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
 public class DistributedTableCommandExit implements Executable {
