@@ -6,12 +6,12 @@ public class MultiFileHashMapState {
     private Path databasePath;
     private String workingTableName;
     private MyTable currentTable;
-    private TableProvider tables;
+    private MyTableProvider tables;
 
     public MultiFileHashMapState(Path p) {
         databasePath = p;
         workingTableName = "";
-        TableProviderFactory factory = new TableProviderFactory();
+        MyTableProviderFactory factory = new MyTableProviderFactory();
         tables = factory.create(p.toString());
     }
 

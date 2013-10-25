@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
+import ru.fizteh.fivt.storage.strings.TableProvider;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class TableProvider implements ru.fizteh.fivt.storage.strings.TableProvider {
+public class MyTableProvider implements TableProvider {
     private Map<String, MyTable> tables = new HashMap<String, MyTable>();
 
     @Override
