@@ -46,10 +46,10 @@ public class MultiFileHashMapState {
         currentTable = (MultiFileHashMapTable) provider.getTable(name);
     }
 
-    public void deleteCurrentTable() throws IOException {
+    public void deleteTable(String name) throws IOException {
 
-        provider.removeTable(currentTable.getName());
-        currentTable = null;
+        provider.removeTable(name);
+        //currentTable = null;
     }
 
     public String putToCurrentTable(String key, String value) {
