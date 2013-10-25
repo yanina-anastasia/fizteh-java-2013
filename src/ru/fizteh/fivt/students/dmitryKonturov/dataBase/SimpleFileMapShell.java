@@ -15,26 +15,25 @@ import java.nio.file.Path;
  */
 
 public class SimpleFileMapShell extends ShellEmulator {
-    Path databasePath;
-    SimpleDatabase currentDataBase;
+    protected Path databasePath;
+    protected SimpleDatabase currentDataBase;
 
     @Override
     protected String[] shellParseArguments(String bigArg) {
-        SimpleFileMapShellUtils.shell = this;
-        bigArg = bigArg.trim();
+        String newBigArg = bigArg.trim();
         String[] args;
-        if (bigArg.length() == 0) {
+        if (newBigArg.length() == 0) {
             args = new String[0];
         } else {
             args = new String[1];
-            args[0] = bigArg;
+            args[0] = newBigArg;
         }
         return args;
     }
 
     @Override
     protected void justBeforeExecutingAction(String commandName) {
-        SimpleFileMapShellUtils.shell = this;
+        SimpleFileMapShellUtils.setShell(this);
     }
 
     @Override
@@ -69,6 +68,10 @@ public class SimpleFileMapShell extends ShellEmulator {
             System.exit(1);
         }
         addToCommandList(SimpleFileMapShellUtils.getCommandList());
-        SimpleFileMapShellUtils.shell = this;
+    }
+
+    SimpleFileMapShell() {
+        currentDataBase = null;
+        databasePath = null;
     }
 }

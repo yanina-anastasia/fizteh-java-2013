@@ -226,6 +226,10 @@ class MyCalculator {
 
 public class Calculator {
 
+    private Calculator() {
+
+    }
+
     public static void main(String[] args) {
         StringBuilder argsBuilder = new StringBuilder();
 

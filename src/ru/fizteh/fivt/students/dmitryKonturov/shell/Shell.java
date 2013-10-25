@@ -2,6 +2,10 @@ package ru.fizteh.fivt.students.dmitryKonturov.shell;
 
 public class Shell {
 
+    private Shell() {
+
+    }
+
     public static void main(String[] mainArgs) {
 
         ShellWorkingWithFileSystem shell = new ShellWorkingWithFileSystem(System.getProperty("user.dir"));
