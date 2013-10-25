@@ -43,6 +43,9 @@ public class FileMap extends UserShell {
     public void setFile(File file) {
         try {
             pathFile = file;
+            if (!pathFile.exists()) {
+                printErrorAndExit("Cannot open file");
+            }
             dataFile = new RandomAccessFile(file, "rw");
         } catch (FileNotFoundException e) {
             printErrorAndExit("Cannot open file");
@@ -131,7 +134,10 @@ public class FileMap extends UserShell {
 
     protected void unloadFile() {
         try {
-            if (dataMap.isEmpty()) {
+            if (dataMap.isEmpty() && pathFile.getParentFile().list().length == 0) {
+                doDelete(pathFile.getParentFile());
+                return;
+            } else if (dataMap.isEmpty()) {
                 doDelete(pathFile);
                 return;
             }
@@ -146,9 +152,6 @@ public class FileMap extends UserShell {
                 dataFile.writeInt(valueBytes.length);
                 dataFile.write(keyBytes);
                 dataFile.write(valueBytes);
-            }
-            if (pathFile.getParentFile().list().length == 0) {
-                doDelete(pathFile.getParentFile());
             }
         } catch (IOException e) {
             printErrorAndExit("Cannot unload file correctly");
