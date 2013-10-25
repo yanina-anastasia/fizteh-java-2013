@@ -184,6 +184,7 @@ public class Commands extends Shell {
         } else {
             deleteTable(table);
             System.out.println("dropped");
+            FileMap.hasOpenedTable = false;
         }
 
     }
