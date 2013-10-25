@@ -32,15 +32,15 @@ public class DbMain {
             System.err.println(workingDirectoryName + " is not a directory");
             System.exit(1);
         }
-        try {
+        //try {
            // cleaner();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        } catch (Exception e) {
-            System.err.println("Unknown error");
-            System.exit(1);
-        }
+        //} catch (IOException e) {
+          //  System.err.println(e.getMessage());
+            //System.exit(1);
+        //} catch (Exception e) {
+          //  System.err.println("Unknown error");
+        //    System.exit(1);
+        //}
 
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
