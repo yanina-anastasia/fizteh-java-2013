@@ -58,7 +58,7 @@ public class FileMapCommands extends AbstractCommands {
         String[] listOfDirs = tempTableFile.list();
         for (int i = 0; i < listOfDirs.length; ++i) {
             boolean ok = false;
-            for (int j = 0; j < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
                 String validName = String.valueOf(j) + ".dir";
                 if (listOfDirs[i].equals(validName)) {
                     ok = true;
@@ -78,11 +78,11 @@ public class FileMapCommands extends AbstractCommands {
                         }
                     }
                     if (!okFile) {
-                        throw new Exception("Incorrect file");
+                        throw new Exception("Incorrect table");
                     }
                 }
             } else {
-                throw new Exception("Incorrect file");
+                throw new Exception("Incorrect table");
             }
         }
     }
@@ -99,7 +99,7 @@ public class FileMapCommands extends AbstractCommands {
                 try {
                     isCorrect(tempTableFile);
                 } catch (Exception e) {
-                    throw new Exception("Incorrect file");
+                    throw new Exception("Incorrect table");
                 }
                 tableFile = tempTableFile;
                 usingTable = true;
