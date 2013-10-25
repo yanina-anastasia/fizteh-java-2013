@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.drozdowsky.shell_v2;
 
-import ru.fizteh.fivt.students.drozdowsky.Modes.ModeController;
-import ru.fizteh.fivt.students.drozdowsky.Modes.Utils;
+import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
+import ru.fizteh.fivt.students.drozdowsky.modes.Utils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

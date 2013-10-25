@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.Modes;
+package ru.fizteh.fivt.students.drozdowsky.modes;
 
 import ru.fizteh.fivt.students.drozdowsky.shell.Parser;
 

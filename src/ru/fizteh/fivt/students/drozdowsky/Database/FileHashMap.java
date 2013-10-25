@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.Database;
+package ru.fizteh.fivt.students.drozdowsky.database;
 
 import java.io.File;
 import java.io.IOException;

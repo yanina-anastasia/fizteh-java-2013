@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap_v2;
 
-import ru.fizteh.fivt.students.drozdowsky.Database.FileMap;
-import ru.fizteh.fivt.students.drozdowsky.Modes.ModeController;
-import ru.fizteh.fivt.students.drozdowsky.Modes.Utils;
+import ru.fizteh.fivt.students.drozdowsky.database.FileMap;
+import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
+import ru.fizteh.fivt.students.drozdowsky.modes.Utils;
 
 import java.io.File;
 import java.io.IOException;
