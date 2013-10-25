@@ -46,6 +46,6 @@ public class MultiFileHashMapTableProvider implements TableProvider {
             throw new IllegalStateException("REMOVETABLE ERROR: not existing table");
         }
 
-        tables.remove(!tables.containsKey(curDir.toString() + "\\" + tableName));
+        tables.remove(curDir.toString() + "\\" + tableName);
     }
 }
