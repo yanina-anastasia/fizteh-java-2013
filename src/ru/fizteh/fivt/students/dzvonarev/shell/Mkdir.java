@@ -8,10 +8,13 @@ public class Mkdir implements CommandInterface {
 
     public void execute(Vector<String> args) throws IOException {
         String expr = args.elementAt(0);
+        if (expr.equals("mkdir")) {
+            throw new IOException("mkdir: wrong  parameters");
+        }
         int spaceIndex = expr.indexOf(' ', 0);
         int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
         if (newSpaceIndex != -1) {
-            throw new IOException("Wrong parametres of mkdir");
+            throw new IOException("mkdir: wrong parameters");
         }
         String folder = Shell.getAbsPath(expr.substring(spaceIndex + 1, expr.length()));
         File dir = new File(folder);
