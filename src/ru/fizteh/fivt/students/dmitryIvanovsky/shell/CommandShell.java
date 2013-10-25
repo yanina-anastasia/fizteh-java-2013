@@ -136,6 +136,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code cd(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды cd 1 аргумент");
             return Code.ERROR;
         }
         String newDir = args[0];
@@ -159,6 +160,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code cp(String[] args) {
         if (args.length != 2) {
+            errPrint("У команды cp 2 аргумента");
             return Code.ERROR;
         }
         String source = args[0];
@@ -168,6 +170,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code mv(String[] args) {
         if (args.length != 2) {
+            errPrint("У команды mv 2 аргумента");
             return Code.ERROR;
         }
         String source = args[0];
@@ -177,6 +180,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code rm(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды rm 2 аргумента");
             return Code.ERROR;
         }
         String path = args[0];
@@ -203,6 +207,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code dir(String[] args) {
         if (args.length != 0) {
+            errPrint("У команды dir 0 аргументов");
             return Code.ERROR;
         }
         try {
@@ -218,6 +223,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code pwd(String[] args) {
         if (args.length != 0) {
+            errPrint("У команды pwd 0 аргументов");
             return Code.ERROR;
         }
         try {
@@ -231,6 +237,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code mkdir(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды mkdir 1 аргумент");
             return Code.ERROR;
         }
         String directoryName = args[0];

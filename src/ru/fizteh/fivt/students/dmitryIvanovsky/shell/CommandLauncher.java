@@ -48,15 +48,20 @@ public class CommandLauncher {
                     commandArgs.add(token.nextToken());
                 }
                 try {
+                    Code res;
                     if (mapSelfParsing.get(command)) {
                         Object[] args = new Object[]{new String[]{query}};
-                        return (Code) method.invoke(exampleClass, args);
+                        res = (Code) method.invoke(exampleClass, args);
                     } else {
                         Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
-                        return (Code) method.invoke(exampleClass, args);
+                        res = (Code) method.invoke(exampleClass, args);
                     }
+                    if (res != Code.OK) {
+                        System.err.println("Ошибка выполнения команды");
+                    }
+                    return res;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     System.err.println(String.format("Ошибка выполнения команды \'%s\'", command));
                     return Code.ERROR;
                 }
