@@ -8,11 +8,11 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
  * Date: 21.10.13
  * Time: 14:24
  */
-public class mfhmDataBaseGlobalState {
+public class DataBaseGlobalState {
     private TableProvider currentTableManager = null;
     private Table currentTable = null;
 
-    public mfhmDataBaseGlobalState(TableProvider tableManager/*, mfhmTableStorage table */) {
+    public DataBaseGlobalState(TableProvider tableManager/*, mfhmTableStorage table */) {
         currentTableManager = tableManager;
         //currentTable = table;
     }

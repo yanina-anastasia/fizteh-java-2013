@@ -13,11 +13,11 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 13:27
  */
-public class mfhmTableManager implements TableProvider {
+public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
-    public mfhmTableManager(File atDirectory) throws Exception {
+    public TableManager(File atDirectory) throws Exception {
         if (!atDirectory.exists()) {
             throw new Exception(atDirectory.getName() + ": not exist");
         }

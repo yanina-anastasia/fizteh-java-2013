@@ -9,7 +9,7 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 1:08
  */
-public class tlWorkWithDatFiles {
+public class WorkWithDatFiles {
     public static void readIntoMap(File dataBaseFile, Map<String, String> map) throws Exception {
         RandomAccessFile dataBaseFileReader = new RandomAccessFile(dataBaseFile, "rw");
         long lenght = dataBaseFile.length();

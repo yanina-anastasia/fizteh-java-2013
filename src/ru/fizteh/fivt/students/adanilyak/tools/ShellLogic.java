@@ -13,17 +13,17 @@ import java.util.Vector;
  * Date: 20.10.13
  * Time: 23:15
  */
-public class tlShellLogic {
+public class ShellLogic {
     public static void packageMode(String[] args, Map<String, Cmd> cmdList, PrintStream out, PrintStream err) {
         StringBuilder packOfCommands = new StringBuilder();
         for (String cmdOrArg : args) {
             packOfCommands.append(cmdOrArg).append(" ");
         }
         String inputLine = packOfCommands.toString();
-        Vector<String> commandWithArgs = tlCmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+        Vector<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
         try {
             for (String command : commandWithArgs) {
-                tlCmdParseAndExecute.execute(command, cmdList);
+                CmdParseAndExecute.execute(command, cmdList);
             }
         } catch (Exception exc) {
             err.println(exc.getMessage());
@@ -42,10 +42,10 @@ public class tlShellLogic {
 
             out.print("$ ");
             String inputLine = inputStream.nextLine();
-            Vector<String> commandWithArgs = tlCmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+            Vector<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
             try {
                 for (String command : commandWithArgs) {
-                    tlCmdParseAndExecute.execute(command, cmdList);
+                    CmdParseAndExecute.execute(command, cmdList);
                 }
             } catch (Exception exc) {
                 err.println(exc.getMessage());

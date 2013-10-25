@@ -12,11 +12,11 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 13:26
  */
-public class mfhmTableStorage implements Table {
+public class TableStorage implements Table {
     private File tableStorageDirectory;
     private Map<String, String> tableStorageData = new HashMap<String, String>();
 
-    public mfhmTableStorage(File dataDirectory) throws Exception {
+    public TableStorage(File dataDirectory) throws Exception {
         tableStorageDirectory = dataDirectory;
         tlWorkWithMFHM.readIntoDataBase(tableStorageDirectory, tableStorageData);
     }

@@ -9,12 +9,12 @@ import java.util.Vector;
  * Date: 21.10.13
  * Time: 14:18
  */
-public class CmdMfhmRemove implements Cmd {
+public class CmdRemove implements Cmd {
     private final String name = "remove";
     private final int amArgs = 1;
     private mfhmDataBaseGlobalState workState;
 
-    public CmdMfhmRemove(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdRemove(mfhmDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

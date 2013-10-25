@@ -12,7 +12,7 @@ import java.util.Vector;
  * Date: 20.10.13
  * Time: 22:38
  */
-public class tlCmdParseAndExecute {
+public class CmdParseAndExecute {
     public static Vector<String> intoCommandsAndArgs(String cmd, String delimetr) {
         cmd.trim();
         String[] tokens = cmd.split(delimetr);

@@ -7,14 +7,14 @@ import java.util.Vector;
 /**
  * User: Alexander
  * Date: 21.10.13
- * Time: 14:18
+ * Time: 14:19
  */
-public class CmdMfhmGet implements Cmd {
-    private final String name = "get";
+public class CmdDrop implements Cmd {
+    private final String name = "drop";
     private final int amArgs = 1;
     private mfhmDataBaseGlobalState workState;
 
-    public CmdMfhmGet(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdDrop(mfhmDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -30,17 +30,12 @@ public class CmdMfhmGet implements Cmd {
 
     @Override
     public void work(Vector<String> args) throws Exception {
-        if (workState.getCurrentTable() != null) {
-            String key = args.get(1);
-            String result = workState.get(key);
-            if (result == null) {
-                System.out.println("not found");
-            } else {
-                System.out.println("found");
-                System.out.println(result);
-            }
+        String useTableName = args.get(1);
+        if (workState.getTable(useTableName) == null) {
+            System.err.println(useTableName + " not exists");
         } else {
-            System.out.println("no table");
+            workState.removeTable(useTableName);
+            System.out.println("dropped");
         }
     }
 }

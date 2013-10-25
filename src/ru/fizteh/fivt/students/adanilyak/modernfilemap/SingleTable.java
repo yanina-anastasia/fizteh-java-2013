@@ -13,11 +13,11 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 1:05
  */
-public class fmTableSingleFileStorage implements Table {
+public class SingleTable implements Table {
     private Map<String, String> dataBaseStorage;
     private File dataBaseDatFile;
 
-    public fmTableSingleFileStorage(File datFile) throws IOException {
+    public SingleTable(File datFile) throws IOException {
         dataBaseStorage = new HashMap<String, String>();
         dataBaseDatFile = datFile;
         try {

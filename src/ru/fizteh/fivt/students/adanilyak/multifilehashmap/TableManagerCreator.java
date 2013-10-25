@@ -10,9 +10,9 @@ import java.io.File;
  * Date: 21.10.13
  * Time: 13:27
  */
-public class mfhmTableManagerCreator implements TableProviderFactory {
+public class TableManagerCreator implements TableProviderFactory {
 
-    public mfhmTableManagerCreator() {
+    public TableManagerCreator() {
 
     }
 
@@ -25,7 +25,7 @@ public class mfhmTableManagerCreator implements TableProviderFactory {
         TableProvider tableManager = null;
         try {
             File file = new File(directoryWithTables);
-            tableManager = new mfhmTableManager(file);
+            tableManager = new TableManager(file);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(2);

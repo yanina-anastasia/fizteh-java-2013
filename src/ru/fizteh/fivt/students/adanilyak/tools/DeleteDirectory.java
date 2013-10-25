@@ -6,7 +6,7 @@ import java.io.File;
  * Date: 21.10.13
  * Time: 15:45
  */
-public class tlDeleteDirectory {
+public class DeleteDirectory {
     private static void recursiveDeletePart(File startPoint) throws Exception {
         File[] listOfFiles = startPoint.listFiles();
         if (listOfFiles != null) {

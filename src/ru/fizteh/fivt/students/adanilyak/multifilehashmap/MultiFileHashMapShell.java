@@ -12,11 +12,11 @@ import java.io.File;
  * Date: 21.10.13
  * Time: 16:40
  */
-public class mfhmShell extends uiShell {
-    public mfhmShell (String[] args) {
+public class MultiFileHashMapShell extends uiShell {
+    public MultiFileHashMapShell(String[] args) {
         try {
             TableProvider tableManager = new mfhmTableManager(new File(System.getProperty("fizteh.db.dir")));
-            mfhmDataBaseGlobalState mfhmState = new mfhmDataBaseGlobalState(tableManager);
+            DataBaseGlobalState mfhmState = new DataBaseGlobalState(tableManager);
             runMfhmShell(args, makeUpCmdList(mfhmState));
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
@@ -32,15 +32,15 @@ public class mfhmShell extends uiShell {
         }
     }
 
-    private uiCmdList makeUpCmdList(mfhmDataBaseGlobalState fmState) {
+    private uiCmdList makeUpCmdList(DataBaseGlobalState fmState) {
         uiCmdList stockMfhmShellCmdList = new uiCmdList();
-        stockMfhmShellCmdList.addCommand(new CmdMfhmPut(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmGet(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmRemove(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmUse(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmCreate(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmDrop(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdMfhmExit(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdPut(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdGet(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdRemove(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdUse(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdCreate(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdDrop(fmState));
+        stockMfhmShellCmdList.addCommand(new CmdExit(fmState));
         return stockMfhmShellCmdList;
     }
 }

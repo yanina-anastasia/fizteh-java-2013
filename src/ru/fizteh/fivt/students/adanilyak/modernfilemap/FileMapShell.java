@@ -12,11 +12,11 @@ import java.io.File;
  * Date: 21.10.13
  * Time: 11:21
  */
-public class fmShell extends uiShell {
-    public fmShell (String[] args, String datFileName) {
+public class FileMapShell extends uiShell {
+    public FileMapShell(String[] args, String datFileName) {
         File datFile = new File(System.getProperty("fizteh.db.dir"), datFileName);
         try {
-            Table fmState = new fmTableSingleFileStorage(datFile);
+            Table fmState = new FmTableSingleFileStorage(datFile);
             runFmShell(args, makeUpCmdList(fmState));
         } catch (Exception exc) {
             System.err.println(exc.getMessage());

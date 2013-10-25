@@ -10,7 +10,7 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 15:10
  */
-public class tlWorkWithMFHM {
+public class WorkWithMFHM {
 
     private static void makeUpParsedMap(Map<String, String>[][] mapReadyForWrite, Map<String, String> dataBase) {
         for (String key : dataBase.keySet()) {
@@ -30,7 +30,7 @@ public class tlWorkWithMFHM {
         if (fileDir.exists()) {
             if (fileDir.listFiles().length == 0) {
                 try {
-                    tlDeleteDirectory.rm(fileDir);
+                    DeleteDirectory.rm(fileDir);
                 } catch (Exception exc) {
                     System.err.println(exc.getMessage());
                 }
@@ -66,7 +66,7 @@ public class tlWorkWithMFHM {
                         throw new IOException(fileDat.toString() + ": can not create file, something went wrong");
                     }
                 }
-                tlWorkWithDatFiles.writeIntoFile(fileDat, mapReadyForWrite[indexDir][indexDat]);
+                WorkWithDatFiles.writeIntoFile(fileDat, mapReadyForWrite[indexDir][indexDat]);
             }
             cleanEmpryDirs(fileDir);
         }
@@ -96,7 +96,7 @@ public class tlWorkWithMFHM {
                 if (!fileIndexDat.exists()) {
                     continue;
                 }
-                tlWorkWithDatFiles.readIntoMap(fileIndexDat, map);
+                WorkWithDatFiles.readIntoMap(fileIndexDat, map);
             }
         }
     }

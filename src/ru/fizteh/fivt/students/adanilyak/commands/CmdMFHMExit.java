@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.mfhmDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
 
 import java.util.Vector;
 
@@ -9,12 +9,12 @@ import java.util.Vector;
  * Date: 21.10.13
  * Time: 14:18
  */
-public class CmdMfhmExit implements Cmd {
+public class CmdMFHMExit implements Cmd {
     private final String name = "exit";
     private final int amArgs = 0;
-    private mfhmDataBaseGlobalState workState;
+    private DataBaseGlobalState workState;
 
-    public CmdMfhmExit(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdMFHMExit(DataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

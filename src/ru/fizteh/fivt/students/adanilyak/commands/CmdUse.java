@@ -9,12 +9,12 @@ import java.util.Vector;
  * Date: 21.10.13
  * Time: 14:19
  */
-public class CmdMfhmUse implements Cmd {
+public class CmdUse implements Cmd {
     private final String name = "use";
     private final int amArgs = 1;
     private mfhmDataBaseGlobalState workState;
 
-    public CmdMfhmUse(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdUse(mfhmDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
