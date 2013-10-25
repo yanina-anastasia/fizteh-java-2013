@@ -79,6 +79,7 @@ public class TableDate {
         int nFile = (b / 16) % 16;
         dirArray[nDirectory].startWorking();
         dirArray[nDirectory].fileArray[nFile].get(command);
+        dirArray[nDirectory].deleteEmptyDir();
     }
 
 }
