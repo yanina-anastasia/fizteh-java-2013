@@ -173,8 +173,8 @@ class MultiFileDatabaseUtils {
                                                          shell.currentDatabaseName,
                                                          shell.currentDatabase);
               }
-                shell.currentDatabase = null;
-                shell.currentDatabaseName = null;
+                //shell.currentDatabase = null;
+                //shell.currentDatabaseName = null;
             } catch (Exception e) {
                 throw new ShellException("write", e.toString());
             }
