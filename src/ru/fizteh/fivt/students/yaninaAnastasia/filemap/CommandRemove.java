@@ -11,8 +11,7 @@ public class CommandRemove extends Command {
             System.err.println("no table");
             return false;
         }
-        if (args.length != 1) {
-            System.err.println("Invalid arguments");
+        if (!myState.checkArgs(args, 1)) {
             return false;
         }
         String value = myState.table.remove(args[0]);

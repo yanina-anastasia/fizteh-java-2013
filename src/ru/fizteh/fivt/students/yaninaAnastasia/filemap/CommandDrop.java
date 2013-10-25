@@ -5,11 +5,24 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 import java.io.File;
 import java.io.IOException;
 
+
 public class CommandDrop extends Command {
+    private boolean recRemove(File file) throws IOException {
+        if (file.isDirectory()) {
+            for (File innerFile : file.listFiles()) {
+                recRemove(innerFile);
+            }
+        }
+        if (!file.delete()) {
+            System.err.println("Error while deleting");
+            return false;
+        }
+        return true;
+    }
+
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        if (args.length != 1) {
-            System.err.println("Invalid arguments");
+        if (!myState.checkArgs(args, 1)) {
             return false;
         }
         String path = System.getProperty("fizteh.db.dir");
@@ -23,20 +36,10 @@ public class CommandDrop extends Command {
         }
         File temp = new File(path, args[0]);
         if (temp.exists()) {
-            for (File stepDir: temp.listFiles()) {
-                for (File stepFile: stepDir.listFiles()) {
-                    if (stepFile.exists()) {
-                        stepFile.delete();
-                    }
-                }
-                if (stepDir.exists()) {
-                    stepDir.delete();
-                }
-            }
-            if (temp.length() == 0) {
-                temp.delete();
-            } else {
-                System.err.println("The " + args[0] + " directory was not deleted");
+            File file = temp;
+            if (!recRemove(file)) {
+                System.err.println("File was not deleted");
+                return false;
             }
         } else {
             System.out.println(args[0] + " not exists");

@@ -7,8 +7,7 @@ import java.io.IOException;
 public class CommandUse extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        if (args.length != 1) {
-            System.err.println("Invalid arguments");
+        if (!myState.checkArgs(args, 1)) {
             return false;
         }
         String path = System.getProperty("fizteh.db.dir");
