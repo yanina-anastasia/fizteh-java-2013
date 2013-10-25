@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.fedoseev.filemap.FileMapState;
 import java.io.IOException;
 
 public class MultiFileHashMapPutCommand extends AbstractCommand<MultiFileHashMapState> {
-    FileMapPutCommand put = new FileMapPutCommand();
+    private FileMapPutCommand put = new FileMapPutCommand();
 
     public MultiFileHashMapPutCommand() {
         super("put", 2);
