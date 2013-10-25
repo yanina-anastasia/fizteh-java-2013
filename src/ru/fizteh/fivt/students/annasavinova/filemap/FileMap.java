@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class FileMap extends UserShell {
-    protected HashMap<String, String> dataMap;
+    protected HashMap<String, String> dataMap = new HashMap<>();
     private String currTable = "";
     private static String rootDir = System.getProperty("fizteh.db.dir") + File.separatorChar;
     private boolean hasLoadingMaps = false;
@@ -28,7 +28,6 @@ public class FileMap extends UserShell {
 
     protected void loadData() {
         if (!hasLoadingMaps) {
-            dataMap = new HashMap<>();
             for (int i = 0; i < 16; ++i) {
                 File currentDir = getDirWithNum(i);
                 if (!currentDir.exists()) {
@@ -186,7 +185,7 @@ public class FileMap extends UserShell {
                 String key = entry.getKey();
                 String value = entry.getValue();
                 byte[] keyBytes = key.getBytes("UTF-8");
-                byte[] valueBytes = value.getBytes();
+                byte[] valueBytes = value.getBytes("UTF-8");
                 byte b = 0;
                 b = (byte) Math.abs(keyBytes[0]);
                 int ndirectory = b % 16;
@@ -195,6 +194,7 @@ public class FileMap extends UserShell {
                 filesArray[ndirectory * 16 + nfile].writeInt(valueBytes.length);
                 filesArray[ndirectory * 16 + nfile].write(keyBytes);
                 filesArray[ndirectory * 16 + nfile].write(valueBytes);
+            }
                 dataMap.clear();
                 try {
                     for (int i = 0; i < 16; ++i) {
@@ -208,7 +208,6 @@ public class FileMap extends UserShell {
                 } catch (IOException e) {
                     printErrorAndExit("Cannot unload file");
                 }
-            }
         } catch (IOException e) {
             // TODO
             e.printStackTrace();
