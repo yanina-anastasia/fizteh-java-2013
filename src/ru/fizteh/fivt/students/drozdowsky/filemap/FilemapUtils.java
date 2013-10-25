@@ -1,8 +1,10 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
+import ru.fizteh.fivt.students.drozdowsky.Database.FileMap;
+
 public class FilemapUtils {
 
-    public static boolean executeCommand(Database db, String[] args) {
+    public static boolean executeCommand(FileMap db, String[] args) {
         if (args.length == 0) {
             return true;
         }

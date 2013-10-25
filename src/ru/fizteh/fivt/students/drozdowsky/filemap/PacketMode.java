@@ -1,15 +1,16 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
+import ru.fizteh.fivt.students.drozdowsky.Database.FileMap;
 import ru.fizteh.fivt.students.drozdowsky.shell.Parser;
 import java.util.ArrayList;
 
 public class PacketMode {
-    private Database db;
+    private FileMap db;
     private String[] args;
     private boolean exitOnFailure;
     private static final String[] NOWSCOMMANDS = {"put"};
 
-    public PacketMode(Database db, String[] args, boolean exitOnFailure) {
+    public PacketMode(FileMap db, String[] args, boolean exitOnFailure) {
         this.db = db;
         this.args = args;
         this.exitOnFailure = exitOnFailure;

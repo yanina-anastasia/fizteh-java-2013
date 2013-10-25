@@ -1,12 +1,13 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
+import ru.fizteh.fivt.students.drozdowsky.Database.FileMap;
 import ru.fizteh.fivt.students.drozdowsky.shell.ShellUtils;
 import java.util.Scanner;
 
 public class InteractiveMode {
-    private Database db;
+    private FileMap db;
 
-    public InteractiveMode(Database db) {
+    public InteractiveMode(FileMap db) {
         this.db = db;
     }
 

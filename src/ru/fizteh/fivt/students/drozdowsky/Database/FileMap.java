@@ -1,4 +1,6 @@
-package ru.fizteh.fivt.students.drozdowsky.filemap;
+package ru.fizteh.fivt.students.drozdowsky.Database;
+
+import ru.fizteh.fivt.students.drozdowsky.filemap.Pair;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -6,14 +8,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
-public class Database {
+public class FileMap {
     private File dbPath;
     private HashMap<String, String> db;
     private boolean changed;
 
     static final int BUFFSIZE = 100000;
 
-    public Database(File dbPath) throws IOException {
+    public FileMap(File dbPath) throws IOException {
+        if (!dbPath.exists()) {
+             fatalError("Database doesn't exist");
+        }
         this.dbPath = dbPath;
         changed = false;
         db = new HashMap<String, String>();
@@ -21,41 +26,6 @@ public class Database {
         if (dbPath.exists()) {
             readDB();
         }
-    }
-
-    private void validityCheck() throws IOException {
-        if (!dbPath.getParentFile().exists()) {
-            fatalError(dbPath.getParentFile().getAbsolutePath() + ": No such file or directory");
-        } else if (dbPath.exists() && !dbPath.isFile()) {
-            fatalError(dbPath.getAbsolutePath() + ": Not a file");
-        }
-    }
-
-    public void close() {
-        if (changed) {
-            writeDB();
-        }
-    }
-
-    private void fatalError(String error) throws IOException {
-        throw new IOException(error);
-    }
-
-    private void error(String aError) {
-        System.err.println(aError);
-    }
-
-    public boolean get(String[] args) {
-        if (args.length != 2) {
-            error("usage: get key");
-            return false;
-        }
-        if (db.get(args[1]) == null) {
-            System.out.println("not found");
-        } else {
-            System.out.println("found" + System.lineSeparator() + db.get(args[1]));
-        }
-        return true;
     }
 
     public boolean put(String[] args) {
@@ -71,6 +41,19 @@ public class Database {
         }
         db.put(args[1], args[2]);
         changed = true;
+        return true;
+    }
+
+    public boolean get(String[] args) {
+        if (args.length != 2) {
+            error("usage: get key");
+            return false;
+        }
+        if (db.get(args[1]) == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("found" + System.lineSeparator() + db.get(args[1]));
+        }
         return true;
     }
 
@@ -90,12 +73,44 @@ public class Database {
         return true;
     }
 
-    public File getPath() {
-        return dbPath;
+    public boolean exit(String[] args) {
+        if (args.length != 1) {
+            error("usage: exit");
+            return false;
+        }
+        close();
+        System.exit(0);
+        return true;
+    }
+
+    public void close() {
+        if (changed) {
+            writeDB();
+        }
+    }
+
+    public String getPath() {
+        return dbPath.getAbsolutePath();
     }
 
     public Set<String> getKeys() {
         return db.keySet();
+    }
+
+    private void validityCheck() throws IOException {
+        if (!dbPath.getParentFile().exists()) {
+            fatalError(dbPath.getParentFile().getAbsolutePath() + ": No such file or directory");
+        } else if (dbPath.exists() && !dbPath.isFile()) {
+            fatalError(dbPath.getAbsolutePath() + ": Not a file");
+        }
+    }
+
+    private void fatalError(String error) throws IOException {
+        throw new IOException(error);
+    }
+
+    private void error(String aError) {
+        System.err.println(aError);
     }
 
     private void readDB() throws IOException {
@@ -196,5 +211,4 @@ public class Database {
             error(dbPath.getAbsolutePath() + e.toString());
         }
     }
-
 }

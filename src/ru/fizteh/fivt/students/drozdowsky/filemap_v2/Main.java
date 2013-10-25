@@ -1,9 +1,13 @@
-package ru.fizteh.fivt.students.drozdowsky.filemap;
+package ru.fizteh.fivt.students.drozdowsky.filemap_v2;
 
 import ru.fizteh.fivt.students.drozdowsky.Database.FileMap;
+import ru.fizteh.fivt.students.drozdowsky.Modes.ModeController;
+import ru.fizteh.fivt.students.drozdowsky.Modes.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class Main {
 
@@ -15,15 +19,12 @@ public class Main {
         }
         File dbPath = new File(dbDirectory + "/db.dat");
 
+        String[] commandNames = {"put", "get", "remove", "exit"};
+        HashMap<String, Method> map = Utils.getMethods(commandNames, FileMap.class);
         try {
             FileMap db = new FileMap(dbPath);
-            if (args.length == 0) {
-                InteractiveMode im = new InteractiveMode(db);
-                im.start();
-            } else {
-                PacketMode pm = new PacketMode(db, args, true);
-                pm.start();
-            }
+            ModeController<FileMap> start = new ModeController<FileMap>(db);
+            start.execute(map, args);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
