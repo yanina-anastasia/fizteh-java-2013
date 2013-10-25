@@ -33,7 +33,8 @@ public class MultiFileHashMap {
         if (newTable.exists()) {
             System.out.println(args[1] + " exists");
             return true;
-        } else {
+        }
+        else {
             newTable.mkdir();
             System.out.println("created");
             return true;
@@ -56,7 +57,9 @@ public class MultiFileHashMap {
             ShellCommands.rm(curDir, newArgs);
             System.out.println("dropped");
             return true;
-        } else {
+        }
+
+        else {
             System.out.println(args[1] + " not exists");
             return true;
         }
