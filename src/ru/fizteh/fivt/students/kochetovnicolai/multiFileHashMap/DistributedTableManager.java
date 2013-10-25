@@ -11,11 +11,10 @@ import java.io.File;
 public class DistributedTableManager extends TableManager implements TableProvider {
 
     HashMap<String, DistributedTable> tables;
-    DistributedTable currentTable = null;
 
     @Override
     public DistributedTable getCurrentTable() {
-        return currentTable;
+        return (DistributedTable) currentTable;
     }
 
     public boolean existsTable(String name) {
