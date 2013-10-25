@@ -17,8 +17,8 @@ public class PutCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        String value = curState.getValue(args[1]);
-        curState.add(args[1], args[2]);
+        String value = curState.dataStorage.getValue(args[1]);
+        curState.dataStorage.add(args[1], args[2]);
         if (value == null) {
             System.out.println("new");
         } else {

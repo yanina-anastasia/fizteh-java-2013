@@ -6,20 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileReader {
-    void loadDataFromFile(FileMapState state) {
+
+    public static final int MAX_FILE_SIZE = 1024 * 1024;
+
+    public void loadDataFromFile(File file, DataTable dataTable) {
         try {
-            if (state.getDataFile().length() != 0) {
-                DataInputStream inStream = new DataInputStream(new FileInputStream(state.getDataFile()));
-                int i = 0;
-                long fileLength = state.getDataFile().length();
+            if (file.length() != 0) {
+                DataInputStream inStream = new DataInputStream(new FileInputStream(file));
+                int curPos = 0;
+                long fileLength = file.length();
                 List<Byte> key = new ArrayList<Byte>();
                 byte curByte = 1;
                 int intSize = 4;
                 int separatorSize = 1;
-                while ((i < fileLength) && ((curByte = inStream.readByte()) != 0)) {
+                while ((curPos < fileLength) && ((curByte = inStream.readByte()) != 0)) {
                     key.add(curByte);
-                    ++i;
-                    if (i > 1024 * 1024) {
+                    ++curPos;
+                    if (curPos > MAX_FILE_SIZE) {
                         throw new IOException("too big key");
                     }
                 }
@@ -29,8 +32,8 @@ public class FileReader {
                 List<Integer> offsets = new ArrayList<Integer>();
                 List<String> keysToMap = new ArrayList<String>();
                 int offset1 = inStream.readInt();
-                i += intSize;
-                ++i;
+                curPos += intSize;
+                ++curPos;
                 int arraySize = key.size();
                 byte[] keyInBytes = new byte[arraySize];
                 for (int j = 0; j < arraySize; ++j) {
@@ -42,12 +45,15 @@ public class FileReader {
                 if (offset1 > fileLength) {
                     throw new IOException("too big offset");
                 }
-                while (i < fileLength) {
-                    while ((i < fileLength) && ((((offset1 != 0)) && (curByte = inStream.readByte()) != '\0'))) {
+                while (curPos < fileLength) {
+                    while ((curPos < fileLength) && ((((offset1 != 0)) && (curByte = inStream.readByte()) != '\0'))) {
                         key.add(curByte);
-                        ++i;
+                        ++curPos;
+                        if (curPos > MAX_FILE_SIZE) {
+                            throw new IOException("too big key");
+                        }
                     }
-                    if (i == fileLength) {
+                    if (curPos == fileLength) {
                         throw new IOException("not allowable format of data");
                     }
                     if ((offset1 == 0) && (!key.isEmpty())) {
@@ -60,20 +66,20 @@ public class FileReader {
                             while (j < offsetsSize) {
                                 byte[] b = new byte[offsets.get(j)];
                                 inStream.read(b, 0, offsets.get(j));
-                                state.add(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
-                                i += offsets.get(j);
+                                dataTable.add(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
+                                curPos += offsets.get(j);
                                 ++j;
                             }
                         }
-                        int lastOffset = (int) (fileLength - i);
+                        int lastOffset = (int) (fileLength - curPos);
                         byte[] b = new byte[lastOffset];
-                        for (int k = 0; i < fileLength; ++k, ++i) {
+                        for (int k = 0; curPos < fileLength; ++k, ++curPos) {
                             b[k] = inStream.readByte();
                         }
-                        state.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
+                        dataTable.add(new String(keyInBytes, StandardCharsets.UTF_8), new String(b, StandardCharsets.UTF_8));
                     } else {
                         int offset = inStream.readInt();
-                        i += intSize;
+                        curPos += intSize;
                         arraySize = key.size();
                         offset1 -= arraySize + separatorSize + intSize;
                         int offsetValue = offset - prevOffset;
@@ -85,16 +91,17 @@ public class FileReader {
                             keyInBytes[j] = key.get(j);
                         }
                         key.clear();
-                        ++i;
+                        ++curPos;
                     }
 
                 }
                 inStream.close();
             }
         } catch (FileNotFoundException e) {
-            System.err.println(state.getDataFile().getName() + " was not found");
+            System.err.println(file.getName() + " was not found");
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
     }
+
 }

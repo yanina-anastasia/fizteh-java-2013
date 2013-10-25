@@ -1,15 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
 import java.io.IOException;
 
 public class ExitCommand implements Command {
+    MultiFileHashMapState curState;
+    DataWriter dataWriter = new DataWriter();
 
-    private FileMapState curState;
-    private FileWriter fileWriter = new FileWriter();
-
-    public ExitCommand(FileMapState state) {
+    public ExitCommand(MultiFileHashMapState state) {
         curState = state;
     }
 
@@ -18,7 +17,9 @@ public class ExitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        fileWriter.writeDataToFile(curState.getDataFile(), curState.dataStorage);
+        if (curState.getCurTable() != null) {
+            dataWriter.writeData(curState);
+        }
         System.exit(0);
     }
 
