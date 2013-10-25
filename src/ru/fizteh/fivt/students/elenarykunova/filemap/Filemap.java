@@ -1,10 +1,74 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
+import java.io.File;
+
+import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
+
 public class Filemap {
+    
+    DataBase[][] data = new DataBase[16][16];
+    String currTable = null;
+    static String rootDir = null;
+    
+    public void saveChanges() {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (data[i][j].hasFile()) {
+                    if (data[i][j].isEmpty()) {
+                        Shell.rm(data[i][j].filePath);
+                    } else {
+                        data[i][j].commitChanges();
+                    }
+                }
+            }
+            File tmpDir = new File(currTable + File.separator + i + ".dir");
+            if (tmpDir.exists() && tmpDir.list().length == 0) {
+                Shell.rm(tmpDir.getAbsolutePath());
+            }
+        }
+    }
+
+    public void load(String table) {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                data[i][j] = new DataBase(currTable, i, j, false);
+            }
+        }
+    }
+    
+    public void changeTable(String newTable) {
+        if (currTable != null) {
+            saveChanges();
+        }
+        currTable = rootDir + File.separator + newTable;
+        load(newTable);
+    }
+    
+    public String getRootDir() {
+        String rootDir = System.getProperty("fizteh.db.dir");
+        if (rootDir == null) {
+            System.err.println(rootDir + ": no directory");
+            System.exit(1);
+        }
+        File tmpDir = new File(rootDir);
+        if (!tmpDir.exists()) {
+            System.err.println(rootDir + ": can't open directory");
+            System.exit(1);
+        } else if (!tmpDir.isDirectory()) {
+            System.err.println(rootDir + ": isn't a directory");
+            System.exit(1);
+        }
+        return rootDir;
+    }
+
+    public Filemap() {
+        rootDir = getRootDir();
+    }
+    
     public static void main(String[] args) {
-        DataBase db = new DataBase("db.dat");
-        ExecuteCmd my = new ExecuteCmd(db);
-        my.workWithUser(args);
-        db.commitChanges();
+        Filemap mfm = new Filemap();
+        ExecuteCmd cmd = new ExecuteCmd(rootDir, mfm);
+        cmd.workWithUser(args);
+        mfm.saveChanges();
     }
 }
