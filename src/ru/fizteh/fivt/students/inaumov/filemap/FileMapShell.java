@@ -1,31 +1,16 @@
-package ru.fizteh.fivt.students.inaumov.common;
-
-import ru.fizteh.fivt.students.inaumov.filemap.Command;
-<<<<<<< HEAD
-=======
-import ru.fizteh.fivt.students.inaumov.filemap.ShellState;
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
-import ru.fizteh.fivt.students.inaumov.filemap.UserInterruptionException;
+package ru.fizteh.fivt.students.inaumov.filemap;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-<<<<<<< HEAD
-public class CommonShell<State> {
+public class FileMapShell {
 	private HashMap<String, Command> commandsMap = new HashMap<String, Command>();
-	private State state = null;
-
-	public void setFileMapState(State state) {
-=======
-public class CommonShell {
-	private HashMap<String, Command> commandsMap = new HashMap<String, Command>();
-	private ShellState state = null;
+	private FileMapState fileMapState = null;
 		
-	public void setFileMapState(ShellState state) {
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
-		this.state = state;
+	public void setFileMapState(FileMapState fileMapState) {
+		this.fileMapState = fileMapState;
 	}
 	
 	public void addCommand(Command newCommand) {
@@ -52,18 +37,16 @@ public class CommonShell {
 		return commands;
 	}
 
-	public void executeAllCommands(String[][] commands)
-            throws UnknownCommandException, UserInterruptionException, IllegalArgumentException {
+	public void executeAllCommands(String[][] commands) throws UnknownCommandException, UserInterruptionException, IncorrectArgumentsException {
 		Command nextCommand;
 
 		for (int i = 0; i < commands.length; ++i) {
 			if (commands[i].length != 0) {
 				nextCommand = getCommand(commands[i][0]);
 				if (nextCommand.getArgumentsNumber() != commands[i].length - 1) {
-					throw new IllegalArgumentException(nextCommand.getName() + ": expected "
-                            + nextCommand.getArgumentsNumber() + " arguments, got " + (commands[i].length - 1));
+					throw new IncorrectArgumentsException(nextCommand.getName() + ": expected " + nextCommand.getArgumentsNumber() + " arguments, got " + (commands[i].length - 1));
 				}
-				nextCommand.execute(commands[i], state);
+				nextCommand.execute(commands[i], fileMapState);
 			}
 		}
 	}
@@ -83,7 +66,7 @@ public class CommonShell {
 		} catch (UnknownCommandException exception) {
 			System.err.println(exception.getMessage());
 			System.exit(1);
-		} catch (IllegalArgumentException exception) {
+		} catch (IncorrectArgumentsException exception) {
 			System.err.println(exception.getMessage());
 			System.exit(1);
 		} catch (UserInterruptionException exception) {
@@ -93,12 +76,10 @@ public class CommonShell {
 	}
 	
 	public void interactiveMode() {
-
 		BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(System.in));
 		String[][] commands = null;
 		
 		while (true) {
-            System.out.print("$ ");
 			try {
 				commands = getCommandsWithArgumentsFromPrgArgs(inputStreamReader.readLine());
 			} catch (IOException exception) {
@@ -108,7 +89,7 @@ public class CommonShell {
 				executeAllCommands(commands);
 			} catch (UnknownCommandException exception) {
 				System.err.println(exception.getMessage());
-			} catch (IllegalArgumentException exception) {
+			} catch (IncorrectArgumentsException exception) {
 				System.err.println(exception.getMessage());
 			} catch (UserInterruptionException exception) {
 				System.exit(0);

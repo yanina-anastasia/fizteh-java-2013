@@ -6,7 +6,11 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) {
 		CommonShell fileMapShell = new CommonShell();
+<<<<<<< HEAD
 		SingleFileMapShellState fileMapState = new SingleFileMapShellState();
+=======
+		ShellState fileMapState = new ShellState();
+>>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 		
 		String directory = System.getProperty("fizteh.db.dir");
 
@@ -18,10 +22,14 @@ public class Main {
 		} catch (IllegalArgumentException exception) {
 			System.err.println(exception.getMessage());
 			System.exit(1);
+<<<<<<< HEAD
 		}  catch (WrongFileFormatException exception) {
             System.err.println(exception.getMessage());
             System.exit(1);
         }
+=======
+		}
+>>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 		
 		fileMapShell.setFileMapState(fileMapState);
 
