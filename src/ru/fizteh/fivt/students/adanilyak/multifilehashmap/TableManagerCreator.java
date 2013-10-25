@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * User: Alexander
@@ -26,7 +27,7 @@ public class TableManagerCreator implements TableProviderFactory {
         try {
             File file = new File(directoryWithTables);
             tableManager = new TableManager(file);
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(2);
         }

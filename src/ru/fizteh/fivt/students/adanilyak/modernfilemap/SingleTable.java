@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDatFiles;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class SingleTable implements Table {
         dataBaseDatFile = datFile;
         try {
             WorkWithDatFiles.readIntoMap(dataBaseDatFile, dataBaseStorage);
-        } catch (Exception exc) {
+        } catch (IOException exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
         }
@@ -65,7 +66,7 @@ public class SingleTable implements Table {
     public int commit() {
         try {
             WorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
-        } catch (Exception exc) {
+        } catch (IOException exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
         }
@@ -88,7 +89,7 @@ public class SingleTable implements Table {
     public int exit() {
         try {
             WorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
-        } catch (Exception exc) {
+        } catch (IOException exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
         }

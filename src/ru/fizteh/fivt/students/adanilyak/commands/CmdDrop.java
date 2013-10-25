@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
 
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -29,7 +30,7 @@ public class CmdDrop implements Cmd {
     }
 
     @Override
-    public void work(Vector<String> args) throws Exception {
+    public void work(Vector<String> args) throws IOException {
         String useTableName = args.get(1);
         if (workState.getTable(useTableName) == null) {
             System.err.println(useTableName + " not exists");

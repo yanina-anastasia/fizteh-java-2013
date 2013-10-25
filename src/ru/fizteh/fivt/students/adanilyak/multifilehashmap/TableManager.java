@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,18 +18,12 @@ public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
-    /*
-    public TableManager(File datFile) {
-
-    }
-    */
-
-    public TableManager(File atDirectory) throws Exception {
+    public TableManager(File atDirectory) throws IOException {
         if (!atDirectory.exists()) {
-            throw new Exception(atDirectory.getName() + ": not exist");
+            throw new IOException(atDirectory.getName() + ": not exist");
         }
         if (!atDirectory.isDirectory()) {
-            throw new Exception(atDirectory.getName() + ": not a directory");
+            throw new IOException(atDirectory.getName() + ": not a directory");
         }
 
         allTablesDirectory = atDirectory;
@@ -43,12 +38,12 @@ public class TableManager implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
-        try {
+        //try {
             return allTablesMap.get(tableName);
-        } catch (Exception exc) {
-            System.err.println(exc.getMessage());
-            return null;
-        }
+        //} catch (IOException exc) {
+          //  System.err.println(exc.getMessage());
+          //  return null;
+        //}
     }
 
     @Override
@@ -66,7 +61,7 @@ public class TableManager implements TableProvider {
             Table newTable = new TableStorage(tableFile);
             allTablesMap.put(tableName, newTable);
             return newTable;
-        } catch (Exception exc) {
+        } catch (IOException exc) {
             System.err.println(exc.getMessage());
             return null;
         }
@@ -77,7 +72,7 @@ public class TableManager implements TableProvider {
         File tableFile = new File(allTablesDirectory, tableName);
         try {
             DeleteDirectory.rm(tableFile);
-        } catch (Exception exc) {
+        } catch (IOException exc) {
             System.err.println(exc.getMessage());
         }
         allTablesMap.remove(tableName);

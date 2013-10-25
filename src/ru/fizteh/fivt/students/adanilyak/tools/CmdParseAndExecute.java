@@ -25,7 +25,7 @@ public class CmdParseAndExecute {
         return result;
     }
 
-    public static void execute(String cmdWithArgs, Map<String, Cmd> cmdList) throws Exception {
+    public static void execute(String cmdWithArgs, Map<String, Cmd> cmdList) throws IOException {
         Vector<String> cmdAndArgs = intoCommandsAndArgs(cmdWithArgs, " ");
         try {
             String commandName = cmdAndArgs.get(0);

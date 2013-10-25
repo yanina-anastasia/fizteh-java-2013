@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -10,7 +13,7 @@ import java.util.Map;
  * Time: 1:08
  */
 public class WorkWithDatFiles {
-    public static void readIntoMap(File dataBaseFile, Map<String, String> map) throws Exception {
+    public static void readIntoMap(File dataBaseFile, Map<String, String> map) throws IOException {
         RandomAccessFile dataBaseFileReader = new RandomAccessFile(dataBaseFile, "rw");
         long lenght = dataBaseFile.length();
         byte[] buffer;
@@ -24,33 +27,38 @@ public class WorkWithDatFiles {
             buffer = new byte[keyLenght];
             dataBaseFileReader.readFully(buffer);
             lenght -= buffer.length;
-            String key = new String(buffer, "UTF-8");
+            String key = new String(buffer, StandardCharsets.UTF_8);
 
             buffer = new byte[valueLenght];
             dataBaseFileReader.readFully(buffer);
             lenght -= buffer.length;
-            String value = new String(buffer, "UTF-8");
+            String value = new String(buffer, StandardCharsets.UTF_8);
 
             map.put(key, value);
         }
         dataBaseFileReader.close();
     }
 
-    public static void writeIntoFile(File dataBaseFile, Map<String, String> map) throws Exception {
+    public static void writeIntoFile(File dataBaseFile, Map<String, String> map) throws IOException {
         RandomAccessFile dataBaseFileWriter = new RandomAccessFile(dataBaseFile, "rw");
-        dataBaseFileWriter.setLength(0);
-        for (Map.Entry<String, String> element : map.entrySet()) {
-            String key = element.getKey();
-            byte[] bufferKey = key.getBytes("UTF-8");
-            dataBaseFileWriter.writeInt(bufferKey.length);
+        try {
+            dataBaseFileWriter.setLength(0);
+            for (Map.Entry<String, String> element : map.entrySet()) {
+                String key = element.getKey();
+                byte[] bufferKey = key.getBytes(StandardCharsets.UTF_8);
+                dataBaseFileWriter.writeInt(bufferKey.length);
 
-            String value = element.getValue();
-            byte[] bufferValue = value.getBytes("UTF-8");
-            dataBaseFileWriter.writeInt(bufferValue.length);
+                String value = element.getValue();
+                byte[] bufferValue = value.getBytes(StandardCharsets.UTF_8);
+                dataBaseFileWriter.writeInt(bufferValue.length);
 
-            dataBaseFileWriter.write(bufferKey);
-            dataBaseFileWriter.write(bufferValue);
+                dataBaseFileWriter.write(bufferKey);
+                dataBaseFileWriter.write(bufferValue);
+            }
+            dataBaseFileWriter.close();
+        } catch (IOException exc) {
+            System.err.println(exc.getMessage());
+            dataBaseFileWriter.close();
         }
-        dataBaseFileWriter.close();
     }
 }

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * User: Alexander
@@ -8,7 +9,7 @@ import java.io.File;
  * Time: 15:45
  */
 public class DeleteDirectory {
-    private static void recursiveDeletePart(File startPoint) throws Exception {
+    private static void recursiveDeletePart(File startPoint) throws IOException {
         File[] listOfFiles = startPoint.listFiles();
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
@@ -17,13 +18,13 @@ public class DeleteDirectory {
         }
 
         if (!startPoint.delete()) {
-            throw new Exception("Can not delete directory, unknown error");
+            throw new IOException("Can not delete directory, unknown error");
         }
     }
 
-    public static void rm(File directory) throws Exception {
+    public static void rm(File directory) throws IOException {
         if (!directory.exists()) {
-            throw new Exception("File or directory do not exist");
+            throw new IOException("File or directory do not exist");
         }
         recursiveDeletePart(directory);
     }

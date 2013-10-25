@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -29,7 +30,7 @@ public class CmdGet implements Cmd {
     }
 
     @Override
-    public void work(Vector<String> args) throws Exception {
+    public void work(Vector<String> args) throws IOException {
         if (workState.currentTable != null) {
             String key = args.get(1);
             String result = workState.get(key);

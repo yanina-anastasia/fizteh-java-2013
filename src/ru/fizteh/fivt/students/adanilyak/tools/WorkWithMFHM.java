@@ -38,7 +38,7 @@ public class WorkWithMFHM {
         }
     }
 
-    public static void writeIntoFiles(File dataBaseDirectory, Map<String, String> dataBase) throws Exception {
+    public static void writeIntoFiles(File dataBaseDirectory, Map<String, String> dataBase) throws IOException {
         Map<String, String>[][] mapReadyForWrite = new Map[16][16];
         makeUpParsedMap(mapReadyForWrite, dataBase);
 
@@ -72,9 +72,9 @@ public class WorkWithMFHM {
         }
     }
 
-    public static void readIntoDataBase(File dataBaseDirectory, Map<String, String> map) throws Exception {
+    public static void readIntoDataBase(File dataBaseDirectory, Map<String, String> map) throws IOException {
         if (!dataBaseDirectory.exists() || dataBaseDirectory.isFile()) {
-            throw new Exception(dataBaseDirectory + ": not directory or not exist");
+            throw new IOException(dataBaseDirectory + ": not directory or not exist");
         }
 
         for (int index = 0; index < 16; ++index) {
@@ -86,7 +86,7 @@ public class WorkWithMFHM {
             }
 
             if (!indexDirectory.isDirectory()) {
-                throw new Exception(indexDirectory.toString() + ": not directory");
+                throw new IOException(indexDirectory.toString() + ": not directory");
             }
 
             for (int fileIndex = 0; fileIndex < 16; ++fileIndex) {

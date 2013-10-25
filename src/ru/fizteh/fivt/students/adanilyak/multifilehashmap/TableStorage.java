@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class TableStorage implements Table {
     private File tableStorageDirectory;
     private Map<String, String> tableStorageData = new HashMap<String, String>();
 
-    public TableStorage(File dataDirectory) throws Exception {
+    public TableStorage(File dataDirectory) throws IOException {
         tableStorageDirectory = dataDirectory;
         WorkWithMFHM.readIntoDataBase(tableStorageDirectory, tableStorageData);
     }
