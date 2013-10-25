@@ -39,7 +39,7 @@ public class FileMap implements Closeable {
         byte[] key;
         byte[] value;
         try {
-            while (reader.available() >= Integer.SIZE && (keyLen = reader.readInt()) != -1) {
+            while ((keyLen = reader.readInt()) != -1) {
                 valueLen = reader.readInt();
                 if (keyLen + valueLen > reader.available()) {
                     throw new IOException("Bad file");
@@ -50,8 +50,12 @@ public class FileMap implements Closeable {
                 reader.read(value, 0, valueLen);
                 fileMap.put(new String(key), new String(value));
             }
+        } catch (EOFException e) {
+            //Если конец файла, не падаем, а продолжаем выполнение программы
         } catch (IOException e) {
+            e.printStackTrace();
             throw new IOException("Read error: " + e.getMessage());
+
         }
     }
 
@@ -84,8 +88,8 @@ public class FileMap implements Closeable {
             try {
                 writer.writeInt(keyLen);
                 writer.writeInt(valueLen);
-                writer.write(key);
-                writer.write(value);
+                writer.write(key, 0, keyLen);
+                writer.write(value, 0, valueLen);
             } catch (IOException e) {
                 throw new IOException("Write error: " + e.getMessage());
             }
