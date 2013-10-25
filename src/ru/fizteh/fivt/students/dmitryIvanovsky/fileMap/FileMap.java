@@ -109,61 +109,55 @@ public class FileMap implements CommandAbstract {
 
     private Code loadDb(String nameMap) {
         try {
-            //File currentFile = pathTables.toFile();
-            //for (String nameMap : currentFile.list()) {
-                //String nameMap =
-                File currentFileMap = pathTables.resolve(nameMap).toFile();
-                if (!currentFileMap.isDirectory()) {
-                    errPrint(currentFileMap.getAbsolutePath() + " не директория");
+            File currentFileMap = pathTables.resolve(nameMap).toFile();
+            if (!currentFileMap.isDirectory()) {
+                errPrint(currentFileMap.getAbsolutePath() + " не директория");
+                return Code.ERROR;
+            }
+            dbData.put(nameMap, new HashMap<String, String>());
+
+            File[] listFileMap = currentFileMap.listFiles();
+
+            if (listFileMap == null || listFileMap.length == 0) {
+                //errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
+                return Code.OK;
+            }
+
+            for (File nameDir : listFileMap) {
+                if (!nameDir.isDirectory()) {
+                    errPrint(nameDir.getAbsolutePath() + " не директория");
                     return Code.ERROR;
                 }
-                dbData.put(nameMap, new HashMap<String, String>());
+                String nameStringDir = nameDir.getName();
+                Pattern p = Pattern.compile("(^[0-9].dir$)|(^1[0-5].dir$)");
+                Matcher m = p.matcher(nameStringDir);
 
-                File[] listFileMap = currentFileMap.listFiles();
-
-                if (listFileMap == null || listFileMap.length == 0) {
-                    //errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
-                    return Code.OK;
+                if (!(m.matches() && m.start() == 0 && m.end() == nameStringDir.length())) {
+                    errPrint(nameDir.getAbsolutePath() + " неверное название папки");
+                    return Code.ERROR;
                 }
 
-                for (File nameDir : listFileMap) {
-                    if (!nameDir.isDirectory()) {
-                        errPrint(nameDir.getAbsolutePath() + " не директория");
+                File[] listNameDir = nameDir.listFiles();
+                if (listNameDir == null || listNameDir.length == 0) {
+                    errPrint(nameDir.getAbsolutePath() + " папка пуста");
+                    return Code.ERROR;
+                }
+                for (File randomFile : listNameDir) {
+
+                    p = Pattern.compile("(^[0-9].dat$)|(^1[0-5].dat$)");
+                    m = p.matcher(randomFile.getName());
+                    int lenRandomFile = randomFile.getName().length();
+                    if (!(m.matches() && m.start() == 0 && m.end() == lenRandomFile)) {
+                        errPrint(randomFile.getAbsolutePath() + " неверное название файла");
                         return Code.ERROR;
                     }
-                    String nameStringDir = nameDir.getName();
-                    Pattern p = Pattern.compile("(^[0-9].dir$)|(^1[0-5].dir$)");
-                    Matcher m = p.matcher(nameStringDir);
 
-                    if (!(m.matches() && m.start() == 0 && m.end() == nameStringDir.length())) {
-                        errPrint(nameDir.getAbsolutePath() + " неверное название папки");
-                        return Code.ERROR;
-                    }
-
-                    File[] listNameDir = nameDir.listFiles();
-                    if (listNameDir == null || listNameDir.length == 0) {
-                        errPrint(nameDir.getAbsolutePath() + " папка пуста");
-                        return Code.ERROR;
-                    }
-                    for (File randomFile : listNameDir) {
-
-                        p = Pattern.compile("(^[0-9].dat$)|(^1[0-5].dat$)");
-                        m = p.matcher(randomFile.getName());
-                        int lenRandomFile = randomFile.getName().length();
-                        if (!(m.matches() && m.start() == 0 && m.end() == lenRandomFile)) {
-                            errPrint(randomFile.getAbsolutePath() + " неверное название файла");
-                            return Code.ERROR;
-                        }
-
-                        Code res = loadDbMapFile(randomFile, dbData.get(nameMap), nameDir.getName());
-                        if (res != Code.OK) {
-                            return res;
-                        }
+                    Code res = loadDbMapFile(randomFile, dbData.get(nameMap), nameDir.getName());
+                    if (res != Code.OK) {
+                        return res;
                     }
                 }
-
-
-            //}
+            }
             return Code.OK;
         } catch (Exception e) {
             return Code.ERROR;
@@ -374,7 +368,7 @@ public class FileMap implements CommandAbstract {
     }
 
     public String startShellString() {
-        return " $ ";
+        return "$ ";
     }
 
     public String[] myParsing(String[] args) {
