@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.abramova.shell.Status;
 
 public class RemoveFromMapCommand extends Command {
     public RemoveFromMapCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

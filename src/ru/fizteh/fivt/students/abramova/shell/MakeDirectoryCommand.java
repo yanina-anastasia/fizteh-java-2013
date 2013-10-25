@@ -5,8 +5,9 @@ import java.io.*;
 public class MakeDirectoryCommand extends Command {
 
     public MakeDirectoryCommand(String name) {
-        this.name = name;
+        super(name);
     }
+
 
     @Override
     public int doCommand(String[] args, Status status) throws IOException{

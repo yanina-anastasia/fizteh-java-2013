@@ -6,9 +6,8 @@ import ru.fizteh.fivt.students.abramova.shell.Status;
 
 public class PutCommand extends Command{
     public PutCommand(String name) {
-        this.name = name;
+        super(name);
     }
-
     @Override
     public int doCommand(String[] args, Status status) {
         Map<String, String> fileMap = status.getFileMap().getMap();

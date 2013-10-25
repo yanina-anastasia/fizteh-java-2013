@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class PrintWorkingDirectoryCommand extends Command {
     public PrintWorkingDirectoryCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

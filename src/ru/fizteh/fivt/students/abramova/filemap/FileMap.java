@@ -4,10 +4,11 @@ import java.io.*;
 import java.util.*;
 
 public class FileMap implements Closeable {
-    protected String fileMapName = "db.dat";
+    protected String fileMapName;
     protected Map<String, String> fileMap;
 
-    public FileMap(String directory) throws IOException {
+    public FileMap(String name, String directory) throws IOException {
+        fileMapName = name;
         if (directory != null) {
             fileMapName = new File(directory, fileMapName).getCanonicalPath();
         }
@@ -38,6 +39,9 @@ public class FileMap implements Closeable {
         try {
             while ((keyLen = reader.read()) != -1) {
                 valueLen = reader.read();
+                if (keyLen + valueLen > reader.available()) {
+                    throw new IOException("Bad file");
+                }
                 key = new byte[keyLen];
                 value = new byte[valueLen];
                 reader.read(key, 0, keyLen);

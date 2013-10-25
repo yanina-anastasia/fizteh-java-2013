@@ -1,14 +1,18 @@
 package ru.fizteh.fivt.students.abramova.shell;
 
 import ru.fizteh.fivt.students.abramova.filemap.*;
+import ru.fizteh.fivt.students.abramova.multifilehashmap.*;
 
 public class CommandGetter {
     public static Command getCommand(String commandName, Status status) {
-        if (!status.isFileMap()) {
+        if (status.isStage()) {
             return getCommandShell(commandName);
         }
         if (status.isFileMap()) {
             return getCommandFileMap(commandName);
+        }
+        if (status.isMultiFileMap()) {
+            return getCommandMultiFileMap(commandName);
         }
         return null;
     }
@@ -53,6 +57,31 @@ public class CommandGetter {
         }
         if (commandName.equals("exit")) {
             return new ExitCommand("exit");
+        }
+        return null;
+    }
+
+    public static Command getCommandMultiFileMap(String commandName) {
+        if (commandName.equals("put")) {
+            return new PutMultiCommand("put");
+        }
+        if (commandName.equals("get")) {
+            return new GetMultiCommand("get");
+        }
+        if (commandName.equals("remove")) {
+            return new RemoveMultiCommand("remove");
+        }
+        if (commandName.equals("exit")) {
+            return new ExitCommand("exit");
+        }
+        if (commandName.equals("create")) {
+            return new CreateCommand("create");
+        }
+        if (commandName.equals("drop")) {
+            return new DropCommand("drop");
+        }
+        if (commandName.equals("use")) {
+            return new UseCommand("use");
         }
         return null;
     }

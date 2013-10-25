@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 public class ChangeDirectoryCommand  extends Command{
 
     public ChangeDirectoryCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

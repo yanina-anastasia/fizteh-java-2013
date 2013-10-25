@@ -5,7 +5,11 @@ import java.util.Map;
 import ru.fizteh.fivt.students.abramova.filemap.*;
 
 public abstract class Command {
-    public String name;
+    public final String name;
+
+    public Command(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;

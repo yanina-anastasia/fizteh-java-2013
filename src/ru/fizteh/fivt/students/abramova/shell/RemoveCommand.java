@@ -7,9 +7,8 @@ import java.util.Map;
 
 public class RemoveCommand extends Command {
     public RemoveCommand(String name) {
-        this.name = name;
+        super(name);
     }
-
     @Override
     public int doCommand(String[] args, Status status) throws IOException {
         Stage stage = status.getStage();

@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.abramova.shell.Status;
 
 public class GetCommand extends Command{
     public GetCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

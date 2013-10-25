@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.abramova.shell;
 public class Stage {
     private String pathToCurrentDir;
 
-    Stage(String absPath) {
+    public Stage(String absPath) {
         pathToCurrentDir = absPath;
     }
     public Stage setStage(String absPath) {

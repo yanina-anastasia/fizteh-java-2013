@@ -8,7 +8,7 @@ import java.util.Map;
 public class MoveToCommand extends Command {
 
     public MoveToCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

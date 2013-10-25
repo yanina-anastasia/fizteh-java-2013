@@ -6,7 +6,7 @@ import java.util.Map;
 public class ExitCommand extends Command {
 
     public ExitCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

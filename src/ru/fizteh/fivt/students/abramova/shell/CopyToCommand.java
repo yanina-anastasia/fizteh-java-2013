@@ -9,7 +9,7 @@ import static java.nio.file.StandardCopyOption.*;
 public class CopyToCommand extends Command {
 
     public CopyToCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

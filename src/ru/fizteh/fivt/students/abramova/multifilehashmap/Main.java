@@ -1,14 +1,16 @@
-package ru.fizteh.fivt.students.abramova.filemap;
+package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
-import ru.fizteh.fivt.students.abramova.shell.*;
+import ru.fizteh.fivt.students.abramova.shell.Parser;
+import ru.fizteh.fivt.students.abramova.shell.Shell;
+
 import java.io.IOException;
 
 public class Main {
     public static void main (String[] args) {
         int exitValue = 0;
-        FileMap fileMap = null;
+        MultiFileMap multiMap = null;
         try {
-            fileMap = new FileMap("db.dat", System.getProperty("fizteh.db.dir"));
+            multiMap = new MultiFileMap(System.getProperty("fizteh.db.dir"));
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -18,7 +20,13 @@ public class Main {
             argumentsForShell = Parser.parseArgs(args);
         }
         try {
-            exitValue = new Shell(fileMap).doShell(argumentsForShell);
+            exitValue = new Shell(multiMap).doShell(argumentsForShell);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+        try {
+            multiMap.closeWorkingTable();
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(-1);

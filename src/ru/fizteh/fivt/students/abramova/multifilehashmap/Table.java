@@ -1,80 +1,172 @@
 package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
 import ru.fizteh.fivt.students.abramova.filemap.FileMap;
+import ru.fizteh.fivt.students.abramova.shell.MakeDirectoryCommand;
+import ru.fizteh.fivt.students.abramova.shell.RemoveCommand;
+import ru.fizteh.fivt.students.abramova.shell.Stage;
+import ru.fizteh.fivt.students.abramova.shell.Status;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Set;
 
-public class Table extends FileMap {
+public class Table implements Closeable {
+    private final File tableDir;
+    private final String tableName;
+    //Изначально храним все существующие (на момент открытия таблицы) файлы в двумерном массиве
+    //Первый индекс означает директорию, в которой находится файл, второй - номер файла
+    FileMap[][] files = new FileMap[16][];
 
-    public Table (String name) throws IOException {
-        super(name);
-    }
-
-    public String getName() {
-        return fileMapName;
-    }
-
-    private void reading(Map<String, String> fileMap, BufferedInputStream reader) throws IOException {
-        int keyLen;
-        int valueLen;
-        byte[] key;
-        byte[] value;
-        try {
-            while ((keyLen = reader.read()) != -1) {
-                valueLen = reader.read();
-                key = new byte[keyLen];
-                value = new byte[valueLen];
-                reader.read(key, 0, keyLen);
-                reader.read(value, 0, valueLen);
-                fileMap.put(new String(key), new String(value));
-            }
-        } catch (IOException e) {
-            throw new IOException("Read error: " + e.getMessage());
+    {
+        for (int i = 0; i < 16; i++) { //Выделяем память для всех директорий
+            files[i] = new FileMap[16];
         }
     }
 
+    public Table(String tableName, String directory) throws IOException {
+        this.tableName = tableName;
+        tableDir = new File(directory, tableName);
+        File currentDir; //Текущая дериктория *.dir
+        File currentFile;   //Текущий файл *.dat
+        if (tableDir.exists() && tableDir.isDirectory()) {  //Если таблица не новая
+            //Обход по всем возможным папкам
+            for (int i = 0; i < 16; i++) {
+                currentDir = new File(tableDir.toString(), i + ".dir");
+                //Если директория с таким именем существует
+                if (currentDir.exists() && currentDir.isDirectory()) {
+                    //Обход по всем возможным файлам, создание или чтение из них
+                    for (int j = 0; j < 16; j++) {
+                        currentFile = new File(currentDir.toString(), j + ".dat");
+                        if (currentFile.exists()) { //Если файл существует, то записываем его
+                            files[i][j] = new FileMap(j + ".dat", currentDir.getCanonicalPath());
+                            if (!correctFile(i, j, files[i][j])) {
+                                throw new IOException("Bad file");
+                            }
+                        } else {
+                            files[i][j] = null;
+                        }
+                    }
+                } else {    //Иначе нет существующих файлов
+                    files[i] = null;
+                }
+            }
+        } else {    //Иначе создаем ее
+            if (!tableDir.mkdir()) {
+                throw new IOException("Table " + tableName + " was not created");
+            }
+        }
+    }
+
+    private boolean correctFile(int ndirectory, int nfile, FileMap file) {
+        int hashcode;
+        for (String key : file.getMap().keySet()) {
+            hashcode = StrictMath.abs(key.hashCode());
+            if (ndirectory != hashcode % 16 || nfile != hashcode / 16 % 16) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void close() throws IOException {
-        BufferedOutputStream writer;
-        try {
-            writer = new BufferedOutputStream(new FileOutputStream(fileMapName));
-        } catch (IOException e) {
-            throw new IOException("Open error: " + e.getMessage());
-        }
-        writing(fileMap, writer);
-        try {
-            writer.close();
-        } catch (IOException e) {
-            throw new IOException("Close error: " + e.getMessage());
+        File currentDir;
+        File currentFile;
+        for (int i = 0; i < 16; i++) {
+            currentDir = new File(tableName, i + ".dir");
+            if (files[i] != null) {   //Если директория должна быть не путса
+                for (int j = 0; j < 16; j++) {
+                    if (files[i][j] != null && !files[i][j].getMap().isEmpty()) {  //Если в этот файл что-то записано, то сохраняем на диск
+                        if (!currentDir.exists()) {
+                            if (!currentDir.mkdir()) {
+                                throw new IOException("Directory " + i + ".dir in table " + tableName + " was not created");
+                            }
+                        }
+                        currentFile = new File(currentDir.toString(), j + ".dat");
+                        if (!currentFile.exists()) {
+                            if (!currentDir.createNewFile()) {
+                                throw new IOException("File " + j + ".dat in directory " + i + ".dir in table " + tableName + " was not created");
+                            }
+                        }
+                        files[i][j].close();
+                    } else {    //Иначе удаляем его, если он существовал
+                        Files.deleteIfExists(new File(tableName, new File(i + ".dir", j + ".dat").toString()).toPath());
+                    }
+                }
+            } else if (currentDir.exists()) { //Иначе удаляем директорию, если она существовала с помощью команды remove из шелла
+                String[] args = new String[1];
+                args[0] = i + ".dir";
+                new RemoveCommand("rm").doCommand(args, new Status(new Stage(tableDir.getPath())));
+            }
         }
     }
 
-    private void writing(Map<String, String> fileMap, BufferedOutputStream writer) throws IOException {
-        int keyLen;
-        int valueLen;
-        byte[] key;
-        byte[] value;
-        Set<String> keys = fileMap.keySet();
-        for (String keyString : keys) {
-            key = keyString.getBytes();
-            value = fileMap.get(keyString).getBytes();
-            keyLen = key.length;
-            valueLen = value.length;
-            try {
-                writer.write(keyLen);
-                writer.write(valueLen);
-                writer.write(key);
-                writer.write(value);
-            } catch (IOException e) {
-                throw new IOException("Write error: " + e.getMessage());
+    public String getTableName() {
+        return tableName;
+    }
+
+    public String getValue(String key) throws IOException {
+        int hashcode = StrictMath.abs(key.hashCode());
+        int ndirectory = hashcode % 16;
+        int nfile = hashcode / 16 % 16;
+        if (files[ndirectory] == null || files[ndirectory][nfile] == null) {
+            return null;
+        }
+        return files[ndirectory][nfile].getMap().get(key);
+    }
+
+    public String putValue(String key, String value) throws IOException {
+        String oldValue = null;
+        int hashcode = StrictMath.abs(key.hashCode());
+        int ndirectory = hashcode % 16;
+        int nfile = hashcode / 16 % 16;
+        File dir = new File(tableDir.getCanonicalPath(), ndirectory + ".dir");
+        if (files[ndirectory] == null) {
+            files[ndirectory] = new FileMap[16];
+            if (!dir.mkdir()) {
+                throw new IOException("Opening error");
             }
+            for (int i = 0; i < 16; i++) {
+                if (i == nfile) {
+                    files[ndirectory][i] = new FileMap(i + ".dat", dir.getCanonicalPath());
+                    files[ndirectory][i].getMap().put(key, value);
+                } else {
+                    files[ndirectory][i] = null;
+                }
+            }
+        } else if (files[ndirectory][nfile] == null) {
+            files[ndirectory][nfile] = new FileMap(nfile + ".dat", dir.getCanonicalPath());
+            files[ndirectory][nfile].getMap().put(key, value);
+        } else {
+            oldValue = files[ndirectory][nfile].getMap().get(key);
+            files[ndirectory][nfile].getMap().put(key, value);
         }
-        try {
-            writer.flush();
-        } catch (IOException e) {
-            throw new IOException("Flush error: " + e.getMessage());
+        return oldValue;
+    }
+
+    public boolean remove(String key) {
+        int hashcode = StrictMath.abs(key.hashCode());
+        int ndirectory = hashcode % 16;
+        int nfile = hashcode / 16 % 16;
+        if (files[ndirectory] == null || files[ndirectory][nfile] == null) {
+            return false;
         }
+        String deletedValue = files[ndirectory][nfile].getMap().remove(key);
+        if (deletedValue == null) {
+            return false;
+        }
+        if (files[ndirectory][nfile].getMap().isEmpty()) {  //Если теперь этот файл опустел
+            files[ndirectory][nfile] = null;
+        }
+        int nullPointer = 0;    //Количество пустых файлов в папке
+        while (nullPointer < 16 && files[ndirectory][nullPointer] == null) {
+            nullPointer++;
+        }
+        if (nullPointer == 16) {    //Если все файлы в директории пустые
+            files[ndirectory] = null;
+        }
+        return true;
     }
 
 }

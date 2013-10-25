@@ -7,7 +7,7 @@ import java.util.Map;
 public class DirectoryCommand extends Command {
 
     public DirectoryCommand(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

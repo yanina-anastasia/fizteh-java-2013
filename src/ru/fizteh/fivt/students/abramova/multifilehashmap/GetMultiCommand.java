@@ -2,23 +2,29 @@ package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
 import ru.fizteh.fivt.students.abramova.shell.Command;
 import ru.fizteh.fivt.students.abramova.shell.Status;
+
 import java.io.IOException;
 
-public class UseCommand extends Command {
-    public UseCommand(String name) {
+public class GetMultiCommand extends Command {
+    public GetMultiCommand(String name) {
         super(name);
     }
 
     @Override
     public int doCommand(String[] args, Status status) throws IOException {
-        MultiFileMap multiFile = status.getMultiFileMap();
-        if (multiFile == null) {
+        if (!status.isMultiFileMap()) {
             throw new IllegalStateException(getName() + ": Command do not get MultiFileMap");
         }
-        if (multiFile.setWorkingTable(args[0]) == null) {
-            System.out.println(args[0] + " not exists");
+        Table table = status.getMultiFileMap().getWorkingTable();
+        if (table == null) {
+            System.out.println("no table");
         } else {
-            System.out.println("using " + args[0]);
+            String value = table.getValue(args[0]);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("found\n" + value);
+            }
         }
         return 0;
     }
