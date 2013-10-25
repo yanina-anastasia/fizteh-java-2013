@@ -1,8 +1,4 @@
-package ru.fizteh.fivt.students.vorotilov.multidb;
-
-import ru.fizteh.fivt.students.vorotilov.db.DataBaseFile;
-import ru.fizteh.fivt.students.vorotilov.db.DataBaseOpenFailed;
-import ru.fizteh.fivt.students.vorotilov.db.HashcodeDestination;
+package ru.fizteh.fivt.students.vorotilov.db;
 
 
 import java.io.File;

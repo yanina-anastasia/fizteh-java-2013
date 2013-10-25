@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vorotilov.multidb;
+package ru.fizteh.fivt.students.vorotilov.db;
 
 public class DbDirectoryException extends Exception {
 

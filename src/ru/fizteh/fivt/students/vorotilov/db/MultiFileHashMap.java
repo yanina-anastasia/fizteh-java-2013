@@ -1,8 +1,5 @@
-package ru.fizteh.fivt.students.vorotilov.multidb;
+package ru.fizteh.fivt.students.vorotilov.db;
 
-import ru.fizteh.fivt.students.vorotilov.db.DataBaseOpenFailed;
-import ru.fizteh.fivt.students.vorotilov.db.DbInteractiveInput;
-import ru.fizteh.fivt.students.vorotilov.db.DbPackageInput;
 import ru.fizteh.fivt.students.vorotilov.shell.*;
 
 import java.io.File;
