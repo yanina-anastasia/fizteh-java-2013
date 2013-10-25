@@ -52,14 +52,6 @@ public class DataBaseReader {
 	throws IOException, ValidityCheckFailedException {
 
 		File root = multiTableDataBase.getRoot();
-		try {
-			File rootParent = root.getParentFile();
-			File logDir = new File(rootParent, "log");
-			logDir.mkdir();
-			FileUtils.recursiveCopy(root, logDir);
-		} catch (FileOperationFailException ex) {
-
-		}
 
 		ValidityChecker.checkMultiTableRoot(root);
 

@@ -14,14 +14,14 @@ public class ValidityChecker {
 
 		String[] tokens = toCheck.getName().split("\\.");
 	
-		if (Integer.parseInt(tokens[0]) >= maxValue) {
+		if ((Integer.parseInt(tokens[0]) >= maxValue) && (Integer.parseInt(tokens[0]) < 0)) {
 			throw new ValidityCheckFailedException(toCheck.getPath() + " is not a valid name");
 		}
 	}
 
 	public static void checkKeyStorageAffiliation(String key, int fileNum, int dirNum, int maxFileNum, int maxDirNum)
 	throws ValidityCheckFailedException {
-		if ((key.getBytes()[0] % maxDirNum != dirNum) || (key.getBytes()[0] / maxFileNum % maxFileNum != fileNum)) {
+		if ((Math.abs(key.getBytes()[0]) % maxDirNum != dirNum) || (Math.abs(key.getBytes()[0]) / maxFileNum % maxFileNum != fileNum)) {
 			throw new ValidityCheckFailedException(key + " is in the wrong storage");
 		}
 	}

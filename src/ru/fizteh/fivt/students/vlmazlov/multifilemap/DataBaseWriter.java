@@ -40,8 +40,8 @@ public class DataBaseWriter {
 			
 			ValidityChecker.checkFileMapKey(entry.getKey());
 
-			tableParts[entry.getKey().getBytes()[0] % DIRECTORIES_QUANTITY]
-			[entry.getKey().getBytes()[0] / FILES_QUANTITY % FILES_QUANTITY].put(entry.getKey(), entry.getValue());
+			tableParts[Math.abs(entry.getKey().getBytes()[0]) % DIRECTORIES_QUANTITY]
+			[Math.abs(entry.getKey().getBytes()[0]) / FILES_QUANTITY % FILES_QUANTITY].put(entry.getKey(), entry.getValue());
 		}
 
 	}
