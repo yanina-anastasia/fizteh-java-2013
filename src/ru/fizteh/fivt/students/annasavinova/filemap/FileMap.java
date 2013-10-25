@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 import ru.fizteh.fivt.students.annasavinova.shell.UserShell;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
@@ -138,7 +139,11 @@ public class FileMap extends UserShell {
     protected void loadFile(File data, int dirNum, int fileNum) {
         RandomAccessFile dataFile = null;
         try {
-            dataFile = new RandomAccessFile(data, "r");
+            dataFile = new RandomAccessFile(data, "rw");
+        } catch (FileNotFoundException e2) {
+            printErrorAndExit("Cannot load file");
+        }
+        try {
             dataFile.seek(0);
             while (dataFile.getFilePointer() != dataFile.length()) {
                 loadKeyAndValue(dataFile, dirNum, fileNum);
@@ -209,6 +214,8 @@ public class FileMap extends UserShell {
                     printErrorAndExit("Cannot unload file");
                 }
         } catch (IOException e) {
+            //TODO
+            e.printStackTrace();
             printErrorAndExit("Cannot unload file correctly");
         }
     }
@@ -318,7 +325,7 @@ public class FileMap extends UserShell {
                 }
                 break;
             case "exit":
-                unloadMap();
+                unloadData();
                 System.exit(0);
                 break;
             default:
