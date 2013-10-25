@@ -8,9 +8,9 @@ import java.io.PrintStream;
 
 public class FileManager implements Manager {
 
-    private PrintStream outputStream = System.out;
-    private File currentPath = new File("").getAbsoluteFile();
-    private boolean mustExit = false;
+    protected PrintStream outputStream = System.out;
+    protected File currentPath = new File("").getAbsoluteFile();
+    protected boolean mustExit = false;
 
     @Override
     public boolean timeToExit() {
@@ -27,6 +27,7 @@ public class FileManager implements Manager {
         outputStream.print(currentPath.getName() + File.separator + "$ ");
     }
 
+    @Override
     public void setExit() {
         mustExit = true;
     }
@@ -148,7 +149,7 @@ public class FileManager implements Manager {
         return true;
     }
 
-    boolean safeCopy(File source, File destination, String command) {
+    protected boolean safeCopy(File source, File destination, String command) {
         if (source == null) {
             printMessage(command + ": invalid source path");
         } else if (!source.exists()) {
@@ -165,7 +166,7 @@ public class FileManager implements Manager {
         return false;
     }
 
-    boolean recursiveRemove(File removable, String command) {
+    protected boolean recursiveRemove(File removable, String command) {
         if (removable.isDirectory()) {
             File[] files = removable.listFiles();
             if (files != null) {

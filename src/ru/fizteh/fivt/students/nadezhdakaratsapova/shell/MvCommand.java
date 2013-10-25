@@ -5,18 +5,26 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class MvCommand implements Command {
+
+    private ShellState curState;
+
+    public MvCommand(ShellState state) {
+        curState = state;
+
+    }
+
     public String getName() {
         return "mv";
     }
 
-    public void execute(CurrentDirectory currentDirectory, String[] args) throws IOException {
+    public void execute(String[] args) throws IOException {
         File source = new File(args[1]);
         if (!source.isAbsolute()) {
-            source = new File(currentDirectory.getCurDir(), args[1]);
+            source = new File(curState.getCurDir(), args[1]);
         }
         File destination = new File(args[2]);
         if (!destination.isAbsolute()) {
-            destination = new File(currentDirectory.getCurDir(), args[2]);
+            destination = new File(curState.getCurDir(), args[2]);
         }
         if (!source.exists()) {
             throw new IOException("mv: " + args[1] + " was not found");

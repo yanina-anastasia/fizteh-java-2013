@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
+import ru.fizteh.fivt.students.msandrikova.multifilehashmap.State;
 
 
 public class Shell {
@@ -13,6 +14,7 @@ public class Shell {
 	private Map < String, Command > commandsList;
 	private File currentDirectory = new File("").getAbsoluteFile();
 	private boolean isInteractive = false;
+	private State myState;
 	
 	private void InitMap(Command[] commands) {
 		Map< String, Command > m = new HashMap<String, Command>();
@@ -22,7 +24,25 @@ public class Shell {
 		this.commandsList = Collections.unmodifiableMap(m);
 	}
 	
+	public boolean getIsInteractive() {
+		return this.isInteractive;
+	}
 	
+	public State getState() {
+		return this.myState;
+	}
+	
+	public void setState(State myState) {
+		this.myState = myState;
+	}
+	
+	public File getCurrentDirectory() {
+		return this.currentDirectory;
+	}
+	
+	public void setCurrentDirectory(File currentDirectory) {
+		this.currentDirectory = currentDirectory;
+	}
 	
 	private void executeOfInstructionLine(String instructionLine) {
 		String[] instructionsList = new String[]{};
@@ -34,15 +54,19 @@ public class Shell {
 				continue;
 			}
 			if(this.commandsList.containsKey(argumentsList[0])) {
-				this.currentDirectory = this.commandsList.get(argumentsList[0]).execute(argumentsList, isInteractive, this.currentDirectory);
+				this.commandsList.get(argumentsList[0]).execute(argumentsList, this);
 			} else {
 				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] + "\"", "", isInteractive);
 				continue;
 			}
-		}
+		}	
 	}
 	
-	public Shell(Command[] commands) {
+	public Shell(Command[] commands, String currentDirectory) {
+		this.currentDirectory = new File(currentDirectory).getAbsoluteFile();
+		if(!this.currentDirectory.exists()) {
+			Utils.generateAnError("Given directory does not exist", "shell", false);
+		}
 		this.InitMap(commands);
 	}
 	

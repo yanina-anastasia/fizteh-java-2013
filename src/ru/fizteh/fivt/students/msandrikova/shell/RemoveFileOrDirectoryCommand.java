@@ -10,19 +10,18 @@ public class RemoveFileOrDirectoryCommand extends Command {
 	}
 	
 	@Override
-	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
-			return currentDirectory;
+	public void execute(String[] argumentsList, Shell myShell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+			return;
 		}
 		
-		File filePath = new File(currentDirectory + File.separator + argumentsList[1]);
+		File filePath = new File(myShell.getCurrentDirectory() + File.separator + argumentsList[1]);
 		
 		try {
-			if(!Utils.remover(filePath, this.getName(), isInteractive)) {
-				return currentDirectory;
+			if(!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
+				return;
 			}
 		} catch (IOException e) {}
-		return currentDirectory;
 	}
 
 }

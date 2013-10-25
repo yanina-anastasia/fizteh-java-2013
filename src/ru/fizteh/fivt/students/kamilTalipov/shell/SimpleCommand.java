@@ -17,11 +17,6 @@ public class SimpleCommand implements Command {
     }
 
     @Override
-    public boolean equalNumberOfArguments(int numberOfArguments) {
-        return this.numberOfArguments == numberOfArguments;
-    }
-
-    @Override
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
 
     }
@@ -31,6 +26,6 @@ public class SimpleCommand implements Command {
         this.numberOfArguments = numberOfArguments;
     }
 
-    protected String name;
-    protected int numberOfArguments;
+    protected final String name;
+    protected final int numberOfArguments;
 }

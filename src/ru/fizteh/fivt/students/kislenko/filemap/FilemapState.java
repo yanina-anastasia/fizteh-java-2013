@@ -33,6 +33,10 @@ public class FilemapState {
         return storage;
     }
 
+    public void setMap(Map<String, String> newStorage) {
+        storage = newStorage;
+    }
+
     public Path getPath() {
         return path;
     }
