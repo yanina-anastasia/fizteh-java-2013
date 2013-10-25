@@ -95,25 +95,25 @@ public class FileHashMap {
         writeDB();
     }
 
-    private int mod (int a, int m) {
+    /*private int mod (int a, int m) {
         while (a < 0) {
             a += m;
         }
         return a % m;
-    }
+    } */
 
     private int getDirNum(String key) {
         byte b = key.getBytes()[0];
-        int nDir = mod(b, 16);
-        int nFile = mod(b / 16, 16);
-        return nDir;
+        int nDir = b % 16;
+        int nFile = (b / 16) % 16;
+        return (nDir < 0 ? -nDir : nDir);
     }
 
     private int getFileNum(String key) {
         byte b = key.getBytes()[0];
-        int nDir = mod(b, 16);
-        int nFile = mod(b / 16, 16);
-        return nFile;
+        int nDir = b % 16;
+        int nFile = (b / 16) % 16;
+        return (nFile < 0 ? -nFile : nFile);
     }
 
     private void readDB() throws IOException {
