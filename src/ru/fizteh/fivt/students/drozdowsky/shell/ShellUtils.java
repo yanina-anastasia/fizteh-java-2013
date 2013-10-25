@@ -1,13 +1,5 @@
 package ru.fizteh.fivt.students.drozdowsky.shell;
 
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.ChangeDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.MakeDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.Copy;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.Directory;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.PrintWorkingDirectory;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.Remove;
-import ru.fizteh.fivt.students.drozdowsky.shell.commands.Move;
-
 import java.util.Scanner;
 
 public class ShellUtils {
@@ -17,26 +9,19 @@ public class ShellUtils {
         }
         String command = args[0];
         if (command.equals("cd")) {
-            ChangeDirectory cd = new ChangeDirectory(workingDirectory, args);
-            return cd.execute();
+            return ShellCommands.cd(workingDirectory, args);
         } else if (command.equals("mkdir")) {
-            MakeDirectory mkdir = new MakeDirectory(workingDirectory, args);
-            return mkdir.execute();
+            return ShellCommands.mkdir(workingDirectory, args);
         } else if (command.equals("pwd")) {
-            PrintWorkingDirectory pwd = new PrintWorkingDirectory(workingDirectory, args);
-            return pwd.execute();
+            return ShellCommands.pwd(workingDirectory, args);
         } else if (command.equals("rm")) {
-            Remove rm = new Remove(workingDirectory, args);
-            return rm.execute();
+            return ShellCommands.rm(workingDirectory, args);
         } else if (command.equals("dir")) {
-            Directory dir = new Directory(workingDirectory, args);
-            return dir.execute();
+            return ShellCommands.dir(workingDirectory, args);
         } else if (command.equals("cp")) {
-            Copy cp = new Copy(workingDirectory, args);
-            return cp.execute();
+            return ShellCommands.cp(workingDirectory, args);
         } else if (command.equals("mv")) {
-            Move mv = new Move(workingDirectory, args);
-            return mv.execute();
+            return ShellCommands.mv(workingDirectory, args);
         } else if (command.equals("exit")) {
             System.exit(0);
         } else {
