@@ -32,6 +32,7 @@ public class CommandsOperator {
             singleFileMap = new SingleFileMap(new File(System.getProperty("fizteh.db.dir") + "/db.dat"));
         } catch (IOException e) {
             System.out.println(e.getMessage());
+            System.exit(1);
         }
     }
 
