@@ -12,19 +12,11 @@ public class SingleFileTable extends AbstractTable {
 	}
 
 	public void loadTable() throws IOException {
-<<<<<<< HEAD
 		ReadHandler.loadFromFile(getDataBasePath(), tableHash);
 	}
 
 	public void saveTable() throws IOException {
 		WriteHandler.saveToFile(getDataBasePath(), tableHash);
-=======
-		loadFromFile(getDataBasePath());
-	}
-
-	public void saveTable() throws IOException {
-		saveToFile(getDataBasePath());
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 	}
 
     private String getDataBasePath() {

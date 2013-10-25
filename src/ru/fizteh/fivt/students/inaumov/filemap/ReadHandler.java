@@ -37,7 +37,7 @@ public class ReadHandler implements Closeable {
 
     private int readInteger() throws IOException {
         int result = inputFile.readInt();
-        System.out.println("read int: " + result);
+        //System.out.println("read int: " + result);
         return result;
     }
 

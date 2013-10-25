@@ -9,17 +9,13 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-<<<<<<< HEAD
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractTable implements Table {
     protected static final Charset CHARSET = StandardCharsets.UTF_8;
 
-=======
-
-public abstract class AbstractTable implements Table {
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 	protected HashMap<String, String> tableHash = new HashMap<String, String>();
 	protected HashMap<String, String> modifiedTableHash = new HashMap<String, String>();
 	protected HashSet<String> deleted = new HashSet<String>();
@@ -32,91 +28,7 @@ public abstract class AbstractTable implements Table {
 	
 	public WriteHandler writeHandler;
 	public ReadHandler readHandler;
-	
-<<<<<<< HEAD
 
-=======
-	private class WriteHandler implements Closeable {
-		
-		private RandomAccessFile outputFile = null;
-		
-		public WriteHandler(String fileName) throws IOException {
-			try {
-				outputFile = new RandomAccessFile(fileName, "rw");
-			} catch (FileNotFoundException exception) {
-			    throw new IOException("can't create file " + fileName);
-			}
-			outputFile.setLength(0);
-		}
-		
-		public void writeEntry(String key, String value) throws IOException {
-			outputFile.writeInt(key.length());
-			outputFile.write(key.getBytes("UTF-8"));
-			
-			outputFile.writeInt(value.length());
-			outputFile.write(value.getBytes("UTF-8"));
-		}
-		
-		public void close() throws IOException {
-			outputFile.close();
-		}
-		
-	}
-	private class ReadHandler implements Closeable {
-		
-		private RandomAccessFile inputFile = null;
-		
-		public ReadHandler(String fileName) throws IOException {
-			try {
-				inputFile = new RandomAccessFile(fileName, "r");
-			} catch (FileNotFoundException exception) {
-				
-			}
-		}
-		
-		private int readInteger() throws IOException {
-			int result = inputFile.readInt();
-			
-			return result;
-		}
-		
-		private String readString(int stringLength) throws IOException {
-			byte[] stringBytes = new byte[stringLength];
-			inputFile.read(stringBytes);
-			
-			return new String(stringBytes, "UTF-8");
-		}
-
-		public String readEntry() throws IOException {
-			int stringLength = readInteger();
-			//System.out.println("::readEntry(): length = " + stringLength);
-			String entry = readString(stringLength);
-			//System.out.println("::readEntry(): entry = " + entry);
-			return entry;
-		}
-		
-		public boolean readEnd() throws IOException {
-			if (inputFile == null) {
-				//System.err.println("AbstractTable::readEnd(): inputFile == null");
-				return true;
-			}
-			
-			if (inputFile.getFilePointer() <= inputFile.length() - 1) {
-				//System.out.println("AbstractTable::readEnd(): fileptr = " + inputFile.getFilePointer());
-				//System.out.println("AbstractTable::readEnd(): filelength = " + inputFile.length());
-				return false;
-			}
-			
-			return true;
-		}
-		
-		public void close() throws IOException {
-			inputFile.close();
-		}
-		
-	}
-	
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 	public abstract void loadTable() throws IOException;
 	public abstract void saveTable() throws IOException;
 	
@@ -255,46 +167,4 @@ public abstract class AbstractTable implements Table {
 		
 		return rollbackedChangesNumber;
 	}
-<<<<<<< HEAD
-
-=======
-	
-	protected void loadFromFile(String fileName) throws IOException {
-		//System.out.println("AbstractTable::loadFromFile: looking for file " + fileName + "...");
-		File file = new File(fileName);
-		if (!file.exists()) {
-			//System.out.println("AbstractTable::loadFromFile: file " + fileName + " doesn't exist");
-			return;
-		}
-		
-		//System.out.println("AbstractTable::loadFromFile: file " + fileName + " found");
-		//System.out.println("AbstractTable::loadFromFile: loading " + fileName + "...");
-		
-		ReadHandler readHandler = new ReadHandler(fileName);
-		while (!readHandler.readEnd()) {
-			String key = readHandler.readEntry();
-			String value = readHandler.readEntry();
-			tableHash.put(key, value);
-			//System.out.println("AbstractTable::loadFromFile: loaded: (" + key + ", " + value + ")");
-		}
-		
-		//System.out.println("AbstractTable::loadFromFile: loading complete");
-		
-		tableSize = tableHash.size();
-		readHandler.close();
-	}
-	
-	protected void saveToFile(String fileName) throws IOException {
-		//System.out.println("AbstractTable::saveToFile: saving " + fileName + "...");
-		
-		WriteHandler writeHandler = new WriteHandler(fileName);
-		for (Map.Entry<String, String> nextEntry: tableHash.entrySet()) {
-			writeHandler.writeEntry(nextEntry.getKey(), nextEntry.getValue());
-			//System.out.println("AbstractTable::saveToFile: saved: (" + nextEntry.getKey() + ", " + nextEntry.getValue() + ")");
-		}
-		
-		//System.out.println("AbstractTable::saveToFile: saving complete");
-		writeHandler.close();
-	}
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 }

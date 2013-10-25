@@ -1,20 +1,13 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
-<<<<<<< HEAD
 public class CommitCommand extends AbstractCommand<SingleFileMapShellState> {
-=======
-public class CommitCommand extends AbstractCommand {
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 	public CommitCommand() {
 		super("commit", 0);
 	}
-	
-<<<<<<< HEAD
+
 	public void execute(String[] args, SingleFileMapShellState fileMapState) {
-=======
-	public void execute(String[] args, ShellState fileMapState) {
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 		int savedChangesNumber = fileMapState.table.commit();
+
 		System.out.println(savedChangesNumber);
 	}
 }

@@ -1,10 +1,6 @@
 package ru.fizteh.fivt.students.inaumov.common;
 
 import ru.fizteh.fivt.students.inaumov.filemap.Command;
-<<<<<<< HEAD
-=======
-import ru.fizteh.fivt.students.inaumov.filemap.ShellState;
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 import ru.fizteh.fivt.students.inaumov.filemap.UserInterruptionException;
 
 import java.io.BufferedReader;
@@ -12,19 +8,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-<<<<<<< HEAD
 public class CommonShell<State> {
 	private HashMap<String, Command> commandsMap = new HashMap<String, Command>();
 	private State state = null;
 
 	public void setFileMapState(State state) {
-=======
-public class CommonShell {
-	private HashMap<String, Command> commandsMap = new HashMap<String, Command>();
-	private ShellState state = null;
-		
-	public void setFileMapState(ShellState state) {
->>>>>>> 52e46dc6916f1d8fa0aff1b37a2cd587ef33ceb3
 		this.state = state;
 	}
 	
