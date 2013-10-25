@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.modes;
+package ru.fizteh.fivt.students.drozdowsky.Utils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

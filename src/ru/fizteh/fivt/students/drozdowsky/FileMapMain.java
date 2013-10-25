@@ -1,15 +1,15 @@
-package ru.fizteh.fivt.students.drozdowsky.filemap_v2;
+package ru.fizteh.fivt.students.drozdowsky;
 
 import ru.fizteh.fivt.students.drozdowsky.database.FileMap;
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
-import ru.fizteh.fivt.students.drozdowsky.modes.Utils;
+import ru.fizteh.fivt.students.drozdowsky.Utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class Main {
+public class FileMapMain {
 
     public static void main(String[] args) {
         String dbDirectory = System.getProperty("fizteh.db.dir");

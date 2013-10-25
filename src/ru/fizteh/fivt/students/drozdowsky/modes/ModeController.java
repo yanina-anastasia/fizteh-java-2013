@@ -10,7 +10,6 @@ public class ModeController<T> {
     }
 
     public void execute(HashMap<String, Method> commands, String[] args) {
-
         if (args.length == 0) {
             InteractiveMode<T> im = new InteractiveMode<T>(controller);
             im.execute(commands);

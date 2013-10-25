@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.shell_v2;
+package ru.fizteh.fivt.students.drozdowsky.pathController;
 
 import java.io.File;
 import java.io.IOException;

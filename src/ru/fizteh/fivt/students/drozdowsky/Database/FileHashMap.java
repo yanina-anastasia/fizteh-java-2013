@@ -77,6 +77,16 @@ public class FileHashMap {
         return base[nDir][nFile].remove(args);
     }
 
+    public boolean exit(String[] args) {
+        if (args.length != 1) {
+            error("usage: exit");
+            return false;
+        }
+        close();
+        System.exit(0);
+        return true;
+    }
+
     public String getPath() {
         return db.getAbsolutePath();
     }

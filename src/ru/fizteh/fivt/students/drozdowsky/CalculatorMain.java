@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.drozdowsky.calculator;
+package ru.fizteh.fivt.students.drozdowsky;
 
 import java.math.BigInteger;
 
-public class Calculator {
+public class CalculatorMain {
     private enum OperationType {
         MULTIPLICATION_OR_DIVISION,
         ADDITION_OR_SUBTRACTION,

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky;
+package ru.fizteh.fivt.students.drozdowsky.Utils;
 
 public class Pair<A, B> {
     public final A fst;

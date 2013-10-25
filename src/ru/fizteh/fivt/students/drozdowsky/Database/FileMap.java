@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.database;
 
-import ru.fizteh.fivt.students.drozdowsky.Pair;
+import ru.fizteh.fivt.students.drozdowsky.Utils.Pair;
 
 import java.io.*;
 import java.nio.ByteBuffer;
