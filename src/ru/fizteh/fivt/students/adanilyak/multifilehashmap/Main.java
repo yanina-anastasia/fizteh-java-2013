@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
-import ru.fizteh.fivt.students.adanilyak.userinterface.uiShell;
+import ru.fizteh.fivt.students.adanilyak.userinterface.UIShell;
 
 /**
  * User: Alexander
@@ -9,6 +9,6 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.uiShell;
  */
 public class Main {
     public static void main(String[] args) {
-        uiShell myShell = new mfhmShell(args);
+        UIShell myShell = new MultiFileHashMapShell(args);
     }
 }

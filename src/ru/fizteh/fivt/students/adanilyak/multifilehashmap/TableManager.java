@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.tools.tlDeleteDirectory;
+import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,6 +17,12 @@ public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
+    /*
+    public TableManager(File datFile) {
+
+    }
+    */
+
     public TableManager(File atDirectory) throws Exception {
         if (!atDirectory.exists()) {
             throw new Exception(atDirectory.getName() + ": not exist");
@@ -27,7 +33,7 @@ public class TableManager implements TableProvider {
 
         allTablesDirectory = atDirectory;
         for (File tableFile : allTablesDirectory.listFiles()) {
-            Table table = new mfhmTableStorage(tableFile);
+            Table table = new TableStorage(tableFile);
             allTablesMap.put(tableFile.getName(), table);
         }
     }
@@ -57,7 +63,7 @@ public class TableManager implements TableProvider {
         }
 
         try {
-            Table newTable = new mfhmTableStorage(tableFile);
+            Table newTable = new TableStorage(tableFile);
             allTablesMap.put(tableName, newTable);
             return newTable;
         } catch (Exception exc) {
@@ -70,7 +76,7 @@ public class TableManager implements TableProvider {
     public void removeTable(String tableName) {
         File tableFile = new File(allTablesDirectory, tableName);
         try {
-            tlDeleteDirectory.rm(tableFile);
+            DeleteDirectory.rm(tableFile);
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
         }

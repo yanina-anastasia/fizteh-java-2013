@@ -48,7 +48,7 @@ public class WorkWithMFHM {
                 File fileDat = new File(fileDir, indexDat + ".dat");
                 if (mapReadyForWrite[indexDir][indexDat] == null) {
                     if (fileDat.exists()) {
-                        if(!fileDat.delete()) {
+                        if (!fileDat.delete()) {
                             throw new IOException(fileDat.toPath().toString() + ": can not delete file");
                         }
                     }

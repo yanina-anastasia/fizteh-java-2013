@@ -2,9 +2,10 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.commands.*;
-import ru.fizteh.fivt.students.adanilyak.tools.tlShellLogic;
-import ru.fizteh.fivt.students.adanilyak.userinterface.uiCmdList;
-import ru.fizteh.fivt.students.adanilyak.userinterface.uiShell;
+import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
+import ru.fizteh.fivt.students.adanilyak.userinterface.UICmdList;
+import ru.fizteh.fivt.students.adanilyak.userinterface.UIShell;
+
 import java.io.File;
 
 /**
@@ -12,35 +13,35 @@ import java.io.File;
  * Date: 21.10.13
  * Time: 16:40
  */
-public class MultiFileHashMapShell extends uiShell {
+public class MultiFileHashMapShell extends UIShell {
     public MultiFileHashMapShell(String[] args) {
         try {
-            TableProvider tableManager = new mfhmTableManager(new File(System.getProperty("fizteh.db.dir")));
-            DataBaseGlobalState mfhmState = new DataBaseGlobalState(tableManager);
-            runMfhmShell(args, makeUpCmdList(mfhmState));
+            TableProvider tableManager = new TableManager(new File(System.getProperty("fizteh.db.dir")));
+            DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
+            runMFHMShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
         }
     }
 
-    private void runMfhmShell (String[] args, uiCmdList cmdList) {
+    private void runMFHMShell(String[] args, UICmdList cmdList) {
         if (args.length == 0) {
-            tlShellLogic.interactiveMode(System.in, cmdList.getCmdList(), System.out, System.err);
+            ShellLogic.interactiveMode(System.in, cmdList.getCmdList(), System.out, System.err);
         } else {
-            tlShellLogic.packageMode(args, cmdList.getCmdList(), System.out, System.err);
+            ShellLogic.packageMode(args, cmdList.getCmdList(), System.out, System.err);
         }
     }
 
-    private uiCmdList makeUpCmdList(DataBaseGlobalState fmState) {
-        uiCmdList stockMfhmShellCmdList = new uiCmdList();
-        stockMfhmShellCmdList.addCommand(new CmdPut(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdGet(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdRemove(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdUse(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdCreate(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdDrop(fmState));
-        stockMfhmShellCmdList.addCommand(new CmdExit(fmState));
-        return stockMfhmShellCmdList;
+    private UICmdList makeUpCmdList(DataBaseGlobalState fmState) {
+        UICmdList stockShellCmdList = new UICmdList();
+        stockShellCmdList.addCommand(new CmdPut(fmState));
+        stockShellCmdList.addCommand(new CmdGet(fmState));
+        stockShellCmdList.addCommand(new CmdRemove(fmState));
+        stockShellCmdList.addCommand(new CmdUse(fmState));
+        stockShellCmdList.addCommand(new CmdCreate(fmState));
+        stockShellCmdList.addCommand(new CmdDrop(fmState));
+        stockShellCmdList.addCommand(new CmdMFHMExit(fmState));
+        return stockShellCmdList;
     }
 }

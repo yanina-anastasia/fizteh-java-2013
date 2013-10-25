@@ -9,6 +9,8 @@ import java.util.Vector;
  */
 public interface Cmd {
     String getName();
+
     int getAmArgs();
+
     void work(Vector<String> args) throws Exception;
 }

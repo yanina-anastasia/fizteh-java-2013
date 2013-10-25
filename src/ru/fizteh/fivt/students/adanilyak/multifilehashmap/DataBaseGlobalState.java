@@ -2,23 +2,22 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 
 /**
  * User: Alexander
  * Date: 21.10.13
  * Time: 14:24
  */
-public class DataBaseGlobalState {
+public class DataBaseGlobalState extends FileMapState {
     private TableProvider currentTableManager = null;
-    private Table currentTable = null;
 
-    public DataBaseGlobalState(TableProvider tableManager/*, mfhmTableStorage table */) {
+    public DataBaseGlobalState(TableProvider tableManager) {
         currentTableManager = tableManager;
-        //currentTable = table;
     }
 
     /**
-        Operations with current table
+     * Operations with current table
      */
 
     public String getCurrentTable() {
@@ -33,24 +32,8 @@ public class DataBaseGlobalState {
         currentTable = currentTableManager.getTable(useTableAsCurrentName);
     }
 
-    public String put(String key, String value) {
-        return currentTable.put(key, value);
-    }
-
-    public String get(String key) {
-        return currentTable.get(key);
-    }
-
-    public String remove(String key) {
-        return currentTable.remove(key);
-    }
-
-    public int commit() {
-        return currentTable.commit();
-    }
-
     /**
-        Operations with current table manager
+     * Operations with current table manager
      */
 
     public Table getTable(String tableName) {
@@ -58,8 +41,10 @@ public class DataBaseGlobalState {
     }
 
     public void removeTable(String tableName) {
-        if (currentTable.getName().equals(tableName)) {
-            currentTable = null;
+        if (currentTable != null) {
+            if (currentTable.getName().equals(tableName)) {
+                currentTable = null;
+            }
         }
         currentTableManager.removeTable(tableName);
     }

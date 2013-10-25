@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.mfhmDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 
 import java.util.Vector;
 
@@ -12,9 +12,9 @@ import java.util.Vector;
 public class CmdPut implements Cmd {
     private final String name = "put";
     private final int amArgs = 2;
-    private mfhmDataBaseGlobalState workState;
+    private FileMapState workState;
 
-    public CmdPut(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdPut(FileMapState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -30,7 +30,7 @@ public class CmdPut implements Cmd {
 
     @Override
     public void work(Vector<String> args) throws Exception {
-        if (workState.getCurrentTable() != null) {
+        if (workState != null) {
             String key = args.get(1);
             String value = args.get(2);
             String result = workState.put(key, value);

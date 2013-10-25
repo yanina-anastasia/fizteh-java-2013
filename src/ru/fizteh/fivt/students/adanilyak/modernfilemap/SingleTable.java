@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.modernfilemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.adanilyak.tools.tlWorkWithDatFiles;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDatFiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class SingleTable implements Table {
         dataBaseStorage = new HashMap<String, String>();
         dataBaseDatFile = datFile;
         try {
-            tlWorkWithDatFiles.readIntoMap(dataBaseDatFile, dataBaseStorage);
+            WorkWithDatFiles.readIntoMap(dataBaseDatFile, dataBaseStorage);
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
@@ -64,7 +64,7 @@ public class SingleTable implements Table {
     @Override
     public int commit() {
         try {
-            tlWorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
+            WorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
             System.exit(1);
@@ -87,7 +87,7 @@ public class SingleTable implements Table {
 
     public int exit() {
         try {
-            tlWorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
+            WorkWithDatFiles.writeIntoFile(dataBaseDatFile, dataBaseStorage);
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
             System.exit(1);

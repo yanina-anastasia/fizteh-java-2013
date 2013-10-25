@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.adanilyak.tools.tlWorkWithMFHM;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
 
 import java.io.File;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class TableStorage implements Table {
 
     public TableStorage(File dataDirectory) throws Exception {
         tableStorageDirectory = dataDirectory;
-        tlWorkWithMFHM.readIntoDataBase(tableStorageDirectory, tableStorageData);
+        WorkWithMFHM.readIntoDataBase(tableStorageDirectory, tableStorageData);
     }
 
     @Override
@@ -42,14 +42,14 @@ public class TableStorage implements Table {
     }
 
     @Override
-    public int size(){
+    public int size() {
         return tableStorageData.size();
     }
 
     @Override
     public int commit() {
         try {
-            tlWorkWithMFHM.writeIntoFiles(tableStorageDirectory, tableStorageData);
+            WorkWithMFHM.writeIntoFiles(tableStorageDirectory, tableStorageData);
         } catch (Exception exc) {
             System.err.println("commit: " + exc.getMessage());
         }

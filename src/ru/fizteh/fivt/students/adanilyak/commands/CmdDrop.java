@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.mfhmDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
 
 import java.util.Vector;
 
@@ -12,9 +12,9 @@ import java.util.Vector;
 public class CmdDrop implements Cmd {
     private final String name = "drop";
     private final int amArgs = 1;
-    private mfhmDataBaseGlobalState workState;
+    private DataBaseGlobalState workState;
 
-    public CmdDrop(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdDrop(DataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

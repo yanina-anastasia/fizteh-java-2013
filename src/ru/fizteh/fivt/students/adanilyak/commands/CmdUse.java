@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.mfhmDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
 
 import java.util.Vector;
 
@@ -12,9 +12,9 @@ import java.util.Vector;
 public class CmdUse implements Cmd {
     private final String name = "use";
     private final int amArgs = 1;
-    private mfhmDataBaseGlobalState workState;
+    private DataBaseGlobalState workState;
 
-    public CmdUse(mfhmDataBaseGlobalState dataBaseState) {
+    public CmdUse(DataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

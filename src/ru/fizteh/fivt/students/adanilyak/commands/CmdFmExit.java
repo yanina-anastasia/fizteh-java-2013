@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 
 import java.util.Vector;
 
@@ -9,12 +9,12 @@ import java.util.Vector;
  * Date: 21.10.13
  * Time: 0:27
  */
-public class CmdFmExit implements Cmd {
+public class CmdFMExit implements Cmd {
     private final String name = "exit";
     private final int amArgs = 0;
-    private Table dataFileMap;
+    private FileMapState dataFileMap;
 
-    public CmdFmExit(Table stateTable) {
+    public CmdFMExit(FileMapState stateTable) {
         dataFileMap = stateTable;
     }
 

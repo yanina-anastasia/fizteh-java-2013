@@ -33,7 +33,7 @@ public class CmdParseAndExecute {
                 throw new NoSuchElementException("Unknown command");
             }
 
-            Cmd command  = cmdList.get(commandName);
+            Cmd command = cmdList.get(commandName);
             if (cmdAndArgs.size() != command.getAmArgs() + 1) {
                 throw new IOException("Wrong amount of arguments");
             }
