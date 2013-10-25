@@ -45,6 +45,8 @@ public class CommandShell implements CommandAbstract {
 
     public CommandShell() {
         currentFile = new File(".");
+        this.out = true;
+        this.err = true;
     }
 
     public CommandShell(String path) {

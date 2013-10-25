@@ -13,8 +13,11 @@ public class DbMain {
         //String path = "deamoonSql";
         String path = System.getProperty("fizteh.db.dir");
         Path pathTables = Paths.get(".").resolve(path);
-        //System.out.println(pathTables.toFile().getCanonicalPath());
-        runDb(args, pathTables.toFile().getCanonicalPath());
+        try {
+            runDb(args, pathTables.toFile().getCanonicalPath());
+        } catch (Exception e) {
+            System.out.println("Ошибка загрузки");
+        }
     }
 
     public static void runDb(String[] args, String path) throws IOException {
@@ -22,7 +25,6 @@ public class DbMain {
         try {
             fileMapCommand = new FileMap(path);
         } catch (Exception e) {
-            //e.printStackTrace();
             System.err.println("Ошибка загрузки базы данных");
             System.exit(1);
         }
