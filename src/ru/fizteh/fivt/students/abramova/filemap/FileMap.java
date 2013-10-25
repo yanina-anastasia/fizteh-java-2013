@@ -12,13 +12,15 @@ public class FileMap implements Closeable {
         if (directory != null) {
             fileMapName = new File(directory, fileMapName).getCanonicalPath();
         }
-        BufferedInputStream reader;
+        DataInputStream reader;
         try {
             File dbDat = new File(fileMapName);
             if (!dbDat.exists()) {
-                dbDat.createNewFile();
+                if (!dbDat.createNewFile()) {
+                    throw new IOException("File " + fileMapName + " was not created");
+                }
             }
-            reader = new BufferedInputStream(new FileInputStream(fileMapName));
+            reader = new DataInputStream(new FileInputStream(fileMapName));
         } catch (IOException e) {
             throw new IOException("Opening error: " + e.getMessage());
         }
@@ -31,14 +33,14 @@ public class FileMap implements Closeable {
         }
     }
 
-    private void reading(Map<String, String> fileMap, BufferedInputStream reader) throws IOException {
+    private void reading(Map<String, String> fileMap, DataInputStream reader) throws IOException {
         int keyLen;
         int valueLen;
         byte[] key;
         byte[] value;
         try {
-            while ((keyLen = reader.read()) != -1) {
-                valueLen = reader.read();
+            while (reader.available() >= Integer.SIZE && (keyLen = reader.readInt()) != -1) {
+                valueLen = reader.readInt();
                 if (keyLen + valueLen > reader.available()) {
                     throw new IOException("Bad file");
                 }
@@ -54,9 +56,9 @@ public class FileMap implements Closeable {
     }
 
     public void close() throws IOException {
-        BufferedOutputStream writer;
+        DataOutputStream writer;
         try {
-            writer = new BufferedOutputStream(new FileOutputStream(fileMapName));
+            writer = new DataOutputStream(new FileOutputStream(fileMapName));
         } catch (IOException e) {
             throw new IOException("Open error: " + e.getMessage());
         }
@@ -68,7 +70,7 @@ public class FileMap implements Closeable {
         }
     }
 
-    private void writing(Map<String, String> fileMap, BufferedOutputStream writer) throws IOException {
+    private void writing(Map<String, String> fileMap, DataOutputStream writer) throws IOException {
         int keyLen;
         int valueLen;
         byte[] key;
@@ -80,8 +82,8 @@ public class FileMap implements Closeable {
             keyLen = key.length;
             valueLen = value.length;
             try {
-                writer.write(keyLen);
-                writer.write(valueLen);
+                writer.writeInt(keyLen);
+                writer.writeInt(valueLen);
                 writer.write(key);
                 writer.write(value);
             } catch (IOException e) {
