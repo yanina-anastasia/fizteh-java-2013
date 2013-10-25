@@ -20,10 +20,12 @@ public class MultiFileHashMapTable implements Table {
     }
 
     public Map<String, String> getDataBase() {
+
         return dataBase;
     }
 
     public File getDataFile() {
+
         return dataFile;
     }
 
@@ -62,18 +64,24 @@ public class MultiFileHashMapTable implements Table {
 
     @Override
     public int size() {
+
         return 0;
     }
 
     @Override
-    public int commit() throws IOException {
+    public int commit() {
 
-        MultiFileHashMapUtils.write(dataFile, dataBase);
+        try {
+            MultiFileHashMapUtils.write(dataFile, dataBase);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
         return 0;
     }
 
     @Override
     public int rollback() {
+
         return 0;
     }
 }

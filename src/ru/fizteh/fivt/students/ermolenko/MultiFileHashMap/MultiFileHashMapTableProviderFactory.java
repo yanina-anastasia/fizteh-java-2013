@@ -9,7 +9,13 @@ import java.io.IOException;
 public class MultiFileHashMapTableProviderFactory implements TableProviderFactory {
 
     @Override
-    public TableProvider create(String dir) throws IOException {
-        return new MultiFileHashMapTableProvider(new File(dir));
+    public TableProvider create(String dir) {
+
+        try {
+            return new MultiFileHashMapTableProvider(new File(dir));
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+        return null;
     }
 }
