@@ -38,7 +38,7 @@ public class OpenFile {
             System.exit(1);
         }
         HashMap<String, String> loadingTable = new HashMap<String, String>();
-        for (File table : new File(path).listFiles()) {
+        for (File table: new File(path).listFiles()) {
             curTable = table.getName();
             File[] files = new File(path, curTable).listFiles();
             for (File step : files) {
@@ -47,7 +47,7 @@ public class OpenFile {
                     System.exit(1);
                 }
             }
-            if (files == null) {
+            if (files.length == 0) {
                 myState.myDatabase.database.put(curTable, loadingTable);
                 continue;
             }
