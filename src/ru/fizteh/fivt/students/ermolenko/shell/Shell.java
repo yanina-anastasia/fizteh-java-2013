@@ -54,7 +54,7 @@ public class Shell {
     }
 
     public void interactiveState(Executor exec) throws IOException {
-
+        System.out.println("SHELL");
         Scanner scanner = new Scanner(System.in);
 
         String[] cmd;

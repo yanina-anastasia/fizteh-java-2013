@@ -27,6 +27,7 @@ public class MultiFileHashMapMain {
             if (args.length > 0) {
                 mfhm.batchState(args, exec);
             } else {
+                System.out.println("INTERACTIVE");
                 mfhm.interactiveState(exec);
             }
         } catch (Exception e) {
