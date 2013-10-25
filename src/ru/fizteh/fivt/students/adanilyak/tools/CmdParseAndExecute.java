@@ -3,9 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.tools;
 import ru.fizteh.fivt.students.adanilyak.commands.Cmd;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * User: Alexander
@@ -13,10 +11,10 @@ import java.util.Vector;
  * Time: 22:38
  */
 public class CmdParseAndExecute {
-    public static Vector<String> intoCommandsAndArgs(String cmd, String delimetr) {
+    public static List<String> intoCommandsAndArgs(String cmd, String delimetr) {
         cmd.trim();
         String[] tokens = cmd.split(delimetr);
-        Vector<String> result = new Vector<String>();
+        List<String> result = new ArrayList<String>();
         for (int i = 0; i < tokens.length; i++) {
             if (!tokens[i].equals("") && !tokens[i].matches("\\s+")) {
                 result.add(tokens[i]);
@@ -26,7 +24,7 @@ public class CmdParseAndExecute {
     }
 
     public static void execute(String cmdWithArgs, Map<String, Cmd> cmdList) throws IOException {
-        Vector<String> cmdAndArgs = intoCommandsAndArgs(cmdWithArgs, " ");
+        List<String> cmdAndArgs = intoCommandsAndArgs(cmdWithArgs, " ");
         try {
             String commandName = cmdAndArgs.get(0);
             if (!cmdList.containsKey(commandName)) {

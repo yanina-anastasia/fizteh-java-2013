@@ -4,9 +4,9 @@ import ru.fizteh.fivt.students.adanilyak.commands.Cmd;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Vector;
 
 /**
  * User: Alexander
@@ -20,7 +20,7 @@ public class ShellLogic {
             packOfCommands.append(cmdOrArg).append(" ");
         }
         String inputLine = packOfCommands.toString();
-        Vector<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+        List<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
         try {
             for (String command : commandWithArgs) {
                 CmdParseAndExecute.execute(command, cmdList);
@@ -42,7 +42,7 @@ public class ShellLogic {
 
             out.print("$ ");
             String inputLine = inputStream.nextLine();
-            Vector<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+            List<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
             try {
                 for (String command : commandWithArgs) {
                     CmdParseAndExecute.execute(command, cmdList);

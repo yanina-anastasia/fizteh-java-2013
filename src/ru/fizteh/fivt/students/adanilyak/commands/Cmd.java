@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * User: Alexander
@@ -12,5 +12,5 @@ public interface Cmd {
 
     int getAmArgs();
 
-    void work(Vector<String> args) throws Exception;
+    void work(List<String> args) throws Exception;
 }

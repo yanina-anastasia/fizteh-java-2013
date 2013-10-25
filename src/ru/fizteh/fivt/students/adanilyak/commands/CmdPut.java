@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.commands;
 import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * User: Alexander
@@ -30,7 +30,7 @@ public class CmdPut implements Cmd {
     }
 
     @Override
-    public void work(Vector<String> args) throws IOException {
+    public void work(List<String> args) throws IOException {
         if (workState.currentTable != null) {
             String key = args.get(1);
             String value = args.get(2);
