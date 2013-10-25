@@ -1,6 +1,5 @@
-package ru.fizteh.fivt.students.musin.multiFileHashMap;
+package ru.fizteh.fivt.students.musin.filemap;
 
-import ru.fizteh.fivt.students.musin.filemap.FileMap;
 import ru.fizteh.fivt.students.musin.shell.Shell;
 
 import java.io.File;

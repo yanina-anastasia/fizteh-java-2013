@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.musin.multiFileHashMap;
+package ru.fizteh.fivt.students.musin.filemap;
 
 import ru.fizteh.fivt.students.musin.shell.FileSystemRoutine;
 import ru.fizteh.fivt.students.musin.shell.Shell;
