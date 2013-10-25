@@ -95,23 +95,24 @@ public class FileHashMap {
         writeDB();
     }
 
+    private int mod (int a, int m) {
+        while (a < 0) {
+            a += m;
+        }
+        return a % m;
+    }
+
     private int getDirNum(String key) {
         byte b = key.getBytes()[0];
-        if(b < 0) {
-            b += 128;
-        }
-        int nDir = b % 16;
-        int nFile = b / 16 % 16;
+        int nDir = mod(b, 16);
+        int nFile = mod(b / 16, 16);
         return nDir;
     }
 
     private int getFileNum(String key) {
         byte b = key.getBytes()[0];
-        if(b < 0) {
-            b += 128;
-        }
-        int nDir = b % 16;
-        int nFile = b / 16 % 16;
+        int nDir = mod(b, 16);
+        int nFile = mod(b / 16, 16);
         return nFile;
     }
 
