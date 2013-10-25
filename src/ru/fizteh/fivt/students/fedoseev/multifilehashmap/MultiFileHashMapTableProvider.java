@@ -38,7 +38,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String tableName) throws IOException {
+    public void removeTable(String tableName) {
         if (tableName == null) {
             throw new IllegalArgumentException("REMOVETABLE ERROR: incorrect table name");
         }
