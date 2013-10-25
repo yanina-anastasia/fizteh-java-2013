@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class FileMap {
         for (int i = 0; i < vector.size(); i++) {
             res[i] = vector.elementAt(i).byteValue();
         }
-        String result = new String(res, "UTF-8");
+        String result = new String(res, StandardCharsets.UTF_8);
         return result;
     }
 
@@ -70,7 +71,7 @@ public class FileMap {
             tmp = new byte[(int) (dataBase.length() - offsetOfValueSecond)];
             dataBase.read(tmp);
         }
-        String result = new String(tmp, "UTF-8");
+        String result = new String(tmp, StandardCharsets.UTF_8);
         return result;
     }
 
@@ -113,7 +114,8 @@ public class FileMap {
                 }
 
             } else {
-                System.err.println("Offset is negative");
+                Commands cmd = new Commands();
+                cmd.printError("Offset is negative");
                 closeFile();
                 System.exit(1);
             }
@@ -125,18 +127,18 @@ public class FileMap {
         int lengthOfkeys = 0;
         Set<Map.Entry<String, String>> set = fileMap.entrySet();
         for (Map.Entry<String, String> entry : set) {
-            lengthOfkeys += (entry.getKey().getBytes("UTF-8").length + 1 + 4);
+            lengthOfkeys += (entry.getKey().getBytes(StandardCharsets.UTF_8).length + 1 + 4);
         }
         dataBase.setLength(0);
         dataBase.seek(0);
         for (Map.Entry<String, String> myEntry : set) {
-            dataBase.write(myEntry.getKey().getBytes("UTF-8"));
+            dataBase.write(myEntry.getKey().getBytes(StandardCharsets.UTF_8));
             dataBase.writeByte(0);
             dataBase.writeInt(lengthOfkeys);
-            lengthOfkeys += myEntry.getValue().getBytes("UTF-8").length;
+            lengthOfkeys += myEntry.getValue().getBytes(StandardCharsets.UTF_8).length;
         }
         for (Map.Entry<String, String> myEntry : set) {
-            dataBase.write(myEntry.getValue().getBytes("UTF-8"));
+            dataBase.write(myEntry.getValue().getBytes(StandardCharsets.UTF_8));
         }
         closeFile();
     }

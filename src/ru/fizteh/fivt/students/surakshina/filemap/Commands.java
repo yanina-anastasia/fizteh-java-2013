@@ -3,8 +3,8 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 
 import ru.fizteh.fivt.students.surakshina.shell.Shell;
 import ru.fizteh.fivt.students.surakshina.shell.ShellCommands;
@@ -64,13 +64,10 @@ public class Commands extends Shell {
             if (input[0].equals("put") || input[0].equals("get") || input[0].equals("remove")) {
                 if (!FileMap.hasOpenedTable) {
                     System.out.println("no table");
+                    return;
                 } else {
                     byte c = 0;
-                    try {
-                        c = (byte) Math.abs(input[1].getBytes("UTF-8")[0]);
-                    } catch (UnsupportedEncodingException e) {
-                        System.err.println("Can't get bytes");
-                    }
+                    c = (byte) Math.abs(input[1].getBytes(StandardCharsets.UTF_8)[0]);
                     int ndirectory = c % 16;
                     int nfile = c / 16 % 16;
                     FileMap.table[ndirectory][nfile].exec(input);
@@ -93,13 +90,9 @@ public class Commands extends Shell {
                             currentFile.delete();
                         }
                     } catch (FileNotFoundException e) {
-                        System.err.println("Can't read database");
-                        FileMap.closeFile();
-                        System.exit(1);
+                        printError("Can't read database");
                     } catch (IOException e1) {
-                        System.err.println("Can't write in database");
-                        FileMap.closeFile();
-                        System.exit(1);
+                        printError("Can't write in database");
                     }
                 }
                 File directory = new File(FileMap.workingDirectory + File.separator + FileMap.currentTable
@@ -131,11 +124,7 @@ public class Commands extends Shell {
         if (map.size() != 0) {
             for (String key : map.keySet()) {
                 byte c = 0;
-                try {
-                    c = (byte) Math.abs(key.getBytes("UTF-8")[0]);
-                } catch (UnsupportedEncodingException e) {
-                    System.err.println("Can't get Bytes");
-                }
+                c = (byte) Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
                 int ndirectory = c % 16;
                 int nfile = c / 16 % 16;
                 if (ndirectory != directoryNumber || nfile != fileNumber) {
@@ -175,13 +164,9 @@ public class Commands extends Shell {
                         currentfileMap = FileMap.table[i][j];
                         currentFile = file;
                     } catch (FileNotFoundException e) {
-                        System.err.println("Can't read database");
-                        FileMap.closeFile();
-                        System.exit(1);
+                        printError("Can't read database");
                     } catch (IOException e1) {
-                        System.err.println("Can't read from database");
-                        FileMap.closeFile();
-                        System.exit(1);
+                        printError("Can't read from database");
                     }
                     if (FileMap.table[i][j].fileMap.size() != 0) {
                         check(FileMap.table[i][j].fileMap, i, j);
@@ -228,8 +213,7 @@ public class Commands extends Shell {
             System.out.println(name + " exists");
         } else {
             if (!table.mkdir()) {
-                System.err.println("Cannot create new directory");
-                System.exit(1);
+                printError("Cannot create new directory");
             }
             System.out.println("created");
         }
@@ -260,11 +244,7 @@ public class Commands extends Shell {
 
     protected void getFile(String key) {
         byte c = 0;
-        try {
-            c = (byte) Math.abs(key.getBytes("UTF-8")[0]);
-        } catch (UnsupportedEncodingException e) {
-            System.err.println("Can't get Bytes");
-        }
+        c = (byte) Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         int ndirectory = c % 16;
         int nfile = c / 16 % 16;
         currentFile = new File(FileMap.workingDirectory + File.separator + FileMap.currentTable + File.separator
