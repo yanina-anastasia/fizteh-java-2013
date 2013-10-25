@@ -138,7 +138,7 @@ public class FileMap extends UserShell {
     protected void loadFile(File data, int dirNum, int fileNum) {
         RandomAccessFile dataFile = null;
         try {
-            dataFile = new RandomAccessFile(data, "rw");
+            dataFile = new RandomAccessFile(data, "r");
             dataFile.seek(0);
             while (dataFile.getFilePointer() != dataFile.length()) {
                 loadKeyAndValue(dataFile, dirNum, fileNum);
