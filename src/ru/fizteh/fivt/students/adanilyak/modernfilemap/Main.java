@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.modernfilemap;
 
-import ru.fizteh.fivt.students.adanilyak.userinterface.UIShell;
+import ru.fizteh.fivt.students.adanilyak.userinterface.uiShell;
 
 /**
  * User: Alexander
@@ -9,6 +9,6 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.UIShell;
  */
 public class Main {
     public static void main(String[] args) {
-        UIShell myShell = new FileMapShell(args, "db.dat");
+        uiShell myShell = new FileMapShell(args, "db.dat");
     }
 }

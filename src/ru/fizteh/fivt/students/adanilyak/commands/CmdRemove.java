@@ -30,7 +30,7 @@ public class CmdRemove implements Cmd {
 
     @Override
     public void work(Vector<String> args) throws Exception {
-        if (workState != null) {
+        if (workState.currentTable != null) {
             String key = args.get(1);
             String result = workState.remove(key);
             if (result == null) {

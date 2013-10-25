@@ -10,10 +10,10 @@ import java.util.Map;
  * Date: 20.10.13
  * Time: 22:27
  */
-public class UICmdList {
+public class uiCmdList {
     private static Map<String, Cmd> cmdlist = new HashMap<String, Cmd>();
 
-    public UICmdList() {
+    public uiCmdList() {
         /*
             add static commands here
             (commands that you need in every shell)

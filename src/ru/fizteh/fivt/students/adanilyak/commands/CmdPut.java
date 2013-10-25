@@ -30,7 +30,7 @@ public class CmdPut implements Cmd {
 
     @Override
     public void work(Vector<String> args) throws Exception {
-        if (workState != null) {
+        if (workState.currentTable != null) {
             String key = args.get(1);
             String value = args.get(2);
             String result = workState.put(key, value);

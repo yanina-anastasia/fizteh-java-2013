@@ -9,12 +9,12 @@ import java.util.Vector;
  * Date: 21.10.13
  * Time: 0:27
  */
-public class CmdFMExit implements Cmd {
+public class CmdFmExit implements Cmd {
     private final String name = "exit";
     private final int amArgs = 0;
     private FileMapState dataFileMap;
 
-    public CmdFMExit(FileMapState stateTable) {
+    public CmdFmExit(FileMapState stateTable) {
         dataFileMap = stateTable;
     }
 

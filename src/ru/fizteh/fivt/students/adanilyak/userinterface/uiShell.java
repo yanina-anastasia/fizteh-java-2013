@@ -7,12 +7,12 @@ import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
  * Date: 20.10.13
  * Time: 22:26
  */
-public class UIShell {
-    public UIShell() {
+public class uiShell {
+    public uiShell() {
 
     }
 
-    public UIShell(String[] args, UICmdList cmdList) {
+    public uiShell(String[] args, uiCmdList cmdList) {
         if (args.length == 0) {
             ShellLogic.interactiveMode(System.in, cmdList.getCmdList(), System.out, System.err);
         } else {
