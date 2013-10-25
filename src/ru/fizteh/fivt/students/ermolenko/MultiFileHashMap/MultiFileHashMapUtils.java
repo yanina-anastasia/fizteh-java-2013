@@ -52,9 +52,9 @@ public class MultiFileHashMapUtils {
 
         Map<String, String>[][] arrayOfMap = new Map[16][16];
         for (String key : currentMap.keySet()) {
-            int byteOfKey = key.getBytes(StandardCharsets.UTF_8)[0] + 128;
-            int nDirectory = byteOfKey % 16;
-            int nFile = byteOfKey / 16 % 16;
+            int byteOfKey = key.getBytes(StandardCharsets.UTF_8)[0];
+            int nDirectory = Math.abs(byteOfKey) % 16;
+            int nFile = Math.abs(byteOfKey) / 16 % 16;
             if (arrayOfMap[nDirectory][nFile] == null) {
                 arrayOfMap[nDirectory][nFile] = new HashMap<String, String>();
             }
