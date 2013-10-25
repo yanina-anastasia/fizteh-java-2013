@@ -33,7 +33,7 @@ public class DbMain {
             System.exit(1);
         }
         try {
-            cleaner();
+           // cleaner();
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
