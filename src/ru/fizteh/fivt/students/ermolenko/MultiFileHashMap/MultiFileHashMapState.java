@@ -27,7 +27,7 @@ public class MultiFileHashMapState {
     public Table createTable(String name) throws IOException {
 
         Table tmp = provider.createTable(name);
-        currentTable = (MultiFileHashMapTable) tmp;
+        //currentTable = (MultiFileHashMapTable) tmp;
         return tmp;
     }
 
