@@ -13,7 +13,7 @@ public class Table {
     Path addr;
     HashMap<String, String> map;
 
-    Table(Path address) throws IOException {
+    public Table(Path address) throws IOException {
         addr = address;
         map = new HashMap<String, String>();
         if (Files.exists(addr)) {
