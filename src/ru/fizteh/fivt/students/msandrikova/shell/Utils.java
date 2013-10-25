@@ -152,18 +152,12 @@ public class Utils {
 	
 	public static int getNDirectory(String key) {
 		int result = key.hashCode() % 16;
-		if(result < 0) {
-			result = 16 + result;
-		}
-		return result;
+		return Math.abs(result);
 	}
 	
 	public static int getNFile(String key) {
 		int result = key.hashCode() / 16 % 16;
-		if(result < 0) {
-			result = 16 + result;
-		}
-		return result;
+		return Math.abs(result);
 	}
 	
 }
