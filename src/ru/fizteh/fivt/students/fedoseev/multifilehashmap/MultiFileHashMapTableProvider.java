@@ -42,10 +42,10 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("REMOVETABLE ERROR: incorrect table name");
         }
-        if (!tables.containsKey(curDir.toString() + "\\" + tableName)) {
+        if (!tables.containsKey(curDir.toPath().resolve(tableName).toString())) {
             throw new IllegalStateException("REMOVETABLE ERROR: not existing table");
         }
 
-        tables.remove(curDir.toString() + "\\" + tableName);
+        tables.remove(curDir.toPath().resolve(tableName).toString());
     }
 }
