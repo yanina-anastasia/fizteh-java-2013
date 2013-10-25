@@ -119,6 +119,9 @@ public class ExecuteCmd extends Shell {
                     System.out.println(arg[1] + " not exists");
                 } else {
                     if (rm(arg[1]) == ExitCode.OK) {
+                        if (mp.currTable != null && mp.currTable.equals(tablePath)) {
+                            mp.currTable = null;
+                        }
                         System.out.println("dropped");
                     } else {
                         System.err.println(arg[1] + " can't drop a table");
