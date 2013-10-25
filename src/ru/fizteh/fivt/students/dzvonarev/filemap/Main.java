@@ -35,7 +35,7 @@ class Main {
         Vector<String> commandName = getCommandNames();
         Shell shell = new Shell(commandName, fileMapCommands);
         try {
-            DoCommand.readFileMap("db.dat");
+            DoCommand.readFileMap(DoCommand.getRealPath());
         } catch (IOException e) {
             System.out.println(e.getMessage());
             System.exit(1);

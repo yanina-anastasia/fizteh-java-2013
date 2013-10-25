@@ -12,10 +12,28 @@ import java.util.Set;
 
 public class DoCommand {
 
+    public DoCommand(String fileName) {
+        try {
+            readFileMap(fileName);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
     private static HashMap<String, String> fileMap;
 
     public static HashMap<String, String> getFileMap() {
         return fileMap;
+    }
+
+    public static void printIt() {
+        Set mapSet = fileMap.entrySet();
+        Iterator<Map.Entry<String, String>> i = mapSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> currItem = i.next();
+            System.out.println(currItem.getKey() + " " + currItem.getValue());
+        }
     }
 
     public static void closeFile(RandomAccessFile file) throws IOException {
@@ -59,7 +77,7 @@ public class DoCommand {
             int valueLen = fileReader.readInt();
             if (keyLen <= 0 || valueLen <= 0) {
                 closeFile(fileReader);
-                System.out.println("db.dat: file is broken");
+                System.out.println(fileName + " : file is broken");
                 System.exit(1);
             }
             byte[] keyByte = null;
@@ -69,7 +87,7 @@ public class DoCommand {
                 valueByte = new byte[valueLen];
             } catch (OutOfMemoryError e) {
                 closeFile(fileReader);
-                System.out.println("db.dat: file is broken");
+                System.out.println(fileName + " : file is broken");
                 System.exit(1);
             }
             fileReader.readFully(keyByte, 0, keyLen);
@@ -85,23 +103,8 @@ public class DoCommand {
 
     public static RandomAccessFile openFileForRead(String fileName) throws IOException {
         RandomAccessFile newFile;
-        String dirName = System.getProperty("fizteh.db.dir");
-        File destFile = new File(dirName + File.separator + fileName);
-        String realPath;
-        if (!destFile.exists()) {
-            if (new File(System.getProperty("fizteh.db.dir")).getName().equals("db.dat")) {
-                realPath = System.getProperty("fizteh.db.dir");
-            } else {
-                if (!destFile.createNewFile()) {
-                    throw new IOException("can't create db.dat file");
-                }
-                realPath = dirName + File.separator + fileName;
-            }
-        } else {
-            realPath = dirName + File.separator + fileName;
-        }
         try {
-            newFile = new RandomAccessFile(realPath, "rw");
+            newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
             throw new IOException("reading from file: file not found");
         }
@@ -110,9 +113,19 @@ public class DoCommand {
 
     public static RandomAccessFile openFileForWrite(String fileName) throws IOException {
         RandomAccessFile newFile;
-        String dirName = System.getProperty("fizteh.db.dir");
-        File destFile = new File(dirName + File.separator + fileName);
+        try {
+            newFile = new RandomAccessFile(fileName, "rw");
+            newFile.getChannel().truncate(0);
+        } catch (FileNotFoundException e) {
+            throw new IOException("writing to file: file not found");
+        }
+        return newFile;
+    }
+
+    public static String getRealPath() throws IOException {
         String realPath;
+        String dirName = System.getProperty("fizteh.db.dir");
+        File destFile = new File(dirName + File.separator + "db.dat");
         if (!destFile.exists()) {
             if (new File(System.getProperty("fizteh.db.dir")).getName().equals("db.dat")) {
                 realPath = System.getProperty("fizteh.db.dir");
@@ -120,18 +133,12 @@ public class DoCommand {
                 if (!destFile.createNewFile()) {
                     throw new IOException("can't create db.dat file");
                 }
-                realPath = dirName + File.separator + fileName;
+                realPath = dirName + File.separator + "db.dat";
             }
         } else {
-            realPath = dirName + File.separator + fileName;
+            realPath = dirName + File.separator + "db.dat";
         }
-        try {
-            newFile = new RandomAccessFile(realPath, "rw");
-            newFile.getChannel().truncate(0);
-        } catch (FileNotFoundException e) {
-            throw new IOException("writing to file: file not found");
-        }
-        return newFile;
+        return realPath;
     }
 
 }
