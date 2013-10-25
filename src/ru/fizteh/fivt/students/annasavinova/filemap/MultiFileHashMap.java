@@ -13,16 +13,6 @@ public class MultiFileHashMap extends UserShell {
     private static String rootDir = System.getProperty("fizteh.db.dir") + File.separatorChar;
     private FileMap[] dataArray = new FileMap[256];
     private boolean hasLoadingMaps = false;
-    
-    @Override
-    public String[] getArgsFromString(String str) {
-        str = str.trim();
-        if (str != null) {
-            return str.split("[\\s]+", 3);
-        } else {
-            return null;
-        }
-    }
 
     protected File getDirWithNum(int dirNum) {
         File res = new File(rootDir + currTable + File.separatorChar + dirNum + ".dir");
@@ -89,6 +79,12 @@ public class MultiFileHashMap extends UserShell {
                 for (int j = 0; j < 16; ++j) {
                     dataArray[i * 16 + j].unloadFile();
                 }
+                File currentDir = getDirWithNum(i);
+                if (currentDir.list().length == 0) {
+                    if (!currentDir.delete()) {
+                        FileMap.printErrorAndExit("Cannot unload data");
+                    }
+                }
             }
             hasLoadingMaps = false;
         }
@@ -111,9 +107,8 @@ public class MultiFileHashMap extends UserShell {
         if (!tableDir.exists()) {
             System.out.println(tableName + " not exists");
         } else {
-            if (!tableDir.delete()) {
-                FileMap.printErrorAndExit("Cannot delete");
-            }
+            FileMap tmp = new FileMap();
+            tmp.doDelete(tableDir);
             System.out.println("dropped");
         }
     }
@@ -190,8 +185,7 @@ public class MultiFileHashMap extends UserShell {
         MultiFileHashMap tmp = new MultiFileHashMap();
         File root = new File(rootDir);
         if (rootDir == null || !root.exists() || !root.isDirectory()) {
-            System.err.println("Incorrect root directory");
-            System.exit(1);
+            FileMap.printErrorAndExit("Incorrect root directory");
         }
         tmp.exec(args);
         tmp.unloadData();
