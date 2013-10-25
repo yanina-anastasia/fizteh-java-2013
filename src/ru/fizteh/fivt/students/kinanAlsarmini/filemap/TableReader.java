@@ -23,7 +23,7 @@ class TableReader {
 
             bytesLeft -= 8;
 
-            if (keyLength < 0 || valueLength < 0) {
+            if (keyLength < 0 || valueLength < 0 || keyLength > bytesLeft || valueLength > bytesLeft) {
                 throw new IllegalArgumentException("TableReader: bad file format: invalid length for key / value.");
             }
 
@@ -33,6 +33,9 @@ class TableReader {
                 throw new IllegalArgumentException("TableReader: bad file format.");
             }
             String key = new String(bKey, "UTF-8");
+            if (table.exists(key)) {
+                throw new IllegalArgumentException("TableReader: file contains duplicate key.");
+            }
 
             byte[] bValue = new byte[valueLength];
             tRead = inputStream.read(bValue);

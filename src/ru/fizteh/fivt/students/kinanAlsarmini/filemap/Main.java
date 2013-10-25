@@ -4,7 +4,7 @@ import java.io.IOException;
 
 class Main {
     public static void main(String[] args) throws IOException {
-        FileMap filemap = new FileMap(System.getProperty("fizteh.db.dir"));
+        FileMap filemap = new FileMap(System.getProperty("fizteh.db.dir"), "db.dir");
 
         if (args.length == 0) {
             filemap.startInteractive();

@@ -11,20 +11,25 @@ class FileMap {
     private File databaseFile;
     private Shell shell;
 
-    public FileMap(String databaseDir) {
-        databaseFile = new File(databaseDir, "db.dat");
+    public FileMap(String databaseDir, String databaseName) {
+        databaseFile = new File(databaseDir, databaseName);
+
+        if (!databaseFile.isAbsolute()) {
+            System.err.println("Given directory isn't absolute.");
+            System.exit(1);
+        }
 
         if (!databaseFile.exists()) {
             try {
                 databaseFile.createNewFile();
             } catch (IOException e) {
-                System.err.println("db.dat can't be created.");
+                System.err.println(databaseName + " can't be created.");
                 System.exit(1);
             }
         }
 
         if (!databaseFile.isFile()) {
-            System.err.println("db.dat isn't a proper file.");
+            System.err.println(databaseName + " isn't a proper file.");
             System.exit(1);
         }
 
@@ -44,10 +49,10 @@ class FileMap {
             tableReader.readTable(table);
             tableReader.close();
         } catch (IOException e) {
-            System.err.println("db.dat doesn't exist or isn't a proper file.");
+            System.err.println(databaseName + " doesn't exist or isn't a proper file.");
             System.exit(1);
         } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
+            System.err.println(e.getMessage() + " Argument: " + databaseFile);
             System.exit(1);
         }
     }
@@ -58,7 +63,7 @@ class FileMap {
             tableWriter.writeTable(table);
             tableWriter.close();
         } catch (IOException e) {
-            System.err.println("db.dat can't be opened for writing.");
+            System.err.println(databaseFile + " can't be opened for writing.");
             System.exit(1);
         }
     }
