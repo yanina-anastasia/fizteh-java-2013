@@ -29,6 +29,7 @@ public class MultiFileHashMapUtils {
                 }
                 FileMapState state = new FileMapState(currentFile);
                 state.setDataBase(currentMap);
+                System.out.println("READ DATA BASE");
                 FileMapUtils.readDataBase(state);
             }
         }
