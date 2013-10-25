@@ -53,8 +53,10 @@ public class DataBaseReader {
 
 		File root = multiTableDataBase.getRoot();
 		try {
-			File root_grandpa = root.getParentFile().getParentFile();
-			FileUtils.recursiveCopy(root, root_grandpa);
+			File rootParent = root.getParentFile();
+			File logDir = new File(rootParent, "log");
+			logDir.mkdir();
+			FileUtils.recursiveCopy(root, logDir);
 		} catch (FileOperationFailException ex) {
 
 		}
