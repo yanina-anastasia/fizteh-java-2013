@@ -16,7 +16,7 @@ public class CommandRunner {
         } else {
             Scanner scanner = new Scanner(System.in);
             while (true) {
-                System.out.print(" $ ");
+                System.out.print("$ ");
                 if (scanner.hasNextLine()) {
                     String queryLine = scanner.nextLine();
                     executeQueryLine(queryLine, state);

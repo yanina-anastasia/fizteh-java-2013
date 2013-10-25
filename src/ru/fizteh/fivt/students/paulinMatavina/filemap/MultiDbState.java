@@ -34,9 +34,9 @@ public class MultiDbState extends State{
         }
         
         commands = new HashMap<String, Command>();
-        this.add(new MultiDbGet());
-        this.add(new MultiDbPut());
-        this.add(new MultiDbRemove());
+        this.add(new DbGet());
+        this.add(new DbPut());
+        this.add(new DbRemove());
         this.add(new MultiDbDrop());
         this.add(new MultiDbCreate());
         this.add(new MultiDbUse());

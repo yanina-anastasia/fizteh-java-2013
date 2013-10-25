@@ -23,10 +23,6 @@ public class DbState extends State{
         fileNum = file;
         path = dbPath;
         commands = new HashMap<String, Command>();
-        this.add(new DbGet());
-        this.add(new DbPut());
-        this.add(new DbExit());
-        this.add(new DbRemove());
         fileCheck();
         data = new HashMap<String, String>();
         try {
@@ -185,22 +181,37 @@ public class DbState extends State{
     }
     
     public int put(String[] args) {
-        Command put = new DbPut();
-        return put.execute(args, this);
+        String key = args[0];
+        String value = args[1];
+        String result = data.put(key, value);
+        if (result != null) {
+                System.out.println("overwrite");
+                System.out.println(result);
+        } else {
+                System.out.println("new");
+        }
+        return 0;
     }
     
     public int get(String[] args) {
-        Command get = new DbGet();
-        return get.execute(args, this);
+        String key = args[0];
+        if (data.containsKey(key)) {
+            System.out.println("found");
+            System.out.println(data.get(key));
+        } else {
+            System.out.println("not found");
+        }
+        return 0;
     }
     
     public int remove(String[] args) {
-        Command remove = new DbRemove();
-        return remove.execute(args, this);
-    }
-    
-    public int exit(String[] args) {
-        Command exit = new DbExit();
-        return exit.execute(args, this);
+        String key = args[0];
+        if (data.containsKey(key)) {
+            data.remove(key);
+            System.out.println("removed");
+        } else {
+            System.out.println("not found");
+        }
+        return 0;
     }
 }
