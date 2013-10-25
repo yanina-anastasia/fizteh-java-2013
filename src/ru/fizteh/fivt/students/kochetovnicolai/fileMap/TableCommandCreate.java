@@ -1,9 +1,9 @@
-package ru.fizteh.fivt.students.kochetovnicolai.multiFileHashMap;
+package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class DistributedTableCommandDrop implements Executable {
-    DistributedTableManager manager;
+public class TableCommandCreate implements Executable {
+    TableManager manager;
 
     @Override
     public String name() {
@@ -17,20 +17,20 @@ public class DistributedTableCommandDrop implements Executable {
 
     @Override
     public boolean execute(String[] args) {
-        if (!manager.existsTable(args[1])) {
-            manager.printMessage(args[1] + " not exists");
+        if (manager.existsTable(args[1])) {
+            manager.printMessage(args[1] + " exists");
             return false;
         }
         try {
-            manager.removeTable(args[1]);
-            manager.printMessage("dropped");
+            manager.createTable(args[1]);
+            manager.printMessage("created");
             return true;
         } catch (IllegalArgumentException e) {
             return false;
         }
     }
 
-    public DistributedTableCommandDrop(DistributedTableManager tableManager) {
+    public TableCommandCreate(TableManager tableManager) {
         manager = tableManager;
     }
 }

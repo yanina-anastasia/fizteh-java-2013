@@ -18,6 +18,9 @@ public class FileMap {
         commands.put("get", new TableCommandGet(manager));
         commands.put("put", new TableCommandPut(manager));
         commands.put("remove", new TableCommandRemove(manager));
+        commands.put("create", new TableCommandCreate(manager));
+        commands.put("drop", new TableCommandDrop(manager));
+        commands.put("use", new TableCommandUse(manager));
     }
 
     public static void main(String[] args) {
@@ -27,16 +30,16 @@ public class FileMap {
             System.err.println("property fizteh.db.dir not found");
             System.exit(1);
         }
-            tableDirectory = new File(property);
+        tableDirectory = new File(property);
         TableManager manager = null;
         try {
-            manager = new TableManager(tableDirectory, "db.dat");
+            manager = new TableManager(tableDirectory);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-        FileMap fileMap = new FileMap(manager);
-        Launcher launcher = new Launcher(fileMap.commands, new StringParser() {
+        FileMap fileHashMap = new FileMap(manager);
+        Launcher launcher = new Launcher(fileHashMap.commands, new StringParser() {
             @Override
             public String[] parse(String string) {
                 String[] stringList = string.trim().split("[\\s]+");

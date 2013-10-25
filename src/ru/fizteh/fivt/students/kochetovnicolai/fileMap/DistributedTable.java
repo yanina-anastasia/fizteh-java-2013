@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.kochetovnicolai.multiFileHashMap;
-
-import ru.fizteh.fivt.students.kochetovnicolai.fileMap.BasicTable;
+package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import java.io.*;
 import java.util.HashMap;

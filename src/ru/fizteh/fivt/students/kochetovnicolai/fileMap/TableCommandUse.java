@@ -1,9 +1,9 @@
-package ru.fizteh.fivt.students.kochetovnicolai.multiFileHashMap;
+package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class DistributedTableCommandUse implements Executable {
-    DistributedTableManager manager;
+public class TableCommandUse implements Executable {
+    TableManager manager;
 
     @Override
     public String name() {
@@ -33,7 +33,7 @@ public class DistributedTableCommandUse implements Executable {
         }
     }
 
-    public DistributedTableCommandUse(DistributedTableManager tableManager) {
+    public TableCommandUse(TableManager tableManager) {
         manager = tableManager;
     }
 }
