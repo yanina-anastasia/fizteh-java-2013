@@ -53,9 +53,7 @@ public class FileMap implements Closeable {
         } catch (EOFException e) {
             //Если конец файла, не падаем, а продолжаем выполнение программы
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException("Read error: " + e.getMessage());
-
         }
     }
 
