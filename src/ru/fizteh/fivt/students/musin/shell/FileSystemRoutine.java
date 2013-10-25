@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-class FileSystemRoutine {
+public class FileSystemRoutine {
     private static Shell.ShellCommand[] commands = new Shell.ShellCommand[]{
             new Shell.ShellCommand("hello", new Shell.ShellExecutable() {
                 @Override
@@ -216,15 +216,18 @@ class FileSystemRoutine {
         }
     }
 
-    public static void deleteDirectoryOrFile(File file) {
+    public static boolean deleteDirectoryOrFile(File file) {
+        boolean result = true;
         if (file.isDirectory()) {
             for (File f : file.listFiles()) {
-                deleteDirectoryOrFile(f);
+                result = result && deleteDirectoryOrFile(f);
             }
         }
         if (!file.delete()) {
-            System.err.printf("rm: file '%s' can't be deleted\n");
+            System.err.printf("file '%s' can't be deleted\n", file.getName());
+            return false;
         }
+        return result;
     }
 
     public static void getFileList(FileList fl) {
