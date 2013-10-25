@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
 import ru.fizteh.fivt.students.vlmazlov.shell.QuietCloser;
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import ru.fizteh.fivt.students.vlmazlov.shell.FileOperationFailException;
 import java.io.File;
 import java.util.Iterator;

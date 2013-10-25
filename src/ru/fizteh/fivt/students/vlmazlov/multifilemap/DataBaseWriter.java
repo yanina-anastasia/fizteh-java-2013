@@ -65,12 +65,12 @@ public class DataBaseWriter {
 			if (!directory.exists()) {
 
 				if (!directory.mkdir()) {
-					throw new IOException();
+					throw new IOException("Unable to create directory "  + directory.getName());
 				}
 			}
 			
 			for (int j = 0;j < FILES_QUANTITY;++j) {
-				writeFileMap(directory, new File(j + ".dat"), tableParts[i][j]);
+				writeFileMap(directory, new File(directory, 		j + ".dat"), tableParts[i][j]);
 			}
 		}
 

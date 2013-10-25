@@ -20,6 +20,7 @@ public class DropCommand extends AbstractMultiTableDataBaseCommand {
 
 		if (directory == null) {
 			displayMessage(tablename + " not exists" + SEPARATOR, out);
+			return;
 		}
 
 		FileUtils.recursiveDelete(directory);
