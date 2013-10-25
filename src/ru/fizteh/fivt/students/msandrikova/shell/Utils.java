@@ -151,11 +151,19 @@ public class Utils {
 	}
 	
 	public static int getNDirectory(String key) {
-		return 	key.hashCode() % 16;
+		int result = key.hashCode() % 16;
+		if(result < 0) {
+			result = 16 + result;
+		}
+		return result;
 	}
 	
 	public static int getNFile(String key) {
-		return 	key.hashCode() / 16 % 16;
+		int result = key.hashCode() / 16 % 16;
+		if(result < 0) {
+			result = 16 + result;
+		}
+		return result;
 	}
 	
 }
