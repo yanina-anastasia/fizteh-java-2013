@@ -67,6 +67,14 @@ public class FileMap {
         } else {
             System.out.println("not found");
         }
+        try {
+            if (file.length() == 0) {
+                deleteEmptyFile();
+            }
+        } catch (Exception e) {
+            System.err.println("Unknown error");
+            System.exit(1);
+        }
     }
 
     public void remove(String[] arg) throws  IOException {
