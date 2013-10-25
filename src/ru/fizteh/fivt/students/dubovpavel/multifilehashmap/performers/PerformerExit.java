@@ -1,22 +1,22 @@
-package ru.fizteh.fivt.students.dubovpavel.filemap.performers;
+package ru.fizteh.fivt.students.dubovpavel.multifilehashmap.performers;
 
 import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageAccessible;
 
-public class PerformerExit<D extends Dispatcher & DataBaseAccessible<String, String>> extends Performer<D> {
+public class PerformerExit<D extends Dispatcher & StorageAccessible> extends Performer<D> {
     public boolean pertains(Command command) {
-        return command.getHeader().equals("exit");
+        return command.getHeader().equals("exit") && command.argumentsCount() == 0;
     }
 
     public void execute(D dispatcher, Command command) throws PerformerException {
         try {
-            dispatcher.getDataBase().save();
+            dispatcher.getStorage().save();
             dispatcher.shutDown();
-        } catch (DataBaseHandler.DataBaseException e) {
+        } catch (Storage.StorageException e) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("Can not exit, use 'halt' if you really want to: %s", e.getMessage())));
         }

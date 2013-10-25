@@ -22,6 +22,16 @@ public class Dispatcher {
         ERROR
     }
 
+    protected String getInitProperty(String key) throws DispatcherException {
+        String value = System.getProperty(key);
+        if(key == null) {
+            shutdown = true;
+            throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
+        } else {
+            return value;
+        }
+    }
+
     public Dispatcher(boolean forwarding) {
         invalidSequences = 0;
         parser = new Parser();

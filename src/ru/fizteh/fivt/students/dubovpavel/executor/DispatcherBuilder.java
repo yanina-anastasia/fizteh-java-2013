@@ -1,13 +1,17 @@
 package ru.fizteh.fivt.students.dubovpavel.executor;
 
-import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
-
 import java.util.ArrayList;
 
 public abstract class DispatcherBuilder {
     protected boolean forwarding;
     protected ArrayList<Performer> performers;
+
+    protected Dispatcher setPerformers(Dispatcher dispatcher) {
+        for(Performer performer : performers) {
+            dispatcher.addPerformer(performer);
+        }
+        return dispatcher;
+    }
 
     public DispatcherBuilder() {
         clear();
