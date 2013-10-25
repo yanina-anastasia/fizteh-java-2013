@@ -30,31 +30,45 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String name) throws IOException {
+    public Table getTable(String name) {
 
         if (!mapOfTables.containsKey(name)) {
             return null;
         }
-        return new MultiFileHashMapTable(new File(currentDir, name));
+        try {
+            return new MultiFileHashMapTable(new File(currentDir, name));
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+        return null;
     }
 
     @Override
-    public Table createTable(String name) throws IOException {
+    public Table createTable(String name) {
 
         File dirOfTable = new File(currentDir, name);
         if (!dirOfTable.mkdir()) {
             return null;
         }
-        Table table = new MultiFileHashMapTable(dirOfTable);
+        Table table = null;
+        try {
+            table = new MultiFileHashMapTable(dirOfTable);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
         mapOfTables.put(name, table);
         return table;
     }
 
     @Override
-    public void removeTable(String name) throws IOException {
+    public void removeTable(String name) {
 
         File dirOfTable = new File(currentDir, name);
-        remove(dirOfTable.getCanonicalFile().toPath());
+        try {
+            remove(dirOfTable.getCanonicalFile().toPath());
+        } catch (IOException e) {
+            System.err.println(e);
+        }
         mapOfTables.remove(name);
     }
 }
