@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		MultiTableDataBase multiTableDataBase = null;
 
@@ -24,12 +24,10 @@ public class Main {
 			System.exit(2);
 		}
 
-		MultiTableDataBaseReader reader = new MultiTableDataBaseReader(multiTableDataBase);
-
 		try {
-			reader.read();
+			DataBaseReader.readMultiTableDataBase(multiTableDataBase);
 		} catch (IOException ex) {
-			System.err.println(ex.getMessage());
+			System.err.println("Unable to retrieve database: " + ex.getMessage());
 			System.exit(3);
 		} catch (ValidityCheckFailedException ex) {
 			System.err.println("Validity check failed: " + ex.getMessage());
@@ -56,10 +54,8 @@ public class Main {
 		} catch (UserInterruptionException ex) {
 		}
 
-		MultiTableDataBaseWriter writer = new MultiTableDataBaseWriter(multiTableDataBase);
-
 		try {
-			writer.write();
+			DataBaseWriter.writeMultiTableDataBase(multiTableDataBase);
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(7);

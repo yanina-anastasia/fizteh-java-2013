@@ -44,8 +44,13 @@ public class MultiTableDataBase {
 		return true;
 	}
 
-	public void create(String tablename) {
+	public boolean create(String tablename) {
+		if (tables.get(tablename) != null) {
+			return false;
+		}
+
 		tables.put(tablename, new FileMap());
+		return true;
 	}
 
 	public File drop(String tablename) {

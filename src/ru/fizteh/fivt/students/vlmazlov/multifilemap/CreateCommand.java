@@ -14,7 +14,10 @@ public class CreateCommand extends AbstractMultiTableDataBaseCommand {
 	public void execute(String[] args, MultiTableDataBase state, OutputStream out) throws CommandFailException {
 		String tablename = args[0];
 
-		state.create(tablename);
+		if (!state.create(tablename)) {
+			displayMessage(tablename + " exists" + SEPARATOR, out);
+			return;
+		}
 
 		if (!(new File(state.getRoot(), tablename).mkdir())) {
 			throw new CommandFailException("create: Unable to create directory");
