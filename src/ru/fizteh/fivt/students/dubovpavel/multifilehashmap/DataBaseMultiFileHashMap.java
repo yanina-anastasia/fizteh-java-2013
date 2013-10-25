@@ -32,7 +32,7 @@ public class DataBaseMultiFileHashMap extends DataBase {
     }
 
     private Distribution<Integer, Integer> getDistribution(String key) {
-        int hashcode = key.hashCode();
+        int hashcode = Math.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         return new Distribution<Integer, Integer>(ndirectory, nfile);
