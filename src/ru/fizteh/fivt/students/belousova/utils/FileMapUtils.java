@@ -1,17 +1,15 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
-import ru.fizteh.fivt.students.belousova.filemap.Requirements;
-import ru.fizteh.fivt.students.belousova.utils.FileUtils;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class FileMapUtils {
-    public static void read(File file, Map<String, String> map, Requirements req) throws IOException {
+    public static void read(File file, Map<String, String> map, Predicate<String> predicate) throws IOException {
         if (file.length() == 0) return;
         try {
             InputStream is = new FileInputStream(file);
@@ -22,23 +20,23 @@ public class FileMapUtils {
 
             try {
                 int position = 0;
-                String key1 = readKey(dis, req);
+                String key1 = readKey(dis, predicate);
                 position += key1.getBytes(StandardCharsets.UTF_8).length;
                 int offset1 = dis.readInt();
                 int firstOffset = offset1;
                 position += 5;
 
                 while (position != firstOffset) {
-                    String key2 = readKey(dis, req);
+                    String key2 = readKey(dis, predicate);
                     position += key2.getBytes(StandardCharsets.UTF_8).length;
                     int offset2 = dis.readInt();
                     position += 5;
-                    String value = readValue(dis, offset1, offset2, position, fileLength, req);
+                    String value = readValue(dis, offset1, offset2, position, fileLength);
                     map.put(key1, value);
                     offset1 = offset2;
                     key1 = key2;
                 }
-                String value = readValue(dis, offset1, fileLength, position, fileLength, req);
+                String value = readValue(dis, offset1, fileLength, position, fileLength);
                 map.put(key1, value);
             } finally {
                 FileUtils.closeStream(dis);
@@ -49,7 +47,7 @@ public class FileMapUtils {
         }
     }
 
-    private static String readKey(DataInputStream dis, Requirements req) throws IOException {
+    private static String readKey(DataInputStream dis, Predicate<String> predicate) throws IOException {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte b = dis.readByte();
@@ -67,7 +65,7 @@ public class FileMapUtils {
         }
 
         String key = bos.toString(StandardCharsets.UTF_8.toString());
-        if (!req.isKeyValid(key)) {
+        if (!predicate.apply(key)) {
             throw new IOException("wrong data format");
         }
 
@@ -75,17 +73,13 @@ public class FileMapUtils {
     }
 
     private static String readValue(DataInputStream dis, int offset1,
-            int offset2, int position, int length, Requirements req) throws IOException {
+            int offset2, int position, int length) throws IOException {
         dis.mark(length);
         dis.skip(offset1 - position);
         byte[] buffer = new byte[offset2 - offset1];
         dis.read(buffer);
         String value = new String(buffer, StandardCharsets.UTF_8);
         dis.reset();
-
-        if (!req.isValueValid(value)) {
-            throw new IOException("wrong data format");
-        }
         return value;
     }
 

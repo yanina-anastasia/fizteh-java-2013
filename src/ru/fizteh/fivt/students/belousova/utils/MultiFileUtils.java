@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
-import ru.fizteh.fivt.students.belousova.filemap.Requirements;
-import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileRequirements;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.IsKeyValid;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +35,8 @@ public class MultiFileUtils {
                 if (!dataFile.exists()) {
                     continue;
                 }
-                Requirements req = new MultiFileRequirements(nfile, ndirectory);
-                FileMapUtils.read(dataFile, map, req);
+                Predicate<String> predicate = new IsKeyValid(nfile, ndirectory);
+                FileMapUtils.read(dataFile, map, predicate);
             }
         }
     }
@@ -44,7 +44,7 @@ public class MultiFileUtils {
     public static void write(File directory, Map<String, String> map) throws IOException {
         Map<String, String>[][] mapArray = new Map[16][16];
         for (String key : map.keySet()) {
-            int keyByte = key.getBytes(StandardCharsets.UTF_8)[0] + 128;
+            int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
             int nDirectory = keyByte % 16;
             int nFile = keyByte / 16 % 16;
             if (mapArray[nDirectory][nFile] == null) {

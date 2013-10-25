@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 import ru.fizteh.fivt.students.belousova.utils.ShellUtils;
 
@@ -12,11 +11,11 @@ public class MultiFileShell {
 
     public void run(String[] args, MultiFileShellState state) {
         makeCommandList(state);
-            if (args.length == 0) {
-                ShellUtils.interactiveMode(System.in, commandList);
-            } else {
-                ShellUtils.batchMode(args, commandList);
-            }
+        if (args.length == 0) {
+            ShellUtils.interactiveMode(System.in, commandList);
+        } else {
+            ShellUtils.batchMode(args, commandList);
+        }
     }
 
     private void makeCommandList(MultiFileShellState state) {

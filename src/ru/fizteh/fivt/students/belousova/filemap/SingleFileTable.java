@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
 import ru.fizteh.fivt.students.belousova.utils.FileMapUtils;
 
 import java.io.File;
@@ -17,7 +18,7 @@ public class SingleFileTable implements Table {
             data.createNewFile();
         } else {
             dataFile = data;
-            Requirements req = new FileMapRequirements();
+            Predicate<String> req = new IsKeyValid();
             FileMapUtils.read(dataFile, dataBase, req);
         }
     }

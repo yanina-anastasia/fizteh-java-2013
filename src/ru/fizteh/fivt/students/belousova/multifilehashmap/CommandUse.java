@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
