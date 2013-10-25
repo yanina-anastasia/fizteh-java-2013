@@ -2,10 +2,10 @@ package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.belousova.filemap.TableState;
 
-public class MultiFileShellState {
+public class MultiFileShellState extends TableState{
     private TableProvider tableProvider = null;
-    private Table currentTable = null;
 
     public MultiFileShellState(TableProvider tableProvider, Table table) {
         this.tableProvider = tableProvider;
@@ -30,28 +30,5 @@ public class MultiFileShellState {
 
     public void resetCurrentTable() {
         currentTable = null;
-    }
-
-    public String getCurrentTable() {
-        if (currentTable == null) {
-            return null;
-        }
-        return currentTable.getName();
-    }
-
-    public String getFromCurrentTable(String key) {
-        return currentTable.get(key);
-    }
-
-    public String putToCurrentTable(String key, String value) {
-        return currentTable.put(key, value);
-    }
-
-    public String removeFromCurrentTable(String key) {
-        return currentTable.remove(key);
-    }
-
-    int commitCurrentTable() {
-        return currentTable.commit();
     }
 }

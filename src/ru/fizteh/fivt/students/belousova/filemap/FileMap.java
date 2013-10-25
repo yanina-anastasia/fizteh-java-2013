@@ -15,16 +15,17 @@ public class FileMap {
     public static void main(String[] args) {
         File data = new File(System.getProperty("fizteh.db.dir"), "db.dat");
         try {
-            Table state = new SingleFileTable(data);
-            FileMapShell shell = new FileMapShell();
-            shell.run(args, state);
+            Table table = new SingleFileTable(data);
+            TableState tableState = new TableState(table);
+            makeCommandList(tableState);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(2);
         }
+
     }
 
-    private static void makeCommandList(Table state) {
+    private static void makeCommandList(TableState state) {
         addCommand(new CommandGet(state));
         addCommand(new CommandPut(state));
         addCommand(new CommandRemove(state));

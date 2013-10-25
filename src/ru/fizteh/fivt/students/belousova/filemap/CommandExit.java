@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.filemap.TableState;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 public class CommandExit implements Command {
     private final String name = "exit";
-    private Table state;
+    private TableState state;
 
-    public CommandExit(Table state) {
+    public CommandExit(TableState state) {
         this.state = state;
     }
 
@@ -23,7 +23,9 @@ public class CommandExit implements Command {
 
     @Override
     public void execute(String[] args) {
-        state.commit();
+        if (state.getCurrentTable() != null) {
+            state.commitCurrentTable();
+        }
         System.out.println("exit");
         System.exit(0);
     }
