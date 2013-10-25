@@ -9,15 +9,13 @@ import java.util.Map;
 
 public class MyTable implements Table {
     private String name;
-    private Map<TwoLayeredString, String> storage;
-    private Map<String, TwoLayeredString> strings;
+    private Map<String, String> storage;
     private boolean[][] uses;
     private long byteSize;
 
     public MyTable(String tableName) {
         name = tableName;
-        storage = new HashMap<TwoLayeredString, String>();
-        strings = new HashMap<String, TwoLayeredString>();
+        storage = new HashMap<String, String>();
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j)
@@ -36,7 +34,7 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        return storage.get(strings.get(key));
+        return storage.get(key);
     }
 
     @Override
@@ -44,16 +42,7 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        if (strings.get(key) != null) {
-            String oldValue = storage.remove(strings.get(key));
-            strings.put(key, twoLayeredKey);
-            storage.put(twoLayeredKey, value);
-            return oldValue;
-        } else {
-            strings.put(key, twoLayeredKey);
-            return storage.put(twoLayeredKey, value);
-        }
+        return storage.put(key, value);
     }
 
     @Override
@@ -61,7 +50,7 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        return storage.remove(strings.get(key));
+        return storage.remove(key);
     }
 
     @Override
@@ -91,8 +80,12 @@ public class MyTable implements Table {
         storage.clear();
     }
 
-    public Map<TwoLayeredString, String> getMap() {
+    public Map<String, String> getMap() {
         return storage;
+    }
+
+    public void setMap(Map<String, String> newMap) {
+        storage = newMap;
     }
 
     public Path getPath() {

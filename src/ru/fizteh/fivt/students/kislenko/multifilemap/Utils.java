@@ -106,8 +106,9 @@ public class Utils {
                 }
             }
         }
-        Set<TwoLayeredString> keySet = table.getMap().keySet();
-        for (TwoLayeredString key : keySet) {
+        Set<String> keySet = table.getMap().keySet();
+        for (String s : keySet) {
+            TwoLayeredString key = new TwoLayeredString(s);
             datafiles.get(getHash(key)).writeInt(key.getKey().getBytes(StandardCharsets.UTF_8).length);
             datafiles.get(getHash(key)).writeInt(table.get(key.getKey()).getBytes(StandardCharsets.UTF_8).length);
             datafiles.get(getHash(key)).write(key.getKey().getBytes(StandardCharsets.UTF_8));
