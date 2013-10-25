@@ -93,12 +93,12 @@ public class MultiFileMapUtils {
     }
 
     public static int getDirectoryNum(String key) {
-        int keyByte = key.getBytes(StandardCharsets.UTF_8)[0] + 128;
+        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         return keyByte % 16;
     }
 
     public static int getFileNum(String key) {
-        int keyByte = key.getBytes(StandardCharsets.UTF_8)[0] + 128;
-        return keyByte / 16 % 16;
+        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+        return (keyByte / 16) % 16;
     }
 }
