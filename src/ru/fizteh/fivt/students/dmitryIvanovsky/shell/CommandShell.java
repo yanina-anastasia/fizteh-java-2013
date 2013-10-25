@@ -180,7 +180,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code rm(String[] args) {
         if (args.length != 1) {
-            errPrint("У команды rm 2 аргумента");
+            errPrint("У команды rm 1 аргумент");
             return Code.ERROR;
         }
         String path = args[0];
