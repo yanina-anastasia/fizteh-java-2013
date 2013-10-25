@@ -4,6 +4,7 @@ import java.io.File;
 
 public class MultiFileHashMapMain {
     public static void main(String[] args) {
+        System.setProperty("fizteh.db.dir", "C:\\Users\\Кирилл\\db");
         try {
             File dbDir = new File(System.getProperty("fizteh.db.dir"));
 

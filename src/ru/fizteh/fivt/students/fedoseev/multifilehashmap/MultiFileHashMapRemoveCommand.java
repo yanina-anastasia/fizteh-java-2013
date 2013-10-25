@@ -8,10 +8,12 @@ import ru.fizteh.fivt.students.fedoseev.filemap.FileMapState;
 import java.io.IOException;
 
 public class MultiFileHashMapRemoveCommand extends AbstractCommand<MultiFileHashMapState> {
-    private FileMapRemoveCommand remove = new FileMapRemoveCommand();
+    private FileMapRemoveCommand remove;
 
     public MultiFileHashMapRemoveCommand() {
         super("remove", 1);
+
+        remove = new FileMapRemoveCommand();
     }
 
     @Override
