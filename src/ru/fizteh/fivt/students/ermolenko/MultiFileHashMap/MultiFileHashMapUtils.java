@@ -35,6 +35,7 @@ public class MultiFileHashMapUtils {
     }
 
     public static void deleteDirectory(File directory) throws IOException {
+
         File[] files = directory.listFiles();
         if (files != null) {
             for (File f : files) {
