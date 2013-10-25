@@ -14,11 +14,11 @@ public class CommandRemove extends Command {
         if (!myState.checkArgs(args, 1)) {
             return false;
         }
-        String value = myState.table.remove(args[0]);
-        if (value == null) {
-            System.out.println("not found");
-        } else {
+        if (myState.table.containsKey(args[0])) {
+            myState.table.remove(args[0]);
             System.out.println("removed");
+        } else {
+            System.out.println("not found");
         }
         return true;
     }
