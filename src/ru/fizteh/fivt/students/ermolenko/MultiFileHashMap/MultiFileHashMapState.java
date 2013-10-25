@@ -4,29 +4,28 @@ import ru.fizteh.fivt.storage.strings.Table;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public class MultiFileHashMapState {
 
     private MultiFileHashMapTableProvider provider;
     private MultiFileHashMapTable currentTable;
-    //ЗАЧЕМ???
-    //private File dataFile;
 
     public MultiFileHashMapState(File inFile) throws IOException {
 
-        //dataFile = inFile;
         currentTable = null;
         MultiFileHashMapTableProviderFactory factory = new MultiFileHashMapTableProviderFactory();
         provider = (MultiFileHashMapTableProvider) factory.create(inFile.getPath());
     }
 
-    /*
-    public File getFile() {
+    public void changeCurrentTable(Map<String, String> inMap, File inFile) {
 
-        return dataFile;
+        currentTable.setDataBase(inMap);
+        currentTable.setDataFile(inFile);
     }
-    */
+
     public Table createTable(String name) throws IOException {
+
         Table tmp = provider.createTable(name);
         currentTable = (MultiFileHashMapTable) tmp;
         return tmp;
