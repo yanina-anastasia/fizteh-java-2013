@@ -5,10 +5,11 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class MultiDbCreate implements Command {
     @Override
     public int execute(String[] args, State state) {
+        String name = args[0];
         args[0] = ((MultiDbState) state).makeNewSource(args[0]);
         int result = ((MultiDbState) state).shell.mkdir(args);
         if (result == 2) {
-            System.out.println("directory already exists");
+            System.out.println(name + " exists");
             return 0;
         }
         if (result == 0) {

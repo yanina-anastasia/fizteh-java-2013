@@ -16,7 +16,7 @@ public class ShellMkdir implements Command {
         File dir = new File(((ShellState) state).makeNewSource(name));
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                System.err.println("mkdir: directory already exists");
+                //System.err.println("mkdir: directory already exists");
                 return 2;
             } else {
                 System.err.println("mkdir: directory can't be created");

@@ -66,7 +66,7 @@ public class MultiDbState extends State{
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
-                data[i][j] = new DbState(filePath);
+                data[i][j] = new DbState(filePath, i, j);
                 File f = new File(data[i][j].path);
                 f.createNewFile();
                 data[i][j].loadData();
@@ -100,7 +100,7 @@ public class MultiDbState extends State{
                 loadData();
             } catch (IOException e) {
                 shell.currentDir = lastDir;
-                System.err.println("multifilemap: error in loading data");
+                System.err.println("multifilemap: loading data: " + e.getMessage());
                 return 1;
             } catch (DataFormatException e) {
                 shell.currentDir = lastDir;
