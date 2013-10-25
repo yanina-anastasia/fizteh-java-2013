@@ -19,6 +19,7 @@ public class CommandCreate extends Command {
         }
         if (myState.myDatabase.database.containsKey(args[0])) {
             System.out.println(args[0] + " exists");
+            System.getProperty("line.separator");
             return false;
         }
         File temp = new File(path, args[0]);
@@ -29,7 +30,7 @@ public class CommandCreate extends Command {
             return false;
         }
         myState.myDatabase.database.put(args[0], new HashMap<String, String>());
-        System.out.print("created");
+        System.out.println("created");
         return true;
     }
 

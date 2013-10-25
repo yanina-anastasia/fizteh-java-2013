@@ -50,7 +50,7 @@ public class CommandDrop extends Command {
             myState.table = null;
             myState.curTableName = "";
         }
-        System.out.print("dropped");
+        System.out.println("dropped");
         return true;
     }
 

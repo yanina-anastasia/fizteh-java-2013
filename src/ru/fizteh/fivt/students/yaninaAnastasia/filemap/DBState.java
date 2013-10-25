@@ -9,7 +9,7 @@ public class DBState extends State {
 
     }
 
-    public boolean checkArgs (String[] args, int number) {
+    public boolean checkArgs(String[] args, int number) {
         if (args.length != number) {
             System.err.println("Invalid arguments");
             return false;

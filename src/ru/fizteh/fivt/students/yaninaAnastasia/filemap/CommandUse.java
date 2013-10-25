@@ -26,7 +26,7 @@ public class CommandUse extends Command {
             return false;
         }
         myState.table = myState.myDatabase.database.get(args[0]);
-        System.out.print("using " + args[0]);
+        System.out.println("using " + args[0]);
 
         return true;
     }
