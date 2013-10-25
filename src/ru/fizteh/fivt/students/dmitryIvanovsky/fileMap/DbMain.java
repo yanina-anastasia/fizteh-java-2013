@@ -11,9 +11,9 @@ public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "deamoonSql";
-        String path = System.getProperty("fizteh.db.dir");
-        Path pathTables = Paths.get(".").resolve(path);
         try {
+            String path = System.getProperty("fizteh.db.dir");
+            Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
         } catch (Exception e) {
             System.out.println("Ошибка загрузки");
