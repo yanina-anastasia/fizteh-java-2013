@@ -86,7 +86,7 @@ public class CommonShell<State> {
 		String[][] commands = null;
 		
 		while (true) {
-            System.out.print("$ ");
+            System.out.print(" $ ");
 			try {
 				commands = getCommandsWithArgumentsFromPrgArgs(inputStreamReader.readLine());
 			} catch (IOException exception) {
