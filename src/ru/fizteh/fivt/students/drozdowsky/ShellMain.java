@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.drozdowsky;
 
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
-import ru.fizteh.fivt.students.drozdowsky.Utils.Utils;
+import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 import ru.fizteh.fivt.students.drozdowsky.pathController.PathController;
 import ru.fizteh.fivt.students.drozdowsky.pathController.ShellCommands;
 

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.Utils;
+package ru.fizteh.fivt.students.drozdowsky.utils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

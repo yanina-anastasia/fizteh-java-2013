@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.modes;
 
-import ru.fizteh.fivt.students.drozdowsky.Utils.Utils;
+import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
