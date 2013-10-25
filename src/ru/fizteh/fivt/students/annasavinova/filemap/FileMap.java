@@ -209,8 +209,6 @@ public class FileMap extends UserShell {
                     printErrorAndExit("Cannot unload file");
                 }
         } catch (IOException e) {
-            // TODO
-            e.printStackTrace();
             printErrorAndExit("Cannot unload file correctly");
         }
     }
