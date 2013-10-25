@@ -38,7 +38,6 @@ public class Shell {
         String currentString;
         Scanner scan = new Scanner(System.in);
         while (true) {
-            System.out.print(command.currentDir);
             System.out.print("$ ");
             if (scan.hasNextLine()) {
                 currentString = scan.nextLine();
