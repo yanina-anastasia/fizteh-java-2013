@@ -12,6 +12,7 @@ public class Get implements Command {
     }
 
     public void executeCmd(Shell filemap, String[] args) throws IOException {
+
         if (args.length != 1) {
             System.out.println("incorrect number of arguments");
             return;
