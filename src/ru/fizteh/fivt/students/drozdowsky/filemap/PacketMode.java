@@ -19,7 +19,7 @@ public class PacketMode {
         ArrayList<String[]> commands = Parser.parse(args, NOWSCOMMANDS);
 
         for (String[] command : commands) {
-            if (!Utils.executeCommand(db, command)) {
+            if (!FilemapUtils.executeCommand(db, command)) {
                 if (exitOnFailure) {
                     db.close();
                     System.exit(1);

@@ -8,7 +8,9 @@ import ru.fizteh.fivt.students.drozdowsky.shell.commands.PrintWorkingDirectory;
 import ru.fizteh.fivt.students.drozdowsky.shell.commands.Remove;
 import ru.fizteh.fivt.students.drozdowsky.shell.commands.Move;
 
-public class Utils {
+import java.util.Scanner;
+
+public class ShellUtils {
     public static boolean executeCommand(String[] args, PathController workingDirectory) {
         if (args.length == 0) {
             return true;
@@ -43,4 +45,17 @@ public class Utils {
         }
         return true;
     }
+
+    public static String[] scanArgs(Scanner in) {
+
+        System.out.print("$ ");
+        String[] temp = new String[1];
+
+        if (!in.hasNextLine()) {
+            System.exit(0);
+        }
+        temp[0] = in.nextLine();
+        return temp;
+    }
+
 }

@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.filemap;
 
-public class Utils {
+public class FilemapUtils {
 
     public static boolean executeCommand(Database db, String[] args) {
         if (args.length == 0) {

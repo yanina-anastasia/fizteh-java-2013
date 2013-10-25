@@ -23,7 +23,7 @@ public class PacketMode {
         ArrayList<String[]> commands = Parser.parse(args, new String[0]);
 
         for (String[] command : commands) {
-            if (!Utils.executeCommand(command, workingDirectory)) {
+            if (!ShellUtils.executeCommand(command, workingDirectory)) {
                 if (exitOnFailure) {
                     System.exit(1);
                 } else {

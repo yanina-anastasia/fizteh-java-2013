@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Database {
     private File dbPath;
@@ -58,13 +59,9 @@ public class Database {
     }
 
     public boolean put(String[] args) {
-        if (args.length < 3) {
+        if (args.length != 3) {
             error("usage: put key value");
             return false;
-        }
-
-        for (int i = 3; i < args.length; i++) {
-            args[2] += " " + args[i];
         }
 
         if (db.get(args[1]) == null) {
@@ -91,6 +88,14 @@ public class Database {
         }
         changed = true;
         return true;
+    }
+
+    public File getPath() {
+        return dbPath;
+    }
+
+    public Set<String> getKeys() {
+        return db.keySet();
     }
 
     private void readDB() throws IOException {
