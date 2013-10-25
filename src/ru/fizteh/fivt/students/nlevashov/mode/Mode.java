@@ -15,8 +15,8 @@ public class Mode {
         return tokensWithoutEmptyStrings;
     }
 
-    interface Executor {
-        public boolean execute(String cmd) throws Exception;
+    public interface Executor {
+        boolean execute(String cmd) throws Exception;
     }
 
     public static void start(String[] args, Executor exec) throws Exception {

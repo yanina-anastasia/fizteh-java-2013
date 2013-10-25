@@ -131,7 +131,7 @@ public class Shell {
             }
         } else {
             if (path.isDirectory()) {
-                throw new Exception("cp: Path \"" + to + "\" doesn't exist");  
+                throw new Exception("cp: Path \"" + to + "\" doesn't exist");
             } else if (destination.getParentFile().exists()) {
                 Files.copy(path.toPath(), destination.toPath());
             } else {

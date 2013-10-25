@@ -32,7 +32,7 @@ public class Table {
                     } while (c != '\0');
                     byte[] shortKey = new byte[key.size()];
                     for (int j = 0; j < key.size(); j++) {
-                       shortKey[j] = key.get(j);
+                        shortKey[j] = key.get(j);
                     }
                     keys.add(new String(shortKey, "UTF8"));
 
@@ -53,14 +53,14 @@ public class Table {
                         } while (c != '\0');
                         shortKey = new byte[key.size()];
                         for (int j = 0; j < key.size(); j++) {
-                           shortKey[j] = key.get(j);
+                            shortKey[j] = key.get(j);
                         }
                         keys.add(new String(shortKey, "UTF8"));
 
                         offsets.add((i.read() << 24) + (i.read() << 16) + (i.read() << 8) + i.read());
                         if ((offsets.get(offsets.size() - 1) >= Files.size(addr))
-                            || (offsets.get(offsets.size() - 1) <= 0)
-                            || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
+                                || (offsets.get(offsets.size() - 1) <= 0)
+                                || (offsets.get(offsets.size() - 2) >= offsets.get(offsets.size() - 1))) {
                             throw new IOException("bad offset");
                         }
                         pos += 4;
