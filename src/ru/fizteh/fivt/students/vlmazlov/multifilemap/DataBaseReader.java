@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
 import ru.fizteh.fivt.students.vlmazlov.shell.QuietCloser;
+import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
+import ru.fizteh.fivt.students.vlmazlov.shell.FileOperationFailException;
 import java.io.File;
 import java.util.Iterator;
 import java.io.IOException;
@@ -46,9 +48,16 @@ public class DataBaseReader {
 		return new String(bytes, "UTF-8");
 	}
 
-	public static void readMultiTableDataBase(MultiTableDataBase multiTableDataBase) throws IOException, ValidityCheckFailedException {
+	public static void readMultiTableDataBase(MultiTableDataBase multiTableDataBase) 
+	throws IOException, ValidityCheckFailedException {
 
 		File root = multiTableDataBase.getRoot();
+		try {
+			File root_grandpa = root.getParentFile().getParentFile();
+			FileUtils.recursiveCopy(root, root_grandpa);
+		} catch (FileOperationFailException ex) {
+
+		}
 
 		ValidityChecker.checkMultiTableRoot(root);
 
