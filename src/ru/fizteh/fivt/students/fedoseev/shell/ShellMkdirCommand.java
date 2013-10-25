@@ -5,8 +5,8 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import java.io.File;
 import java.io.IOException;
 
-public class MkdirCommand extends AbstractCommand<ShellState> {
-    public MkdirCommand() {
+public class ShellMkdirCommand extends AbstractCommand<ShellState> {
+    public ShellMkdirCommand() {
         super("mkdir", 1);
     }
 

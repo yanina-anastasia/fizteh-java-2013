@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class RmCommand extends AbstractCommand<ShellState> {
-    public RmCommand() {
+public class ShellRmCommand extends AbstractCommand<ShellState> {
+    public ShellRmCommand() {
         super("rm", 1);
     }
 

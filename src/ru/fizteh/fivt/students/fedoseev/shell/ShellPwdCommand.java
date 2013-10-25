@@ -4,8 +4,8 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
 import java.io.IOException;
 
-public class PwdCommand extends AbstractCommand<ShellState> {
-    public PwdCommand() {
+public class ShellPwdCommand extends AbstractCommand<ShellState> {
+    public ShellPwdCommand() {
         super("pwd", 0);
     }
 

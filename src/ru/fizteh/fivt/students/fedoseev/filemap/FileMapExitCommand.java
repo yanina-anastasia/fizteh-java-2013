@@ -4,8 +4,8 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
 import java.io.IOException;
 
-public class ExitCommand extends AbstractCommand<FileMapState> {
-    public ExitCommand() {
+public class FileMapExitCommand extends AbstractCommand<FileMapState> {
+    public FileMapExitCommand() {
         super("exit", 0);
     }
 

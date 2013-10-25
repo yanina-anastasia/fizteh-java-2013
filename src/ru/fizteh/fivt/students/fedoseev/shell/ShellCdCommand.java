@@ -7,8 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CdCommand extends AbstractCommand<ShellState> {
-    public CdCommand() {
+public class ShellCdCommand extends AbstractCommand<ShellState> {
+    public ShellCdCommand() {
         super("cd", 1);
     }
 

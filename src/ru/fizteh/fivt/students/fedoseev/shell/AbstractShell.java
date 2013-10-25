@@ -15,14 +15,14 @@ public class AbstractShell extends AbstractFrame<ShellState> {
 
     @Override
     public Map<String, AbstractCommand> getCommands() {
-        final CdCommand CD = new CdCommand();
-        final MkdirCommand MKDIR = new MkdirCommand();
-        final PwdCommand PWD = new PwdCommand();
-        final RmCommand RM = new RmCommand();
-        final CpCommand CP = new CpCommand();
-        final MvCommand MV = new MvCommand();
-        final DirCommand DIR = new DirCommand();
-        final ExitCommand EXIT = new ExitCommand();
+        final ShellCdCommand CD = new ShellCdCommand();
+        final ShellMkdirCommand MKDIR = new ShellMkdirCommand();
+        final ShellPwdCommand PWD = new ShellPwdCommand();
+        final ShellRmCommand RM = new ShellRmCommand();
+        final ShellCpCommand CP = new ShellCpCommand();
+        final ShellMvCommand MV = new ShellMvCommand();
+        final ShellDirCommand DIR = new ShellDirCommand();
+        final ShellExitCommand EXIT = new ShellExitCommand();
 
         return new HashMap<String, AbstractCommand>() {{
             put(CD.getCmdName(), CD);

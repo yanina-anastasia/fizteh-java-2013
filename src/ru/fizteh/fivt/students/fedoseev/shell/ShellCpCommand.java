@@ -8,12 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class MvCommand extends AbstractCommand<ShellState> {
-    public MvCommand() {
-        super("mv", 2);
+public class ShellCpCommand extends AbstractCommand<ShellState> {
+    public ShellCpCommand() {
+        super("cp", 2);
     }
 
-    private static void move(File source, File destination) throws IOException {
+    private static void copy(File source, File destination) throws IOException {
         if (source.isFile()) {
             Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
         } else {
@@ -21,11 +21,9 @@ public class MvCommand extends AbstractCommand<ShellState> {
 
             destination.toPath().resolve(source.getName()).toFile().mkdirs();
             for (File content : sourceContents) {
-                move(content, destination.toPath().resolve(source.getName()).toFile());
+                copy(content, destination.toPath().resolve(source.getName()).toFile());
             }
         }
-
-        source.delete();
     }
 
     @Override
@@ -39,49 +37,41 @@ public class MvCommand extends AbstractCommand<ShellState> {
         };
 
         if (source.compareTo(destination) == 0) {
-            throw new IOException("MV ERROR: copying file or directory to itself is impossible");
+            throw new IOException("CP ERROR: copying file or directory to itself is impossible");
         }
         if (!source.exists()) {
-            throw new FileNotFoundException("MV ERROR: not existing source \"" + source.getName() + "\"");
+            throw new FileNotFoundException("CP ERROR: not existing source \"" + source.getName() + "\"");
         }
 
         if (!destination.isDirectory() && source.isFile()) {
             if (destination.isFile()) {
-                throw new IOException("MV ERROR: file with name of source file \"" + source.getName() +
-                        "\" already exists in current destination");
+                throw new IOException("CP ERROR: file with name of source file \"" + source.getName() +
+                        "\" already exists in destination \"" + destination.getCanonicalFile().toString() +
+                        "\"");
             }
 
             Files.copy(source.toPath(), destination.toPath());
-            source.delete();
         } else {
             if (!destination.exists()) {
-                throw new FileNotFoundException("MV ERROR: not existing destination \"" +
+                throw new FileNotFoundException("CP ERROR: not existing destination \"" +
                         destination.getCanonicalFile().toString() + "\"");
             }
             if (destination.listFiles(filter).length != 0) {
-                throw new IOException("MV ERROR: file with name of source file \"" + source.getName() +
-                        "\" already exists in destination \"" + destination.getCanonicalFile().toString() +
-                        "\"");
+                throw new IOException("CP ERROR: file with name of source file \"" + source.getName() +
+                        "\" already exists in current destination");
 
             }
 
             if (source.isFile()) {
                 Files.copy(source.toPath(), destination.toPath().resolve(source.getName()));
-                source.delete();
             }
-
             if (source.isDirectory()) {
                 if (destination.toPath().startsWith(source.toPath())) {
-                    throw new IOException("MV ERROR: directory can`t be copied into itself");
+                    throw new IOException("CP ERROR: directory can`t be copied into itself");
                 }
 
-                move(source, destination);
-                source.delete();
+                copy(source, destination);
             }
-        }
-
-        while (!state.getCurState().exists()) {
-            state.setCurState(state.getCurState().getParentFile());
         }
     }
 }

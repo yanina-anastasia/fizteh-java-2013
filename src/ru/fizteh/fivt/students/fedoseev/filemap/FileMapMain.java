@@ -5,7 +5,6 @@ import java.io.IOException;
 
 public class FileMapMain {
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.setProperty("fizteh.db.dir", "C:\\Users\\Кирилл\\");
         try {
             File file = new File(System.getProperty("fizteh.db.dir"));
 

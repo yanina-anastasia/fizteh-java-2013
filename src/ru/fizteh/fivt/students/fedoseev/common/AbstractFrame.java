@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Scanner;
 

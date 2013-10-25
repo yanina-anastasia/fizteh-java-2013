@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class AbstractFileMap extends AbstractFrame<FileMapState> {
-    private static final Map<String, String> content = new HashMap<String, String>();
+    private static Map<String, String> content = new HashMap<String, String>();
     private static final int MAX_FILE_SIZE = 150100500;
     private static RandomAccessFile file;
 
@@ -22,16 +22,20 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         return file;
     }
 
-    public static Map<String, String> getMap() {
+    public static Map<String, String> getContent() {
         return content;
+    }
+
+    public static void setContent(Map<String, String> map) {
+        content = map;
     }
 
     @Override
     public Map<String, AbstractCommand> getCommands() {
-        final PutCommand PUT = new PutCommand();
-        final GetCommand GET = new GetCommand();
-        final RemoveCommand REMOVE = new RemoveCommand();
-        final ExitCommand EXIT = new ExitCommand();
+        final FileMapPutCommand PUT = new FileMapPutCommand();
+        final FileMapGetCommand GET = new FileMapGetCommand();
+        final FileMapRemoveCommand REMOVE = new FileMapRemoveCommand();
+        final FileMapExitCommand EXIT = new FileMapExitCommand();
 
         return new HashMap<String, AbstractCommand>() {{
             put(PUT.getCmdName(), PUT);
@@ -135,7 +139,7 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         int curOffset = 0;
         int position = 0;
 
-        Set<String> keySet = getMap().keySet();
+        Set<String> keySet = getContent().keySet();
 
         for (String key : keySet) {
             curOffset += key.getBytes(StandardCharsets.UTF_8).length + 5;
@@ -148,7 +152,7 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
             file.writeInt(curOffset);
             position = (int) file.getFilePointer();
             file.seek(curOffset);
-            file.write(getMap().get(key).getBytes(StandardCharsets.UTF_8));
+            file.write(getContent().get(key).getBytes(StandardCharsets.UTF_8));
             curOffset = (int) file.getFilePointer();
         }
     }

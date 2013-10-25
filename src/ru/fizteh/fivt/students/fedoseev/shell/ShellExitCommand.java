@@ -4,8 +4,8 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
 import java.io.IOException;
 
-public class ExitCommand extends AbstractCommand<ShellState> {
-    public ExitCommand() {
+public class ShellExitCommand extends AbstractCommand<ShellState> {
+    public ShellExitCommand() {
         super("exit", 0);
     }
 

@@ -5,8 +5,8 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import java.io.File;
 import java.io.IOException;
 
-public class DirCommand extends AbstractCommand<ShellState> {
-    public DirCommand() {
+public class ShellDirCommand extends AbstractCommand<ShellState> {
+    public ShellDirCommand() {
         super("dir", 0);
     }
 
