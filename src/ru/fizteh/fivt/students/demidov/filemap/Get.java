@@ -8,7 +8,7 @@ public class Get extends BasicFileMapCommand {
 		super(usedFileMap);
 	}	
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = super.fileMap.getCurrentTable().get(arguments[0]);
+		String value = fileMap.getCurrentTable().get(arguments[0]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {

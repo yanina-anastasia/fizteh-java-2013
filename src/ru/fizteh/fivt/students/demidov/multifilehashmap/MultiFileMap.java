@@ -4,28 +4,32 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class MultiFileMap {
-	public MultiFileMap() throws IOException {
-		root = System.getProperty("fizteh.db.dir");
+	public MultiFileMap(String root) throws IOException {
+		tables = new HashMap<String, FilesMap>();
+		
 		if (root == null) {
 			throw new IOException("problem with property");
 		}
+		this.root = root;
 		
 		if (!(new File(root).isDirectory())) {
 			throw new IOException("wrong directory");
 		}
-		
-		usedFileMap = null;
+			
+		usedFilesMap = null;
 	}
 	
-	public void changeUsedFileMap(String newTableName) throws IOException {
-		FileMap newUsedFileMap = tables.get(newTableName);
-		if (newUsedFileMap == null) {
+	public void changeUsedFilesMap(String newTableName) throws IOException {
+		FilesMap newUsedFilesMap = tables.get(newTableName);
+		if (newUsedFilesMap == null) {
 			throw new IOException(newTableName + " not exists");
 		} else {
-			usedFileMap = newUsedFileMap;			
+			usedFilesMap = newUsedFilesMap;			
 		}
 	}
 	
@@ -36,7 +40,7 @@ public class MultiFileMap {
 			if (!(new File(root, newTableName)).mkdir()) {
 				throw new IOException("unable to make directory " + newTableName);
 			}
-			tables.put(newTableName, new FileMap(root + File.separator + newTableName));
+			tables.put(newTableName, new FilesMap(root + File.separator + newTableName));
 		}
 	}
 	
@@ -45,36 +49,39 @@ public class MultiFileMap {
 			throw new IOException(tableName + " not exists");
 		} else {
 			Utils.deleteFileOrDirectory(new File(root, tableName));
+			if (tables.get(tableName) == usedFilesMap) {
+				usedFilesMap = null;
+			}
 			tables.remove(tableName);
 		}
 	}
 	
-	public FileMap getFileMap() throws IOException{
-		if (usedFileMap == null) {
+	public FilesMap getFilesMap() throws IOException{
+		if (usedFilesMap == null) {
 			throw new IOException("no table");
 		} else {
-			return usedFileMap;
+			return usedFilesMap;
 		}
 	}
 	
-	public void readFileMaps() throws IOException {
+	public void readFilesMaps(Shell usedShell) throws IOException {
 		for (String subdirectory : (new File(root)).list()) {
 			if (!((new File(root, subdirectory)).isDirectory())) {
 				throw new IOException("wrong directory " + subdirectory);
 			} else {
-				tables.put(subdirectory, new FileMap(root + File.separator + subdirectory));
-				tables.get(subdirectory).readData();
+				tables.put(subdirectory, new FilesMap(root + File.separator + subdirectory));
+				tables.get(subdirectory).readData(usedShell);
 			}
 		}
 	}
 	
-	public void writeFileMapsToFile() throws IOException {
+	public void writeFilesMaps(Shell usedShell) throws IOException {
 		for (String key: tables.keySet()) {
-			tables.get(key).writeData();
+			tables.get(key).writeData(usedShell);
 		}		
 	}
 	
-	private final Map<String, FileMap> tables = new HashMap<String, FileMap>();
-	private FileMap usedFileMap;
+	private Map<String, FilesMap> tables;
+	private FilesMap usedFilesMap;
 	private String root;
 }

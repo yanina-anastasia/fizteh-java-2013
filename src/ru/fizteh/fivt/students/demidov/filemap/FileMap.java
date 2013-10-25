@@ -5,30 +5,37 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
-import ru.fizteh.fivt.students.demidov.shell.Shell;
-import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FileMap {
+	public FileMap(String path) throws IOException {
+		if (path == null) {
+			throw new IOException("wrong path");
+		}	
+		this.path = path;
+	}
+	
 	public Map<String, String> getCurrentTable() {
 		return currentTable;
 	}
 	
-	public void openFile(Shell usedShell) throws IOException {
-		String path = System.getProperty("fizteh.db.dir");
-		if (path == null) {
-			throw new IOException("problem with property");
-		}
-		
-		usedShell.curShell.changeCurrentDirectory(path + File.separator + "db.dat");
-		File currentDirectory = Utils.getFile(usedShell.curShell.getCurrentDirectory(), usedShell);
+	public void openFile() throws IOException {
+		File currentDirectory = new File(path);
 		
 		if (!currentDirectory.exists()) {
 			if (!currentDirectory.createNewFile()) {
-				throw new IOException("unable to create db.dat");
+				throw new IOException("unable to create " + path);
 			}
 		}
 		
 		dataBaseFile = new RandomAccessFile(currentDirectory, "rwd");
+	}
+	
+	public void clearFile() throws IOException {
+		File currentDirectory = new File(path);
+		
+		if (currentDirectory.exists()) {
+			currentDirectory.delete();
+		}
 	}
 	
 	private String readString(int readPosition, int finishPosition) throws IOException {
@@ -47,8 +54,8 @@ public class FileMap {
 		return new String(bytes, "UTF-8");
 	}
 	
-	public void readDataFromFile(Shell usedShell) throws IOException {	
-		openFile(usedShell);
+	public void readDataFromFile() throws IOException {	
+		openFile();
 		
 		if (dataBaseFile.length() == 0) {
 			return;
@@ -90,9 +97,9 @@ public class FileMap {
 	}
 
 
-	public void writeDataToFile(Shell usedShell) throws IOException {
-		openFile(usedShell);
-		dataBaseFile.getChannel().truncate(0);
+	public void writeDataToFile() throws IOException {
+		clearFile();
+		openFile();
 		
 		int offset = 0;		
 		for (String key: getCurrentTable().keySet()) {
@@ -116,4 +123,5 @@ public class FileMap {
 	
 	private final Map<String, String> currentTable = new HashMap<String, String>();
 	private RandomAccessFile dataBaseFile;
+	private String path;
 }

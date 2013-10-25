@@ -9,7 +9,7 @@ public class Put extends BasicFileMapCommand {
 		super(usedFileMap);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = super.fileMap.getCurrentTable().put(arguments[0], arguments[1]);
+		String value = fileMap.getCurrentTable().put(arguments[0], arguments[1]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("new");
 		} else {
