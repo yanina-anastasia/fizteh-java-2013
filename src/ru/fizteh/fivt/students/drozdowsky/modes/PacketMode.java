@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.drozdowsky.modes;
 
-import ru.fizteh.fivt.students.drozdowsky.shell.Parser;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +17,7 @@ public class PacketMode<T> {
     }
 
     public void execute(String[] args, HashMap<String, Method> commands, boolean exitOnFailure) {
-        ArrayList<String[]> inCommands = Parser.parse(args, NOWSCOMMANDS);
+        ArrayList<String[]> inCommands = Utils.parse(args, NOWSCOMMANDS);
 
         for (String[] inCommand : inCommands) {
             CommandExecutor<T> cm = new CommandExecutor<T>(controller);
