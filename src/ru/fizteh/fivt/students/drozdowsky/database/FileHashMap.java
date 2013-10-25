@@ -152,7 +152,7 @@ public class FileHashMap {
                     int realNDir = b % 16;
                     int realNFile = b / 16 % 16;
                     if (!(nDir == realNDir && nFile == realNFile)) {
-                        fatalError(db.getAbsolutePath() + ": Not valid database");
+                        fatalError(db.getAbsolutePath() + ": Not valid database1");
                     }
                 }
             }
