@@ -25,23 +25,23 @@ public class CommandsOperator {
     public CommandsOperator() {
         try {
             loadClasses();
-            File datebase = new File(System.getProperty("fizteh.db.dir") + "/db.dat");
-            if (!datebase.isAbsolute()) {
-                throw new IOException("Wrong path to datebase file");
+            File dir = new File(System.getProperty("fizteh.db.dir"));
+            if (!dir.isDirectory()) {
+                throw new IOException("Wrong path to datebase directory");
             }
-            singleFileMap = new SingleFileMap(new File(System.getProperty("fizteh.db.dir") + "/db.dat"));
+            File datebase = new File(System.getProperty("fizteh.db.dir"), "db.dat");
+            singleFileMap = new SingleFileMap(datebase);
+        } catch (NullPointerException e) {
+            System.err.println("Wrong path to datebase directory");
+            System.exit(1);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             System.exit(1);
         }
     }
 
     public int runCommand(String line) {
         try {
-//            line = line.replaceAll("\\s+", " ").trim();
-//            String[] commandAndArgs = line.split(" ");
-//            String commandName = commandAndArgs[0];
-//            String[] args = Arrays.copyOfRange(commandAndArgs, 1, commandAndArgs.length);
             int i = 0;
             while (line.charAt(i) == ' ') {
                 ++i;
