@@ -67,7 +67,7 @@ public class FileFunctions {
         pwd = copyPwd;
     }
 
-    static void deleteSmth(File file) throws IOException {
+    private static void deleteSmth(File file) throws IOException {
         if (file.isFile()) {
             if (!file.delete()) {
                 throw new IOException("No such file or directory");
@@ -83,7 +83,7 @@ public class FileFunctions {
         }
     }
 
-    static void move(String[] arguments) throws IOException {
+    public static void move(String[] arguments) throws IOException {
         File first = getAbsolute(arguments[1]);
         File second = getAbsolute(arguments[2]);
         if (!first.exists()) {
