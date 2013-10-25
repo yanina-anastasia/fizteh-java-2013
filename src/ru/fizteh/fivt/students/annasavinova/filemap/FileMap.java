@@ -108,20 +108,19 @@ public class FileMap extends UserShell {
                     try {
                         dataFile.close();
                     } catch (IOException e1) {
-                        printErrorAndExit("Cannot load file5");
+                        printErrorAndExit("Cannot load file");
                     }
                     printErrorAndExit("Incorrect input");
                 }
                 dataMap.put(key, value);
             }
         } catch (IOException | OutOfMemoryError e) {
-            printErrorAndExit("Cannot load file4");
-        } finally {
             try {
                 dataFile.close();
             } catch (IOException e1) {
-                printErrorAndExit("Cannot load file3");
+                printErrorAndExit("Cannot load file");
             }
+            printErrorAndExit("Cannot load file");
         }
     }
 
