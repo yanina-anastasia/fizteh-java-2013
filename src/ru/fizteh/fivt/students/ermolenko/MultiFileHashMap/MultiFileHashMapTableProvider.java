@@ -2,13 +2,12 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.ermolenko.shell.Rm;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static ru.fizteh.fivt.students.ermolenko.shell.Rm.remove;
 
 public class MultiFileHashMapTableProvider implements TableProvider {
 
@@ -65,7 +64,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
         File dirOfTable = new File(currentDir, name);
         try {
-            remove(dirOfTable.getCanonicalFile().toPath());
+            Rm.remove(dirOfTable.getCanonicalFile().toPath());
         } catch (IOException e) {
             System.err.println(e);
         }

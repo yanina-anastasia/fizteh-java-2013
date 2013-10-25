@@ -16,6 +16,11 @@ public class CmdDrop implements Command {
     @Override
     public void executeCmd(Shell shell, String[] args) throws IOException {
 
+        if (((MultiFileHashMap) shell).getMultiFileHashMapState().getCurrentTable() == null) {
+            System.out.println("no table");
+            return;
+        }
+
         if (((MultiFileHashMap) shell).getMultiFileHashMapState().getTable(args[0]) == null) {
             System.out.println(args[0] + " not exists");
             return;
