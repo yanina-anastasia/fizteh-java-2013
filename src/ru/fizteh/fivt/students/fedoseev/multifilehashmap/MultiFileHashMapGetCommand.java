@@ -8,6 +8,8 @@ import ru.fizteh.fivt.students.fedoseev.filemap.FileMapState;
 import java.io.IOException;
 
 public class MultiFileHashMapGetCommand extends AbstractCommand<MultiFileHashMapState> {
+    private FileMapGetCommand get = new FileMapGetCommand();
+
     public MultiFileHashMapGetCommand() {
         super("get", 1);
     }
@@ -23,7 +25,6 @@ public class MultiFileHashMapGetCommand extends AbstractCommand<MultiFileHashMap
 
             AbstractFileMap.setContent(table.getMapContent());
 
-            FileMapGetCommand get = new FileMapGetCommand();
             get.execute(input, new FileMapState());
         }
     }
