@@ -156,7 +156,6 @@ public class DbMain {
         File creatingTableFile = new File(correctName);
         if (!creatingTableFile.exists()) {
             System.out.println(creatingTableFile.getName() + " not exists");
-            currentTable = null;
         } else {
             TableDate creatingTable = new TableDate(creatingTableFile);
             bidDateBase.put(command[1], creatingTable);
