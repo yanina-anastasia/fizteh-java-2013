@@ -106,14 +106,14 @@ public class FileHashMap {
         byte b = key.getBytes()[0];
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
-        return (nDir < 0 ? -nDir : nDir);
+        return nDir;
     }
 
     private int getFileNum(String key) {
         byte b = key.getBytes()[0];
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
-        return (nFile < 0 ? -nFile : nFile);
+        return nFile;
     }
 
     private void readDB() throws IOException {
