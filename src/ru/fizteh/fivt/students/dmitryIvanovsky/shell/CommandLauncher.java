@@ -56,9 +56,6 @@ public class CommandLauncher {
                         Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
                         res = (Code) method.invoke(exampleClass, args);
                     }
-                    if (res != Code.OK) {
-                        System.err.println("Ошибка выполнения команды");
-                    }
                     return res;
                 } catch (Exception e) {
                     //e.printStackTrace();
