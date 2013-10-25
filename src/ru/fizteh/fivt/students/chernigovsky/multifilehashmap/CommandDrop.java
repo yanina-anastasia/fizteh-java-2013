@@ -21,11 +21,8 @@ public class CommandDrop implements Command {
             System.out.println("dropped");
 
         } else {
-            state.writeTable(state.getCurrentTable());
-            state.changeCurrentTable(table);
-            state.readTable(state.getCurrentTable());
-            System.out.print("using ");
-            System.out.println(args[1]);
+            System.out.print(args[1]);
+            System.out.println(" not exists");
         }
     }
 
