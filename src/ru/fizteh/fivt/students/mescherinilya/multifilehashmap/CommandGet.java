@@ -13,8 +13,12 @@ public class CommandGet implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (MultiFileHashMap.storage.containsKey(args[0])) {
-            System.out.println("found\n" + MultiFileHashMap.storage.get(args[0]));
+        if (DatabaseWorker.currentTable == null) {
+            System.out.println("no table");
+            return;
+        }
+        if (DatabaseWorker.storage.containsKey(args[0])) {
+            System.out.println("found\n" + DatabaseWorker.storage.get(args[0]));
         } else {
             System.out.println("not found");
         }

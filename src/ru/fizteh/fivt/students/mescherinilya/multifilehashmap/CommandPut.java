@@ -13,12 +13,16 @@ public class CommandPut implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (MultiFileHashMap.storage.containsKey(args[0])) {
-            System.out.println("overwrite\n" + MultiFileHashMap.storage.get(args[0]));
+        if (DatabaseWorker.currentTable == null) {
+            System.out.println("no table");
+            return;
+        }
+        if (DatabaseWorker.storage.containsKey(args[0])) {
+            System.out.println("overwrite\n" + DatabaseWorker.storage.get(args[0]));
         } else {
             System.out.println("new");
         }
-        MultiFileHashMap.storage.put(args[0], args[1]);
+        DatabaseWorker.storage.put(args[0], args[1]);
 
     }
 
