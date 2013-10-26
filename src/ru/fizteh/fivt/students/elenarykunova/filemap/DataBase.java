@@ -59,7 +59,6 @@ public class DataBase {
                 closeDataFile();
             } catch (FileNotFoundException | IllegalArgumentException e2) {
                 System.err.println(filePath + ": can't get access to file");
-                closeDataFile();
                 System.exit(1);
             }
         }
