@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
+import ru.fizteh.fivt.students.dzvonarev.shell.Shell;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,14 +38,16 @@ public class DoCommand {
     }
 
     public static void updateFile(String fileName) throws IOException {
+        RandomAccessFile fileWriter = openFileForWrite(fileName);
         if (fileMap == null) {
+            closeFile(fileWriter);
             return;
         } else {
             if (fileMap.isEmpty()) {
+                closeFile(fileWriter);
                 return;
             }
         }
-        RandomAccessFile fileWriter = openFileForWrite(fileName);
         Set fileSet = fileMap.entrySet();
         Iterator<Map.Entry<String, String>> i = fileSet.iterator();
         try {
@@ -120,23 +124,18 @@ public class DoCommand {
         return newFile;
     }
 
-    public static String getRealPath() throws IOException {
-        String realPath;
-        String dirName = System.getProperty("fizteh.db.dir");
-        File destFile = new File(dirName + File.separator + "db.dat");
-        if (!destFile.exists()) {
-            if (new File(System.getProperty("fizteh.db.dir")).getName().equals("db.dat")) {
-                realPath = System.getProperty("fizteh.db.dir");
-            } else {
-                if (!destFile.createNewFile()) {
-                    throw new IOException("can't create db.dat file");
-                }
-                realPath = dirName + File.separator + "db.dat";
-            }
-        } else {
-            realPath = dirName + File.separator + "db.dat";
+    public static boolean isGetPropertyValid(String path) throws IOException {
+        if (path == null) {
+            return false;
         }
-        return realPath;
+        if (!(new File(Shell.getAbsPath(path))).exists()) {
+            if (!(new File(Shell.getAbsPath(path))).mkdir()) {
+                throw new IOException("can't create directory");
+            }
+            return true;
+        } else {
+            return new File(Shell.getAbsPath(path)).isDirectory();
+        }
     }
 
 }
