@@ -87,13 +87,13 @@ public class FileReader {
                 curPos += offsets.get(j);
                 ++j;
             }
+            int lastOffset = (int) (fileLength - curPos);
+            byte[] b = new byte[lastOffset];
+            for (int k = 0; curPos < fileLength; ++k, ++curPos) {
+                b[k] = inStream.readByte();
+            }
+            dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
         }
-        int lastOffset = (int) (fileLength - curPos);
-        byte[] b = new byte[lastOffset];
-        for (int k = 0; curPos < fileLength; ++k, ++curPos) {
-            b[k] = inStream.readByte();
-        }
-        dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
     }
 
 
