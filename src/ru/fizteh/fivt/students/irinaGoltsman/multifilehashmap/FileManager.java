@@ -1,13 +1,9 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
-import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
-import ru.fizteh.fivt.students.irinaGoltsman.shell.Shell;
-import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
 
 import java.io.*;
 import java.util.HashMap;
-
 
 public class FileManager {
 
@@ -178,7 +174,13 @@ public class FileManager {
         for (String key : storage.keySet()) {
             int hashCode = key.hashCode();
             int indexOfDir = hashCode % 16;
+            if (indexOfDir < 0) {
+                indexOfDir *= -1;
+            }
             int indexOfDat = hashCode / 16 % 16;
+            if (indexOfDat < 0) {
+                indexOfDat *= -1;
+            }
             if (parsedStorage[indexOfDir][indexOfDat] == null) {
                 parsedStorage[indexOfDir][indexOfDat] = new HashMap<>();
             }
