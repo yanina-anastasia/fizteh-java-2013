@@ -15,8 +15,15 @@ import java.io.FileInputStream;
 
 
 public class MyHashMap {
-    private File curTable = null;
+    public File curTable = null;
     private HashMap<Integer, HashMap<String, String> > dataBase = null;
+
+    MyHashMap() {
+    dataBase = new HashMap<Integer, HashMap<String, String> >();
+        for(int i = 0; i < 256; i++) {
+            dataBase.put(i, new HashMap<String, String>());
+        }
+    }
 
     private void parseFile(File dbFile, int firstControlValue, int secondControlValue) throws Exception {
         FileInputStream fstream = new FileInputStream(dbFile);
@@ -69,14 +76,17 @@ public class MyHashMap {
             System.out.println("tablename not exists");
             return;
         }
-        writeOut();
+        if(curTable != null) {
+            writeOut();
+        }
         curTable = new File(System.getProperty("fizteh.db.dir") + File.separator + args);
         System.out.println("using " + args);
     }
 
     public void get(String args) throws Exception {
         if(curTable == null) {
-        System.out.println("no table") ;
+            System.out.println("no table");
+            return;
         }
         Integer hashCode = args.hashCode();
         Integer nDirectory = hashCode % 16;
@@ -99,7 +109,8 @@ public class MyHashMap {
 
     public void put(String[] args) throws  Exception {
         if(curTable == null) {
-            System.out.println("no table") ;
+            System.out.println("no table");
+            return;
         }
         Integer hashCode = args[1].hashCode();
         Integer nDirectory = hashCode % 16;
@@ -110,17 +121,15 @@ public class MyHashMap {
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
         }
-        if(!dataBase.get(nDirectory * 16 + nFile).containsKey(args[1])) {
-            System.out.println("overwrite");
-        }
         String value = dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
-        System.out.println(value);
+        System.out.println(value == null ? args[2] : "overwrite\n" + value);
 
     }
 
     public void remove(String args) throws  Exception {
         if(curTable == null) {
-            System.out.println("no table") ;
+            System.out.println("no table");
+            return;
         }
         Integer hashCode = args.hashCode();
         Integer nDirectory = hashCode % 16;
@@ -138,17 +147,22 @@ public class MyHashMap {
         }
     }
 
-    private void writeOut() throws IOException {
+    public void writeOut() throws IOException {
         for(Integer i = 0; i < 16; i++ ) {
             for(Integer j = 0; j < 16; j++) {
                 if(!dataBase.get(i * 16 + j).isEmpty()) {
-                    File workFile = new File(curTable.getCanonicalPath()
-                            + File.separator + i.toString() + ".dir"
-                            + File.separator + j.toString() + ".dat");
-                    FileOutputStream fstream = new FileOutputStream(workFile);
+                    String way = curTable.getCanonicalPath()
+                            + File.separator + i.toString();
+                    File workFile = new File(way);
+                    if(!workFile.exists()) {
+                        workFile.mkdir();
+                    }
+                    File workFile2 = new File(way + File.separator + j.toString());
+                    FileOutputStream fstream = new FileOutputStream(workFile2);
                     for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
                         writeEntry(entry, fstream);
                     }
+                    dataBase.get(i * 16 + j).clear();
                 }
             }
         }

@@ -29,6 +29,10 @@ public class Shell {
         if (commandName.equals("create")) {
             mkTable(args);
         } else if(commandName.equals("drop")) {
+            if(currentDtb.curTable.toString().equals(currentDir + File.separator + args[1])) {
+                currentDtb.writeOut();
+                currentDtb.curTable = null;
+            }
             removeTable(args);
         } else if(commandName.equals("use")) {
             try {
@@ -116,7 +120,7 @@ public class Shell {
             try {
                 if (!Files.isDirectory(currentDir.toPath())) {
                     System.err.println("Given directory does not exist: Return to default.");
-                    currentDir = new File(System.getProperty("user.dir"));
+                    currentDir = new File(System.getProperty("fizteh.db.dir"));
                 }
                 greeting = currentDir.getCanonicalPath() + "$ ";
             } catch (Exception e) {
@@ -183,6 +187,7 @@ public class Shell {
             if (!tmpFile.mkdir()) {
                 throw new SException(args[0], "\'" + args[1] + "\': Tablename wasn't created");
             }
+            System.out.println("created");
         } catch (SException se) {
             throw se;
         } catch (Exception e) {
@@ -256,7 +261,7 @@ public class Shell {
             checkLen(args[0], args.length - 1, 1);
             Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
             if (!Files.exists(pathToRemove)) {
-                System.out.println("not found");
+                System.out.println("tablename not exists");
             }
 
             File fileToRemove = new File(pathAppend(args[1]));
@@ -289,7 +294,7 @@ public class Shell {
         } catch (Exception e) {
             throw new SException(args[0], e.getMessage());
         }
-        System.out.println("removed");
+        System.out.println("dropped");
     }
 
     private void copyOrMove(String[] args, boolean moveOrCopy) throws SException {
