@@ -21,7 +21,7 @@ public class UseCommand implements Command {
             if (!mfms.getFlag()) {
                 Table temp = new Table(f.getAbsolutePath());
                 mfms.usingTable(temp);
-                System.out.println("using table " + f.getName());
+                System.out.println("using " + f.getName());
             } else {
                 if (f.getCanonicalPath() == args[1]) {
                     System.out.println("This table is already loaded");
@@ -31,7 +31,7 @@ public class UseCommand implements Command {
                     ttable.flush();
                     Table newtable = new Table(f.getAbsolutePath());
                     mfms.usingTable(newtable);
-                    System.out.println("using table " + f.getName());
+                    System.out.println("using " + f.getName());
                 }
             }
         }
