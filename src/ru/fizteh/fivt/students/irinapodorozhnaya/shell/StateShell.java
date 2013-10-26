@@ -22,4 +22,13 @@ public class StateShell extends State {
 		add(new CommandExit(this));
 		add(new CommandMakeDirectory(this));
 	}
+
+	protected File getFileByName(String path) {
+		File f = new File(path);
+		if (f.isAbsolute()) {
+			return f;
+		} else {
+			return new File (this.getCurrentDir(), path);
+		}
+	}
 }
