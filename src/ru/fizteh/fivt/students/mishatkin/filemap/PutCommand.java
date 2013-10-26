@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
 import ru.fizteh.fivt.students.mishatkin.shell.ShellCommand;
+import ru.fizteh.fivt.students.mishatkin.shell.ShellReceiver;
 
 import java.lang.reflect.Method;
 
@@ -8,7 +9,7 @@ import java.lang.reflect.Method;
  * Created by Vladimir Mishatkin on 10/15/13
  */
 public class PutCommand extends ShellCommand {
-	public PutCommand(FileMapReceiver receiver) {
+	public PutCommand(ShellReceiver receiver) {
 		super(receiver);
 		setInputArgumentsCount(2);
 	}
