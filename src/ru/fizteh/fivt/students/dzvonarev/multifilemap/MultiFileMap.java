@@ -46,8 +46,8 @@ public class MultiFileMap {
                         continue;
                     }
                     String[] dbDirs = dirTable.list();
-                    HashMap<String, String> tempMap = new HashMap<String, String>();
                     if (dbDirs != null && dbDirs.length != 0) {
+                        HashMap<String, String> tempMap = new HashMap<String, String>();
                         for (String dbDir : dbDirs) {
                             File dbDirTable = new File(workingDir + File.separator + table + File.separator + dbDir);
                             String[] dbDats = dbDirTable.list();
@@ -59,10 +59,9 @@ public class MultiFileMap {
                                 readFileMap(tempMap, str, dbDir, dbDat); // table -> all |"key"|"value"|
 
                             }
-
                         }
+                        multiFileMap.put(table, tempMap);
                     }
-                    multiFileMap.put(table, tempMap);
                 }
             }
         } else {
@@ -143,6 +142,7 @@ public class MultiFileMap {
         long endOfFile = fileReader.length();
         long currFilePosition = fileReader.getFilePointer();
         if (endOfFile == 0) {
+            closeFile(fileReader);
             throw new IOException("reading directory: " + dir + " is not valid");
         }
         while (currFilePosition != endOfFile) {

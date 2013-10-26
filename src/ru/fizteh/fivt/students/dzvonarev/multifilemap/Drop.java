@@ -19,15 +19,15 @@ public class Drop implements CommandInterface {
             throw new IOException("drop: wrong parameters");
         }
         String table = str.substring(spaceIndex + 1, str.length());
-        if (table.equals(MultiFileMap.getWorkingTable())) {
-            throw new IOException("drop: can't drop table - you use it");
-        }
         if (new File(System.getProperty("fizteh.db.dir") + File.separator + table).exists()) {
             if (new File(System.getProperty("fizteh.db.dir") + File.separator + table).isDirectory()) {
                 HashMap<String, HashMap<String, String>> myMultiMap = MultiFileMap.getMultiFileMap();
                 myMultiMap.remove(table);
                 MultiFileMap.realRemove(table);
                 System.out.println("dropped");
+                if (table.equals(MultiFileMap.getWorkingTable())) {
+                    MultiFileMap.changeWorkingTable("noTable");
+                }
             } else {
                 throw new IOException("drop: " + table + " is file");
             }
