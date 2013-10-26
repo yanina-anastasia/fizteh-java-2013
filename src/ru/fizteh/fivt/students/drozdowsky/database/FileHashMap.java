@@ -97,6 +97,9 @@ public class FileHashMap {
 
     private int getDirNum(String key) {
         byte b = key.getBytes()[0];
+        if (b < 0) {
+            b *= -1;
+        }
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nDir;
@@ -104,6 +107,9 @@ public class FileHashMap {
 
     private int getFileNum(String key) {
         byte b = key.getBytes()[0];
+        if (b < 0) {
+            b *= -1;
+        }
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nFile;
