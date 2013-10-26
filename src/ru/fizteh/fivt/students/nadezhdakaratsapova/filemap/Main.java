@@ -12,7 +12,6 @@ public class Main {
     public static void main(String[] args) {
         FileWriter fileWriter = new FileWriter();
         try {
-            System.setProperty("fizteh.db.dir", "/home/hope");
             File dataFile = new File(System.getProperty("fizteh.db.dir"), "db.dat");
 
             if (!dataFile.exists()) {
