@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.demidov.multifilehashmap;
 
+import java.io.File;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.demidov.shell.Exit;

@@ -61,10 +61,16 @@ public class FilesMap {
 		clearFilesMapDirectory();
 		
 		for (String key: baseFileMaps.keySet()) {
+			FileMap baseFileMap = baseFileMaps.get(key);			
+			if (baseFileMap.getCurrentTable().isEmpty()) {
+				return;
+			}
+			
 			String ndirectory = key.substring(0, key.indexOf(" "));
 			String nfile = key.substring(key.indexOf(" ") + 1);
 			
 			File currentDirectory = new File(directoryPath + File.separator + ndirectory + ".dir");
+			
 			if (!currentDirectory.exists()) {			
 				if (!currentDirectory.mkdir()) {
 					throw new IOException("unable to create " + currentDirectory.getPath());
@@ -72,14 +78,14 @@ public class FilesMap {
 			}
 			
 			File currentFile = new File(currentDirectory.getPath() + File.separator + nfile + ".dat");
-			
+						
 			if (!currentFile.exists()) {			
 				if (!currentFile.createNewFile()) {
 					throw new IOException("unable to create " + currentFile.getPath());
 				}
-			}
+			}	
 			
-			baseFileMaps.get(key).writeDataToFile();
+			baseFileMap.writeDataToFile();
 		}
 	}
 

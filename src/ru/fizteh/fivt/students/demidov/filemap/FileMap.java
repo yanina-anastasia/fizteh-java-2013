@@ -58,7 +58,7 @@ public class FileMap {
 		openFile();
 		
 		if (dataBaseFile.length() == 0) {
-			return;
+			throw new IOException("empty file " + path);
 		}
 		
 		String readKey = null;
@@ -116,6 +116,11 @@ public class FileMap {
 			dataBaseFile.seek(offset);
 			dataBaseFile.write(currentPair.getValue().getBytes("UTF-8"));
 			offset = (int)dataBaseFile.getFilePointer();
+		}
+		
+		if (dataBaseFile.length() == 0) {
+			dataBaseFile.close();
+			(new File(path)).delete();
 		}
 		
 		dataBaseFile.close();
