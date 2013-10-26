@@ -113,8 +113,8 @@ public class FileHashMap {
     }
 
     private int getFileNum(String key) {
-        byte b = key.getBytes()[0];
-        if (b <= 0) {
+        int b = key.getBytes()[0];
+        if (b < 0) {
             b += 256;
         }
         int nDir = b % 16;
