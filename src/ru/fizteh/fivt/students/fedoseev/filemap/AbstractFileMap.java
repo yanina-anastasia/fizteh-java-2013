@@ -55,7 +55,8 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
                     throw new IOException("ERROR: too big file");
                 }
 
-                readFile();
+                Map<String, String> map = readFile(file);
+                putMap(map);
             } catch (IOException e) {
                 file.close();
                 System.err.println("ERROR: incorrect file format");
@@ -69,9 +70,11 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         }
     }
 
-    private void readFile() throws IOException {
+    public static Map<String, String> readFile(RandomAccessFile file) throws IOException {
+        Map<String, String> map = new HashMap<String, String>();
+
         if (file.length() == 0) {
-            return;
+            return null;
         }
 
         List<Integer> offsets = new ArrayList<Integer>();
@@ -126,8 +129,16 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
 
             String value = new String(valueArray, StandardCharsets.UTF_8);
 
-            content.put(key, value);
+            map.put(key, value);
             file.seek(currentOffset);
+        }
+
+        return map;
+    }
+
+    private void putMap(Map<String, String> map) {
+        for (String key : map.keySet()) {
+            content.put(key, map.get(key));
         }
     }
 
