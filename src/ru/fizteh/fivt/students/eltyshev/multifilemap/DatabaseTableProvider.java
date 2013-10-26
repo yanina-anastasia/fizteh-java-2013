@@ -30,7 +30,7 @@ public class DatabaseTableProvider implements TableProvider {
         MultifileTable table = tables.get(name);
 
         if (table == null) {
-            throw new IllegalStateException(String.format("%s not exists", name));
+            return table;
         }
 
         if (activeTable != null && activeTable.getUncommitedChangesCount() > 0) {
@@ -47,7 +47,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         if (tables.containsKey(name)) {
-            throw new IllegalStateException(String.format("%s exists", name));
+            return null;
         }
 
         MultifileTable table = new MultifileTable(databaseDirectoryPath, name);
