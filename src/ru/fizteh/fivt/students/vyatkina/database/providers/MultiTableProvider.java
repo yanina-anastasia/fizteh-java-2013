@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 public class MultiTableProvider extends AbstractTableProvider {
 
     protected Map<String, Table> tables = new HashMap<> ();
+    protected Set <String> droppedTables = new HashSet <> ();
 
     private final int NUMBER_OF_FILES = 16;
     private final int NUMBER_OF_DIRECTORIES = 16;
@@ -91,6 +93,7 @@ public class MultiTableProvider extends AbstractTableProvider {
     public void removeTable (String tableName) throws IllegalArgumentException, IllegalStateException {
         validTableNameCheck (tableName);
         Table table = tables.remove (tableName);
+        droppedTables.add (table.getName ());
         if (table == null) {
             throw new IllegalStateException ("Try to delete unknown table");
         }
@@ -112,6 +115,16 @@ public class MultiTableProvider extends AbstractTableProvider {
                 state.getFileManager ().deleteFile (oldDirectory);
             }
         }
+
+        for (String dpopped: droppedTables) {
+            Path tableToDrop = Paths.get (dpopped);
+            Path oldDirectory = state.getFileManager ().getCurrentDirectory ().resolve (tableToDrop);
+            if (Files.exists (oldDirectory)) {
+                state.getFileManager ().deleteFile (oldDirectory);
+            }
+        }
+
+        droppedTables.clear ();
 
         for (String tableName : tableNames) {
             Path tableDirectory = state.getFileManager ().getCurrentDirectory ().resolve (tableName);
