@@ -23,16 +23,16 @@ public class UseCommand implements Command {
                 mfms.usingTable(temp);
                 System.out.println("using " + f.getName());
             } else {
-                if (f.getCanonicalPath() == args[1]) {
-                    System.out.println("This table is already loaded");
-                    return;
-                } else {
+                //if (f.getCanonicalPath() == args[1]) {
+                   // System.out.println("This table is already loaded");
+                  //  return;
+                //} else {
                     Table ttable = mfms.getTable();
                     ttable.flush();
                     Table newtable = new Table(f.getAbsolutePath());
                     mfms.usingTable(newtable);
                     System.out.println("using " + f.getName());
-                }
+                //}
             }
         }
     }

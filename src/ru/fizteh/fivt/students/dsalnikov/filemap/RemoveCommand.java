@@ -15,7 +15,6 @@ public class RemoveCommand implements Command {
         if (args.length != 2) {
             throw new IllegalArgumentException("wrong usage of command remove: Wrong amount of arguments");
         } else {
-            System.out.print("1");
             FileMapState filemap = (FileMapState)f;
             String temp = filemap.deleteValue(args[1]);
             if (temp == null) {

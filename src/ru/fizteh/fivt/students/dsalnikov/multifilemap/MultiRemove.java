@@ -19,8 +19,8 @@ public class MultiRemove implements Command {
                 System.out.println("no table is loaded");
             } else {
                 int hashcode = args[1].hashCode();
-                int ndirectory = hashcode % 16;
-                int nfile = hashcode / 16 % 16;
+                int ndirectory = Math.abs(hashcode) % 16;
+                int nfile = Math.abs(hashcode) / 16 % 16;
                 MultiFileMapState mfms = (MultiFileMapState) state;
                 Table temp = mfms.getTable();
                 FileMap temptable = temp.getFileMap(String.valueOf(ndirectory)+ ".dir", String.valueOf(nfile) + ".dat");
