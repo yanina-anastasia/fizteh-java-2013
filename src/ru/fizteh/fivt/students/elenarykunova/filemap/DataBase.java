@@ -231,6 +231,7 @@ public class DataBase {
                 Shell.rm(filePath);
                 return;
             }
+            data.clear();
             closeDataFile();
         } catch (IOException e2) {
             throw e2;
