@@ -85,6 +85,7 @@ public class DataBasesCommander {
             if (!newFileMap.mkdirs()){
                 throw new MyException(new Exception("Unable to create this directory - " + newFileMap.getCanonicalPath()));
             }
+            System.out.println("created");
             filesMap.put(dataBase, new DataBase(shell, newFileMap ));
         }
     }
