@@ -137,8 +137,10 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
     }
 
     private void putMap(Map<String, String> map) {
-        for (String key : map.keySet()) {
-            content.put(key, map.get(key));
+        if (map != null) {
+            for (String key : map.keySet()) {
+                content.put(key, map.get(key));
+            }
         }
     }
 
