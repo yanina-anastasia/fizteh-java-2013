@@ -54,14 +54,14 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 
 	private FileMapReceiver tableForKey(String key) throws MultiFileHashMapException {
 		int hashCode = key.hashCode();
-		int directoryIndex = hashCode % MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
-		int fileIndex = (hashCode / 16) % 16;
-		int indexInFilesList = 16 * directoryIndex + fileIndex;
+		int mod = MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
+		int directoryIndex = (hashCode % mod + mod) % mod;
+		int fileIndex = ((hashCode / mod) % mod + mod) % mod;
+		int indexInFilesList = mod * directoryIndex + fileIndex;
 		if (tableFiles.get(indexInFilesList) == null) {
 			String directoryName = String.valueOf(directoryIndex) + ".dir";
 			String fileName = String.valueOf(fileIndex) + ".dat";
 			File directory = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
-//			File file = new File(directory, fileName);
 			if (!directory.exists()) {
 				directory.mkdir();
 			} else if (!directory.isDirectory()) {
@@ -87,9 +87,6 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 
 	@Override
 	public void putCommand(String key, String value) throws MultiFileHashMapException {
-//		if (!isSet()) {
-//			throw new MultiFileHashMapException("Table is not selected.");
-//		}
 		tableForKey(key).putCommand(key, value);
 	}
 

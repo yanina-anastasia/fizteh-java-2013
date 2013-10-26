@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
+import ru.fizteh.fivt.students.mishatkin.multifilehashmap.MultiFileHashMap;
 import ru.fizteh.fivt.students.mishatkin.shell.*;
 
 import java.io.*;
@@ -148,7 +149,9 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	public boolean doHashCodesConformHash(int hashCodeRemainder, int secondRadixHashCodeRemainder, int mod) {
 		boolean doConform = true;
 		for (String key : dictionary.keySet()) {
-			if (key.hashCode() % mod != hashCodeRemainder || (key.hashCode() / mod) % mod != secondRadixHashCodeRemainder) {
+			int code = key.hashCode();
+			if ((code % mod + mod) % mod!= hashCodeRemainder ||
+				((code / mod) % mod + mod) % mod != secondRadixHashCodeRemainder) {
 				return false;
 			}
 		}
