@@ -19,6 +19,13 @@ public class Database {
     Map<String, String> data;
     public Database(String pathName) {
         path = new File(pathName);
+        if (!path.exists()) {
+            try {
+                path.createNewFile();
+            } catch (Exception e) {
+                System.err.println("Error creating database: file can't be created, reason: " + e.getMessage());
+            }
+        }
         try {
             data = readFromFile(pathName);
         } catch (IOException e) {
