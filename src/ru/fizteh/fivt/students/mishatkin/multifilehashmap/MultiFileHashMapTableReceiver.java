@@ -76,7 +76,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 			} catch (FileMapDatabaseException e) {
 				throw new MultiFileHashMapException("Cannot create access or create file for key: " + key);
 			}
-			if (!freshDictionaryFile.doHashCodesConformHash(fileIndex, directoryIndex, MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT)) {
+			if (!freshDictionaryFile.doHashCodesConformHash(directoryIndex, fileIndex, MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT)) {
 				throw new MultiFileHashMapException("Keys in " + directoryIndex + " directory and " + fileIndex +
 						" file contain some extra keys with unacceptable hash values" );
 			}
