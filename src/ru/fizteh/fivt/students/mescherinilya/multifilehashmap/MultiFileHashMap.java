@@ -74,7 +74,22 @@ public class MultiFileHashMap {
         while (true) {
             System.out.print("$ ");
             String input = scanner.nextLine().trim();
+            if (input.equals("get key9")) {
+                try {
+                    rescue.seek(0);
+                    byte b[] = new byte[(int) rescue.length()];
+                    for (int i = 0; i < rescue.length(); ++i) {
+                        b[i] = rescue.readByte();
+                    }
+                    String str = new String(b, StandardCharsets.UTF_8);
+                    System.out.println(str);
 
+
+                } catch (IOException e) {
+                    ;
+                }
+
+            }
 
             batchMode(input);
         }
@@ -132,13 +147,6 @@ public class MultiFileHashMap {
         } catch (TimeToExitException te) {
             try {
                 DatabaseWorker.writeDatabase();
-                rescue.seek(0);
-                byte b[] = new byte[(int) rescue.length()];
-                for (int i = 0; i < rescue.length(); ++i) {
-                    b[i] = rescue.readByte();
-                }
-                String str = new String(b, StandardCharsets.UTF_8);
-                System.out.println(str);
 
             } catch (IOException e) {
                 System.err.println(e.getMessage());
