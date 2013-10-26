@@ -133,22 +133,22 @@ public class DataBase {
     }
 
     public String get(String keyString) {
-        int nDir = keyString.getBytes()[0] % 16;
-        int nFile = (keyString.getBytes()[0] / 16) % 16;
+    	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.get(keyString);
     }
 
     public String put(String keyString, String valueString) {
-        int nDir = keyString.getBytes()[0] % 16;
-        int nFile = (keyString.getBytes()[0] / 16) % 16;
+        int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.put(keyString, valueString);
     }
 
     public String remove(String keyString) {
-        int nDir = keyString.getBytes()[0] % 16;
-        int nFile = (keyString.getBytes()[0] / 16) % 16;
+    	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.remove(keyString);
     }
