@@ -21,10 +21,11 @@ public class CreateNewTableCommand implements Command {
             MultiFileMapState fms = (MultiFileMapState) sf;
             File f = new File(fms.workingdirectory, args[1]);
             if (f.exists()) {
-                System.out.println("tablemane " + args[1] + " already exists");
+                System.out.println(args[1] + " exists");
                 return;
             } else {
                 f.mkdir();
+                System.out.println("created");
             }
         }
     }
