@@ -89,7 +89,10 @@ public class DataLoader {
                         FileReader fileReader = new FileReader(f, state.dataStorage);
                         while (fileReader.checkingLoadingConditions()) {
                             String key = fileReader.getNextKey();
-                            int hashByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+                            int hashByte = key.getBytes(StandardCharsets.UTF_8)[0];
+                            if (hashByte < 0) {
+                                hashByte += 256;
+                            }
                             int ndirectory = hashByte % DIR_COUNT;
                             int nfile = hashByte % FILE_COUNT;
                             if (ndirectory != dirNumber) {

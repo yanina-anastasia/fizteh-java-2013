@@ -22,7 +22,10 @@ public class DataWriter {
                         DataTable keysToFile = new DataTable();
                         File file = new File(dir, new String(j + ".dat"));
                         for (String key : keys) {
-                            int hashByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+                            int hashByte = key.getBytes(StandardCharsets.UTF_8)[0];
+                            if (hashByte < 0) {
+                                hashByte += 256;
+                            }
                             int ndirectory = hashByte % DIR_COUNT;
                             int nfile = hashByte % FILE_COUNT;
                             if ((ndirectory == i) && (nfile == j)) {
