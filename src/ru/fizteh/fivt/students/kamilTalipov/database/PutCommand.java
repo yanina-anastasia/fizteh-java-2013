@@ -17,7 +17,7 @@ public class PutCommand extends SimpleCommand {
         StringBuilder value = new StringBuilder();
         for (int i = 1; i < args.length; ++i) {
             value.append(args[i]);
-            if (i != args.length -1 ) {
+            if (i != args.length - 1) {
                 value.append(" ");
             }
         }
