@@ -23,6 +23,10 @@ public class Get implements CommandInterface {
         String key = str.substring(spaceIndex + 1, str.length());
         String currTable = MultiFileMap.getWorkingTable();
         HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
+        if (fileMap == null) {
+            fileMap = new HashMap<String, String>();
+        }
+
         String value = fileMap.get(key);
         if (value == null) {
             System.out.println("not found");
