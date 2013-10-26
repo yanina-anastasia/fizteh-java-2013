@@ -24,6 +24,10 @@ public class MultiRemove implements Command {
                 MultiFileMapState mfms = (MultiFileMapState) state;
                 Table temp = mfms.getTable();
                 FileMap temptable = temp.getFileMap(String.valueOf(ndirectory)+ ".dir", String.valueOf(nfile) + ".dat");
+                if(temptable == null) {
+                    System.out.println("not found");
+                    return;
+                }
                 RemoveCommand rc = new RemoveCommand();
                 rc.execute(temptable.getState(), args);
             }

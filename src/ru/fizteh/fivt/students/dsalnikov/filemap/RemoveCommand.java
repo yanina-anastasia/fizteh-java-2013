@@ -15,13 +15,14 @@ public class RemoveCommand implements Command {
         if (args.length != 2) {
             throw new IllegalArgumentException("wrong usage of command remove: Wrong amount of arguments");
         } else {
+            System.out.print("1");
             FileMapState filemap = (FileMapState)f;
             String temp = filemap.deleteValue(args[1]);
             if (temp == null) {
                 System.out.println("not found");
                 return;
             } else {
-                System.out.println("removed " + args[1]);
+                System.out.println("removed");
             }
         }
     }
