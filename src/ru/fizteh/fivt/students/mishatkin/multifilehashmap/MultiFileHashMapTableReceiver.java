@@ -27,9 +27,6 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	public MultiFileHashMapTableReceiver(String tableName) {
 		tableFiles = new ArrayList<FileMapReceiver>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
 		this.tableName = tableName;
-//		for (int i = 0; i < tableFiles.size(); ++i) {
-//			tableFiles.add(null);
-//		}
 		delegate = null;
 	}
 
@@ -70,7 +67,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 			} else if (!directory.isDirectory()) {
 				throw new MultiFileHashMapException(directoryName + ".dir file already exists and it is most certainly not a directory. OK bye.");
 			}
-			String pseudoFileName = directoryName + File.separator + fileName;
+			String pseudoFileName = tableName + File.separator + directoryName + File.separator + fileName;
 			FileMapReceiver freshDictionaryFile = null;
 			try {
 				MultiFileHashMapTableReceiverDelegate delegate = getDelegate();
@@ -109,9 +106,12 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	public void writeFilesOnDrive() {
 		for (FileMapReceiver everyFile : tableFiles) {
 			try {
-				everyFile.exitCommand();
+				if (everyFile != null) {
+					everyFile.exitCommand();
+				}
 			} catch (TimeToExitException LoLJustKidding) {
 			}
 		}
 	}
+
 }

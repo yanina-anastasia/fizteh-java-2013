@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.mishatkin.multifilehashmap;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiverProtocol;
 import ru.fizteh.fivt.students.mishatkin.shell.ShellException;
 import ru.fizteh.fivt.students.mishatkin.shell.ShellReceiver;
+import ru.fizteh.fivt.students.mishatkin.shell.TimeToExitException;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -116,6 +117,11 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 		}
 	}
 
+	@Override
+	public void exitCommand() throws TimeToExitException {
+		table.writeFilesOnDrive();
+		super.exitCommand();
+	}
 //	Delegate methods
 	@Override
 	public String getDbDirectoryName() {
