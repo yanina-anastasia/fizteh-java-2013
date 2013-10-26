@@ -9,10 +9,10 @@ public abstract class ShellEmulator {
     public interface ShellCommand {
         String getName();
 
-        abstract void execute(String[] args) throws ShellException;
+        void execute(String[] args) throws ShellException;
     }
 
-    private HashMap <String, ShellCommand> mapCommand = new HashMap<>();
+    private HashMap<String, ShellCommand> mapCommand = new HashMap<>();
 
     protected void clearCommandList() {
         mapCommand.clear();
@@ -30,7 +30,7 @@ public abstract class ShellEmulator {
     }
 
     protected String getGreetingString() {
-        return("$ ");
+        return "$ ";
     }
 
     protected String[] shellParseArguments(String bigArg) {

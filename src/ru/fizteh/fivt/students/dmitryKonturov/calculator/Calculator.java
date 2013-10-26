@@ -2,28 +2,42 @@ package ru.fizteh.fivt.students.dmitryKonturov.calculator;
 
 import java.math.BigInteger;
 
-/**
- * Калькулятор, считающий в 17-ичной системе счисления.
- * Все символы переводятся в нижний регистр.
- * Допустимые опереции: бинарные: +, -, *, /
- * а также объединение операций круглами скобками.
- */
+public class Calculator {
 
-class WrongExpression extends Exception {
-    private String errorDescription;
+    private Calculator() {
 
-    WrongExpression(String err) {
-        errorDescription = err;
     }
 
-    @Override
-    public String toString() {
-        return ("Неправильное выражение: " + errorDescription);
+    public static void main(String[] args) {
+        StringBuilder argsBuilder = new StringBuilder();
+
+        for (String arg : args) {
+            argsBuilder.append(arg);
+            argsBuilder.append(' ');
+        }
+
+        String argsString = argsBuilder.toString().toLowerCase();
+
+        try {
+            MyCalculator calc = new MyCalculator();
+            String result = calc.calculate(argsString);
+            System.out.println(result);
+        } catch (WrongExpression e) {
+            System.err.println(e);
+            System.exit(1);
+        } catch (ArithmeticException e) {
+            System.err.println(e);
+            System.exit(2);
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(3);
+        }
     }
 }
 
+
 class MyCalculator {
-    private final int NUMBER_BASE = 17;
+    private final int numberBase = 17;
     private String expression;
     private int curPosition;
     private Lexeme curLexeme;
@@ -78,7 +92,7 @@ class MyCalculator {
                     ++rightIndex;
                 }
                 try {
-                    curNumber = new BigInteger(expression.substring(curPosition, rightIndex), NUMBER_BASE);
+                    curNumber = new BigInteger(expression.substring(curPosition, rightIndex), numberBase);
                     curPosition = rightIndex;
                     return Lexeme.NUMBER;
                 } catch (Exception e) {
@@ -184,8 +198,8 @@ class MyCalculator {
                 }
 
             case CLOSE_BR:
-                throw new WrongExpression(String.format("Ожидалось непустое выражение в скобках или число в позиции %d.",
-                                                         curPosition));
+                throw new WrongExpression(String.format("Ожидалось непустое выражение в скобках или "
+                                                       + "число в позиции %d.", curPosition));
 
             default:
                 throw new WrongExpression(String.format("Ожидалось выражение в скобках или число в позиции %d, "
@@ -208,7 +222,7 @@ class MyCalculator {
                                                     + "Результат без них равен: %s.", result));
         }
 
-        return result.toString(NUMBER_BASE);
+        return result.toString(numberBase);
     }
 
     enum Lexeme {
@@ -224,35 +238,16 @@ class MyCalculator {
 
 }
 
-public class Calculator {
+class WrongExpression extends Exception {
+    private String errorDescription;
 
-    private Calculator() {
-
+    WrongExpression(String err) {
+        errorDescription = err;
     }
 
-    public static void main(String[] args) {
-        StringBuilder argsBuilder = new StringBuilder();
-
-        for (String arg : args) {
-            argsBuilder.append(arg);
-            argsBuilder.append(' ');
-        }
-
-        String argsString = argsBuilder.toString().toLowerCase();
-
-        try {
-            MyCalculator calc = new MyCalculator();
-            String result = calc.calculate(argsString);
-            System.out.println(result);
-        } catch (WrongExpression e) {
-            System.err.println(e);
-            System.exit(1);
-        } catch (ArithmeticException e) {
-            System.err.println(e);
-            System.exit(2);
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(3);
-        }
+    @Override
+    public String toString() {
+        return ("Неправильное выражение: " + errorDescription);
     }
 }
+
