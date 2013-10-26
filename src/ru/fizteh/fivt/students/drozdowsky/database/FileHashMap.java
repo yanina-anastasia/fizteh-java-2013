@@ -95,13 +95,6 @@ public class FileHashMap {
         writeDB();
     }
 
-    /*private int mod (int a, int m) {
-        while (a < 0) {
-            a += m;
-        }
-        return a % m;
-    } */
-
     private int getDirNum(String key) {
         int b = key.getBytes()[0];
         if (b < 0) {
@@ -165,9 +158,9 @@ public class FileHashMap {
     }
 
     private void writeDB() {
-        for (int i = 1; i <= NDIRS; i++) {
+        for (int i = 0; i < NDIRS; i++) {
             File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
-            for (int j = 1; j <= NFILES; j++) {
+            for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j));
                     if (base[i][j].getKeys().size() == 0) {
@@ -184,7 +177,7 @@ public class FileHashMap {
     }
 
     private int nameInRange(String s, int range) {
-        for (int i = 1; i <= range; i++) {
+        for (int i = 0; i < range; i++) {
             if (Integer.toString(i).equals(s)) {
                 return i;
             }
