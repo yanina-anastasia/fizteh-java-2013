@@ -29,39 +29,28 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 	
 	public HashMap<String, String> map = new HashMap<>();
 	
-<<<<<<< HEAD
-	public void readFile(File in) throws IOException {
-		DataInputStream s = new DataInputStream(new FileInputStream(in));
-=======
 	public void readFile() throws IOException {
 		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
->>>>>>> fa256da8daca9a52d7a5cc31fba224e380482469
-		boolean flag = true;
-		do {
-			try {
-				int keyLength = s.readInt();
-				int valueLength = s.readInt();
-				if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
-					throw new IOException("Invalid input");
-				}
-				byte[] tempKey = new byte[keyLength];
-				s.read(tempKey);
-				String key = new String(tempKey, StandardCharsets.UTF_8);
-				byte[] tempValue = new byte[valueLength];
-				s.read(tempValue);
-				String value = new String(tempValue, StandardCharsets.UTF_8);
-				map.put(key, value);
-			} catch (EOFException e) {
-				break;
-			}
-<<<<<<< HEAD
-		} while (flag);
-		s.close();
-=======
-			} while (flag);
-			s.close();
-		
->>>>>>> fa256da8daca9a52d7a5cc31fba224e380482469
+        boolean flag = true;
+        do {
+                try {
+                        int keyLength = s.readInt();
+                        int valueLength = s.readInt();
+                        if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
+                                throw new IOException("Invalid input");
+                        }
+                        byte[] tempKey = new byte[keyLength];
+                        s.read(tempKey);
+                        String key = new String(tempKey, StandardCharsets.UTF_8);
+                        byte[] tempValue = new byte[valueLength];
+                        s.read(tempValue);
+                        String value = new String(tempValue, StandardCharsets.UTF_8);
+                        map.put(key, value);
+                } catch (EOFException e) {
+                        break;
+                }
+                } while (flag);
+                s.close();
 	
 	}
 	
