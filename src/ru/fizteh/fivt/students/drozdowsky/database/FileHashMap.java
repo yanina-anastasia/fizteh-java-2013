@@ -163,7 +163,7 @@ public class FileHashMap {
             File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
-                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
+                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j));
                     if (base[i][j].getKeys().size() == 0) {
                         filePath.delete();
                     } else {
