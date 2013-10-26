@@ -19,7 +19,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	private boolean isValidStringLength(int size) {
 		return size > 0 && size < TERRIBLE_FILE_SIZE;
 	}
-	
+
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
 		FileInputStream in = null;
@@ -148,7 +148,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	public boolean doHashCodesConformHash(int hashCodeRemainder, int secondRadixHashCodeRemainder, int mod) {
 		boolean doConform = true;
 		for (String key : dictionary.keySet()) {
-			if (key.hashCode() % mod != hashCodeRemainder || key.hashCode() % mod != secondRadixHashCodeRemainder) {
+			if (key.hashCode() % mod != hashCodeRemainder || (key.hashCode() / mod) % mod != secondRadixHashCodeRemainder) {
 				return false;
 			}
 		}
