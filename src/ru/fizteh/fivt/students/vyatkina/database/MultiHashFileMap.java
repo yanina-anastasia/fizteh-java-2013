@@ -1,12 +1,15 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
-import ru.fizteh.fivt.students.vyatkina.database.providers.SingleTableProvider;
-import ru.fizteh.fivt.students.vyatkina.database.providers.SingleTableProviderFactory;
+import ru.fizteh.fivt.students.vyatkina.Command;
+import ru.fizteh.fivt.students.vyatkina.database.providerCommands.CreateCommand;
+import ru.fizteh.fivt.students.vyatkina.database.providerCommands.DropCommand;
+import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
+import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProviderFactory;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.ExitDatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.providerCommands.UseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.GetCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.PutCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RemoveCommand;
-import ru.fizteh.fivt.students.vyatkina.Command;
 import ru.fizteh.fivt.students.vyatkina.shell.Shell;
 
 import java.nio.file.Path;
@@ -14,14 +17,17 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FileMap {
+public class MultiHashFileMap {
 
-    static Set<Command> getFileMapCommands (DatabaseState state) {
+    static Set<Command> getMultiHashFileMapCommands (DatabaseState state) {
         Set commands = new HashSet ();
         commands.add (new GetCommand (state));
         commands.add (new PutCommand (state));
         commands.add (new RemoveCommand (state));
         commands.add (new ExitDatabaseCommand (state));
+        commands.add (new CreateCommand (state));
+        commands.add (new DropCommand (state));
+        commands.add (new UseCommand (state));
         return commands;
     }
 
@@ -31,14 +37,14 @@ public class FileMap {
         if (input != null) {
             databasePath = Paths.get (input);
         } else {
-            System.err.println ("This is SingleDatabase. To run program, give it propereties -Dfizteh.db.dir=<directory>");
+            System.err.println ("This is MultiDatabase. To run program, give it empty directory -Dfizteh.db.dir=<directory>");
             return;
         }
 
-        SingleTableProviderFactory singleTableProviderFactory = new SingleTableProviderFactory ();
+        MultiTableProviderFactory multiTableProviderFactory = new MultiTableProviderFactory ();
         try {
-            SingleTableProvider tableProvider = (SingleTableProvider) singleTableProviderFactory.create (databasePath.toString ());
-            Set<Command> commands = getFileMapCommands (tableProvider.state);
+            MultiTableProvider tableProvider = (MultiTableProvider) multiTableProviderFactory.create (databasePath.toString ());
+            Set<Command> commands = getMultiHashFileMapCommands (tableProvider.state);
 
             Shell shell;
 
@@ -54,5 +60,6 @@ public class FileMap {
         }
 
     }
+
 
 }
