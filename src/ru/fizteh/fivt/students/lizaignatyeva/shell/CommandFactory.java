@@ -8,7 +8,7 @@ public class CommandFactory {
         commands = commandsList;
     }
 
-    public Command makeCommand(String name) throws Exception{
+    public Command makeCommand(String name) throws Exception {
         Command cmd = commands.get(name);
         if (cmd == null) {
             throw new IllegalArgumentException("command not found");
