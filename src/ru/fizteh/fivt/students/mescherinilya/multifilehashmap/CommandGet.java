@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.mescherinilya.filemap;
+package ru.fizteh.fivt.students.mescherinilya.multifilehashmap;
 
 public class CommandGet implements Command {
 
@@ -13,8 +13,8 @@ public class CommandGet implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (FileMap.storage.containsKey(args[0])) {
-            System.out.println("found\n" + FileMap.storage.get(args[0]));
+        if (MultiFileHashMap.storage.containsKey(args[0])) {
+            System.out.println("found\n" + MultiFileHashMap.storage.get(args[0]));
         } else {
             System.out.println("not found");
         }

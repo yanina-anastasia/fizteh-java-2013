@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.mescherinilya.filemap;
+package ru.fizteh.fivt.students.mescherinilya.multifilehashmap;
 
 
 public class TimeToExitException extends Exception {

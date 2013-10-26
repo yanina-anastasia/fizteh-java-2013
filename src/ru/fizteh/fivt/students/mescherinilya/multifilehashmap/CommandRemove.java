@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.mescherinilya.filemap;
+package ru.fizteh.fivt.students.mescherinilya.multifilehashmap;
 
 public class CommandRemove implements Command {
 
@@ -13,8 +13,8 @@ public class CommandRemove implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (FileMap.storage.containsKey(args[0])) {
-            FileMap.storage.remove(args[0]);
+        if (MultiFileHashMap.storage.containsKey(args[0])) {
+            MultiFileHashMap.storage.remove(args[0]);
             System.out.println("removed");
         } else {
             System.out.println("not found");

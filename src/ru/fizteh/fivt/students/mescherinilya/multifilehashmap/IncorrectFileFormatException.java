@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.mescherinilya.filemap;
+package ru.fizteh.fivt.students.mescherinilya.multifilehashmap;
 
 public class IncorrectFileFormatException extends Exception {
     public IncorrectFileFormatException() {
