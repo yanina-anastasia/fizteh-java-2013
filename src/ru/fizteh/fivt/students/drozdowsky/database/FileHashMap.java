@@ -95,28 +95,15 @@ public class FileHashMap {
         writeDB();
     }
 
-    /*private int mod (int a, int m) {
-        while (a < 0) {
-            a += m;
-        }
-        return a % m;
-    } */
-
     private int getDirNum(String key) {
-        int b = key.getBytes()[0];
-        if (b < 0) {
-            b *= -1;
-        }
+        byte b = key.getBytes()[0];
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nDir;
     }
 
     private int getFileNum(String key) {
-        int b = key.getBytes()[0];
-        if (b < 0) {
-            b *= -1;
-        }
+        byte b = key.getBytes()[0];
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nFile;
@@ -138,7 +125,7 @@ public class FileHashMap {
         for (String directory : directories) {
             int nDir = nameInRange(directory, NDIRS);
             if (nDir == -1 || !(new File(db.getAbsolutePath() + '/' + directory).isDirectory())) {
-                fatalError(db.getAbsolutePath() + ": Not valid database1");
+                fatalError(db.getAbsolutePath() + ": Not valid database");
             }
 
             File subdir = new File(db.getAbsolutePath() + '/' + directory);
@@ -146,18 +133,19 @@ public class FileHashMap {
             for (String file : files) {
                 int nFile = nameInRange(file, NFILES);
                 if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database2");
+                    fatalError(db.getAbsolutePath() + ": Not valid database");
                 }
                 base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database3");
+                    fatalError(db.getAbsolutePath() + ": Not valid database");
                 }
                 for (String key : keys) {
-                    int realNDir = getDirNum(key);
-                    int realNFile = getFileNum(key);
+                    byte b = key.getBytes()[0];
+                    int realNDir = b % 16;
+                    int realNFile = b / 16 % 16;
                     if (!(nDir == realNDir && nFile == realNFile)) {
-                        fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database");
+                        fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database1");
                     }
                 }
             }
