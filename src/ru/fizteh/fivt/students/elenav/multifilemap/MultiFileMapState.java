@@ -88,8 +88,8 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 	
 	private File getWhereWrite(String key) throws IOException {
 		int hashcode = key.hashCode();
-		int ndirectory = hashcode % 16;
-		int nfile = hashcode / 16 % 16;
+		int ndirectory = Math.abs(hashcode % 16);
+		int nfile = Math.abs(hashcode / 16 % 16);
 		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
