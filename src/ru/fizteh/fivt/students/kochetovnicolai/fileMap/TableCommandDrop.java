@@ -23,6 +23,9 @@ public class TableCommandDrop implements Executable {
         }
         try {
             manager.removeTable(args[1]);
+            if (manager.getCurrentTable().getName().equals(args[1])) {
+                manager.setCurrentTable(null);
+            }
             manager.printMessage("dropped");
             return true;
         } catch (IllegalArgumentException e) {
