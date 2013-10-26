@@ -14,6 +14,10 @@ public class ShellDbRemove extends ShellIsItCommand {
 	
 	
 	public void run() {
+		if (!dataBaseTable.exists()){
+			System.out.println("no table");
+			return;
+		}
 		String newString = dataBaseTable.remove(arguments[1]);
 		if (newString == null){
 			System.out.println("not found");

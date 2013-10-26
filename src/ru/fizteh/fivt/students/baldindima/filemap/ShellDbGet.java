@@ -11,6 +11,10 @@ import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 			
 		}
 		public void run(){
+			if (!dataBaseTable.exists()){
+				System.out.println("no table");
+				return;
+			}
 			String value = dataBaseTable.get(arguments[1]);
 			if (value == null){
 				System.out.println("not found");

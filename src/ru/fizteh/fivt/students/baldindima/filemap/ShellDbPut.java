@@ -11,6 +11,10 @@ public class ShellDbPut extends ShellIsItCommand {
 	}
 	
 	public void run(){
+		if (!dataBaseTable.exists()){
+			System.out.println("no table");
+			return;
+		}
 		String newString = dataBaseTable.put(arguments[1], arguments[2]);
 		if (newString == null){
 			System.out.println("new");

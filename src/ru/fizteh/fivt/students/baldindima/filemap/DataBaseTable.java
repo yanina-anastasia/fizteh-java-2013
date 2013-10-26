@@ -84,6 +84,9 @@ public class DataBaseTable {
     public String remove(String keyString) {
         return dataBase.remove(keyString);
     }
+    public boolean exists(){
+    	return (dataBase != null);
+    }
 
 
 }
