@@ -94,7 +94,7 @@ public class DataLoader {
                                 hashByte += 256;
                             }
                             int ndirectory = hashByte % DIR_COUNT;
-                            int nfile = hashByte % FILE_COUNT;
+                            int nfile = hashByte / DIR_COUNT % FILE_COUNT;
                             if (ndirectory != dirNumber) {
                                 throw new IllegalArgumentException("Wrong key in " + dirName);
                             }
