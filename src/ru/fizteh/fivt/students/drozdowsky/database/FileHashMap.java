@@ -116,6 +116,7 @@ public class FileHashMap {
     }
 
     private void readDB() throws IOException {
+        error(db.getAbsolutePath());
         if (!db.getParentFile().exists()) {
             fatalError(db.getParentFile().getAbsolutePath() + ": No such file or directory");
         } else if (db.exists() && !db.isDirectory()) {
