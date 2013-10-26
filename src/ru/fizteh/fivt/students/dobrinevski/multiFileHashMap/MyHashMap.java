@@ -122,7 +122,7 @@ public class MyHashMap {
             parseFile(dbFile, nDirectory, nFile);
         }
         String value = dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
-        System.out.println(value == null ? new : "overwrite\n" + value);
+        System.out.println(value == null ? "new" : "overwrite\n" + value);
 
     }
 
