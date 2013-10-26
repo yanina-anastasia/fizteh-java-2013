@@ -13,7 +13,7 @@ public class FileHashMap {
 
     FileHashMap(File db) throws IOException {
         this.db = db;
-        base = new FileMap[NDIRS + 1][NFILES + 1];
+        base = new FileMap[NDIRS][NFILES];
         readDB();
     }
 
@@ -116,7 +116,6 @@ public class FileHashMap {
     }
 
     private void readDB() throws IOException {
-        error(db.getAbsolutePath());
         if (!db.getParentFile().exists()) {
             fatalError(db.getParentFile().getAbsolutePath() + ": No such file or directory");
         } else if (db.exists() && !db.isDirectory()) {
@@ -143,7 +142,7 @@ public class FileHashMap {
                     fatalError(db.getAbsolutePath() + ": Not valid database");
                 }
                 error(new File(subdir.getAbsolutePath() + '/' + file).getAbsolutePath());
-                /*base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
+                base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file + ".dat"));
                 error(new File(subdir.getAbsolutePath() + '/' + file).getAbsolutePath());
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
@@ -155,7 +154,7 @@ public class FileHashMap {
                     if (!(nDir == realNDir && nFile == realNFile)) {
                         fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database1");
                     }
-                } */
+                }
             }
         }
     }
@@ -165,7 +164,7 @@ public class FileHashMap {
             File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
-                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j));
+                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
                     if (base[i][j].getKeys().size() == 0) {
                         filePath.delete();
                     } else {

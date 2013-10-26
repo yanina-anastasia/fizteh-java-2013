@@ -16,9 +16,6 @@ public class FileMap {
     static final int BUFFSIZE = 100000;
 
     public FileMap(File dbPath) throws IOException {
-        /*if (!dbPath.exists()) {
-             fatalError("Database doesn't exist");
-        } */
         this.dbPath = dbPath;
         changed = false;
         db = new HashMap<String, String>();
