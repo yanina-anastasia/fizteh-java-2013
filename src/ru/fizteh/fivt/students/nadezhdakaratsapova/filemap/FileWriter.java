@@ -23,7 +23,7 @@ public class FileWriter {
                 outStream.write(b);
                 outStream.writeByte('\0');
                 outStream.writeInt(offset);
-                String value = dataTable.getValue(s);
+                String value = dataTable.get(s);
                 values.add(value);
                 offset += value.getBytes().length;
             }

@@ -5,10 +5,10 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import java.io.IOException;
 
 public class ExitCommand implements Command {
-    MultiFileHashMapState curState;
+    MultiFileHashMapProvider curState;
     DataWriter dataWriter = new DataWriter();
 
-    public ExitCommand(MultiFileHashMapState state) {
+    public ExitCommand(MultiFileHashMapProvider state) {
         curState = state;
     }
 

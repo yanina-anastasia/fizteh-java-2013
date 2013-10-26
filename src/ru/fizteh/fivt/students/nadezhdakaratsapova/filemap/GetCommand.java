@@ -17,7 +17,7 @@ public class GetCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        String value = curState.dataStorage.getValue(args[1]);
+        String value = curState.dataStorage.get(args[1]);
         if (value == null) {
             System.out.println("not found");
         } else {

@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
-
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Shell;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.StringMethods;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -14,15 +12,10 @@ public class Main {
         DataWriter dataWriter = new DataWriter();
         try {
             System.setProperty("fizteh.db.dir", "/home/hope/");
-            File dataDirectory = new File(System.getProperty("fizteh.db.dir"));
-            if (!dataDirectory.exists()) {
-                throw new IOException("The working directory doesn't exist");
-            }
-            if (!dataDirectory.isDirectory()) {
-                throw new IOException("The root directory should be a directory");
-            }
+            String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
-            MultiFileHashMapState state = new MultiFileHashMapState(dataDirectory);
+            MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
+            MultiFileHashMapProvider state = providerFactory.create(dirName);
             multiFileHashMap.addCommand(new CreateCommand(state));
             multiFileHashMap.addCommand(new DropCommand(state));
             multiFileHashMap.addCommand(new ExitCommand(state));
@@ -49,6 +42,9 @@ public class Main {
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(2);
         }
     }
 }

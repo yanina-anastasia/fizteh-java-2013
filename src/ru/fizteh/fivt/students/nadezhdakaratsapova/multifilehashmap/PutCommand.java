@@ -5,9 +5,9 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import java.io.IOException;
 
 public class PutCommand implements Command {
-    private MultiFileHashMapState curState;
+    private MultiFileHashMapProvider curState;
 
-    public PutCommand(MultiFileHashMapState state) {
+    public PutCommand(MultiFileHashMapProvider state) {
         curState = state;
     }
 
@@ -19,8 +19,8 @@ public class PutCommand implements Command {
         DataLoader dataLoader = new DataLoader();
         dataLoader.load(curState);
         if (curState.getCurTable() != null) {
-            String value = curState.dataStorage.getValue(args[1]);
-            curState.dataStorage.add(args[1], args[2]);
+            String value = curState.dataStorage.get(args[1]);
+            curState.dataStorage.put(args[1], args[2]);
             if (value == null) {
                 System.out.println("new");
             } else {

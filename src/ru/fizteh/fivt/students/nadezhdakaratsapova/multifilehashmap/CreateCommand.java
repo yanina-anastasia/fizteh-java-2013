@@ -1,15 +1,14 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
-
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
-import java.io.File;
+
 import java.io.IOException;
 
 public class CreateCommand implements Command {
-    MultiFileHashMapState curState;
+    MultiFileHashMapProvider curState;
 
-    public CreateCommand(MultiFileHashMapState state) {
+    public CreateCommand(MultiFileHashMapProvider state) {
         curState = state;
     }
 
@@ -18,15 +17,9 @@ public class CreateCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        File newTable = new File(curState.getWorkingDirectory(), args[1]);
-        newTable = newTable.getCanonicalFile();
-        if (newTable.exists()) {
-            if (!newTable.isDirectory()) {
-                throw new IOException(args[1] + " should be a directory");
-            }
-            System.out.println(args[1] + " exists");
+        if (curState.createTable(args[1]) == null) {
+            System.out.println(args[1] + " exist");
         } else {
-            newTable.mkdir();
             System.out.println("created");
         }
     }

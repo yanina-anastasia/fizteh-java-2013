@@ -1,24 +1,34 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
 
 public class DataLoader {
     public static final int DIR_COUNT = 16;
     public static final int FILE_COUNT = 16;
 
-    public void load(MultiFileHashMapState state) throws IOException {
-        if (state.getCurTable() == null) {
+    public void load(MultiFileHashMapProvider state) throws IOException, IllegalArgumentException {
+        if (state.getNextTable() == null) {
             System.out.println("no table");
         } else {
-            if (!state.getCurTable().equals(state.getNextTable())) {
+            boolean loadFlag = false;
+            if (state.getCurTable() == null) {
+                loadFlag = true;
+            } else {
+                if (!state.getCurTable().getCanonicalFile().equals(state.getNextTable())) {
+                    loadFlag = true;
+                }
+            }
+            if (loadFlag) {
                 DataWriter dataWriter = new DataWriter();
                 dataWriter.writeData(state);
-                FileReader fileReader = new FileReader();
+                state.setCurTable(state.getNextTable());
+                state.dataStorage = new DataTable(state.getCurTable().getName());
+
                 File[] dirs = state.getCurTable().listFiles();
                 if (dirs.length > DIR_COUNT) {
                     throw new IOException("The table includes more than " + DIR_COUNT + " directories");
@@ -31,16 +41,68 @@ public class DataLoader {
                     if (files.length > FILE_COUNT) {
                         throw new IOException("The directory includes more than " + FILE_COUNT + " files");
                     }
+                    String dirName = d.getName();
+                    char firstChar = dirName.charAt(0);
+                    char secondChar;
+                    int dirNumber;
+                    if (dirName.length() > 1) {
+                        secondChar = dirName.charAt(1);
+                    } else {
+                        throw new IllegalArgumentException("Not allowed name of directory in table");
+                    }
+                    if (Character.isDigit(firstChar)) {
+                        if (Character.isDigit(secondChar)) {
+                            dirNumber = Integer.parseInt(dirName.substring(0, 2));
+                        } else {
+                            dirNumber = Integer.parseInt(dirName.substring(0, 1));
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Not allowed name of directory in table");
+                    }
+                    if (!dirName.equals(new String(dirNumber + ".dir"))) {
+                        throw new IllegalArgumentException("Not allowed name of directory in table");
+                    }
                     for (File f : files) {
                         if (!f.isFile()) {
                             throw new IOException("Unexpected directory");
                         }
-                        fileReader.loadDataFromFile(f, state.dataStorage);
-
+                        String fileName = f.getName();
+                        firstChar = fileName.charAt(0);
+                        int fileNumber;
+                        if (fileName.length() > 1) {
+                            secondChar = fileName.charAt(1);
+                        } else {
+                            throw new IllegalArgumentException("Not allowed name of file in table");
+                        }
+                        if (Character.isDigit(firstChar)) {
+                            if (Character.isDigit(secondChar)) {
+                                fileNumber = Integer.parseInt(dirName.substring(0, 2));
+                            } else {
+                                fileNumber = Integer.parseInt(dirName.substring(0, 1));
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Not allowed name of file in table");
+                        }
+                        if (!fileName.equals(new String(dirNumber + ".dat"))) {
+                            throw new IllegalArgumentException("Not allowed name of file in table");
+                        }
+                        FileReader fileReader = new FileReader(f, state.dataStorage);
+                        while (fileReader.checkingLoadingConditions()) {
+                            String key = fileReader.getNextKey();
+                            int hashByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+                            int ndirectory = hashByte % DIR_COUNT;
+                            int nfile = hashByte % FILE_COUNT;
+                            if (ndirectory != dirNumber) {
+                                throw new IllegalArgumentException("Wrong key in " + dirName);
+                            }
+                            if (fileNumber != nfile) {
+                                throw new IllegalArgumentException("Wrong key in" + fileName);
+                            }
+                        }
+                        fileReader.putKeysToTable();
+                        fileReader.closeResources();
                     }
-
                 }
-                state.setCurTable(state.getNextTable());
             }
         }
     }

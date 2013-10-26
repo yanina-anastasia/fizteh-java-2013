@@ -5,9 +5,9 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import java.io.IOException;
 
 public class RemoveCommand implements Command {
-    private MultiFileHashMapState curState;
+    private MultiFileHashMapProvider curState;
 
-    public RemoveCommand(MultiFileHashMapState state) {
+    public RemoveCommand(MultiFileHashMapProvider state) {
         curState = state;
     }
 
@@ -16,8 +16,6 @@ public class RemoveCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        DataLoader dataLoader = new DataLoader();
-        dataLoader.load(curState);
         if (curState.getCurTable() != null) {
             String value = curState.dataStorage.remove(args[1]);
             if (value == null) {
