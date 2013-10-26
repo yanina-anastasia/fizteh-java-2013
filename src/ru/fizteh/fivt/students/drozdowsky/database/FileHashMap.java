@@ -138,7 +138,7 @@ public class FileHashMap {
         for (String directory : directories) {
             int nDir = nameInRange(directory, NDIRS);
             if (nDir == -1 || !(new File(db.getAbsolutePath() + '/' + directory).isDirectory())) {
-                fatalError(db.getAbsolutePath() + ": Not valid database1");
+                fatalError(db.getAbsolutePath() + directory +" " + ": Not valid database1");
             }
 
             File subdir = new File(db.getAbsolutePath() + '/' + directory);
