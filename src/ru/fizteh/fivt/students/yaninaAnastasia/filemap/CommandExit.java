@@ -13,11 +13,9 @@ public class CommandExit extends Command {
         }
         myState.table = myState.myDatabase.database.get(myState.curTableName);
         if (MultiFileMapUtils.save(myState)) {
-            System.exit(0);
             return true;
         } else {
             System.err.println("File has not been saved");
-            System.exit(0);
             return false;
         }
     }

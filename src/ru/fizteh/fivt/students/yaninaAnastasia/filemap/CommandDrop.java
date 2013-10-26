@@ -26,7 +26,7 @@ public class CommandDrop extends Command {
             System.err.println("Invalid arguments");
             return false;
         }
-        String path = myState.getProperty();
+        String path = myState.getProperty(myState);
         if (!myState.myDatabase.database.containsKey(args[0])) {
             System.out.println(args[0] + " not exists");
             return false;
