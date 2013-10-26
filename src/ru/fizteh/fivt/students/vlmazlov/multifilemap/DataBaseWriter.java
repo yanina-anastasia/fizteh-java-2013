@@ -33,10 +33,7 @@ public class DataBaseWriter {
 	}
 	
 	private static void splitFileMap(FileMap[][] tableParts, FileMap toSplit) throws ValidityCheckFailedException {
-		Iterator<Map.Entry<String, String>> it = toSplit.getEntriesIterator();
-
-		while (it.hasNext()) {
-			Map.Entry<String, String> entry = it.next();
+		for (Map.Entry<String, String> entry : toSplit) {
 			
 			ValidityChecker.checkFileMapKey(entry.getKey());
 
@@ -80,10 +77,8 @@ public class DataBaseWriter {
 	private static int countFirstOffSet(FileMap fileMap) throws IOException {
 		int curOffset = 0;
 
-		Iterator<Map.Entry<String, String>> it = fileMap.getEntriesIterator();
-
-		while (it.hasNext()) {
-			curOffset += it.next().getKey().getBytes("UTF-8").length + 1 + 4;
+		for (Map.Entry<String, String> entry : fileMap) {
+			curOffset += entry.getKey().getBytes("UTF-8").length + 1 + 4;
 		}
 
 		return curOffset;
@@ -96,22 +91,33 @@ public class DataBaseWriter {
 		dataBaseStorage.writeInt(offSet);
 	}
 
+	public static void writeFileMap(String root, String storage, FileMap fileMap) throws IOException {
+		if (root == null) {
+			throw new FileNotFoundException("Directory not specified");
+		}
+		if (storage == null) {
+			throw new FileNotFoundException("Storage file not specified");
+		}
+
+		File rootFile = new File(root), storageFile = new File(rootFile, storage);
+		writeFileMap(rootFile, storageFile, fileMap);
+	}
+
 	public static void writeFileMap(File root, File storage, FileMap fileMap) throws IOException {	
 		
 		if (root == null) {
 			throw new FileNotFoundException("Directory not specified");
 		}
 
+		storage.delete();
+
 		RandomAccessFile dataBaseStorage = new RandomAccessFile(storage, "rw");
 
 		try {
 
-			Iterator<Map.Entry<String, String>> it = fileMap.getEntriesIterator();
-
 			long curOffset = countFirstOffSet(fileMap), writePosition;
 
-			while (it.hasNext()) {
-				Map.Entry<String, String> entry = it.next();
+			for (Map.Entry<String, String> entry : fileMap) {
 				if (entry.getValue() == null) {
 					continue;
 				}
@@ -126,7 +132,6 @@ public class DataBaseWriter {
 				dataBaseStorage.seek(writePosition);
 			}
 
-			dataBaseStorage.getChannel().truncate(curOffset);
 		} finally {
 			QuietCloser.closeQuietly(dataBaseStorage);
 		}

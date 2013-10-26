@@ -20,20 +20,13 @@ public class DataBaseReader {
 	}
 
 	private static void addTablePart(FileMap tablePart, FileMap whole) {
-		Iterator<Map.Entry<String, String>> it = tablePart.getEntriesIterator();
-
-		while (it.hasNext()) {
-			Map.Entry<String, String> entry = it.next();
+		for (Map.Entry<String, String> entry : tablePart) {
 			whole.put(entry.getKey(), entry.getValue());
 		}
 	}
 
 	private static void checkKeys(FileMap tablePart, File file, File directory) throws ValidityCheckFailedException {
-		Iterator<Map.Entry<String, String>> it = tablePart.getEntriesIterator();
-
-		while (it.hasNext()) {
-			Map.Entry<String, String> entry = it.next();
-
+		for (Map.Entry<String, String> entry : tablePart) {	
 			ValidityChecker.checkKeyStorageAffiliation(entry.getKey(), getNum(file), getNum(directory), 
 				FILES_QUANTITY, DIRECTORIES_QUANTITY);
 		}
@@ -53,7 +46,7 @@ public class DataBaseReader {
 		File root = multiTableDataBase.getRoot();
 
 		ValidityChecker.checkMultiTableRoot(root);
-
+		
 		for (File entry : root.listFiles()) {
 			
 			multiTableDataBase.create(entry.getName());

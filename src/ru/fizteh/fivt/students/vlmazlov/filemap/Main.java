@@ -54,8 +54,7 @@ public class Main {
 		}
 
 		try {
-			DataBaseWriter.writeFileMap(new File(System.getProperty("fizteh.db.dir")),
-			new File(System.getProperty("fizteh.db.dir"), "db.dat"), fileMap);
+			DataBaseWriter.writeFileMap(System.getProperty("fizteh.db.dir"), "db.dat", fileMap);
 		} catch (IOException ex) {
 			System.err.println("Unable to store entries in the file: " + ex.getMessage());
 			System.exit(6);
