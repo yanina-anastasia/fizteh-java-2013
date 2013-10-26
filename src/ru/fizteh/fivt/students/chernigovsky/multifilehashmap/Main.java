@@ -4,6 +4,13 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandExit;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandGet;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandPut;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandRemove;
+import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 
 public class Main {
     public static void main(String[] args) {
@@ -43,7 +50,7 @@ public class Main {
         }
 
         try {
-             state.writeTable(dbDirectory);
+             MultiFileHashMapUtils.writeTable(dbDirectory, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -63,7 +70,7 @@ public class Main {
             } catch (ExitException ex) {
                 if (state.getCurrentTable() != null) {
                     try {
-                        state.writeTable(state.getCurrentTable());
+                        MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
                     } catch (IOException exc) {
                         System.err.println(exc.getMessage());
                         System.exit(1);
@@ -83,7 +90,7 @@ public class Main {
         } catch (ExitException ex) {
             if (state.getCurrentTable().exists()) {
                 try {
-                    state.writeTable(state.getCurrentTable());
+                    MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);

@@ -2,6 +2,10 @@ package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
 
 import java.io.File;
 import java.io.IOException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
+import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+
 
 public class CommandDrop implements Command {
     public String getName() {

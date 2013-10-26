@@ -2,6 +2,9 @@ package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
 
 import java.io.File;
 import java.io.IOException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
+import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 
 public class CommandUse implements Command {
     public String getName() {
@@ -15,9 +18,9 @@ public class CommandUse implements Command {
         if (!table.exists()) {
             System.out.println(args[1] + " not exists");
         } else {
-            state.writeTable(state.getCurrentTable());
+            MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
             state.changeCurrentTable(table);
-            state.readTable(state.getCurrentTable());
+            MultiFileHashMapUtils.readTable(state.getCurrentTable(), state);
             System.out.println("using " + args[1]);
         }
     }
