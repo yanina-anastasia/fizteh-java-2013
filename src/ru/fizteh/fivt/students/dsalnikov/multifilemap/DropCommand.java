@@ -28,6 +28,7 @@ public class DropCommand implements Command {
                 String[] delargs = new String[2];
                 delargs[1] = deletefile.getAbsolutePath();
                 rm.execute(ss, delargs);
+                System.out.println("dropped");
             }
         }
     }
