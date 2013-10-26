@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dzvonarev.multifilemap;
 
+
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 import ru.fizteh.fivt.students.dzvonarev.shell.Shell;
 
@@ -53,6 +54,7 @@ public class Main {
             return new File(Shell.getAbsPath(path)).isDirectory();
         }
     }
+
 
     public static void main(String[] arr) {
         try {
