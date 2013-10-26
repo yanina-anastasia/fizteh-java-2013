@@ -30,7 +30,7 @@ public class FileMapUtils {
         if (length == 0) {
             throw new IOException("wrong data format");
         }
-
+        System.out.println("KEY: " + byteOutputStream.toString(StandardCharsets.UTF_8.toString()));
         return byteOutputStream.toString(StandardCharsets.UTF_8.toString());
     }
 
