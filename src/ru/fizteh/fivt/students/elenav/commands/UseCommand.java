@@ -21,8 +21,6 @@ public class UseCommand extends AbstractCommand {
 		} else {
 			MultiFileMapState multi = (MultiFileMapState) getState();
 			if (multi.getWorkingTable() != null) {
-				/////////////////////
-				System.out.println("I am here!!!!!!!!!!!!");
 				multi.write();
 			}
 			multi.setWorkingTable(new FileMapState(args[1], f, getState().getStream()));
