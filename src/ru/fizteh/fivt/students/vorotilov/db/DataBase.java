@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
-
 import java.io.File;
 import java.io.IOException;
 
@@ -106,7 +105,7 @@ public class DataBase {
     public void save() {
         try {
             for (int i = 0; i < 16; ++i) {
-                File subDir = new File(dbDirectory, Integer.toString(i));
+                File subDir = new File(dbDirectory, Integer.toString(i) + ".dir");
                 for (int j = 0; j < 16; ++j) {
                     if (wasFileModified[i][j]) {
                         if (dbFiles[i][j].isEmpty()) {
@@ -119,10 +118,11 @@ public class DataBase {
                             }
                         } else {
                             dbFiles[i][j].save();
+                            dbFiles[i][j].close();
                         }
                     }
                 }
-                if (subDir.exists() && subDir.listFiles() == null) {
+                if (subDir.exists() && (subDir.list() == null || subDir.list().length == 0)) {
                     if (!subDir.delete()) {
                         System.out.println("can't delete empty sub dir:'" + subDir.getCanonicalPath() + "'");
                     }
