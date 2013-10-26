@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
 import java.io.File;
+import java.io.IOException;
 
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
@@ -11,16 +12,27 @@ public class Filemap {
     static String rootDir = null;
     
     public void saveChanges() {
+        if (currTable == null) {
+            return;
+        }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 if (data[i][j].hasFile()) {
                     if (data[i][j].isEmpty()) {
                         Shell.rm(data[i][j].filePath);
                     } else {
-                        data[i][j].commitChanges();
+                        try {
+                            data[i][j].commitChanges();
+                        } catch (IOException e) {
+                            System.err.println("can't write to file");
+                            data[i][j].closeDataFile();
+                            System.exit(1);                        
+                        }
                     }
                 }
             }
+        }
+        for (int i = 0; i < 16; i++) {
             File tmpDir = new File(currTable + File.separator + i + ".dir");
             if (tmpDir.exists() && tmpDir.list().length == 0) {
                 Shell.rm(tmpDir.getAbsolutePath());

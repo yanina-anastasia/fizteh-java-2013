@@ -138,7 +138,9 @@ public class ExecuteCmd extends Shell {
                 if (!tmpFile.exists() || !tmpFile.isDirectory()) {
                     System.out.println(arg[1] + " not exists");
                 } else {
-                    mp.changeTable(arg[1]);
+                    if (!tablePath.equals(mp.currTable)) {
+                        mp.changeTable(arg[1]);
+                    }
                     System.out.println("using " + arg[1]);
                 }
                 return ExitCode.OK;

@@ -18,16 +18,17 @@ public class DataBase {
     String tablePath = null;
     int ndir;
     int nfile;
-    
+
     public boolean hasFile() {
         return (dataFile != null);
     }
-    
+
     public String getFileName(int ndir, int nfile) {
         return ndir + ".dir" + File.separator + nfile + ".dat";
     }
-        
-    public DataBase(String currTablePath, int numbDir, int numbFile, boolean createIfNotExists) {
+
+    public DataBase(String currTablePath, int numbDir, int numbFile,
+            boolean createIfNotExists) {
         tablePath = currTablePath;
         ndir = numbDir;
         nfile = numbFile;
@@ -51,21 +52,16 @@ public class DataBase {
                 System.exit(1);
             }
         }
-        
+
         if (tmpFile.exists()) {
             try {
-                try {
-                    dataFile = new RandomAccessFile(filePath, "r");
-                } catch (FileNotFoundException e) {
-                    System.err.println(filePath + ": can't get access to file");
-                    System.exit(1);
-                }
-                load(dataFile);
-                closeDataFile();
-            } catch (IllegalArgumentException e2) {
-                System.err.println(filePath + ": can't get access to file");
+                dataFile = new RandomAccessFile(filePath, "r");
+            } catch (FileNotFoundException e) {
+                System.err.println(filePath + ": file not found");
                 System.exit(1);
             }
+            load(dataFile);
+            closeDataFile();
         }
     }
 
@@ -82,7 +78,7 @@ public class DataBase {
         int currNumbFile = hashcode / 16 % 16;
         return (currNumbDir == ndir && currNumbFile == nfile);
     }
-    
+
     public String getKeyFromFile() throws IOException {
         byte ch = 0;
         Vector<Byte> v = new Vector<Byte>();
@@ -177,7 +173,7 @@ public class DataBase {
 
     private int getLength(String str) throws UnsupportedEncodingException {
         int curr = 0;
-        
+
         curr = str.getBytes("UTF-8").length;
         return curr;
     }
@@ -194,46 +190,48 @@ public class DataBase {
     }
 
     public boolean isEmpty() {
-        return data.isEmpty();
+        try {
+            return data.isEmpty() || dataFile.length() == 0;
+        } catch (IOException e) {
+            System.err.println("can't get access to file");
+            return false;
+        }
     }
-    
-    public void commitChanges() {
+
+    public void commitChanges() throws IOException  {
+        IOException e1 = new IOException();
         try {
             dataFile = new RandomAccessFile(filePath, "rw");
-            int offset = 0;
-            Set<Map.Entry<String, String>> mySet = data.entrySet();
-            for (Map.Entry<String, String> myEntry : mySet) {
-                try {
-                    offset += getLength(myEntry.getKey()) + 1 + 4;
-                } catch (UnsupportedEncodingException e) {
-                    System.err.println("can't write to file");
-                    closeDataFile();
-                    System.exit(1);
-                }
-            }
-            int currOffset = offset;
-            try {
-                dataFile.setLength(0);
-                dataFile.seek(0);
-                for (Map.Entry<String, String> myEntry : mySet) {
-                    dataFile.write(myEntry.getKey().getBytes());
-                    dataFile.writeByte(0);
-                    dataFile.writeInt(currOffset);
-                    currOffset += getLength(myEntry.getValue());
-                }
-                for (Map.Entry<String, String> myEntry : mySet) {
-                    dataFile.write(myEntry.getValue().getBytes());
-                }
-                closeDataFile();
-            } catch (IOException e1) {
-                System.err.println("can't write to file");
-                closeDataFile();
-                System.exit(1);
-            }
-        } catch (FileNotFoundException | IllegalArgumentException e2) {
+        } catch (FileNotFoundException e) {
             System.err.println("can't get access to file");
-            closeDataFile();
             System.exit(1);
+        }
+
+        int offset = 0;
+        Set<Map.Entry<String, String>> mySet = data.entrySet();
+        for (Map.Entry<String, String> myEntry : mySet) {
+            try {
+                offset += getLength(myEntry.getKey()) + 1 + 4;
+            } catch (UnsupportedEncodingException e) {
+                throw e1;
+            }
+        }
+        int currOffset = offset;
+        try {
+            dataFile.setLength(0);
+            dataFile.seek(0);
+            for (Map.Entry<String, String> myEntry : mySet) {
+                dataFile.write(myEntry.getKey().getBytes());
+                dataFile.writeByte(0);
+                dataFile.writeInt(currOffset);
+                currOffset += getLength(myEntry.getValue());
+            }
+            for (Map.Entry<String, String> myEntry : mySet) {
+                dataFile.write(myEntry.getValue().getBytes());
+            }
+            closeDataFile();
+        } catch (IOException e2) {
+            throw e2;
         }
     }
 }
