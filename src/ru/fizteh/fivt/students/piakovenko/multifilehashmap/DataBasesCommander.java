@@ -19,8 +19,6 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class DataBasesCommander {
-    private final String pathToDatabaseDirectory = "fizteh.db.dir";
-    private String pathToRootDirectory;
     private File dataBaseDirectory = null;
     private DataBase currentDataBase = null;
     private Map<String, DataBase> filesMap = new HashMap<String, DataBase>();

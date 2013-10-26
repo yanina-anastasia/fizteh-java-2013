@@ -31,7 +31,7 @@ public class DataBase {
         if (name.length() < 5 || name.length() > 6)
             return false;
         int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
-        if (number > 16 || number < 0)
+        if (number > 15 || number < 0)
             return false;
         if (!name.substring(name.indexOf('.') + 1).equals("dir"))
             return false;
@@ -42,7 +42,7 @@ public class DataBase {
         if (name.length() < 5 || name.length() > 6)
             return false;
         int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
-        if (number > 16 || number < 0)
+        if (number > 15 || number < 0)
             return false;
         if (!name.substring(name.indexOf('.') + 1).equals("dat"))
             return false;
