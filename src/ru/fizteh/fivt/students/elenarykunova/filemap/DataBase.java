@@ -54,10 +54,15 @@ public class DataBase {
         
         if (tmpFile.exists()) {
             try {
-                dataFile = new RandomAccessFile(filePath, "r");
+                try {
+                    dataFile = new RandomAccessFile(filePath, "r");
+                } catch (FileNotFoundException e) {
+                    System.err.println(filePath + ": can't get access to file");
+                    System.exit(1);
+                }
                 load(dataFile);
                 closeDataFile();
-            } catch (FileNotFoundException | IllegalArgumentException e2) {
+            } catch (IllegalArgumentException e2) {
                 System.err.println(filePath + ": can't get access to file");
                 System.exit(1);
             }
