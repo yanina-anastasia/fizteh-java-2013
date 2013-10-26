@@ -6,7 +6,6 @@ import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
-import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
 public class UseCommand extends AbstractCommand {
 

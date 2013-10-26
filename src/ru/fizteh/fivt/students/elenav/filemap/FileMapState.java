@@ -29,7 +29,7 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 	
 	public HashMap<String, String> map = new HashMap<>();
 	
-	public void readFile() throws IOException {
+	public void readFile(File in) throws IOException {
 		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
         boolean flag = true;
         do {
