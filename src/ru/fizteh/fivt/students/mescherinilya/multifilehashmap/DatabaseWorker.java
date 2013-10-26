@@ -134,6 +134,10 @@ public class DatabaseWorker {
 
     static void writeDatabase() throws IOException {
 
+        if (currentTable == null) {
+            return;
+        }
+
         ArrayList<TreeMap<String, String>> dirStorage = new ArrayList<TreeMap<String, String>>();
         for (int i = 0; i < 16; ++i) {
             dirStorage.add(new TreeMap<String, String>());
