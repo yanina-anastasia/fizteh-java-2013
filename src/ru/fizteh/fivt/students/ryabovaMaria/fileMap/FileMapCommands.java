@@ -41,16 +41,16 @@ public class FileMapCommands extends AbstractCommands {
     public void drop() throws Exception {
         try {
             shellCommands.lexems = lexems;
+            parse();
+            File tempDir = currentDir.toPath().resolve(lexems[0]).normalize().toFile();
+            if (!tempDir.isDirectory()) {
+                System.out.println(lexems[0] + " not exists");
+                return;
+            }
             shellCommands.rm();
             System.out.println("dropped");
         } catch (Exception e) {
-            if (e.getMessage().endsWith("mv: there is no enough arguments.")) {
-                throw new Exception("drop: there is no enough arguments.");
-            }
-            if (e.getMessage().endsWith("mv: there is so many arguments.")) {
-                throw new Exception("drop: there is so many arguments.");
-            }
-            System.out.println(lexems[1] + " not exists");
+            throw new Exception("drop: " + e.getMessage());
         }
     }
     
