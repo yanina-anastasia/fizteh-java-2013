@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,7 @@ public class MultiTableProvider extends AbstractTableProvider {
     }
 
     private Path createFileForKey (String key, Path currentPath) throws IOException {
-        byte keyByte = key.getBytes ()[0];
+        byte keyByte = (byte) Math.abs (key.getBytes (StandardCharsets.UTF_8)[0]);
         int ndirectory = keyByte % NUMBER_OF_DIRECTORIES;
         int nfile = (keyByte / NUMBER_OF_DIRECTORIES) % NUMBER_OF_FILES;
 
@@ -125,7 +126,7 @@ public class MultiTableProvider extends AbstractTableProvider {
                 Path file = createFileForKey (key, tableDirectory);
 
                 try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
-                        (new FileOutputStream (file.toFile (), true)))) {
+                        (new FileOutputStream (file.toFile (),true)))) {
 
                     String value = currentTable.get (key);
                     DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
