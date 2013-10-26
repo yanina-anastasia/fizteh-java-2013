@@ -22,18 +22,6 @@ public class FileMap implements FileMapState {
 		return currentTable;
 	}
 	
-	public void openFile() throws IOException {
-		File currentDirectory = new File(path);
-		
-		if (!currentDirectory.exists()) {
-			if (!currentDirectory.createNewFile()) {
-				throw new IOException("unable to create " + path);
-			}
-		}
-		
-		dataBaseFile = new RandomAccessFile(currentDirectory, "rwd");
-	}
-	
 	public void clearFile() throws IOException {
 		File currentDirectory = new File(path);
 		
@@ -42,7 +30,7 @@ public class FileMap implements FileMapState {
 		}
 	}
 	
-	private String readString(int readPosition, int finishPosition) throws IOException {
+	private String readString(RandomAccessFile dataBaseFile, int readPosition, int finishPosition) throws IOException {
 		int readLength = finishPosition - readPosition;
 		if ((readLength <= 0) || (readLength > 1024 * 1024)) {  //max string length is declared as 1Mb
 			dataBaseFile.close();
@@ -59,78 +47,94 @@ public class FileMap implements FileMapState {
 	}
 	
 	public void readDataFromFile() throws IOException {	
-		openFile();
+		File currentDirectory = new File(path);
 		
-		if (dataBaseFile.length() == 0) {
-			throw new IOException("empty file " + path);
+		if (!currentDirectory.exists()) {
+			if (!currentDirectory.createNewFile()) {
+				throw new IOException("unable to create " + path);
+			}
 		}
+			
+		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentDirectory, "r")) {		
+			if (dataBaseFile.length() == 0) {
+				throw new IOException("empty file " + path);
+			}
 		
-		String readKey = null;
-		String previousKey = null;
-		int positionOfValues = Integer.MAX_VALUE;
-		int readPosition = 0;
-		int previousOffset = -1;
-		dataBaseFile.seek(readPosition);
+			String readKey = null;
+			String previousKey = null;
+			int positionOfValues = Integer.MAX_VALUE;
+			int readPosition = 0;
+			int previousOffset = -1;
+			dataBaseFile.seek(readPosition);
 
-		while (readPosition < positionOfValues) {
-			while ((dataBaseFile.getFilePointer() < dataBaseFile.length()) && !(dataBaseFile.readByte() == '\0')) {}
+			while (readPosition < positionOfValues) {
+				while ((dataBaseFile.getFilePointer() < dataBaseFile.length()) && !(dataBaseFile.readByte() == '\0')) {}
 			
-			int nextOffset = dataBaseFile.readInt();
-			if (nextOffset < 0) {
-				throw new IOException("negative offset");
-			}
+				int nextOffset = dataBaseFile.readInt();
+				if (nextOffset < 0) {
+					throw new IOException("negative offset");
+				}
 			
-			int keyPosition = (int)dataBaseFile.getFilePointer();
-			previousKey = readKey;
-			readKey = readString(readPosition, (int)dataBaseFile.getFilePointer() - 5);
+				int keyPosition = (int)dataBaseFile.getFilePointer();
+				previousKey = readKey;
+				readKey = readString(dataBaseFile, readPosition, (int)dataBaseFile.getFilePointer() - 5);
 	
-			if (previousOffset == -1) {
-				positionOfValues = nextOffset;
-			} else {
-				currentTable.put(previousKey, readString(previousOffset, nextOffset));
-			}
+				if (previousOffset == -1) {
+					positionOfValues = nextOffset;
+				} else {
+					currentTable.put(previousKey, readString(dataBaseFile, previousOffset, nextOffset));
+				}
 			
-			previousOffset = nextOffset;		
-			dataBaseFile.seek(keyPosition);
-			readPosition = (int)dataBaseFile.getFilePointer();
-		} 
+				previousOffset = nextOffset;		
+				dataBaseFile.seek(keyPosition);
+				readPosition = (int)dataBaseFile.getFilePointer();
+			} 
 	
-		currentTable.put(readKey, readString(previousOffset, (int)dataBaseFile.length()));
+			currentTable.put(readKey, readString(dataBaseFile, previousOffset, (int)dataBaseFile.length()));
 		
-		dataBaseFile.close();
+			dataBaseFile.close();
+		}
 	}
 
 
 	public void writeDataToFile() throws IOException {
 		clearFile();
-		openFile();
 		
-		int offset = 0;		
-		for (String key: getCurrentTable().keySet()) {
-			offset += 5 + key.getBytes("UTF-8").length;
+		File currentDirectory = new File(path);
+		
+		if (!currentDirectory.exists()) {
+			if (!currentDirectory.createNewFile()) {
+				throw new IOException("unable to create " + path);
+			}
 		}
 		
-		long writenPosition = 0;
-		for (Map.Entry<String, String> currentPair : getCurrentTable().entrySet()) {
-			dataBaseFile.seek(writenPosition);
-			dataBaseFile.write(currentPair.getKey().getBytes("UTF-8"));
-			dataBaseFile.writeByte('\0');
-			dataBaseFile.writeInt(offset);
-			writenPosition = dataBaseFile.getFilePointer();
-			dataBaseFile.seek(offset);
-			dataBaseFile.write(currentPair.getValue().getBytes("UTF-8"));
-			offset = (int)dataBaseFile.getFilePointer();
-		}
+		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentDirectory, "rwd")) {		
+			int offset = 0;		
+			for (String key: getCurrentTable().keySet()) {
+				offset += 5 + key.getBytes("UTF-8").length;
+			}
 		
-		if (dataBaseFile.length() == 0) {
+			long writenPosition = 0;
+			for (Map.Entry<String, String> currentPair : getCurrentTable().entrySet()) {
+				dataBaseFile.seek(writenPosition);
+				dataBaseFile.write(currentPair.getKey().getBytes("UTF-8"));
+				dataBaseFile.writeByte('\0');
+				dataBaseFile.writeInt(offset);
+				writenPosition = dataBaseFile.getFilePointer();
+				dataBaseFile.seek(offset);
+				dataBaseFile.write(currentPair.getValue().getBytes("UTF-8"));
+				offset = (int)dataBaseFile.getFilePointer();
+			}
+		
+			if (dataBaseFile.length() == 0) {
+				dataBaseFile.close();
+				(new File(path)).delete();
+			}
+		
 			dataBaseFile.close();
-			(new File(path)).delete();
 		}
-		
-		dataBaseFile.close();
 	}
 	
 	private final Map<String, String> currentTable = new HashMap<String, String>();
-	private RandomAccessFile dataBaseFile;
 	private String path;
 }
