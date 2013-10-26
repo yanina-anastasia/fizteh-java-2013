@@ -7,7 +7,8 @@ import java.io.IOException;
 public class CommandExit extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        if (!myState.checkArgs(args, 0)) {
+        if (args.length != 0) {
+            System.err.println("Invalid arguments");
             return false;
         }
         myState.table = myState.myDatabase.database.get(myState.curTableName);

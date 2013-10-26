@@ -8,12 +8,4 @@ public class DBState extends State {
     public DBState() {
 
     }
-
-    public boolean checkArgs(String[] args, int number) {
-        if (args.length != number) {
-            System.err.println("Invalid arguments");
-            return false;
-        }
-        return true;
-    }
 }

@@ -7,14 +7,11 @@ import java.io.IOException;
 public class CommandUse extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        if (!myState.checkArgs(args, 1)) {
+        if (args.length != 1) {
+            System.err.println("Invalid arguments");
             return false;
         }
-        String path = System.getProperty("fizteh.db.dir");
-        if (path == null) {
-            System.err.println("Error with getting property");
-            System.exit(1);
-        }
+        String path = myState.getProperty();
         if (!myState.myDatabase.database.containsKey(args[0])) {
             System.out.println(args[0] + " not exists");
             return false;

@@ -11,7 +11,8 @@ public class CommandGet extends Command {
             System.err.println("no table");
             return false;
         }
-        if (!myState.checkArgs(args, 1)) {
+        if (args.length != 1) {
+            System.err.println("Invalid arguments");
             return false;
         }
         String value = myState.table.get(args[0]);

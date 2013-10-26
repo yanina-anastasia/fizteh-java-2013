@@ -11,7 +11,8 @@ public class CommandPut extends Command {
             System.err.println("no table");
             return false;
         }
-        if (!myState.checkArgs(args, 2)) {
+        if (args.length != 2) {
+            System.err.println("Invalid arguments");
             return false;
         }
         String prevValue = myState.table.put(args[0], args[1]);
