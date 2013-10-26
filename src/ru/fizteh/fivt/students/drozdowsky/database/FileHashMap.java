@@ -142,6 +142,7 @@ public class FileHashMap {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
 
+                error(new File(subdir.getAbsolutePath() + '/' + file).toString());
                 base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
