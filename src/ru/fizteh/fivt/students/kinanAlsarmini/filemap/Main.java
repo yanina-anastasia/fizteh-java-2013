@@ -4,20 +4,26 @@ import java.io.IOException;
 
 class Main {
     public static void main(String[] args) throws IOException {
-        FileMap filemap = new FileMap(System.getProperty("fizteh.db.dir"), "db.dat");
+        try {
+            FileMap fileMap = new FileMap(System.getProperty("fizteh.db.dir"), "db.dir");
 
-        if (args.length == 0) {
-            filemap.startInteractive();
-        } else {
-            StringBuilder commands = new StringBuilder();
-            for (int i = 0; i < args.length; i++) {
-                commands.append(args[i]);
-                if (i < args.length - 1) {
-                    commands.append(" ");
+            if (args.length == 0) {
+                fileMap.startInteractive();
+            } else {
+                StringBuilder commands = new StringBuilder();
+                for (int i = 0; i < args.length; i++) {
+                    commands.append(args[i]);
+                    if (i < args.length - 1) {
+                        commands.append(" ");
+                    }
                 }
+
+                fileMap.startBatch(commands.toString());
             }
 
-            filemap.startBatch(commands.toString());
+            fileMap.close();
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
         }
     }
 }

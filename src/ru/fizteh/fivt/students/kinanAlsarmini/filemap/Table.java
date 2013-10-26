@@ -4,11 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class Table {
+public class Table {
     private HashMap<String, String> hMap;
 
     public Table() {
         hMap = new HashMap<String, String>();
+    }
+
+    public Table(Table other) {
+        hMap = (HashMap<String, String>) other.hMap.clone();
     }
 
     public boolean exists(String k) {
@@ -17,6 +21,10 @@ class Table {
 
     public void put(String k, String v) {
         hMap.put(k, v);
+    }
+
+    public void clear() {
+        hMap.clear();
     }
 
     public String get(String k) {
@@ -29,5 +37,9 @@ class Table {
 
     public Set<Map.Entry<String, String>> listRows() {
         return hMap.entrySet();
+    }
+
+    public Set<String> keySet() {
+        return hMap.keySet();
     }
 };

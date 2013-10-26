@@ -63,7 +63,7 @@ public class Shell {
     }
 
     public Path getCurrentPath() {
-        return currentPath;
+        return Paths.get(currentPath.toString());
     }
 
     public void startInteractive() {

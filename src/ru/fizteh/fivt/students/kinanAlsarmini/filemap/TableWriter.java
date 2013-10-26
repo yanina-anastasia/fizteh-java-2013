@@ -19,6 +19,8 @@ class TableWriter {
     }
 
     public void writeTable(Table table) throws IOException {
+        outputStream.setLength(0);
+
         Set<Map.Entry<String, String>> rows = table.listRows();
 
         for (Map.Entry<String, String> row : rows) {
