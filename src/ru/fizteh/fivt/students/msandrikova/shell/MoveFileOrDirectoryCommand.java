@@ -10,44 +10,44 @@ public class MoveFileOrDirectoryCommand extends Command {
 	}
 	
 	@Override
-	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
-			return currentDirectory;
+	public void execute(String[] argumentsList, Shell myShell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+			return;
 		}
 
 		File destination = new File(argumentsList[2]);
 		if(!destination.isAbsolute()) {
-			destination = new File(currentDirectory+ File.separator + destination);
+			destination = new File(myShell.getCurrentDirectory() + File.separator + destination);
 		}
 		destination = destination.getAbsoluteFile();
 		File filePath = new File(argumentsList[1]);
 		if(!filePath.isAbsolute()) {
-			filePath = new File(currentDirectory+ File.separator + filePath);
+			filePath = new File(myShell.getCurrentDirectory() + File.separator + filePath);
 		}
 		filePath = filePath.getAbsoluteFile();
 		
 		if(filePath.equals(destination)) {
-			Utils.generateAnError("Source and destination should be different", this.getName(), isInteractive );
-			return currentDirectory;
+			Utils.generateAnError("Source and destination should be different", this.getName(), myShell.getIsInteractive());
+			return;
 		}
 		if(!filePath.exists()) {
-			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory", this.getName(), isInteractive );
-			return currentDirectory;
+			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory", this.getName(), myShell.getIsInteractive());
+			return;
 		}
 		
 		if(destination.exists()) {
 			if(destination.isDirectory()) {
 				try {
-					if(!Utils.copying(filePath, destination, this.getName(), isInteractive)) {
-						return currentDirectory;
+					if(!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+						return;
 					}
-					if(!Utils.remover(filePath, this.getName(), isInteractive)) {
-						return currentDirectory;
+					if(!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
+						return;
 					}
 				} catch (IOException e) {}
 			} else {
-				Utils.generateAnError("Can not move in existing file: \"" + argumentsList[2] + "\"", this.getName(), isInteractive );
-				return currentDirectory;
+				Utils.generateAnError("Can not move in existing file: \"" + argumentsList[2] + "\"", this.getName(), myShell.getIsInteractive());
+				return;
 			}
 			
 		} else {
@@ -57,16 +57,15 @@ public class MoveFileOrDirectoryCommand extends Command {
 					if(destinationIsDirectory == filePath.isDirectory()) {
 						filePath.renameTo(destination);
 					} else {
-						Utils.generateAnError("Can not rename file and get directory or rename directory and get file.", this.getName(), isInteractive );
-						return currentDirectory;
+						Utils.generateAnError("Can not rename file and get directory or rename directory and get file.", this.getName(), myShell.getIsInteractive());
+						return;
 					}
 				} else {
-					Utils.generateAnError("Destination does not exist and does not locate in the same directory with source.", this.getName(), isInteractive );
-					return currentDirectory;
+					Utils.generateAnError("Destination does not exist and does not locate in the same directory with source.", this.getName(), myShell.getIsInteractive());
+					return;
 				}
 			} catch (IOException e) {}
 		}
-		return currentDirectory;
 	}
 
 }

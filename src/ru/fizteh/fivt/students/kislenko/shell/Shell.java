@@ -2,11 +2,11 @@ package ru.fizteh.fivt.students.kislenko.shell;
 
 import java.util.Scanner;
 
-public class Shell {
-    private Object state;
-    CmdLauncher launcher = new CmdLauncher();
+public class Shell<State> {
+    private State state;
+    private CmdLauncher<State> launcher = new CmdLauncher<State>();
 
-    public Shell(Object startingState, Command[] commands) {
+    public Shell(State startingState, Command[] commands) {
         state = startingState;
         for (Command command : commands) {
             launcher.addCommand(command);
@@ -41,7 +41,7 @@ public class Shell {
         }
         String input = sb.toString();
         String[] commands = input.split("\\s*;\\s*");
-        CmdLauncher launcher = new CmdLauncher();
+        CmdLauncher<State> launcher = new CmdLauncher<State>();
         for (String command : commands) {
             command = command.trim();
             if (command.equals("exit")) {

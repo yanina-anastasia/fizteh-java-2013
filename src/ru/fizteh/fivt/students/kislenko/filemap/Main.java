@@ -13,16 +13,16 @@ public class Main {
         MapBuilder mb = new MapBuilder();
         try {
             Path db = new File(dbAddress).getCanonicalFile().toPath().resolve("db.dat");
-            Object state = new FilemapState(db);
-            mb.buildMap((FilemapState) state);
+            FilemapState state = new FilemapState(db);
+            mb.buildMap(state);
             Command[] commandList = new Command[]{new CommandGet(), new CommandPut(), new CommandRemove()};
-            Shell shell = new Shell(state, commandList);
+            Shell<FilemapState> shell = new Shell<FilemapState>(state, commandList);
             if (args.length == 0) {
                 shell.interactiveMode();
             } else {
                 shell.batchMode(args);
             }
-            mb.fillFile((FilemapState) state);
+            mb.fillFile(state);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);

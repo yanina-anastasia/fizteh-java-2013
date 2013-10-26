@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import java.util.TreeMap;
 import java.util.Map;
 import java.math.BigInteger;
@@ -17,11 +18,13 @@ public class FileStorage implements Table {
 	public FileStorage (String directory, String fileName) throws IOException {
 		dbFilePath = new File(directory, fileName);
 		memoryStore = new TreeMap<String, String>();
-		dbFilePath.createNewFile();
 		loadDataToMemory();
 	}
 
 	private void loadDataToMemory () throws IOException {
+		if (!dbFilePath.isFile()) {
+			return;
+		}
 		DataInputStream dbFile = new DataInputStream(new BufferedInputStream(new FileInputStream(dbFilePath)));
 		IOException dataFormatError = new IOException("invalid data file");
 		TreeMap<Integer, String> offsets = new TreeMap<Integer, String>();
@@ -110,8 +113,13 @@ public class FileStorage implements Table {
 	}
 
 	public int commit () {
+		if (memoryStore.size() == 0) {
+			dbFilePath.delete();
+			return 0;
+		}
 		int saved = 0;
 		try {
+			dbFilePath.createNewFile();
 			DataOutputStream dbFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dbFilePath)));
 			int dataOffset = 0;
 			for (String key : memoryStore.keySet()) {

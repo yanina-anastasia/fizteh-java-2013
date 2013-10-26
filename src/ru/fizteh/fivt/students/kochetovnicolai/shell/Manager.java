@@ -7,4 +7,6 @@ public interface Manager {
     void printMessage(final String message);
 
     void printSuggestMessage();
+
+    void setExit();
 }

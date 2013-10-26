@@ -6,8 +6,8 @@ import java.util.Map;
 
 import ru.fizteh.fivt.students.kislenko.filemap.*;
 
-public class CmdLauncher {
-    private Map<String, Command> commandList = new HashMap<String, Command>();
+public class CmdLauncher<State> {
+    private Map<String, Command<State>> commandList = new HashMap<String, Command<State>>();
 
     public void addCommand(Command command) {
         commandList.put(command.getName(), command);
@@ -34,7 +34,7 @@ public class CmdLauncher {
         return result;
     }
 
-    public void launch(Object state, String input) throws IOException {
+    public void launch(State state, String input) throws IOException {
         String command = getCommand(input.trim());
         String[] args = getArgs(input.trim());
         if (command.isEmpty()) {

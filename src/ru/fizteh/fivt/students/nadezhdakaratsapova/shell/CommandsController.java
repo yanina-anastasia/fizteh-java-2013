@@ -11,7 +11,7 @@ public class CommandsController {
         commandsStorage.put(cmd.getName(), cmd);
     }
 
-    public void runCommand(CurrentDirectory currentDirectory, String[] command) throws IOException {
+    public void runCommand(String[] command) throws IOException {
         if (!(command[0].length() == 0)) {
             Command cmd = commandsStorage.get(command[0]);
             if (cmd == null) {
@@ -20,11 +20,10 @@ public class CommandsController {
                 if ((command.length - 1) != cmd.getArgsCount()) {
                     throw new IOException(cmd.getName() + ": wrong number of arguments. It should be " + cmd.getArgsCount());
                 } else {
-                    cmd.execute(currentDirectory, command);
+                    cmd.execute(command);
                 }
             }
         }
-
     }
 
 

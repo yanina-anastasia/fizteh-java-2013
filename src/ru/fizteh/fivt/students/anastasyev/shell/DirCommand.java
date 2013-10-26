@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
-public class DirCommand implements Command {
+public class DirCommand implements Command<Shell> {
     private static void dir() {
         String[] fileList = Shell.getUserDir().list();
         for (String files : fileList) {
@@ -9,7 +9,7 @@ public class DirCommand implements Command {
     }
 
     @Override
-    public final boolean exec(State state, final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 1) {
             System.err.println("dir: Usage - dir");
             return false;

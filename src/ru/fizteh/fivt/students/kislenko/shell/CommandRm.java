@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CommandRm implements Command {
+public class CommandRm implements Command<ShellState> {
     public String getName() {
         return "rm";
     }
@@ -39,18 +39,18 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(Object state, String[] args) throws IOException {
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }
         String fileName = args[0];
-        Path absolutePath = ((ShellState) state).getState();
+        Path absolutePath = state.getState();
         Path target = absolutePath.resolve(fileName);
         if (target.toFile().exists()) {
             removing(target);
         } else {
             throw new IOException("rm: The file doesn't exist.");
         }
-        ((ShellState) state).setState(validatePath(absolutePath));
+        state.setState(validatePath(absolutePath));
     }
 }

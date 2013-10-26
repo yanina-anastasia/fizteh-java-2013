@@ -1,34 +1,23 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Vector;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
 public class FileMap extends State {
     private File fileMap;
-    private ArrayList<Element> elementList = new ArrayList<Element>();
+    private HashMap<String, String> elementHashMap = new HashMap<String, String>();
     private Vector<Command> commands = new Vector<Command>();
-
-    private class Element {
-        private String key;
-        private String value;
-
-        public Element(String newKey, String newValue) {
-            key = newKey;
-            value = newValue;
-        }
-
-        public Element(byte[] newKey, byte[] newValue) throws IOException {
-            try {
-                key = new String(newKey, "UTF-8");
-                value = new String(newValue, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new IOException("Error in encoding strings in db.dat");
-            }
-        }
-    }
+    private int ndirectory;
+    private int nfile;
 
     public FileMap(String dbDir) {
         fileMap = new File(dbDir);
@@ -60,33 +49,118 @@ public class FileMap extends State {
             throw new IOException("Error in key/value reading");
         }
         if (keyLength <= 0 || valueLength <= 0) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
         try {
-            byte[] key = new byte[keyLength];
-            byte[] value = new byte[valueLength];
-            input.read(key);
-            input.read(value);
-            if (key.length != keyLength || value.length != valueLength) {
-                throw new IOException("Error in read string in db.dat");
+            byte[] keyBytes = new byte[keyLength];
+            byte[] valueBytes = new byte[valueLength];
+            input.read(keyBytes);
+            input.read(valueBytes);
+            if (keyBytes.length != keyLength || valueBytes.length != valueLength) {
+                throw new IOException("Error in read strings in " + nfile + ".dat");
             }
-            elementList.add(new Element(key, value));
+            String key = new String(keyBytes);
+            String value = new String(valueBytes);
+            elementHashMap.put(key, value);
         } catch (OutOfMemoryError e) {
-            throw new IOException("db.dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format");
         }
     }
 
-    private void write(RandomAccessFile output, Element element) throws IOException {
-        output.writeInt(element.key.getBytes("UTF-8").length);
-        output.writeInt(element.value.getBytes("UTF-8").length);
-        output.write(element.key.getBytes("UTF-8"));
-        output.write(element.value.getBytes("UTF-8"));
+    public FileMap(String dbDir, int directory, int file) throws IOException {
+        fileMap = new File(dbDir);
+        ndirectory = directory;
+        nfile = file;
+        try {
+            openFileMapWithCheck();
+        } catch (FileNotFoundException e) {
+            throw new IOException("File " + nfile + ".dat not found");
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
+        } catch (Exception e) {
+            throw new IOException(e.getMessage());
+        }
+        commands.add(new PutCommand());
+        commands.add(new GetCommand());
+        commands.add(new RemoveCommand());
+        commands.add(new FileMapExitCommand());
+    }
+
+    private void openFileMapWithCheck() throws Exception {
+        if (!fileMap.exists()) {
+            if (!fileMap.createNewFile()) {
+                throw new IOException("Can't create data file " + nfile + ".dat");
+            }
+        }
+        RandomAccessFile input = null;
+        try {
+            input = new RandomAccessFile(fileMap.toString(), "r");
+            if (input.length() == 0) {
+                return;
+            }
+            while (input.getFilePointer() < input.length()) {
+                readWithCheck(input);
+            }
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException(nfile + ".dat - File not found");
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("In " + nfile + ".dat something goes very-very wrong");
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    System.err.println("Can't close file " + nfile + ".dat");
+                }
+            }
+        }
+    }
+
+    private void readWithCheck(RandomAccessFile input) throws IOException {
+        int keyLength;
+        int valueLength;
+        try {
+            keyLength = input.readInt();
+            valueLength = input.readInt();
+        } catch (IOException e) {
+            throw new IOException("Error in key/value reading");
+        }
+        if (keyLength <= 0 || valueLength <= 0) {
+            throw new IOException(nfile + ".dat has incorrect format");
+        }
+        try {
+            byte[] keyBytes = new byte[keyLength];
+            byte[] valueBytes = new byte[valueLength];
+            input.read(keyBytes);
+            input.read(valueBytes);
+            if (keyBytes.length != keyLength || valueBytes.length != valueLength) {
+                throw new IOException("Error in read strings in " + nfile + ".dat");
+            }
+            String key = new String(keyBytes);
+            int hashcode = Math.abs(key.hashCode());
+            if (hashcode % 16 != ndirectory || hashcode / 16 % 16 != nfile) {
+                throw new IOException(ndirectory + ".dir" + File.separator + nfile + ".dat has wrong key: " + key);
+            }
+            String value = new String(valueBytes);
+            elementHashMap.put(key, value);
+        } catch (OutOfMemoryError e) {
+            throw new IOException(nfile + ".dat has incorrect format");
+        }
+    }
+
+    private void write(RandomAccessFile output, String key, String value) throws IOException {
+        output.writeInt(key.getBytes("UTF-8").length);
+        output.writeInt(value.getBytes("UTF-8").length);
+        output.write(key.getBytes("UTF-8"));
+        output.write(value.getBytes("UTF-8"));
     }
 
     private void openFileMap() throws Exception {
         if (!fileMap.exists()) {
             if (!fileMap.createNewFile()) {
-                throw new IOException("Can't create data file db.dat");
+                throw new IOException("Can't create data file " + nfile + ".dat");
             }
         }
         RandomAccessFile input = null;
@@ -99,29 +173,30 @@ public class FileMap extends State {
                 read(input);
             }
         } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("db.dat - File not found");
+            throw new FileNotFoundException(nfile + ".dat - File not found");
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception("In db.dat something goes very-very wrong");
+            throw new Exception("In " + nfile + ".dat something goes very-very wrong");
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    System.err.println("Can't close file db.dat");
+                    System.err.println("Can't close file " + nfile + ".dat");
                 }
             }
         }
     }
 
-    public void saveFileMap() throws IOException {
+    public void save() throws IOException {
         RandomAccessFile output = null;
         try {
             output = new RandomAccessFile(fileMap.toString(), "rw");
             output.setLength(0);
-            for (Element element : elementList) {
-                write(output, element);
+            Set<Map.Entry<String, String>> hashMapSet = elementHashMap.entrySet();
+            for (Map.Entry<String, String> element : hashMapSet) {
+                write(output, element.getKey(), element.getValue());
             }
         } catch (FileNotFoundException e) {
             throw new IOException("Can't find file to save");
@@ -132,54 +207,64 @@ public class FileMap extends State {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    System.err.println("Can't close file db.dat");
+                    System.err.println("Can't close file " + nfile + ".dat");
                 }
             }
         }
     }
 
-    private int find(String key) {
-        for (int i = 0; i < elementList.size(); ++i) {
-            if (elementList.get(i).key.equals(key)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     public String put(String newKey, String newValue) throws IOException {
-        int index = find(newKey);
-        if (index == -1) {
-            elementList.add(new Element(newKey, newValue));
+        String oldValue = elementHashMap.put(newKey, newValue);
+        if (oldValue == null) {
             return "new";
         }
-        String str = "old " + elementList.get(index).value;
-        elementList.get(index).value = newValue;
+        String str = "old " + oldValue;
         return str;
     }
 
     public String get(String key) {
-        int index = find(key);
-        if (index == -1) {
+        String value = elementHashMap.get(key);
+        if (value == null) {
             return "not found";
         }
-        return elementList.get(index).value;
+        return value;
     }
 
     public String remove(String key) {
-        int index = find(key);
-        if (index == -1) {
+        if (elementHashMap.get(key) == null) {
             return "not found";
         }
-        elementList.remove(index);
+        elementHashMap.remove(key);
         return "removed";
     }
 
+    @Override
     public final Vector<Command> getCommands() {
         return commands;
     }
 
     public final void addCommand(Command command) {
         commands.add(command);
+    }
+
+    @Override
+    public FileMap getMyState(int hashCode) {
+        return this;
+    }
+
+    public boolean isEmpty() {
+        return elementHashMap.isEmpty();
+    }
+
+    public void delete() throws IOException {
+        File fileMapParent = fileMap.getParentFile();
+        if (!fileMap.delete()) {
+            throw new IOException("Can't remove empty fileMap");
+        }
+        if (fileMapParent.listFiles().length == 0) {
+            if (!fileMapParent.delete()) {
+                throw new IOException("Can't remove empty fileMaps directory");
+            }
+        }
     }
 }

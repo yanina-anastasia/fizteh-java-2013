@@ -1,17 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
-import java.io.File;
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
 
-public class ShellState {
-    public String workingDirectory;
+public class ShellState extends State {
 
-    ShellState() {
-        File file = new File("");
-
-        workingDirectory = file.getAbsolutePath();
-    }
-
-    public void printWorkDir() {
-        System.out.println(workingDirectory);
-    }
 }

@@ -11,13 +11,13 @@ public class DescriptionOfDirectoryCommand extends Command {
 	}
 	
 	@Override
-	public File execute(String[] argumentsList, boolean isInteractive, File currentDirectory) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, isInteractive)) {
-			return currentDirectory;
+	public void execute(String[] argumentsList, Shell myShell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+			return;
 		}
 		
 		File[] listOfFiles;
-		listOfFiles = currentDirectory.listFiles();
+		listOfFiles = myShell.getCurrentDirectory().listFiles();
 		
 		Arrays.sort(listOfFiles, new Comparator<File>() {
 			@Override
@@ -40,7 +40,6 @@ public class DescriptionOfDirectoryCommand extends Command {
 		for(File fileName : listOfFiles) {
 			System.out.println(fileName.getName());
 		}
-		return currentDirectory;
 	}
 
 }

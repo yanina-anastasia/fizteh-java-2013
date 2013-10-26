@@ -1,14 +1,17 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.IOException;
 
 public class PwdCommand extends Command {
-    public boolean exec(String[] args, ShellState curState) throws IOException {
+    public boolean exec(String[] args, State curState) throws IOException {
+        ShellState myState = ShellState.class.cast(curState);
         if (args.length != 0) {
             System.err.println("Invalid arguments");
             return false;
         }
-        curState.printWorkDir();
+        myState.printWorkDir();
         return true;
     }
 
