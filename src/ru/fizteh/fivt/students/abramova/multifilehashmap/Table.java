@@ -1,15 +1,12 @@
 package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
 import ru.fizteh.fivt.students.abramova.filemap.FileMap;
-import ru.fizteh.fivt.students.abramova.shell.MakeDirectoryCommand;
 import ru.fizteh.fivt.students.abramova.shell.RemoveCommand;
 import ru.fizteh.fivt.students.abramova.shell.Stage;
 import ru.fizteh.fivt.students.abramova.shell.Status;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Map;
-import java.util.Set;
 
 public class Table implements Closeable {
     private final File tableDir;
@@ -40,7 +37,7 @@ public class Table implements Closeable {
                         currentFile = new File(currentDir.toString(), j + ".dat");
                         if (currentFile.exists()) { //Если файл существует, то записываем его
                             files[i][j] = new FileMap(j + ".dat", currentDir.getCanonicalPath());
-                            if (!correctFile(i, j, files[i][j])) {
+                            if (!isCorrectFile(i, j, files[i][j])) {
                                 throw new IOException("Bad file");
                             }
                         } else {
@@ -58,10 +55,10 @@ public class Table implements Closeable {
         }
     }
 
-    private boolean correctFile(int ndirectory, int nfile, FileMap file) {
+    private boolean isCorrectFile(int ndirectory, int nfile, FileMap file) {
         int hashcode;
         for (String key : file.getMap().keySet()) {
-            hashcode = StrictMath.abs(key.hashCode());
+            hashcode = Math.abs(key.hashCode());
             if (ndirectory != hashcode % 16 || nfile != hashcode / 16 % 16) {
                 return false;
             }
@@ -107,7 +104,7 @@ public class Table implements Closeable {
     }
 
     public FileMap findFileMap(String key) {
-        int hashcode = StrictMath.abs(key.hashCode());
+        int hashcode = Math.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         if (files[ndirectory] == null || files[ndirectory][nfile] == null) {
@@ -123,7 +120,7 @@ public class Table implements Closeable {
         if (oldFile != null) {
             return oldFile;
         }
-        int hashcode = StrictMath.abs(key.hashCode());
+        int hashcode = Math.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         File dir = new File(tableDir.getCanonicalPath(), ndirectory + ".dir");
@@ -149,7 +146,7 @@ public class Table implements Closeable {
     //Зануляет указатели на нулевые файлы и директории
     //Принимает ключ, чтобы найти место, где мог опустеть файл
     public void correctingFiles(String key) {
-        int hashcode = StrictMath.abs(key.hashCode());
+        int hashcode = Math.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         if (files[ndirectory] != null && files[ndirectory][nfile] != null &&
