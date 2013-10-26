@@ -11,7 +11,7 @@ public class FileMap {
 			if (!in.createNewFile())
 				throw new IOException("Can't create file");
 		}
-		FileMapState fileMap = new FileMapState(name, new File("."), System.out);
+		FileMapState fileMap = new FileMapState(name, in, System.out);
 		fileMap.readFile(in);
 		return fileMap;
 	}

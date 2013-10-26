@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
 import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
@@ -14,17 +15,19 @@ public class UseCommand extends AbstractCommand {
 	}
 
 	public void execute(String[] args, PrintStream s) throws IOException {
-		File table = new File(absolutePath(args[1]));
-		if (!table.exists()) {
-			getState().getStream().print(args[1] + "not exists");
+		File f = new File(getState().getWorkingDirectory(), args[1]);
+		if (!f.exists()) {
+			getState().getStream().println(args[1] + " not exists");
 		} else {
 			MultiFileMapState multi = (MultiFileMapState) getState();
-			if (!multi.equals(null)) {
+			if (multi.getWorkingTable() != null) {
+				/////////////////////
+				System.out.println("I am here!!!!!!!!!!!!");
 				multi.write();
 			}
-			multi.setWorkingTable(((MultiFileMapState) getState()).getTables().get(args[1]));
+			multi.setWorkingTable(new FileMapState(args[1], f, getState().getStream()));
 			multi.read();
-			getState().getStream().print("using" + args[1]);
+			getState().getStream().println("using " + args[1]);
 		}
 	}
 

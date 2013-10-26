@@ -14,12 +14,12 @@ public class GetCommand extends AbstractCommand {
 	public void execute(String[] args, PrintStream s) {
 		MonoMultiAbstractState currentState = (MonoMultiAbstractState) getState();
 		FileMapState fileMap = currentState.getWorkingTable();
-		if (fileMap.equals(null)) {
-			getState().getStream().print("no table");
+		if (fileMap == null) {
+			getState().getStream().println("no table");
 		} else {
 			if (fileMap.map.containsKey(args[1])) {
 				getState().getStream().println("found");
-				getState().getStream().println(((FileMapState) getState()).map.get(args[1]));
+				getState().getStream().println(((MonoMultiAbstractState) getState()).getWorkingTable().map.get(args[1]));
 			} else {
 				getState().getStream().println("not found");
 			}

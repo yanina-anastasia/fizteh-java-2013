@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -27,7 +26,6 @@ import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 public class MultiFileMapState extends MonoMultiAbstractState implements TableProvider {
 	
 	private final ShellState shell;
-	private HashMap<String, FileMapState> tables = new HashMap<>();
 	
 	protected MultiFileMapState(String n, File wd, PrintStream s) {
 		super(n, wd, s);
@@ -47,14 +45,19 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 	
 
 	public Table getTable(String name) {
-		return getTables().get(name);
+		File f = new File(getWorkingDirectory(), name);
+		if (!f.exists()) {
+			return null;
+		}
+		return new FileMapState(name, f, getStream());
 	}
 
 	public Table createTable(String name) {
+		File f = new File(getWorkingDirectory(), name);
 		CreateTableCommand c = new CreateTableCommand(this);
 		String[] args = {"create", name};
 		c.execute(args, getStream());
-		return getTables().get(name);
+		return new FileMapState(name, f, getStream());
 	}
 
 	public void removeTable(String name) {
@@ -65,10 +68,6 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 
 	public ShellState getShell() {
 		return shell;
-	}
-
-	public HashMap<String, FileMapState> getTables() {
-		return tables;
 	}
 
 	public void read() throws IOException {
@@ -85,18 +84,19 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 				
 		}
 	}
+
 	
 	private File getWhereWrite(String key) throws IOException {
 		int hashcode = key.hashCode();
 		int ndirectory = hashcode % 16;
 		int nfile = hashcode / 16 % 16;
-		File dir = new File(ndirectory+".dir");
+		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
 		if (!dir.exists()) {
-			if (!dir.createNewFile()) {
+			if (!dir.mkdir()) {
 				throw new IOException("can't create file");
 			}
 		}
-		File file = new File(dir.getCanonicalPath() + File.separator + nfile + ".dat");
+		File file = new File(dir.getCanonicalPath(), nfile + ".dat");
 		if (!file.exists()) {
 			if (!file.createNewFile()) {
 				throw new IOException("can't create file");
@@ -106,23 +106,26 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 	}
 	
 	public void write() throws IOException {
-		Set<Entry<String, String>> set = getWorkingTable().map.entrySet();
-		for (Entry<String, String> element : set) {
-			String key = element.getKey();
-			String value = element.getValue();
+		if (getWorkingTable() != null) {
+			Set<Entry<String, String>> set = getWorkingTable().map.entrySet();
+			for (Entry<String, String> element : set) {
+				String key = element.getKey();
+				String value = element.getValue();
 
-			File out = getWhereWrite(key);
-			DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
+				File out = getWhereWrite(key);
+				DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 
-			byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bkey.length);
-			byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bvalue.length);
-			s.write(bkey);
-			s.write(bvalue);
-			s.close();
+				byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
+				s.writeInt(bkey.length);
+				byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
+				s.writeInt(bvalue.length);
+				s.write(bkey);
+				s.write(bvalue);
+				s.close();
+			}
 		}
 	}
+	
 	
 }
 

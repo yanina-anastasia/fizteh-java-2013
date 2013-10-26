@@ -32,7 +32,7 @@ public abstract class AbstractCommand implements Command {
  	protected String absolutePath(String path) throws IOException {
  		File f = new File(path);
  		if (!f.isAbsolute()) {
- 			f = new File(((ShellState) state).getWorkingDirectory(), path);
+ 			f = new File(state.getWorkingDirectory(), path);
  		}
  		return f.getCanonicalPath().toString();
 	}

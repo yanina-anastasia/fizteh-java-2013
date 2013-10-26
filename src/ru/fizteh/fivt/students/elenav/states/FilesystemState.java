@@ -64,7 +64,11 @@ public abstract class FilesystemState {
 			command = command.trim();
 			String[] commands = command.split("\\s*;\\s*");
 			for (String c : commands) {
-				execute(c);
+				try {
+					execute(c);
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
 			}
 		} while (flag);
 	}

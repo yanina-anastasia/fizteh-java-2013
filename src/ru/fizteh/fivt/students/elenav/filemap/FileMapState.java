@@ -30,7 +30,7 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 	public HashMap<String, String> map = new HashMap<>();
 	
 	public void readFile(File in) throws IOException {
-		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
+		DataInputStream s = new DataInputStream(new FileInputStream(in));
         boolean flag = true;
         do {
                 try {
@@ -49,8 +49,8 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
                 } catch (EOFException e) {
                         break;
                 }
-                } while (flag);
-                s.close();
+        } while (flag);
+        s.close();
 	
 	}
 	
