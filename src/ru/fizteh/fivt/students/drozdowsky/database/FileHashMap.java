@@ -141,7 +141,7 @@ public class FileHashMap {
                 if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
-                /*base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
+                base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
                     fatalError(db.getAbsolutePath() + ": Not valid database3");
@@ -152,15 +152,15 @@ public class FileHashMap {
                     if (!(nDir == realNDir && nFile == realNFile)) {
                         fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database");
                     }
-                }*/
+                }
             }
         }
     }
 
     private void writeDB() {
-        for (int i = 0; i < NDIRS; i++) {
+        for (int i = 0; i <= NDIRS; i++) {
             File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
-            for (int j = 0; j < NFILES; j++) {
+            for (int j = 0; j <= NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j));
                     if (base[i][j].getKeys().size() == 0) {
@@ -177,7 +177,7 @@ public class FileHashMap {
     }
 
     private int nameInRange(String s, int range) {
-        for (int i = 0; i < range; i++) {
+        for (int i = 1; i <= range; i++) {
             if (Integer.toString(i).equals(s)) {
                 return i;
             }
