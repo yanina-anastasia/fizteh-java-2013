@@ -24,6 +24,7 @@ class Main {
             fileMap.close();
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }
