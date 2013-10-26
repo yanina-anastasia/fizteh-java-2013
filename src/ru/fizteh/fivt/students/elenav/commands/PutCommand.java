@@ -3,7 +3,8 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
-import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
 public class PutCommand extends AbstractCommand {
 
@@ -12,13 +13,19 @@ public class PutCommand extends AbstractCommand {
 	}
 
 	public void execute(String[] args, PrintStream s) {
-		String result = ((FileMapState) getState()).map.put(args[1], args[2]);
-		if (result != null) {
-			getState().getStream().println("overwrite");
-			getState().getStream().println(result);
-		}
-		else {
-			getState().getStream().println("new");
+		MonoMultiAbstractState currentState = (MonoMultiAbstractState) getState();
+		FileMapState fileMap = currentState.getWorkingTable();
+		if (fileMap.equals(null)) {
+			getState().getStream().print("no table");
+		} else {
+			String result = fileMap.map.put(args[1], args[2]);
+			if (result != null) {
+				getState().getStream().println("overwrite");
+				getState().getStream().println(result);
+			}
+			else {
+				getState().getStream().println("new");
+			}
 		}
 	}	
 }
