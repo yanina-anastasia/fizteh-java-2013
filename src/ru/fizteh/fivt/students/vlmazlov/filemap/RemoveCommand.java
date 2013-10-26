@@ -9,14 +9,16 @@ public class RemoveCommand extends AbstractFileMapCommand {
 		super("remove", 1);
 	}
 
-	public void execute(String[] args, FileMap state, OutputStream out) throws CommandFailException {
-		if (state == null) {
+	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
+		FileMap fileMap = state.getFileMap();
+		
+		if (fileMap == null) {
 			displayMessage("no table" + SEPARATOR, out);
 			return;
 		}
 
 		String key = args[0];
-		String oldValue = state.remove(key);
+		String oldValue = fileMap.remove(key);
 
 		if (oldValue == null) {
 			displayMessage("not found" + SEPARATOR, out);

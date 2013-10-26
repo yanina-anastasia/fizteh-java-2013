@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class FileMap implements Iterable<Map.Entry<String, String>> {
+public class FileMap implements Iterable<Map.Entry<String, String>>, FileMapState {
 
 	private Map<String, String> map;
 
@@ -27,5 +27,9 @@ public class FileMap implements Iterable<Map.Entry<String, String>> {
 
 	public Iterator<Map.Entry<String, String>> iterator() {
 		return map.entrySet().iterator();
+	}
+
+	public FileMap getFileMap() {
+		return this;
 	}
 }

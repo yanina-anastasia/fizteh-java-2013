@@ -6,8 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.File;
 import java.util.Map;
 import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
+import ru.fizteh.fivt.students.vlmazlov.filemap.FileMapState;
 
-public class MultiTableDataBase {
+public class MultiTableDataBase implements FileMapState {
 	private HashMap<String, FileMap> tables;
 	private FileMap activeTable;
 	private final File root;
@@ -69,5 +70,9 @@ public class MultiTableDataBase {
 
 	public File getRoot() {
 		return root;
+	}
+
+	public FileMap getFileMap() {
+		return activeTable;
 	}
 }

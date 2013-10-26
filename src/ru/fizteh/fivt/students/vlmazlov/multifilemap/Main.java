@@ -8,6 +8,9 @@ import ru.fizteh.fivt.students.vlmazlov.shell.UserInterruptionException;
 import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import ru.fizteh.fivt.students.vlmazlov.filemap.GetCommand;
+import ru.fizteh.fivt.students.vlmazlov.filemap.PutCommand;
+import ru.fizteh.fivt.students.vlmazlov.filemap.RemoveCommand;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -35,8 +38,8 @@ public class Main {
 		}
 
 		Command[] commands = {
-			new MultiTableGetCommand(), new MultiTablePutCommand(), 
-			new MultiTableRemoveCommand(), new ExitCommand(),
+			new GetCommand(), new PutCommand(), 
+			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateCommand(),
 			new DropCommand()
 		};

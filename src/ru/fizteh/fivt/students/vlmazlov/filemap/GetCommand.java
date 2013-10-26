@@ -8,14 +8,16 @@ public class GetCommand extends AbstractFileMapCommand {
 		super("get", 1);
 	}
 
-	public void execute(String[] args, FileMap state, OutputStream out) throws CommandFailException {
-		if (state == null) {
+	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
+		FileMap fileMap = state.getFileMap();
+
+		if (fileMap == null) {
 			displayMessage("no table" + SEPARATOR, out);
 			return;
 		}
 
 		String key = args[0];
-		String value = state.get(key);
+		String value = fileMap.get(key);
 
 		if (value == null) {
 			displayMessage("not found" + SEPARATOR, out);

@@ -9,14 +9,16 @@ public class PutCommand extends AbstractFileMapCommand {
 		super("put", 2);
 	}
 
-	public void execute(String[] args, FileMap state, OutputStream out) throws CommandFailException {
-		if (state == null) {
+	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
+		FileMap fileMap = state.getFileMap();
+
+		if (fileMap == null) {
 			displayMessage("no table" + SEPARATOR, out);
 			return;
 		}
 
 		String key = args[0], value = args[1];
-		String oldValue = state.put(key, value);
+		String oldValue = fileMap.put(key, value);
 
 		if (oldValue == null) {
 			displayMessage("new" + SEPARATOR, out);
