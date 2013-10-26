@@ -35,7 +35,7 @@ public class MyHashMap {
             if(firstControlValue != nDirectory || secondControlValue != nFile) {
                 throw new Exception("Error: bad file");
             }
-            dataBase.get(nFile * 16 + nDirectory).put(newEntry.getKey(), newEntry.getValue());
+            dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
         }
         dbFile.delete();
     }
@@ -92,7 +92,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -116,7 +116,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -135,7 +135,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
