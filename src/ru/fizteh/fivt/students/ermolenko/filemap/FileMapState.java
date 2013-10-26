@@ -6,9 +6,14 @@ import java.util.Map;
 
 public class FileMapState {
 
-    //для хранения <key, value>
     private Map<String, String> dataBase;
     private File dataFile;
+
+    public FileMapState(File currentFile) {
+
+        dataBase = new HashMap<String, String>();
+        dataFile = currentFile;
+    }
 
     public Map<String, String> getDataBase() {
 
@@ -18,12 +23,6 @@ public class FileMapState {
     public File getDataFile() {
 
         return dataFile;
-    }
-
-    public FileMapState(File currentFile) {
-
-        dataBase = new HashMap<String, String>();
-        dataFile = currentFile;
     }
 
     public void setDataBase(Map<String, String> map) {

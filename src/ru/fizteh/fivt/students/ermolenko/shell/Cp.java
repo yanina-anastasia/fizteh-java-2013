@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Cp implements Command {
+public class Cp implements Command<ShellState> {
 
     public String getName() {
         return "cp";
@@ -24,10 +24,10 @@ public class Cp implements Command {
         }
     }
 
-    public void executeCmd(Shell shell, String[] args) throws IOException {
+    public void executeCmd(ShellState inState, String[] args) throws IOException {
         if (2 == args.length) {
-            Path source = shell.getState().getPath().resolve(args[0]).normalize();
-            Path target = shell.getState().getPath().resolve(args[1]).normalize();
+            Path source = inState.getPath().resolve(args[0]).normalize();
+            Path target = inState.getPath().resolve(args[1]).normalize();
             if (source.toFile().isFile() && target.toFile().isFile()) {
                 throw new IOException("not allowed to copy file to file");
             }

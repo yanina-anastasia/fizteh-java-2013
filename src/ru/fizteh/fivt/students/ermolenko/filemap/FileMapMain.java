@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.ermolenko.filemap;
 
+import ru.fizteh.fivt.students.ermolenko.shell.Shell;
+
 import java.io.File;
 import java.io.IOException;
 
 public class FileMapMain {
     public static void main(String[] args) throws IOException {
 
-        //String currentProperty = "/Users/evgenij/Documents/JAVA_Ex/fizteh-java-2013/src/ru/fizteh/fivt/students/filemap/";
-        String currentProperty = System.getProperty("fizteh.db.dir");
+        String currentProperty = "/Users/evgenij/Documents/JAVA_Ex/fizteh-java-2013/src/ru/fizteh/fivt/students/ermolenko/filemap";
+        //String currentProperty = System.getProperty("fizteh.db.dir");
         if (currentProperty == null) {
             System.exit(0);
         }
@@ -18,9 +20,12 @@ public class FileMapMain {
 
         try {
             base = base.getCanonicalFile().toPath().resolve("db.dat").toFile();
-            FileMap filemap = new FileMap(base);
+            FileMapState startState = new FileMapState(base);
+            FileMapUtils.readDataBase(startState);
+            Shell<FileMapState> filemap = new Shell<FileMapState>(startState);
 
             FileMapExecutor exec = new FileMapExecutor();
+
             if (args.length > 0) {
                 filemap.batchState(args, exec);
             } else {

@@ -1,30 +1,15 @@
 package ru.fizteh.fivt.students.ermolenko.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Scanner;
 
-public class Shell {
+public class Shell<State> {
 
-    private ShellState state;
+    private State state;
 
-    public Shell(File currentDirectory) {
-        state = new ShellState();
-        currentDirectory = currentDirectory.getAbsoluteFile();
-        state.setPath((currentDirectory.toPath()));
-    }
+    public Shell(State inState) {
 
-    public Shell() {
-    }
-
-    public ShellState getState() {
-        return state;
-    }
-
-    public void setState(Path inState) {
-
-        state.setPath(inState);
+        state = inState;
     }
 
     public void batchState(String[] args, Executor exec) throws IOException {
@@ -45,7 +30,7 @@ public class Shell {
                 break;
             }
             try {
-                exec.execute(this, cmd);
+                exec.execute(state, cmd);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
@@ -63,7 +48,7 @@ public class Shell {
 
             try {
                 for (String aCmd : cmd) {
-                    exec.execute(this, aCmd);
+                    exec.execute(state, aCmd);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());

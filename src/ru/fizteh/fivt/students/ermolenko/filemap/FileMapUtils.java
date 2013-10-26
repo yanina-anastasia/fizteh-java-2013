@@ -82,7 +82,6 @@ public class FileMapUtils {
         } finally {
             closeStream(dataStream);
         }
-
     }
 
     private static void closeStream(Closeable stream) throws IOException {
@@ -92,27 +91,33 @@ public class FileMapUtils {
 
     public static void write(Map<String, String> dataBase, File currentFile) throws IOException {
 
-        OutputStream currentStream = new FileOutputStream(currentFile);
-        BufferedOutputStream bufferStream = new BufferedOutputStream(currentStream, 4096);
-        DataOutputStream dataStream = new DataOutputStream(bufferStream);
-        long biasing = 0;
+        try {
+            FileOutputStream currentStream = new FileOutputStream(currentFile);
+            BufferedOutputStream bufferStream = new BufferedOutputStream(currentStream, 4096);
+            DataOutputStream dataStream = new DataOutputStream(bufferStream);
+            long biasing = 0;
+            try {
+                for (String key : dataBase.keySet()) {
+                    biasing += key.getBytes(StandardCharsets.UTF_8).length + 5;
+                }
+                List<String> values = new ArrayList<String>(dataBase.keySet().size());
+                for (String key : dataBase.keySet()) {
+                    String value = dataBase.get(key);
+                    values.add(value);
+                    dataStream.write(key.getBytes(StandardCharsets.UTF_8));
+                    dataStream.writeByte(0);
+                    dataStream.writeInt((int) biasing);
+                    biasing += value.getBytes(StandardCharsets.UTF_8).length;
+                }
 
-        for (String key : dataBase.keySet()) {
-            biasing += key.getBytes(StandardCharsets.UTF_8).length + 5;
+                for (String value : values) {
+                    dataStream.write(value.getBytes());
+                }
+            } finally {
+                closeStream(dataStream);
+            }
+        } catch (IOException e) {
+            throw new IOException("cannot write '" + currentFile.getName() + "'", e);
         }
-        List<String> values = new ArrayList<String>(dataBase.keySet().size());
-        for (String key : dataBase.keySet()) {
-            String value = dataBase.get(key);
-            values.add(value);
-            dataStream.write(key.getBytes(StandardCharsets.UTF_8));
-            dataStream.writeByte(0);
-            dataStream.writeInt((int) biasing);
-            biasing += value.getBytes(StandardCharsets.UTF_8).length;
-        }
-
-        for (String value : values) {
-            dataStream.write(value.getBytes());
-        }
-        closeStream(dataStream);
     }
 }

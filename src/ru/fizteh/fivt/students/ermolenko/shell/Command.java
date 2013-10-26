@@ -2,8 +2,9 @@ package ru.fizteh.fivt.students.ermolenko.shell;
 
 import java.io.IOException;
 
-public interface Command {
+public interface Command<State> {
+
     public String getName();
 
-    public void executeCmd(Shell shell, String[] args) throws IOException;
+    public void executeCmd(State shell, String[] args) throws IOException;
 }

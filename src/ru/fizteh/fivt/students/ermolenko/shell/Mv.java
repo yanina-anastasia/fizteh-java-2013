@@ -6,13 +6,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Mv implements Command {
+public class Mv implements Command<ShellState> {
 
     public String getName() {
+
         return "mv";
     }
 
     private void move(Path source, Path target) throws IOException {
+
         if (source.toFile().isFile()) {
             Files.copy(source, target);
         } else {
@@ -25,10 +27,11 @@ public class Mv implements Command {
         source.toFile().delete();
     }
 
-    public void executeCmd(Shell shell, String[] args) throws IOException {
+    public void executeCmd(ShellState inState, String[] args) throws IOException {
+
         if (2 == args.length) {
-            Path source = shell.getState().getPath().resolve(args[0]).normalize();
-            Path target = shell.getState().getPath().resolve(args[1]).normalize();
+            Path source = inState.getPath().resolve(args[0]).normalize();
+            Path target = inState.getPath().resolve(args[1]).normalize();
             if (source.toFile().isFile() && target.toFile().isFile()) {
                 throw new IOException("not allowed to move file to file");
             }
@@ -70,10 +73,10 @@ public class Mv implements Command {
         } else {
             throw new IOException("not allowed number of arguments");
         }
-        Path path = shell.getState().getPath();
+        Path path = inState.getPath();
         while (!path.toFile().isDirectory()) {
             path = path.getParent();
         }
-        shell.setState(path);
+        inState.setPath(path);
     }
 }

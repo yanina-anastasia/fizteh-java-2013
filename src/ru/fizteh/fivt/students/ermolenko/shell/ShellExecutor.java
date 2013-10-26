@@ -1,12 +1,14 @@
 package ru.fizteh.fivt.students.ermolenko.shell;
 
-public class ShellExecutor extends Executor {
+public class ShellExecutor extends Executor<ShellState> {
 
     public ShellExecutor() {
+
         list();
     }
 
     public void list() {
+
         Command pwd = new Pwd();
         mapOfCmd.put(pwd.getName(), pwd);
         Command cd = new Cd();

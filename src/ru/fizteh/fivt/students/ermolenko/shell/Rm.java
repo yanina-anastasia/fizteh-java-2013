@@ -4,13 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class Rm implements Command {
+public class Rm implements Command<ShellState> {
 
     public String getName() {
+
         return "rm";
     }
 
     public static void remove(Path thePath) throws IOException {
+
         File theFile = thePath.toFile();
         if (theFile.isFile()) {
             if (!theFile.delete()) {
@@ -30,8 +32,9 @@ public class Rm implements Command {
         }
     }
 
-    public void executeCmd(Shell shell, String[] args) throws IOException {
-        Path thePath = shell.getState().getPath().resolve(args[0]);
+    public void executeCmd(ShellState inState, String[] args) throws IOException {
+
+        Path thePath = inState.getPath().resolve(args[0]);
         try {
             if (1 == args.length) {
                 if (thePath.toFile().exists()) {
@@ -46,7 +49,7 @@ public class Rm implements Command {
             while (!thePath.toFile().isDirectory()) {
                 thePath = thePath.getParent();
             }
-            shell.setState(thePath);
+            inState.setPath(thePath);
         }
     }
 }

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.filemap;
 import ru.fizteh.fivt.students.ermolenko.shell.Executor;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
-public class FileMapExecutor extends Executor {
+public class FileMapExecutor extends Executor<FileMapState> {
 
     public FileMapExecutor() {
 
@@ -18,7 +18,7 @@ public class FileMapExecutor extends Executor {
         mapOfCmd.put(get.getName(), get);
         Command remove = new Remove();
         mapOfCmd.put(remove.getName(), remove);
-        Command exit = new Exit();
+        Command<FileMapState> exit = new Exit();
         mapOfCmd.put(exit.getName(), exit);
     }
 }
