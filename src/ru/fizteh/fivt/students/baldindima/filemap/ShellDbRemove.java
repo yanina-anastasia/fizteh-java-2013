@@ -5,16 +5,16 @@ package ru.fizteh.fivt.students.baldindima.filemap;
 import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 
 public class ShellDbRemove extends ShellIsItCommand {
-	private DataBase dataBase;
-	public ShellDbRemove(final DataBase dBase){
+	private DataBaseTable dataBaseTable;
+	public ShellDbRemove(final DataBaseTable dBaseTable){
 		setName("remove");
 		setNumberOfArgs(2);
-		dataBase = dBase;
+		dataBaseTable = dBaseTable;
 	}
 	
 	
 	public void run() {
-		String newString = dataBase.remove(arguments[1]);
+		String newString = dataBaseTable.remove(arguments[1]);
 		if (newString == null){
 			System.out.println("not found");
 		} else {

@@ -2,87 +2,155 @@ package ru.fizteh.fivt.students.baldindima.filemap;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.HashMap;
-import java.util.Map;
-
-import ru.fizteh.fivt.students.baldindima.shell.Shell;
-import ru.fizteh.fivt.students.baldindima.shell.FileFunctions;
 
 public class DataBase {
-    public Map<String, String> getCurrentTable() {
-        return currentTable;
-    }
+    private String dataBaseDirectory;
+    private DataBaseFile[] files;
 
-    private final Map<String, String> currentTable = new HashMap<String, String>();
-    private RandomAccessFile dataBaseFile;
-
-    public void open(Shell shell, FileFunctions fileFunctions) throws IOException {
-        String path = System.getProperty("fizteh.db.dir");
-        if (path == null) {
-            throw new IOException("problem with property");
-        }
-        fileFunctions.toFile(path + File.separator + "db.dat");
-        File curDir = fileFunctions.pwd;
-        if (!curDir.exists()) {
-            if (!curDir.createNewFile()) {
-                throw new IOException("can't create base");
+    private void checkNames(String[] fileList, String extension) throws IOException {
+        for (String fileNumber : fileList) {
+            String[] nameFile = fileNumber.split("\\.");
+            if ((nameFile.length != 2)
+                    || !nameFile[1].equals(extension)) {
+                throw new IOException(dataBaseDirectory + " wrong file " + fileNumber);
             }
-        }
-        dataBaseFile = new RandomAccessFile(curDir, "rw");
-    }
-
-    public void read(Shell shell, FileFunctions fileFunctions) throws IOException {
-        open(shell, fileFunctions);
-        if (dataBaseFile.length() == 0) {
-            return;
-        }
-
-        while (dataBaseFile.getFilePointer() < dataBaseFile.length() - 1) {
-            int keyLength = dataBaseFile.readInt();
-            int valueLength = dataBaseFile.readInt();
-            if ((keyLength <= 0) || (valueLength <= 0))
-                throw new IOException("wrong format");
-            byte[] key;
-            byte[] value;
+            int intName;
             try {
-                key = new byte[keyLength];
-                value = new byte[valueLength];
-            } catch (OutOfMemoryError e) {
-                throw new IOException("too large key or value");
+                intName = Integer.parseInt(nameFile[0]);
+            } catch (NumberFormatException e) {
+                throw new IOException(dataBaseDirectory + " wrong name of file" + fileNumber);
             }
-            dataBaseFile.read(key);
-            dataBaseFile.read(value);
-            String keyString = new String(key, "UTF-8");
-            String valueString = new String(value, "UTF-8");
-            currentTable.put(keyString, valueString);
+            if ((intName < 0) || (intName > 15))
+                throw new IOException(dataBaseDirectory + " wrong name of file" + fileNumber);
+        }
+    }
+
+    private void checkCorrectionDirectory(String directoryName) throws IOException {
+        File file = new File(directoryName);
+        if (file.isFile()) {
+            throw new IOException(directoryName + " isn't a directory!");
+        }
+        checkNames(file.list(), "dat");
+        for (String fileName : file.list()) {
+            if (new File(directoryName, fileName).isDirectory()) {
+                throw new IOException(directoryName + File.separator + fileName + " isn't a file!");
+            }
+        }
+    }
+
+    private void checkCorrection() throws IOException {
+        File file = new File(dataBaseDirectory);
+        if (!file.exists()) {
+            throw new IOException(dataBaseDirectory + " isn't exist");
+        }
+        checkNames(file.list(), "dir");
+        for (String fileNumber : file.list()) {
+            checkCorrectionDirectory(dataBaseDirectory + File.separator + fileNumber);
+        }
+
+
+    }
+
+    public DataBase(String nameDirectory) throws IOException {
+        dataBaseDirectory = nameDirectory;
+        checkCorrection();
+        files = new DataBaseFile[256];
+
+        loadDataBase();
+
+    }
+
+    private void addDirectory(final String directoryName) throws IOException {
+        File file = new File(dataBaseDirectory + File.separator + directoryName);
+        if (!file.exists()) {
+            if (!file.mkdir()) {
+                throw new IOException("Cannot create a directory!");
+            }
+        }
+    }
+
+    private String getFullName(int nDir, int nFile) {
+        return dataBaseDirectory + File.separator + Integer.toString(nDir)
+                + ".dir" + File.separator + Integer.toString(nFile) + ".dat";
+    }
+
+    private void loadDataBase() throws IOException {
+        try {
+            for (int i = 0; i < 16; ++i) {
+                addDirectory(Integer.toString(i) + ".dir");
+                for (int j = 0; j < 16; ++j) {
+                    int nFile = j;
+                    int nDir = i;
+                    DataBaseFile file = new DataBaseFile(getFullName(i, j), i, j);
+                    files[i * 16 + j] = file;
+                }
+
+            }
+        } catch (IOException e) {
+            saveDataBase();
+            throw e;
         }
 
     }
 
-    public void write(Shell shell, FileFunctions fileFunctions) throws IOException {
-        open(shell, fileFunctions);
-        dataBaseFile.getChannel().truncate(0);
-        for (Map.Entry<String, String> curPair : getCurrentTable().entrySet()) {
-            dataBaseFile.writeInt(curPair.getKey().getBytes("UTF-8").length);
-            dataBaseFile.writeInt(curPair.getValue().getBytes("UTF-8").length);
-            dataBaseFile.write(curPair.getKey().getBytes("UTF-8"));
-            dataBaseFile.write(curPair.getValue().getBytes("UTF-8"));
+    private void deleteEmptyDirectory(final String name) throws IOException {
+        File file = new File(dataBaseDirectory + File.separator + name);
+        if (file.exists()) {
+            if (file.list().length == 0) {
+                if (!file.delete()) {
+                    throw new IOException("Cannot delete a directory!");
+                }
+            }
         }
-        dataBaseFile.close();
     }
 
-    public String put(final String keyString, final String valueString) {
-        return getCurrentTable().put(keyString, valueString);
-
+    public void drop() throws IOException {
+        for (byte i = 0; i < 16; ++i) {
+            for (byte j = 0; j < 16; ++j) {
+                File file = new File(getFullName(i, j));
+                if (file.exists()) {
+                    if (!file.isFile()) {
+                        throw new IOException("It isn't a file!");
+                    }
+                    if (!file.delete()) {
+                        throw new IOException("Cannot delete a file!");
+                    }
+                }
+            }
+            deleteEmptyDirectory(Integer.toString(i) + ".dir");
+        }
     }
 
-    public String get(final String keyString) {
-        return getCurrentTable().get(keyString);
+    public void saveDataBase() throws IOException {
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (files[i * 16 + j] != null) {
+                    files[i * 16 + j].write();
+                }
+            }
+            deleteEmptyDirectory(Integer.toString(i) + ".dir");
+        }
     }
 
-    public String remove(final String keyString) {
-        return getCurrentTable().remove(keyString);
+    public String get(String keyString) {
+        int nDir = keyString.getBytes()[0] % 16;
+        int nFile = (keyString.getBytes()[0] / 16) % 16;
+        DataBaseFile file = files[nDir * 16 + nFile];
+        return file.get(keyString);
+    }
+
+    public String put(String keyString, String valueString) {
+        int nDir = keyString.getBytes()[0] % 16;
+        int nFile = (keyString.getBytes()[0] / 16) % 16;
+        DataBaseFile file = files[nDir * 16 + nFile];
+        return file.put(keyString, valueString);
+    }
+
+    public String remove(String keyString) {
+        int nDir = keyString.getBytes()[0] % 16;
+        int nFile = (keyString.getBytes()[0] / 16) % 16;
+        DataBaseFile file = files[nDir * 16 + nFile];
+        return file.remove(keyString);
     }
 
 
