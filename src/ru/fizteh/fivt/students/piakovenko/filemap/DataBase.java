@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.lang.Math;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,12 +50,12 @@ public class DataBase {
     }
 
     private int ruleNumberDirectory (String key) {
-        byte b =key.getBytes()[0];
+        int b = Math.abs(key.getBytes()[0]);
         return b % 16;
     }
 
     private int ruleNumberFile (String key) {
-        byte b =key.getBytes()[0];
+        int b = Math.abs(key.getBytes()[0]);
         return b / 16 % 16;
     }
 
