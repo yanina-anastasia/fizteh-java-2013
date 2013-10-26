@@ -18,7 +18,7 @@ public class CreateCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         if (curState.createTable(args[1]) == null) {
-            System.out.println(args[1] + " exist");
+            System.out.println(args[1] + " exists");
         } else {
             System.out.println("created");
         }
