@@ -45,6 +45,9 @@ public class MultiFileMapUtils {
                     filePath.delete();
                     filePath.createNewFile();
                     saveTable(myState, keys.get(j), filePath.toString());
+                    if (filePath.length() == 0) {
+                        filePath.delete();
+                    }
                 } catch (IOException e) {
                     System.out.println("ERROR SAD");
                     return false;
