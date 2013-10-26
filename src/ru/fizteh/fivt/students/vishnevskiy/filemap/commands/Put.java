@@ -1,12 +1,14 @@
 package ru.fizteh.fivt.students.vishnevskiy.filemap.commands;
 
 
-import ru.fizteh.fivt.students.vishnevskiy.filemap.Command;
-import ru.fizteh.fivt.students.vishnevskiy.filemap.FileMapException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
+import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
-public class Put implements Command {
+public class Put extends Command {
     private static final String NAME = "put";
+    private static final int ARGS_NUM = 2;
 
     public Put() {}
 
@@ -15,15 +17,16 @@ public class Put implements Command {
     }
 
     public int getArgsNum() {
-        return 2;
+        return ARGS_NUM;
     }
 
-    public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
+    public void execute(State state, String[] args) throws CommandException {
+        SingleFileMap singleFileMap = SingleFileMap.class.cast(state);
         if (args.length < 2) {
-            throw new FileMapException("put: arguments expected");
+            throw new CommandException("put: arguments expected");
         }
         if (args.length > 2) {
-            throw new FileMapException("put: wrong number of arguments");
+            throw new CommandException("put: wrong number of arguments");
         }
         String status = singleFileMap.put(args[0], args[1]);
         if (status == null) {

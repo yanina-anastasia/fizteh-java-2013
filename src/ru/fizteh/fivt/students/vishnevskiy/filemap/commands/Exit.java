@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.vishnevskiy.filemap.commands;
 
-
-import ru.fizteh.fivt.students.vishnevskiy.filemap.Command;
-import ru.fizteh.fivt.students.vishnevskiy.filemap.FileMapException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
+import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 
-public class Exit implements Command {
+public class Exit extends Command {
     private static final String NAME = "exit";
-
+    private static final int ARGS_NUM = 0;
     public Exit() {}
 
     public String getName() {
@@ -15,12 +15,13 @@ public class Exit implements Command {
     }
 
     public int getArgsNum() {
-        return 0;
+        return ARGS_NUM;
     }
 
-    public void execute(SingleFileMap singleFileMap, String[] args) throws FileMapException {
+    public void execute(State state, String[] args) throws CommandException {
+        SingleFileMap singleFileMap = SingleFileMap.class.cast(state);
         if (args.length > 0) {
-            throw new FileMapException("exit: no arguments needed");
+            throw new CommandException("exit: no arguments needed");
         }
         singleFileMap.write();
         System.out.println("exit");

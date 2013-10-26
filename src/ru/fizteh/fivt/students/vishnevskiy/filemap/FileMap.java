@@ -1,48 +1,44 @@
 package ru.fizteh.fivt.students.vishnevskiy.filemap;
 
-import java.util.Scanner;
+import ru.fizteh.fivt.students.vishnevskiy.shell.Shell;
+import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
+import ru.fizteh.fivt.students.vishnevskiy.filemap.commands.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 
 public class FileMap {
 
-    private static int executeLine(String line, CommandsOperator commandsOperator) {
-        String[] commands = line.split(";");
-        for (String command : commands) {
-            int status = commandsOperator.runCommand(command);
-            if (status == 1) {
-                System.err.flush();
-                return 1;
+    private List<Command> commands() {
+        List<Command> list = new ArrayList<Command>();
+        Command get = new Get();
+        list.add(get);
+        Command put = new Put();
+        list.add(put);
+        Command remove = new Remove();
+        list.add(remove);
+        Command exit = new Exit();
+        list.add(exit);
+        return list;
+    }
+
+    public void run(String[] args) {
+        try {
+            String dirString = System.getProperty("fizteh.db.dir");
+            if (dirString == null) {
+                throw new IOException("Path to datebase directory expected");
             }
-        }
-        return 0;
-    }
-
-    private static void interactiveMode(CommandsOperator commandsOperator) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("$ ");
-        while (scanner.hasNext()) {
-            String line = scanner.nextLine();
-            executeLine(line, commandsOperator);
-            System.out.print("$ ");
-        }
-    }
-
-    private static void batchMode(String[] args, CommandsOperator commandsOperator) {
-        StringBuilder lineBuilder = new StringBuilder();
-        for (int i = 0; i < args.length; ++i) {
-            lineBuilder.append(args[i]);
-            lineBuilder.append(' ');
-        }
-        String line = lineBuilder.toString();
-        int status = executeLine(line, commandsOperator);
-        System.exit(status);
-    }
-
-    public static void main(String[] args) {
-        CommandsOperator commandsOperator = new CommandsOperator();
-        if (args.length == 0) {
-            interactiveMode(commandsOperator);
-        } else {
-            batchMode(args, commandsOperator);
+            File dir = new File(dirString);
+            if (!dir.isDirectory()) {
+                throw new IOException("Wrong path to datebase directory");
+            }
+            File datebase = new File(dirString, "db.dat");
+            Shell shell = new Shell(commands(), new SingleFileMap(datebase));
+            shell.run(args);
+       } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 

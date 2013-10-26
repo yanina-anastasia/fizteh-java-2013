@@ -1,6 +1,9 @@
 package ru.fizteh.fivt.students.vishnevskiy.shell;
 
-public interface Command {
-    String getName();
-    void execute(FileSystemOperator fileSystem, String[] args) throws ShellException;
+import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
+
+public abstract class Command {
+    public abstract String getName();
+    public abstract int getArgsNum();
+    public abstract void execute(State state, String[] args) throws CommandException;
 }
