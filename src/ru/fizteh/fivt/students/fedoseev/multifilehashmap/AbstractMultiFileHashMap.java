@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
-import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,8 +80,70 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
             curTable.getMapContent().clear();
         }
 
-        AbstractFileMap.readFile(curFile);
+        readFile(curTable, curFile);
         curFile.close();
+    }
+
+    public static void readFile(MultiFileHashMapTable curTable, RandomAccessFile curFile) throws IOException {
+        if (curFile.length() == 0) {
+            return;
+        }
+
+        List<Integer> offsets = new ArrayList<Integer>();
+
+        while (curFile.getFilePointer() != curFile.length()) {
+            if (curFile.readByte() == '\0') {
+                int offset = curFile.readInt();
+
+                if (offset < 0 || offset > curFile.length()) {
+                    curFile.close();
+                    throw new IOException("ERROR: incorrect input");
+                }
+
+                offsets.add(offset);
+            }
+        }
+        offsets.add((int) curFile.length());
+
+        curFile.seek(0);
+
+        for (int i = 0; i < offsets.size() - 1; i++) {
+            List<Byte> bytesKeyList = new ArrayList<Byte>();
+
+            while (curFile.getFilePointer() != curFile.length()) {
+                byte b = curFile.readByte();
+
+                if (b == 0) {
+                    break;
+                }
+
+                bytesKeyList.add(b);
+            }
+
+            byte[] bytesKeyArray = new byte[bytesKeyList.size()];
+
+            for (int j = 0; j < bytesKeyArray.length; j++) {
+                bytesKeyArray[j] = bytesKeyList.get(j);
+            }
+
+            String key = new String(bytesKeyArray, StandardCharsets.UTF_8);
+
+            curFile.read();
+            curFile.readInt();
+
+            int currentOffset = (int) curFile.getFilePointer() - 1;
+
+            curFile.seek(offsets.get(i));
+
+            byte[] valueArray = new byte[offsets.get(i + 1) - offsets.get(i)];
+
+            curFile.read(valueArray);
+
+            String value = new String(valueArray, StandardCharsets.UTF_8);
+
+            curTable.getMapContent().put(key, value);
+            curFile.seek(currentOffset);
+        }
     }
 
     public static void commitTable(MultiFileHashMapTable curTable) throws IOException {
