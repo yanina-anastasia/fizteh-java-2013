@@ -104,9 +104,9 @@ public class FileHashMap {
 
     private int getDirNum(String key) {
         int b = key.getBytes()[0];
-        /*if (b < 0) {
-            b += 256;
-        } */
+        if (b < 0) {
+            b *= -1;
+        }
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nDir;
@@ -114,9 +114,9 @@ public class FileHashMap {
 
     private int getFileNum(String key) {
         int b = key.getBytes()[0];
-        /*if (b < 0) {
-            b += 256;
-        }*/
+        if (b < 0) {
+            b *= -1;
+        }
         int nDir = b % 16;
         int nFile = (b / 16) % 16;
         return nFile;
@@ -154,11 +154,10 @@ public class FileHashMap {
                     fatalError(db.getAbsolutePath() + ": Not valid database");
                 }
                 for (String key : keys) {
-                    byte b = key.getBytes()[0];
-                    int realNDir = b % 16;
-                    int realNFile = b / 16 % 16;
+                    int realNDir = getDirNum(key);
+                    int realNFile = getFileNum(key);
                     if (!(nDir == realNDir && nFile == realNFile)) {
-                        fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database1");
+                        fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database");
                     }
                 }
             }
