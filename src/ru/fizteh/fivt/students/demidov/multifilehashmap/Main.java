@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.demidov.multifilehashmap;
 
-import java.io.File;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.demidov.shell.Exit;
@@ -10,7 +9,7 @@ public class Main {
 	public static void main(String[] arguments) {
 		MultiFileMap multifileMap = null;
 		try {
-			multifileMap = new MultiFileMap(System.getProperty("user.dir") + File.separator + "go"/*System.getProperty("fizteh.db.dir")*/);
+			multifileMap = new MultiFileMap(System.getProperty("fizteh.db.dir"));
 		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
