@@ -134,10 +134,10 @@ public class FileHashMap {
                 fatalError(db.getAbsolutePath() + ": Not valid database1");
             }
 
-             /*File subdir = new File(db.getAbsolutePath() + '/' + directory);
+            File subdir = new File(db.getAbsolutePath() + '/' + directory);
             String[] files = subdir.list();
             for (String file : files) {
-                int nFile = nameInRange(file, NFILES);
+            /*     int nFile = nameInRange(file, NFILES);
                 if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
