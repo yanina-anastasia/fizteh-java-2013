@@ -14,7 +14,6 @@ public class MultiFileHashMapPut implements Command<MultiFileHashMapState> {
 
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
-        System.out.println("PUT");
         if (args.length != 2) {
             System.out.println("incorrect number of arguments");
             return;
