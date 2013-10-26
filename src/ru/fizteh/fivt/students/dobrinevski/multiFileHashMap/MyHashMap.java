@@ -30,6 +30,7 @@ public class MyHashMap {
         while (fstream.available() > 0) {
             Map.Entry<String, String> newEntry = parseEntry(fstream);
             Integer hashCode = newEntry.getKey().hashCode();
+            hashCode = Math.abs(hashCode);
             Integer nDirectory = hashCode % 16;
             Integer nFile = hashCode / 16 % 16;
             if(firstControlValue != nDirectory || secondControlValue != nFile) {
@@ -89,6 +90,7 @@ public class MyHashMap {
             return;
         }
         Integer hashCode = args.hashCode();
+        hashCode = Math.abs(hashCode);
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
@@ -113,6 +115,7 @@ public class MyHashMap {
             return;
         }
         Integer hashCode = args[1].hashCode();
+        hashCode = Math.abs(hashCode);
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
@@ -132,6 +135,7 @@ public class MyHashMap {
             return;
         }
         Integer hashCode = args.hashCode();
+        hashCode = Math.abs(hashCode);
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
