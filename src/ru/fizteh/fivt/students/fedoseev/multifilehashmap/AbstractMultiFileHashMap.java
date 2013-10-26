@@ -7,7 +7,6 @@ import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapState> {
@@ -136,7 +135,6 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
                     RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
 
                     RAFiles.put(numb, curRAFile);
-                    RAFiles.get(numb).setLength(0);
                 }
             }
         }
@@ -148,8 +146,6 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
             if (!usedKeys.contains(curTable.keyHashFunction(key))) {
                 usedKeys.add(curTable.keyHashFunction(key));
 
-                int curOffset = 0;
-                int position = 0;
                 curFileKeySet.clear();
 
                 RandomAccessFile raf = RAFiles.get(curTable.keyHashFunction(key));
@@ -158,20 +154,10 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
                     if (curTable.keyHashFunction(curFileKey) ==
                             curTable.keyHashFunction(key)) {
                         curFileKeySet.add(curFileKey);
-                        curOffset += curFileKey.getBytes(StandardCharsets.UTF_8).length + 5;
                     }
                 }
 
-                for (String curFileKey : curFileKeySet) {
-                    raf.seek(position);
-                    raf.write(curFileKey.getBytes(StandardCharsets.UTF_8));
-                    raf.write('\0');
-                    raf.writeInt(curOffset);
-                    position = (int) raf.getFilePointer();
-                    raf.seek(curOffset);
-                    raf.write(curTable.getMapContent().get(curFileKey).getBytes(StandardCharsets.UTF_8));
-                    curOffset = (int) raf.getFilePointer();
-                }
+                AbstractFileMap.commitFile(raf, curFileKeySet, curTable.getMapContent());
             }
         }
 

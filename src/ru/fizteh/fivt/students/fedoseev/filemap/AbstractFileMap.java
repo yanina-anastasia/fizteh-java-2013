@@ -144,15 +144,12 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         }
     }
 
-    public static void commitFile() throws IOException {
-        RandomAccessFile file = getFile();
-
+    public static void commitFile(RandomAccessFile file, Set<String> keySet, Map<String, String> content)
+            throws IOException {
         file.setLength(0);
 
         int curOffset = 0;
         int position = 0;
-
-        Set<String> keySet = getContent().keySet();
 
         for (String key : keySet) {
             curOffset += key.getBytes(StandardCharsets.UTF_8).length + 5;
@@ -165,7 +162,7 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
             file.writeInt(curOffset);
             position = (int) file.getFilePointer();
             file.seek(curOffset);
-            file.write(getContent().get(key).getBytes(StandardCharsets.UTF_8));
+            file.write(content.get(key).getBytes(StandardCharsets.UTF_8));
             curOffset = (int) file.getFilePointer();
         }
     }

@@ -11,7 +11,9 @@ public class FileMapExitCommand extends AbstractCommand<FileMapState> {
 
     @Override
     public void execute(String[] input, FileMapState state) throws IOException, InterruptedException {
-        AbstractFileMap.commitFile();
+        AbstractFileMap.commitFile(
+                AbstractFileMap.getFile(), AbstractFileMap.getContent().keySet(), AbstractFileMap.getContent()
+        );
 
         AbstractFileMap.getFile().close();
         Thread.currentThread().interrupt();
