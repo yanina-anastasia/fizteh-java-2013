@@ -19,6 +19,10 @@ public class TableCommandRemove implements Executable {
     @Override
     public boolean execute(String[] args) {
         Table table = manager.getCurrentTable();
+        if (table == null) {
+            manager.printMessage("no table");
+            return false;
+        }
         String oldValue = table.remove(args[1]);
         if (oldValue == null) {
             manager.printMessage("not found");
