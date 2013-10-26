@@ -21,7 +21,7 @@ public class PutCommand extends SimpleCommand {
         }
 
         try {
-            String oldValue = database.put(args[0], value.toString());
+            String oldValue = database.put(args[0], value.toString().trim());
             if (oldValue == null) {
                 System.out.println("new");
             } else {
