@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+import ru.fizteh.fivt.students.demidov.filemap.FileMap;
+import ru.fizteh.fivt.students.demidov.filemap.FileMapState;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
-public class MultiFileMap {
+public class MultiFileMap implements FileMapState {
 	public MultiFileMap(String root) throws IOException {
 		tables = new HashMap<String, FilesMap>();
 		
@@ -22,6 +23,10 @@ public class MultiFileMap {
 		}
 			
 		usedFilesMap = null;
+	}
+	
+	public FileMap getCurrentFileMap(String key) throws IOException {
+		return this.getFilesMap().getFileMapForKey(key);
 	}
 	
 	public void changeUsedFilesMap(String newTableName) throws IOException {

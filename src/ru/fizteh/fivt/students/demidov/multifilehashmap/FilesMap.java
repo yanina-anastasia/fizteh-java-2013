@@ -18,7 +18,7 @@ public class FilesMap {
 			throw new IOException("wrong directory");
 		}
 	}
-	
+		
 	public FileMap getFileMapForKey(String key) throws IOException {
 		Integer ndirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());

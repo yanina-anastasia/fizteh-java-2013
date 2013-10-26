@@ -4,11 +4,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Remove extends BasicFileMapCommand {
-	public Remove(FileMap usedFileMap) {
-		super(usedFileMap);
+	public Remove(FileMapState currentFileMapState) {
+		super(currentFileMapState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = fileMap.getCurrentTable().remove(arguments[0]);
+		String value = fileMapState.getCurrentFileMap(arguments[0]).getCurrentTable().remove(arguments[0]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {

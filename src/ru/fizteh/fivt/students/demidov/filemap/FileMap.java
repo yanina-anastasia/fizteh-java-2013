@@ -6,12 +6,16 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileMap {
+public class FileMap implements FileMapState {
 	public FileMap(String path) throws IOException {
 		if (path == null) {
 			throw new IOException("wrong path");
 		}	
 		this.path = path;
+	}
+	
+	public FileMap getCurrentFileMap(String key) {
+		return this;
 	}
 	
 	public Map<String, String> getCurrentTable() {
