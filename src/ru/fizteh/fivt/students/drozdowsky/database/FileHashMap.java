@@ -134,8 +134,7 @@ public class FileHashMap {
                 fatalError(db.getAbsolutePath() + ": Not valid database1");
             }
 
-            File subdir = new File(db.getAbsolutePath() + '/' + directory);
-            File[] files = subdir.listFiles();
+            File[] files = directory.listFiles();
             for (File file : files) {
                 int nFile = nameInRange(file.getName(), NFILES);
                 if (nFile == -1 || !(file.isFile())) {
