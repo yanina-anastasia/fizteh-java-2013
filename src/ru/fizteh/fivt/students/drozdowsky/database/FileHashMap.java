@@ -141,9 +141,8 @@ public class FileHashMap {
                     fatalError(db.getAbsolutePath() + ": Not valid database");
                 }
                 for (String key : keys) {
-                    byte b = key.getBytes()[0];
-                    int realNDir = b % 16;
-                    int realNFile = b / 16 % 16;
+                    int realNDir = getDirNum(key);
+                    int realNFile = getFileNum(key);
                     if (!(nDir == realNDir && nFile == realNFile)) {
                         fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database1");
                     }
