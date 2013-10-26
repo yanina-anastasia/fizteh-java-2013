@@ -17,6 +17,7 @@ public class DropCommand extends DatabaseCommand {
     public void execute (String[] args) throws ExecutionException {
         String tableName = args[0];
         try {
+
             state.getTableProvider ().removeTable (tableName);
         }
         catch (IllegalArgumentException e) {

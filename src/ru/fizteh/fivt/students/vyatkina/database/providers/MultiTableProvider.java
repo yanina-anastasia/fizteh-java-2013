@@ -93,7 +93,9 @@ public class MultiTableProvider extends AbstractTableProvider {
     public void removeTable (String tableName) throws IllegalArgumentException, IllegalStateException {
         validTableNameCheck (tableName);
         Table table = tables.remove (tableName);
-        droppedTables.add (table.getName ());
+        if (table != null) {
+            droppedTables.add (table.getName ());
+        }
         if (table == null) {
             throw new IllegalStateException ("Try to delete unknown table");
         }
