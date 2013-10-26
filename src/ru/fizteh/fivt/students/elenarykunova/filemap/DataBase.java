@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
+
 public class DataBase {
 
     public HashMap<String, String> data = new HashMap<String, String>();
@@ -189,22 +191,20 @@ public class DataBase {
         }
     }
 
-    public boolean isEmpty() {
-        try {
-            return data.isEmpty() || dataFile.length() == 0;
-        } catch (IOException e) {
-            System.err.println("can't get access to file");
-            return false;
-        }
-    }
-
+    
+    
     public void commitChanges() throws IOException  {
         IOException e1 = new IOException();
         try {
             dataFile = new RandomAccessFile(filePath, "rw");
         } catch (FileNotFoundException e) {
-            System.err.println("can't get access to file");
+            System.err.println(filePath + " can't get access to file");
             System.exit(1);
+        }
+        if (data == null || data.isEmpty()) {
+            closeDataFile();
+            Shell.rm(filePath);
+            return;
         }
 
         int offset = 0;
@@ -228,6 +228,10 @@ public class DataBase {
             }
             for (Map.Entry<String, String> myEntry : mySet) {
                 dataFile.write(myEntry.getValue().getBytes());
+            }
+            if (dataFile.length() == 0) {
+                Shell.rm(filePath);
+                return;
             }
             closeDataFile();
         } catch (IOException e2) {

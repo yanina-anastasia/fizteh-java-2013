@@ -6,11 +6,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class Filemap {
-    
+
     DataBase[][] data = new DataBase[16][16];
     String currTable = null;
     static String rootDir = null;
-    
+
     public void saveChanges() {
         if (currTable == null) {
             return;
@@ -18,16 +18,12 @@ public class Filemap {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 if (data[i][j].hasFile()) {
-                    if (data[i][j].isEmpty()) {
-                        Shell.rm(data[i][j].filePath);
-                    } else {
-                        try {
-                            data[i][j].commitChanges();
-                        } catch (IOException e) {
-                            System.err.println("can't write to file");
-                            data[i][j].closeDataFile();
-                            System.exit(1);                        
-                        }
+                    try {
+                        data[i][j].commitChanges();
+                    } catch (IOException e) {
+                        System.err.println("can't write to file");
+                        data[i][j].closeDataFile();
+                        System.exit(1);
                     }
                 }
             }
@@ -47,7 +43,7 @@ public class Filemap {
             }
         }
     }
-    
+
     public void changeTable(String newTable) {
         if (currTable != null) {
             saveChanges();
@@ -55,7 +51,7 @@ public class Filemap {
         currTable = rootDir + File.separator + newTable;
         load(newTable);
     }
-    
+
     public String getRootDir() {
         String rootDir = System.getProperty("fizteh.db.dir");
         if (rootDir == null) {
@@ -76,7 +72,7 @@ public class Filemap {
     public Filemap() {
         rootDir = getRootDir();
     }
-    
+
     public static void main(String[] args) {
         Filemap mfm = new Filemap();
         ExecuteCmd cmd = new ExecuteCmd(rootDir, mfm);
