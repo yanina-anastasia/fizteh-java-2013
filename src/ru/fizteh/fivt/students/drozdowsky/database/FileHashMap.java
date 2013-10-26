@@ -130,6 +130,7 @@ public class FileHashMap {
 
         String[] directories = db.list();
         for (String directory : directories) {
+            error(directory);
             int nDir = nameInRange(directory, NDIRS);
             if (nDir == -1 || !(new File(db.getAbsolutePath() + '/' + directory).isDirectory())) {
                 fatalError(db.getAbsolutePath() + ": Not valid database");
