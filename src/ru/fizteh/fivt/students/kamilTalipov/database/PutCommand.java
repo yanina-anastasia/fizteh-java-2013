@@ -17,11 +17,13 @@ public class PutCommand extends SimpleCommand {
         StringBuilder value = new StringBuilder();
         for (int i = 1; i < args.length; ++i) {
             value.append(args[i]);
-            value.append(" ");
+            if (i != args.length -1 ) {
+                value.append(" ");
+            }
         }
 
         try {
-            String oldValue = database.put(args[0], value.toString().trim());
+            String oldValue = database.put(args[0], value.toString());
             if (oldValue == null) {
                 System.out.println("new");
             } else {
