@@ -42,6 +42,8 @@ public class MultiFileMapUtils {
             for (int j = 0; j < 16; j++) {
                 File filePath = new File(path, (j + ".dat").toString());
                 try {
+                    filePath.delete();
+                    filePath.createNewFile();
                     saveTable(myState, keys.get(j), filePath.toString());
                 } catch (IOException e) {
                     System.out.println("ERROR SAD");
@@ -56,10 +58,10 @@ public class MultiFileMapUtils {
         if (keys.isEmpty()) {
             return false;
         }
-        RandomAccessFile temp = new RandomAccessFile(path, "rw");
+        RandomAccessFile temp = null;
+        temp = new RandomAccessFile(path, "rw");
         try {
             long offset = 0;
-
             temp.setLength(0);
             for (String step : keys) {
                 offset += step.getBytes(StandardCharsets.UTF_8).length + 5;

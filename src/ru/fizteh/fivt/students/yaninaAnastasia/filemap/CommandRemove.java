@@ -8,7 +8,7 @@ public class CommandRemove extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         DBState myState = DBState.class.cast(curState);
         if (myState.table == null) {
-            System.err.println("no table");
+            System.out.println("no table");
             return false;
         }
         if (args.length != 1) {
