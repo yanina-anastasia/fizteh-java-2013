@@ -95,7 +95,7 @@ public class MultiFileHashMapProvider implements TableProvider {
             throw new IllegalArgumentException("Programme's mistake in getting canonical file");
         }
         if (!table.exists()) {
-            throw new IllegalStateException(name + " not exist");
+            throw new IllegalStateException(name + " not exists");
         }
         if (!table.isDirectory()) {
             throw new IllegalArgumentException("table " + name + " should be a directory");
