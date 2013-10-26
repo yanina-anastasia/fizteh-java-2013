@@ -29,7 +29,7 @@ public class Shell {
         if (commandName.equals("create")) {
             mkTable(args);
         } else if(commandName.equals("drop")) {
-            if(currentDtb.curTable.toString().equals(currentDir + File.separator + args[1])) {
+            if(currentDtb.curTable != null && currentDtb.curTable.toString() == currentDir + File.separator + args[1]) {
                 currentDtb.writeOut();
                 currentDtb.curTable = null;
             }

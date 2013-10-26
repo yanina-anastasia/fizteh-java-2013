@@ -116,13 +116,13 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
         }
         String value = dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
-        System.out.println(value == null ? "new" : "overwrite\n" + value);
+        System.out.println(value == null ? args[2] : "overwrite\n" + value);
 
     }
 
@@ -135,7 +135,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -157,7 +157,7 @@ public class MyHashMap {
                     if(!workFile.exists()) {
                         workFile.mkdir();
                     }
-                    File workFile2 = new File(way + File.separator + j.toString());
+                    File workFile2 = new File(way + File.separator + j.toString() + ".dat");
                     FileOutputStream fstream = new FileOutputStream(workFile2);
                     for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
                         writeEntry(entry, fstream);
