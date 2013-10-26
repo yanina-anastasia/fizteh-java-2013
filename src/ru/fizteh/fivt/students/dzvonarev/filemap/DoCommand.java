@@ -27,15 +27,6 @@ public class DoCommand {
         return fileMap;
     }
 
-    public static void printIt() {
-        Set mapSet = fileMap.entrySet();
-        Iterator<Map.Entry<String, String>> i = mapSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, String> currItem = i.next();
-            System.out.println(currItem.getKey() + " " + currItem.getValue());
-        }
-    }
-
     public static void closeFile(RandomAccessFile file) throws IOException {
         try {
             file.close();
@@ -45,6 +36,13 @@ public class DoCommand {
     }
 
     public static void updateFile(String fileName) throws IOException {
+        if (fileMap == null) {
+            return;
+        } else {
+            if (fileMap.isEmpty()) {
+                return;
+            }
+        }
         RandomAccessFile fileWriter = openFileForWrite(fileName);
         Set fileSet = fileMap.entrySet();
         Iterator<Map.Entry<String, String>> i = fileSet.iterator();
