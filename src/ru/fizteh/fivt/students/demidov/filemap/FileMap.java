@@ -9,8 +9,11 @@ import java.util.Map;
 public class FileMap implements FileMapState {
 	public FileMap(String path) throws IOException {
 		if (path == null) {
-			throw new IOException("wrong path");
+			throw new IOException("wrong path " + path);
 		}	
+		if ((new File(path)).isDirectory()) {
+			path += File.separator + "db.dat";
+		}
 		this.path = path;
 	}
 	
@@ -23,10 +26,10 @@ public class FileMap implements FileMapState {
 	}
 	
 	public void clearFile() throws IOException {
-		File currentDirectory = new File(path);
+		File currentFile = new File(path);
 		
-		if (currentDirectory.exists()) {
-			currentDirectory.delete();
+		if (currentFile.exists()) {
+			currentFile.delete();
 		}
 	}
 	
@@ -47,15 +50,9 @@ public class FileMap implements FileMapState {
 	}
 	
 	public void readDataFromFile() throws IOException {	
-		File currentDirectory = new File(path);
-		
-		if (!currentDirectory.exists()) {
-			if (!currentDirectory.createNewFile()) {
-				throw new IOException("unable to create " + path);
-			}
-		}
+		File currentFile = new File(path);
 			
-		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentDirectory, "r")) {		
+		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentFile, "r")) {		
 			if (dataBaseFile.length() == 0) {
 				throw new IOException("empty file " + path);
 			}
@@ -100,15 +97,15 @@ public class FileMap implements FileMapState {
 	public void writeDataToFile() throws IOException {
 		clearFile();
 		
-		File currentDirectory = new File(path);
+		File currentFile = new File(path);
 		
-		if (!currentDirectory.exists()) {
-			if (!currentDirectory.createNewFile()) {
+		if (!currentFile.exists()) {
+			if (!currentFile.createNewFile()) {
 				throw new IOException("unable to create " + path);
 			}
 		}
 		
-		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentDirectory, "rwd")) {		
+		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentFile, "rwd")) {		
 			int offset = 0;		
 			for (String key: getCurrentTable().keySet()) {
 				offset += 5 + key.getBytes("UTF-8").length;

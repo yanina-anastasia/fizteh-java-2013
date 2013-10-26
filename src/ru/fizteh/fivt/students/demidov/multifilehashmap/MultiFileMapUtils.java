@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.demidov.multifilehashmap;
 
 public class MultiFileMapUtils {
 	public static Integer getNumber(String name) {
-		int number;
+		Integer number;
 		if (Character.toString(name.charAt(1)).equals(".")) {
 			number = Integer.parseInt(name.substring(0, 1));
 		} else {

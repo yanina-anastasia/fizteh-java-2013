@@ -9,27 +9,27 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Main {
 	public static void main(String[] arguments) {
-		MultiFileMap multifileMap = null;
+		MultiFileMap multiFileMap = null;
 		try {
-			multifileMap = new MultiFileMap(System.getProperty("fizteh.db.dir"));
+			multiFileMap = new MultiFileMap(System.getProperty("fizteh.db.dir"));
 		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
 		}
 		
 		Shell usedShell = new Shell(System.getProperty("user.dir"), System.in, System.out);
-		usedShell.curShell.loadCommand(new Get(multifileMap));
-		usedShell.curShell.loadCommand(new Put(multifileMap));
-		usedShell.curShell.loadCommand(new Remove(multifileMap));
-		usedShell.curShell.loadCommand(new Create(multifileMap));
-		usedShell.curShell.loadCommand(new Drop(multifileMap));
-		usedShell.curShell.loadCommand(new Use(multifileMap));
+		usedShell.curShell.loadCommand(new Get(multiFileMap));
+		usedShell.curShell.loadCommand(new Put(multiFileMap));
+		usedShell.curShell.loadCommand(new Remove(multiFileMap));
+		usedShell.curShell.loadCommand(new Create(multiFileMap));
+		usedShell.curShell.loadCommand(new Drop(multiFileMap));
+		usedShell.curShell.loadCommand(new Use(multiFileMap));
 		usedShell.curShell.loadCommand(new Exit());
 		
 		try {
-			multifileMap.readFilesMaps(usedShell);
+			multiFileMap.readFilesMaps();
 			usedShell.startShell(arguments);
-			multifileMap.writeFilesMaps(usedShell);
+			multiFileMap.writeFilesMaps();
 		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);

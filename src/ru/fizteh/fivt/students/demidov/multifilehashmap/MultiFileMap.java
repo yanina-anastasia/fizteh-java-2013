@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import ru.fizteh.fivt.students.demidov.filemap.FileMap;
 import ru.fizteh.fivt.students.demidov.filemap.FileMapState;
-import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class MultiFileMap implements FileMapState {
@@ -69,20 +68,20 @@ public class MultiFileMap implements FileMapState {
 		}
 	}
 	
-	public void readFilesMaps(Shell usedShell) throws IOException {
+	public void readFilesMaps() throws IOException {
 		for (String subdirectory : (new File(root)).list()) {
 			if (!((new File(root, subdirectory)).isDirectory())) {
 				throw new IOException("wrong directory " + subdirectory);
 			} else {
 				tables.put(subdirectory, new FilesMap(root + File.separator + subdirectory));
-				tables.get(subdirectory).readData(usedShell);
+				tables.get(subdirectory).readData();
 			}
 		}
 	}
 	
-	public void writeFilesMaps(Shell usedShell) throws IOException {
+	public void writeFilesMaps() throws IOException {
 		for (String key: tables.keySet()) {
-			tables.get(key).writeData(usedShell);
+			tables.get(key).writeData();
 		}		
 	}
 	

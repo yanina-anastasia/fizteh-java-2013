@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import ru.fizteh.fivt.students.demidov.filemap.FileMap;
-import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FilesMap {	
@@ -24,7 +23,8 @@ public class FilesMap {
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());
 		String baseFileKey = MultiFileMapUtils.makeKey(ndirectory, nfile);
 		if (baseFileMaps.get(baseFileKey) == null) {
-			baseFileMaps.put(baseFileKey, new FileMap(directoryPath + File.separator + ndirectory.toString() + ".dir" + File.separator + nfile.toString() + ".dat"));
+			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
+			baseFileMaps.put(baseFileKey, new FileMap(fileMapDirectory + File.separator + nfile.toString() + ".dat"));
 		}
 		return baseFileMaps.get(baseFileKey);
 	}
@@ -35,7 +35,7 @@ public class FilesMap {
 		}	
 	}
 	
-	public void readData(Shell usedShell) throws IOException {	
+	public void readData() throws IOException {	
 		for (String subdirectoryName : (new File(directoryPath)).list()) {
 			File subdirectory = new File(directoryPath, subdirectoryName);
 			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")))) {
@@ -57,7 +57,7 @@ public class FilesMap {
 		}
 	}
 
-	public void writeData(Shell usedShell) throws IOException {	
+	public void writeData() throws IOException {	
 		clearFilesMapDirectory();
 		
 		for (String key: baseFileMaps.keySet()) {
