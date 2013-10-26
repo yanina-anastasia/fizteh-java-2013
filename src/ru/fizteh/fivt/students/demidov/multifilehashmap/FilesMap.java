@@ -45,11 +45,13 @@ public class FilesMap {
 					File baseFile = new File(subdirectory, baseFileName);
 					if ((!(baseFile.isFile())) || (!(baseFileName.matches("([0-9]|1[0-5])[.]dat")))) {
 						throw new IOException("wrong baseFile " + baseFile.getPath());
+					} if (baseFile.length() == 0) {
+						throw new IOException("empty file " + baseFile.getPath());
 					} else {
 						int ndirectory = MultiFileMapUtils.getNumber(subdirectoryName);
 						int nfile = MultiFileMapUtils.getNumber(baseFileName);
 						String key = MultiFileMapUtils.makeKey(ndirectory, nfile);
-						baseFileMaps.put(key, new FileMap(directoryPath + File.separator + subdirectoryName + File.separator + baseFileName)); 
+						baseFileMaps.put(key, new FileMap(baseFile.getPath())); 
 						baseFileMaps.get(key).readDataFromFile();
 					}
 				}

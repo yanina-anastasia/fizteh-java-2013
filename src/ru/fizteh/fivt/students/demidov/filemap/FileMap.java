@@ -51,10 +51,16 @@ public class FileMap implements FileMapState {
 	
 	public void readDataFromFile() throws IOException {	
 		File currentFile = new File(path);
+		
+		if (!currentFile.exists()) {
+			if (!currentFile.createNewFile()) {
+				throw new IOException("unable to create " + path);
+			}
+		}
 			
 		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentFile, "r")) {		
 			if (dataBaseFile.length() == 0) {
-				throw new IOException("empty file " + path);
+				return;
 			}
 		
 			String readKey = null;
