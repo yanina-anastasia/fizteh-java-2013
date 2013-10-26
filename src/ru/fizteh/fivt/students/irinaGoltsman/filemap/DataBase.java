@@ -22,9 +22,11 @@ public class DataBase {
 
     public static Code use(String[] args) {
         //Вот тут не нужно, чтобы выводилось число изменений.
+        /*
         if (currentTable != null) {
             commit();
         }
+        */
         String inputTableName = args[1];
         currentTable = currentTableProvider.getTable(inputTableName);
         if (currentTable == null) {
