@@ -127,28 +127,22 @@ public class FileHashMap {
             return;
         }
 
-        String[] directories = db.list();
-        for (String directory : directories) {
-            int nDir = nameInRange(directory, NDIRS);
-            if (nDir == -1 || !(new File(db.getAbsolutePath() + '/' + directory).isDirectory())) {
+        File[] directories = db.listFiles();
+        for (File directory : directories) {
+            int nDir = nameInRange(directory.getName(), NDIRS);
+            if (nDir == -1 || !(directory.isDirectory())) {
                 fatalError(db.getAbsolutePath() + ": Not valid database1");
             }
 
             File subdir = new File(db.getAbsolutePath() + '/' + directory);
-            String[] files = subdir.list();
-            for (String file : files) {
-                int nFile = nameInRange(file, NFILES);
-                if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
+            File[] files = subdir.listFiles();
+            for (File file : files) {
+                int nFile = nameInRange(file.getName(), NFILES);
+                if (nFile == -1 || !(file.isFile())) {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
 
-                try {
-                    base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
-                } catch (IllegalStateException e) {
-                    error(new File(subdir.getAbsolutePath() + '/' + file).toString());
-                    error(e.getMessage());
-                    System.exit(1);
-                }
+                base[nDir][nFile] = new FileMap(file);
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
                     fatalError(db.getAbsolutePath() + ": Not valid database3");
