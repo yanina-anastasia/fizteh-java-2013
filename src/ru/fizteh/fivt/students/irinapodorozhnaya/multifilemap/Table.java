@@ -70,15 +70,9 @@ public class Table {
 	}
 	
 	public static int getFileNumber(String key){
-		int hashcode = key.hashCode();
-		int ndirectory = hashcode % 16;
-		if (ndirectory < 0) {
-			ndirectory += 16;
-		}
-		int nfile = hashcode / 16 % 16;
-		if (nfile < 0) {
-			nfile += 16;
-		}		
+		int hashcode = key.hashCode();		
+		int ndirectory = Math.abs(hashcode % 16);
+		int nfile = Math.abs(hashcode / 16 % 16);
 		return ndirectory*16 + nfile;
 	}
 	
