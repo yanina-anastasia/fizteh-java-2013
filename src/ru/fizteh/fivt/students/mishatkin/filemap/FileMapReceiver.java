@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Created by Vladimir Mishatkin on 10/14/13
  */
-public class FileMapReceiver extends ShellReceiver {
+public class FileMapReceiver extends ShellReceiver implements FileMapReceiverProtocol {
 
 	private File dbFile;
 	private HashMap<String, String> dictionary = new HashMap<>();
@@ -76,6 +76,7 @@ public class FileMapReceiver extends ShellReceiver {
 		}
 	}
 
+	@Override
 	public void putCommand(String key, String value) {
 		String oldValue = dictionary.get(key);
 		if (oldValue != null) {
@@ -87,6 +88,7 @@ public class FileMapReceiver extends ShellReceiver {
 		dictionary.put(key, value);
 	}
 
+	@Override
 	public void removeCommand(String key) {
 		if (dictionary.remove(key) != null){
 			out.println("removed");
@@ -95,6 +97,7 @@ public class FileMapReceiver extends ShellReceiver {
 		}
 	}
 
+	@Override
 	public void getCommand(String key) {
 		String value = dictionary.get(key);
 		if (value != null) {
@@ -140,5 +143,15 @@ public class FileMapReceiver extends ShellReceiver {
 			} catch (IOException ignored) {
 			}
 		}
+	}
+
+	public boolean doHashCodesConformHash(int hashCodeRemainder, int secondRadixHashCodeRemainder, int mod) {
+		boolean doConform = true;
+		for (String key : dictionary.keySet()) {
+			if (key.hashCode() % mod != hashCodeRemainder || key.hashCode() % mod != secondRadixHashCodeRemainder) {
+				return false;
+			}
+		}
+		return doConform;
 	}
 }
