@@ -129,12 +129,12 @@ public class FileHashMap {
 
         String[] directories = db.list();
         for (String directory : directories) {
-            /*int nDir = nameInRange(directory, NDIRS);
+            int nDir = nameInRange(directory, NDIRS);
             if (nDir == -1 || !(new File(db.getAbsolutePath() + '/' + directory).isDirectory())) {
                 fatalError(db.getAbsolutePath() + ": Not valid database1");
             }
 
-            File subdir = new File(db.getAbsolutePath() + '/' + directory);
+             /*File subdir = new File(db.getAbsolutePath() + '/' + directory);
             String[] files = subdir.list();
             for (String file : files) {
                 int nFile = nameInRange(file, NFILES);
