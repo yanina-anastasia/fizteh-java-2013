@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
-import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FileMapUtils {
-    public static void read(File file, Map<String, String> map, Predicate<String> predicate) throws IOException {
+    public static void read(File file, Map<String, String> map, Predicate<String> validator) throws IOException {
         if (file.length() == 0) return;
         try {
             InputStream is = new FileInputStream(file);
@@ -20,14 +18,14 @@ public class FileMapUtils {
 
             try {
                 int position = 0;
-                String key1 = readKey(dis, predicate);
+                String key1 = readKey(dis, validator);
                 position += key1.getBytes(StandardCharsets.UTF_8).length;
                 int offset1 = dis.readInt();
                 int firstOffset = offset1;
                 position += 5;
 
                 while (position != firstOffset) {
-                    String key2 = readKey(dis, predicate);
+                    String key2 = readKey(dis, validator);
                     position += key2.getBytes(StandardCharsets.UTF_8).length;
                     int offset2 = dis.readInt();
                     position += 5;

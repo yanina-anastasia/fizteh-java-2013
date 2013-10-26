@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.belousova.utils;
 
 import ru.fizteh.fivt.students.belousova.multifilehashmap.IsKeyValid;
-import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
 
 import java.io.File;
 import java.io.IOException;

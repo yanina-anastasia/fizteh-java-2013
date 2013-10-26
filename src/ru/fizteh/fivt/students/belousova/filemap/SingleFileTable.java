@@ -1,8 +1,9 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.belousova.multifilehashmap.Predicate;
+import ru.fizteh.fivt.students.belousova.utils.Predicate;
 import ru.fizteh.fivt.students.belousova.utils.FileMapUtils;
+import ru.fizteh.fivt.students.belousova.utils.TruePredicate;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class SingleFileTable implements Table {
             data.createNewFile();
         } else {
             dataFile = data;
-            Predicate<String> req = new IsKeyValid();
+            Predicate<String> req = TruePredicate.create();
             FileMapUtils.read(dataFile, dataBase, req);
         }
     }

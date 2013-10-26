@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
+import ru.fizteh.fivt.students.belousova.utils.Predicate;
+
 import java.nio.charset.StandardCharsets;
 
 public class IsKeyValid implements Predicate<String> {
