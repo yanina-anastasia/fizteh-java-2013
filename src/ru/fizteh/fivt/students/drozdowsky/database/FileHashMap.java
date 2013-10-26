@@ -137,11 +137,11 @@ public class FileHashMap {
             File subdir = new File(db.getAbsolutePath() + '/' + directory);
             String[] files = subdir.list();
             for (String file : files) {
-            /*     int nFile = nameInRange(file, NFILES);
+                int nFile = nameInRange(file, NFILES);
                 if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
-                base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
+            /*    base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
                     fatalError(db.getAbsolutePath() + ": Not valid database3");
