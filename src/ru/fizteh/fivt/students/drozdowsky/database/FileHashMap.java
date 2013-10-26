@@ -141,8 +141,8 @@ public class FileHashMap {
                 if (nFile == -1 || !(new File(subdir.getAbsolutePath() + '/' + file).isFile())) {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
-                base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
-                /*Set<String> keys = base[nDir][nFile].getKeys();
+                /*base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
+                Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
                     fatalError(db.getAbsolutePath() + ": Not valid database3");
                 }
