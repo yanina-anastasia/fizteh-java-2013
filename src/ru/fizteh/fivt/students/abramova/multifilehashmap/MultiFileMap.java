@@ -66,7 +66,7 @@ public class MultiFileMap {
         //Удаляем с помощью команды rm из шелла
         String[] args = new String[1];
         args[0] = table;
-        new RemoveCommand("rm").doCommand(args, new Status(new Stage(workingDirectory)));
+        new RemoveCommand(workingDirectory).doCommand(args, new Status(new Stage(workingDirectory)));
     }
 
     public boolean containsTable(String table) {

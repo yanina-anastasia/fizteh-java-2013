@@ -97,7 +97,7 @@ public class Table implements Closeable {
             } else if (currentDir.exists()) { //Иначе удаляем директорию, если она существовала с помощью команды remove из шелла
                 String[] args = new String[1];
                 args[0] = i + ".dir";
-                new RemoveCommand("rm").doCommand(args, new Status(new Stage(tableDir.getPath())));
+                new RemoveCommand(tableName).doCommand(args, new Status(new Stage(tableDir.getPath())));
             }
         }
     }
@@ -106,57 +106,54 @@ public class Table implements Closeable {
         return tableName;
     }
 
-    public String getValue(String key) throws IOException {
+    public FileMap findFileMap(String key) {
         int hashcode = StrictMath.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         if (files[ndirectory] == null || files[ndirectory][nfile] == null) {
             return null;
         }
-        return files[ndirectory][nfile].getMap().get(key);
+        return files[ndirectory][nfile];
     }
 
-    public String putValue(String key, String value) throws IOException {
-        String oldValue = null;
+    //Добавлят новый файл для соответствующего ключа и возвращает полученный пустой файл
+    //если файл уже существует, то возвращает его
+    public FileMap addFileMap(String key) throws IOException{
+        FileMap oldFile = findFileMap(key);
+        if (oldFile != null) {
+            return oldFile;
+        }
         int hashcode = StrictMath.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         File dir = new File(tableDir.getCanonicalPath(), ndirectory + ".dir");
         if (files[ndirectory] == null) {
             files[ndirectory] = new FileMap[16];
-            if (!dir.mkdir()) {
-                throw new IOException("Opening error");
+            if (!dir.exists() && !dir.mkdir()) {
+                throw new IOException(tableName + ": Opening error");
             }
             for (int i = 0; i < 16; i++) {
-                if (i == nfile) {
-                    files[ndirectory][i] = new FileMap(i + ".dat", dir.getCanonicalPath());
-                    files[ndirectory][i].getMap().put(key, value);
-                } else {
+                if (i != nfile) {
                     files[ndirectory][i] = null;
                 }
             }
-        } else if (files[ndirectory][nfile] == null) {
-            files[ndirectory][nfile] = new FileMap(nfile + ".dat", dir.getCanonicalPath());
-            files[ndirectory][nfile].getMap().put(key, value);
-        } else {
-            oldValue = files[ndirectory][nfile].getMap().get(key);
-            files[ndirectory][nfile].getMap().put(key, value);
         }
-        return oldValue;
+        File dat = new File(dir.getPath(), nfile + ".dat");
+        if (dat.exists() && !dat.delete()) {
+                throw new IOException(tableName + ": " + dat.getName() + " was not removed");
+        }
+        files[ndirectory][nfile] = new FileMap(nfile + ".dat", dir.getCanonicalPath());
+        return files[ndirectory][nfile];
     }
 
-    public boolean remove(String key) {
+    //Зануляет указатели на нулевые файлы и директории
+    //Принимает ключ, чтобы найти место, где мог опустеть файл
+    public void correctingFiles(String key) {
         int hashcode = StrictMath.abs(key.hashCode());
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-        if (files[ndirectory] == null || files[ndirectory][nfile] == null) {
-            return false;
-        }
-        String deletedValue = files[ndirectory][nfile].getMap().remove(key);
-        if (deletedValue == null) {
-            return false;
-        }
-        if (files[ndirectory][nfile].getMap().isEmpty()) {  //Если теперь этот файл опустел
+        if (files[ndirectory] != null && files[ndirectory][nfile] != null &&
+                files[ndirectory][nfile].getMap().isEmpty()) {  //Если файл опустел
             files[ndirectory][nfile] = null;
         }
         int nullPointer = 0;    //Количество пустых файлов в папке
@@ -166,7 +163,5 @@ public class Table implements Closeable {
         if (nullPointer == 16) {    //Если все файлы в директории пустые
             files[ndirectory] = null;
         }
-        return true;
     }
-
 }

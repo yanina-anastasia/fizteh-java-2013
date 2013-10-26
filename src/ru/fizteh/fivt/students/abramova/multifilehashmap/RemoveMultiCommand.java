@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
+import ru.fizteh.fivt.students.abramova.filemap.FileMap;
+import ru.fizteh.fivt.students.abramova.filemap.RemoveFromMapCommand;
 import ru.fizteh.fivt.students.abramova.shell.Command;
 import ru.fizteh.fivt.students.abramova.shell.Status;
 
@@ -19,8 +21,10 @@ public class RemoveMultiCommand extends Command {
         if (table == null) {
             System.out.println("no table");
         } else {
-            if (table.remove(args[0])) {
-                System.out.println("removed");
+            FileMap file = table.findFileMap(args[0]);
+            if (file != null) {
+                new RemoveFromMapCommand(name).doCommand(args, new Status(file));
+                table.correctingFiles(args[0]);
             } else {
                 System.out.println("not found");
             }

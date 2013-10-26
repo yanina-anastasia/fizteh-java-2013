@@ -4,13 +4,14 @@ import java.io.*;
 import java.util.*;
 
 public class FileMap implements Closeable {
-    protected String fileMapName;
+    protected final String fileMapName;
     protected Map<String, String> fileMap;
 
     public FileMap(String name, String directory) throws IOException {
-        fileMapName = name;
         if (directory != null) {
-            fileMapName = new File(directory, fileMapName).getCanonicalPath();
+            fileMapName = new File(directory, name).getCanonicalPath();
+        } else {
+            fileMapName = name;
         }
         DataInputStream reader;
         try {
@@ -22,7 +23,7 @@ public class FileMap implements Closeable {
             }
             reader = new DataInputStream(new FileInputStream(fileMapName));
         } catch (IOException e) {
-            throw new IOException("Opening error: " + e.getMessage());
+            throw new IOException(fileMapName + ": Opening error: " + e.getMessage());
         }
         fileMap = new HashMap<String, String>();
         reading(fileMap, reader);
@@ -39,21 +40,26 @@ public class FileMap implements Closeable {
         byte[] key;
         byte[] value;
         try {
-            while ((keyLen = reader.readInt()) != -1) {
-                valueLen = reader.readInt();
-                if (keyLen + valueLen > reader.available()) {
+            while (true) {   //До EOFException
+                keyLen = reader.readInt();
+                try {
+                    valueLen = reader.readInt();
+                    if (keyLen + valueLen > reader.available()) {
+                        throw new IOException("Bad file");
+                    }
+                    key = new byte[keyLen];
+                    value = new byte[valueLen];
+                    reader.read(key, 0, keyLen);
+                    reader.read(value, 0, valueLen);
+                    fileMap.put(new String(key), new String(value));
+                } catch (EOFException e) { //Если конец файла не в том месте
                     throw new IOException("Bad file");
+                } catch (IOException e) {
+                    throw new IOException("Read error: " + e.getMessage());
                 }
-                key = new byte[keyLen];
-                value = new byte[valueLen];
-                reader.read(key, 0, keyLen);
-                reader.read(value, 0, valueLen);
-                fileMap.put(new String(key), new String(value));
             }
         } catch (EOFException e) {
-            //Если конец файла, не падаем, а продолжаем выполнение программы
-        } catch (IOException e) {
-            throw new IOException("Read error: " + e.getMessage());
+            //Если конец файла при первом чтении, не падаем, а продолжаем выполнение программы
         }
     }
 
@@ -101,5 +107,13 @@ public class FileMap implements Closeable {
 
     public Map<String, String> getMap() {
         return fileMap;
+    }
+
+    public void setMap (Map<String, String> map) {
+        fileMap = map;
+    }
+
+    public String getFileMapName() {
+        return fileMapName;
     }
 }

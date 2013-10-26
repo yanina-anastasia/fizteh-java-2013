@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
+import ru.fizteh.fivt.students.abramova.filemap.FileMap;
+import ru.fizteh.fivt.students.abramova.filemap.PutCommand;
 import ru.fizteh.fivt.students.abramova.shell.Command;
 import ru.fizteh.fivt.students.abramova.shell.Status;
 
@@ -19,12 +21,8 @@ public class PutMultiCommand extends Command {
         if (table == null) {
             System.out.println("no table");
         } else {
-            String oldValue = table.putValue(args[0], args[1]);
-            if (oldValue == null) {
-                System.out.println("new");
-            } else {
-                System.out.println("overwrite\n" + oldValue);
-            }
+            FileMap file = table.addFileMap(args[0]);
+            new PutCommand(name).doCommand(args, new Status(file));
         }
         return 0;
     }

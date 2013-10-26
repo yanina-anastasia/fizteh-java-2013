@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.abramova.multifilehashmap;
 
+import ru.fizteh.fivt.students.abramova.filemap.FileMap;
+import ru.fizteh.fivt.students.abramova.filemap.GetCommand;
 import ru.fizteh.fivt.students.abramova.shell.Command;
 import ru.fizteh.fivt.students.abramova.shell.Status;
 
@@ -19,11 +21,11 @@ public class GetMultiCommand extends Command {
         if (table == null) {
             System.out.println("no table");
         } else {
-            String value = table.getValue(args[0]);
-            if (value == null) {
-                System.out.println("not found");
+            FileMap file = table.findFileMap(args[0]);
+            if (file != null) {
+                new GetCommand(name).doCommand(args, new Status(file));
             } else {
-                System.out.println("found\n" + value);
+                System.out.println("not found");
             }
         }
         return 0;

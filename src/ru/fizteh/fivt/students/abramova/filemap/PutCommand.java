@@ -12,7 +12,7 @@ public class PutCommand extends Command{
     public int doCommand(String[] args, Status status) {
         Map<String, String> fileMap = status.getFileMap().getMap();
         if (fileMap == null) {
-            throw new IllegalStateException(getName() + ": Command do not get stage");
+            throw new IllegalStateException(getName() + ": Command do not get file");
         }
         String oldValue = fileMap.get(args[0]);
         if (oldValue == null) {
