@@ -41,8 +41,8 @@ public class Exit implements CommandInterface {
             String key = currItem.getKey();
             String value = currItem.getValue();
             char b = key.charAt(0);
-            int nDirectory = b % 16;
-            int nFile = b / 16 % 16;
+            int nDirectory = Math.abs(b) % 16;
+            int nFile = Math.abs(b) / 16 % 16;
             String rightDir = Integer.toString(nDirectory) + ".dir";
             String rightFile = Integer.toString(nFile) + ".dat";
             String path = System.getProperty("fizteh.db.dir") + File.separator + table +
