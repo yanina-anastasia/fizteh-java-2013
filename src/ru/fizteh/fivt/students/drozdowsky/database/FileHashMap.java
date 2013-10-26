@@ -142,11 +142,11 @@ public class FileHashMap {
                     fatalError(db.getAbsolutePath() + ": Not valid database2");
                 }
                 base[nDir][nFile] = new FileMap(new File(subdir.getAbsolutePath() + '/' + file));
-                Set<String> keys = base[nDir][nFile].getKeys();
+                /*Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
                     fatalError(db.getAbsolutePath() + ": Not valid database3");
                 }
-            /*    for (String key : keys) {
+                for (String key : keys) {
                     int realNDir = getDirNum(key);
                     int realNFile = getFileNum(key);
                     if (!(nDir == realNDir && nFile == realNFile)) {
