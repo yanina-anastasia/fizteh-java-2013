@@ -71,7 +71,7 @@ public class Shell {
 
         while (!terminated) {
             try {
-                System.out.print(currentPath.toString() + "$ ");
+                System.out.print("$ ");
 
                 String currentCommand = in.readLine();
 

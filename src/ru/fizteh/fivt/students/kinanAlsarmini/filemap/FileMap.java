@@ -12,11 +12,11 @@ public class FileMap {
     private Shell shell;
 
     public FileMap(String databaseDir, String databaseName) {
-        databaseFile = new File(databaseDir, databaseName);
-
-        if (!databaseFile.isAbsolute()) {
-            throw new IllegalArgumentException(databaseDir + " isn't absolute.");
+        if (databaseDir == null) {
+            throw new IllegalArgumentException("Filemap dir is undefined");
         }
+
+        databaseFile = new File(databaseDir, databaseName);
 
         if (!databaseFile.exists()) {
             try {
