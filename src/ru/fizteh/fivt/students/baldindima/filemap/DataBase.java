@@ -124,8 +124,14 @@ public class DataBase {
     public void saveDataBase() throws IOException {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                if (files[i * 16 + j] != null) {
+                if (!(files[i * 16 + j].getCurrentTable().isEmpty())) {
                     files[i * 16 + j].write();
+                } else {
+                	File file = new File(getFullName(i, j));
+                	if (file.exists()){
+                		if (!file.delete())
+                			throw new IOException("Cannot delete a file");
+                	}
                 }
             }
             deleteEmptyDirectory(Integer.toString(i) + ".dir");
