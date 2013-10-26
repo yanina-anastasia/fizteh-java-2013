@@ -49,7 +49,7 @@ public class MultiTableProvider extends AbstractTableProvider {
         return Pattern.matches ("([0-9]|(1[0-5]))\\.dat", name);
     }
 
-    private boolean isValidDatabaseDirectoryName (String name)  {
+    private boolean isValidDatabaseDirectoryName (String name) {
         return Pattern.matches ("([0-9]|(1[0-5]))\\.dir", name);
     }
 
@@ -63,8 +63,9 @@ public class MultiTableProvider extends AbstractTableProvider {
             Files.createDirectory (directory);
         }
         Path file = directory.resolve (Paths.get (nfile + DOT_DAT));
-        Files.deleteIfExists (file);
-        Files.createFile (file);
+        if (Files.notExists (file)) {
+            Files.createFile (file);
+        }
         return file;
 
     }
@@ -74,7 +75,7 @@ public class MultiTableProvider extends AbstractTableProvider {
     }
 
     @Override
-    public Table createTable (String tableName) throws IllegalArgumentException,IllegalStateException {
+    public Table createTable (String tableName) throws IllegalArgumentException, IllegalStateException {
         validTableNameCheck (tableName);
         if (tables.containsKey (tableName)) {
             return null;
@@ -104,11 +105,16 @@ public class MultiTableProvider extends AbstractTableProvider {
     public void writeDatabaseOnDisk () throws IOException, IllegalArgumentException {
         Set<String> tableNames = tables.keySet ();
 
+        for (String oldtableName : tableNames) {
+            Path oldDirectory = state.getFileManager ().getCurrentDirectory ().resolve (oldtableName);
+            if (Files.exists (oldDirectory)) {
+                state.getFileManager ().deleteFile (oldDirectory);
+            }
+        }
+
         for (String tableName : tableNames) {
             Path tableDirectory = state.getFileManager ().getCurrentDirectory ().resolve (tableName);
-            if (Files.exists (tableDirectory)) {
-                state.getFileManager ().deleteFile (tableDirectory);
-            }
+
             state.getFileManager ().makeDirectory (tableDirectory);
 
             MultiTable currentTable = (MultiTable) tables.get (tableName);
@@ -119,7 +125,8 @@ public class MultiTableProvider extends AbstractTableProvider {
                 Path file = createFileForKey (key, tableDirectory);
 
                 try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
-                        (new FileOutputStream (file.toFile ())))) {
+                        (new FileOutputStream (file.toFile (), true)))) {
+
                     String value = currentTable.get (key);
                     DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
                 }
@@ -144,24 +151,24 @@ public class MultiTableProvider extends AbstractTableProvider {
 
             for (File directory : directories) {
 
-               if (!isValidDatabaseDirectoryName (directory.getName ())) {
-                   continue;
-               }
+                if (!isValidDatabaseDirectoryName (directory.getName ())) {
+                    continue;
+                }
                 File[] files = directory.listFiles ();
 
                 for (File file : files) {
                     isFileCheck (file.toPath ());
 
                     if (!isValidDatabaseFileName (file.getName ())) {
-                        System.out.println (file.getName ());
                         continue;
                     }
 
                     try (DataInputStream in = new DataInputStream (new BufferedInputStream
                             (new FileInputStream (file)))) {
-
-                        DatabaseUtils.KeyValue pair = DatabaseUtils.readKeyValue (in);
-                        table.put (pair.key, pair.value);
+                        while (in.available () != 0) {
+                            DatabaseUtils.KeyValue pair = DatabaseUtils.readKeyValue (in);
+                            table.put (pair.key, pair.value);
+                        }
                     }
                     catch (IOException e) {
                         throw new IOException ("Unable to write to file: " + e.getMessage ());
