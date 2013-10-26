@@ -28,11 +28,12 @@ public class DataBase {
         }
         */
         String inputTableName = args[1];
-        currentTable = currentTableProvider.getTable(inputTableName);
-        if (currentTable == null) {
+        Table tmpTable = currentTableProvider.getTable(inputTableName);
+        if (tmpTable == null) {
             System.out.println(inputTableName + " not exists");
         } else {
             System.out.println("using " + inputTableName);
+            currentTable = tmpTable;
         }
         return Code.OK;
     }
