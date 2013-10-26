@@ -200,21 +200,21 @@ public class FileMap extends UserShell {
                 filesArray[ndirectory * 16 + nfile].write(keyBytes);
                 filesArray[ndirectory * 16 + nfile].write(valueBytes);
             }
-                dataMap.clear();
-                try {
-                    for (int i = 0; i < 16; ++i) {
-                        for (int j = 0; j < 16; ++j) {
-                            if (filesArray[i * 16 + j].length() == 0) {
-                                doDelete(getFileWithNum(j, i));
-                            }
-                            filesArray[i * 16 + j].close();
+            dataMap.clear();
+            try {
+                for (int i = 0; i < 16; ++i) {
+                    for (int j = 0; j < 16; ++j) {
+                        if (filesArray[i * 16 + j].length() == 0) {
+                            doDelete(getFileWithNum(j, i));
                         }
+                        filesArray[i * 16 + j].close();
                     }
-                } catch (IOException e) {
-                    printErrorAndExit("Cannot unload file");
                 }
+            } catch (IOException e) {
+                printErrorAndExit("Cannot unload file");
+            }
         } catch (IOException e) {
-            //TODO
+            // TODO
             e.printStackTrace();
             printErrorAndExit("Cannot unload file correctly");
         }
@@ -308,20 +308,32 @@ public class FileMap extends UserShell {
                 }
                 break;
             case "put":
-                if (args.length > 2) {
-                    doPut(args[1], appendArgs(2, args));
+                if (currTable.equals("")) {
+                    System.out.println("no table");
                 } else {
-                    printError("Incorrect number of args");
+                    if (args.length > 2) {
+                        doPut(args[1], appendArgs(2, args));
+                    } else {
+                        printError("Incorrect number of args");
+                    }
                 }
                 break;
             case "get":
-                if (checkArgs(2, args)) {
-                    doGet(args[1]);
+                if (currTable.equals("")) {
+                    System.out.println("no table");
+                } else {
+                    if (checkArgs(2, args)) {
+                        doGet(args[1]);
+                    }
                 }
                 break;
             case "remove":
-                if (checkArgs(2, args)) {
-                    doRemove(args[1]);
+                if (currTable.equals("")) {
+                    System.out.println("no table");
+                } else {
+                    if (checkArgs(2, args)) {
+                        doRemove(args[1]);
+                    }
                 }
                 break;
             case "exit":
