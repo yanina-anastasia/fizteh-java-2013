@@ -97,15 +97,15 @@ public class MultiFileHashMapTable implements Table {
         this.content = content;
     }
 
-    public static int dirHash(String key) {
+    public int dirHash(String key) {
         return Math.abs(key.substring(0).getBytes(StandardCharsets.UTF_8)[0]) % DIR_COUNT;
     }
 
-    public static int fileHash(String key) {
+    public int fileHash(String key) {
         return Math.abs(key.substring(0).getBytes(StandardCharsets.UTF_8)[0]) / DIR_COUNT % DIR_FILES_COUNT;
     }
 
-    public static int keyHashFunction(String key) {
+    public int keyHashFunction(String key) {
         return 16 * dirHash(key) + fileHash(key);
     }
 }

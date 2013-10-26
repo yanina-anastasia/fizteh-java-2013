@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
+import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,70 +81,8 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
             curTable.getMapContent().clear();
         }
 
-        readFile(curTable, curFile);
+        AbstractFileMap.readFile(curFile);
         curFile.close();
-    }
-
-    public static void readFile(MultiFileHashMapTable curTable, RandomAccessFile curFile) throws IOException {
-        if (curFile.length() == 0) {
-            return;
-        }
-
-        List<Integer> offsets = new ArrayList<Integer>();
-
-        while (curFile.getFilePointer() != curFile.length()) {
-            if (curFile.readByte() == '\0') {
-                int offset = curFile.readInt();
-
-                if (offset < 0 || offset > curFile.length()) {
-                    curFile.close();
-                    throw new IOException("ERROR: incorrect input");
-                }
-
-                offsets.add(offset);
-            }
-        }
-        offsets.add((int) curFile.length());
-
-        curFile.seek(0);
-
-        for (int i = 0; i < offsets.size() - 1; i++) {
-            List<Byte> bytesKeyList = new ArrayList<Byte>();
-
-            while (curFile.getFilePointer() != curFile.length()) {
-                byte b = curFile.readByte();
-
-                if (b == 0) {
-                    break;
-                }
-
-                bytesKeyList.add(b);
-            }
-
-            byte[] bytesKeyArray = new byte[bytesKeyList.size()];
-
-            for (int j = 0; j < bytesKeyArray.length; j++) {
-                bytesKeyArray[j] = bytesKeyList.get(j);
-            }
-
-            String key = new String(bytesKeyArray, StandardCharsets.UTF_8);
-
-            curFile.read();
-            curFile.readInt();
-
-            int currentOffset = (int) curFile.getFilePointer() - 1;
-
-            curFile.seek(offsets.get(i));
-
-            byte[] valueArray = new byte[offsets.get(i + 1) - offsets.get(i)];
-
-            curFile.read(valueArray);
-
-            String value = new String(valueArray, StandardCharsets.UTF_8);
-
-            curTable.getMapContent().put(key, value);
-            curFile.seek(currentOffset);
-        }
     }
 
     public static void commitTable(MultiFileHashMapTable curTable) throws IOException {
@@ -161,7 +100,7 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         boolean[] usedFiles = new boolean[16];
 
         for (String key : keySet) {
-            usedDirs[MultiFileHashMapTable.dirHash(key)] = true;
+            usedDirs[curTable.dirHash(key)] = true;
         }
 
         for (int i = 0; i < DIR_COUNT; i++) {
@@ -176,7 +115,7 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
             }
 
             for (String key : keySet) {
-                usedFiles[MultiFileHashMapTable.fileHash(key)] = true;
+                usedFiles[curTable.fileHash(key)] = true;
             }
 
             for (int j = 0; j < DIR_FILES_COUNT; j++) {
@@ -204,18 +143,18 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         Set<Integer> usedKeys = new HashSet<Integer>();
 
         for (String key : keySet) {
-            if (!usedKeys.contains(MultiFileHashMapTable.keyHashFunction(key))) {
-                usedKeys.add(MultiFileHashMapTable.keyHashFunction(key));
+            if (!usedKeys.contains(curTable.keyHashFunction(key))) {
+                usedKeys.add(curTable.keyHashFunction(key));
 
                 int curOffset = 0;
                 int position = 0;
                 curFileKeySet.clear();
 
-                RandomAccessFile raf = RAFiles.get(MultiFileHashMapTable.keyHashFunction(key));
+                RandomAccessFile raf = RAFiles.get(curTable.keyHashFunction(key));
 
                 for (String curFileKey : keySet) {
-                    if (MultiFileHashMapTable.keyHashFunction(curFileKey) ==
-                            MultiFileHashMapTable.keyHashFunction(key)) {
+                    if (curTable.keyHashFunction(curFileKey) ==
+                            curTable.keyHashFunction(key)) {
                         curFileKeySet.add(curFileKey);
                         curOffset += curFileKey.getBytes(StandardCharsets.UTF_8).length + 5;
                     }

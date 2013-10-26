@@ -55,7 +55,7 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
                     throw new IOException("ERROR: too big file");
                 }
 
-                readFile();
+                readFile(file);
             } catch (IOException e) {
                 file.close();
                 System.err.println("ERROR: incorrect file format");
@@ -69,7 +69,7 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         }
     }
 
-    private void readFile() throws IOException {
+    public static void readFile(RandomAccessFile file) throws IOException {
         if (file.length() == 0) {
             return;
         }
