@@ -29,8 +29,13 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 	
 	public HashMap<String, String> map = new HashMap<>();
 	
+<<<<<<< HEAD
 	public void readFile(File in) throws IOException {
 		DataInputStream s = new DataInputStream(new FileInputStream(in));
+=======
+	public void readFile() throws IOException {
+		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
+>>>>>>> fa256da8daca9a52d7a5cc31fba224e380482469
 		boolean flag = true;
 		do {
 			try {
@@ -49,8 +54,14 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 			} catch (EOFException e) {
 				break;
 			}
+<<<<<<< HEAD
 		} while (flag);
 		s.close();
+=======
+			} while (flag);
+			s.close();
+		
+>>>>>>> fa256da8daca9a52d7a5cc31fba224e380482469
 	
 	}
 	
