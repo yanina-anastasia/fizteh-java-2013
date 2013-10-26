@@ -87,6 +87,8 @@ public class FileReader {
                 curPos += offsets.get(j);
                 ++j;
             }
+        }
+        if (curPos < fileLength) {
             int lastOffset = (int) (fileLength - curPos);
             byte[] b = new byte[lastOffset];
             for (int k = 0; curPos < fileLength; ++k, ++curPos) {
