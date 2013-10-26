@@ -1,15 +1,25 @@
 package ru.fizteh.fivt.students.mescherinilya.multifilehashmap;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MultiFileHashMap {
 
     private static Map<String, Command> commandList;
 
+    static RandomAccessFile rescue;
+
     static File rootDir;
 
     public static boolean batchMode(String input) throws TimeToExitException {
+        try {
+            String inputForRescue = input + "\n";
+            rescue.write(inputForRescue.getBytes());
+
+        } catch (IOException e) {
+            System.err.println("Rescue didn't help us");
+        }
 
         String[] commands = input.split("\\s*;\\s*");
 
@@ -64,6 +74,8 @@ public class MultiFileHashMap {
         while (true) {
             System.out.print("$ ");
             String input = scanner.nextLine().trim();
+
+
             batchMode(input);
         }
 
@@ -89,6 +101,22 @@ public class MultiFileHashMap {
             System.exit(1);
         }
 
+        File myRescue = new File(rootDir.getAbsoluteFile() + File.separator + "myrescue.txt");
+        try {
+            if (!myRescue.exists()) {
+                myRescue.createNewFile();
+            }
+        } catch (Exception e) {
+            System.out.print("Sorrow... Rescue didn't come.");
+        }
+
+        rescue = null;
+        try {
+            rescue = new RandomAccessFile(myRescue, "rw");
+            rescue.skipBytes((int) rescue.length());
+        } catch (Exception e) {
+            ;
+        }
         try {
             if (args.length == 0) {
                 interactiveMode();
@@ -96,6 +124,7 @@ public class MultiFileHashMap {
                 StringBuilder sb = new StringBuilder();
                 for (String arg : args) {
                     sb.append(arg).append(" ");
+
                 }
 
                 batchMode(sb.toString());
@@ -103,15 +132,28 @@ public class MultiFileHashMap {
         } catch (TimeToExitException te) {
             try {
                 DatabaseWorker.writeDatabase();
+                rescue.seek(0);
+                byte b[] = new byte[(int) rescue.length()];
+                for (int i = 0; i < rescue.length(); ++i) {
+                    b[i] = rescue.readByte();
+                }
+                String str = new String(b, StandardCharsets.UTF_8);
+                System.out.println(str);
+
             } catch (IOException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
             }
+
+
+
+
             System.exit(0);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
+
 
         System.exit(1);
     }
