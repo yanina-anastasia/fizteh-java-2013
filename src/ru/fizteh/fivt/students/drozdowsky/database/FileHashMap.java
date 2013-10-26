@@ -152,8 +152,8 @@ public class FileHashMap {
                     if (!(nDir == realNDir && nFile == realNFile)) {
                         fatalError(db.getAbsolutePath() + nDir + " " + nFile + ": Not valid database");
                     }
-                }
-            }*/
+                }*/
+            }
         }
     }
 
