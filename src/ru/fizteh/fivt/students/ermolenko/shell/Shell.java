@@ -39,6 +39,7 @@ public class Shell<State> {
     }
 
     public void interactiveState(Executor exec) throws IOException {
+        System.out.println("INTERACTIVE");
         Scanner scanner = new Scanner(System.in);
 
         String[] cmd;

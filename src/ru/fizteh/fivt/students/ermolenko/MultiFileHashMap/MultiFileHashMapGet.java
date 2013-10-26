@@ -14,7 +14,7 @@ public class MultiFileHashMapGet implements Command<MultiFileHashMapState> {
 
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
-
+        System.out.println("GET");
         if (args.length != 1) {
             System.out.println("incorrect number of arguments");
             return;
