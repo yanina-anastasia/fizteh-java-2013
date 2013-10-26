@@ -55,7 +55,18 @@ public class FileMap {
             System.exit(1);
         }
         File f = new File(path);
+
+        if (!f.exists()) {
+            System.err.println("Directory \"" + f.toString() + "\" doesn't exists");
+            System.exit(1);
+        }
+        if (!f.isDirectory()) {
+            System.err.println("\"" + f.toString() + "\" isn't a directory");
+            System.exit(1);
+        }
+
         Path addr = f.toPath().resolve("db.dat");
+
         try {
             t = new Table(addr);
         } catch (Exception e) {
