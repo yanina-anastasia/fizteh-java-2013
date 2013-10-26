@@ -89,7 +89,7 @@ public class ShellReceiver {
 		directoryToCreate.mkdir();
 	}
 
-	public void removeCommand(String arg) throws ShellException {
+	public void rmCommand(String arg) throws ShellException {
 		File fileToDelete = normalizedFile(arg);
 		deleteFile(fileToDelete);
 	}

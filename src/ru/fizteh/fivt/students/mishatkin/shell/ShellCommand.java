@@ -58,7 +58,7 @@ public abstract class ShellCommand implements Command {
 				break;
 			}
 		} catch (NoSuchMethodException e) {
-			throw new ShellException(methodName.substring(0, methodName.indexOf("Command") + 1) + ": invalid command.");
+			throw new ShellException(methodName.substring(0, methodName.indexOf("Command")) + ": invalid command.");
 		} catch (IllegalAccessException | InvocationTargetException e) {
 		}
 	}

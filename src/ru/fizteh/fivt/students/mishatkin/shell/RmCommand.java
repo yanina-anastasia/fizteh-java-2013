@@ -11,6 +11,6 @@ public class RmCommand extends ShellCommand {
 
 	@Override
 	public void execute() throws ShellException {
-		receiver.removeCommand(args[0]);
+		receiver.rmCommand(args[0]);
 	}
 }

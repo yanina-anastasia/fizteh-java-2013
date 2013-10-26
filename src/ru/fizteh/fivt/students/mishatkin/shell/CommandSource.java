@@ -85,10 +85,12 @@ public abstract class CommandSource {
 		//	due to linearity of the search procedure
 
 		try {
-			assert constructorWithReceiverParameter != null;
+			if (constructorWithReceiverParameter == null) {
+				throw new ShellException("No suitable public constructor for command " + commandClass.getName() + ".");
+			}
 			retValue = (ShellCommand) constructorWithReceiverParameter.newInstance(receiver);
 		} catch (InstantiationException e) {
-			throw new ShellException("No declared ovverriden constructor in subclass! " + commandClass.getName() + ". GO ADD IT NOW!!!1");
+			throw new ShellException("No suitable public constructor for command " + commandClass.getName() + ".");
 		} catch (IllegalAccessException | InvocationTargetException e) {
 		}
 		if (retValue != null) {
