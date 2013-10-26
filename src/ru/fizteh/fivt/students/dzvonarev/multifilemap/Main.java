@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.dzvonarev.multifilemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 import ru.fizteh.fivt.students.dzvonarev.shell.Shell;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
@@ -39,9 +40,30 @@ public class Main {
         return arr;
     }
 
+    public static boolean isGetPropertyValid(String path) throws IOException {
+        if (path == null) {
+            return false;
+        }
+        if (!(new File(Shell.getAbsPath(path))).exists()) {
+            if (!(new File(Shell.getAbsPath(path))).mkdir()) {
+                throw new IOException("can't create directory");
+            }
+            return true;
+        } else {
+            return new File(Shell.getAbsPath(path)).isDirectory();
+        }
+    }
+
     public static void main(String[] arr) {
         try {
-            MultiFileMap.readMultiFileMap(System.getProperty("fizteh.db.dir"));
+            String path = "";
+            if (!isGetPropertyValid(System.getProperty("fizteh.db.dir"))) {
+                System.out.println("error: wrong parameters");
+                System.exit(1);
+            } else {
+                path = Shell.getAbsPath(System.getProperty("fizteh.db.dir"));
+            }
+            MultiFileMap.readMultiFileMap(path);
         } catch (IOException e) {
             System.out.println(e.getMessage());
             System.exit(1);

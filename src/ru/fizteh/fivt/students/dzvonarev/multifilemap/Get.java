@@ -26,7 +26,6 @@ public class Get implements CommandInterface {
         if (fileMap == null) {
             fileMap = new HashMap<String, String>();
         }
-
         String value = fileMap.get(key);
         if (value == null) {
             System.out.println("not found");
