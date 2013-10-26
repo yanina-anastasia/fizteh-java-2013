@@ -47,11 +47,13 @@ public class DatabaseWorker {
                     bytes[i] = keySymbols.get(i);
                 }
 
-                if (ndirectory != bytes[0] % 16 || nfile != bytes[0] / 16 % 16) {
+                String key = new String(bytes, "UTF-8");
+                int hashcode = Math.abs(key.hashCode());
+                if (ndirectory != hashcode % 16 || nfile != hashcode / 16 % 16) {
                     throw new IncorrectFileFormatException("Key does not match the file.");
                 }
 
-                keys.add(new String(bytes, "UTF-8"));
+                keys.add(key);
 
                 int offset = database.readInt();
                 if (offset <= 0 ||
@@ -145,7 +147,8 @@ public class DatabaseWorker {
 
         Set<String> keySet = storage.keySet();
         for (String key : keySet) {
-            dirStorage.get(key.getBytes()[0] % 16).put(key, storage.get(key));
+            int hashcode = Math.abs(key.hashCode());
+            dirStorage.get(hashcode % 16).put(key, storage.get(key));
         }
 
         for (Integer i = 0; i < 16; ++i) {
@@ -172,7 +175,8 @@ public class DatabaseWorker {
 
                 keySet = dirStorage.get(i).keySet();
                 for (String key : keySet) {
-                    fileStorage.get(key.getBytes()[0] / 16 % 16).put(key, dirStorage.get(i).get(key));
+                    int hashcode = Math.abs(key.hashCode());
+                    fileStorage.get(hashcode / 16 % 16).put(key, dirStorage.get(i).get(key));
                 }
 
                 for (Integer j = 0; j < 16; ++j) {
