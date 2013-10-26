@@ -18,15 +18,11 @@ public class DropCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        try {
-            curState.removeTable(args[1]);
-            if (curState.getCurTable() != null && args[1].equals(curState.dataStorage.getName())) {
-                curState.setCurTable(null);
-            }
-            System.out.println("dropped");
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
+        curState.removeTable(args[1]);
+        if (curState.getCurTable() != null && args[1].equals(curState.dataStorage.getName())) {
+            curState.setCurTable(null);
         }
+        System.out.println("dropped");
     }
 
     public int getArgsCount() {

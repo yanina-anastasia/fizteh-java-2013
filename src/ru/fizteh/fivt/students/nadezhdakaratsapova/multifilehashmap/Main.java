@@ -44,6 +44,9 @@ public class Main {
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(2);
+        } catch (IllegalStateException e) {
+            System.err.println(e.getMessage());
+            System.exit(3);
         }
     }
 }
