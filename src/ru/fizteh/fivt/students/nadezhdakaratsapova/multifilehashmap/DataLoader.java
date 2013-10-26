@@ -67,23 +67,24 @@ public class DataLoader {
                             throw new IOException("Unexpected directory");
                         }
                         String fileName = f.getName();
-                        firstChar = fileName.charAt(0);
+                        char firstFileChar = fileName.charAt(0);
+                        char secondFileChar;
                         int fileNumber;
                         if (fileName.length() > 1) {
-                            secondChar = fileName.charAt(1);
+                            secondFileChar = fileName.charAt(1);
                         } else {
                             throw new IllegalArgumentException("Not allowed name of file in table");
                         }
-                        if (Character.isDigit(firstChar)) {
-                            if (Character.isDigit(secondChar)) {
-                                fileNumber = Integer.parseInt(dirName.substring(0, 2));
+                        if (Character.isDigit(firstFileChar)) {
+                            if (Character.isDigit(secondFileChar)) {
+                                fileNumber = Integer.parseInt(fileName.substring(0, 2));
                             } else {
-                                fileNumber = Integer.parseInt(dirName.substring(0, 1));
+                                fileNumber = Integer.parseInt(fileName.substring(0, 1));
                             }
                         } else {
                             throw new IllegalArgumentException("Not allowed name of file in table");
                         }
-                        if (!fileName.equals(new String(dirNumber + ".dat"))) {
+                        if (!fileName.equals(new String(fileNumber + ".dat"))) {
                             throw new IllegalArgumentException("Not allowed name of file in table");
                         }
                         FileReader fileReader = new FileReader(f, state.dataStorage);
@@ -94,7 +95,7 @@ public class DataLoader {
                                 hashByte += 256;
                             }
                             int ndirectory = hashByte % DIR_COUNT;
-                            int nfile = hashByte / DIR_COUNT % FILE_COUNT;
+                            int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
                             if (ndirectory != dirNumber) {
                                 throw new IllegalArgumentException("Wrong key in " + dirName);
                             }

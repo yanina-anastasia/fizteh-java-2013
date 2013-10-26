@@ -27,7 +27,7 @@ public class DataWriter {
                                 hashByte += 256;
                             }
                             int ndirectory = hashByte % DIR_COUNT;
-                            int nfile = hashByte / DIR_COUNT % FILE_COUNT;
+                            int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
                             if ((ndirectory == i) && (nfile == j)) {
                                 if (!dir.getCanonicalFile().exists()) {
                                     dir.getCanonicalFile().mkdir();
