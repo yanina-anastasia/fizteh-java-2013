@@ -55,9 +55,9 @@ public class WorkWithDatFiles {
                 dataBaseFileWriter.write(bufferKey);
                 dataBaseFileWriter.write(bufferValue);
             }
-            dataBaseFileWriter.close();
         } catch (IOException exc) {
             System.err.println(exc.getMessage());
+        } finally {
             dataBaseFileWriter.close();
         }
     }
