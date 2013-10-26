@@ -17,7 +17,7 @@ public class DropCommand extends AbstractCommand {
 		try {
 			File table = new File(getState().getWorkingDirectory(), args[1]);
 			if (!table.exists()) {
-				getState().getStream().println(args[1] + "not exists");
+				getState().getStream().println(args[1] + " not exists");
 			} else {
 				MultiFileMapState multi = (MultiFileMapState) getState();
 				if (multi.getWorkingTable().getName().equals(table.getName())) {
