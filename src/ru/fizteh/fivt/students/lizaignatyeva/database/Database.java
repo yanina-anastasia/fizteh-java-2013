@@ -40,7 +40,8 @@ public class Database {
         }
     }
 
-    private void readEntry(ByteBuffer buffer, Map<String, String> dest) throws BufferUnderflowException, DataFormatException {
+    private void readEntry(ByteBuffer buffer, Map<String, String> dest) throws BufferUnderflowException,
+            DataFormatException {
         int keyLength = buffer.getInt();
         if (keyLength < 0) {
             throw new DataFormatException("too long key buffer");
