@@ -14,7 +14,7 @@ public class MultiFileHashMap {
 	public static final int TABLE_OWNING_DIRECTORIES_COUNT = 16;
 
 	public static void main(String[] args) {
-		System.setProperty("fizteh.db.dir", "/home/sane/Documents/JavaMipt/DBTest");
+//		System.setProperty("fizteh.db.dir", "/home/sane/Documents/JavaMipt/DBTest");
 		CommandSource source = (args.length > 0) ? new BatchCommandSource(args)
 				: new StandardInputCommandSource(new Scanner(System.in));
 		MultiFileHashMapRunner runner = new MultiFileHashMapRunner(source);
