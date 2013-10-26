@@ -10,18 +10,22 @@ public class ShellCommands {
         public final String name = "pwd";
         public final int countOfArguments = 0;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             Properties p = System.getProperties();
             String dir = p.getProperty("user.dir");
@@ -35,18 +39,22 @@ public class ShellCommands {
         public final String name = "dir";
         public final int countOfArguments = 0;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             Properties p = System.getProperties();
             String dir = p.getProperty("user.dir");
@@ -68,18 +76,22 @@ public class ShellCommands {
         public final String name = "mkdir";
         public final int countOfArguments = 1;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             String nameOfDir = parts[1];
             Properties p = System.getProperties();
@@ -104,14 +116,17 @@ public class ShellCommands {
         public final String name = "cp";
         public final int countOfArguments = 2;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             if ((parts.length - 1) != countOfArguments) {
                 return false;
@@ -125,6 +140,7 @@ public class ShellCommands {
             return (numberOfWords == 1);
         }
 
+        @Override
         public Code perform(String[] parts) {
             String source = parts[1];
             String destination = parts[2];
@@ -170,14 +186,17 @@ public class ShellCommands {
         public final String name = "mv";
         public final int countOfArguments = 2;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             if ((parts.length - 1) != countOfArguments) {
                 return false;
@@ -191,6 +210,7 @@ public class ShellCommands {
             return (numberOfWords == 1);
         }
 
+        @Override
         public Code perform(String[] parts) {
             String source = parts[1];
             String destination = parts[2];
@@ -229,49 +249,55 @@ public class ShellCommands {
         public final String name = "rm";
         public final int countOfArguments = 1;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             String path = parts[1];
             try {
                 Properties p = System.getProperties();
                 String userDir = p.getProperty("user.dir");
-                File inputFile = new File(userDir + File.separator + path);
-                if (!inputFile.exists()) {
-                    System.err.println("rm: cannot remove '" + path + "': No such file or directory");
-                    return Code.ERROR;
-                }
+                File inputFile = new File(path);
                 if (!inputFile.isAbsolute()) {
-                    System.err.print("Error in rm");
-                    return Code.ERROR;
+                    inputFile = new File(userDir + File.separator + path);
+                }
+                if (!inputFile.exists()) {
+                    throw new IllegalStateException(path + " not exists");
                 }
                 if (inputFile.isDirectory()) {
                     for (File childFile : inputFile.listFiles()) {
                         if (childFile != null) {
                             if (childFile.isDirectory()) {
                                 ChangeDirectory cd = new ChangeDirectory();
-                                cd.perform(new String[]{path});
-                                if (perform(new String[]{childFile.toString()}) == Code.SYSTEM_ERROR) {
+                                cd.perform(new String[]{"cd ", path});
+                                if (perform(new String[]{"rm ", childFile.toString()}) == Code.SYSTEM_ERROR) {
                                     return Code.SYSTEM_ERROR;
                                 }
-                                cd.perform(new String[]{".."});
-                            }
-                            if (!childFile.delete()) {
+                                cd.perform(new String[]{"cd ", ".."});
+                            } else if (!childFile.delete()) {
                                 System.err.println("rm: impossible to remove file '" + childFile.toString() + "'.");
                                 return Code.ERROR;
                             }
                         }
                     }
+                }
+                userDir = p.getProperty("user.dir");
+                if (userDir.equals(inputFile)) {
+                    ChangeDirectory cd = new ChangeDirectory();
+                    cd.perform(new String[]{".."});
                 }
                 if (!inputFile.delete()) {
                     System.err.println("rm: impossible to remove file '" + path + "'.");
@@ -291,24 +317,29 @@ public class ShellCommands {
         public final String name = "cd";
         public final int countOfArguments = 1;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             String inputNameDir = parts[1];
             File newDir = new File(inputNameDir);
             String path = "";
             try {
                 path = newDir.getCanonicalPath();
+                newDir = new File(path);
             } catch (Exception e) {
                 System.err.println(e);
                 return (Code.SYSTEM_ERROR);
@@ -335,18 +366,22 @@ public class ShellCommands {
         public final String name = "exit";
         public final int countOfArguments = 0;
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public int getCountOfArguments() {
             return countOfArguments;
         }
 
+        @Override
         public boolean check(String[] parts) {
             return ((parts.length - 1) == countOfArguments);
         }
 
+        @Override
         public Code perform(String[] parts) {
             return Code.EXIT;
         }
