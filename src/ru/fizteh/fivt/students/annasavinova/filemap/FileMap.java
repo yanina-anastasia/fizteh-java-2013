@@ -14,7 +14,7 @@ public class FileMap extends UserShell {
     protected HashMap<String, String> dataMap = new HashMap<>();
     private String currTable = "";
     private static String rootDir = System.getProperty("fizteh.db.dir") + File.separatorChar;
-    private boolean hasLoadingMaps = false;
+    private boolean hasLoadedData = false;
 
     protected File getDirWithNum(int dirNum) {
         File res = new File(rootDir + currTable + File.separatorChar + dirNum + ".dir");
@@ -28,7 +28,7 @@ public class FileMap extends UserShell {
     }
 
     protected void loadData() {
-        if (!hasLoadingMaps) {
+        if (!hasLoadedData) {
             for (int i = 0; i < 16; ++i) {
                 File currentDir = getDirWithNum(i);
                 if (!currentDir.exists()) {
@@ -50,12 +50,12 @@ public class FileMap extends UserShell {
                     loadFile(currentFile, i, j);
                 }
             }
-            hasLoadingMaps = true;
+            hasLoadedData = true;
         }
     }
 
     protected void unloadData() {
-        if (hasLoadingMaps) {
+        if (hasLoadedData) {
             unloadMap();
             for (int i = 0; i < 16; ++i) {
                 File currentDir = getDirWithNum(i);
@@ -65,7 +65,7 @@ public class FileMap extends UserShell {
                     }
                 }
             }
-            hasLoadingMaps = false;
+            hasLoadedData = false;
         }
     }
 
@@ -266,6 +266,10 @@ public class FileMap extends UserShell {
             System.out.println(tableName + " not exists");
         } else {
             doDelete(tableDir);
+            if (currTable.equals(tableName)) {
+                currTable = "";
+                hasLoadedData = false; 
+            }
             System.out.println("dropped");
         }
     }
