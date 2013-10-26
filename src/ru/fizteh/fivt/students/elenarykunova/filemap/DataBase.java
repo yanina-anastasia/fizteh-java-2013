@@ -191,8 +191,6 @@ public class DataBase {
         }
     }
 
-    
-    
     public void commitChanges() throws IOException  {
         IOException e1 = new IOException();
         try {
