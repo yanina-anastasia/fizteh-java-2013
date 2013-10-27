@@ -261,7 +261,8 @@ public class Shell {
             checkLen(args[0], args.length - 1, 1);
             Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
             if (!Files.exists(pathToRemove)) {
-                System.out.println("tablename not exists");
+                System.out.println(args[1] + "not exists");
+                return;
             }
 
             File fileToRemove = new File(pathAppend(args[1]));
