@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.nio.charset.StandardCharsets;
 
 public class DistributedTable extends FileManager implements Table {
 
@@ -25,12 +26,56 @@ public class DistributedTable extends FileManager implements Table {
         return tableName;
     }
 
+    public int getRecordNumber() {
+        return recordNumber;
+    }
+
     private byte getFirstByte(String s) {
-        try {
-            return (byte) Math.abs(s.getBytes("UTF-8")[0]);
-        } catch (UnsupportedEncodingException e) {
-            return 0;
+        return (byte) Math.abs(s.getBytes(StandardCharsets.UTF_8)[0]);
+    }
+
+    private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
+        int fileRecordNumber = 0;
+        currentFile = filesList[dirNumber][fileNumber];
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
+            String[] pair;
+            try {
+                while ((pair = readNextPair(inputStream)) != null) {
+                    byte firstByte = getFirstByte(pair[0]);
+                    if (firstByte % partsNumber != dirNumber || (firstByte / partsNumber) % partsNumber != fileNumber) {
+                        throw new IOException("invalid key format");
+                    }
+                    fileRecordNumber++;
+                }
+            } catch (IOException e) {
+                throw new IOException(currentFile.getPath() + ": " + e.getMessage());
+            }
         }
+        return fileRecordNumber;
+    }
+
+    protected int readTable() throws IOException {
+        int directoriesNumber = 0;
+        int tableSize = 0;
+        for (int i = 0; i < partsNumber; i++) {
+            if (directoriesList[i].exists()) {
+                directoriesNumber++;
+                int filesNumber = 0;
+                for (int j = 0; j < partsNumber; j++) {
+                    if (filesList[i][j].exists()) {
+                        filesNumber++;
+                        tableSize += getCurrentFileLength(i, j);
+                    }
+                }
+                if (directoriesList[i].list().length != filesNumber) {
+                    throw new IOException(directoriesList[i].getPath() + ": contains unknown files or directories");
+                }
+            }
+        }
+        if (currentPath.list().length != directoriesNumber) {
+            throw new IOException(currentPath.getPath() + ": contains unknown files or directories");
+        }
+        return tableSize;
     }
 
     DistributedTable(File tableDirectory, String name) throws IOException {
@@ -41,29 +86,13 @@ public class DistributedTable extends FileManager implements Table {
                 throw new IOException(currentPath.getAbsolutePath() + ": couldn't create directory");
             }
         }
-        oldRecordNumber = 0;
         for (int i = 0; i < partsNumber; i++) {
-            directoriesList[i] = new File(currentPath.getPath() + File.separator + Integer.toString(i) + ".dir");
+            directoriesList[i] = new File(currentPath.getPath() + File.separator + i + ".dir");
             for (int j = 0; j < partsNumber; j++) {
-                currentFile = new File(directoriesList[i].getPath() + File.separator + Integer.toString(j) + ".dat");
-                filesList[i][j] = currentFile;
-                if (directoriesList[i].exists() && currentFile.exists()) {
-                    DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile));
-                    String[] pair;
-                    while ((pair = readNextPair(inputStream)) != null) {
-                        byte firstByte = getFirstByte(pair[0]);
-                        if (firstByte % partsNumber != i || (firstByte / partsNumber) % partsNumber != j) {
-                            throw new IOException("Invalid key in file " + currentFile.getAbsolutePath());
-                        }
-                        oldRecordNumber++;
-                    }
-                    if (inputStream.read() != -1) {
-                        throw new IOException("invalid file " + currentFile.getAbsolutePath());
-                    }
-                    inputStream.close();
-                }
+                filesList[i][j] = new File(directoriesList[i].getPath() + File.separator + j + ".dat");
             }
         }
+        oldRecordNumber = readTable();
         changes = new HashMap<>();
         rollback();
     }
@@ -84,8 +113,14 @@ public class DistributedTable extends FileManager implements Table {
         if (key == null) {
             throw new IllegalArgumentException();
         }
-        if (!changes.containsKey(key)) {
-            changes.put(key, readValue(key));
+        if (changes.containsKey(key)) {
+            return changes.get(key);
+        } else if (!changes.containsKey(key)) {
+            try {
+                changes.put(key, readValue(key));
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
         }
         return changes.get(key);
     }
@@ -107,23 +142,24 @@ public class DistributedTable extends FileManager implements Table {
     @Override
     public int commit() {
         int updated = changes.size();
+        boolean isClosed = true;
         DataInputStream[][] inputStreams = new DataInputStream[partsNumber][partsNumber];
         DataOutputStream[][] outputStreams = new DataOutputStream[partsNumber][partsNumber];
         try {
             for (int i = 0; i < partsNumber; i++) {
                 if (!directoriesList[i].exists()) {
                     if (!directoriesList[i].mkdir()) {
-                        throw new IOException("couldn't create directory " + directoriesList[i].getAbsolutePath());
+                        throw new IOException(directoriesList[i].getPath() + ": couldn't create directory");
                     }
                 }
                 for (int j = 0; j < partsNumber; j++) {
                     if (!filesList[i][j].exists()) {
                         if (!filesList[i][j].createNewFile()) {
-                            throw new IOException("couldn't create file " + filesList[i][j].getAbsolutePath());
+                            throw new IOException(filesList[i][j].getAbsolutePath() + ": couldn't create file");
                         }
                     }
                     if (!filesList[i][j].renameTo(new File(filesList[i][j].getPath() + "~"))) {
-                        throw new IOException("couldn't rename file " + filesList[i][j].getAbsolutePath());
+                        throw new IOException(filesList[i][j].getAbsolutePath() + ": couldn't rename file");
                     }
                     inputStreams[i][j] = new DataInputStream(new FileInputStream(filesList[i][j].getPath() + "~"));
                     outputStreams[i][j] = new DataOutputStream(new FileOutputStream(filesList[i][j]));
@@ -151,7 +187,11 @@ public class DistributedTable extends FileManager implements Table {
                     byte firstByte = getFirstByte(entry.getKey());
                     DataOutputStream outputStream = outputStreams[firstByte % partsNumber]
                             [(firstByte / partsNumber) % partsNumber];
-                    writeNextPair(outputStream, entry.getKey(), entry.getValue());
+                    try {
+                        writeNextPair(outputStream, entry.getKey(), entry.getValue());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage());
+                    }
                 }
             }
             for (int i = 0; i < partsNumber; i++) {
@@ -159,11 +199,11 @@ public class DistributedTable extends FileManager implements Table {
                     inputStreams[i][j].close();
                     outputStreams[i][j].close();
                     if (!(new File(filesList[i][j].getPath() + "~")).delete()) {
-                        throw new IOException("couldn't delete file " + filesList[i][j].getPath() + "~");
+                        throw new RuntimeException(filesList[i][j].getPath() + "~: couldn't delete file");
                     }
                     if (filesList[i][j].length() == 0) {
                         if (!filesList[i][j].delete()) {
-                            throw new IOException("couldn't delete file " + filesList[i][j].getPath());
+                            throw new RuntimeException(filesList[i][j].getPath() + ": couldn't delete file");
                         }
                     }
                 }
@@ -173,33 +213,36 @@ public class DistributedTable extends FileManager implements Table {
             for (File directory : directoriesList) {
                 if (directory.list().length == 0) {
                     if (!directory.delete()) {
-                        throw new IOException("couldn't delete directory " + directory.getAbsolutePath());
+                        throw new RuntimeException(directory.getAbsolutePath() + ": couldn't delete directory");
                     }
                 }
             }
-            return updated;
         } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
             for (int i = 0; i < partsNumber; i++) {
                 for (int j = 0; j < partsNumber; j++) {
                     try {
                         if (inputStreams[i][j] != null) {
                             inputStreams[i][j].close();
                         }
-                    } catch (IOException exception) {
-                        printMessage(tableName + exception.getMessage());
+                    } catch (IOException e) {
+                        isClosed = false;
                     }
                     try {
                         if (outputStreams[i][j] != null) {
                             outputStreams[i][j].close();
                         }
-                    } catch (IOException exception) {
-                        printMessage(tableName + exception.getMessage());
+                    } catch (IOException e) {
+                        isClosed = false;
                     }
                 }
             }
         }
-        printMessage(tableName + ": cannot commit changes: i/o error occurred");
-        return 0;
+        if (!isClosed) {
+            throw new RuntimeException("couldn't close some files");
+        }
+        return updated;
     }
 
     @Override
@@ -219,8 +262,8 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     protected void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
-        byte[] keyBytes = key.getBytes("UTF-8");
-        byte[] valueBytes = value.getBytes("UTF-8");
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
         outputStream.writeInt(keyBytes.length);
         outputStream.writeInt(valueBytes.length);
         outputStream.write(keyBytes);
@@ -228,30 +271,33 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     protected String[] readNextPair(DataInputStream inputStream) throws IOException {
+        if (inputStream.available() == 0) {
+            return null;
+        }
         int keySize;
         int valueSize;
         try {
             keySize = inputStream.readInt();
             valueSize = inputStream.readInt();
-            if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize
-                    || inputStream.available() < valueSize || inputStream.available() < keySize + valueSize) {
-                throw new IOException("invalid string size");
-            }
         } catch (IOException e) {
-            return null;
+            throw new EOFException("the file is corrupt or has an incorrect format");
+        }
+        if (keySize < 1 || valueSize < 1 || inputStream.available() < keySize
+                || inputStream.available() < valueSize || inputStream.available() < keySize + valueSize) {
+            throw new EOFException("the file is corrupt or has an incorrect format");
         }
         byte[] keyBytes = new byte[keySize];
         byte[] valueBytes = new byte[valueSize];
         if (inputStream.read(keyBytes) != keySize || inputStream.read(valueBytes) != valueSize) {
-            throw new IOException("unexpected end of file");
+            throw new EOFException("the file is corrupt or has an incorrect format");
         }
         String[] pair = new String[2];
-        pair[0] = new String(keyBytes, "UTF-8");
-        pair[1] = new String(valueBytes, "UTF-8");
+        pair[0] = new String(keyBytes, StandardCharsets.UTF_8);
+        pair[1] = new String(valueBytes, StandardCharsets.UTF_8);
         return pair;
     }
 
-    protected String readValue(String key) {
+    protected String readValue(String key) throws IOException {
         if (currentFile == null) {
             return null;
         }
@@ -263,10 +309,20 @@ public class DistributedTable extends FileManager implements Table {
                     return pair[1];
                 }
             }
-            inputStream.close();
-            return null;
-        } catch (IOException e) {
-            return null;
+        }
+        return null;
+    }
+
+    public void clear() throws IOException {
+        for (int i = 0; i < partsNumber; i++) {
+            for (int j = 0; j < partsNumber; j++) {
+                if (filesList[i][j].exists() && !filesList[i][j].delete()) {
+                    throw new IOException(filesList[i][j].getPath() + ": couldn't remove file");
+                }
+            }
+            if (directoriesList[i].exists() && !directoriesList[i].delete()) {
+                throw new IOException(directoriesList[i].getPath() + ": couldn't remove directory");
+            }
         }
     }
 }

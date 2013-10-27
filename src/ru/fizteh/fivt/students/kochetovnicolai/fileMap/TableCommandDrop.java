@@ -22,12 +22,11 @@ public class TableCommandDrop implements Executable {
             return false;
         }
         try {
-            manager.removeTable(args[1]);
-            if (manager.getCurrentTable().getName().equals(args[1])) {
-                manager.setCurrentTable(null);
+            if (manager.removeTable(args[1])) {
+                manager.printMessage("dropped");
+                return true;
             }
-            manager.printMessage("dropped");
-            return true;
+            return false;
         } catch (IllegalArgumentException e) {
             return false;
         }

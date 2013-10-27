@@ -1,21 +1,25 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class TableManager extends FileManager implements TableProvider {
+public class TableManager extends FileManager {
 
-    protected DistributedTable currentTable;
-
-    HashMap<String, DistributedTable> tables;
+    protected TableMember currentTable = null;
+    DistributedTableProvider provider;
+    HashMap<String, TableMember> tables;
 
     public boolean existsTable(String name) {
-        return (new File(currentPath + File.separator + name).exists());
+        try {
+            return provider.existsTable(name);
+        } catch (RuntimeException e) {
+            printMessage(e.getMessage());
+            return false;
+        }
     }
 
     public TableManager(File workingDirectory) throws IOException {
@@ -24,51 +28,52 @@ public class TableManager extends FileManager implements TableProvider {
             throw new IOException("couldn't create working directory");
         }
         tables = new HashMap<>();
+        provider = new DistributedTableProvider(currentPath);
     }
 
-    void setCurrentTable(DistributedTable table) {
+    void setCurrentTable(TableMember table) {
         currentTable = table;
     }
 
-    @Override
-    public DistributedTable getTable(String name) throws IllegalArgumentException {
+    public TableMember getTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
-            return null;
+        if (tables.containsKey(name)) {
+            return tables.get(name);
         }
         return createTable(name);
     }
 
-    @Override
-    public DistributedTable createTable(String name) throws IllegalArgumentException {
+    public TableMember createTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
         if (!tables.containsKey(name)) {
             try {
-                DistributedTable table = new DistributedTable(currentPath, name);
-                tables.put(name, table);
-            } catch (IOException e) {
-                return null;
+                tables.put(name, provider.createTable(name));
+            } catch (RuntimeException e) {
+                printMessage(e.getMessage());
             }
         }
         return tables.get(name);
     }
 
-    @Override
-    public void removeTable(String name) throws IllegalArgumentException {
+    public boolean removeTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
-            throw new IllegalStateException("table is not exists");
+        if (currentTable == tables.get(name)) {
+            currentTable = null;
         }
-        if (tables.containsKey(name)) {
-            tables.remove(name);
+        tables.remove(name);
+        try {
+            provider.removeTable(name);
+        } catch (RuntimeException e) {
+            printMessage(e.getMessage());
+            return false;
         }
-        recursiveRemove(new File(currentPath.getPath() + File.separator + name), "table");
+        return true;
     }
 
     @Override
