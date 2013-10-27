@@ -135,6 +135,36 @@ public class FileHashMap {
                 error(file.getName());
             }
         }
+
+        for (File directory : directories) {
+            error(directory.getName());
+            int nDir = dirNameInRange(directory.getName(), NDIRS);
+            if (nDir == -1 || !(directory.isDirectory())) {
+                fatalError(db.getAbsolutePath() + ": Not valid database");
+            }
+
+            File[] files = directory.listFiles();
+            for (File file : files) {
+                error(file.getName());
+                int nFile = fileNameInRange(file.getName(), NFILES);
+                if (nFile == -1 || !(file.isFile())) {
+                    fatalError(db.getAbsolutePath() + ": Not valid database");
+                }
+
+                base[nDir][nFile] = new FileMap(file);
+                Set<String> keys = base[nDir][nFile].getKeys();
+                if (keys.size() == 0) {
+                    fatalError(db.getAbsolutePath() + ": Not valid database");
+                }
+                for (String key : keys) {
+                    int realNDir = getDirNum(key);
+                    int realNFile = getFileNum(key);
+                    if (!(nDir == realNDir && nFile == realNFile)) {
+                        fatalError(db.getAbsolutePath() + " " + nDir + " " + nFile + ": Not valid database");
+                    }
+                }
+            }
+        }
     }
 
     private void writeDB() {
