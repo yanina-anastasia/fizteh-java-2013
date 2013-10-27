@@ -159,7 +159,7 @@ public class FileHashMap {
 
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
-            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
+            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i) + ".dir");
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
@@ -178,7 +178,7 @@ public class FileHashMap {
 
     private int dirNameInRange(String s, int range) {
         for (int i = 0; i < range; i++) {
-            if (Integer.toString(i).equals(s)) {
+            if ((Integer.toString(i) + ".dir").equals(s)) {
                 return i;
             }
         }
