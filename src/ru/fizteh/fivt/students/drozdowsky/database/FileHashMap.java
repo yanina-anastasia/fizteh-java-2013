@@ -161,10 +161,10 @@ public class FileHashMap {
 
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
-            File dirPath = new File(db.getAbsolutePath() + "/" + Integer.toString(i) + ".dir");
+            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
-                    File filePath = new File(dirPath.getAbsolutePath() + "/" + Integer.toString(j) + ".dat");
+                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
                     if (base[i][j].getKeys().size() == 0) {
                         filePath.delete();
                     } else {
