@@ -123,7 +123,7 @@ public class FileMap {
                     byte[] sizeBuf = new byte[4];
                     for (int i = 0; i < 4; i++) {
                         if ((sizeBuf[i] = (byte) inputDB.read()) == -1) {
-                            fatalError("Unexpected end of the database");
+                            fatalError(dbPath.getPath() + "Unexpected end of the database");
                         }
                     }
                     int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
