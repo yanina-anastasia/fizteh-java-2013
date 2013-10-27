@@ -181,7 +181,7 @@ public class Shell {
             checkLen(args[0], args.length - 1, 1);
             File tmpFile = new File(pathAppend(args[1]));
             if (tmpFile.exists() && tmpFile.isDirectory()) {
-                System.out.println("tablename exists");
+                System.out.println(args[1] + " exists");
                 return;
             }
             if (!tmpFile.mkdir()) {
