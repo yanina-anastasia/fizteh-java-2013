@@ -128,40 +128,6 @@ public class FileHashMap {
         }
 
 
-
-        /*for (int i = 0; i < NDIRS; i++) {
-            for (int j = 0; j < NFILES; j++) {
-                File file = new File(db.getCanonicalPath() + "/" + i + ".dir" + "/" + j + ".dat");
-                if (file.getParentFile().exists()) {
-                    if (!file.getParentFile().isDirectory()) {
-                        fatalError(file.getParentFile().getName() + ": Not a directory");
-                    } else if (file.exists() && !file.isFile()) {
-                        fatalError(file.getParentFile().getName() + ": Not a file");
-                    } else {
-                        base[i][j] = new FileMap(file);
-                        Set<String> keys = base[i][j].getKeys();
-
-                        for (String key : keys) {
-                            int realNDir = getDirNum(key);
-                            int realNFile = getFileNum(key);
-                            if (!(i == realNDir && j == realNFile)) {
-                                fatalError(db.getName() + " " + i + " " + j + ": Not valid database");
-                            }
-                        }
-                    }
-                }
-
-            }
-        } */
-
-        /*File[] directories = db.listFiles();
-        for (File directory : directories) {
-            File[] files = directory.listFiles();
-            for (File file : files) {
-                error(directory.getCanonicalPath() + " " + file.getCanonicalPath());
-            }
-        } */
-
         File[] directories = db.listFiles();
         for (File directory : directories) {
             error(directory.getName());
