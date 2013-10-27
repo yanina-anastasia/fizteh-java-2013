@@ -127,6 +127,14 @@ public class FileHashMap {
             return;
         }
 
+        File[] directories = db.listFiles();
+        for (File directory : directories) {
+            File[] files = directory.listFiles();
+            for (File file : files) {
+                error(directory.getCanonicalPath() + " " + file.getCanonicalPath());
+            }
+        }
+
         for (int i = 0; i < NDIRS; i++) {
             for (int j = 0; j < NFILES; j++) {
                 File file = new File(db.getCanonicalPath() + "/" + i + ".dir" + "/" + j + ".dat");
