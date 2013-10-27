@@ -128,7 +128,33 @@ public class FileHashMap {
         }
 
         File[] directories = db.listFiles();
-        for (File directory : directories) {
+
+        for (int i = 0; i < NDIRS; i++) {
+            for (int j = 0; j < NFILES; j++) {
+                File file = new File(db.getCanonicalPath() + "/" + i + ".dir" + "/" + j + ".dat");
+                if (file.getParentFile().exists()) {
+                    if (!file.getParentFile().isDirectory()) {
+                        fatalError(file.getParentFile().getName() + ": Not a directory");
+                    } else if (file.exists() && !file.isFile()) {
+                        fatalError(file.getParentFile().getName() + ": Not a file");
+                    } else {
+                        base[i][j] = new FileMap(file);
+                        Set<String> keys = base[i][j].getKeys();
+
+                        for (String key : keys) {
+                            int realNDir = getDirNum(key);
+                            int realNFile = getFileNum(key);
+                            if (!(i == realNDir && j == realNFile)) {
+                                fatalError(db.getName() + " " + i + " " + j + ": Not valid database");
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        /*for (File directory : directories) {
             int nDir = dirNameInRange(directory.getName(), NDIRS);
             if (nDir == -1 || !(directory.isDirectory())) {
                 fatalError(db.getName() + ": Not valid database, directory name: " + directory.getName());
@@ -154,7 +180,7 @@ public class FileHashMap {
                     }
                 }
             }
-        }
+        }        */
     }
 
     private void writeDB() {
@@ -176,7 +202,7 @@ public class FileHashMap {
         }
     }
 
-    private int dirNameInRange(String s, int range) {
+    /*private int dirNameInRange(String s, int range) {
         for (int i = 0; i < range; i++) {
             if ((Integer.toString(i) + ".dir").equals(s)) {
                 return i;
@@ -192,7 +218,7 @@ public class FileHashMap {
             }
         }
         return -1;
-    }
+    }       */
 
     private void fatalError(String error) throws IOException {
         throw new IOException(error);
