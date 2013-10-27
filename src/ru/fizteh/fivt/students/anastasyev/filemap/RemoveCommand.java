@@ -27,11 +27,11 @@ public class RemoveCommand implements Command<FileMapTable> {
                 System.out.println("not found");
                 return true;
             }
-            String str = db.remove(command[1]);
+            String str = state.remove(command[1]);
             if (db.isEmpty()) {
                 state.deleteFileMap(command[1].hashCode());
             }
-            if (str.equals("not found")) {
+            if (str == null) {
                 System.out.println("not found");
             } else {
                 System.out.println("removed");

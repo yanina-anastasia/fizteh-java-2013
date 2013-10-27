@@ -27,8 +27,8 @@ public class GetCommand implements Command<FileMapTable> {
                 System.out.println("not found");
                 return true;
             }
-            String str = db.get(command[1]);
-            if (str.equals("not found")) {
+            String str = state.get(command[1]);
+            if (str == null) {
                 System.out.println("not found");
 
             } else {

@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 import ru.fizteh.fivt.students.anastasyev.shell.State;
 
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 import java.util.Hashtable;
 import java.util.Vector;
 
-public class FileMapTable extends State {
+public class FileMapTable extends State/* implements Table*/ {
     private File multiFileHashMapDir;
     private File currentFileMapTable = null;
     private FileMap[][] mapsTable;
@@ -58,7 +59,7 @@ public class FileMapTable extends State {
         }
     }
 
-    private void remove(Path removing) throws IOException {
+    private void rmTable(Path removing) throws IOException {
         File remove = new File(removing.toString());
         if (!remove.exists()) {
             throw new IOException(removing.getFileName() + " there is not such file or directory");
@@ -71,7 +72,7 @@ public class FileMapTable extends State {
         if (remove.isDirectory()) {
             String[] fileList = remove.list();
             for (String files : fileList) {
-                remove(removing.resolve(files));
+                rmTable(removing.resolve(files));
             }
             if (!remove.delete()) {
                 throw new IOException(removing.getFileName() + " can't remove this directory");
@@ -97,7 +98,7 @@ public class FileMapTable extends State {
             }
         }
         try {
-            remove(deleteTable.toPath());
+            rmTable(deleteTable.toPath());
             allFileMapTablesHashtable.remove(tableName);
             System.out.println("dropped");
         } catch (IOException e) {
@@ -188,5 +189,53 @@ public class FileMapTable extends State {
             mapsTable[dirHash][datHash] = new FileMap(datName);
         }
         return mapsTable[dirHash][datHash];
+    }
+
+    //@Override
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException();
+        }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        String str = mapsTable[dirHash][datHash].put(key, value);
+        if (str.equals("new")) {
+            return null;
+        } else {
+            return str;
+        }
+    }
+
+    //@Override
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        String str = mapsTable[dirHash][datHash].get(key);
+        if (str.equals("not found")) {
+            return null;
+        } else {
+            return str;
+        }
+    }
+
+    //@Override
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        String str = mapsTable[dirHash][datHash].remove(key);
+        if (str.equals("not found")) {
+            return null;
+        } else {
+            return str;
+        }
     }
 }

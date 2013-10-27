@@ -31,13 +31,13 @@ public class PutCommand implements Command<FileMapTable> {
             }
             if (db == null) {
                 try {
-                    db = state.openFileMap((arg1.trim().hashCode()));
+                    state.openFileMap((arg1.trim().hashCode()));
                 } catch (IOException e) {
                     throw e;
                 }
             }
-            String str = db.put(arg1.trim(), arg2.trim());
-            if (str.equals("new")) {
+            String str = state.put(arg1.trim(), arg2.trim());
+            if (str == null) {
                 System.out.println("new");
             } else {
                 System.out.println("overwrite");

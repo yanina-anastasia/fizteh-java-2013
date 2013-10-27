@@ -213,7 +213,7 @@ public class FileMap extends State {
         }
     }
 
-    public String put(String newKey, String newValue) throws IOException {
+    public String put(String newKey, String newValue) {
         String oldValue = elementHashMap.put(newKey, newValue);
         if (oldValue == null) {
             return "new";
