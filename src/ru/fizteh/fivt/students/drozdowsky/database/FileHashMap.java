@@ -132,7 +132,7 @@ public class FileHashMap {
             error(directory.getName());
             int nDir = dirNameInRange(directory.getName(), NDIRS);
             if (nDir == -1 || !(directory.isDirectory())) {
-                fatalError(db.getAbsolutePath() + ": Not valid database");
+                fatalError(db.getAbsolutePath() + ": Not valid database " + directory.getName());
             }
 
             File[] files = directory.listFiles();
@@ -140,7 +140,7 @@ public class FileHashMap {
                 error(file.getName());
                 int nFile = fileNameInRange(file.getName(), NFILES);
                 if (nFile == -1 || !(file.isFile())) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database");
+                    fatalError(db.getAbsolutePath() + ": Not valid database " + file.getName());
                 }
 
                 base[nDir][nFile] = new FileMap(file);
