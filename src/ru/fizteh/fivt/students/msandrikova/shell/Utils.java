@@ -17,13 +17,9 @@ public class Utils {
 		} else {
 			System.err.println("Error: " + description);
 		}
-		if(isInteractive) {
-			try {
-				Thread.sleep(2);
-			} catch (InterruptedException e) {}
-			return;
+		if(!isInteractive) {
+			System.exit(1);
 		}
-		System.exit(1);
 	}
 	
 	
@@ -38,6 +34,16 @@ public class Utils {
 	        sourceChannel.close();
 	        destinationChannel.close();
 	    }
+	}
+	
+	public static boolean createFile(File newFile) throws IOException {
+		if(!newFile.getParentFile().exists()) {
+			return false;
+		}
+		if(!newFile.createNewFile()) {
+			return false;
+		}
+		return true;
 	}
 	
 	public static boolean copying(File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
@@ -61,16 +67,9 @@ public class Utils {
 			}
 		} else {
 			File newFile = new File(destination + File.separator + filePath.getName());
-			try {
-				if(!newFile.createNewFile()) {
-					Utils.generateAnError("File with name \"" + filePath.getName() 
-							+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
-					return false;
-				}
-			} catch (SecurityException e) {
+			if(!Utils.createFile(newFile)) {
 				Utils.generateAnError("File with name \"" + filePath.getName() 
 						+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
-				return false;
 			}
 			Utils.copyFiles(filePath, newFile);
 		}
@@ -144,6 +143,21 @@ public class Utils {
 	public static String[] parseOfInstructionLine(String instructionLine) {
 		instructionLine = instructionLine.trim();
 		return instructionLine.split("\\s*;\\s*", -1);
+	}
+	
+	public static int getNameNumber(String name) {
+		String[] tokens = name.split("[.]");
+		return Integer.parseInt(tokens[0]);
+	}
+	
+	public static int getNDirectory(String key) {
+		int result = key.hashCode() % 16;
+		return Math.abs(result);
+	}
+	
+	public static int getNFile(String key) {
+		int result = key.hashCode() / 16 % 16;
+		return Math.abs(result);
 	}
 	
 }

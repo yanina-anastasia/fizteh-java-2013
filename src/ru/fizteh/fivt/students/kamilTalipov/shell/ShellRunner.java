@@ -10,13 +10,8 @@ public class ShellRunner {
                             new Move(),
                             new PrintDirContain(),
                             new Exit()};
-        Shell shell = new Shell(commands);
         try {
-            if (args.length == 0) {
-                shell.interactiveMode();
-            } else {
-                shell.packageMode(args);
-            }
+            Shell.run(commands, args);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);

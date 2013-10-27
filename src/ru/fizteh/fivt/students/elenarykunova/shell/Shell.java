@@ -13,7 +13,7 @@ public class Shell {
         ERR;
     }
 
-    static File currPath;
+    protected static File currPath;
 
     protected static File getFileFromString(String pathString, String cmd)
             throws IOException {
@@ -240,7 +240,7 @@ public class Shell {
         return ExitCode.OK;
     }
 
-    protected static ExitCode rm(String fileToDel) {
+    public static ExitCode rm(String fileToDel) {
         File myFile;
         try {
             myFile = getFileFromString(fileToDel, "rm");

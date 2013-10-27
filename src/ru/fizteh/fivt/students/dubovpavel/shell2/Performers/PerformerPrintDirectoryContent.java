@@ -1,11 +1,12 @@
-package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
+package ru.fizteh.fivt.students.dubovpavel.shell2.performers;
 
-import ru.fizteh.fivt.students.dubovpavel.shell2.Command;
-import ru.fizteh.fivt.students.dubovpavel.shell2.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.Command;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
 import java.io.File;
 
-public class PerformerPrintDirectoryContent extends Performer {
+public class PerformerPrintDirectoryContent extends PerformerShell {
     public boolean pertains(Command command) {
         return command.getHeader().equals("dir") && command.argumentsCount() == 0;
     }

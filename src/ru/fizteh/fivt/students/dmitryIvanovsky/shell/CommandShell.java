@@ -6,18 +6,59 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class CommandShell implements CommandAbstract {
 
     File currentFile;
+    boolean out;
+    boolean err;
+
+    public Map<String, String> mapComamnd() {
+        Map<String, String> commandList = new HashMap<String, String>(){ {
+            put("dir", "dir");
+            put("mv", "mv");
+            put("cp", "cp");
+            put("rm", "rm");
+            put("pwd", "pwd");
+            put("mkdir", "mkdir");
+            put("cd", "cd");
+        }};
+        return commandList;
+    }
+
+    public Map<String, Boolean> mapSelfParsing() {
+        Map<String, Boolean> commandList = new HashMap<String, Boolean>(){ {
+            put("dir", false);
+            put("mv", false);
+            put("cp", false);
+            put("rm", false);
+            put("pwd", false);
+            put("mkdir", false);
+            put("cd", false);
+        }};
+        return commandList;
+    }
 
     public CommandShell() {
         currentFile = new File(".");
+        this.out = true;
+        this.err = true;
     }
 
     public CommandShell(String path) {
         currentFile = new File(path);
+        this.out = true;
+        this.err = true;
+    }
+
+    public CommandShell(String path, boolean out, boolean err) {
+        currentFile = new File(path);
+        this.out = out;
+        this.err = err;
     }
 
     public void exit() {
@@ -26,10 +67,6 @@ public class CommandShell implements CommandAbstract {
 
     public String getCurrentFile() {
         return currentFile.toString();
-    }
-
-    public boolean selfParsing() {
-        return false;
     }
 
     public String startShellString() throws IOException {
@@ -68,7 +105,7 @@ public class CommandShell implements CommandAbstract {
                     Files.move(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
                 }
                 File[] listFiles = fileSource.listFiles();
-                if (listFiles != null) {
+                if (listFiles != null || listFiles.length != 0) {
                     for (File c : listFiles) {
                         String nameFile = c.getName();
                         copyMove(c.toString(), joinDir(destination) + File.separator + nameFile, isCopy);
@@ -76,7 +113,7 @@ public class CommandShell implements CommandAbstract {
                 }
             } else {
                 if (fileDestination.getCanonicalFile().equals(fileSource.getCanonicalFile())) {
-                    System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
+                    errPrint(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
                     return Code.ERROR;
                 }
                 Path pathDestination = Paths.get(joinDir(destination));
@@ -92,13 +129,14 @@ public class CommandShell implements CommandAbstract {
             return Code.OK;
         } catch (Exception e) {
             String error = String.format("%s: \'%s %s\': не могу %s", command, source, destination, rusDescription);
-            System.err.println(error);
+            errPrint(error);
             return Code.ERROR;
         }
     }
 
     public Code cd(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды cd 1 аргумент");
             return Code.ERROR;
         }
         String newDir = args[0];
@@ -108,20 +146,21 @@ public class CommandShell implements CommandAbstract {
                 tmpFile = new File(joinDir(newDir));
             }
             if (!tmpFile.isDirectory()) {
-                System.err.println(String.format("cd: \'%s\': нет такого пути", newDir));
+                errPrint(String.format("cd: \'%s\': нет такого пути", newDir));
                 return Code.ERROR;
             } else {
                 currentFile = tmpFile;
             }
             return Code.OK;
         } catch (Exception e) {
-            System.err.println(String.format("cd: \'%s\': нет такого пути", newDir));
+            errPrint(String.format("cd: \'%s\': нет такого пути", newDir));
             return Code.ERROR;
         }
     }
 
     public Code cp(String[] args) {
         if (args.length != 2) {
+            errPrint("У команды cp 2 аргумента");
             return Code.ERROR;
         }
         String source = args[0];
@@ -131,6 +170,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code mv(String[] args) {
         if (args.length != 2) {
+            errPrint("У команды mv 2 аргумента");
             return Code.ERROR;
         }
         String source = args[0];
@@ -140,6 +180,7 @@ public class CommandShell implements CommandAbstract {
 
     public Code rm(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды rm 1 аргумент");
             return Code.ERROR;
         }
         String path = args[0];
@@ -154,46 +195,49 @@ public class CommandShell implements CommandAbstract {
                 }
             }
             if (!tmpFile.delete()) {
-                System.err.println(String.format("rm: \'%s\': не могу удалить", path));
+                errPrint(String.format("rm: \'%s\': не могу удалить", path));
                 return Code.ERROR;
             }
             return Code.OK;
         } catch (Exception e) {
-            System.err.println(String.format("rm: \'%s\': не могу удалить", path));
+            errPrint(String.format("rm: \'%s\': не могу удалить", path));
             return Code.ERROR;
         }
     }
 
     public Code dir(String[] args) {
         if (args.length != 0) {
+            errPrint("У команды dir 0 аргументов");
             return Code.ERROR;
         }
         try {
             for (String child : currentFile.list()) {
-                System.out.println(child);
+                outPrint(child);
             }
             return Code.OK;
         } catch (Exception e) {
-            System.out.println(String.format("dir: неправильный путь"));
+            outPrint(String.format("dir: неправильный путь"));
             return Code.ERROR;
         }
     }
 
     public Code pwd(String[] args) {
         if (args.length != 0) {
+            errPrint("У команды pwd 0 аргументов");
             return Code.ERROR;
         }
         try {
-            System.out.println(currentFile.getCanonicalPath());
+            outPrint(currentFile.getCanonicalPath());
             return Code.OK;
         } catch (Exception e) {
-            System.out.println("pwd: неправильный путь");
+            outPrint("pwd: неправильный путь");
             return Code.ERROR;
         }
     }
 
     public Code mkdir(String[] args) {
         if (args.length != 1) {
+            errPrint("У команды mkdir 1 аргумент");
             return Code.ERROR;
         }
         String directoryName = args[0];
@@ -202,17 +246,30 @@ public class CommandShell implements CommandAbstract {
             try {
                 boolean result = theDir.mkdir();
                 if (!result) {
-                    System.err.println(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
+                    errPrint(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
                     return Code.ERROR;
                 }
                 return Code.OK;
             } catch (Exception e) {
-                System.err.println(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
+                errPrint(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
                 return Code.ERROR;
             }
         } else {
-            System.err.println(String.format("mkdir: \'%s\': директория существует", directoryName));
+            errPrint(String.format("mkdir: \'%s\': директория существует", directoryName));
             return Code.ERROR;
         }
     }
+
+    private void errPrint(String message) {
+        if (err) {
+            System.err.println(message);
+        }
+    }
+
+    private void outPrint(String message) {
+        if (out) {
+            System.out.println(message);
+        }
+    }
+
 }

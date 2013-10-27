@@ -1,22 +1,25 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.*;
 import java.nio.file.*;
 
 public class CopyCommand extends Command {
-    public boolean exec(String[] args, ShellState curState) throws IOException {
+    public boolean exec(String[] args, State curState) throws IOException {
+        ShellState myState = ShellState.class.cast(curState);
         if (args.length != 2) {
             System.err.println("Invalid arguments");
             return false;
         }
         File temp = new File(args[0]);
         if (!temp.isAbsolute()) {
-            temp = new File(curState.workingDirectory, args[0]);
+            temp = new File(myState.workingDirectory, args[0]);
         }
         File source = temp;
         temp = new File(args[1]);
         if (!temp.isAbsolute()) {
-            temp = new File(curState.workingDirectory, args[1]);
+            temp = new File(myState.workingDirectory, args[1]);
         }
         File destination = temp;
         if (!source.exists()) {

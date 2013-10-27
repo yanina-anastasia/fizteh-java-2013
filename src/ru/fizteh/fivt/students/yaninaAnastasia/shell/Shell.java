@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.shell;
 
+import ru.fizteh.fivt.students.yaninaAnastasia.filemap.State;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Shell {
-    public ShellState curState = new ShellState();
+    public State curState;
     private HashMap<String, Command> cmds = new HashMap<String, Command>();
+
+    public Shell(State state) {
+        curState = state;
+    }
 
     public void fillHashMap(ArrayList<Command> cmdList) {
         for (Command itCmd : cmdList) {
@@ -19,21 +25,34 @@ public class Shell {
 
     String getCommandName(String command) {
         command = command.trim();
-        return (command.split(" "))[0];
+        return (command.split("\\s+"))[0];
     }
 
-    String[] getParams(String command) {
+    String[] getParams(String command, boolean flag) {
         command = command.trim();
         int spaceEntry = command.indexOf(' ');
+        String[] res = {};
         if (spaceEntry == -1) {
             String[] result = {};
             return result;
         } else {
-            String[] res = command.substring(spaceEntry + 1).trim().split("\\s+");
-            for (int i = 0; i < res.length; i++) {
-                res[i].trim();
+            if (!flag) {
+                res = command.substring(spaceEntry + 1).trim().split("\\s+");
+                for (int i = 0; i < res.length; i++) {
+                    res[i] = res[i].trim();
+                }
+                return res;
+            } else {
+                String[] answer = command.split("[\\s]+", 3);
+                if (answer.length == 3) {
+                    String[] result = {answer[1], answer[2]};
+                    return result;
+                } else {
+                    String[] result = {answer[1]};
+                    return result;
+                }
+
             }
-            return res;
         }
     }
 
@@ -47,20 +66,27 @@ public class Shell {
             return true;
         }
         String commandName = getCommandName(command);
-        String[] params = getParams(command);
         if (!cmds.containsKey(commandName)) {
             System.err.println("Invalid input");
-
             return false;
         }
+        boolean flag = false;
+        if (cmds.get(commandName).getCmd() == "put") {
+            flag = true;
+        }
+        String[] params = getParams(command, flag);
         try {
             if (!cmds.get(commandName).exec(params, curState)) {
                 return false;
+            }
+            if (cmds.get(commandName).getCmd() == "exit") {
+                System.exit(0);
             }
         } catch (IllegalArgumentException e) {
             System.err.println("Error: illegal arguments");
             return false;
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Error with input/output");
             return false;
         }
@@ -68,12 +94,11 @@ public class Shell {
     }
 
     public void interActive() {
-        while (true) {
-            Scanner scan = new Scanner(System.in);
-            System.out.print("$ ");
+        Scanner scan = new Scanner(System.in);
+        System.out.print("$ ");
+        try {
             while (scan.hasNextLine()) {
-                String input = new String();
-                input = scan.nextLine();
+                String input = scan.nextLine();
                 String[] commandArray = input.split(";");
                 for (final String command : commandArray) {
                     if (!processCommand(command)) {
@@ -82,12 +107,27 @@ public class Shell {
                 }
                 System.out.print("$ ");
             }
-            scan.close();
-            return;
+        } catch (Exception e) {
+            String[] ar = {};
+            try {
+                cmds.get("exit").exec(ar, curState);
+                System.exit(0);
+            } catch (IOException r) {
+                System.exit(1);
+            }
+            System.exit(1);
         }
+        String[] ar = {};
+        try {
+            cmds.get("exit").exec(ar, curState);
+            System.exit(0);
+        } catch (IOException e) {
+            System.exit(1);
+        }
+        scan.close();
     }
 
-    public void pocket(String [] args) {
+    public void pocket(String[] args) {
         StringBuilder expressionBuilder = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             expressionBuilder.append(args[i]);
@@ -97,6 +137,13 @@ public class Shell {
         String[] commandArray = expression.split(";");
         for (final String command : commandArray) {
             if (!processCommand(command)) {
+                String[] ar = {};
+                try {
+                    cmds.get("exit").exec(ar, curState);
+                    System.exit(1);
+                } catch (IOException e) {
+                    System.exit(1);
+                }
                 System.exit(1);
             }
         }

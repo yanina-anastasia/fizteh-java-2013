@@ -12,6 +12,8 @@
 4. [Наследование, обобщения, коллекции](http://yadi.sk/d/0kYMQiNhA3TWo)
 5. [Reflection](http://yadi.sk/d/C2I7P9igAToCA)
 6. [JUnit, Сериализация](http://yadi.sk/d/cPNVV8f6Apt7D)
+7. [XML, JSON](http://yadi.sk/d/4GIQOjFHBGDnz)
+8. [Многопоточность](http://yadi.sk/d/a4R8oCsMBdDxk)
 
 ## Семинары
 В папке [tasks](tasks) находятся описания заданий на

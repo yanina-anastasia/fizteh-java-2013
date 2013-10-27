@@ -11,6 +11,10 @@ public class CommandPut extends CommandAbstract {
 		if (!checkFixedArguments(argArray, 2)) {
 			return false;
 		}
+		if (state.database == null) {
+			printError("no table");
+			return false;
+		}
 		String oldValue = state.database.get(argArray[0]);
 		state.database.put(argArray[0], argArray[1]);
 		if (oldValue != null) {

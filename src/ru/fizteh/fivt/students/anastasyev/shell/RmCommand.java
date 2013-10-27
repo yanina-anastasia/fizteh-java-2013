@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class RmCommand implements Command {
+public class RmCommand implements Command<Shell> {
     private static void rm(final Path removing) throws IOException {
         File remove = new File(removing.toString());
         if (!remove.exists()) {
@@ -27,7 +27,7 @@ public class RmCommand implements Command {
     }
 
     @Override
-    public final boolean exec(State state, final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 2) {
             System.err.println("rm: Usage - rm <file|dir>");
             return false;
