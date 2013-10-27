@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.drozdowsky.database;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.Set;
 
 public class FileHashMap {
@@ -146,6 +148,12 @@ public class FileHashMap {
                 base[nDir][nFile] = new FileMap(file);
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
+                    String s = "";
+                    Scanner in = new Scanner(file);
+                    while(in.hasNext())
+                        s += in.nextLine() + "\r\n";
+                    in.close();
+                    error(s);
                     fatalError(file.getAbsolutePath() + ": Empty database file");
                 }
                 for (String key : keys) {
