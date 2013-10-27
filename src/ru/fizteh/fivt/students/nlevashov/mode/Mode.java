@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nlevashov.mode;
 
+import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.Scanner;
 
@@ -34,6 +35,10 @@ public class Mode {
                             break;
                         }
                     }
+                } catch (NoSuchElementException e) {
+                    System.out.println("exit");
+                    exec.execute("exit");
+                    break;
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
