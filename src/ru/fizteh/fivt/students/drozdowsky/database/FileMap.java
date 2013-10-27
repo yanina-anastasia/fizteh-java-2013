@@ -123,7 +123,7 @@ public class FileMap {
                     byte[] sizeBuf = new byte[4];
                     for (int i = 0; i < 4; i++) {
                         if ((sizeBuf[i] = (byte) inputDB.read()) == -1) {
-                            fatalError("Incorrect database");
+                            fatalError("Unexpected end of the database");
                         }
                     }
                     int valueSize = ByteBuffer.wrap(sizeBuf).getInt();
@@ -141,7 +141,7 @@ public class FileMap {
             }
 
             if (offset.size() == 0 && key.position() != 0) {
-                fatalError("Incorrect database");
+                fatalError("No keys found");
             }
 
             if (offset.size() == 0) {
@@ -149,12 +149,9 @@ public class FileMap {
             }
 
             if (offset.get(0).snd != byteRead) {
-                fatalError("Incorrect database");
+                fatalError("No valid database format");
             }
 
-            if (offset.get(0).snd - byteRead != 0) {
-                fatalError("Incorrect database");
-            }
             for (int i = 0; i < offset.size() - 1; i++) {
                 offset.set(i, new Pair<String, Integer>(offset.get(i).fst, offset.get(i + 1).snd - byteRead));
             }
@@ -165,7 +162,7 @@ public class FileMap {
             for (Pair<String, Integer> now: offset) {
                 Integer currentOffset = now.snd;
                 if (currentOffset <= prevOffset) {
-                    fatalError("Incorrect database");
+                    fatalError("Not valid format");
                 } else {
                     ByteBuffer valueBuf = ByteBuffer.allocate(currentOffset - prevOffset);
                     for (int i = prevOffset; i < currentOffset; i++) {
