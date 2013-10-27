@@ -74,7 +74,7 @@ public class MyHashMap {
     public void use(String args) throws Exception {
         Path dbsDir = Paths.get(System.getProperty("fizteh.db.dir")).resolve(args).normalize();
         if(Files.notExists(dbsDir) || !Files.isDirectory(dbsDir)) {
-            System.out.println("tablename not exists");
+            System.out.println(args + " not exists");
             return;
         }
         if(curTable != null) {
