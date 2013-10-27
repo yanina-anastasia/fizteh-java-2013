@@ -19,9 +19,7 @@ public class MultiFileHashMap {
         String[] content = dir.list();
         for (String directory : content) {
             File temp = new File(dir.getAbsoluteFile() + "/" + directory);
-            if(temp.isDirectory()) {
-                FileHashMap base = new FileHashMap(temp);
-            }
+            FileHashMap base = new FileHashMap(temp);
         }
         curDir = new PathController(dir.getAbsolutePath());
     }
