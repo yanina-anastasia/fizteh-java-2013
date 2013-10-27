@@ -94,7 +94,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -119,7 +119,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -139,7 +139,7 @@ public class MyHashMap {
         Integer nDirectory = hashCode % 16;
         Integer nFile = hashCode / 16 % 16;
 
-        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString()
+        File dbFile = new File(curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                 + File.separator + nFile.toString() + ".dat");
         if(dbFile.exists() && dbFile.isFile()) {
             parseFile(dbFile, nDirectory, nFile);
@@ -156,9 +156,9 @@ public class MyHashMap {
             for(Integer j = 0; j < 16; j++) {
                 if(!dataBase.get(i * 16 + j).isEmpty()) {
                     String way = curTable.getCanonicalPath()
-                            + File.separator + i.toString();
+                            + File.separator + i.toString()+ ".dir";
                     File workFile = new File(way);
-                    if(!workFile.exists()) {
+                    if(!workFile.exists() || workFile.isFile()) {
                         workFile.mkdir();
                     }
                     File workFile2 = new File(way + File.separator + j.toString() + ".dat");
