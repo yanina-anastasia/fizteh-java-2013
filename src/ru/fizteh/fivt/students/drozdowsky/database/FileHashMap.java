@@ -146,7 +146,7 @@ public class FileHashMap {
                 base[nDir][nFile] = new FileMap(file);
                 Set<String> keys = base[nDir][nFile].getKeys();
                 if (keys.size() == 0) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database");
+                    fatalError(db.getAbsolutePath() + ": Not valid databasedf");
                 }
                 for (String key : keys) {
                     int realNDir = getDirNum(key);
