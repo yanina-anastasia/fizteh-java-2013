@@ -27,7 +27,7 @@ public class FileHashMap {
         int nFile = getFileNum(args[1]);
 
         if (base[nDir][nFile] == null) {
-            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(nDir));
+            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(nDir) + ".dir");
             if (!dirPath.exists()) {
                 dirPath.mkdir();
             }
@@ -127,18 +127,53 @@ public class FileHashMap {
             return;
         }
 
+
+
+        /*for (int i = 0; i < NDIRS; i++) {
+            for (int j = 0; j < NFILES; j++) {
+                File file = new File(db.getCanonicalPath() + "/" + i + ".dir" + "/" + j + ".dat");
+                if (file.getParentFile().exists()) {
+                    if (!file.getParentFile().isDirectory()) {
+                        fatalError(file.getParentFile().getName() + ": Not a directory");
+                    } else if (file.exists() && !file.isFile()) {
+                        fatalError(file.getParentFile().getName() + ": Not a file");
+                    } else {
+                        base[i][j] = new FileMap(file);
+                        Set<String> keys = base[i][j].getKeys();
+
+                        for (String key : keys) {
+                            int realNDir = getDirNum(key);
+                            int realNFile = getFileNum(key);
+                            if (!(i == realNDir && j == realNFile)) {
+                                fatalError(db.getName() + " " + i + " " + j + ": Not valid database");
+                            }
+                        }
+                    }
+                }
+
+            }
+        } */
+
+        /*File[] directories = db.listFiles();
+        for (File directory : directories) {
+            File[] files = directory.listFiles();
+            for (File file : files) {
+                error(directory.getCanonicalPath() + " " + file.getCanonicalPath());
+            }
+        } */
+
         File[] directories = db.listFiles();
         for (File directory : directories) {
             error(directory.getName());
-            /*int nDir = dirNameInRange(directory.getName(), NDIRS);
+            int nDir = dirNameInRange(directory.getName(), NDIRS);
             if (nDir == -1 || !(directory.isDirectory())) {
                 fatalError(db.getName() + ": Not valid database, directory name: " + directory.getName());
-            }*/
+            }
 
             File[] files = directory.listFiles();
             for (File file : files) {
                 error(file.getName());
-                /*int nFile = fileNameInRange(file.getName(), NFILES);
+                int nFile = fileNameInRange(file.getName(), NFILES);
                 if (nFile == -1 || !(file.isFile())) {
                     fatalError(db.getName() + ": Not valid database, file name: " + file.getName());
                 }
@@ -154,37 +189,6 @@ public class FileHashMap {
                     if (!(nDir == realNDir && nFile == realNFile)) {
                         fatalError(db.getName() + " " + nDir + " " + nFile + ": Not valid database");
                     }
-                }   */
-            }
-        }
-
-        //File[] directories = db.listFiles();
-        for (File directory : directories) {
-            error(directory.getName());
-            int nDir = dirNameInRange(directory.getName(), NDIRS);
-            if (nDir == -1 || !(directory.isDirectory())) {
-                fatalError(db.getAbsolutePath() + ": Not valid database");
-            }
-
-            File[] files = directory.listFiles();
-            for (File file : files) {
-                error(file.getName());
-                int nFile = fileNameInRange(file.getName(), NFILES);
-                if (nFile == -1 || !(file.isFile())) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database");
-                }
-
-                base[nDir][nFile] = new FileMap(file);
-                Set<String> keys = base[nDir][nFile].getKeys();
-                if (keys.size() == 0) {
-                    fatalError(db.getAbsolutePath() + ": Not valid database");
-                }
-                for (String key : keys) {
-                    int realNDir = getDirNum(key);
-                    int realNFile = getFileNum(key);
-                    if (!(nDir == realNDir && nFile == realNFile)) {
-                        fatalError(db.getAbsolutePath() + " " + nDir + " " + nFile + ": Not valid database");
-                    }
                 }
             }
         }
@@ -192,10 +196,10 @@ public class FileHashMap {
 
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
-            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i) + ".dir");
+            File dirPath = new File(db.getAbsolutePath() + "/" + Integer.toString(i) + ".dir");
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
-                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
+                    File filePath = new File(dirPath.getAbsolutePath() + "/" + Integer.toString(j) + ".dat");
                     if (base[i][j].getKeys().size() == 0) {
                         filePath.delete();
                     } else {
