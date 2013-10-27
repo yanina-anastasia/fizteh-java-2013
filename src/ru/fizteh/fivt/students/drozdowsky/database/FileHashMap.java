@@ -154,7 +154,7 @@ public class FileHashMap {
                         s += in.nextLine() + "\r\n";
                     in.close();
                     error(s);
-                    fatalError(file.getAbsolutePath() + ": Empty database file:\n" + s);
+                    fatalError(file.getAbsolutePath() + ": Empty database file:\"" + s + "\"");
                 }
                 for (String key : keys) {
                     int realNDir = getDirNum(key);
