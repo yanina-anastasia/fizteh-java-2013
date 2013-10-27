@@ -1,33 +1,29 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
+import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands.*;
 import ru.fizteh.fivt.students.asaitgalin.shell.CommandTable;
 import ru.fizteh.fivt.students.asaitgalin.shell.ShellUtils;
-
-import java.io.File;
+import ru.fizteh.fivt.students.asaitgalin.shell.commands.ExitCommand;
 
 public class Main {
     public static void main(String[] args) {
         CommandTable table = new CommandTable();
-        String dir = System.getProperty("fizteh.db.dir");
-        if (dir == null) {
-            System.err.println("Database directory not set");
-            System.exit(-1);
-        }
-        File workingDir  = new File(System.getProperty("fizteh.db.dir"));
-        if (!workingDir.exists()) {
-            System.err.println("Database directory not found");
-            System.exit(-1);
-        }
 
-        MultiFileTableProvider provider = new MultiFileTableProvider(workingDir);
-        table.appendCommand(new PutCommand(provider));
-        table.appendCommand(new GetCommand(provider));
-        table.appendCommand(new RemoveCommand(provider));
-        table.appendCommand(new CreateCommand(provider));
-        table.appendCommand(new DropCommand(provider));
-        table.appendCommand(new UseCommand(provider));
-        table.appendCommand(new ExitCommand(provider));
+        TableProviderFactory factory = new MultiFileTableProviderFactory();
+        MultiFileTableState state = new MultiFileTableState();
+        state.provider = factory.create(System.getProperty("fizteh.db.dir"));
+
+        table.appendCommand(new PutCommand(state));
+        table.appendCommand(new GetCommand(state));
+        table.appendCommand(new RemoveCommand(state));
+        table.appendCommand(new CreateCommand(state));
+        table.appendCommand(new DropCommand(state));
+        table.appendCommand(new UseCommand(state));
+        table.appendCommand(new SizeCommand(state));
+        table.appendCommand(new CommitCommand(state));
+        table.appendCommand(new RollbackCommand(state));
+        table.appendCommand(new ExitCommand());
 
         ShellUtils shellUtils = new ShellUtils(table);
         if (args.length == 0) {

@@ -7,29 +7,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class MultiFileTableProvider implements TableProvider {
-    private MultiFileTable currentTable;
     private File dbDirectory;
 
     public MultiFileTableProvider(File dbDirectory) {
         this.dbDirectory = dbDirectory;
-    }
-
-    public MultiFileTable getCurrentTable() {
-        return currentTable;
-    }
-
-    public void setCurrentTable(MultiFileTable currentTable) {
-        this.currentTable = currentTable;
-    }
-
-    public void saveCurrentTable() {
-        if (currentTable != null) {
-            try {
-                currentTable.save(new File(dbDirectory, currentTable.getName()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     @Override
@@ -41,9 +22,9 @@ public class MultiFileTableProvider implements TableProvider {
         if (!tableDir.exists()) {
             return null;
         }
-        MultiFileTable table = new MultiFileTable(name);
+        MultiFileTable table = new MultiFileTable(tableDir, name);
         try {
-            table.load(tableDir);
+            table.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +41,7 @@ public class MultiFileTableProvider implements TableProvider {
             return null;
         }
         tableDir.mkdir();
-        return new MultiFileTable(name);
+        return new MultiFileTable(tableDir, name);
     }
 
     @Override

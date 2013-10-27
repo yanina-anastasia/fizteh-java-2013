@@ -1,16 +1,15 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTable;
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableState;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class PutCommand implements Command {
-    private MultiFileTableProvider provider;
+    private MultiFileTableState state;
 
-    public PutCommand(MultiFileTableProvider provider) {
-        this.provider = provider;
+    public PutCommand(MultiFileTableState state) {
+        this.state = state;
     }
 
     @Override
@@ -20,11 +19,10 @@ public class PutCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        MultiFileTable table = provider.getCurrentTable();
-        if (table == null) {
+        if (state.currentTable == null) {
             System.out.println("no table");
         } else {
-            String prev = table.put(args[1], args[2]);
+            String prev = state.currentTable.put(args[1], args[2]);
             if (prev != null) {
                 System.out.println("overwrite");
                 System.out.println("old " + prev);
