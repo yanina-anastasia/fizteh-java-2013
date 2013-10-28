@@ -6,7 +6,9 @@ import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Alexander
@@ -15,11 +17,14 @@ import java.util.Map;
  */
 public class TableStorage implements Table {
     private File tableStorageDirectory;
-    private Map<String, String> tableStorageData = new HashMap<String, String>();
+    private Map<String, String> data = new HashMap<String, String>();
+    private Map<String, String> changes = new HashMap<String, String>();
+    private Set<String> removedKeys = new HashSet<String>();
+    private int amountOfChanges = 0;
 
     public TableStorage(File dataDirectory) throws IOException {
         tableStorageDirectory = dataDirectory;
-        WorkWithMFHM.readIntoDataBase(tableStorageDirectory, tableStorageData);
+        WorkWithMFHM.readIntoDataBase(tableStorageDirectory, data);
     }
 
     @Override
@@ -29,40 +34,93 @@ public class TableStorage implements Table {
 
     @Override
     public String get(String key) {
-        return tableStorageData.get(key);
+        if (key == null) {
+            throw new IllegalArgumentException("get: key is null");
+        }
+        String resultOfGet = changes.get(key);
+        if (resultOfGet == null) {
+            if (removedKeys.contains(key)) {
+                return null;
+            }
+            resultOfGet = data.get(key);
+        }
+        return resultOfGet;
     }
 
     @Override
     public String put(String key, String value) {
-        return tableStorageData.put(key, value);
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("put: key||value is null");
+        }
+        String valueInData = data.get(key);
+        String resultOfPut = changes.put(key, value);
+
+        if (resultOfPut == null) {
+            amountOfChanges++;
+            resultOfPut = valueInData;
+        }
+        if (valueInData != null) {
+            removedKeys.add(key);
+        }
+        return resultOfPut;
     }
 
     @Override
     public String remove(String key) {
-        return tableStorageData.remove(key);
+        if (key == null) {
+            throw new IllegalArgumentException("remove: key is null");
+        }
+        String resultOfRemove = changes.remove(key);
+        if (resultOfRemove == null) {
+            resultOfRemove = data.get(key);
+            if (resultOfRemove == null) {
+                return null;
+            } else {
+                if (!removedKeys.contains(key)) {
+                    amountOfChanges++;
+                }
+                removedKeys.add(key);
+            }
+        } else {
+            amountOfChanges--;
+        }
+        return resultOfRemove;
     }
 
     @Override
     public int size() {
-        return tableStorageData.size();
+        return data.size() + changes.size() - removedKeys.size();
     }
 
     @Override
     public int commit() {
+        for (String key : removedKeys) {
+            data.remove(key);
+        }
+        data.putAll(changes);
         try {
-            WorkWithMFHM.writeIntoFiles(tableStorageDirectory, tableStorageData);
+            WorkWithMFHM.writeIntoFiles(tableStorageDirectory, data);
         } catch (Exception exc) {
             System.err.println("commit: " + exc.getMessage());
         }
-        return 0;
+        return setDefault();
     }
 
     @Override
     public int rollback() {
-        System.err.println("size(): not supported function, 0 returned");
-        return 0;
-        /*
-         not supported function
-          */
+        return setDefault();
+    }
+
+    private int setDefault() {
+        changes.clear();
+        removedKeys.clear();
+
+        int result = amountOfChanges;
+        amountOfChanges = 0;
+        return result;
+    }
+
+    public int getAmountOfChanges() {
+        return amountOfChanges;
     }
 }

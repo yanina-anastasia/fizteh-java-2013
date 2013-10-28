@@ -38,12 +38,7 @@ public class TableManager implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
-        //try {
-            return allTablesMap.get(tableName);
-        //} catch (IOException exc) {
-          //  System.err.println(exc.getMessage());
-          //  return null;
-        //}
+        return allTablesMap.get(tableName);
     }
 
     @Override
