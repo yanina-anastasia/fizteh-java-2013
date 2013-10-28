@@ -6,14 +6,15 @@ public class DbPut implements Command {
     @Override
     public int execute(String[] args, State state) {
         String key = args[0];
-        String value = args[1];
-        String result = ((DbState) state).data.put(key, value);
-        if (result != null) {
-                System.out.println("overwrite");
-                System.out.println(result);
-        } else {
-                System.out.println("new");
+        MultiDbState multiState = (MultiDbState) state;
+        if (!multiState.isDbChosen() || multiState.isDropped) {
+            System.out.println("no table");
+            return 0;
         }
+        
+        int folder = multiState.getFolderNum(key);
+        int file = multiState.getFileNum(key);
+        multiState.data[folder][file].put(args);        
         return 0;
     }
     
