@@ -179,4 +179,28 @@ public class DBCommands {
         }
     }
 
+    public static class Size implements Command {
+        protected final String name = "size";
+        protected final int countOfArguments = 0;
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public int getCountOfArguments() {
+            return countOfArguments;
+        }
+
+        @Override
+        public boolean check(String[] parts) {
+            return ((parts.length - 1) == countOfArguments);
+        }
+
+        @Override
+        public Code perform(String[] args) {
+            return DataBase.size();
+        }
+    }
 }

@@ -127,4 +127,12 @@ public class DataBase {
     public static Code closeDB() {
         return commit();
     }
+
+    public static Code size() {
+        if (!checkTableChosen()) {
+            return Code.ERROR;
+        }
+        System.out.println(currentTable.size());
+        return Code.OK;
+    }
 }

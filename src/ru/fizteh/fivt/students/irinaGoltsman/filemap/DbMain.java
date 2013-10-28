@@ -12,6 +12,10 @@ import java.io.File;
 public class DbMain {
     public static void main(String[] args) {
         String path = System.getProperty("fizteh.db.dir");
+        if (path == null) {
+            System.err.println("Error with path to the root directory");
+            System.exit(1);
+        }
         TableProvider newTableProvider = null;
         try {
             File file = new File(path);
@@ -30,6 +34,7 @@ public class DbMain {
         cm.addCommand(new DBCommands.CreateTable());
         cm.addCommand(new DBCommands.Drop());
         cm.addCommand(new DBCommands.Use());
+        cm.addCommand(new DBCommands.Size());
         Code codeOfShell = Shell.shell(args);
         Code codeOfClosing = myDataBase.closeDB();
         if (codeOfClosing == Code.ERROR || codeOfClosing == Code.SYSTEM_ERROR

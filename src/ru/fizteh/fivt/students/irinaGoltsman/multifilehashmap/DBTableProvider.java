@@ -15,12 +15,13 @@ public class DBTableProvider implements TableProvider {
 
     public DBTableProvider(File rootDirectory) throws Exception {
         if (!rootDirectory.exists()) {
-            throw new Exception(rootDirectory.getName() + ": not exist");
+            if (!rootDirectory.mkdir()) {
+                throw new Exception(rootDirectory.getName() + ": not exist and can't be created");
+            }
         }
         if (!rootDirectory.isDirectory()) {
             throw new Exception(rootDirectory.getName() + ": not a directory");
         }
-
         rootDirectoryOfTables = rootDirectory;
         for (File tableFile : rootDirectoryOfTables.listFiles()) {
             Table table = new DBTable(tableFile);
@@ -71,7 +72,7 @@ public class DBTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) throws IllegalStateException {
-        File table = new File(rootDirectoryOfTables, tableName);
+        //File table = new File(rootDirectoryOfTables, tableName);
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
         cm.addCommand(new ShellCommands.ChangeDirectory());

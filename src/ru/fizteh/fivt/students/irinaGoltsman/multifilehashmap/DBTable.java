@@ -10,6 +10,8 @@ public class DBTable implements Table {
 
     private File tableDirectory;
     private HashMap<String, String> tableStorage = new HashMap<>();
+    //TODO:Нужно более хитро считать число изменений.
+    //TODO:Если я сделаю put key value; remove key - то по сути я не сделала ни одного изменения.
     private int numberOfChangedValues = 0;
 
     public DBTable(File dataDirectory) throws Exception {
@@ -32,11 +34,13 @@ public class DBTable implements Table {
 
     @Override
     public String put(String key, String value) {
+        numberOfChangedValues++;
         return tableStorage.put(key, value);
     }
 
     @Override
     public String remove(String key) {
+        numberOfChangedValues++;
         return tableStorage.remove(key);
     }
 
@@ -51,7 +55,9 @@ public class DBTable implements Table {
         if (FileManager.writeTableOnDisk(tableDirectory, tableStorage) != Code.OK) {
             return -1;
         }
-        return size();
+        int result = numberOfChangedValues;
+        numberOfChangedValues = 0;
+        return result;
     }
 
     //Ещё не написанная функция.
