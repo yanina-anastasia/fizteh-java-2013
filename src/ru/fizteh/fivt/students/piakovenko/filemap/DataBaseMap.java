@@ -13,34 +13,41 @@ import java.util.Map;
 public class DataBaseMap {
     private Map<String, String> map = new HashMap<String, String>(15);
 
-    public void put (String key, String value) {
+    public String put (String key, String value) {
+        String oldValue = null;
         if (!map.containsKey(key)) {
             map.put(key, value);
             System.out.println("new");
         } else {
             System.out.println("overwrite");
-            System.out.println(map.get(key));
+            oldValue = map.get(key);
+            System.out.println(oldValue);
             map.remove(key);
             map.put(key, value);
         }
+        return oldValue;
     }
 
-    public void get(String key) {
+    public String get(String key) {
         if (!map.containsKey(key)) {
             System.out.println("not found");
         } else {
             System.out.println("found");
             System.out.println(map.get(key));
+            return map.get(key);
         }
+        return null;
     }
 
-    public void remove (String key) {
+    public String remove (String key) {
         if (!map.containsKey(key)) {
             System.out.println("not found");
         } else {
             map.remove(key);
             System.out.println("removed");
+            return key;
         }
+        return null;
     }
 
     public void primaryPut (String key, String value) {

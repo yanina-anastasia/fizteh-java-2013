@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 
 
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 import ru.fizteh.fivt.students.piakovenko.shell.Remove;
@@ -19,13 +20,13 @@ import java.lang.Math;
  * Time: 22:45
  * To change this template use File | Settings | File Templates.
  */
-public class DataBase {
-    private final String pathToDatabaseDirectory = "fizteh.db.dir";
+public class DataBase implements Table {
     private String name;
     private RandomAccessFile raDataBaseFile = null;
     private DataBaseMap map = null;
     private Shell shell = null;
     private File dataBaseStorage = null;
+    private int changed;
 
     private boolean isValidNameDirectory(String name){
         if (name.length() < 5 || name.length() > 6)
@@ -58,7 +59,6 @@ public class DataBase {
         int b = Math.abs(key.getBytes()[0]);
         return b / 16 % 16;
     }
-
 
     private void readFromFile() throws IOException, MyException {
         long length = raDataBaseFile.length();
@@ -145,7 +145,6 @@ public class DataBase {
         ra.close();
     }
 
-
     private void saveToFile () throws IOException {
         long length  = 0;
         raDataBaseFile.seek(0);
@@ -197,8 +196,6 @@ public class DataBase {
         }
     }
 
-
-
     private void loadDataBase (File dataBaseFile) throws IOException, MyException {
        raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
        try {
@@ -209,7 +206,6 @@ public class DataBase {
        }
     }
 
-
     private void readFromDirectory(File dir, int numberOfDirectory) throws MyException, IOException {
         for (File f: dir.listFiles()) {
             if (!isValidNameFile(f.getName())) {
@@ -218,8 +214,6 @@ public class DataBase {
             readFromFile(f, numberOfDirectory);
         }
     }
-
-
 
     private void loadFromDirectory (File directory) throws MyException, IOException {
         for (File f : directory.listFiles()) {
@@ -231,12 +225,20 @@ public class DataBase {
         }
     }
 
-
     public DataBase (Shell sl, File storage) {
         map = new DataBaseMap();
         shell  = sl;
         dataBaseStorage = storage;
         name = storage.getName();
+        changed = 0;
+    }
+
+    public DataBase () {
+        map = new DataBaseMap();
+        shell  = new Shell();
+        dataBaseStorage = new File (System.getProperty("fizteh.db.dir"));
+        name = dataBaseStorage.getName();
+        changed = 0;
     }
 
     public void load () throws IOException, MyException{
@@ -267,7 +269,6 @@ public class DataBase {
         }
     }
 
-
     public void saveDataBase () throws IOException, MyException {
         if (dataBaseStorage.isFile()) {
             try {
@@ -280,19 +281,84 @@ public class DataBase {
         }
     }
 
-    public void get (String key) {
-        map.get(key);
+    public String get (String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key equals NULL");
+        }
+       return map.get(key);
     }
 
-    public void put (String key, String value) {
-        map.put(key, value);
+    public String put (String key, String value) throws IllegalArgumentException {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("key or value equals NULL");
+        }
+        String putValue = map.put(key, value);
+        if (putValue == null) {
+            ++changed;
+        } else {
+            if (!putValue.equals(map.getMap().get(key))) {
+                ++changed;
+            }
+        }
+        return putValue;
     }
 
-    public void remove(String key) {
-        map.remove(key);
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key equals null");
+        }
+        String removed = map.remove(key);
+        if (removed != null) {
+            ++changed;
+        }
+        return removed;
     }
 
     public File returnFiledirectory() {
         return dataBaseStorage;
+    }
+
+    public int size() {
+        System.out.println(map.getMap().size());
+        return map.getMap().size();
+    }
+
+    public int commit () {
+        int tempChanged = changed;
+        try {
+            saveDataBase();
+            changed = 0;
+            System.out.println(tempChanged);
+            return tempChanged;
+        } catch (IOException e) {
+            System.err.println("Error! " + e.getMessage());
+            System.exit(1);
+        } catch (MyException e) {
+            System.err.println("Error! " + e.what());
+            System.exit(1);
+        }
+        return 0;
+    }
+
+    public int rollback () {
+        int tempChanged = changed;
+        map.getMap().clear();
+        try {
+            load();
+            changed = 0;
+            System.out.println(tempChanged);
+            return tempChanged;
+        } catch (IOException e) {
+            System.err.println("Error! " + e.getMessage());
+            System.exit(1);
+        } catch (MyException e) {
+            System.err.println("Error! " + e.what());
+            System.exit(1);
+        }
+        return 0;
+    }
+
+    public int numberOfChanges () {
+        return changed;
     }
 }
