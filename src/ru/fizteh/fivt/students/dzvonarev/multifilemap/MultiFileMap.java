@@ -185,6 +185,9 @@ public class MultiFileMap {
         } catch (FileNotFoundException e) {
             throw new IOException("reading from file: file not found");
         }
+        if (newFile == null) {
+            throw new IOException("reading from file: file not found");
+        }
         return newFile;
     }
 
@@ -194,6 +197,9 @@ public class MultiFileMap {
             newFile = new RandomAccessFile(fileName, "rw");
             newFile.getChannel().truncate(0);
         } catch (FileNotFoundException e) {
+            throw new IOException("writing to file: file not found");
+        }
+        if (newFile == null) {
             throw new IOException("writing to file: file not found");
         }
         return newFile;
@@ -233,7 +239,7 @@ public class MultiFileMap {
     }
 
     public static void realRemove(String expr) throws IOException {
-        String path = System.getProperty("fizteh.db.dir") + File.separator + expr;
+        String path = getRealPath() + File.separator + expr;
         if (path.equals(Shell.getCurrentDirectory()) || Shell.getCurrentDirectory().contains(path)) {                                  // can't delete father of son
             throw new IOException("drop: can't remove " + path);
         }
@@ -244,5 +250,22 @@ public class MultiFileMap {
         }
     }
 
+    public static String getRealPath() throws IOException {
+        if (!System.getProperties().containsKey("fizteh.db.dir")) {
+            throw new IOException("wrong properties");
+        }
+        String realPath;
+        String dirName = System.getProperty("fizteh.db.dir");
+        File destFile = new File(dirName);
+        if (!destFile.exists()) {
+            if (!destFile.createNewFile()) {
+                throw new IOException("can't create db.dat file");
+            }
+            realPath = dirName;
+        } else {
+            realPath = dirName;
+        }
+        return realPath;
+    }
 
 }

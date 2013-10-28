@@ -12,6 +12,9 @@ public class Exit implements CommandInterface {
 
     public static void writeInFile(RandomAccessFile fileWriter, String key, String value) throws IOException {
         try {
+            if (key == null || value == null) {
+                throw new IOException("updating file: error in writing");
+            }
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
             fileWriter.writeInt(keyBytes.length);

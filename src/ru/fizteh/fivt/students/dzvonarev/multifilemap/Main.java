@@ -42,6 +42,9 @@ public class Main {
     }
 
     public static boolean isGetPropertyValid(String path) throws IOException {
+        if (!System.getProperties().containsKey("fizteh.db.dir")) {
+            throw new IOException("wrong properties");
+        }
         if (path == null) {
             return false;
         }
