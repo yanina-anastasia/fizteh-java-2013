@@ -52,7 +52,7 @@ public class DoCommand {
                 String key = currItem.getKey();
                 String value = currItem.getValue();
                 if (key == null || value == null) {
-                     throw new IOException("updating file: error in writing");
+                    throw new IOException("updating file: error in writing");
                 }
                 byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
                 byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
@@ -131,7 +131,7 @@ public class DoCommand {
 
     public static String getRealPath() throws IOException {
         if (!System.getProperties().containsKey("fizteh.db.dir")) {
-           throw new IOException("wrong properties");
+            throw new IOException("wrong properties");
         }
         String realPath;
         String dirName = System.getProperty("fizteh.db.dir");
