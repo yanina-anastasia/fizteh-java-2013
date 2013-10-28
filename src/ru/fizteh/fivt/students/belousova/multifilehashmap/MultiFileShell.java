@@ -29,6 +29,9 @@ public class MultiFileShell {
         addCommand(new CommandPut(state));
         addCommand(new CommandGet(state));
         addCommand(new CommandRemove(state));
+        addCommand(new CommandCommit(state));
+        addCommand(new CommandRollback(state));
+        addCommand(new CommandSize(state));
         addCommand(new CommandExit(state));
     }
 

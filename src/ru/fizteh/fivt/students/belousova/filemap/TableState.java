@@ -33,4 +33,12 @@ public class TableState {
     public int commitCurrentTable() {
         return currentTable.commit();
     }
+
+    public int sizeOfCurrentTable() {
+        return currentTable.size();
+    }
+
+    public int rollbackCurrentTable() {
+        return currentTable.rollback();
+    }
 }

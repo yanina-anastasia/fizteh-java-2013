@@ -23,9 +23,9 @@ public class CommandExit implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (state.getCurrentTable() != null) {
-            state.commitCurrentTable();
-        }
+//        if (state.getCurrentTable() != null) {
+//            state.commitCurrentTable();
+//        }
         System.out.println("exit");
         System.exit(0);
     }

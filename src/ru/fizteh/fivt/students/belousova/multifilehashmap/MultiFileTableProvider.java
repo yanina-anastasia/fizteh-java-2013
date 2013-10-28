@@ -30,6 +30,9 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public Table getTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("null name");
+        }
         if (!tableMap.containsKey(name)) {
             return null;
         }
@@ -44,6 +47,9 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("null name");
+        }
         File tableDirectory = new File(dataDitectory, name);
         if (!tableDirectory.mkdir()) {
             return null;
@@ -61,6 +67,12 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("null name");
+        }
+        if (!tableMap.containsKey(name)) {
+            throw new IllegalStateException("table doesn't exists");
+        }
         File tableDirectory = new File(dataDitectory, name);
         try {
             FileUtils.deleteDirectory(tableDirectory);
