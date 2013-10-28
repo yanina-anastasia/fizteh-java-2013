@@ -2,31 +2,31 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class DbGet implements Command {
+public class MultiDbUse implements Command {
     @Override
     public int execute(String[] args, State state) {
-        String key = args[0];
+        String dbName = args[0];
         MultiDbState multiState = (MultiDbState) state;
-        if (!multiState.isDbChosen() || multiState.isDropped) {
-            System.out.println("no table");
+
+        int result = multiState.changeBase(dbName);
+        if (result == 2) {
+            System.out.println(dbName + " not exists");
             return 0;
+        } else if (result == 0) {
+            System.out.println("using " + dbName);
         }
-        
-        int folder = multiState.getFolderNum(key);
-        int file = multiState.getFileNum(key);
-        multiState.data[folder][file].get(args);        
-        return 0;
+        return result;
     }
     
     @Override
     public String getName() {
-        return "get";
+        return "use";
     }
     
     @Override
     public int getArgNum() {
         return 1;
-    }
+    }   
     
     @Override
     public boolean spaceAllowed() {
