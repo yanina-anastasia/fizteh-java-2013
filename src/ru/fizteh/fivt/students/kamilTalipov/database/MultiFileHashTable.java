@@ -123,10 +123,16 @@ public class MultiFileHashTable implements Table {
     }
 
     private String getDirectoryName(byte keyByte) {
+        if (keyByte < 0) {
+            keyByte *= -1;
+        }
         return Integer.toString((keyByte % ALL_DIRECTORIES + ALL_DIRECTORIES) % ALL_DIRECTORIES) + ".dir";
     }
 
     private String getFileName(byte keyByte) {
+        if (keyByte < 0) {
+            keyByte *= -1;
+        }
         return Integer.toString(((keyByte / ALL_DIRECTORIES)
                                 + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY) + ".dat";
     }
