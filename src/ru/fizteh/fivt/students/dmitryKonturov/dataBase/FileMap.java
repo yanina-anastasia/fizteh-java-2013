@@ -14,6 +14,7 @@ public class FileMap {
         dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.err.println("Empty property");
+            System.exit(1);
         }
         Path dbDirPath = null;
         try {
