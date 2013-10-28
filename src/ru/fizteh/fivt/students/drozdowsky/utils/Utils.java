@@ -13,7 +13,7 @@ public class Utils {
         if (!in.hasNextLine()) {
             System.exit(0);
         }
-        temp = in.nextLine();
+        temp = in.nextLine().trim();
         if (!temp.isEmpty()) {
             return new String[]{temp};
         } else {

@@ -17,6 +17,10 @@ public class MultiFileHashMapMain {
             System.err.println("No database location");
             System.exit(1);
         }
+        if (!new File(dbDirectory).isDirectory()) {
+            System.err.println(dbDirectory + ": not a directory");
+            System.exit(1);
+        }
 
         String[] commandNames = {"create", "drop", "use", "put", "get", "remove", "exit"};
         HashMap<String, Method> map = Utils.getMethods(commandNames, MultiFileHashMap.class);

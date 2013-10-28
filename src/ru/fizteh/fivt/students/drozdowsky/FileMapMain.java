@@ -17,6 +17,10 @@ public class FileMapMain {
             System.err.println("No database location");
             System.exit(1);
         }
+        if (!new File(dbDirectory).isDirectory()) {
+            System.err.println(dbDirectory + ": not a directory");
+            System.exit(1);
+        }
         File dbPath = new File(dbDirectory + "/db.dat");
 
         String[] commandNames = {"put", "get", "remove", "exit"};
