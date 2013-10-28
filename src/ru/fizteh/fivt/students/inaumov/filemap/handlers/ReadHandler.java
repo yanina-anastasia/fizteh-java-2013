@@ -1,7 +1,9 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.filemap.handlers;
 
 import java.io.*;
 import java.util.HashMap;
+import ru.fizteh.fivt.students.inaumov.filemap.AbstractTable;
+import ru.fizteh.fivt.students.inaumov.common.WrongFileFormatException;
 
 public class ReadHandler implements Closeable {
     private RandomAccessFile inputFile = null;
@@ -29,6 +31,7 @@ public class ReadHandler implements Closeable {
             String key = reader.readString(keyLength);
             String value = reader.readString(valueLength);
 
+            //System.out.println("loading from file: key: " + key + ",value: " + value);
             data.put(key, value);
         }
 
@@ -37,7 +40,6 @@ public class ReadHandler implements Closeable {
 
     private int readInteger() throws IOException {
         int result = inputFile.readInt();
-        //System.out.println("read int: " + result);
         return result;
     }
 
@@ -52,20 +54,17 @@ public class ReadHandler implements Closeable {
         } catch (OutOfMemoryError error) {
             throw new WrongFileFormatException("Some key or value length is too long in " + inputFile.toString());
         }
-        inputFile.read(stringBytes);
 
-        return new String(stringBytes, "UTF-8");
+        inputFile.read(stringBytes);
+        return new String(stringBytes, AbstractTable.CHARSET);
     }
 
     public boolean readEnd() throws IOException {
         if (inputFile == null) {
-            //System.err.println("AbstractTable::readEnd(): inputFile == null");
             return true;
         }
 
-        if (inputFile.getFilePointer() <= inputFile.length() - 1) {
-            //System.out.println("AbstractTable::readEnd(): fileptr = " + inputFile.getFilePointer());
-            //System.out.println("AbstractTable::readEnd(): filelength = " + inputFile.length());
+        if (inputFile.getFilePointer() < inputFile.length() - 1) {
             return false;
         }
 

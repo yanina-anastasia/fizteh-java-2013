@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.common;
 
 public abstract class AbstractCommand<State> implements Command<State> {
 	private final String commandName;

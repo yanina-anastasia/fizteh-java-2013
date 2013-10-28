@@ -1,6 +1,9 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
 import ru.fizteh.fivt.students.inaumov.common.CommonShell;
+import ru.fizteh.fivt.students.inaumov.common.WrongFileFormatException;
+import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
+
 import java.io.IOException;
 
 public class Main {

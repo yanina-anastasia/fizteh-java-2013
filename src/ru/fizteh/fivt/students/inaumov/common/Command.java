@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.common;
 
 public interface Command<State> {
 	public String getName();

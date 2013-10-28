@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.common;
 
 public class WrongFileFormatException extends Error {
     public WrongFileFormatException() {

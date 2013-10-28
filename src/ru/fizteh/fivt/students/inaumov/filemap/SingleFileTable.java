@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.inaumov.filemap.handlers.ReadHandler;
+import ru.fizteh.fivt.students.inaumov.filemap.handlers.WriteHandler;
+
 import java.io.IOException;
 import java.io.File;
 

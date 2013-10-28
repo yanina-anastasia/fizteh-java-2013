@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import java.io.*;
-import java.io.File;
-import java.io.FileNotFoundException;
+import ru.fizteh.fivt.students.inaumov.filemap.handlers.ReadHandler;
+import ru.fizteh.fivt.students.inaumov.filemap.handlers.WriteHandler;
+
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractTable implements Table {
-    protected static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	protected HashMap<String, String> tableHash = new HashMap<String, String>();
 	protected HashMap<String, String> modifiedTableHash = new HashMap<String, String>();

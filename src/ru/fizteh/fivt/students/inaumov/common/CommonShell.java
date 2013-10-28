@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.inaumov.common;
 
-import ru.fizteh.fivt.students.inaumov.filemap.Command;
-import ru.fizteh.fivt.students.inaumov.filemap.UserInterruptionException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
