@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.dzvonarev.shell.Shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Vector;
 
 class Main {

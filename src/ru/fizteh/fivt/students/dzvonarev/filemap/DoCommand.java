@@ -55,6 +55,9 @@ public class DoCommand {
                 Map.Entry<String, String> currItem = i.next();
                 String key = currItem.getKey();
                 String value = currItem.getValue();
+                if (key == null || value == null) {
+                    throw new IOException("updating file: error in writing");
+                }
                 byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
                 byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
                 fileWriter.writeInt(keyBytes.length);
@@ -110,6 +113,9 @@ public class DoCommand {
         } catch (FileNotFoundException e) {
             throw new IOException("reading from file: file not found");
         }
+        if (newFile == null) {
+            throw new IOException("reading from file: file not found");
+        }
         return newFile;
     }
 
@@ -119,6 +125,9 @@ public class DoCommand {
             newFile = new RandomAccessFile(fileName, "rw");
             newFile.getChannel().truncate(0);
         } catch (FileNotFoundException e) {
+            throw new IOException("writing to file: file not found");
+        }
+        if (newFile == null) {
             throw new IOException("writing to file: file not found");
         }
         return newFile;
