@@ -13,7 +13,7 @@ public class MultiFileMapUtils {
         if (myState.table == null) {
             return true;
         }
-        if (myState.curTableName == "") {
+        if (myState.curTableName.equals("")) {
             return true;
         }
         File tablePath = new File(System.getProperty("fizteh.db.dir"), myState.curTableName);
@@ -37,16 +37,40 @@ public class MultiFileMapUtils {
             if (isDirEmpty) {
                 continue;
             }
-
-            path.mkdir();
-            for (int j = 0; j < 16; j++) {
-                File filePath = new File(path, (j + ".dat").toString());
+            if (path.exists()) {
+                File file = path;
                 try {
-                    filePath.delete();
-                    filePath.createNewFile();
+                    if (!CommandDrop.recRemove(file)) {
+                        System.err.println("File was not deleted");
+                        return false;
+                    }
+                } catch (IOException e) {
+                    System.err.println("IOException");
+                    return false;
+                }
+            }
+            if (!path.mkdir()) {
+                System.err.println("Unable to create a table");
+                return false;
+            }
+            for (int j = 0; j < 16; j++) {
+                File filePath = new File(path, String.format("%d.dat", j));
+                try {
+                    if (!filePath.createNewFile()) {
+                        System.err.println("Unable to create new file");
+                        return false;
+                    }
+                } catch (IOException e) {
+                    System.err.println("IOException");
+                    return false;
+                }
+                try {
                     saveTable(myState, keys.get(j), filePath.toString());
                     if (filePath.length() == 0) {
-                        filePath.delete();
+                        if (!filePath.delete()) {
+                            System.err.println("Unable to delete file");
+                            return false;
+                        }
                     }
                 } catch (IOException e) {
                     System.out.println("ERROR SAD");
@@ -54,6 +78,7 @@ public class MultiFileMapUtils {
                 }
             }
         }
+
         return true;
     }
 
@@ -81,7 +106,10 @@ public class MultiFileMapUtils {
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
             if (temp.length() == 0) {
-                new File(path).delete();
+                if (!new File(path).delete()) {
+                    System.err.println("Unable to delete file");
+                    return false;
+                }
             }
         } catch (IOException e) {
             System.err.println("Error while writing file");

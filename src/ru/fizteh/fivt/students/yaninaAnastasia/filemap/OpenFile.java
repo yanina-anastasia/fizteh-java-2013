@@ -29,16 +29,17 @@ public class OpenFile {
             System.err.println("Error with getting property");
             System.exit(1);
         }
-        if (!(new File(path).exists())) {
-            System.err.println("The path from the property does not exist");
-            System.exit(1);
-        }
         if (new File(path).isFile()) {
             System.err.println("The path from the property is not a directory");
             System.exit(1);
         }
+        if (!(new File(path).exists())) {
+            new File(path).mkdir();
+            System.exit(1);
+        }
+
         HashMap<String, String> loadingTable = new HashMap<String, String>();
-        for (File table: new File(path).listFiles()) {
+        for (File table : new File(path).listFiles()) {
             curTable = table.getName();
             File[] files = new File(path, curTable).listFiles();
             for (File step : files) {

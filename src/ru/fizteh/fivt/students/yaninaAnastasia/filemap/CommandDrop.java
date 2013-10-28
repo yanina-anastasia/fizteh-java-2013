@@ -7,7 +7,7 @@ import java.io.IOException;
 
 
 public class CommandDrop extends Command {
-    private boolean recRemove(File file) throws IOException {
+    public static boolean recRemove(File file) throws IOException {
         if (file.isDirectory()) {
             for (File innerFile : file.listFiles()) {
                 recRemove(innerFile);
