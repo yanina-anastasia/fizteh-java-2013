@@ -130,6 +130,9 @@ public class DoCommand {
     }
 
     public static String getRealPath() throws IOException {
+        if (!System.getProperties().containsKey("fizteh.db.dir")) {
+           throw new IOException("wrong properties");
+        }
         String realPath;
         String dirName = System.getProperty("fizteh.db.dir");
         File destFile = new File(dirName + File.separator + "db.dat");
