@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.kinanAlsarmini.shell;
 
-abstract class ExternalCommand {
+public abstract class ExternalCommand {
     private String name;
     private int argNumber;
 
