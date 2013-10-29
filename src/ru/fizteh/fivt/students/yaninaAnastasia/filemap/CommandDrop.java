@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class CommandDrop extends Command {
@@ -44,10 +45,22 @@ public class CommandDrop extends Command {
         }
         myState.myDatabase.database.remove(args[0]);
         if (args[0].equals(myState.curTableName)) {
+            for (String step: myState.myDatabase.database.keySet()) {
+                myState.table = myState.myDatabase.database.get(step);
+                myState.curTableName = step;
+                if (myState.table != null) {
+                    MultiFileMapUtils saver = new MultiFileMapUtils();
+                    if (!saver.save(myState)) {
+                        System.err.println("Previous file was not saved");
+                        return false;
+                    }
+                }
+            }
             myState.table = null;
             myState.curTableName = "";
         }
         System.out.println("dropped");
+
         return true;
     }
 
