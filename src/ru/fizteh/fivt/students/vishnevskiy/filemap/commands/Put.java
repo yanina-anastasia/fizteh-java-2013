@@ -10,7 +10,8 @@ public class Put extends Command {
     private static final String NAME = "put";
     private static final int ARGS_NUM = 2;
 
-    public Put() {}
+    public Put() {
+    }
 
     public String getName() {
         return NAME;

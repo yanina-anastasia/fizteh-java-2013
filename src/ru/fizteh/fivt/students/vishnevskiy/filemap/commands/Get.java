@@ -9,7 +9,8 @@ public class Get extends Command {
     private static final String NAME = "get";
     private static final int ARGS_NUM = 1;
 
-    public Get() {}
+    public Get() {
+    }
 
     public String getName() {
         return NAME;

@@ -8,7 +8,9 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 public class Exit extends Command {
     private static final String NAME = "exit";
     private static final int ARGS_NUM = 0;
-    public Exit() {}
+
+    public Exit() {
+    }
 
     public String getName() {
         return NAME;

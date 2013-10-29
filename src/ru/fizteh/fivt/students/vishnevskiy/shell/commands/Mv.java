@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
 import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
 import ru.fizteh.fivt.students.vishnevskiy.shell.State;
@@ -10,13 +11,18 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 public class Mv extends Command {
     private static final String NAME = "mv";
     private static final int ARGS_NUM = 2;
-    public Mv() {}
+
+    public Mv() {
+    }
+
     public String getName() {
         return NAME;
     }
+
     public int getArgsNum() {
         return ARGS_NUM;
     }
+
     public void execute(State fileSystem, String[] args) throws CommandException {
         if (args.length < 2) {
             throw new CommandException("mv: arguments expected");

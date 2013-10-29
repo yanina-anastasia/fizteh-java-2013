@@ -8,13 +8,18 @@ import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 public class Exit extends Command {
     private static final String NAME = "exit";
     private static final int ARGS_NUM = 0;
-    public Exit() {}
+
+    public Exit() {
+    }
+
     public String getName() {
         return NAME;
     }
+
     public int getArgsNum() {
         return ARGS_NUM;
     }
+
     public void execute(State fileSystem, String[] args) throws CommandException {
         if (args.length > 0) {
             throw new CommandException("exit: no arguments needed");

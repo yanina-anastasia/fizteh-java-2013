@@ -10,7 +10,9 @@ import ru.fizteh.fivt.students.vishnevskiy.filemap.SingleFileMap;
 public class Remove extends Command {
     private static final String NAME = "remove";
     private static final int ARGS_NUM = 1;
-    public Remove() {}
+
+    public Remove() {
+    }
 
     public String getName() {
         return NAME;

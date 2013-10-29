@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vishnevskiy.filemap;
 
 import ru.fizteh.fivt.students.vishnevskiy.shell.State;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
@@ -30,14 +31,14 @@ public class SingleFileMap extends State {
 
     public String put(String key, String value) {
         String status;
-        status = (table.get(key) == null)? null : table.get(key);
+        status = (table.get(key) == null) ? null : table.get(key);
         table.put(key, value);
         return status;
     }
 
     public int remove(String key) {
         int status;
-        status = (table.get(key) == null)? 0 : 1;
+        status = (table.get(key) == null) ? 0 : 1;
         table.remove(key);
         return status;
     }

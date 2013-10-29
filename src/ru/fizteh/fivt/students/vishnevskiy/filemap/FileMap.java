@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.vishnevskiy.filemap;
 import ru.fizteh.fivt.students.vishnevskiy.shell.Shell;
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
 import ru.fizteh.fivt.students.vishnevskiy.filemap.commands.*;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
@@ -36,7 +37,7 @@ public class FileMap {
             File datebase = new File(dirString, "db.dat");
             Shell shell = new Shell(commands(), new SingleFileMap(datebase));
             shell.run(args);
-       } catch (IOException e) {
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }

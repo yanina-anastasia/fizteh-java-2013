@@ -35,7 +35,7 @@ public class FileWriter {
         for (String key : keysSet) {
             stream.write(key.getBytes("UTF-8"));
             stream.writeByte(0);
-            stream.writeInt((int)offset);
+            stream.writeInt((int) offset);
             offset += map.get(key).getBytes("UTF-8").length;
         }
         for (String value : map.values()) {

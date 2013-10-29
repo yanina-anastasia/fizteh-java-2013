@@ -28,7 +28,7 @@ public class FileReader {
             b = stream.readByte();
         }
         byte[] keyByte = new byte[buf.size()];
-        for(int i = 0; i < buf.size(); ++i) {
+        for (int i = 0; i < buf.size(); ++i) {
             keyByte[i] = buf.get(i).byteValue();
         }
         return new String(keyByte, "UTF-8");
@@ -45,7 +45,7 @@ public class FileReader {
         }
         buf.add(b);
         byte[] keyByte = new byte[buf.size()];
-        for(int i = 0; i < buf.size(); ++i) {
+        for (int i = 0; i < buf.size(); ++i) {
             keyByte[i] = buf.get(i).byteValue();
         }
         stream.seek(savedPosition);
