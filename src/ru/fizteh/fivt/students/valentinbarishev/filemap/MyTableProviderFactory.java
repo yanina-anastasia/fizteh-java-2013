@@ -17,7 +17,14 @@ public class MyTableProviderFactory implements TableProviderFactory{
         }
 
         File tableDirFile = new File(dir);
-        if (!tableDirFile.exists() || !tableDirFile.isDirectory()) {
+
+        if (!tableDirFile.exists()) {
+            if (!tableDirFile.mkdir()) {
+                throw new IllegalArgumentException("Cannot create directory!");
+            }
+        }
+
+        if (!tableDirFile.isDirectory()) {
             throw new IllegalArgumentException("Wrong dir " + dir);
         }
 
