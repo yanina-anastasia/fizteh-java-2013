@@ -53,7 +53,7 @@ public class FileMap {
                     }
                 }
                 if (flag) {
-                    System.out.println(Files.exists(currentTable.resolve(directoryName)));
+                    Shell.cd(currentTable.toString());
                     Shell.rm(directoryName);
                 }
             }
