@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Manager;
 
 import java.util.HashMap;
@@ -70,15 +69,7 @@ public class TableManager extends Manager {
         return true;
     }
 
-    @Override
-    public void setExit() {
-        if (currentTable != null) {
-            currentTable.commit();
-        }
-        super.setExit();
-    }
-
-    public Table getCurrentTable() {
+    public TableMember getCurrentTable() {
         return currentTable;
     }
 

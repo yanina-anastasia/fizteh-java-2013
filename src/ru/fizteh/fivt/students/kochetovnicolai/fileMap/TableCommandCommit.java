@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandGet extends Executable {
+public class TableCommandCommit extends Executable {
     TableManager manager;
 
     @Override
@@ -13,18 +13,12 @@ public class TableCommandGet extends Executable {
             manager.printMessage("no table");
             return false;
         }
-        String value = table.get(args[1]);
-        if (value == null) {
-            manager.printMessage("not found");
-        } else {
-            manager.printMessage("found");
-            manager.printMessage(value);
-        }
+        manager.printMessage(Integer.toString(table.commit()));
         return true;
     }
 
-    public TableCommandGet(TableManager tableManager) {
-        super("get", 2);
+    public TableCommandCommit(TableManager tableManager) {
+        super("commit", 1);
         manager = tableManager;
     }
 }

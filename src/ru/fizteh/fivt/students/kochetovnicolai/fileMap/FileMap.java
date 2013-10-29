@@ -20,6 +20,9 @@ public class FileMap {
         commands.put("create", new TableCommandCreate(manager));
         commands.put("drop", new TableCommandDrop(manager));
         commands.put("use", new TableCommandUse(manager));
+        commands.put("size", new TableCommandSize(manager));
+        commands.put("commit", new TableCommandCommit(manager));
+        commands.put("rollback", new TableCommandRollback(manager));
     }
 
     public static void main(String[] args) {

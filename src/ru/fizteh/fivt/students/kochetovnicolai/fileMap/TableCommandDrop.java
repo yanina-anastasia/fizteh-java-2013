@@ -2,18 +2,8 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandDrop implements Executable {
+public class TableCommandDrop extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "create";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
-    }
 
     @Override
     public boolean execute(String[] args) {
@@ -33,6 +23,7 @@ public class TableCommandDrop implements Executable {
     }
 
     public TableCommandDrop(TableManager tableManager) {
+        super("drop", 2);
         manager = tableManager;
     }
 }

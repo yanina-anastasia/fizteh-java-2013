@@ -5,17 +5,14 @@ import ru.fizteh.fivt.storage.strings.Table;
 import java.util.HashMap;
 
 public class TableMember implements Table {
-    protected int recordNumber;
-    protected int oldRecordNumber;
 
     protected DistributedTable table;
     protected DistributedTableProvider provider;
-    HashMap<String, String> changes;
+    protected HashMap<String, String> changes;
 
-    TableMember(DistributedTable table, DistributedTableProvider provider) {
+    public TableMember(DistributedTable table, DistributedTableProvider provider) {
         this.table = table;
         this.provider = provider;
-        oldRecordNumber = recordNumber = table.getRecordNumber();
         changes = new HashMap<>();
     }
 
@@ -27,6 +24,10 @@ public class TableMember implements Table {
         }
     }
 
+    public int changesSize() {
+        return changes.size();
+    }
+
     @Override
     public String getName() {
         checkExistence();
@@ -36,8 +37,7 @@ public class TableMember implements Table {
     @Override
     public int rollback() {
         checkExistence();
-        int canceled = recordNumber - oldRecordNumber;
-        recordNumber = oldRecordNumber;
+        int canceled = changes.size();
         changes.clear();
         return canceled;
     }
@@ -60,10 +60,7 @@ public class TableMember implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException();
         }
-        if (get(key) == null) {
-            recordNumber++;
-        }
-        String old = table.get(key);
+        String old = get(key);
         changes.put(key, value);
         return old;
     }
@@ -74,24 +71,28 @@ public class TableMember implements Table {
         if (key == null) {
             throw new IllegalArgumentException();
         }
-        if (get(key) != null) {
-            recordNumber--;
-        }
         return changes.put(key, null);
+    }
+
+    protected void merge() {
+        for (String key : changes.keySet()) {
+            table.put(key, changes.get(key));
+        }
     }
 
     @Override
     public int size() {
         checkExistence();
+        merge();
+        int recordNumber = table.size();
+        table.rollback();
         return recordNumber;
     }
 
     @Override
     public int commit() {
         checkExistence();
-        for (String key : changes.keySet()) {
-            table.put(key, changes.get(key));
-        }
+        merge();
         table.commit();
         int changed = changes.size();
         changes.clear();
