@@ -7,7 +7,7 @@ public abstract class State {
     private File currentDirectory;
 
     public State() {
-        currentDirectory = new File("");
+        currentDirectory = new File(".");
     }
 
     public File compileFile(String path) {

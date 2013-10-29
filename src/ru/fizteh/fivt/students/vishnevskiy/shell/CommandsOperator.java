@@ -56,7 +56,7 @@ public class CommandsOperator {
                     throw new CommandException(commandName + ": command not found");
                 }
             }
-            String[] args = line.split("\\s+", command.getArgsNum() + 1);
+            String[] args = line.split("\\s+", (command.getArgsNum() == 0) ? 2 : command.getArgsNum() + 1);
             int i = 1;
             while ((i < args.length) && (!args[i].isEmpty())) {
                 ++i;
