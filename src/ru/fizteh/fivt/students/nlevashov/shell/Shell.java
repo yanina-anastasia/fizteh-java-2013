@@ -1,9 +1,10 @@
 package ru.fizteh.fivt.students.nlevashov.shell;
 
+import ru.fizteh.fivt.students.nlevashov.mode.Mode;
+
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.EnumSet;
-import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -195,98 +196,68 @@ public class Shell {
         }
     }
 
-    public static boolean execute(String cmd) throws Exception {
-        Vector<String> tokens = parse(cmd, " ");
-        if (tokens.size() != 0) {
-            switch (tokens.get(0)) {
-                case "cd":
-                    if (tokens.size() != 2) {
-                        throw new Exception("cd: wrong arguments number");
-                    }
-                    cd(tokens.get(1));
-                    break;
-                case "mkdir":
-                    if (tokens.size() != 2) {
-                        throw new Exception("mkdir: wrong arguments number");
-                    }
-                    mkdir(tokens.get(1));
-                    break;
-                case "pwd":
-                    if (tokens.size() != 1) {
-                        throw new Exception("pwd: wrong arguments number");
-                    }
-                    pwd();
-                    break;
-                case "rm":
-                    if (tokens.size() != 2) {
-                        throw new Exception("rm: wrong arguments number");
-                    }
-                    rm(tokens.get(1));
-                    break;
-                case "cp":
-                    if (tokens.size() != 3) {
-                        throw new Exception("cp: wrong arguments number");
-                    }
-                    cp(tokens.get(1), tokens.get(2));
-                    break;
-                case "mv":
-                    if (tokens.size() != 3) {
-                        throw new Exception("mv: wrong arguments number");
-                    }
-                    mv(tokens.get(1), tokens.get(2));
-                    break;
-                case "dir":
-                    if (tokens.size() != 1) {
-                        throw new Exception("dir: wrong arguments number");
-                    }
-                    dir();
-                    break;
-                case "exit": {
-                    return false;
-                }
-                default:
-                    throw new Exception("Wrong command: " + cmd);
-            }
-        }
-        return true;
-    }
-
     public static void main(String[] args) {
-        if (args.length == 0) {
-            Scanner sc = new Scanner(System.in);
-            boolean flag = true;
-            do {
-                try {
-                    System.out.print("$ ");
-                    String cmdline = sc.nextLine();
-                    Vector<String> commands = parse(cmdline, ";");
-                    for (String s : commands) {
-                        if (!execute(s)) {
-                            flag = false;
-                            break;
+        try {
+            Mode.start(args, new Mode.Executor() {
+                public boolean execute(String cmd) throws Exception {
+                    Vector<String> tokens = parse(cmd, " ");
+                    if (tokens.size() != 0) {
+                        switch (tokens.get(0)) {
+                            case "cd":
+                                if (tokens.size() != 2) {
+                                    throw new Exception("cd: wrong arguments number");
+                                }
+                                cd(tokens.get(1));
+                                break;
+                            case "mkdir":
+                                if (tokens.size() != 2) {
+                                    throw new Exception("mkdir: wrong arguments number");
+                                }
+                                mkdir(tokens.get(1));
+                                break;
+                            case "pwd":
+                                if (tokens.size() != 1) {
+                                    throw new Exception("pwd: wrong arguments number");
+                                }
+                                pwd();
+                                break;
+                            case "rm":
+                                if (tokens.size() != 2) {
+                                    throw new Exception("rm: wrong arguments number");
+                                }
+                                rm(tokens.get(1));
+                                break;
+                            case "cp":
+                                if (tokens.size() != 3) {
+                                    throw new Exception("cp: wrong arguments number");
+                                }
+                                cp(tokens.get(1), tokens.get(2));
+                                break;
+                            case "mv":
+                                if (tokens.size() != 3) {
+                                    throw new Exception("mv: wrong arguments number");
+                                }
+                                mv(tokens.get(1), tokens.get(2));
+                                break;
+                            case "dir":
+                                if (tokens.size() != 1) {
+                                    throw new Exception("dir: wrong arguments number");
+                                }
+                                dir();
+                                break;
+                            case "exit": {
+                                return false;
+                            }
+                            default:
+                                throw new Exception("Wrong command: " + cmd);
                         }
                     }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    return true;
                 }
-            } while (flag);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (String s : args) {
-                sb.append(s).append(' ');
-            }
-            String cmdline = sb.toString();
-            Vector<String> commands = parse(cmdline, ";");
-            try {
-                for (String s : commands) {
-                    if (!execute(s)) {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+            });
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }
