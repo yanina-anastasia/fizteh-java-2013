@@ -13,14 +13,10 @@ public class FileMap {
 
     private List<Command> commands() {
         List<Command> list = new ArrayList<Command>();
-        Command get = new Get();
-        list.add(get);
-        Command put = new Put();
-        list.add(put);
-        Command remove = new Remove();
-        list.add(remove);
-        Command exit = new Exit();
-        list.add(exit);
+        list.add(new Get());
+        list.add(new Put());
+        list.add(new Remove());
+        list.add(new Exit());
         return list;
     }
 
