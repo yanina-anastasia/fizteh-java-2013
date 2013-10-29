@@ -1,13 +1,11 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
+import ru.fizteh.fivt.students.kochetovnicolai.shell.Manager;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
-public class TableManager extends FileManager {
+public class TableManager extends Manager {
 
     protected TableMember currentTable = null;
     DistributedTableProvider provider;
@@ -22,13 +20,9 @@ public class TableManager extends FileManager {
         }
     }
 
-    public TableManager(File workingDirectory) throws IOException {
-        currentPath = workingDirectory;
-        if (!currentPath.exists() && !currentPath.mkdir()) {
-            throw new IOException("couldn't create working directory");
-        }
+    public TableManager(DistributedTableProvider provider) {
+        this.provider = provider;
         tables = new HashMap<>();
-        provider = new DistributedTableProvider(currentPath);
     }
 
     void setCurrentTable(TableMember table) {
@@ -90,7 +84,6 @@ public class TableManager extends FileManager {
 
     @Override
     public void printSuggestMessage() {
-        outputStream.print(currentPath.getName() + File.separator);
         if (currentTable != null) {
             outputStream.print(currentTable.getName());
         }

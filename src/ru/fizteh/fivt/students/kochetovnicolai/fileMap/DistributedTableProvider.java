@@ -20,15 +20,15 @@ public class DistributedTableProvider implements TableProvider {
                 tables.put(name, new DistributedTable(currentPath, name));
             }
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalStateException(e.getMessage());
         }
         return tables.containsKey(name);
     }
 
-    public DistributedTableProvider(File workingDirectory) throws IOException {
+    public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
         currentPath = workingDirectory;
-        if (!currentPath.exists() && !currentPath.mkdir()) {
-            throw new RuntimeException("couldn't create working directory");
+        if (workingDirectory == null || !currentPath.exists() && !currentPath.mkdir()) {
+            throw new IllegalArgumentException("couldn't create working directory");
         }
         tables = new HashMap<>();
     }
@@ -57,7 +57,7 @@ public class DistributedTableProvider implements TableProvider {
                 DistributedTable table = new DistributedTable(currentPath, name);
                 tables.put(name, table);
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new IllegalStateException(e.getMessage());
             }
         }
         return new TableMember(tables.get(name), this);
@@ -76,17 +76,17 @@ public class DistributedTableProvider implements TableProvider {
                 getTable(name);
                 tables.put(name, new DistributedTable(currentPath, name));
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new IllegalStateException(e.getMessage());
             }
         }
         try {
             tables.get(name).clear();
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalStateException(e.getMessage());
         }
         tables.remove(name);
         if (!new File(currentPath + File.separator + name).delete()) {
-            throw new RuntimeException("couldn't remove table");
+            throw new IllegalStateException("couldn't remove table");
         }
     }
 }

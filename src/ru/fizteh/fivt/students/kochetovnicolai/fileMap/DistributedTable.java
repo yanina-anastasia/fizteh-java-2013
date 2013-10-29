@@ -119,7 +119,7 @@ public class DistributedTable extends FileManager implements Table {
             try {
                 changes.put(key, readValue(key));
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new IllegalStateException(e.getMessage());
             }
         }
         return changes.get(key);
@@ -190,7 +190,7 @@ public class DistributedTable extends FileManager implements Table {
                     try {
                         writeNextPair(outputStream, entry.getKey(), entry.getValue());
                     } catch (IOException e) {
-                        throw new RuntimeException(e.getMessage());
+                        throw new IllegalStateException(e.getMessage());
                     }
                 }
             }
@@ -199,11 +199,11 @@ public class DistributedTable extends FileManager implements Table {
                     inputStreams[i][j].close();
                     outputStreams[i][j].close();
                     if (!(new File(filesList[i][j].getPath() + "~")).delete()) {
-                        throw new RuntimeException(filesList[i][j].getPath() + "~: couldn't delete file");
+                        throw new IllegalStateException(filesList[i][j].getPath() + "~: couldn't delete file");
                     }
                     if (filesList[i][j].length() == 0) {
                         if (!filesList[i][j].delete()) {
-                            throw new RuntimeException(filesList[i][j].getPath() + ": couldn't delete file");
+                            throw new IllegalStateException(filesList[i][j].getPath() + ": couldn't delete file");
                         }
                     }
                 }
@@ -213,12 +213,12 @@ public class DistributedTable extends FileManager implements Table {
             for (File directory : directoriesList) {
                 if (directory.list().length == 0) {
                     if (!directory.delete()) {
-                        throw new RuntimeException(directory.getAbsolutePath() + ": couldn't delete directory");
+                        throw new IllegalStateException(directory.getAbsolutePath() + ": couldn't delete directory");
                     }
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalStateException(e.getMessage());
         } finally {
             for (int i = 0; i < partsNumber; i++) {
                 for (int j = 0; j < partsNumber; j++) {
@@ -240,7 +240,7 @@ public class DistributedTable extends FileManager implements Table {
             }
         }
         if (!isClosed) {
-            throw new RuntimeException("couldn't close some files");
+            throw new IllegalStateException("couldn't close some files");
         }
         return updated;
     }
@@ -298,7 +298,7 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     protected String readValue(String key) throws IOException {
-        if (currentFile == null) {
+        if (currentFile == null || !currentFile.exists()) {
             return null;
         }
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {

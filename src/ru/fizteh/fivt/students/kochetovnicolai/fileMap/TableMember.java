@@ -92,7 +92,10 @@ public class TableMember implements Table {
         for (String key : changes.keySet()) {
             table.put(key, changes.get(key));
         }
-        return table.commit();
+        table.commit();
+        int changed = changes.size();
+        changes.clear();
+        return changed;
     }
 }
 
