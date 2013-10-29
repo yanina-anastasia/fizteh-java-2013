@@ -17,10 +17,12 @@ public class CommandUse extends Command {
             return false;
         }
         myState.curTableName = args[0];
-        MultiFileMapUtils saver = new MultiFileMapUtils();
-        if (!saver.save(myState)) {
-            System.err.println("Previous file was not saved");
-            return false;
+        if (myState.table != null) {
+            MultiFileMapUtils saver = new MultiFileMapUtils();
+            if (!saver.save(myState)) {
+                System.err.println("Previous file was not saved");
+                return false;
+            }
         }
         myState.table = myState.myDatabase.database.get(args[0]);
         System.out.println("using " + args[0]);
