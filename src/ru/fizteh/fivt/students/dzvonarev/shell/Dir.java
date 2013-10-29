@@ -1,11 +1,17 @@
 package ru.fizteh.fivt.students.dzvonarev.shell;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
 
-public class Dir {
+public class Dir implements CommandInterface {
 
-    public static void listingCurrDir() {
-        File dir = new File(Main.getCurrentDirectory());
+    public void execute(Vector<String> args) throws IOException {
+        String expr = args.elementAt(0);
+        if (!expr.equals("dir")) {
+            throw new IOException("dir: wrong parameters");
+        }
+        File dir = new File(Shell.getCurrentDirectory());
         String[] path = dir.list();
         for (String file : path) {
             File currFile = new File(file);
