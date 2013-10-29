@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.util.Scanner;
+
+import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.shell.Shell;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandParser;
 import ru.fizteh.fivt.students.valentinbarishev.shell.Main;
 
 public class DbMain {
-    private static DataBaseTable dbTable;
+    private static DataBaseTable context;
     private static Shell shell;
 
     private static void checkDbDir() {
@@ -20,15 +22,20 @@ public class DbMain {
 
     private static void initShell() {
         shell = new Shell();
-        dbTable = new DataBaseTable(System.getProperty("fizteh.db.dir"));
 
-        shell.addCommand(new ShellDbPut(dbTable));
+        TableProviderFactory factory = new MyTableProviderFactory();
+        Context context = new Context(factory.create(System.getProperty("fizteh.db.dir")));
+
+        shell.addCommand(new ShellDbPut(context));
         shell.addCommand(new ShellExit());
-        shell.addCommand(new ShellDbGet(dbTable));
-        shell.addCommand(new ShellDbRemove(dbTable));
-        shell.addCommand(new ShellCreateTable(dbTable));
-        shell.addCommand(new ShellDropTable(dbTable));
-        shell.addCommand(new ShellUseTable(dbTable));
+        shell.addCommand(new ShellDbGet(context));
+        shell.addCommand(new ShellDbRemove(context));
+        shell.addCommand(new ShellCreateTable(context));
+        shell.addCommand(new ShellDropTable(context));
+        shell.addCommand(new ShellUseTable(context));
+        shell.addCommand(new ShellDbSize(context));
+        shell.addCommand(new ShellDbCommit(context));
+        shell.addCommand(new ShellDbRollback(context));
     }
 
     private static void packetRun(final String[] args) {
@@ -63,6 +70,8 @@ public class DbMain {
                 }
             } catch (MultiDataBaseException|DataBaseWrongFileFormat|InvalidCommandException e) {
                 System.err.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
             } finally {
                 System.out.print("$ ");
             }
@@ -84,13 +93,9 @@ public class DbMain {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (ShellExitException e) {
-            if (!dbTable.equals(null)) {
-                dbTable.save();
-            }
+            // TODO SAVE
         } finally {
-            if (!dbTable.equals(null)) {
-                dbTable.save();
-            }
+            // TODO SAVE
         }
     }
 }

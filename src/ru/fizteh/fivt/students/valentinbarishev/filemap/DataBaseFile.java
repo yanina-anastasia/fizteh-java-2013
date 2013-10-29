@@ -12,7 +12,13 @@ import java.io.FileNotFoundException;
 
 public class DataBaseFile {
 
+    static final byte OLD_NODE = 1;
+    static final byte NEW_NODE = 2;
+    static final byte MODIFIED_NODE = 3;
+
+
     public final class Node {
+        private byte status;
         private byte[] key;
         private byte[] value;
 
@@ -21,11 +27,13 @@ public class DataBaseFile {
         }
 
         public Node(final byte[] newKey, final byte[] newValue) {
+            status = NEW_NODE;
             key = newKey;
             value = newValue;
         }
 
         public Node(final RandomAccessFile inputFile) throws IOException {
+            status = OLD_NODE;
             try {
                 int keyLength = inputFile.readInt();
                 int valueLength = inputFile.readInt();
@@ -50,6 +58,9 @@ public class DataBaseFile {
         }
 
         public void setValue(final byte[] newValue) {
+            if (status == OLD_NODE) {
+                status = MODIFIED_NODE;
+            }
             value = newValue;
         }
 
@@ -59,6 +70,14 @@ public class DataBaseFile {
             outputFile.writeInt(value.length);
             outputFile.write(key);
             outputFile.write(value);
+        }
+
+        public byte getStatus() {
+            return status;
+        }
+
+        public void setStatus(byte newStatus) {
+            status = newStatus;
         }
 
     }
@@ -158,7 +177,7 @@ public class DataBaseFile {
             int index = search(key);
             if (index == -1) {
                 data.add(new Node(key, value));
-                return "";
+                return null;
             } else {
                 String str = new String(data.get(index).value);
                 data.get(index).setValue(value);
@@ -177,25 +196,66 @@ public class DataBaseFile {
             if (index != -1) {
                 return new String(data.get(index).value);
             } else {
-                return "";
+                return null;
             }
         } catch (UnsupportedEncodingException e) {
             throw new DataBaseException(e.getMessage());
         }
     }
 
-    public boolean remove(final String keyStr) {
+    public String remove(final String keyStr) {
         try {
             byte[] key = keyStr.getBytes("UTF-8");
             int index = search(key);
             if (index == -1) {
-                return false;
+                return null;
             } else {
+                String result = new String(data.get(index).value);
                 data.remove(index);
-                return true;
+                return result;
             }
         } catch (UnsupportedEncodingException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    public int getNewKeys() {
+        int result = 0;
+        for (Node node : data) {
+            if ((node.getStatus() == NEW_NODE) || (node.getStatus() == MODIFIED_NODE)) {
+                ++result;
+            }
+        }
+        return result;
+    }
+
+    public int getSize() {
+        return data.size();
+    }
+
+    public void commit() {
+        try {
+            if (data.size() != 0) {
+                RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
+                try {
+                    for (Node node : data) {
+                        node.write(outputFile);
+                        node.setStatus(OLD_NODE);
+                    }
+                    outputFile.setLength(outputFile.getFilePointer());
+                } finally {
+                    outputFile.close();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            throw new DataBaseException("File save error!");
+        } catch (IOException e) {
+            throw new DataBaseException("Write to file error!");
+        }
+    }
+
+    public void rollback() {
+        data.clear();
+        load();
     }
 }

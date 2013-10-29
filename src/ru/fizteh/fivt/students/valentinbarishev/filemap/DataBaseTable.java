@@ -2,82 +2,64 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 
-public final class DataBaseTable {
+public final class DataBaseTable implements  TableProvider {
     private String tableDir;
     private File tableDirFile;
-    private String currentTable;
-    private DataBase dataBase = null;
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
-        currentTable = "";
+    }
 
-        tableDirFile = new File(tableDir);
-        if (!tableDirFile.exists() || !tableDirFile.isDirectory()) {
-            throw new DataBaseException(tableDir + " not exists!");
+    private void checkName(final String name) {
+        if ((name == null) || name.contains(".") || name.contains(File.separator)) {
+            throw new MultiDataBaseException("Cannot create table! Invalid symbols in name: " + name);
         }
     }
 
-    public boolean createTable(final String tableName) {
+    @Override
+    public Table createTable(final String tableName) {
+        checkName(tableName);
+
         File file = new File(tableDir + File.separator + tableName);
+
         if (file.exists()) {
-            return false;
+            return null;
         }
+
         if (!file.mkdir()) {
-            throw new DataBaseException("Cannot create table " + tableName);
+            throw new MultiDataBaseException("Cannot create table " + tableName);
         }
-        return true;
+
+        return new DataBase(tableDir + File.separator + tableName);
     }
 
-    public boolean dropTable(final String tableName) throws IOException {
+    @Override
+    public void removeTable(final String tableName) {
+        checkName(tableName);
+
         File file = new File(tableDir + File.separator + tableName);
         if (!file.exists()) {
-            return false;
+            throw new IllegalStateException("Table not exist already!");
         }
+
         DataBase base = new DataBase(tableDir + File.separator + tableName);
         base.drop();
         if (!file.delete()) {
-            throw new DataBaseException("Cannot delte a file " + file.getCanonicalPath());
-        }
-        if (tableName.equals(currentTable)) {
-            dataBase = null;
-        }
-        return true;
-    }
-
-    public boolean useTable(String tableName) throws IOException {
-        if (!new File(tableDir + File.separator + tableName).exists()) {
-            return false;
-        }
-
-        save();
-
-        dataBase = null;
-        currentTable = tableName;
-        dataBase = new DataBase(tableDir + File.separator + tableName);
-        return true;
-    }
-
-    public String put(final String keyStr, final String valueStr) {
-        return dataBase.put(keyStr, valueStr);
-    }
-
-    public String get(final String keyStr) {
-        return dataBase.get(keyStr);
-    }
-
-    public boolean remove(final String keyStr) {
-        return dataBase.remove(keyStr);
-    }
-
-    public void save() {
-        if (exist()) {
-            dataBase.save();
+            throw new DataBaseException("Cannot delete a file " + tableName);
         }
     }
 
-    public boolean exist() {
-        return (dataBase != null);
+    @Override
+    public Table getTable(String tableName) {
+        checkName(tableName);
+
+        File file = new File(tableDir + File.separator + tableName);
+        if ((!file.exists()) || (file.isFile())) {
+            return null;
+        }
+        return new DataBase(tableDir + File.separator + tableName);
     }
 }
