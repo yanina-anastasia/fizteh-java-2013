@@ -41,7 +41,7 @@ public class FileMap {
                 String directoryName = Integer.toString(i) + ".dir";
                 if (!Files.exists(currentTable.resolve(directoryName))) {
                     Shell.cd(currentTable.toString());
-                    Shell.mkdir(Integer.toString(i) + ".dir");
+                    Shell.mkdir(directoryName);
                 }
                 boolean flag = true;
                 for (int j = 0; j < 16; j++) {
@@ -53,6 +53,7 @@ public class FileMap {
                     }
                 }
                 if (flag) {
+                    System.out.println(Files.exists(currentTable.resolve(directoryName)));
                     Shell.rm(directoryName);
                 }
             }
