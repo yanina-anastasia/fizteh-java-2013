@@ -66,7 +66,6 @@ public class MyTableTest {
         Assert.assertEquals(table.remove("МАМА"), "БРАТ");
     }
 
-    @Ignore
     @Test
     public void testSizeCommit() {
         Assert.assertEquals(table.size(), 0);
@@ -80,8 +79,7 @@ public class MyTableTest {
             Assert.assertEquals(table.remove(Integer.toString(i)), "size test");
         }
         Assert.assertEquals(table.size(), 0);
-        //TODO
-       // Assert.assertEquals(table.commit(), 0);
+        Assert.assertEquals(table.commit(), count);
     }
 
     @Test
@@ -94,5 +92,29 @@ public class MyTableTest {
         Assert.assertEquals(table.rollback(), count);
     }
 
+    @Test
+    public void testRollbackWithNoChanges() {
+        Assert.assertNull(table.put("no_changes", "will_be_deleted_soon"));
+        Assert.assertEquals(table.remove("no_changes"),"will_be_deleted_soon");
+        Assert.assertEquals(table.rollback(), 0);
 
+        Assert.assertNull(table.put("key", "value"));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.put("key", "value_new"), "value");
+        Assert.assertEquals(table.put("key", "value"), "value_new");
+        Assert.assertEquals(table.rollback(), 0);
+    }
+
+    @Test
+    public void testCommitWithNoChanges() {
+        Assert.assertNull(table.put("no_changes", "will_be_deleted_soon"));
+        Assert.assertEquals(table.remove("no_changes"),"will_be_deleted_soon");
+        Assert.assertEquals(table.commit(), 0);
+
+        Assert.assertNull(table.put("key", "value"));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.put("key", "value_new"), "value");
+        Assert.assertEquals(table.put("key", "value"), "value_new");
+        Assert.assertEquals(table.commit(), 0);
+    }
 }

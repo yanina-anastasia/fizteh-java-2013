@@ -55,14 +55,12 @@ public class DbMain {
         while (true) {
             try {
                 if (!scanner.hasNextLine()) {
-                    //TODO what to do with unsaved changes?
                     throw new ShellExitException("Ctrl + D exit!");
                 }
 
                 String command = scanner.nextLine();
 
                 if (Main.checkTerminate(command)) {
-                    //TODO what to do with unsaved changes?
                     throw new ShellExitException("Ctrl + D exit or EOF!");
                 }
 
@@ -70,9 +68,8 @@ public class DbMain {
                 if (!parser.isEmpty()) {
                     shell.executeCommand(parser.getCommand());
                 }
-            } catch (MultiDataBaseException|DataBaseWrongFileFormat|InvalidCommandException e) {
-                System.err.println(e.getMessage());
-            } catch (IllegalArgumentException e) {
+            } catch (MultiDataBaseException|DataBaseWrongFileFormat|InvalidCommandException
+                    |IllegalArgumentException e) {
                 System.err.println(e.getMessage());
             } finally {
                 System.out.print("$ ");
@@ -95,9 +92,9 @@ public class DbMain {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (ShellExitException e) {
-            // TODO SAVE
+            System.exit(0);
         } finally {
-            // TODO SAVE
+            System.exit(0);
         }
     }
 }

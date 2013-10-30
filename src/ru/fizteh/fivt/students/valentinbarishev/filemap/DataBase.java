@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
-import java.io.IOException;
 import ru.fizteh.fivt.storage.strings.Table;
 
 public final class DataBase implements Table {
@@ -93,15 +92,6 @@ public final class DataBase implements Table {
         }
     }
 
-    private void tryAddDirectory(final String name) {
-        File file = new File(dataBaseDirectory + File.separator + name);
-        if (!file.exists()) {
-            if (!file.mkdir()) {
-                throw new DataBaseException("Cannot create a directory!");
-            }
-        }
-    }
-
     private void tryDeleteDirectory(final String name) {
         File file = new File(dataBaseDirectory + File.separator + name);
         if (file.exists()) {
@@ -118,18 +108,12 @@ public final class DataBase implements Table {
     }
 
     public void loadFiles() {
-        try {
-            for (int i = 0; i < 16; ++i) {
-                tryAddDirectory(Integer.toString(i) + ".dir");
-                for (int j = 0; j < 16; ++j) {
-                    DirFile node = new DirFile(i, j);
-                    DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
-                    files[node.getId()] =  file;
-                }
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                DirFile node = new DirFile(i, j);
+                DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
+                files[node.getId()] =  file;
             }
-        } catch (DataBaseWrongFileFormat e) {
-            save();
-            throw e;
         }
     }
 
@@ -152,18 +136,6 @@ public final class DataBase implements Table {
             tryDeleteDirectory(Integer.toString(i) + ".dir");
         }
     }
-
-    public void save() {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (files[new DirFile(i, j).getId()] != null) {
-                    files[new DirFile(i, j).getId()].save();
-                }
-            }
-            tryDeleteDirectory(Integer.toString(i) + ".dir");
-        }
-    }
-
 
     @Override
     public String getName() {

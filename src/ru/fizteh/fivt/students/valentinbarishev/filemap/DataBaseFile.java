@@ -101,6 +101,7 @@ public class DataBaseFile {
 
     protected final String fileName;
     protected File file;
+    private File dir;
     protected List<Node> data;
     private int fileNumber;
     private int direcotryNumber;
@@ -111,7 +112,8 @@ public class DataBaseFile {
         data = new ArrayList<Node>();
         fileNumber = newFileNumber;
         direcotryNumber = newDirectoryNumber;
-        open();
+        String path = file.getParent();
+        dir = new File(path);
         load();
         check();
     }
@@ -126,20 +128,11 @@ public class DataBaseFile {
         return true;
     }
 
-    private void open() {
-        try {
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    throw new DataBaseException("Cannot create " + fileName);
-                }
-            }
-        } catch (IOException e) {
-            throw new DataBaseException("Open file error! " + e.getMessage());
-        }
-    }
-
     private void load() {
         try {
+            if (!dir.exists() || !file.exists()) {
+                return;
+            }
             RandomAccessFile inputFile = new RandomAccessFile(fileName, "rw");
             while (inputFile.getFilePointer() < inputFile.length() - 1) {
                 data.add(new Node(inputFile));
@@ -152,13 +145,39 @@ public class DataBaseFile {
         }
     }
 
+    public void createPath() {
+        if (dir.exists()) {
+            return;
+        }
+
+        if (!dir.mkdir()) {
+            throw new DataBaseException("Cannot create directory!");
+        }
+    }
+
+    public void deletePath() {
+        if (!dir.exists()) {
+            return;
+        }
+
+        if (dir.list().length != 0) {
+            return;
+        }
+
+        if (!dir.delete()) {
+            throw new DataBaseException("Cannot delete a directory!");
+        }
+    }
+
     public void save() {
         try {
-            if (data.size() == 0) {
+            if (getSize() == 0) {
                 if ((file.exists()) && (!file.delete())) {
                     throw new DataBaseException("Cannot delete a file!");
                 }
+                deletePath();
             } else {
+                createPath();
                 if (!file.exists()) {
                     if (!file.createNewFile()) {
                         throw new DataBaseException("Cannot create a file " + fileName);

@@ -4,6 +4,8 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
+import java.io.File;
+
 public class MyTableProviderTest {
     static TableProviderFactory factory;
     static TableProvider provider;
@@ -29,6 +31,21 @@ public class MyTableProviderTest {
     @Test(expected = IllegalStateException.class)
     public void testRemoveNonExistingTable() {
         provider.removeTable("non_existing_table");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableWithWrongName() {
+        provider.getTable(".." + File.separator + "database");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableWithWrongName() {
+        provider.createTable(".." + File.separator + "database");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUseTableWithWrongName() {
+        provider.removeTable(".." + File.separator + "database");
     }
 
     @Test
