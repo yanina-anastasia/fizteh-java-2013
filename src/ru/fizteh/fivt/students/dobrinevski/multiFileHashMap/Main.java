@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dorinevski.multiFileHashMap;
+package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
 import java.io.IOException;
