@@ -10,7 +10,7 @@ public class Remove implements CommandInterface {
 
     public void execute(Vector<String> args) throws IOException {
         if (MultiFileMap.getWorkingTable().equals("noTable")) {
-            throw new IOException("you are not in table, try 'use' to choose your table");
+            throw new IOException("no table");
         }
         String str = args.elementAt(0);
         int spaceIndex = str.indexOf(' ', 0);
