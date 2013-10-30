@@ -72,6 +72,8 @@ public class Main {
         } catch (IOException e) {
             System.out.println(e.getMessage());
             System.exit(1);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
         }
         Vector<String> cmdName = getCommandNames();
         Vector<CommandInterface> cmd = getCommandObjects();
