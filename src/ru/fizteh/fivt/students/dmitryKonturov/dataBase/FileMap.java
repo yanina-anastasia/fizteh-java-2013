@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
 
-
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileMap {
+
+    private FileMap() {
+
+    }
 
     public static void main(String[] args) {
         String dbDir;
@@ -16,20 +18,19 @@ public class FileMap {
             System.err.println("Empty property");
             System.exit(1);
         }
-        Path dbDirPath = null;
+
+        MultiFileMapShell shell = null;
         try {
-            dbDirPath = Paths.get(dbDir);
-            if (!Files.isDirectory(dbDirPath)) {
-                System.err.println(dbDir + " is not directory");
-                System.exit(1);
-            }
-            dbDirPath = dbDirPath.resolve("db.dat");
+            Path dbDirPath = Paths.get(dbDir);
+            shell = new MultiFileMapShell(dbDirPath);
+        } catch (DatabaseException e) {
+            System.err.println(e.toString());
+            System.exit(1);
         } catch (Exception e) {
-            System.err.println(dbDir + " is not correct path to directory");
+            System.err.println("Wrong property");
             System.exit(1);
         }
 
-        SimpleFileMapShell shell = new SimpleFileMapShell(dbDirPath);
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {
@@ -47,5 +48,4 @@ public class FileMap {
         }
 
     }
-
 }
