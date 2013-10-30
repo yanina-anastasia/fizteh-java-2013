@@ -17,6 +17,13 @@ import java.util.Map;
 public class MultiFileHashTable implements Table {
     public MultiFileHashTable(String workingDirectory, String tableName) throws DatabaseException,
                                                                                 FileNotFoundException {
+        if (workingDirectory == null) {
+            throw new IllegalArgumentException("Working directory path must be not null");
+        }
+        if (tableName == null) {
+            throw new IllegalArgumentException("Table name must be not null");
+        }
+
         this.tableName = tableName;
 
         try {
@@ -26,7 +33,9 @@ public class MultiFileHashTable implements Table {
         }
 
         table = new HashMap<String, String>();
+        uncommittedTable = new HashMap<String, String>();
         readTable();
+        uncommittedTable.putAll(table);
     }
 
     @Override
@@ -35,18 +44,38 @@ public class MultiFileHashTable implements Table {
     }
 
     @Override
-    public String get(String key) {
-        return table.get(key);
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+
+        return uncommittedTable.get(key);
     }
 
     @Override
-    public String put(String key, String value) {
-        return table.put(key, value);
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Value must be not null");
+        }
+
+        ++uncommittedChanges;
+        return uncommittedTable.put(key, value);
     }
 
     @Override
-    public String remove(String key) {
-        return table.remove(key);
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+
+        String value = uncommittedTable.remove(key);
+        if (value != null) {
+            ++uncommittedChanges;
+        }
+        return value;
     }
 
     public void removeTable() throws DatabaseException {
@@ -56,17 +85,31 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int size() {
-        return 0;
+        return uncommittedTable.size();
     }
 
     @Override
     public int commit() {
-        return 0;
+        table.clear();
+        table.putAll(uncommittedTable);
+
+        int changes = uncommittedChanges;
+        uncommittedChanges = 0;
+        return changes;
     }
 
     @Override
     public int rollback() {
-        return 0;
+        uncommittedTable.clear();
+        uncommittedTable.putAll(table);
+
+        int changes = uncommittedChanges;
+        uncommittedChanges = 0;
+        return changes;
+    }
+
+    public int allUncommittedChanges() {
+        return uncommittedChanges;
     }
 
     public void exit() {
@@ -189,9 +232,12 @@ public class MultiFileHashTable implements Table {
     }
 
     private HashMap<String, String> table;
+    private HashMap<String, String> uncommittedTable;
 
     private final String tableName;
     private final File tableDirectory;
+
+    private int uncommittedChanges = 0;
 
     private static final int ALL_DIRECTORIES = 16;
     private static final int FILES_IN_DIRECTORY = 16;

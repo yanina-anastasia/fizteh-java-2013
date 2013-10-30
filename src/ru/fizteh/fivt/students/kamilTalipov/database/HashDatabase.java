@@ -1,37 +1,23 @@
 package ru.fizteh.fivt.students.kamilTalipov.database;
 
-import java.io.File;
+
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
-public class HashDatabase implements MultiTableDatabase {
+public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     public HashDatabase(String databaseDirectory) throws FileNotFoundException, DatabaseException {
-        if (databaseDirectory == null) {
-            throw new DatabaseException("You should enter property fizteh.db.dir");
-        }
-
-        try {
-            this.databaseDirectory = FileUtils.makeDir(databaseDirectory);
-        } catch (IllegalArgumentException e) {
-            throw new DatabaseException("File: " + databaseDirectory + " not a directory");
-        }
-
-        tables = new ArrayList<MultiFileHashTable>();
-        loadTables();
+        this.tableProvider = new MultiFileHashTableProvider(databaseDirectory);
+        activeTable = null;
     }
 
     @Override
     public boolean createTable(String tableName) {
-        int tableIndex = indexOfTable(tableName);
-        if (tableIndex != -1) {
+        if (tableProvider.getTable(tableName) != null) {
             return false;
         }
 
         try {
-            tables.add(new MultiFileHashTable(databaseDirectory.getAbsolutePath(), tableName));
-        } catch (DatabaseException e) {
-            System.err.println(e.getMessage());
-        } catch (FileNotFoundException e) {
+            tableProvider.createTable(tableName);
+        } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
         }
 
@@ -40,29 +26,30 @@ public class HashDatabase implements MultiTableDatabase {
 
     @Override
     public boolean dropTable(String tableName) {
-        int tableIndex = indexOfTable(tableName);
-        if (tableIndex != -1) {
-            try {
-                tables.get(tableIndex).removeTable();
-            } catch (DatabaseException e) {
-                System.err.println(e.getMessage());
+        try {
+            if (activeTable.equals(tableName)) {
+                activeTable = null;
             }
-
-            if (tableIndex == currentTable) {
-                currentTable = -1;
-            }
-            tables.remove(tableIndex);
-            return true;
+            tableProvider.removeTable(tableName);
+        } catch (IllegalStateException e) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     @Override
     public int setActiveTable(String tableName) {
-        int tableIndex = indexOfTable(tableName);
-        if (tableIndex != -1) {
-            currentTable = tableIndex;
+        MultiFileHashTable newActiveTable = tableProvider.getTable(tableName);
+        if (newActiveTable != null) {
+            int uncommittedChanges = 0;
+            if (activeTable != null) {
+                uncommittedChanges = activeTable.allUncommittedChanges();
+            }
+            if (uncommittedChanges > 0) {
+                return uncommittedChanges;
+            }
+            activeTable = newActiveTable;
             return 0;
         }
 
@@ -71,55 +58,57 @@ public class HashDatabase implements MultiTableDatabase {
 
     @Override
     public String put(String key, String value) throws NoTableSelectedException {
-        if (currentTable == -1) {
+        if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
-        return tables.get(currentTable).put(key, value);
+        return activeTable.put(key, value);
     }
 
     @Override
     public String get(String key) throws NoTableSelectedException {
-        if (currentTable == -1) {
+        if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
-        return tables.get(currentTable).get(key);
+        return activeTable.get(key);
     }
 
     @Override
     public String remove(String key) throws NoTableSelectedException {
-        if (currentTable == -1) {
+        if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
-        return tables.get(currentTable).remove(key);
+        return activeTable.remove(key);
+    }
+
+    @Override
+    public int size() throws NoTableSelectedException {
+        if (activeTable == null) {
+            throw new NoTableSelectedException("HashDatabase: No table selected");
+        }
+        return activeTable.size();
+    }
+
+    @Override
+    public int commit() throws NoTableSelectedException {
+        if (activeTable == null) {
+            throw new NoTableSelectedException("HashDatabase: No table selected");
+        }
+        return activeTable.commit();
+    }
+
+    @Override
+    public int rollback() throws NoTableSelectedException {
+        if (activeTable == null) {
+            throw new NoTableSelectedException("HashDatabase: No table selected");
+        }
+        return activeTable.rollback();
     }
 
     @Override
     public void exit() {
-        for (MultiFileHashTable table : tables) {
-            table.exit();
-        }
+        tableProvider.exit();
     }
 
-    private int indexOfTable(String tableName) {
-        for (int i = 0; i < tables.size(); ++i) {
-            if (tables.get(i).getName().equals(tableName)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    private void loadTables() throws DatabaseException, FileNotFoundException {
-        File[] innerFiles = databaseDirectory.listFiles();
-        for (File file : innerFiles) {
-            if (file.isDirectory()) {
-                tables.add(new MultiFileHashTable(databaseDirectory.getAbsolutePath(), file.getName()));
-            }
-        }
-    }
-
-    private final File databaseDirectory;
-    private final ArrayList<MultiFileHashTable> tables;
-    private int currentTable = -1;
+    private final MultiFileHashTableProvider tableProvider;
+    private MultiFileHashTable activeTable;
 }

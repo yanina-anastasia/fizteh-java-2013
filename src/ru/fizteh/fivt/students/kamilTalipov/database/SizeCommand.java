@@ -1,12 +1,11 @@
 package ru.fizteh.fivt.students.kamilTalipov.database;
 
-
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
-public class GetCommand extends SimpleCommand {
-    public GetCommand(Database database) {
-        super("get", 1);
+public class SizeCommand extends SimpleCommand {
+    public SizeCommand(TransactionDatabase database) {
+        super("size", 0);
         this.database = database;
     }
 
@@ -14,21 +13,15 @@ public class GetCommand extends SimpleCommand {
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
         if (numberOfArguments != args.length) {
             throw new IllegalArgumentException(name + ": expected " + numberOfArguments
-                                                + " but " + args.length + " got");
+                    + " but " + args.length + " got");
         }
 
         try {
-            String value = database.get(args[0]);
-            if (value == null) {
-                System.out.println("not found");
-            } else {
-                System.out.println("found");
-                System.out.println(value);
-            }
+            System.out.println(database.size());
         } catch (NoTableSelectedException e) {
             System.err.println("no table");
         }
     }
 
-    private final Database database;
+    private final TransactionDatabase database;
 }
