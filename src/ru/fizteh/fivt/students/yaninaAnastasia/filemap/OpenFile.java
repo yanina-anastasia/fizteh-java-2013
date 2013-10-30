@@ -33,8 +33,9 @@ public class OpenFile {
             System.err.println("The path from the property is not a directory");
             System.exit(1);
         }
-        if (!(new File(path).exists())) {
-            new File(path).mkdir();
+        File databaseDirectory = new File(path);
+        if (!databaseDirectory.exists()) {
+            databaseDirectory.mkdir();
             System.exit(1);
         }
 
@@ -63,12 +64,14 @@ public class OpenFile {
                 } else {
                     for (int j = 0; j < 16; ++j) {
                         File currentFile = getFileWithNum(j, i);
+
                         if (currentFile.exists()) {
                             try {
                                 File tmpFile = new File(currentFile.toString());
                                 RandomAccessFile temp = new RandomAccessFile(tmpFile, "r");
                                 try {
                                     loadTable(temp, loadingTable, i, j);
+                                    temp.close();
                                 } catch (EOFException e) {
                                     System.err.println("Wrong format");
                                     return false;
@@ -80,11 +83,11 @@ public class OpenFile {
                                 System.err.println("Cannot create new file");
                                 return false;
                             }
-                            myState.myDatabase.database.put(curTable, loadingTable);
                         }
                     }
                 }
             }
+            myState.myDatabase.database.put(curTable, loadingTable);
         }
         myState.table = null;
         return true;
@@ -147,6 +150,5 @@ public class OpenFile {
         } else {
             throw new IOException("File has incorrect format");
         }
-        temp.close();
     }
 }

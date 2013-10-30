@@ -16,7 +16,6 @@ public class CommandUse extends Command {
             System.out.println(args[0] + " not exists");
             return false;
         }
-        myState.curTableName = args[0];
         if (myState.table != null) {
             MultiFileMapUtils saver = new MultiFileMapUtils();
             if (!saver.save(myState)) {
@@ -24,6 +23,7 @@ public class CommandUse extends Command {
                 return false;
             }
         }
+        myState.curTableName = args[0];
         myState.table = myState.myDatabase.database.get(args[0]);
         System.out.println("using " + args[0]);
 

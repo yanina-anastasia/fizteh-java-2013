@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +37,14 @@ public class MultiFileMapUtils {
             }
 
             if (isDirEmpty) {
+                try {
+                    if (path.exists()) {
+                        CommandDrop.recRemove(path);
+                    }
+                } catch (IOException e) {
+                    System.err.println("IOException thrown");
+                    return false;
+                }
                 continue;
             }
             if (path.exists()) {
@@ -56,22 +66,7 @@ public class MultiFileMapUtils {
             for (int j = 0; j < 16; j++) {
                 File filePath = new File(path, String.format("%d.dat", j));
                 try {
-                    if (!filePath.createNewFile()) {
-                        System.err.println("Unable to create new file");
-                        return false;
-                    }
-                } catch (IOException e) {
-                    System.err.println("IOException");
-                    return false;
-                }
-                try {
                     saveTable(myState, keys.get(j), filePath.toString());
-                    if (filePath.length() == 0) {
-                        if (!filePath.delete()) {
-                            System.err.println("Unable to delete file");
-                            return false;
-                        }
-                    }
                 } catch (IOException e) {
                     System.out.println("ERROR SAD");
                     return false;
@@ -84,10 +79,14 @@ public class MultiFileMapUtils {
 
     public static boolean saveTable(MultiDBState myState, Set<String> keys, String path) throws IOException {
         if (keys.isEmpty()) {
+            try {
+                Files.delete(Paths.get(path));
+            } catch (IOException e) {
+
+            }
             return false;
         }
-        RandomAccessFile temp = null;
-        temp = new RandomAccessFile(path, "rw");
+        RandomAccessFile temp = new RandomAccessFile(path, "rw");
         try {
             long offset = 0;
             temp.setLength(0);
@@ -105,22 +104,10 @@ public class MultiFileMapUtils {
                 String value = myState.table.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
-            if (temp.length() == 0) {
-                if (!new File(path).delete()) {
-                    System.err.println("Unable to delete file");
-                    return false;
-                }
-            }
+            temp.close();
         } catch (IOException e) {
             System.err.println("Error while writing file");
             return false;
-        } finally {
-            try {
-                temp.close();
-            } catch (IOException t) {
-                System.err.println("Error while closing file");
-                System.exit(1);
-            }
         }
         return true;
     }

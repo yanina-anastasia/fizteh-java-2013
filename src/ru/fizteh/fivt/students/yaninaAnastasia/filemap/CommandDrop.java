@@ -4,6 +4,8 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 
@@ -14,8 +16,10 @@ public class CommandDrop extends Command {
                 recRemove(innerFile);
             }
         }
-        if (!file.delete()) {
-            System.err.println("Error while deleting");
+        try {
+            Files.delete(Paths.get(file.getAbsolutePath()));
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
             return false;
         }
         return true;
@@ -45,7 +49,7 @@ public class CommandDrop extends Command {
         }
         myState.myDatabase.database.remove(args[0]);
         if (args[0].equals(myState.curTableName)) {
-            for (String step: myState.myDatabase.database.keySet()) {
+            for (String step : myState.myDatabase.database.keySet()) {
                 myState.table = myState.myDatabase.database.get(step);
                 myState.curTableName = step;
                 if (myState.table != null) {

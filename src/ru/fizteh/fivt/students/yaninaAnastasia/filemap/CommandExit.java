@@ -14,10 +14,6 @@ public class CommandExit extends Command {
             System.err.println("Invalid arguments");
             return false;
         }
-        for (String step: myState.table.keySet()) {
-            myState.myDatabase.database.get(myState.curTableName).put(step, myState.table.get(step));
-        }
-        myState.table = myState.myDatabase.database.get(myState.curTableName);
         if (MultiFileMapUtils.save(myState)) {
             return true;
         } else {
