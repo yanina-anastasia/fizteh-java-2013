@@ -55,8 +55,8 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	private FileMapReceiver tableForKey(String key) throws MultiFileHashMapException {
 		int hashCode = key.hashCode();
 		int mod = MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
-		int directoryIndex = (hashCode % mod + mod) % mod;
-		int fileIndex = ((hashCode / mod) % mod + mod) % mod;
+		int directoryIndex = Math.abs(hashCode % mod);
+		int fileIndex = Math.abs(hashCode / mod);
 		int indexInFilesList = mod * directoryIndex + fileIndex;
 		if (tableFiles.get(indexInFilesList) == null) {
 			String directoryName = String.valueOf(directoryIndex) + ".dir";

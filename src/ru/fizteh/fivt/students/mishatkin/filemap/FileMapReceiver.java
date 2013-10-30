@@ -150,8 +150,8 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		boolean doConform = true;
 		for (String key : dictionary.keySet()) {
 			int code = key.hashCode();
-			if ((code % mod + mod) % mod!= hashCodeRemainder ||
-				((code / mod) % mod + mod) % mod != secondRadixHashCodeRemainder) {
+			if (Math.abs(code % mod) != hashCodeRemainder ||
+				Math.abs((code / mod) % mod)!= secondRadixHashCodeRemainder) {
 				return false;
 			}
 		}
