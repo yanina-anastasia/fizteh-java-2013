@@ -1,32 +1,33 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
-import ru.fizteh.fivt.students.inaumov.common.CommonShell;
-import ru.fizteh.fivt.students.inaumov.common.WrongFileFormatException;
+import ru.fizteh.fivt.students.inaumov.filemap.base.SingleFileTable;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
-
+import ru.fizteh.fivt.students.inaumov.shell.commands.ExitCommand;
 import java.io.IOException;
 
 public class Main {
 	public static void main(String[] args) {
-		CommonShell fileMapShell = new CommonShell();
+        String databaseDir = System.getProperty("fizteh.db.dir");
 
-		SingleFileMapShellState fileMapState = new SingleFileMapShellState();
-		String directory = System.getProperty("fizteh.db.dir");
+		Shell<SingleFileMapShellState> fileMapShell = new Shell<SingleFileMapShellState>();
 
+		SingleFileMapShellState shellState = new SingleFileMapShellState();
         try {
-			fileMapState.table = new SingleFileTable(directory, "DataBase");
-		} catch (IOException exception) {
-			System.err.println(exception.getMessage());
+			shellState.table = new SingleFileTable(databaseDir, "database");
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
 			System.exit(1);
-		} catch (IllegalArgumentException exception) {
-			System.err.println(exception.getMessage());
+		} catch (IllegalArgumentException e) {
+			System.err.println(e.getMessage());
 			System.exit(1);
-		}  catch (WrongFileFormatException exception) {
-            System.err.println(exception.getMessage());
+		}  catch (IllegalStateException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
         }
 
-		fileMapShell.setFileMapState(fileMapState);
+		fileMapShell.setState(shellState);
+        fileMapShell.setArgs(args);
 
 		fileMapShell.addCommand(new PutCommand());
 		fileMapShell.addCommand(new GetCommand());
@@ -36,12 +37,6 @@ public class Main {
 		fileMapShell.addCommand(new RollbackCommand());
 		fileMapShell.addCommand(new SizeCommand());
 
-        if (args.length == 0) {
-		    fileMapShell.interactiveMode();
-        } else {
-            fileMapShell.batchMode(args);
-        }
-
-        return;
+        fileMapShell.run();
 	}
 }

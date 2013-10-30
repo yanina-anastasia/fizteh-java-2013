@@ -1,6 +1,7 @@
-package ru.fizteh.fivt.students.inaumov.multifilemap;
+package ru.fizteh.fivt.students.inaumov.multifilemap.commands;
 
-import ru.fizteh.fivt.students.inaumov.common.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapShellState;
 
 public class CreateCommand extends AbstractCommand<MultiFileMapShellState> {
     public CreateCommand() {
@@ -12,7 +13,7 @@ public class CreateCommand extends AbstractCommand<MultiFileMapShellState> {
             shellState.tableProvider.createTable(args[1]);
             System.out.println("created");
         } catch (IllegalStateException exception) {
-            System.out.println(exception.getMessage());
+            System.err.println(exception.getMessage());
         }
     }
 }

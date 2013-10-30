@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.inaumov.filemap.commands;
 
-import ru.fizteh.fivt.students.inaumov.common.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.filemap.SingleFileMapShellState;
 
 public class SizeCommand extends AbstractCommand<SingleFileMapShellState> {
@@ -9,6 +9,10 @@ public class SizeCommand extends AbstractCommand<SingleFileMapShellState> {
 	}
 
 	public void execute(String[] args, SingleFileMapShellState fileMapState) {
-		System.out.println(fileMapState.table.size());
+        if (fileMapState.table == null) {
+            throw new IllegalArgumentException("no table");
+        }
+
+        System.out.println(fileMapState.table.size());
 	}
 }

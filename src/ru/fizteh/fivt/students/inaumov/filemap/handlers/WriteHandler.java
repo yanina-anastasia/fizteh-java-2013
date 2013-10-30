@@ -4,9 +4,10 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Map;
 import java.util.HashMap;
-import ru.fizteh.fivt.students.inaumov.filemap.AbstractTable;
+import java.util.Set;
+
+import ru.fizteh.fivt.students.inaumov.filemap.base.AbstractTable;
 
 public class WriteHandler implements Closeable {
     private RandomAccessFile outputFile = null;
@@ -17,14 +18,15 @@ public class WriteHandler implements Closeable {
         } catch (FileNotFoundException exception) {
             throw new IOException("can't create file " + fileName);
         }
+
         outputFile.setLength(0);
     }
 
-    public static void saveToFile(String filePath, HashMap<String, String> data) throws IOException {
+    public static void saveToFile(String filePath, Set<String> keysToSave, HashMap<String, String> data) throws IOException {
         WriteHandler writer = new WriteHandler(filePath);
 
-        for (final Map.Entry<String, String> entry: data.entrySet()) {
-            writer.writeEntry(entry.getKey(), entry.getValue());
+        for (final String key: keysToSave) {
+            writer.writeEntry(key, data.get(key));
         }
 
         try {
@@ -45,5 +47,4 @@ public class WriteHandler implements Closeable {
     public void close() throws IOException {
         outputFile.close();
     }
-
 }

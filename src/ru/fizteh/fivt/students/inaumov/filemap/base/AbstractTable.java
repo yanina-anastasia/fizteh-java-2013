@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.filemap.base;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.inaumov.filemap.handlers.ReadHandler;
@@ -138,6 +138,7 @@ public abstract class AbstractTable implements Table {
 		for (String nextEntry: deleted) {
 			tableHash.remove(nextEntry);
 		}
+
 		modifiedTableHash.clear();
 		deleted.clear();
 		
@@ -145,6 +146,7 @@ public abstract class AbstractTable implements Table {
 			saveTable();
 		} catch (IOException exception) {
 			System.err.println(exception.getMessage());
+
 			return 0;
 		}
 		
@@ -156,9 +158,7 @@ public abstract class AbstractTable implements Table {
 
 	public int rollback() {
 		modifiedTableHash.clear();
-
 		tableSize += deleted.size();
-		
 		deleted.clear();
 		
 		int rollbackedChangesNumber = unsavedChangesNumber;

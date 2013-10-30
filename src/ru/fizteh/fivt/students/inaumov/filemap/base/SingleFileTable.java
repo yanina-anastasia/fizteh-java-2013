@@ -1,8 +1,7 @@
-package ru.fizteh.fivt.students.inaumov.filemap;
+package ru.fizteh.fivt.students.inaumov.filemap.base;
 
-import ru.fizteh.fivt.students.inaumov.filemap.handlers.ReadHandler;
-import ru.fizteh.fivt.students.inaumov.filemap.handlers.WriteHandler;
-
+import ru.fizteh.fivt.students.inaumov.filemap.base.AbstractTable;
+import ru.fizteh.fivt.students.inaumov.filemap.handlers.*;
 import java.io.IOException;
 import java.io.File;
 
@@ -18,7 +17,7 @@ public class SingleFileTable extends AbstractTable {
 	}
 
 	public void saveTable() throws IOException {
-		WriteHandler.saveToFile(getDataBasePath(), tableHash);
+		WriteHandler.saveToFile(getDataBasePath(), tableHash.keySet(), tableHash);
 	}
 
     private String getDataBasePath() {

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.inaumov.multifilemap;
+package ru.fizteh.fivt.students.inaumov.multifilemap.base;
 
 import ru.fizteh.fivt.storage.strings.*;
 

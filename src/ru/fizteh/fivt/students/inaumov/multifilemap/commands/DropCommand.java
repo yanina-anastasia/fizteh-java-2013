@@ -1,6 +1,7 @@
-package ru.fizteh.fivt.students.inaumov.multifilemap;
+package ru.fizteh.fivt.students.inaumov.multifilemap.commands;
 
-import ru.fizteh.fivt.students.inaumov.common.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapShellState;
 
 public class DropCommand extends AbstractCommand<MultiFileMapShellState> {
     public DropCommand() {

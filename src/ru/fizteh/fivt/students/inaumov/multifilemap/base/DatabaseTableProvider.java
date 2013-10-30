@@ -1,6 +1,8 @@
-package ru.fizteh.fivt.students.inaumov.multifilemap;
+package ru.fizteh.fivt.students.inaumov.multifilemap.base;
 
 import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapUtils;
+
 import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ public class DatabaseTableProvider implements TableProvider {
         this.dataBaseDirectoryPath = dataBaseDirectoryPath;
 
         File dataBaseDirectory = new File(dataBaseDirectoryPath);
+        //System.out.println(dataBaseDirectory.getAbsolutePath());
         for (final File tableFile: dataBaseDirectory.listFiles()) {
             if (tableFile.isFile()) {
                 continue;
@@ -37,9 +40,8 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         MultiFileTable table = tables.get(name);
-
         if (table == null) {
-            throw new IllegalStateException(name + "not exists");
+            throw new IllegalStateException(name + " not exists");
         }
 
         if (currentTable != null && currentTable.getUnsavedChangesNumber() > 0) {

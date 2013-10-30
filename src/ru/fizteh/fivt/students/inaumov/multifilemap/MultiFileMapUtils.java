@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.inaumov.multifilemap;
 import java.io.File;
 
 public class MultiFileMapUtils {
+
     public static void deleteFile(File fileToDelete) {
         if (!fileToDelete.exists()) {
             return;
@@ -14,4 +15,5 @@ public class MultiFileMapUtils {
         }
         fileToDelete.delete();
     }
+
 }

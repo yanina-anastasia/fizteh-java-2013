@@ -2,11 +2,11 @@ package ru.fizteh.fivt.students.inaumov.filemap.handlers;
 
 import java.io.*;
 import java.util.HashMap;
-import ru.fizteh.fivt.students.inaumov.filemap.AbstractTable;
-import ru.fizteh.fivt.students.inaumov.common.WrongFileFormatException;
+import ru.fizteh.fivt.students.inaumov.filemap.base.AbstractTable;
 
 public class ReadHandler implements Closeable {
     private RandomAccessFile inputFile = null;
+    private String fileName = null;
 
     public ReadHandler(String fileName) throws IOException {
         try {
@@ -14,6 +14,7 @@ public class ReadHandler implements Closeable {
         } catch (FileNotFoundException exception) {
 
         }
+        this.fileName = fileName;
     }
 
     public static void loadFromFile(String filePath, HashMap<String, String> data) throws IOException {
@@ -30,7 +31,6 @@ public class ReadHandler implements Closeable {
 
             String key = reader.readString(keyLength);
             String value = reader.readString(valueLength);
-
             //System.out.println("loading from file: key: " + key + ",value: " + value);
             data.put(key, value);
         }
@@ -47,12 +47,12 @@ public class ReadHandler implements Closeable {
         byte[] stringBytes = null;
 
         if (stringLength <= 0) {
-            throw new WrongFileFormatException("Some key or value length is negative in " + inputFile.toString());
+            throw new IllegalStateException("Some key or value length is negative in " + fileName);
         }
         try {
             stringBytes = new byte[stringLength];
         } catch (OutOfMemoryError error) {
-            throw new WrongFileFormatException("Some key or value length is too long in " + inputFile.toString());
+            throw new IllegalStateException("Some key or value length is too long in " + fileName);
         }
 
         inputFile.read(stringBytes);
@@ -74,5 +74,4 @@ public class ReadHandler implements Closeable {
     public void close() throws IOException {
         inputFile.close();
     }
-
 }

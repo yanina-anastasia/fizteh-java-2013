@@ -1,11 +1,23 @@
 package ru.fizteh.fivt.students.inaumov.multifilemap;
 
-import ru.fizteh.fivt.students.inaumov.common.CommonShell;
+import ru.fizteh.fivt.students.inaumov.multifilemap.base.DatabaseFactory;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
+import ru.fizteh.fivt.students.inaumov.shell.commands.ExitCommand;
+import ru.fizteh.fivt.students.inaumov.multifilemap.commands.*;
 
 public class MultiFileMapMain {
     public static void main(String[] args) {
-        CommonShell<MultiFileMapShellState> shell = new CommonShell<MultiFileMapShellState>();
+        String databaseDir = System.getProperty("fizteh.db.dir");
+
+        Shell<MultiFileMapShellState> shell = new Shell<MultiFileMapShellState>();
+
+        MultiFileMapShellState shellState = new MultiFileMapShellState();
+        DatabaseFactory factory = new DatabaseFactory();
+        shellState.tableProvider = factory.create(databaseDir);
+
+        shell.setState(shellState);
+        shell.setArgs(args);
 
         shell.addCommand(new PutCommand());
         shell.addCommand(new GetCommand());
@@ -16,18 +28,8 @@ public class MultiFileMapMain {
         shell.addCommand(new CreateCommand());
         shell.addCommand(new DropCommand());
         shell.addCommand(new UseCommand());
+        shell.addCommand(new ExitCommand());
 
-        String dataBaseDir = System.getProperty("fizteh.db.dir");
-
-        MultiFileMapShellState shellState = new MultiFileMapShellState();
-        DatabaseFactory factory = new DatabaseFactory();
-        shellState.tableProvider = factory.create(dataBaseDir);
-        shell.setFileMapState(shellState);
-
-        if (args.length == 0) {
-            shell.interactiveMode();
-        } else {
-            shell.batchMode(args);
-        }
+        shell.run();
     }
 }

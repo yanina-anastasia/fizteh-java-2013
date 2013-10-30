@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.inaumov.filemap.commands;
 
-import ru.fizteh.fivt.students.inaumov.common.AbstractCommand;
+import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.filemap.SingleFileMapShellState;
 
 public class RemoveCommand extends AbstractCommand<SingleFileMapShellState> {
@@ -9,7 +9,11 @@ public class RemoveCommand extends AbstractCommand<SingleFileMapShellState> {
 	}
 
 	public void execute(String[] args, SingleFileMapShellState fileMapState) {
-		String oldValue = fileMapState.table.remove(args[1]);
+        if (fileMapState.table == null) {
+            throw new IllegalArgumentException("no table");
+        }
+
+        String oldValue = fileMapState.table.remove(args[1]);
 		if (oldValue == null) {
 			System.out.println("not found");
 		} else {
