@@ -306,7 +306,7 @@ public class ShellCommands {
                     return Code.OK;
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println(e.getMessage());
                 return Code.SYSTEM_ERROR;
             }
         }

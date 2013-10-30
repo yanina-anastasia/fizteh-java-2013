@@ -22,11 +22,10 @@ public class DataBase {
 
     public static Code use(String[] args) {
         //Вот тут не нужно, чтобы выводилось число изменений.
-        /*
+
         if (currentTable != null) {
             commit();
         }
-        */
         String inputTableName = args[1];
         Table tmpTable = currentTableProvider.getTable(inputTableName);
         if (tmpTable == null) {
@@ -115,7 +114,7 @@ public class DataBase {
 
     public static Code removeTable(String[] args) {
         String nameTable = args[1];
-        if (currentTable.getName().equals(nameTable)) {
+        if (currentTable != null && currentTable.getName().equals(nameTable)) {
             currentTable = null;
         }
         try {
