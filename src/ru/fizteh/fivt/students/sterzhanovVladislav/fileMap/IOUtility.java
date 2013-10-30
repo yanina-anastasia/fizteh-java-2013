@@ -71,7 +71,7 @@ public class IOUtility {
         return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, "UTF-8"), new String(valueBuf, "UTF-8"));
     }
 
-    public static void writeOut(HashMap<String, String> database, Path dir) throws Exception {
+    public static void writeOut(HashMap<String, String> database, Path dir) throws IOException {
         try {
             ShellUtility.removeDir(dir);
         } catch (Exception e) {

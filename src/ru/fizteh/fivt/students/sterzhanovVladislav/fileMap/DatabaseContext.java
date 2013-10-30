@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
-public class DatabaseContext {
+public class DatabaseContext implements Closeable {
     private HashMap<String, String> dataBase = null;
     private Path dbRoot;
     private Path activeDir;
@@ -43,7 +45,7 @@ public class DatabaseContext {
         activeDir = dbPath;
     }
     
-    public void closeActiveTable() throws Exception {
+    public void closeActiveTable() throws IOException {
         if (dataBase != null) {
             IOUtility.writeOut(dataBase, activeDir);
         }
@@ -63,4 +65,8 @@ public class DatabaseContext {
             throw new Exception("fizteh.db.dir did not resolve to a valid directory");
         }
     } 
+    
+    public void close() throws IOException {
+        closeActiveTable();
+    }
 }

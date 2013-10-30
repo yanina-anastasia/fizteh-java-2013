@@ -10,7 +10,6 @@ import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellUtility;
 public class Wrapper {
 
     private static HashMap<String, Command> cmdMap = new HashMap<String, Command>();
-    private static DatabaseContext context = null;
     
     public static void main(String[] args) {
         String dbDir = System.getProperty("fizteh.db.dir");
@@ -19,22 +18,20 @@ public class Wrapper {
             System.exit(-1);
         }
         Path dbPath = Paths.get(dbDir);
-        try {
-            context = new DatabaseContext(dbPath);
+        try(DatabaseContext context = new DatabaseContext(dbPath)) {
+            cmdMap.put("put", new FileMapCommands.Put().setContext(context));
+            cmdMap.put("get", new FileMapCommands.Get().setContext(context));
+            cmdMap.put("remove", new FileMapCommands.Remove().setContext(context));
+            cmdMap.put("create", new FileMapCommands.Create().setContext(context));
+            cmdMap.put("drop", new FileMapCommands.Drop().setContext(context));
+            cmdMap.put("use", new FileMapCommands.Use().setContext(context));
+            cmdMap.put("exit", new FileMapCommands.Exit().setContext(context));
+
+            ShellUtility.execShell(args, cmdMap);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(-1);
         }
-        
-        cmdMap.put("put", new FileMapCommands.Put().setContext(context));
-        cmdMap.put("get", new FileMapCommands.Get().setContext(context));
-        cmdMap.put("remove", new FileMapCommands.Remove().setContext(context));
-        cmdMap.put("create", new FileMapCommands.Create().setContext(context));
-        cmdMap.put("drop", new FileMapCommands.Drop().setContext(context));
-        cmdMap.put("use", new FileMapCommands.Use().setContext(context));
-        cmdMap.put("exit", new FileMapCommands.Exit().setContext(context));
-        
-        ShellUtility.execShell(args, cmdMap);
         System.exit(0);
     }
 }
