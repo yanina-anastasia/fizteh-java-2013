@@ -1,30 +1,28 @@
 package ru.fizteh.fivt.students.vlmazlov.filemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
-import ru.fizteh.fivt.students.vlmazlov.shell.Shell;
 import java.io.OutputStream;
-import java.io.IOException;
 
-public class GetCommand extends FileMapCommand {
-	public GetCommand(FileMap fileMap) {
-		super("get", 1, fileMap);
-	};
+public class GetCommand extends AbstractFileMapCommand {
+	public GetCommand() {
+		super("get", 1);
+	}
 
-	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException {
-		String key = args[0];
-		String output;
-		String value = fileMap.findInFileMap(key);
+	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
+		FileMap fileMap = state.getFileMap();
 
-		if (value == null) {
-			output = "not found" + separator;
-		} else {
-			output = "found" + separator + value + separator;
+		if (fileMap == null) {
+			displayMessage("no table" + SEPARATOR, out);
+			return;
 		}
 
-		try {
-			out.write(output.getBytes());
-		} catch (IOException ex) {
-			throw new CommandFailException("put: Unable to display result message");
+		String key = args[0];
+		String value = fileMap.get(key);
+
+		if (value == null) {
+			displayMessage("not found" + SEPARATOR, out);
+		} else {
+			displayMessage("found" + SEPARATOR + value + SEPARATOR, out);
 		}
 	}
 }
