@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vyatkina.shell;
+package ru.fizteh.fivt.students.vyatkina;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,15 @@ import java.util.EnumSet;
 
 public class FileManager {
 
-    Path currentDirectory = Paths.get ("").toAbsolutePath ();
+    private Path currentDirectory;
+
+    public FileManager () {
+        currentDirectory = Paths.get ("").toAbsolutePath ();
+    }
+
+    public FileManager (Path directory) {
+        currentDirectory = directory.toAbsolutePath ();
+    }
 
     public void changeCurrentDirectory (Path newDirectory) throws IllegalArgumentException, IOException {
         Path oldDirectory = currentDirectory;
@@ -39,7 +47,7 @@ public class FileManager {
 
         try {
             if (Files.isSameFile (currentDirectory, currentDirectory.getRoot ())) {
-              currentDirectory = currentDirectory.getRoot ();
+                currentDirectory = currentDirectory.getRoot ();
             }
 
         }
@@ -60,6 +68,14 @@ public class FileManager {
 
     public String getCurrentDirectoryString () {
         return currentDirectory.toAbsolutePath ().toString ();
+    }
+
+    public Path getCurrentDirectory () {
+        return currentDirectory.toAbsolutePath ();
+    }
+
+    public File[] getCurrentDirectoryFiles () {
+        return currentDirectory.toFile ().listFiles ();
     }
 
     public String[] getSortedCurrentDirectoryFiles () {
@@ -97,10 +113,10 @@ public class FileManager {
 
     public void copyFile (Path fromPath, Path toPath) throws IOException {
         if (!fromPath.isAbsolute ()) {
-        fromPath = currentDirectory.resolve (fromPath);
+            fromPath = currentDirectory.resolve (fromPath);
         }
         if (!toPath.isAbsolute ()) {
-        toPath = currentDirectory.resolve (toPath);
+            toPath = currentDirectory.resolve (toPath);
         }
 
         if (fromPath.equals (toPath)) {
@@ -188,7 +204,7 @@ public class FileManager {
 
     public void deleteFile (Path file) throws IOException {
         if (!file.isAbsolute ()) {
-        file = currentDirectory.resolve (file);
+            file = currentDirectory.resolve (file);
         }
         if (Files.notExists (file)) {
             throw new RuntimeException ("Try to delete file [" + file + "] which doesn't exist");
@@ -239,11 +255,11 @@ public class FileManager {
     }
 
     public void moveFile (Path fromPath, Path toPath) throws IOException {
-        if (!fromPath.isAbsolute ())  {
-        fromPath = currentDirectory.resolve (fromPath);
+        if (!fromPath.isAbsolute ()) {
+            fromPath = currentDirectory.resolve (fromPath);
         }
         if (!toPath.isAbsolute ()) {
-        toPath = currentDirectory.resolve (toPath);
+            toPath = currentDirectory.resolve (toPath);
         }
 
         if (Files.notExists (fromPath) || (Files.isDirectory (toPath) && Files.notExists (toPath))) {
