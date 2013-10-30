@@ -50,8 +50,7 @@ public class MultiFileHashMap {
         File table = new File(dir.getAbsolutePath() + "/" + args[1]);
         if (table.exists()) {
             if (table.getAbsolutePath().equals(currentDatabase.getPath())) {
-                System.err.println(args[1] + " is now in use");
-                return false;
+                currentDatabase.close();
             }
             String[] newArgs = {"rm", args[1]};
             ShellCommands.rm(curDir, newArgs);
