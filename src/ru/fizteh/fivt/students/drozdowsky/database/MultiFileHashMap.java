@@ -91,7 +91,7 @@ public class MultiFileHashMap {
 
     public boolean put(String[] args) {
         if (currentDatabase == null) {
-            System.err.println("No database is in use");
+            System.err.println("no table");
             return false;
         }
         return currentDatabase.put(args);
@@ -99,7 +99,7 @@ public class MultiFileHashMap {
 
     public boolean get(String[] args) {
         if (currentDatabase == null) {
-            System.err.println("No database is in use");
+            System.err.println("no table");
             return false;
         }
         return currentDatabase.get(args);
@@ -107,7 +107,7 @@ public class MultiFileHashMap {
 
     public boolean remove(String[] args) {
         if (currentDatabase == null) {
-            System.err.println("No database is in use");
+            System.err.println("no table");
             return false;
         }
         return currentDatabase.remove(args);
