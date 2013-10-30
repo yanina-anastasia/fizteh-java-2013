@@ -75,9 +75,9 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 				//Save first
 				if (table.isSet()) {
 					table.writeFilesOnDrive();
+					table.reset();
 				}
 				//Use the force, Harry! (c) Handalf
-				table.reset();
 				table.setTableName(tableName);
 				out.println("using " + tableName);
 			} else {

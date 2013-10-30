@@ -25,7 +25,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 			new ArrayList<>(TABLE_OWNING_FILES_COUNT);
 
 	public MultiFileHashMapTableReceiver(String tableName) {
-		tableFiles = new ArrayList<FileMapReceiver>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
+		tableFiles = new ArrayList<>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
 		this.tableName = tableName;
 		delegate = null;
 	}
@@ -35,9 +35,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	}
 
 	public void reset() {
-		for (int i = 0; i < tableFiles.size(); ++i) {
-			tableFiles.set(i, null);
-		}
+		tableFiles =  new ArrayList<>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
 	}
 
 	public void setTableName(String tableName) {
