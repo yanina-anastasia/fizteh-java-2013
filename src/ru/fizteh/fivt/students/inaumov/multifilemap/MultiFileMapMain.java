@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.inaumov.multifilemap;
 import ru.fizteh.fivt.students.inaumov.multifilemap.base.DatabaseFactory;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
-import ru.fizteh.fivt.students.inaumov.shell.commands.ExitCommand;
 import ru.fizteh.fivt.students.inaumov.multifilemap.commands.*;
 
 public class MultiFileMapMain {
