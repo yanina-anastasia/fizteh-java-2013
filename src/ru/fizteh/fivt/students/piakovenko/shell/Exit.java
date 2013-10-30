@@ -15,6 +15,10 @@ public class Exit implements Commands {
         currentStatus = cs;
     }
 
+    public void changeCurrentStatus (Object obj){
+        currentStatus = (CurrentStatus)obj;
+    }
+
     public String getName() {
         return name;
     }
