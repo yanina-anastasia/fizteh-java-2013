@@ -46,7 +46,7 @@ public class Exit implements CommandInterface {
             Map.Entry<String, String> currItem = i.next();
             String key = currItem.getKey();
             String value = currItem.getValue();
-            char b = key.charAt(0);
+            int b = key.getBytes()[0];
             int nDirectory = Math.abs(b) % 16;
             int nFile = Math.abs(b) / 16 % 16;
             String rightDir = Integer.toString(nDirectory) + ".dir";
