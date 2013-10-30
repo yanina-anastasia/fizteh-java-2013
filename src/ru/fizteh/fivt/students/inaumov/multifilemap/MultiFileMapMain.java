@@ -9,8 +9,8 @@ import ru.fizteh.fivt.students.inaumov.multifilemap.commands.*;
 public class MultiFileMapMain {
     public static void main(String[] args) {
         String databaseDir = System.getProperty("fizteh.db.dir");
-        if (databaseDir == null) {
-            System.err.println("choose working directory");
+        if (!MultiFileMapUtils.isCorrectDir(databaseDir)) {
+            System.err.println("database directory is incorrect");
             System.exit(1);
         }
 
