@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.dzvonarev.multifilemap;
 
-import ru.fizteh.fivt.students.dzvonarev.shell.Shell;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,10 +35,6 @@ public class MultiFileMap {
             String[] tables = currDir.list();
             if (tables != null && tables.length != 0) {
                 for (String table : tables) {
-                    if (!isValidTable(workingDir + File.separator + table)) {
-                        System.out.println("table " + table + " is not valid");
-                        System.exit(1);
-                    }
                     File dirTable = new File(workingDir + File.separator + table);
                     if (dirTable.isFile()) {
                         continue;
@@ -49,6 +43,9 @@ public class MultiFileMap {
                     if (dbDirs != null && dbDirs.length != 0) {
                         HashMap<String, String> tempMap = new HashMap<String, String>();
                         for (String dbDir : dbDirs) {
+                            if (!isValidDir(dbDir)) {
+                                throw new IOException("directory " + dbDir + " is not valid");
+                            }
                             File dbDirTable = new File(workingDir + File.separator + table + File.separator + dbDir);
                             String[] dbDats = dbDirTable.list();
                             if (dbDats == null || dbDats.length == 0) {
@@ -57,10 +54,18 @@ public class MultiFileMap {
                             for (String dbDat : dbDats) {
                                 String str = workingDir + File.separator + table + File.separator + dbDir + File.separator + dbDat;
                                 readFileMap(tempMap, str, dbDir, dbDat); // table -> all |"key"|"value"|
-
                             }
                         }
                         multiFileMap.put(table, tempMap);
+                    }
+                }
+                for (String table : tables) {
+                    if (new File(workingDir + File.separator + table).isFile()) {
+                        continue;
+                    }
+                    MultiFileMap.realRemove(table);
+                    if (!(new File(workingDir + File.separator + table)).mkdir()) {
+                        throw new IOException("exit: can't make " + table + " directory");
                     }
                 }
             }
@@ -90,7 +95,7 @@ public class MultiFileMap {
         return true;
     }
 
-    public static boolean isValidTable(String path) {
+    public static boolean isValidDir(String path) {
         File dir = new File(path);
         String[] file = dir.list();
         if (file == null || file.length == 0) {
@@ -185,9 +190,6 @@ public class MultiFileMap {
         } catch (FileNotFoundException e) {
             throw new IOException("reading from file: file not found");
         }
-        if (newFile == null) {
-            throw new IOException("reading from file: file not found");
-        }
         return newFile;
     }
 
@@ -195,11 +197,7 @@ public class MultiFileMap {
         RandomAccessFile newFile;
         try {
             newFile = new RandomAccessFile(fileName, "rw");
-            newFile.getChannel().truncate(0);
         } catch (FileNotFoundException e) {
-            throw new IOException("writing to file: file not found");
-        }
-        if (newFile == null) {
             throw new IOException("writing to file: file not found");
         }
         return newFile;
@@ -239,33 +237,12 @@ public class MultiFileMap {
     }
 
     public static void realRemove(String expr) throws IOException {
-        String path = getRealPath() + File.separator + expr;
-        if (path.equals(Shell.getCurrentDirectory()) || Shell.getCurrentDirectory().contains(path)) {                                  // can't delete father of son
-            throw new IOException("drop: can't remove " + path);
-        }
+        String path = System.getProperty("fizteh.db.dir") + File.separator + expr;
         if ((new File(path)).isFile() || (new File(path)).isDirectory()) {
             remove(new File(path));
         } else {
             throw new IOException("drop: can't remove " + path);
         }
-    }
-
-    public static String getRealPath() throws IOException {
-        if (!System.getProperties().containsKey("fizteh.db.dir")) {
-            throw new IOException("wrong properties");
-        }
-        String realPath;
-        String dirName = System.getProperty("fizteh.db.dir");
-        File destFile = new File(dirName);
-        if (!destFile.exists()) {
-            if (!destFile.createNewFile()) {
-                throw new IOException("can't create db.dat file");
-            }
-            realPath = dirName;
-        } else {
-            realPath = dirName;
-        }
-        return realPath;
     }
 
 }

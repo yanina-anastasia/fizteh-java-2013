@@ -10,9 +10,13 @@ import java.util.*;
 
 public class Exit implements CommandInterface {
 
-    public static void writeInFile(RandomAccessFile fileWriter, String key, String value) throws IOException {
+    public static void writeInFile(String path, String key, String value) throws IOException {
+        RandomAccessFile fileWriter = MultiFileMap.openFileForWrite(path);
+        fileWriter.skipBytes((int) fileWriter.length());
+        System.out.println("write in file " + path + " " + key + " " + value);
         try {
             if (key == null || value == null) {
+                MultiFileMap.closeFile(fileWriter);
                 throw new IOException("updating file: error in writing");
             }
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
@@ -55,8 +59,8 @@ public class Exit implements CommandInterface {
             File file = new File(path);
             File fileDir = new File(dir);
             if (!fileDir.exists()) {
-                if (!(new File(dir)).mkdir()) {
-                    throw new IOException("can't create file " + dir);
+                if (!fileDir.mkdir()) {
+                    throw new IOException("can't create directory " + dir);
                 }
             }
             if (!file.exists()) {
@@ -64,13 +68,13 @@ public class Exit implements CommandInterface {
                     throw new IOException("can't create file " + path);
                 }
             }
-            RandomAccessFile myFile = MultiFileMap.openFileForWrite(path);
-            writeInFile(myFile, key, value);
+            writeInFile(path, key, value);
         }
     }
 
     public void execute(Vector<String> args) throws IOException {
         HashMap<String, HashMap<String, String>> myMap = MultiFileMap.getMultiFileMap();
+        MultiFileMap.printMultiMap();
         File dir = new File(System.getProperty("fizteh.db.dir"));
         String[] file = dir.list();
         if (file != null) {
@@ -79,12 +83,8 @@ public class Exit implements CommandInterface {
                     if (new File(System.getProperty("fizteh.db.dir") + File.separator + currFile).isFile()) {
                         continue;
                     }
-                    if (new File(System.getProperty("fizteh.db.dir") + File.separator + currFile).isDirectory() ||
+                    if (new File(System.getProperty("fizteh.db.dir") + File.separator + currFile).isDirectory() &&
                             !(new File(System.getProperty("fizteh.db.dir") + File.separator + currFile)).isHidden()) {
-                        MultiFileMap.realRemove(currFile);
-                        if (!(new File(System.getProperty("fizteh.db.dir") + File.separator + currFile)).mkdir()) {
-                            throw new IOException("exit: can't make " + currFile + " directory");
-                        }
                         writeMap(myMap, currFile);
                     }
                 }
