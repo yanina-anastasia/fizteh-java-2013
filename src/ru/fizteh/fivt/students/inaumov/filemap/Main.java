@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.inaumov.filemap;
 import ru.fizteh.fivt.students.inaumov.filemap.base.SingleFileTable;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
-import ru.fizteh.fivt.students.inaumov.shell.commands.ExitCommand;
+
 import java.io.IOException;
 
 public class Main {
