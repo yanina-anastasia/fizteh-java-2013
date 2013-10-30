@@ -8,7 +8,7 @@ import java.io.File;
 public class MultiFileTableProviderFactory implements TableProviderFactory {
     @Override
     public TableProvider create(String dir) {
-        if (dir == null) {
+        if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("factory: directory name is null");
         }
         return new MultiFileTableProvider(new File(dir));
