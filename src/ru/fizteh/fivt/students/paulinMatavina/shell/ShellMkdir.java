@@ -8,14 +8,20 @@ public class ShellMkdir implements Command {
     public int execute(String[] args, State state) {
         String name = args[0];
         if (name.equals("")) {
+            
             System.err.println("mkdir: no directory name entered");
             return 1;
         }
 
         File dir = new File(((ShellState) state).makeNewSource(name));
         if (dir.exists()) {
-            System.err.println("mkdir: directory already exists");
-            return 1;
+            if (dir.isDirectory()) {
+                //System.err.println("mkdir: directory already exists");
+                return 2;
+            } else {
+                System.err.println("mkdir: directory can't be created");
+                return 1;
+            }
         }
         if (!dir.mkdir()) {
             System.err.println("mkdir: directory can't be created");

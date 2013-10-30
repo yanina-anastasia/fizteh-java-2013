@@ -5,37 +5,37 @@ import java.lang.IllegalArgumentException;
 
 public class ExpressionCheck {
 
-   static void operationOverflowCheck (int a, int b, char operation) throws IllegalArgumentException {
+    static void operationOverflowCheck (int a, int b, char operation) throws IllegalArgumentException {
         long aLong = a;
         long bLong = b;
         boolean overflow = false;
         switch (operation) {
-            case '+' : {
-                if ((aLong + bLong) > Integer.MAX_VALUE || (aLong + bLong) < Integer.MIN_VALUE ) {
+            case '+': {
+                if ((aLong + bLong) > Integer.MAX_VALUE || (aLong + bLong) < Integer.MIN_VALUE) {
                     overflow = true;
                 }
                 break;
             }
-            case '-' : {
-                if ((aLong - bLong) > Integer.MAX_VALUE || (aLong - bLong) < Integer.MIN_VALUE ) {
+            case '-': {
+                if ((aLong - bLong) > Integer.MAX_VALUE || (aLong - bLong) < Integer.MIN_VALUE) {
                     overflow = true;
                 }
                 break;
             }
-            case '*' : {
-                if ((aLong * bLong) > Integer.MAX_VALUE || (aLong * bLong) < Integer.MIN_VALUE ) {
+            case '*': {
+                if ((aLong * bLong) > Integer.MAX_VALUE || (aLong * bLong) < Integer.MIN_VALUE) {
                     overflow = true;
                 }
                 break;
             }
-            case '/' : {
-                nullDivisionCheck(a,b);
-                if ((aLong / bLong) > Integer.MAX_VALUE || (aLong / bLong) < Integer.MIN_VALUE ) {
+            case '/': {
+                nullDivisionCheck (a, b);
+                if ((aLong / bLong) > Integer.MAX_VALUE || (aLong / bLong) < Integer.MIN_VALUE) {
                     overflow = true;
                 }
                 break;
             }
-            default : {
+            default: {
                 throw new IllegalArgumentException ("operationOverflow: invalid operation");
             }
         }
@@ -46,7 +46,7 @@ public class ExpressionCheck {
 
     static void bracketBalanceCheck (String expression) throws IllegalArgumentException {
         int balance = 0;
-        for (char a: expression.toCharArray()) {
+        for (char a : expression.toCharArray ()) {
             if (a == '(') {
                 balance += 1;
             } else if (a == ')') {
@@ -62,10 +62,11 @@ public class ExpressionCheck {
         }
     }
 
-   static void nullDivisionCheck (int a, int b) throws IllegalArgumentException {
-       if (b == 0)
-           throw new IllegalArgumentException("nullDivisionCheck: null division");
-   }
+    static void nullDivisionCheck (int a, int b) throws IllegalArgumentException {
+        if (b == 0) {
+            throw new IllegalArgumentException ("nullDivisionCheck: null division");
+        }
+    }
 
 
     static void invalidExpressionCheck (String expression) throws IllegalArgumentException {
@@ -80,41 +81,41 @@ public class ExpressionCheck {
         boolean nextIsOperand = true;
         String operation = "\\+|\\-|\\*|\\/";
 
-        String whiteSpaceExpression = expression.replace ("+"," + ").replace ("-", " - ")
-                .replace ("*"," * ").replace ("/"," / ").replace ("("," ( ").replace (")"," ) ");
+        String whiteSpaceExpression = expression.replace ("+", " + ").replace ("-", " - ")
+                .replace ("*", " * ").replace ("/", " / ").replace ("(", " ( ").replace (")", " ) ");
 
-        Scanner scanner = new Scanner(whiteSpaceExpression);
-        scanner.useRadix(StackCalculator.RADIX);
+        Scanner scanner = new Scanner (whiteSpaceExpression);
+        scanner.useRadix (StackCalculator.RADIX);
 
-        while (scanner.hasNext()) {
-            if (nextIsOperand && scanner.hasNext("\\(")) {
+        while (scanner.hasNext ()) {
+            if (nextIsOperand && scanner.hasNext ("\\(")) {
                 scanner.next ("\\(");
 
-            } else if (nextIsOperand && scanner.hasNextInt()) {
+            } else if (nextIsOperand && scanner.hasNextInt ()) {
                 scanner.nextInt ();
                 nextIsOperand = false;
                 ++numberOfOperands;
 
-            } else if (!nextIsOperand && scanner.hasNext("\\)")) {
+            } else if (!nextIsOperand && scanner.hasNext ("\\)")) {
                 scanner.next ("\\)");
 
-            } else if (!nextIsOperand && scanner.hasNext(operation)) {
+            } else if (!nextIsOperand && scanner.hasNext (operation)) {
                 scanner.next (operation);
                 nextIsOperand = true;
                 ++numberOfOperations;
 
             } else {
-                throw new IllegalArgumentException ("InvalidExpressionCheck: invalid expression "+ scanner.next());
+                throw new IllegalArgumentException ("InvalidExpressionCheck: invalid expression " + scanner.next ());
             }
         }
 
         if ((numberOfOperands < 2) || (numberOfOperations < 1)) {
-            if (!(numberOfOperands == 1 && numberOfOperations == 0))
-            throw new IllegalArgumentException ("InvalidExpressionCheck: too few operations or operands");
+            if (!(numberOfOperands == 1 && numberOfOperations == 0)) {
+                throw new IllegalArgumentException ("InvalidExpressionCheck: too few operations or operands");
+            }
         }
 
     }
-
 
 
 };

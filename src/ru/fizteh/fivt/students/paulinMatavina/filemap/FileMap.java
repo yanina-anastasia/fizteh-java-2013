@@ -1,16 +1,17 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-import ru.fizteh.fivt.students.paulinMatavina.utils.*;
+import java.util.zip.DataFormatException;
+
+import ru.fizteh.fivt.students.paulinMatavina.utils.CommandRunner;
 
 public class FileMap {
     public static void main(String[] args) {
-        DbState state = new DbState();
-        
-        state.add(new DbGet());
-        state.add(new DbPut());
-        state.add(new DbExit());
-        state.add(new DbRemove());
-        
-        CommandRunner.run(args, state);
+        try {
+            MultiDbState state = new MultiDbState();  
+            CommandRunner.run(args, state);
+        } catch (DataFormatException e) {
+            System.err.println("multifilemap: " + e.getMessage());
+            System.exit(1);
+        }
     }
 }

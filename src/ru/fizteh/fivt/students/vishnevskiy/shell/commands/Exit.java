@@ -2,18 +2,27 @@ package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 
 
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
-import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
-import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 
-public class Exit implements Command {
+public class Exit extends Command {
     private static final String NAME = "exit";
-    public Exit() {}
+    private static final int ARGS_NUM = 0;
+
+    public Exit() {
+    }
+
     public String getName() {
         return NAME;
     }
-    public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
+
+    public int getArgsNum() {
+        return ARGS_NUM;
+    }
+
+    public void execute(State fileSystem, String[] args) throws CommandException {
         if (args.length > 0) {
-            throw new ShellException("exit: no arguments needed");
+            throw new CommandException("exit: no arguments needed");
         }
         System.exit(0);
     }

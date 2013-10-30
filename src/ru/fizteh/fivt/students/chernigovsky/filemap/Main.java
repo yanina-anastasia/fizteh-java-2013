@@ -8,7 +8,6 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
-        State state = new State();
 
         File dbName = new File(System.getProperty("fizteh.db.dir"), "db.dat");
         if (!dbName.exists()) {
@@ -20,8 +19,11 @@ public class Main {
             }
         }
 
+        State state = new State(dbName);
+        state.changeCurrentTable(dbName);
+
         try {
-            state.readTable(dbName);
+            FileMapUtils.readTable(dbName, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -47,7 +49,7 @@ public class Main {
         }
 
         try {
-             state.writeTable(dbName);
+            FileMapUtils.writeTable(dbName, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -66,7 +68,7 @@ public class Main {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
                 try {
-                    state.writeTable(dbName);
+                    FileMapUtils.writeTable(dbName, state);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);
@@ -84,7 +86,7 @@ public class Main {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
             try {
-                state.writeTable(dbName);
+                FileMapUtils.writeTable(dbName, state);
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
                 System.exit(1);

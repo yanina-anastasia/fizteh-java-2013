@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class CpCommand extends AbstractCommand {
+public class CpCommand extends AbstractShellCommand {
 	public CpCommand() {
 		super("cp", 2);
-	};	
+	}
 
-	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException {	
+	public void execute(String[] args, ShellState state, OutputStream out) throws CommandFailException {	
 		String sourcePath = args[0], destinationPath = args[1];
 
-		File source = FileUtils.getAbsFile(sourcePath, state), destination = FileUtils.getAbsFile(destinationPath, state);
+		File source = FileUtils.getAbsFile(sourcePath, state.getCurDir()), 
+		destination = FileUtils.getAbsFile(destinationPath, state.getCurDir());
 
 		if (!source.exists()) {
 			throw new CommandFailException("cp: " + sourcePath + " doesn't exist");
