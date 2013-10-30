@@ -3,15 +3,12 @@ package ru.fizteh.fivt.students.lizaignatyeva.database;
 
 import ru.fizteh.fivt.students.lizaignatyeva.shell.Command;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandFactory;
+import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandRunner;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Scanner;
-import java.util.StringTokenizer;
 
 public class DbMain {
     static Path path;
@@ -67,58 +64,8 @@ public class DbMain {
 
         currentDatabase = new Database(path.toString()); // SIMPLE ONLY
         addCommands();
-        factory = new CommandFactory(commandsMap);
-        if (args.length != 0) {
-            String commands = concatenateWithDelimiter(args, " ");
-            runCommands(commands);
-        } else {
-            Scanner input = new Scanner(System.in);
-            while (true) {
-                try {
-                    System.out.print("$ ");
-                } catch (Exception e) {
-                    System.err.println("Something went wrong!");
-                    return;
-                }
-                String commands = input.nextLine();
-                if (commands.length() != 0) {
-                    runCommands(commands);
-                }
-            }
-        }
+        CommandRunner runner = new CommandRunner(path.toFile(), commandsMap);
+        runner.run(args);
 
-    }
-
-    public static void runCommands(String commands) {
-        String[] commandsList = commands.split(";");
-        for (String commandWithArguments: commandsList) {
-            String[] tokens = tokenizeCommand(commandWithArguments);
-            if (tokens.length == 0) {
-                continue;
-            }
-            Command command;
-            try {
-                command = factory.makeCommand(tokens[0]);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                return;
-            }
-            try {
-                command.run(Arrays.copyOfRange(tokens, 1, tokens.length));
-            } catch (Exception e) {
-                System.err.println(command.name + ": " + e.getMessage());
-                return;
-            }
-        }
-    }
-
-    public static String[] tokenizeCommand(String s) {
-        s = s.trim();
-        StringTokenizer tokenizer = new StringTokenizer(s);
-        String[] result = new String[tokenizer.countTokens()];
-        for (int i = 0; tokenizer.hasMoreTokens(); ++i) {
-            result[i] = tokenizer.nextToken();
-        }
-        return result;
     }
 }

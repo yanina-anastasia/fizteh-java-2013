@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.lizaignatyeva.database;
 
 import ru.fizteh.fivt.students.lizaignatyeva.shell.Command;
-import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandFactory;
 
 public class ExitCommand extends Command {
     public ExitCommand() {
