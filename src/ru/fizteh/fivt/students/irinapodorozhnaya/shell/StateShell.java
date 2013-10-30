@@ -1,27 +1,25 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
-
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Vector;
 
-public class StateShell {
-	InputStream in;
-	PrintStream out;
-	File currentDir;	
-	Vector <AbstractCommand> commands;
-	public StateShell() {
-		in  = System.in;
-		out = System.out;
-		currentDir = new File(".");
-		commands = new Vector<AbstractCommand>();
-		commands.add(new CommandDirectory(this));
-		commands.add(new CommandChangeDirectory(this));
-		commands.add(new CommandRemove(this));
-		commands.add(new CommandMove(this));
-		commands.add(new CommandPrintWorkingDirectory(this));
-		commands.add(new CommandCopy(this));
-		commands.add(new CommandExit(this));
-		commands.add(new CommandMakeDirectory(this));
+
+public class StateShell extends State {
+	
+	public StateShell(InputStream in, PrintStream out) {
+		super(in, out);
+		try {
+			setCurrentDir(new File("."));
+		} catch (IOException e) {
+		}
+		add(new CommandDirectory(this));
+		add(new CommandChangeDirectory(this));
+		add(new CommandRemove(this));
+		add(new CommandMove(this));
+		add(new CommandPrintWorkingDirectory(this));
+		add(new CommandCopy(this));
+		add(new CommandExit(this));
+		add(new CommandMakeDirectory(this));
 	}
 }

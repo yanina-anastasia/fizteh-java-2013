@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class CommandCp implements Command {
+public class CommandCp implements Command<ShellState> {
     public String getName() {
         return "cp";
+    }
+
+    public int getArgCount() {
+        return 2;
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -23,7 +27,7 @@ public class CommandCp implements Command {
         }
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("cp: Command \"cp\" takes one argument.");
         }

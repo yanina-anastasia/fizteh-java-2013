@@ -6,7 +6,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class MvCommand implements Command {
+public class MvCommand implements Command<Shell> {
     private static void selfDelete(final File del) throws IOException {
         if (del.isDirectory() && !del.delete()) {
             throw new IOException("can't delete " + del);
@@ -74,12 +74,17 @@ public class MvCommand implements Command {
     }
 
     @Override
-    public final boolean exec(final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 3) {
             System.err.println("mv: Usage - mv <source> <destination>");
             return false;
         }
         try {
+            String[] command2 = command[2].split(" ");
+            if (command2.length != 1) {
+                System.err.println("mv: Usage - mv <source> <destination>");
+                return false;
+            }
             File from = new File(Shell.getUserDir().toPath().resolve(command[1]).toString());
             File to = new File(Shell.getUserDir().toPath().resolve(command[2]).toString());
             if (from.equals(to)) {

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.util.Vector;
 
-public class Shell {
+public class Shell extends State {
     private static File userDir;
     private Vector<Command> commands;
 
@@ -32,7 +32,16 @@ public class Shell {
         userDir = newUserDir;
     }
 
+    @Override
     public final Vector<Command> getCommands() {
         return commands;
+    }
+
+    @Override
+    public void save() {}
+
+    @Override
+    public Shell getMyState(int hashCode) {
+        return this;
     }
 }

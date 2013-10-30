@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CommandRm implements Command {
+public class CommandRm implements Command<ShellState> {
     public String getName() {
         return "rm";
+    }
+
+    public int getArgCount() {
+        return 1;
     }
 
     private static void removing(Path target) throws IOException {
@@ -35,7 +39,7 @@ public class CommandRm implements Command {
         return path;
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("rm: Command \"rm\" takes one argument.");
         }

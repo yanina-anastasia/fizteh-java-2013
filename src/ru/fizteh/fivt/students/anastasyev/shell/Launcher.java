@@ -1,24 +1,33 @@
 package ru.fizteh.fivt.students.anastasyev.shell;
 
+import ru.fizteh.fivt.students.anastasyev.filemap.*;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
 
-public final class Launcher {
-    private Launcher() { }
-    private static Vector<Command> allCommands;
+public class Launcher {
+    private Vector<Command> allCommands;
+    private State state;
 
-    private static boolean launch(final String arg) throws IOException {
+    private void trySaveState() {
+        try {
+            state.save();
+        } catch (IOException e1) {
+            System.err.println(e1.getMessage());
+        }
+    }
+
+    private boolean launch(final String arg) throws IOException {
         if (arg.equals("")) {
             return true;
         }
-        String[] commands = arg.split("\\s+");
+        String[] commands = arg.split("\\s+", 3);
         boolean result = false;
         int i = 0;
         for (; i < allCommands.size(); ++i) {
             if (allCommands.elementAt(i).commandName().equals(commands[0])) {
-                result = allCommands.elementAt(i).exec(commands);
+                result = allCommands.elementAt(i).exec(state, commands);
                 break;
             }
         }
@@ -29,18 +38,15 @@ public final class Launcher {
         return result;
     }
 
-    private static void interactiveMode() {
+    public void interactiveMode() throws ExitException {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
-            System.out.print(Shell.getUserDir().toPath().normalize() + "$ ");
+            System.out.print("$ ");
             try {
                 String commands = scan.nextLine().trim();
                 String[] allArgs = commands.split(";");
                 for (String arg : allArgs) {
-                    if (arg.equals("exit")) {
-                        System.exit(0);
-                    }
                     if (!arg.equals("")) {
                         if (!launch(arg.trim())) {
                             break;
@@ -48,6 +54,7 @@ public final class Launcher {
                     }
                 }
             } catch (NoSuchElementException e) {
+                trySaveState();
                 System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -55,7 +62,7 @@ public final class Launcher {
         }
     }
 
-    private static void packageMode(final String[] args) {
+    public void packageMode(final String[] args) throws ExitException {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
@@ -65,22 +72,30 @@ public final class Launcher {
         try {
             for (String arg : allArgs) {
                 if (!launch(arg.trim())) {
-                    System.exit(1);
+                    throw new ExitException();
                 }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            System.exit(1);
+            throw new ExitException();
         }
     }
 
-    public static void shellLauncher(final String[] args) {
-        Shell shell = new Shell();
-        allCommands = shell.getCommands();
-        if (args.length == 0) {
-            interactiveMode();
-        } else {
-            packageMode(args);
+    public Launcher(State newState, String[] args) {
+        state = newState;
+        allCommands = state.getCommands();
+        int exitCode = 0;
+        try {
+            if (args.length == 0) {
+                interactiveMode();
+            } else {
+                packageMode(args);
+            }
+        } catch (ExitException e) {
+            exitCode = 1;
+        } finally {
+            trySaveState();
+            System.exit(exitCode);
         }
     }
 }
