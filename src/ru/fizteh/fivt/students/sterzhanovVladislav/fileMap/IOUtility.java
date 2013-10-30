@@ -62,7 +62,7 @@ public class IOUtility {
         safeRead(fstream, keyBuf, keySize);
         byte[] valueBuf = new byte[valueSize];
         safeRead(fstream, valueBuf, valueSize);
-        int hashcode = keyBuf.hashCode();
+        int hashcode = new String(keyBuf, "UTF-8").hashCode();
         int directoryID = hashcode % 16;
         if (directoryID < 0) {
             directoryID += 16;
