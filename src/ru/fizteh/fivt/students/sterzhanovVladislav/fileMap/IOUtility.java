@@ -64,7 +64,13 @@ public class IOUtility {
         safeRead(fstream, valueBuf, valueSize);
         byte b = keyBuf[0];
         int directoryID = b % 16;
+        if (directoryID < 0) {
+            directoryID += 16;
+        }
         int fileID = b / 16 % 16;
+        if (fileID < 0) {
+            fileID += 16;
+        }
         if (directoryID != checkDirID || fileID != checkFileID) {
             throw new Exception("Error: malformed database");
         }
@@ -81,7 +87,13 @@ public class IOUtility {
         for (Map.Entry<String, String> entry : database.entrySet()) {
             byte b = entry.getKey().getBytes()[0];
             int directoryID = b % 16;
+            if (directoryID < 0) {
+                directoryID += 16;
+            }
             int fileID = b / 16 % 16;
+            if (fileID < 0) {
+                fileID += 16;
+            }
             File subdir = Paths.get(dir.normalize() + "/" + directoryID + ".dir").toFile();
             if (!subdir.exists()) {
                 subdir.mkdir();
