@@ -32,7 +32,7 @@ public class Drop implements CommandInterface {
                     MultiFileMap.changeWorkingTable("noTable");
                 }
             } else {
-                throw new IOException("drop: " + table + " is file");
+                System.out.println(table + " not exists");
             }
         } else {
             System.out.println(table + " not exists");

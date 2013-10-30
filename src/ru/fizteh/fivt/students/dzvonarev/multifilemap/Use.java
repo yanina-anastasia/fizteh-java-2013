@@ -23,7 +23,7 @@ public class Use implements CommandInterface {
             System.out.println("using " + tableName);
             MultiFileMap.changeWorkingTable(tableName);
         } else {
-            throw new IOException("use: wrong name of table " + tableName);
+            throw new IOException(tableName + " not exists");
         }
     }
 
