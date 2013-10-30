@@ -54,7 +54,7 @@ public class MultiFileTable implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null) {
+        if (key == null || value == null || value.isEmpty() || key.isEmpty()) {
             throw new IllegalArgumentException("put: key or value is null");
         }
         String oldValue = originalTable.get(key);

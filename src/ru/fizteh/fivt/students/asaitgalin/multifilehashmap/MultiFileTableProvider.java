@@ -15,7 +15,7 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public MultiFileTable getTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to get table: invalid name");
         }
         File tableDir = new File(dbDirectory, name);
@@ -33,7 +33,7 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public MultiFileTable createTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to create table: invalid name");
         }
         File tableDir = new File(dbDirectory, name);
@@ -46,7 +46,7 @@ public class MultiFileTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to remove table: invalid name");
         }
         File tableDir = new File(dbDirectory, name);
