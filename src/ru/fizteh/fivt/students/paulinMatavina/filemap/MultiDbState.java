@@ -264,12 +264,11 @@ public class MultiDbState extends State implements Table {
             System.err.println("database: wrong format");
         } catch (IOException e) {
             System.err.println("database: wrong format");
-        }
-        
+        }   
         return chNum;
     }
     
     public String getName() {
-        return (shell.currentDir.getName());
+        return (currentDir.getName());
     }
 }
