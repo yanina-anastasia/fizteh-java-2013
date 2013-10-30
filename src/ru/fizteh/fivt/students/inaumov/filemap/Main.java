@@ -9,6 +9,10 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) {
         String databaseDir = System.getProperty("fizteh.db.dir");
+        if (databaseDir == null) {
+            System.err.println("choose working directory");
+            System.exit(1);
+        }
 
 		Shell<SingleFileMapShellState> fileMapShell = new Shell<SingleFileMapShellState>();
 
