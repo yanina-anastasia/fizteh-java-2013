@@ -15,7 +15,7 @@ import java.util.Set;
  *  Loads simpleDatabase from a file
  */
 
-public class SimpleDatabaseLoaderWriter {
+class SimpleDatabaseLoaderWriter {
 
     private static void readSomeBytes(InputStream input, byte[] toRead, int len) throws DatabaseException {
         int wasRead = 0;

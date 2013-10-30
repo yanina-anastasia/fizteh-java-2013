@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
  *  Interface between database and shell
  */
 
-public class SimpleFileMapShellUtils {
+class SimpleFileMapShellUtils {
 
     private SimpleFileMapShellUtils() {
 

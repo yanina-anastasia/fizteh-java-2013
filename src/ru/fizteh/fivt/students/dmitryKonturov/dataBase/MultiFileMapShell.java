@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
 import java.nio.file.Path;
 
-public class MultiFileMapShell extends ShellEmulator {
+class MultiFileMapShell extends ShellEmulator {
 
     final Path dataBasesWorkspace;
     protected String currentDatabaseName;

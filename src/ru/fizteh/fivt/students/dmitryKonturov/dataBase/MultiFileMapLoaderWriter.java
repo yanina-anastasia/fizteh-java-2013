@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class MultiFileMapLoaderWriter {
+class MultiFileMapLoaderWriter {
 
     private static void loadDatabaseSubdirectory(Path subDir, SimpleDatabase base) throws DatabaseException {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(subDir)) {

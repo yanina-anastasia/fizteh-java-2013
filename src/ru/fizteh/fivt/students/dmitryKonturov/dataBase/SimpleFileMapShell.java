@@ -14,7 +14,7 @@ import java.nio.file.Path;
  *      exit
  */
 
-public class SimpleFileMapShell extends ShellEmulator {
+class SimpleFileMapShell extends ShellEmulator {
     protected Path databasePath;
     protected SimpleDatabase currentDataBase;
 

@@ -7,10 +7,6 @@ import java.nio.file.Paths;
 
 public class FileMap {
 
-    private FileMap() {
-
-    }
-
     public static void main(String[] args) {
         String dbDir;
         dbDir = System.getProperty("fizteh.db.dir");
