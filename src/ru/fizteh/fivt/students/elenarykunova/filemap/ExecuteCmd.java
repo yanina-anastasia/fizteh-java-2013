@@ -1,16 +1,16 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
-import java.io.File;
-
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class ExecuteCmd extends Shell {
 
-    Filemap mp;
-
-    public ExecuteCmd(String rootDir, Filemap myMap) {
-        currPath = new File(rootDir);
+    private Filemap mp;
+    private MyTableProvider mtp;
+    
+    
+    public ExecuteCmd(Filemap myMap, MyTableProvider myProvider) {
         mp = myMap;
+        mtp = myProvider;
     }
 
     @Override
@@ -28,16 +28,6 @@ public class ExecuteCmd extends Shell {
         return input.split("[\\s]+", 3);
     }
 
-    protected DataBase getDataBaseFromKeyAndCheck(String key) {
-        int hashcode = Math.abs(key.hashCode());
-        int ndir = hashcode % 16;
-        int nfile = hashcode / 16 % 16;
-        if (!mp.data[ndir][nfile].hasFile()) {
-            // doesn't exists. need to create.
-            mp.data[ndir][nfile] = new DataBase(mp.currTable, ndir, nfile, true);
-        }
-        return mp.data[ndir][nfile];
-    }
 
     @Override
     protected ExitCode analyze(String input) {
@@ -49,11 +39,11 @@ public class ExecuteCmd extends Shell {
         switch (arg[0]) {
         case "put":
             if (arg.length == 3) {
-                if (mp.currTable == null) {
+                if (mp.getName() == null) {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = getDataBaseFromKeyAndCheck(arg[1]).put(arg[1], arg[2]);
+                ans = mp.put(arg[1], arg[2]);
                 if (ans == null) {
                     System.out.println("new");
                 } else {
@@ -65,11 +55,11 @@ public class ExecuteCmd extends Shell {
             break;
         case "get":
             if (arg.length == 2) {
-                if (mp.currTable == null) {
+                if (mp.getName() == null) {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = getDataBaseFromKeyAndCheck(arg[1]).get(arg[1]);
+                ans = mp.get(arg[1]);
                 if (ans == null) {
                     System.out.println("not found");
                 } else {
@@ -81,11 +71,11 @@ public class ExecuteCmd extends Shell {
             break;
         case "remove":
             if (arg.length == 2) {
-                if (mp.currTable == null) {
+                if (mp.getName() == null) {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = getDataBaseFromKeyAndCheck(arg[1]).remove(arg[1]);
+                ans = mp.remove(arg[1]);
                 if (ans == null) {
                     System.out.println("not found");
                 } else {
@@ -96,53 +86,73 @@ public class ExecuteCmd extends Shell {
             break;
         case "create":
             if (arg.length == 2) {
-                String tablePath = currPath + File.separator + arg[1];
-                File tmpFile = new File(tablePath);
-                if (tmpFile.exists()) {
-                    System.out.println(arg[1] + " exists");
-                } else {
-                    if (mkdir(arg[1]) == ExitCode.OK) {
-                        System.out.println("created");
+                try {
+                    if (mtp.createTable(arg[1]) == null) {
+                        System.out.println(arg[1] + " exists");
                     } else {
-                        System.err.println(arg[1] + " can't create a table");
-                        return ExitCode.ERR;
+                        System.out.println("created");
                     }
+                } catch (IllegalArgumentException e1) {
+                    System.err.println(arg[1] + " illegal name");
+                    return ExitCode.ERR;
                 }
                 return ExitCode.OK;
             }
             break;
         case "drop":
             if (arg.length == 2) {
-                String tablePath = currPath + File.separator + arg[1];
-                File tmpFile = new File(tablePath);
-                if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-                    System.out.println(arg[1] + " not exists");
-                } else {
-                    if (rm(arg[1]) == ExitCode.OK) {
-                        if (mp.currTable != null && mp.currTable.equals(tablePath)) {
-                            mp.currTable = null;
-                        }
-                        System.out.println("dropped");
-                    } else {
-                        System.err.println(arg[1] + " can't drop a table");
-                        return ExitCode.ERR;
+                //TODO catch exceptions
+                try {
+                    mtp.removeTable(arg[1]);
+                    if (mp.getName() != null && mp.getName().equals(arg[1])) {
+                        mp.setNameToNull();
                     }
+                    System.out.println("dropped");
+                } catch (IllegalStateException e2) {
+                    System.out.println(arg[1] + " not exists");
+                } catch (IllegalArgumentException e1) {
+                    System.err.println(arg[1] + " illegal name");
+                    return ExitCode.ERR;
                 }
                 return ExitCode.OK;
             }
             break;
         case "use":
             if (arg.length == 2) {
-                String tablePath = currPath + File.separator + arg[1];
-                File tmpFile = new File(tablePath);
-                if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-                    System.out.println(arg[1] + " not exists");
-                } else {
-                    if (!tablePath.equals(mp.currTable)) {
-                        mp.changeTable(arg[1]);
-                    }
-                    System.out.println("using " + arg[1]);
+                if (mp.getUncommitedChangesAndTrack(false) != 0) {
+                    System.err.println(mp.getUncommitedChangesAndTrack(false) + " unsaved changes");
+                    return ExitCode.ERR;
                 }
+                try {
+                    Filemap newFileMap = (Filemap) mtp.getTable(arg[1]);
+                    if (newFileMap == null) {
+                        System.out.println(arg[1] + " not exists");
+                    } else {
+                        mp = newFileMap;
+                        System.out.println("using " + arg[1]);
+                    }
+                } catch (IllegalArgumentException e1) {
+                    System.err.println(arg[1] + " illegal name");
+                    return ExitCode.ERR;
+                }
+                return ExitCode.OK;
+            }
+            break;
+        case "size":
+            if (arg.length == 1) {
+                System.out.println(mp.size());
+                return ExitCode.OK;
+            }
+            break;
+        case "commit":
+            if (arg.length == 1) {
+                System.out.println(mp.commit());
+                return ExitCode.OK;
+            }
+            break;
+        case "rollback":
+            if (arg.length == 1) {
+                System.out.println(mp.rollback());
                 return ExitCode.OK;
             }
             break;

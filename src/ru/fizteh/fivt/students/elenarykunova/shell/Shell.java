@@ -15,7 +15,7 @@ public class Shell {
 
     protected static File currPath;
 
-    protected static File getFileFromString(String pathString, String cmd)
+    protected File getFileFromString(String pathString, String cmd)
             throws IOException {
         File resultFile = new File(pathString);
         if (!resultFile.isAbsolute()) {
@@ -30,7 +30,7 @@ public class Shell {
         }
     }
 
-    protected static ExitCode deleteFile(File myFile, String cmd) {
+    protected ExitCode deleteFile(File myFile, String cmd) {
         if (!myFile.exists()) {
             System.err.println(cmd + ": '" + myFile.getAbsolutePath()
                     + "': doesn't exist");
@@ -63,7 +63,7 @@ public class Shell {
         }
     }
 
-    protected static boolean isRoot(File arg) {
+    protected boolean isRoot(File arg) {
         for (File i : File.listRoots()) {
             if (arg.equals(i)) {
                 return true;
@@ -72,7 +72,7 @@ public class Shell {
         return false;
     }
 
-    protected static ExitCode copyFileToDir(File source, File dest, String cmd) {
+    protected ExitCode copyFileToDir(File source, File dest, String cmd) {
         if (!source.exists()) {
             System.err.println(cmd + ": '" + source.getAbsolutePath()
                     + "': doesn't exist");
@@ -176,7 +176,7 @@ public class Shell {
         return ExitCode.OK;
     }
 
-    protected static void copyFromFileToFile(File source, File dest)
+    protected void copyFromFileToFile(File source, File dest)
             throws IOException {
         FileInputStream is = new FileInputStream(source);
         try {
@@ -195,11 +195,11 @@ public class Shell {
         }
     }
 
-    protected static void pwd() {
+    protected  void pwd() {
         System.out.println(currPath.toString());
     }
 
-    protected static ExitCode cd(String dest) {
+    protected ExitCode cd(String dest) {
         File newFile;
         try {
             newFile = getFileFromString(dest, "cd");
@@ -221,7 +221,7 @@ public class Shell {
         }
     }
 
-    protected static ExitCode dir() {
+    protected ExitCode dir() {
         File newFile = new File(currPath.toString());
         if (!newFile.exists()) {
             System.err.println("dir: '" + currPath.toString()
@@ -240,7 +240,7 @@ public class Shell {
         return ExitCode.OK;
     }
 
-    public static ExitCode rm(String fileToDel) {
+    public ExitCode rm(String fileToDel) {
         File myFile;
         try {
             myFile = getFileFromString(fileToDel, "rm");
@@ -250,7 +250,7 @@ public class Shell {
         }
     }
 
-    protected static ExitCode mkdir(String dirName) {
+    public ExitCode mkdir(String dirName) {
         File newDir;
         newDir = new File(currPath.getAbsolutePath() + File.separator + dirName);
         if (!newDir.mkdir()) {
@@ -260,7 +260,7 @@ public class Shell {
         return ExitCode.OK;
     }
 
-    protected static ExitCode mv(String source, String dest) {
+    protected ExitCode mv(String source, String dest) {
         File sourceFile;
         File destFile;
         try {
@@ -288,7 +288,7 @@ public class Shell {
         }
     }
 
-    protected static ExitCode cp(String source, String dest) {
+    protected ExitCode cp(String source, String dest) {
         File sourceFile;
         File destFile;
         try {
@@ -427,9 +427,17 @@ public class Shell {
             }
         }
     }
+    
+    public Shell(String dir) {
+        currPath = new File(dir);
+    }
 
+    public Shell() {
+        new File(System.getProperty("user.dir"));
+    }
+    
     public static void main(String[] args) {
-        currPath = new File(System.getProperty("user.dir"));
+//        currPath = new File(System.getProperty("user.dir"));
         Shell myShell = new Shell();
         myShell.workWithUser(args);
     }

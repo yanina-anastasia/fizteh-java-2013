@@ -16,10 +16,10 @@ public class DataBase {
 
     public HashMap<String, String> data = new HashMap<String, String>();
     public RandomAccessFile dataFile = null;
-    String filePath = null;
-    String tablePath = null;
-    int ndir;
-    int nfile;
+    private String filePath = null;
+    private String tablePath = null;
+    private int ndir;
+    private int nfile;
 
     public boolean hasFile() {
         return (dataFile != null);
@@ -29,7 +29,7 @@ public class DataBase {
         return ndir + ".dir" + File.separator + nfile + ".dat";
     }
 
-    public DataBase(String currTablePath, int numbDir, int numbFile,
+    public DataBase(String currTablePath, int numbDir, int numbFile, HashMap<String, String> map,
             boolean createIfNotExists) {
         tablePath = currTablePath;
         ndir = numbDir;
@@ -62,7 +62,7 @@ public class DataBase {
                 System.err.println(filePath + ": file not found");
                 System.exit(1);
             }
-            load(dataFile);
+            load(dataFile, map);
             closeDataFile();
         }
     }
@@ -109,7 +109,7 @@ public class DataBase {
         return result;
     }
 
-    public void load(RandomAccessFile dataFile) {
+    public void load(RandomAccessFile dataFile, HashMap<String, String> map) {
         try {
             if (dataFile.length() == 0) {
                 return;
@@ -150,6 +150,7 @@ public class DataBase {
                 value = getValueFromFile(nextOffset);
 
                 data.put(keyFirst, value);
+                map.put(keyFirst, value);
 
                 keyFirst = keySecond;
                 newOffset = nextOffset;
@@ -201,7 +202,8 @@ public class DataBase {
         }
         if (data == null || data.isEmpty()) {
             closeDataFile();
-            Shell.rm(filePath);
+            Shell sh = new Shell(tablePath);
+            sh.rm(filePath);
             return;
         }
 
@@ -228,10 +230,11 @@ public class DataBase {
                 dataFile.write(myEntry.getValue().getBytes());
             }
             if (dataFile.length() == 0) {
-                Shell.rm(filePath);
+                Shell sh = new Shell(tablePath);
+                sh.rm(filePath);
                 return;
             }
-            data.clear();
+//            data.clear();
             closeDataFile();
         } catch (IOException e2) {
             throw e2;
