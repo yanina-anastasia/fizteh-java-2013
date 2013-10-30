@@ -17,7 +17,7 @@ public class RemoveCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        String value = curState.remove(args[1]);
+        String value = curState.dataStorage.remove(args[1]);
         if (value == null) {
             System.out.println("not found");
         } else {
