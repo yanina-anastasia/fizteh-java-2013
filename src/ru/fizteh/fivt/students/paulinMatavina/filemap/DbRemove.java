@@ -12,9 +12,11 @@ public class DbRemove implements Command {
             return 0;
         }
         
-        int folder = multiState.getFolderNum(key);
-        int file = multiState.getFileNum(key);
-        multiState.data[folder][file].remove(args);        
+        if (multiState.remove(key) != null) {
+            System.out.println("removed");
+        } else {
+            System.out.println("not found");
+        }        
         return 0;
     }
     

@@ -34,21 +34,21 @@ public class DbState extends State{
     }
     
     @Override
-    public void exitWithError(int errCode) {
+    public int exitWithError(int errCode) {
         try {
             commit();
         } catch (IOException e) {
-            System.out.println("filemap: error while writing data to the disk");
+            System.err.println("filemap: error while writing data to the disk");
             errCode = 1;
         } finally {
             try {
                 dbFile.close();
             } catch (IOException e) {
                 System.err.println("filemap: error in file closing");
-                System.exit(1);
+                return 1;
             }
         }
-        System.exit(errCode);
+        return errCode;
     }
     
     private void fileCheck() {
@@ -114,11 +114,12 @@ public class DbState extends State{
         return byteVectToStr(byteVect);
     }
     
-    public void loadData() throws IOException {
+    public int loadData() throws IOException {
         if (dbFile.length() == 0) {
-                return;
+                return 0;
         } 
         
+        int result = 0;
         int position = 0;
         String key = getKeyFromFile(position);
         int startOffset = dbFile.readInt();
@@ -142,19 +143,20 @@ public class DbState extends State{
                 if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
                     throw new IOException("wrong key in file");
                 }
+                result++;
                 data.put(key, value);
             }
             
             key = key2;
             startOffset = endOffset;
         } while (position <= firstOffset); 
+        return result;
     }
 
     public void commit() throws IOException {
         fileCheck();
         int offset = 0;
         long pos = 0;
-        
         for (String s : data.keySet()) {
             offset += s.getBytes("UTF-8").length + 5;
         }
@@ -180,38 +182,29 @@ public class DbState extends State{
         return ((Math.abs(key.getBytes()[0]) / 16) % 16);
     }
     
-    public int put(String[] args) {
+    public String put(String[] args) {
         String key = args[0];
         String value = args[1];
-        String result = data.put(key, value);
-        if (result != null) {
-                System.out.println("overwrite");
-                System.out.println(result);
-        } else {
-                System.out.println("new");
-        }
-        return 0;
+        return data.put(key, value);
     }
     
-    public int get(String[] args) {
+    public String get(String[] args) {
         String key = args[0];
         if (data.containsKey(key)) {
-            System.out.println("found");
-            System.out.println(data.get(key));
+            return data.get(key);
         } else {
-            System.out.println("not found");
+            return null;
         }
-        return 0;
     }
     
-    public int remove(String[] args) {
+    public String remove(String[] args) {
         String key = args[0];
         if (data.containsKey(key)) {
+            String value = data.get(key);
             data.remove(key);
-            System.out.println("removed");
+            return value;
         } else {
-            System.out.println("not found");
+            return null;
         }
-        return 0;
     }
 }

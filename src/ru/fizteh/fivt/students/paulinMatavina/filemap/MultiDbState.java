@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.DataFormatException;
-
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class MultiDbState extends State{
+public class MultiDbState extends State implements Table {
     final int folderNum = 16;
     final int fileInFolderNum = 16;
     public String tableName;
@@ -16,12 +16,16 @@ public class MultiDbState extends State{
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
+    public int changesNum;
+    private int dbSize;
     
-    public MultiDbState() throws DataFormatException {
-        String property = System.getProperty("fizteh.db.dir");
+    public MultiDbState(String property) throws IllegalArgumentException {
         if (property == null) {
-            throw new DataFormatException("wrong root directory");
+            throw new IllegalArgumentException("wrong root directory");
         }
+        
+        changesNum = 0;
+        dbSize = 0;
         isDropped = false;
         rootPath = new File(property).getAbsolutePath();
         data = new DbState[folderNum][fileInFolderNum];
@@ -30,17 +34,19 @@ public class MultiDbState extends State{
         
         tableName = null;
         if (setCurrentDir() != 0) {
-            throw new DataFormatException(property + ": wrong root directory");
+            throw new IllegalArgumentException(property + ": wrong root directory");
         }
         
         commands = new HashMap<String, Command>();
         this.add(new DbGet());
         this.add(new DbPut());
-        this.add(new DbRemove());
+        this.add(new MultiDbRemove());
         this.add(new MultiDbDrop());
         this.add(new MultiDbCreate());
         this.add(new MultiDbUse());
-        this.add(new DbExit());
+        this.add(new DbCommit());
+        this.add(new DbRollback());
+        this.add(new DbSize());
     }
     
     private int checkFolder(String path) {
@@ -58,6 +64,7 @@ public class MultiDbState extends State{
     }
     
     private void loadData() throws IOException, DataFormatException {
+        data = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -69,7 +76,7 @@ public class MultiDbState extends State{
                 data[i][j] = new DbState(filePath, i, j);
                 File f = new File(data[i][j].path);
                 f.createNewFile();
-                data[i][j].loadData();
+                dbSize += data[i][j].loadData();
             }
         }
     }
@@ -90,8 +97,10 @@ public class MultiDbState extends State{
     
     public int changeBase(String name) {
         if (isDbChosen()) {
-            tryToCommit();   
+            commit();   
         }
+        dbSize = 0;
+        changesNum = 0;
         File lastDir = shell.currentDir;
         
         int result = shell.cd(makeNewSource(name));
@@ -117,34 +126,33 @@ public class MultiDbState extends State{
     }
      
     @Override
-    public void exitWithError(int errCode) {
+    public int exitWithError(int errCode) throws DbException {
         if (!isDbChosen()) {
-            System.exit(0);
+            throw new DbException(0);
         }
-        int result = tryToCommit();
-        if (result != 0) {
+        int result = commit();
+        if (result < 0) {
             errCode = 1;
         }
         
-        System.exit(errCode);
+        throw new DbException(errCode);
     }
     
-    private int tryToCommit() {
+    public int commit() {
         try {
-            commit();
+            return tryToCommit();
         } catch (IOException e) {
             System.out.println("multifilemap: error while writing data to the disk");
-            return 1;
+            return -1;
         } catch (DataFormatException e) {
             System.out.println("multifilemap: " + e.getMessage());
-            return 1;
+            return -1;
         }
-        return 0;
     }
     
-    public void commit() throws IOException, DataFormatException {
+    public int tryToCommit() throws IOException, DataFormatException {
         if (isDropped) {
-            return;
+            return 0;
         }
         
         for (int i = 0; i < folderNum; i++) {
@@ -172,6 +180,9 @@ public class MultiDbState extends State{
                 shell.rm(arg);
             }
         }
+        int chNum = changesNum;
+        changesNum = 0;
+        return chNum;
     }
     
     public int getFolderNum(String key) {
@@ -182,5 +193,79 @@ public class MultiDbState extends State{
     public int getFileNum(String key) {
         byte[] bytes = key.getBytes();
         return (Math.abs(bytes[0]) / 16 % 16);
+    }
+    
+    public String put(String key, String value) {
+        if (!isDbChosen() || isDropped) {
+            return null;
+        }
+        
+        if (key == null || value == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        String result = data[folder][file].put(new String[] {key, value});
+        if (result == null) {
+            changesNum++;
+            dbSize++;
+        }
+        return result;  
+    }
+    
+    public String get(String key) {
+        if (!isDbChosen() || isDropped) {
+            return null;
+        }
+        
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        return data[folder][file].get(new String[] {key});  
+    }
+    
+    public String remove(String key) {
+        if (!isDbChosen() || isDropped) {
+            return null;
+        }
+        
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        String result = data[folder][file].remove(new String[] {key});
+        if (result != null) {
+            dbSize--;
+            changesNum++;
+        }
+        return result;  
+    }
+    
+    public int size() {
+        return dbSize;
+    }
+    
+    public int rollback() {
+        int chNum = changesNum;
+        changesNum = 0;
+        try {
+            loadData();
+        } catch (DataFormatException e) {
+            System.err.println("database: wrong format");
+        } catch (IOException e) {
+            System.err.println("database: wrong format");
+        }
+        
+        return chNum;
+    }
+    
+    public String getName() {
+        return (shell.currentDir.getName());
     }
 }

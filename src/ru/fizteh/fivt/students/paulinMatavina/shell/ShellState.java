@@ -14,7 +14,6 @@ public class ShellState extends State{
         this.add(new ShellMove());
         this.add(new ShellPwd());
         this.add(new ShellCopy());
-        this.add(new ShellExit());
         this.add(new ShellMkdir());
     }
     
@@ -42,6 +41,11 @@ public class ShellState extends State{
             return 1;
         }
         return 0;
+    }
+    
+    @Override
+    public int exitWithError(int errCode) {
+        return errCode;
     }
     
     public int rm(String[] args) {

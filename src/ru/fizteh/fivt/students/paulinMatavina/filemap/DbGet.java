@@ -12,9 +12,13 @@ public class DbGet implements Command {
             return 0;
         }
         
-        int folder = multiState.getFolderNum(key);
-        int file = multiState.getFileNum(key);
-        multiState.data[folder][file].get(args);        
+        String result = multiState.get(key);  
+        if (result != null) {
+            System.out.println("found");
+            System.out.println(result);
+        } else {
+            System.out.println("not found");
+        }
         return 0;
     }
     
