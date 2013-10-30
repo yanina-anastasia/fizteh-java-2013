@@ -11,7 +11,7 @@ public class ShellRm implements Command {
             File[] dirList = source.listFiles();
             if (!source.exists()) {
                 System.err.println("rm: no file: " + source);
-                return 2;
+                throw new IllegalArgumentException();
             }
             if (source.isDirectory()) {
                 for (int i = 0; i < dirList.length; i++) {
@@ -22,12 +22,12 @@ public class ShellRm implements Command {
             }
             if (!source.delete()) {
                 System.err.println("rm: cannot delete: " + source);
-                return 1;
+                throw new IllegalArgumentException();
             }
             return 0;
         } catch (Exception e) {
             System.err.println("rm: error: " + e.getMessage());
-            return 1;
+            throw new IllegalArgumentException();
         }
     }
 

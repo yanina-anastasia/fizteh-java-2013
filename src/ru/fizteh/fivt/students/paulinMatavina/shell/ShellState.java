@@ -19,14 +19,9 @@ public class ShellState extends State{
     
     public int cd(final String source) {
         File newDir = new File(makeNewSource(source));
-        if (!newDir.exists()) {
+        if (!newDir.exists() || !newDir.isDirectory()) {
             System.err.println("cd: " + source + ": is not a directory");
-            return 2;
-        }
-        
-        if  (!newDir.isDirectory()) {
-            System.err.println("cd: " + source + ": is not a directory");
-            return 1;
+            throw new IllegalArgumentException();
         }
         try {
             if (newDir.isAbsolute()) {
@@ -38,7 +33,7 @@ public class ShellState extends State{
         } catch (Exception e) {
             System.err.println("cd: " + source
                     + ": is not a correct directory");
-            return 1;
+            throw new IllegalArgumentException();
         }
         return 0;
     }
@@ -48,7 +43,7 @@ public class ShellState extends State{
         return errCode;
     }
     
-    public int rm(String[] args) {
+    public int rm(String[] args) throws IllegalArgumentException {
         Command rm = new ShellRm();
         return rm.execute(args, this);
     }
@@ -58,12 +53,12 @@ public class ShellState extends State{
         return pwd.execute(args, this);
     }
     
-    public int cd(String[] args) {
+    public int cd(String[] args) throws IllegalArgumentException {
         Command cd = new ShellCd();
         return cd.execute(args, this);
     }
     
-    public int mkdir(String[] args) {
+    public int mkdir(String[] args) throws IllegalArgumentException {
         Command mkdir = new ShellMkdir();
         return mkdir.execute(args, this);
     }

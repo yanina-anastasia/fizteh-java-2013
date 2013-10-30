@@ -8,9 +8,8 @@ public class ShellMkdir implements Command {
     public int execute(String[] args, State state) {
         String name = args[0];
         if (name.equals("")) {
-            
             System.err.println("mkdir: no directory name entered");
-            return 1;
+            throw new IllegalArgumentException();
         }
 
         File dir = new File(((ShellState) state).makeNewSource(name));
@@ -20,12 +19,12 @@ public class ShellMkdir implements Command {
                 return 2;
             } else {
                 System.err.println("mkdir: directory can't be created");
-                return 1;
+                throw new IllegalArgumentException();
             }
         }
         if (!dir.mkdir()) {
             System.err.println("mkdir: directory can't be created");
-            return 1;
+            throw new IllegalArgumentException();
         }
         return 0;
     }
