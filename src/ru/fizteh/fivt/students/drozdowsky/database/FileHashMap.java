@@ -147,15 +147,9 @@ public class FileHashMap {
 
                 base[nDir][nFile] = new FileMap(file);
                 Set<String> keys = base[nDir][nFile].getKeys();
-                if (keys.size() == 0) {
-                    String s = "";
-                    Scanner in = new Scanner(file);
-                    while(in.hasNext())
-                        s += in.nextLine() + "\r\n";
-                    in.close();
-                    error(s);
-                    fatalError(file.getAbsolutePath() + ": Empty database file:\"" + s + "\"");
-                }
+               /* if (keys.size() == 0) {
+                    fatalError(file.getAbsolutePath() + ": Empty database file");
+                }*/
                 for (String key : keys) {
                     int realNDir = getDirNum(key);
                     int realNFile = getFileNum(key);
@@ -169,7 +163,7 @@ public class FileHashMap {
 
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
-            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i));
+            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i) + ".dir");
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");

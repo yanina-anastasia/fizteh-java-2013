@@ -51,7 +51,9 @@ public class Utils {
                     if (last + 1 != i) {
                         tempArgs.add(arg.substring(last + 1, i).trim());
                     }
-                    result.add(tempArgs.toArray(new String[tempArgs.size()]));
+                    if (tempArgs.size() != 0) {
+                        result.add(tempArgs.toArray(new String[tempArgs.size()]));
+                    }
                     last = i;
                     tempArgs.clear();
                     noWS = false;

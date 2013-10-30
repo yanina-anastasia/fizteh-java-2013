@@ -31,7 +31,7 @@ public class PacketMode<T> {
                             cm.executeCommand(null, close);
                         }
                     } catch (NoSuchMethodException e) {
-                        //System.err.println(e.getMessage());
+                        System.err.println(e.getMessage());
                     }
                     System.exit(1);
                 } else {
