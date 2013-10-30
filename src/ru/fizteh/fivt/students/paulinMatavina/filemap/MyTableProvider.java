@@ -11,6 +11,9 @@ public class MyTableProvider implements TableProvider {
     }
     
     public Table getTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
         if (!table.fileExist(name)) {
             return null;
         }
@@ -20,6 +23,9 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
         if (table.fileExist(name)) {
             return null;
         }
@@ -29,6 +35,9 @@ public class MyTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
         if (!table.fileExist(name)) {
             throw new IllegalStateException();
         }
