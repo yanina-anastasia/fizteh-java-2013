@@ -1,43 +1,44 @@
-package ru.fizteh.fivt.students.chernigovsky.filemap;
+package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandExit;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandGet;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandPut;
+import ru.fizteh.fivt.students.chernigovsky.filemap.CommandRemove;
+import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 
 public class Main {
     public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
-        File dbName = new File(System.getProperty("fizteh.db.dir"), "db.dat");
-        if (!dbName.exists()) {
-            try {
-                dbName.createNewFile();
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-                System.exit(1);
-            }
+        String dbPath = System.getProperty("fizteh.db.dir");
+        if (dbPath == null) {
+            System.err.print("DB directory not exists");
+            System.exit(1);
         }
-
-        State state = new State(dbName);
-        state.changeCurrentTable(dbName);
-
-        try {
-            FileMapUtils.readTable(dbName, state);
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
+        File dbDirectory = new File(dbPath);
+        if (!dbDirectory.exists()) {
+            System.err.println("DB directory not exists");
             System.exit(1);
         }
 
-
+        State state = new State(dbDirectory);
 
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());
         commandMap.put("remove", new CommandRemove());
         commandMap.put("exit", new CommandExit());
+        commandMap.put("create", new CommandCreate());
+        commandMap.put("drop", new CommandDrop());
+        commandMap.put("use", new CommandUse());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, state, dbName);
+            interactiveMode(commandMap, state);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -45,11 +46,11 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, state, dbName);
+            batchMode(commands, commandMap, state);
         }
 
         try {
-            FileMapUtils.writeTable(dbName, state);
+             MultiFileHashMapUtils.writeTable(dbDirectory, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -57,7 +58,7 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, State state, File dbName) {
+    private static void interactiveMode(Map<String, Command> commandMap, State state) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
@@ -67,11 +68,13 @@ public class Main {
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
-                try {
-                    FileMapUtils.writeTable(dbName, state);
-                } catch (IOException exc) {
-                    System.err.println(exc.getMessage());
-                    System.exit(1);
+                if (state.getCurrentTable() != null) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
                 }
                 System.exit(0);
             }
@@ -79,17 +82,19 @@ public class Main {
         }
     }
 
-    private static void batchMode(String commands, Map<String, Command> commandMap, State state, File dbName) {
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state) {
         try {
             parseCommands(commands, commandMap, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
-            try {
-                FileMapUtils.writeTable(dbName, state);
-            } catch (IOException exc) {
-                System.err.println(exc.getMessage());
-                System.exit(1);
+            if (state.getCurrentTable().exists()) {
+                try {
+                    MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
+                } catch (IOException exc) {
+                    System.err.println(exc.getMessage());
+                    System.exit(1);
+                }
             }
             System.exit(0);
         }

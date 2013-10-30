@@ -10,6 +10,10 @@ public class CommandGet implements Command {
         return 1;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
+        if (state.getCurrentTable() == null) {
+            System.out.println("no table");
+            return;
+        }
         String value = state.get(args[1]);
         if (value == null) {
             System.out.println("not found");
