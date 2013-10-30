@@ -222,4 +222,12 @@ public final class DataBase implements Table {
         }
         return allCanceled;
     }
+
+    public int getNewKeys() {
+        int allNewSize = 0;
+        for (int i = 0; i < 256; ++i) {
+            allNewSize += files[i].getNewKeys();
+        }
+        return allNewSize;
+    }
 }

@@ -14,10 +14,8 @@ public class ShellDropTable extends SimpleShellCommand {
 
     public void run() {
         try {
-            if ((context.table != null) || (context.table.getName().equals(getArg(1)))) {
+            if ((context.table != null) && (context.table.getName().equals(getArg(1)))) {
                 context.table = null;
-                //TODO very bad
-                context.changes = 0;
             }
 
             context.provider.removeTable(getArg(1));

@@ -6,11 +6,16 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 public class Context {
     public TableProvider provider;
     public Table table;
-    public int changes;
 
     public Context(TableProvider newProvider) {
         provider = newProvider;
         table = null;
-        changes = 0;
+    }
+
+    public int getChanges() {
+        if (table != null) {
+            return ((DataBase) table).getNewKeys();
+        }
+        return 0;
     }
 }
