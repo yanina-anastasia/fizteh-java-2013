@@ -81,6 +81,10 @@ public class MultiDbState extends State implements Table {
         }
     }
     
+    public boolean fileExist(String name) {
+        return new File(makeNewSource(name)).exists();
+    }
+    
     public boolean isDbChosen() {
         return tableName != null;
     }

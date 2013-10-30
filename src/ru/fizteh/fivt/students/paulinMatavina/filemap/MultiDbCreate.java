@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-import java.io.File;
-
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MultiDbCreate implements Command {
@@ -12,7 +10,7 @@ public class MultiDbCreate implements Command {
             throw new IllegalArgumentException();
         }
         MultiDbState multiState = (MultiDbState) state;
-        if (new File(multiState.makeNewSource(name)).exists()) {
+        if (multiState.fileExist(name)) {
             System.out.println(name + " exists");
             return 0;
         }
