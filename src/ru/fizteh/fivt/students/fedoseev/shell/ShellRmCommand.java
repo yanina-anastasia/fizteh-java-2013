@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class RmCommand extends AbstractCommand {
-    public RmCommand() {
+public class ShellRmCommand extends AbstractCommand<ShellState> {
+    public ShellRmCommand() {
         super("rm", 1);
     }
 
@@ -27,7 +26,7 @@ public class RmCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute(String[] input, AbstractFrame.FrameState state) throws IOException {
+    public void execute(String[] input, ShellState state) throws IOException {
         File curFile = new File(state.getCurState().toPath().resolve(input[0]).toString());
 
         if (!curFile.exists()) {

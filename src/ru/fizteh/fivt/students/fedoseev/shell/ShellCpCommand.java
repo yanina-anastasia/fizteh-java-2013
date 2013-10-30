@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.fedoseev.shell;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -9,8 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class CpCommand extends AbstractCommand {
-    public CpCommand() {
+public class ShellCpCommand extends AbstractCommand<ShellState> {
+    public ShellCpCommand() {
         super("cp", 2);
     }
 
@@ -28,7 +27,7 @@ public class CpCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute(String[] input, AbstractFrame.FrameState state) throws IOException {
+    public void execute(String[] input, ShellState state) throws IOException {
         final File source = new File(state.getCurState().toPath().resolve(input[0]).toString());
         File destination = new File(state.getCurState().toPath().resolve(input[1]).toString());
         FileFilter filter = new FileFilter() {

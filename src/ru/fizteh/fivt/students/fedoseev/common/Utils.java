@@ -26,8 +26,6 @@ public class Utils {
             return new String[0];
         }
 
-        String[] args = inputString.trim().substring(begin + 1, inputString.length()).trim().split("\\s+");
-
-        return args;
+        return inputString.trim().substring(begin + 1, inputString.length()).trim().split("\\s+");
     }
 }
