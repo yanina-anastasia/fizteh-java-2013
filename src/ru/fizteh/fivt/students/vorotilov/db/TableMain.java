@@ -165,12 +165,14 @@ public class TableMain {
                 }
             }
             System.exit(0);
-        } catch (IOException | WrongCommand e) {
-            currentTable.commit();
-            try {
-                currentTable.close();
-            } catch (Exception f) {
-                throw new RuntimeException();
+        } catch (IOException | WrongCommand | RuntimeException e) {
+            if (currentTable != null) {
+                currentTable.commit();
+                try {
+                    currentTable.close();
+                } catch (Exception f) {
+                    throw new RuntimeException();
+                }
             }
             System.exit(1);
         }
