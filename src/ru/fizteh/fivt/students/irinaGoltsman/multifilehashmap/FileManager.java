@@ -158,16 +158,14 @@ public class FileManager {
         return Code.OK;
     }
 
-    private static Code cleanEmptyDir(File dir) {
+    private static void cleanEmptyDir(File dir) throws IOException {
         if (dir.exists()) {
             if (dir.listFiles().length == 0) {
                 if (!dir.delete()) {
-                    System.err.println("File: " + dir.toString() + " can't be deleted");
-                    return Code.SYSTEM_ERROR;
+                    throw new IOException("File: " + dir.toString() + " can't be deleted");
                 }
             }
         }
-        return Code.OK;
     }
 
     private static void parseStorage(HashMap<String, String>[][] parsedStorage, HashMap<String, String> storage) {
@@ -188,7 +186,7 @@ public class FileManager {
         }
     }
 
-    public static Code writeToDatFile(RandomAccessFile datFile, HashMap<String, String> storage) {
+    public static void writeToDatFile(RandomAccessFile datFile, HashMap<String, String> storage) throws IOException {
         try {
             datFile.seek(0);
             datFile.setLength(0);
@@ -201,20 +199,17 @@ public class FileManager {
                 datFile.write(bytesOfValue);
             }
         } catch (Exception e) {
-            System.err.println(e);
             try {
                 datFile.close();
             } catch (Exception e2) {
-                System.err.println(e2);
+                throw new IOException(e + "\n" + e2);
             }
-            return Code.SYSTEM_ERROR;
         }
-        return Code.OK;
     }
 
-    public static Code writeTableOnDisk(File tableDirectory, HashMap<String, String> tableStorage) {
+    public static void writeTableOnDisk(File tableDirectory, HashMap<String, String> tableStorage) throws IOException {
         if (tableDirectory == null) {
-            return Code.ERROR;
+            throw new IOException("Error! You try to write in null file.");
         }
         HashMap<String, String>[][] parsedStorage = new HashMap[16][16];
         parseStorage(parsedStorage, tableStorage);
@@ -225,52 +220,35 @@ public class FileManager {
                 if (parsedStorage[indexOfDir][indexOfDatFile] == null) {
                     if (datFile.exists()) {
                         if (!datFile.delete()) {
-                            System.err.println("File: " + datFile.toString() + " can't be deleted");
-                            return Code.SYSTEM_ERROR;
+                            throw new IOException("File: " + datFile.toString() + " can't be deleted");
                         }
                     }
                     continue;
                 }
                 if (!dir.exists()) {
                     if (!dir.mkdir()) {
-                        System.err.println("Directory  " + dir.toString() + " can't be created");
-                        return Code.SYSTEM_ERROR;
+                        throw new IOException("Directory  " + dir.toString() + " can't be created");
                     }
                 }
                 if (!datFile.exists()) {
-                    try {
-                        if (!datFile.createNewFile()) {
-                            System.err.println("File " + datFile.toString() + " can't be created");
-                            return Code.SYSTEM_ERROR;
-                        }
-                    } catch (IOException e) {
-                        System.err.println("File " + datFile.toString() + " can't be created");
-                        return Code.SYSTEM_ERROR;
+                    if (!datFile.createNewFile()) {
+                        throw new IOException("File " + datFile.toString() + " can't be created");
                     }
                 }
                 RandomAccessFile currentFile = null;
                 try {
                     currentFile = new RandomAccessFile(datFile, "rw");
                 } catch (FileNotFoundException e) {
-                    System.err.println("This error is my fail. Check 'writeTableOnDisk' function");
-                    return Code.SYSTEM_ERROR;
+                    throw new IOException("This error is my fail. Check 'writeTableOnDisk' function");
                 }
-                Code returnCode = writeToDatFile(currentFile, parsedStorage[indexOfDir][indexOfDatFile]);
-                if (returnCode != Code.OK) {
-                    return returnCode;
-                }
+                writeToDatFile(currentFile, parsedStorage[indexOfDir][indexOfDatFile]);
                 try {
                     currentFile.close();
                 } catch (IOException e) {
-                    System.err.println("File " + currentFile.toString() + " can't be closed.");
-                    return Code.SYSTEM_ERROR;
+                    throw new IOException("File " + currentFile.toString() + " can't be closed.");
                 }
             }
-            Code returnCode = cleanEmptyDir(dir);
-            if (returnCode != Code.OK) {
-                return returnCode;
-            }
+            cleanEmptyDir(dir);
         }
-        return Code.OK;
     }
 }

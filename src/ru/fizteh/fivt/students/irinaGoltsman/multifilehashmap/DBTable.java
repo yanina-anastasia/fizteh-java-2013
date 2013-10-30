@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class DBTable implements Table {
@@ -52,7 +53,9 @@ public class DBTable implements Table {
     //@return Количество сохранённых ключей. Вывод - число измененных значений:
     @Override
     public int commit() {
-        if (FileManager.writeTableOnDisk(tableDirectory, tableStorage) != Code.OK) {
+        try {
+            FileManager.writeTableOnDisk(tableDirectory, tableStorage);
+        } catch (IOException e) {
             return -1;
         }
         int result = numberOfChangedValues;

@@ -24,7 +24,7 @@ public class DataBase {
         //Вот тут не нужно, чтобы выводилось число изменений.
 
         if (currentTable != null) {
-            commit();
+            realCommit();
         }
         String inputTableName = args[1];
         Table tmpTable = currentTableProvider.getTable(inputTableName);
@@ -83,11 +83,15 @@ public class DataBase {
         }
     }
 
-    public static Code commit() {
+    public static int realCommit() {
         if (currentTable == null) {
-            return Code.ERROR;
+            return -1;
         }
-        int numberOfRecordsWasChanged = currentTable.commit();
+        return currentTable.commit();
+    }
+
+    public static Code commit() {
+        int numberOfRecordsWasChanged = realCommit();
         if (numberOfRecordsWasChanged == -1) {
             return Code.ERROR;
         }
@@ -127,7 +131,10 @@ public class DataBase {
     }
 
     public static Code closeDB() {
-        return commit();
+        if (realCommit() == -1) {
+            return Code.ERROR;
+        }
+        return Code.OK;
     }
 
     public static Code size() {
