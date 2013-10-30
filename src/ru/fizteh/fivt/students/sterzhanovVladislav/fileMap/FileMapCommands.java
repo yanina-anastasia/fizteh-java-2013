@@ -103,7 +103,6 @@ public class FileMapCommands {
     public static class Use extends FileMapCommand {
         @Override
         public void innerExecute() throws Exception {
-            dbContext.closeActiveTable();
             dbContext.loadTable(args[1]);
             parentShell.out.println("using " + args[1]);
         }

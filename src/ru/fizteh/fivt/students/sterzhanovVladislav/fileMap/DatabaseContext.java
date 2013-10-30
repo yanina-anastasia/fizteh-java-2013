@@ -41,6 +41,7 @@ public class DatabaseContext implements Closeable {
         if (!dbDir.exists() || !dbDir.isDirectory()) {
             throw new Exception(dbName + " not exists");
         }
+        closeActiveTable();
         dataBase = IOUtility.parseDatabase(dbPath);
         activeDir = dbPath;
     }
