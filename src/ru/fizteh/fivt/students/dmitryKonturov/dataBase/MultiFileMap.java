@@ -16,7 +16,6 @@ public class MultiFileMap {
         dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.err.println("Empty property");
-            System.exit(1);
         }
 
         MultiFileMapShell shell = null;
