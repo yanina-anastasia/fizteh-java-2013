@@ -115,6 +115,9 @@ public class DataBase {
 
     public static Code removeTable(String[] args) {
         String nameTable = args[1];
+        if (currentTable.getName().equals(nameTable)) {
+            currentTable = null;
+        }
         try {
             currentTableProvider.removeTable(nameTable);
         } catch (IllegalStateException e) {
