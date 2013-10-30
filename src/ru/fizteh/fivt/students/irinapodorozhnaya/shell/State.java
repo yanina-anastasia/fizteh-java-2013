@@ -7,8 +7,6 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 public abstract class State {
 	private final InputStream in;
 	private final PrintStream out;

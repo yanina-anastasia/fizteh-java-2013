@@ -4,14 +4,18 @@ import java.io.File;
 
 
 public class CommandDirectory extends AbstractCommand {
+	
+	private final StateShell state;
+	
 	CommandDirectory (StateShell state) {
-		super(0, state);
+		super(0);
+		this.state = state;
 	}
 	
 	public void execute(String[] args) {
-		File[] filesList = getState().getCurrentDir().listFiles();
+		File[] filesList = state.getCurrentDir().listFiles();
 		for (File s: filesList) {
-			getState().getOutputStream().println(s.getName());
+			state.getOutputStream().println(s.getName());
 		}
 	}
 	
