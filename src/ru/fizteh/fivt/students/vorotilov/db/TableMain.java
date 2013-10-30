@@ -73,6 +73,9 @@ public class TableMain {
                         } else {
                             tableProvider.removeTable(parsedCommand[1]);
                             System.out.println("dropped");
+                            if (currentTable != null && currentTable.getName().equals(parsedCommand[1])) {
+                                currentTable = null;
+                            }
                         }
                     }
                     break;
