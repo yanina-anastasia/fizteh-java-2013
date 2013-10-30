@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
+package ru.fizteh.fivt.students.dorinevski.multiFileHashMap;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -38,7 +38,13 @@ public class MyHashMap {
             }
             dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
         }
+        fstream.close();
         dbFile.delete();
+        File dir = dbFile.getParentFile();
+        String[] child = dir.list();
+        if(child.length == 0) {
+            dir.delete();
+        }
     }
 
     private static Map.Entry<String, String> parseEntry(FileInputStream fstream) throws Exception {
@@ -167,6 +173,7 @@ public class MyHashMap {
                         writeEntry(entry, fstream);
                     }
                     dataBase.get(i * 16 + j).clear();
+                    fstream.close();
                 }
             }
         }

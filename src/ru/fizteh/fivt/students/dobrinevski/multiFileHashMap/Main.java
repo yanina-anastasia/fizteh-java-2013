@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
+package ru.fizteh.fivt.students.dorinevski.multiFileHashMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,14 +12,14 @@ public class Main {
             if (!dbsDir.isDirectory()) {
                 throw new Exception(dbsDir + " doesn't exist or is not a directory");
             }
-           File[] files = dbsDir.listFiles();
+         /*  File[] files = dbsDir.listFiles();
             if (files != null) {
                 for (File file : files) {
                     if(file.isFile()) {
                     throw new Exception("It's a file in a root directory.");
                     }
                 }
-            }
+            }  */
         } catch (Exception e) {
             System.out.println("Error while opening database: " + (e.getMessage()));
             System.exit(1);

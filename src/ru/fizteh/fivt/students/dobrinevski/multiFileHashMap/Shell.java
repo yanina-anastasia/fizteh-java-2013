@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
+package ru.fizteh.fivt.students.dorinevski.multiFileHashMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class Shell {
 
 
     Shell() {
-        currentDir = new File(System.getProperty("fizteh.db.dir"));
+        currentDir = new File(System.getProperty("fizteh.db..dir"));
     }
 
     //ULTIMATE MODE
