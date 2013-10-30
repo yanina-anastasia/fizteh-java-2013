@@ -23,7 +23,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) {
-        Command remove = new MultiDbRemove();
+        Command remove = new DbRemove();
         remove.execute(new String[] {name}, table);
         return;
     }
