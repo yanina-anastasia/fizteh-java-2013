@@ -48,6 +48,7 @@ public class DatabaseContext implements Closeable {
     public void closeActiveTable() throws IOException {
         if (dataBase != null) {
             IOUtility.writeOut(dataBase, activeDir);
+            dataBase = null;
         }
     }
     

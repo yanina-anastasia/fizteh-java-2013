@@ -166,7 +166,7 @@ public class FileMapCommands {
                 throw new Exception(args[1] + " not exists");
             }
             if (dbPath.equals(dbContext.getActiveDir())) {
-                throw new Exception("unable to drop: database in use");
+                dbContext.closeActiveTable();
             }
             ShellUtility.removeDir(dbPath);
             parentShell.out.println("dropped");
