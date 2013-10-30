@@ -28,7 +28,7 @@ public class SimpleDatabaseLoaderWriter {
                 wasRead += tmp;
             }
         } catch (IOException e) {
-            throw new DatabaseException("Input/output problems" + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            throw new DatabaseException("Input/output problems", e.getMessage());
         }
     }
 
@@ -42,7 +42,8 @@ public class SimpleDatabaseLoaderWriter {
         if (len < 0) {
             throw new DatabaseException("Invalid database file", "Negative string length");
         } else if ((long) len > restToRead) {
-            throw new DatabaseException("Invalid database file", "Length of file to read is greater than unread part of file");
+            throw new DatabaseException("Invalid database file", "Length of file to read is greater "
+                                        + "than unread part of file");
         }
         byte[] stringInBytes = new byte[len];
         readSomeBytes(input, stringInBytes, len);
@@ -132,7 +133,8 @@ public class SimpleDatabaseLoaderWriter {
             }
             throw new DatabaseException("databaseLoader", reason);
         } catch (IOException ioExc) {
-            String reason = String.format("Could not write file: Input/Output problems with %s", fileToWrite.toString());
+            String reason = String.format("Could not write file: Input/Output problems with %s",
+                                          fileToWrite.toString());
             if (ioExc.getMessage() != null) {
                 reason += ": " + ioExc.getMessage();
             }
