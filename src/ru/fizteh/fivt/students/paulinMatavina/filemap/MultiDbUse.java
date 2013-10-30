@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import java.io.File;
+
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MultiDbUse implements Command {
@@ -10,17 +12,14 @@ public class MultiDbUse implements Command {
             throw new IllegalArgumentException();
         }
         MultiDbState multiState = (MultiDbState) state;
-
-        int result = multiState.changeBase(dbName);
-        if (result == 2) {
+        if (!new File(multiState.makeNewSource(dbName)).exists()) {
             System.out.println(dbName + " not exists");
             return 0;
-        } else if (result == 0) {
-            System.out.println("using " + dbName);
-            return 0;
-        } else {
-            throw new IllegalArgumentException();
         }
+        
+        multiState.changeBase(dbName);
+        System.out.println("using " + dbName);
+        return 0;
     }
     
     @Override
