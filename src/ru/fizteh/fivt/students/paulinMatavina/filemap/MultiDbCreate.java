@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import java.io.File;
+
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MultiDbCreate implements Command {
@@ -9,18 +11,16 @@ public class MultiDbCreate implements Command {
         if (name == null) {
             throw new IllegalArgumentException();
         }
-        args[0] = ((MultiDbState) state).makeNewSource(args[0]);
-        int result = ((MultiDbState) state).shell.mkdir(args);
-        if (result == 2) {
+        MultiDbState multiState = (MultiDbState) state;
+        if (new File(multiState.makeNewSource(name)).exists()) {
             System.out.println(name + " exists");
             return 0;
         }
-        if (result == 0) {
-            System.out.println("created");
-            return 0;
-        } else {
-            throw new IllegalArgumentException();
-        }
+        
+        args[0] = multiState.makeNewSource(args[0]);
+        multiState.shell.mkdir(args);
+        System.out.println("created");
+        return 0;
     }
     
     @Override

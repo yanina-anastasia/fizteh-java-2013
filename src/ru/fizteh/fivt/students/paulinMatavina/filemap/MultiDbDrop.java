@@ -8,22 +8,19 @@ public class MultiDbDrop implements Command {
     public int execute(String[] args, State state) {
         args[0] = state.makeNewSource(args[0]);
         MultiDbState multiState = (MultiDbState) state;
-        int result = multiState.shell.rm(args);
-        if (result == 2) {
+        if (!new File(args[0]).exists()) {
             System.out.println(args[0] + " not exists");
             return 0;
         }
-        if (result == 0) {
-            System.out.println("dropped");
-            File file = new File(args[0]);
-            if (multiState.tableName.equals(file.getName())) {
-                multiState.isDropped = true;
-                multiState.tableName = null;
-            }
-            return 0;
-        } else {
-            throw new IllegalArgumentException();
+        
+        multiState.shell.rm(args);
+        System.out.println("dropped");
+        File file = new File(args[0]);
+        if (multiState.tableName.equals(file.getName())) {
+            multiState.isDropped = true;
+            multiState.tableName = null;
         }
+        return 0;
     }
     
     @Override
