@@ -65,11 +65,11 @@ public class IOUtility {
         int hashcode = new String(keyBuf, "UTF-8").hashCode();
         int directoryID = hashcode % 16;
         if (directoryID < 0) {
-            directoryID += 16;
+            directoryID *= -1;
         }
         int fileID = hashcode / 16 % 16;
         if (fileID < 0) {
-            fileID += 16;
+            fileID *= -1;
         }
         if (directoryID != checkDirID || fileID != checkFileID) {
             throw new Exception("Error: malformed database");
@@ -88,11 +88,11 @@ public class IOUtility {
             int hashcode = entry.getKey().hashCode();
             int directoryID = hashcode % 16;
             if (directoryID < 0) {
-                directoryID += 16;
+                directoryID *= -1;
             }
             int fileID = hashcode / 16 % 16;
             if (fileID < 0) {
-                fileID += 16;
+                fileID *= -1;
             }
             File subdir = Paths.get(dir.normalize() + "/" + directoryID + ".dir").toFile();
             if (!subdir.exists()) {
