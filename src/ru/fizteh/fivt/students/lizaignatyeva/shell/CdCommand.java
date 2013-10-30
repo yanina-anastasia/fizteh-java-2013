@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.lizaignatyeva.shell;
 
 import java.io.File;
-import java.io.IOException;
 
 public class CdCommand extends Command {
     public CdCommand() {

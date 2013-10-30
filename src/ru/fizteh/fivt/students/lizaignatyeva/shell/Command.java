@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.lizaignatyeva.shell;
 
-import java.io.File;
-
 public abstract class Command {
     public String name;
     protected int argumentsAmount;

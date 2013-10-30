@@ -8,7 +8,7 @@ public class DirCommand extends Command {
         argumentsAmount = 0;
     }
 
-    public void run(String[] args) throws Exception{
+    public void run(String[] args) throws Exception {
         if (!checkArguments(args)) {
             throw new IllegalArgumentException("invalid usage");
         }

@@ -1,13 +1,10 @@
 package ru.fizteh.fivt.students.lizaignatyeva.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
-import java.util.StringTokenizer;
 
 public class MvCommand extends Command {
 

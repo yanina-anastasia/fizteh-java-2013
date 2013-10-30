@@ -8,7 +8,7 @@ public class RmCommand extends Command {
         argumentsAmount = 1;
     }
 
-    public void run(String[] args) throws Exception{
+    public void run(String[] args) throws Exception {
         if (args.length != 1) {
             throw new IllegalArgumentException("invalid usage");
         }
@@ -17,7 +17,7 @@ public class RmCommand extends Command {
 
     }
 
-    private void realRun(String name) throws Exception{
+    private void realRun(String name) throws Exception {
         File currFile = new File(Shell.getFullPath(name));
         if (!currFile.exists()) {
             throw new IllegalArgumentException(name + ": No such file or directory");
