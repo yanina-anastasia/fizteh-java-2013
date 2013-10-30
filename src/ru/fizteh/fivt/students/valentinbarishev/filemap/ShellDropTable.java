@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
-import java.io.IOException;
-
 public class ShellDropTable extends SimpleShellCommand {
     private Context context;
 
@@ -18,6 +16,8 @@ public class ShellDropTable extends SimpleShellCommand {
         try {
             if ((context.table != null) || (context.table.getName().equals(getArg(1)))) {
                 context.table = null;
+                //TODO very bad
+                context.changes = 0;
             }
 
             context.provider.removeTable(getArg(1));

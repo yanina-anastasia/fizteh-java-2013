@@ -7,7 +7,6 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 
 public final class DataBaseTable implements  TableProvider {
     private String tableDir;
-    private File tableDirFile;
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
@@ -15,7 +14,7 @@ public final class DataBaseTable implements  TableProvider {
 
     private void checkName(final String name) {
         if ((name == null) || name.contains(".") || name.contains(File.separator)) {
-            throw new MultiDataBaseException("Cannot create table! Invalid symbols in name: " + name);
+            throw new IllegalArgumentException("Cannot create table! Invalid symbols in name: " + name);
         }
     }
 

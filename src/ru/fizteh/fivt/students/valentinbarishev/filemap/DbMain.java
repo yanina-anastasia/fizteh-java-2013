@@ -27,7 +27,7 @@ public class DbMain {
         Context context = new Context(factory.create(System.getProperty("fizteh.db.dir")));
 
         shell.addCommand(new ShellDbPut(context));
-        shell.addCommand(new ShellExit());
+        shell.addCommand(new ShellExit(context));
         shell.addCommand(new ShellDbGet(context));
         shell.addCommand(new ShellDbRemove(context));
         shell.addCommand(new ShellCreateTable(context));
@@ -55,12 +55,14 @@ public class DbMain {
         while (true) {
             try {
                 if (!scanner.hasNextLine()) {
+                    //TODO what to do with unsaved changes?
                     throw new ShellExitException("Ctrl + D exit!");
                 }
 
                 String command = scanner.nextLine();
 
                 if (Main.checkTerminate(command)) {
+                    //TODO what to do with unsaved changes?
                     throw new ShellExitException("Ctrl + D exit or EOF!");
                 }
 

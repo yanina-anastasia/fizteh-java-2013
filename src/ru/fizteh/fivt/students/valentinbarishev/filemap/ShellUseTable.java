@@ -16,9 +16,9 @@ public class ShellUseTable extends SimpleShellCommand {
 
     public void run() {
 
-        if ((context.table != null) && (context.table.commit() != 0)) {
-            // TODO count unsaved changes without a commit!
-            System.out.println(context.table.size() + " unsaved changes");
+        if ((context.table != null) && (context.changes != 0)) {
+            // TODO very bad counting changes
+            System.out.println(context.changes + " unsaved changes");
             return;
         }
 

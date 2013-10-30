@@ -22,6 +22,8 @@ public final class ShellDbRemove extends SimpleShellCommand {
             System.out.println("not found");
         } else {
             System.out.println("removed");
+            //TODO very bad
+            ++context.changes;
         }
     }
 }

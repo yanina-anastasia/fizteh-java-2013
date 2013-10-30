@@ -21,6 +21,8 @@ public final class ShellDbPut  extends SimpleShellCommand {
             return;
         }
         String str = context.table.put(getArg(1), getSpacedArg(2));
+        //TODO very bad
+        ++context.changes;
         if (str == null) {
             System.out.println("new");
         } else {

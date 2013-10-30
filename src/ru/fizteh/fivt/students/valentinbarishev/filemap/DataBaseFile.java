@@ -64,8 +64,7 @@ public class DataBaseFile {
             value = newValue;
         }
 
-        public void write(final RandomAccessFile outputFile)
-                throws IOException {
+        public void write(final RandomAccessFile outputFile) throws IOException {
             outputFile.writeInt(key.length);
             outputFile.writeInt(value.length);
             outputFile.write(key);
