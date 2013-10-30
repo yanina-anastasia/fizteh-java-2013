@@ -19,10 +19,11 @@ public class MultiDbDrop implements Command {
             if (multiState.tableName.equals(file.getName())) {
                 multiState.isDropped = true;
                 multiState.tableName = null;
-                
             }
+            return 0;
+        } else {
+            throw new IllegalArgumentException();
         }
-        return result;
     }
     
     @Override

@@ -6,6 +6,9 @@ public class MultiDbCreate implements Command {
     @Override
     public int execute(String[] args, State state) {
         String name = args[0];
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
         args[0] = ((MultiDbState) state).makeNewSource(args[0]);
         int result = ((MultiDbState) state).shell.mkdir(args);
         if (result == 2) {
@@ -14,8 +17,10 @@ public class MultiDbCreate implements Command {
         }
         if (result == 0) {
             System.out.println("created");
+            return 0;
+        } else {
+            throw new IllegalArgumentException();
         }
-        return result;
     }
     
     @Override

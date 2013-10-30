@@ -6,6 +6,9 @@ public class DbPut implements Command {
     @Override
     public int execute(String[] args, State state) {
         String key = args[0];
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
         MultiDbState multiState = (MultiDbState) state;
         if (!multiState.isDbChosen() || multiState.isDropped) {
             System.out.println("no table");
