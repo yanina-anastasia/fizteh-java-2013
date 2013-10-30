@@ -19,7 +19,10 @@ public class ShellState extends State{
     
     public int cd(final String source) {
         File newDir = new File(makeNewSource(source));
-        if (!newDir.exists() || !newDir.isDirectory()) {
+        if (!newDir.exists()) {
+            return 2;
+        }
+        if (!newDir.isDirectory()) {
             System.err.println("cd: " + source + ": is not a directory");
             throw new IllegalArgumentException();
         }
