@@ -19,9 +19,15 @@ public class MultiFileHashMap {
 				: new StandardInputCommandSource(new Scanner(System.in));
 		MultiFileHashMapRunner runner = new MultiFileHashMapRunner(source);
 		String dbDirectory = System.getProperty("fizteh.db.dir");
-		if (!(new File(dbDirectory).isDirectory())) {
-			System.err.println("Specified dbDirectory is simply not a directory. Make sure your keyboard is not ejected, just in case.");
+		if (dbDirectory == null) {
+			System.err.println("set \"fizteh.db.dir\" property before launch.");
 			System.exit(1);
+		} else {
+			File dbFile = new File(dbDirectory);
+			if (!dbFile.exists() || !dbFile.isDirectory()) {
+				System.err.println("Specified dbDirectory is simply not a directory. Make sure your keyboard is not ejected, just in case.");
+				System.exit(1);
+			}
 		}
 		MultiFileHashMapReceiver receiver = new MultiFileHashMapReceiver(System.out, (args.length == 0), dbDirectory);
 			runner.run(receiver);
