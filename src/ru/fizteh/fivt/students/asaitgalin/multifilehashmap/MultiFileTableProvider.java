@@ -36,9 +36,6 @@ public class MultiFileTableProvider implements TableProvider {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to create table: invalid name");
         }
-        if (!name.matches("[a-zA-Zа-яA-Я0-9_-]")) {
-            throw new RuntimeException("bad table name");
-        }
         File tableDir = new File(dbDirectory, name);
         if (tableDir.exists()) {
             return null;
