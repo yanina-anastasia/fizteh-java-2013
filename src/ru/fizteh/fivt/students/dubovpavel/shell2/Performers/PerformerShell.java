@@ -1,7 +1,7 @@
-package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
+package ru.fizteh.fivt.students.dubovpavel.shell2.performers;
 
-import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
 
 import java.io.File;
 import java.io.IOException;

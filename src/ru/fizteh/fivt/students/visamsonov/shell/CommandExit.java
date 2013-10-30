@@ -12,7 +12,9 @@ public class CommandExit extends CommandAbstract {
 		if (!checkFixedArguments(splitArguments(args), 0)) {
 			return false;
 		}
-		state.database.commit();
+		if (state.database != null) {
+			state.database.commit();
+		}
 		System.exit(0);
 		return true;
 	}

@@ -10,6 +10,10 @@ public class CommandGet extends CommandAbstract {
 		if (!checkFixedArguments(splitArguments(args), 1)) {
 			return false;
 		}
+		if (state.database == null) {
+			printError("no table");
+			return false;
+		}
 		String value = state.database.get(args);
 		if (value != null) {
 			getOutStream().printf("found\n%s\n", value);

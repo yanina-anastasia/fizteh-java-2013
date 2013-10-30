@@ -133,13 +133,21 @@ public class DoCommand {
         return newFile;
     }
 
-    public static boolean isGetPropertyValid(String path) throws IOException {
-        if (path == null) {
-            return false;
+    public static String getRealPath() throws IOException {
+        if (!System.getProperties().containsKey("fizteh.db.dir")) {
+            throw new IOException("wrong properties");
         }
-        if (!(new File(Shell.getAbsPath(path))).exists()) {
-            if (!(new File(Shell.getAbsPath(path))).mkdir()) {
-                throw new IOException("can't create directory");
+        String realPath;
+        String dirName = System.getProperty("fizteh.db.dir");
+        File destFile = new File(dirName + File.separator + "db.dat");
+        if (!destFile.exists()) {
+            if (new File(System.getProperty("fizteh.db.dir")).getName().equals("db.dat")) {
+                realPath = System.getProperty("fizteh.db.dir");
+            } else {
+                if (!destFile.createNewFile()) {
+                    throw new IOException("can't create db.dat file");
+                }
+                realPath = dirName + File.separator + "db.dat";
             }
             return true;
         } else {

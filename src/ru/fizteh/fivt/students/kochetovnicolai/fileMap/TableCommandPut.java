@@ -19,6 +19,10 @@ public class TableCommandPut implements Executable {
     @Override
     public boolean execute(String[] args) {
         Table table = manager.getCurrentTable();
+        if (table == null) {
+            manager.printMessage("no table");
+            return false;
+        }
         String oldValue = table.put(args[1], args[2]);
         if (oldValue == null) {
             manager.printMessage("new");

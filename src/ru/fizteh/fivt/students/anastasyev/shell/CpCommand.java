@@ -6,7 +6,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class CpCommand implements Command {
+public class CpCommand implements Command<Shell> {
     private static void copy(final Path pathFrom, final Path pathTo) throws IOException {
         File from = new File(Shell.getUserDir().toPath().resolve(pathFrom.toString()).toString());
         File to = new File(Shell.getUserDir().toPath().resolve(pathTo.toString()).toString());
@@ -66,7 +66,7 @@ public class CpCommand implements Command {
     }
 
     @Override
-    public final boolean exec(State state, final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 3) {
             System.err.println("cp: Usage - cp <source> <destination>");
             return false;

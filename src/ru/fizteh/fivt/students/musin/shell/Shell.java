@@ -4,17 +4,18 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Shell {
 
-    private ArrayList<ShellCommand> commands;
+    private HashMap<String, ShellCommand> commands;
     public File currentDirectory;
     boolean exit;
 
     public Shell(String startDirectory) {
         currentDirectory = new File(startDirectory);
-        commands = new ArrayList<ShellCommand>();
-        commands.add(new ShellCommand("exit", new ShellExecutable() {
+        commands = new HashMap<String, ShellCommand>();
+        commands.put("exit", new ShellCommand("exit", new ShellExecutable() {
             @Override
             public int execute(Shell shell, ArrayList<String> args) {
                 exit = true;
@@ -90,23 +91,19 @@ public class Shell {
                     args.add(comm.get(i).substring(start, comm.get(i).length()));
                 }
             }
-            boolean commandFound = false;
-            for (int j = 0; j < commands.size(); j++) {
-                if (commands.get(j).name.equals(name)) {
-                    if (commands.get(j).parsingRequired) {
-                        if (commands.get(j).exec.execute(this, args) != 0) {
-                            return -1;
-                        }
-                    } else {
-                        if (commands.get(j).exec.execute(this, selfParseArgs) != 0) {
-                            return -1;
-                        }
+            ShellCommand command = commands.get(name);
+            if (command != null) {
+                if (command.parsingRequired) {
+                    if (command.exec.execute(this, args) != 0) {
+                        return -1;
                     }
-                    commandFound = true;
-                    break;
+                } else {
+                    if (command.exec.execute(this, selfParseArgs) != 0) {
+                        return -1;
+                    }
                 }
             }
-            if (!commandFound && !name.equals("")) {
+            if (command == null && !name.equals("")) {
                 System.err.printf("No such command %s\n", name);
                 return -1;
             }
@@ -115,7 +112,7 @@ public class Shell {
     }
 
     public void addCommand(ShellCommand command) {
-        commands.add(command);
+        commands.put(command.name, command);
     }
 
     public int runArgs(String[] args) {

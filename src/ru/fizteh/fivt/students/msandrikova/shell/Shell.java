@@ -6,10 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import ru.fizteh.fivt.students.msandrikova.filemap.DBMap;
+import ru.fizteh.fivt.students.msandrikova.multifilehashmap.State;
 
 
 public class Shell {
@@ -17,8 +14,7 @@ public class Shell {
 	private Map < String, Command > commandsList;
 	private File currentDirectory = new File("").getAbsoluteFile();
 	private boolean isInteractive = false;
-	private boolean isFileMap = false;
-	private DBMap myDBMap;
+	private State myState;
 	
 	private void InitMap(Command[] commands) {
 		Map< String, Command > m = new HashMap<String, Command>();
@@ -32,30 +28,16 @@ public class Shell {
 		return this.isInteractive;
 	}
 	
-	public boolean getIsFileMap() {
-		return this.isFileMap;
+	public State getState() {
+		return this.myState;
 	}
 	
-	public DBMap getMyDBMap() {
-		return this.myDBMap;
+	public void setState(State myState) {
+		this.myState = myState;
 	}
 	
 	public File getCurrentDirectory() {
 		return this.currentDirectory;
-	}
-	
-	public void setIsFileMap(boolean isFileMap) {
-		this.isFileMap = isFileMap;
-	}
-	
-	public void initMyDBMap() {
-		try {
-			this.myDBMap = new DBMap(this.currentDirectory, this.isInteractive);
-		} catch (FileNotFoundException e) {
-			Utils.generateAnError("Fatal error during reading.", "DBMap", false);
-		} catch (IOException e) {
-			Utils.generateAnError("Fatal error during reading.", "DBMap", false);
-		}
 	}
 	
 	public void setCurrentDirectory(File currentDirectory) {
@@ -77,16 +59,7 @@ public class Shell {
 				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] + "\"", "", isInteractive);
 				continue;
 			}
-		}
-		if(this.isFileMap) {
-			try {
-				this.myDBMap.writeFile();
-			} catch (FileNotFoundException e) {
-				Utils.generateAnError("Fatal error during writing", "DBMap", false);
-			} catch (IOException e) {
-				Utils.generateAnError("Fatal error during writing", "DBMap", false);
-			}
-		}
+		}	
 	}
 	
 	public Shell(Command[] commands, String currentDirectory) {

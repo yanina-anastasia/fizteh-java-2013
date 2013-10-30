@@ -16,13 +16,16 @@ public class GetCommand extends SimpleCommand {
             throw new IllegalArgumentException(name + ": expected " + numberOfArguments
                                                 + " but " + args.length + " got");
         }
-
-        String value = database.get(args[0]);
-        if (value == null) {
-            System.out.println("not found");
-        } else {
-            System.out.println("found");
-            System.out.println(value);
+        try {
+            String value = database.get(args[0]);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("found");
+                System.out.println(value);
+            }
+        } catch (NoTableSelectedException e) {
+            System.err.println("no table");
         }
     }
 

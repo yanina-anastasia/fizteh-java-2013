@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
 public class ShellCommands extends Shell {
     private void deleteFiles(File file) {

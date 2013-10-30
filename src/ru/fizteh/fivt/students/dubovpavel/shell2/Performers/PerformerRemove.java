@@ -1,13 +1,13 @@
-package ru.fizteh.fivt.students.dubovpavel.shell2.Performers;
+package ru.fizteh.fivt.students.dubovpavel.shell2.performers;
 
-import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-
-import java.io.File;
 import ru.fizteh.fivt.students.dubovpavel.executor.Command;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 
+import java.io.File;
+
 public class PerformerRemove extends PerformerShell {
-    private class PerformerRemoveException extends Exception {
+    public class PerformerRemoveException extends Exception {
         public PerformerRemoveException(String file) {
             super(file);
         }
@@ -17,7 +17,7 @@ public class PerformerRemove extends PerformerShell {
         return command.getHeader().equals("rm") && command.argumentsCount() == 1;
     }
 
-    private void removeObject(File object) throws PerformerRemoveException {
+    public void removeObject(File object) throws PerformerRemoveException {
         if(object.isDirectory()) {
             for(File subObject: object.listFiles()) {
                 if(subObject.isDirectory()) {

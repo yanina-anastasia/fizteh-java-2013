@@ -12,6 +12,10 @@ public class TableEntryReader {
     private String nextKey;
     private long nextValueOffset;
 
+    public String getNextKey() {
+        return nextKey;
+    }
+
     public TableEntryReader(File input) throws IOException {
         isStreamValid = true;
         try {

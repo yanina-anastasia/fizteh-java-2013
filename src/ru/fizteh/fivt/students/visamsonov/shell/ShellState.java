@@ -1,14 +1,20 @@
 package ru.fizteh.fivt.students.visamsonov.shell;
 
-import ru.fizteh.fivt.students.visamsonov.storage.*;
+import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.students.visamsonov.storage.TableFactory;
 import java.io.*;
-import java.util.TreeMap;
 
 public class ShellState {
 
 	public Table database;
+	public final TableProvider tableProvider;
 
-	public ShellState () throws FileNotFoundException, IOException {
-		database = new FileStorage(System.getProperty("fizteh.db.dir"), "db.dat");
+	public ShellState () throws IOException {
+		TableProviderFactory factory = new TableFactory();
+		String directory = System.getProperty("fizteh.db.dir");
+		if (!(new File(directory).isDirectory())) {
+			throw new IOException("no such directory: \"" + directory + "\"");
+		}
+		tableProvider = factory.create(directory);
 	}
 }
