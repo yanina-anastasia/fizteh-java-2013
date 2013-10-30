@@ -13,7 +13,6 @@ public class Exit implements CommandInterface {
     public static void writeInFile(String path, String key, String value) throws IOException {
         RandomAccessFile fileWriter = MultiFileMap.openFileForWrite(path);
         fileWriter.skipBytes((int) fileWriter.length());
-        System.out.println("write in file " + path + " " + key + " " + value);
         try {
             if (key == null || value == null) {
                 MultiFileMap.closeFile(fileWriter);
@@ -74,7 +73,6 @@ public class Exit implements CommandInterface {
 
     public void execute(Vector<String> args) throws IOException {
         HashMap<String, HashMap<String, String>> myMap = MultiFileMap.getMultiFileMap();
-        MultiFileMap.printMultiMap();
         File dir = new File(System.getProperty("fizteh.db.dir"));
         String[] file = dir.list();
         if (file != null) {
