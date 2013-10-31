@@ -56,7 +56,7 @@ public class DbMain {
                 throw new Exception(path + " doesn't exist or is not a directory");
             }
         } catch (Exception e) {
-            System.out.println("Error opening database: " + e.getMessage());
+            System.out.println("Error opening database" + (e.getMessage() == null ? "" : (": " + e.getMessage())));
             System.exit(1);
         }
 
