@@ -182,9 +182,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             changeKey = dbData.changeKey();
         }
 
-        //if (changeKey > 0) {
-        //    errPrint(String.format("%d unsaved changes", changeKey));
-        //} else {
+        if (changeKey > 0) {
+            errPrint(String.format("%d unsaved changes", changeKey));
+        } else {
             String nameTable = args[0];
             if (!setDirTable.contains(nameTable)) {
                 outPrint(nameTable + " not exists");
@@ -198,7 +198,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
                 outPrint("using " + nameTable);
             }
-        //}
+        }
     }
 
     public void multiDrop(String[] args) throws ErrorFileMap {

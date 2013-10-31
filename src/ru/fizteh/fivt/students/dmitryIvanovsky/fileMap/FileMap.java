@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
-
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
