@@ -22,6 +22,9 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) {
+        if (!MultiDbState.checkNameValidity(name)) {
+            throw new RuntimeException();
+        }
         try {
             table.create(name);
         } catch (DbReturnStatus e) {

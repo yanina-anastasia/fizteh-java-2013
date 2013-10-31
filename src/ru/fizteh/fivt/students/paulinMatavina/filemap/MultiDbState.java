@@ -253,6 +253,12 @@ public class MultiDbState extends State implements Table {
         return dbSize;
     }
     
+    public static boolean checkNameValidity(String dbName) {
+        return !(dbName.contains("/") || dbName.contains("\\") || dbName.contains("?")
+                || dbName.contains(".") || dbName.contains("*") 
+                || dbName.contains(":") || dbName.contains("\""));
+    }
+    
     public int rollback() {
         int chNum = changesNum;
         changesNum = 0;
@@ -278,9 +284,7 @@ public class MultiDbState extends State implements Table {
         if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if (dbName.contains("/") || dbName.contains("\\") || dbName.contains("?")
-                || dbName.contains(".") || dbName.contains("*") 
-                || dbName.contains(":") || dbName.contains("\"")) {
+        if (!checkNameValidity(dbName)) {
             throw new RuntimeException();
         }
         if (!fileExist(dbName)) {
