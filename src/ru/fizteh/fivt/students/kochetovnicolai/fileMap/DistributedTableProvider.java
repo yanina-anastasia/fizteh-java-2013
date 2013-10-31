@@ -73,9 +73,9 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        if (tables.containsKey(name)) {
-            throw new IllegalArgumentException("invalid table name");
-        }
+        //if (tables.containsKey(name)) {
+        //    throw new IllegalArgumentException("invalid table name");
+        //}
         loadTable(name);
         if (!tables.containsKey(name)) {
             try {
