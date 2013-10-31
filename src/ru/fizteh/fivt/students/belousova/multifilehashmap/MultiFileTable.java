@@ -18,9 +18,13 @@ public class MultiFileTable implements ChangesCountingTable {
 
     private File dataDirectory;
 
-    public MultiFileTable(File data) throws IOException {
-        dataDirectory = data;
-        MultiFileUtils.read(dataDirectory, dataBase);
+    public MultiFileTable(File data) {
+        try {
+            dataDirectory = data;
+            MultiFileUtils.read(dataDirectory, dataBase);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("read error", e);
+        }
     }
 
     @Override

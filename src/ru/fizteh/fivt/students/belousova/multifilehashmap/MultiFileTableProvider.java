@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultiFileTableProvider implements ChangesCountingTableProvider {
+    private final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
     private Map<String, Table> tableMap = new HashMap<String, Table>();
     private File dataDitectory;
-    private final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
-    public MultiFileTableProvider(File directory) throws IOException {
+    public MultiFileTableProvider(File directory) {
         if (!directory.exists()) {
             directory.mkdir();
         } else if (!directory.isDirectory()) {
@@ -42,11 +42,8 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
             return null;
         }
         File tableFile = new File(dataDitectory, name);
-        try {
-            return new MultiFileTable(tableFile);
-        } catch (IOException e) {
-            throw new RuntimeException("read error");
-        }
+
+        return new MultiFileTable(tableFile);
     }
 
     @Override
@@ -65,14 +62,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
             return null;
         }
 
-        try {
-            MultiFileTable table = new MultiFileTable(tableDirectory);
-            tableMap.put(name, table);
-            return table;
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+        MultiFileTable table = new MultiFileTable(tableDirectory);
+        tableMap.put(name, table);
+        return table;
     }
 
     @Override
