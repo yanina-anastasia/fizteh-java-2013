@@ -32,6 +32,15 @@ public class MultiFileMap implements Table {
         }
     }
 
+    private boolean newLineCheck(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == '\n') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String getName() {
         return location.getName();
     }
@@ -184,6 +193,9 @@ public class MultiFileMap implements Table {
         }
         if (key.equals("")) {
             throw new IllegalArgumentException("Empty key");
+        }
+        if (!newLineCheck(key) || !newLineCheck(value)) {
+            throw new IllegalArgumentException("New-line in key or value");
         }
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
