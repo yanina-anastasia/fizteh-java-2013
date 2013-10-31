@@ -10,11 +10,10 @@ public class MyTableProviderFactory implements TableProviderFactory {
     
     @Override
     public TableProvider create(String dir) {
-        String getPropertyString = dir;
-        if (getPropertyString == null) {
+        if (dir == null) {
             throw new IllegalArgumentException("Bad property");
         }
-        curDir = new File(getPropertyString);
+        curDir = new File(dir);
         if (!curDir.exists()) {
             throw new IllegalArgumentException("Directory doesn't exists");
         }
