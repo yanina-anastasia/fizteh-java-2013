@@ -30,7 +30,7 @@ public class DbState extends State{
             loadData();
         } catch (IOException e) {
             System.err.println("filemap: data loading error");
-            System.exit(1);
+            throw new DbExitException(1);
         }
     }
     
@@ -59,7 +59,7 @@ public class DbState extends State{
                 dbTempFile.createNewFile();
             } catch (IOException e) {
                 System.err.println("filemap: unable to create a database file");
-                System.exit(1);
+                throw new DbExitException(1);
             }
         }
         try {
@@ -118,7 +118,8 @@ public class DbState extends State{
     public int loadData() throws IOException {
         fileCheck();
         if (dbFile.length() == 0) {
-                return 0;
+            dbFile.close();
+            return 0;
         } 
         
         int result = 0;
