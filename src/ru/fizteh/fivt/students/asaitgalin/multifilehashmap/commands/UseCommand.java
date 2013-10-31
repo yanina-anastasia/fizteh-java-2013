@@ -20,17 +20,15 @@ public class UseCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        int changes = state.currentTable.getChangesCount();
-        if (changes != 0) {
-            System.out.println(changes + " unsaved changes");
-        } else {
-            ChangesCountingTable table = state.provider.getTable(args[1]);
-            if (table != null) {
-                state.currentTable = table;
-                System.out.println("using " + args[1]);
+        if (state.currentTable != null) {
+            int changes = state.currentTable.getChangesCount();
+            if (changes != 0) {
+                System.out.println(changes + " unsaved changes");
             } else {
-                System.out.println(args[1] + " not exists");
+                changeTable(args[1]);
             }
+        } else {
+            changeTable(args[1]);
         }
     }
 
@@ -38,4 +36,15 @@ public class UseCommand implements Command {
     public int getArgsCount() {
         return 1;
     }
+
+    private void changeTable(String name) {
+        ChangesCountingTable table = state.provider.getTable(name);
+        if (table != null) {
+            state.currentTable = table;
+            System.out.println("using " + name);
+        } else {
+            System.out.println(name + " not exists");
+        }
+    }
+
 }

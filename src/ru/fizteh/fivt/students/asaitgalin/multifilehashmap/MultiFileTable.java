@@ -81,12 +81,15 @@ public class MultiFileTable implements ChangesCountingTable {
         if (currentValue == null) {
             currentValue = originalTable.get(key);
             if (currentValue != null) {
-                if (!removedKeys.contains(currentValue)) {
+                if (!removedKeys.contains(key)) {
                     ++changesCount;
                 }
                 removedKeys.add(currentValue);
             }
         } else {
+            if (originalTable.containsKey(key)) {
+                removedKeys.add(key);
+            }
             --changesCount;
         }
         return currentValue;
@@ -117,6 +120,7 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int rollback() {
+        // size - originalTable.size
         int count = changesCount;
         currentTable.clear();
         removedKeys.clear();
