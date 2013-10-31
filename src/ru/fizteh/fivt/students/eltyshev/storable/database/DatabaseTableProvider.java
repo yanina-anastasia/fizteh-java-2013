@@ -14,9 +14,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatabaseTableProvider implements TableProvider {
     static final String SIGNATURE_FILE = "signature.tsv";
+    private static final String CHECK_EXPRESSION = "[^0-9A-Za-zА-Яа-я]";
 
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     private String databaseDirectoryPath;
@@ -25,6 +28,9 @@ public class DatabaseTableProvider implements TableProvider {
     public DatabaseTableProvider(String databaseDirectoryPath) {
         this.databaseDirectoryPath = databaseDirectoryPath;
         File databaseDirectory = new File(databaseDirectoryPath);
+        if (databaseDirectory.isFile()) {
+            throw new IllegalArgumentException("set database directory, not file");
+        }
         for (final File tableFile : databaseDirectory.listFiles()) {
             if (tableFile.isFile()) {
                 continue;
@@ -36,9 +42,11 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Table getTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
+
+        checkTableName(name);
 
         DatabaseTable table = tables.get(name);
 
@@ -60,6 +68,8 @@ public class DatabaseTableProvider implements TableProvider {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
+        checkTableName(name);
+
         if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("column types cannot be null");
         }
@@ -75,7 +85,7 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
@@ -91,6 +101,9 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException("value cannot be null or empty");
+        }
         XmlDeserializer deserializer = new XmlDeserializer(value);
         Storeable result = null;
         List<Object> values = new ArrayList<>(table.getColumnsCount());
@@ -119,6 +132,9 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (value == null) {
+            throw new IllegalArgumentException("value cannot be null");
+        }
         try {
             XmlSerializer xmlSerializer = new XmlSerializer();
             for (int index = 0; index < table.getColumnsCount(); ++index) {
@@ -139,6 +155,9 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (values == null) {
+            throw new IllegalArgumentException("values cannot be null");
+        }
         DatabaseRow row = rawCreateFor(table);
         row.setColumns(values);
         return row;
@@ -177,5 +196,21 @@ public class DatabaseTableProvider implements TableProvider {
             row.addColumn(table.getColumnType(index));
         }
         return row;
+    }
+
+    private void checkColumnTypes(List<Class<?>> columnTypes) {
+        for (final Class<?> columnType : columnTypes) {
+            if (StoreableUtils.formatColumnType(columnType) == null) {
+                throw new IllegalArgumentException("unknown column type");
+            }
+        }
+    }
+
+    private void checkTableName(String name) {
+        Pattern pattern = Pattern.compile(CHECK_EXPRESSION);
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("bad symbol in table's name");
+        }
     }
 }
