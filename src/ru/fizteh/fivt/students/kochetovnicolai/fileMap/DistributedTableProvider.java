@@ -11,10 +11,24 @@ public class DistributedTableProvider implements TableProvider {
     HashMap<String, DistributedTable> tables;
     File currentPath;
 
-    public boolean existsTable(String name) {
-        if (name == null || name.equals("..") || name.contains(File.separator)) {
-            throw new IllegalArgumentException("table name shouldn't be null");
+    protected void checkTableDirectory(String name) {
+        File tableDirectory = new File(currentPath.getPath() + File.separator + name);
+        if (!tableDirectory.exists() || !tableDirectory.isDirectory()) {
+            if (tables.containsKey(name)) {
+                tables.remove(name);
+            }
         }
+    }
+
+    protected boolean isValidName(String name) {
+        return name != null && !name.contains(".") && !name.equals("") && !name.contains("\\") && !name.contains("/");
+    }
+
+    public boolean existsTable(String name) {
+        if (!isValidName(name)) {
+            throw new IllegalArgumentException("invalid table name");
+        }
+        checkTableDirectory(name);
         try {
             if (!tables.containsKey(name) && new File(currentPath + File.separator + name).exists()) {
                 tables.put(name, new DistributedTable(currentPath, name));
@@ -23,11 +37,6 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalStateException(e.getMessage());
         }
         return tables.containsKey(name);
-    }
-
-    protected boolean isValidName(String name) {
-        return name != null && !name.contains(".") && !name.equals("") && !name.contains("\\s")
-                && !name.contains(File.separator) && !name.contains(File.pathSeparator);
     }
 
     public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
@@ -43,6 +52,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
+        checkTableDirectory(name);
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
         } else {
@@ -59,6 +69,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
+        checkTableDirectory(name);
         if (!tables.containsKey(name)) {
             try {
                 DistributedTable table = new DistributedTable(currentPath, name);
@@ -75,6 +86,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
+        checkTableDirectory(name);
         if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
             throw new IllegalStateException("table is not exists");
         }
