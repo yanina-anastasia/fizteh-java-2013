@@ -26,7 +26,7 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     protected boolean isValidName(String name) {
-        return name != null && !name.contains(".")
+        return name != null && !name.contains(".") && !name.equals("")
                 && !name.contains(File.separator) && !name.contains(File.pathSeparator);
     }
 
@@ -86,6 +86,10 @@ public class DistributedTableProvider implements TableProvider {
         }
         try {
             tables.get(name).clear();
+            File dir = new File(currentPath.getPath() + File.separator + name);
+            if (!dir.delete()) {
+                throw new IOException(dir.getPath() + ": couldn't delete directory");
+            }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }

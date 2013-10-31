@@ -71,7 +71,9 @@ public class TableMember implements Table {
         if (!table.isValidKey(key)) {
             throw new IllegalArgumentException();
         }
-        return changes.put(key, null);
+        String old = get(key);
+        changes.put(key, null);
+        return old;
     }
 
     protected void merge() {
