@@ -39,6 +39,7 @@ public class MyTableProvider implements TableProvider {
                 return null;
             }
         }
+        newTable.use(name);
         return newTable;
     }
 

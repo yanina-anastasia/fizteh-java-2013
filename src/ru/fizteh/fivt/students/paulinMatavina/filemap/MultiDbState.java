@@ -309,7 +309,6 @@ public class MultiDbState extends State implements Table {
         changesNum = 0;
         name = makeNewSource(name);
         shell.mkdir(new String[] {name});
-        use(name);
         throw new DbReturnStatus(0);
     }
 }
