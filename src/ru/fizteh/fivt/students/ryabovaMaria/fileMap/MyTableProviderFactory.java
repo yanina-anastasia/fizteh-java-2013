@@ -12,7 +12,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
     public TableProvider create(String dir) {
         String getPropertyString = System.getProperty(dir);
         if (getPropertyString == null) {
-            throw new IllegalArgumentException("Bad property");
+            throw new IllegalArgumentException();
         }
         curDir = new File(getPropertyString);
         if (!curDir.exists()) {
