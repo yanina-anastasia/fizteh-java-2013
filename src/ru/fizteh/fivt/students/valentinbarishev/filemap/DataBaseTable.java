@@ -13,8 +13,8 @@ public final class DataBaseTable implements  TableProvider {
     }
 
     private void checkName(final String name) {
-        if ((name == null) || name.contains(".") || name.contains(File.separator)) {
-            throw new IllegalArgumentException("Cannot create table! Invalid symbols in name: " + name);
+        if ((name == null) || name.contains(".") || name.contains(File.separator) || name.length() == 0) {
+            throw new IllegalArgumentException("Cannot create table! Wrong name!");
         }
     }
 
