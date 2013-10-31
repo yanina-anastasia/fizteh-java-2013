@@ -16,7 +16,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
     @Override
     public DistributedTableProvider create(String dir) throws IllegalArgumentException {
         File path = new File(dir);
-        if (dir == null) {
+        if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException("directory couldn't be null");
         }
         try {

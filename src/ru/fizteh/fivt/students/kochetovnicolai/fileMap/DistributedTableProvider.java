@@ -27,7 +27,7 @@ public class DistributedTableProvider implements TableProvider {
 
     public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
         currentPath = workingDirectory;
-        if (workingDirectory == null || !currentPath.exists() && !currentPath.mkdir()) {
+        if (currentPath == null || currentPath.isDirectory() || (!currentPath.exists()  && !currentPath.mkdir())) {
             throw new IllegalArgumentException("couldn't create working directory");
         }
         tables = new HashMap<>();
@@ -35,8 +35,8 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("..") || name.contains(File.separator)) {
-            throw new IllegalArgumentException("table name shouldn't be null");
+        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+            throw new IllegalArgumentException("invalid table name");
         }
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
@@ -49,8 +49,8 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember createTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("..") || name.contains(File.separator)) {
-            throw new IllegalArgumentException("table name shouldn't be null");
+        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+            throw new IllegalArgumentException("invalid table name");
         }
         if (!tables.containsKey(name)) {
             try {
@@ -65,8 +65,8 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("..") || name.contains(File.separator)) {
-            throw new IllegalArgumentException("table name shouldn't be null");
+        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+            throw new IllegalArgumentException("invalid table name");
         }
         if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
             throw new IllegalStateException("table is not exists");

@@ -57,8 +57,8 @@ public class TableMember implements Table {
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
         checkExistence();
-        if (key == null || value == null) {
-            throw new IllegalArgumentException();
+        if (key == null || key.equals("") || value == null) {
+            throw new IllegalArgumentException("invalid key");
         }
         String old = get(key);
         changes.put(key, value);
