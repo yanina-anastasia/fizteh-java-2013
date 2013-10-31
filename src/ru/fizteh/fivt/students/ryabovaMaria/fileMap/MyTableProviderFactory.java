@@ -5,13 +5,15 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 public class MyTableProviderFactory implements TableProviderFactory {
-    public TableProvider myTableProvider;
     private File curDir;
     
     @Override
     public TableProvider create(String dir) {
         if (dir == null) {
-            throw new IllegalArgumentException("Bad property");
+            throw new IllegalArgumentException("Bad directory");
+        }
+        if (dir.contains(".") || dir.contains("/") || dir.contains("\\")) {
+            throw new IllegalArgumentException("Bad directory");
         }
         curDir = new File(dir);
         if (!curDir.exists()) {
@@ -20,7 +22,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if (!curDir.isDirectory()) {
             throw new IllegalArgumentException("Argument is not a directory");
         }
-        myTableProvider = new TableProviderCommands(curDir);
-        return myTableProvider;
+        return new TableProviderCommands(curDir);
     }
 }
