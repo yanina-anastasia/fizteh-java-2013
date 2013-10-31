@@ -25,6 +25,11 @@ public class DistributedTableProvider implements TableProvider {
         return tables.containsKey(name);
     }
 
+    protected boolean isValidName(String name) {
+        return name != null && !name.contains(".")
+                && !name.contains(File.separator) && !name.contains(File.pathSeparator);
+    }
+
     public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
         currentPath = workingDirectory;
         if (currentPath == null || !currentPath.isDirectory() || (!currentPath.exists()  && !currentPath.mkdir())) {
@@ -35,7 +40,7 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+        if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
         if (tables.containsKey(name)) {
@@ -49,7 +54,7 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember createTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+        if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
         if (!tables.containsKey(name)) {
@@ -65,7 +70,7 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException {
-        if (name == null || name.equals("") || name.equals("..") || name.contains(File.separator)) {
+        if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
         if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {

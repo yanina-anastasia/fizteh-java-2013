@@ -45,7 +45,7 @@ public class TableMember implements Table {
     @Override
     public String get(String key) throws IllegalArgumentException {
         checkExistence();
-        if (key == null) {
+        if (!table.isValidKey(key)) {
             throw new IllegalArgumentException();
         }
         if (changes.containsKey(key)) {
@@ -57,8 +57,8 @@ public class TableMember implements Table {
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
         checkExistence();
-        if (key == null || key.equals("") || value == null) {
-            throw new IllegalArgumentException("invalid key");
+        if (!table.isValidKey(key) || !table.isValidValue(value)) {
+            throw new IllegalArgumentException("invalid key or value");
         }
         String old = get(key);
         changes.put(key, value);
@@ -68,7 +68,7 @@ public class TableMember implements Table {
     @Override
     public String remove(String key) throws IllegalArgumentException {
         checkExistence();
-        if (key == null) {
+        if (!table.isValidKey(key)) {
             throw new IllegalArgumentException();
         }
         return changes.put(key, null);

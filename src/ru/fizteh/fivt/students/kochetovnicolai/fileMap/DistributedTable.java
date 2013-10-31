@@ -30,6 +30,14 @@ public class DistributedTable extends FileManager implements Table {
         return (byte) Math.abs(s.getBytes(StandardCharsets.UTF_8)[0]);
     }
 
+    public boolean isValidKey(String key) {
+        return key != null && !key.equals("");
+    }
+
+    public boolean isValidValue(String value) {
+        return isValidKey(value);
+    }
+
     private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
         int fileRecordNumber = 0;
         currentFile = filesList[dirNumber][fileNumber];
@@ -126,7 +134,7 @@ public class DistributedTable extends FileManager implements Table {
         byte firstByte = getFirstByte(key);
         currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
         currentPath = directoriesList[firstByte % partsNumber];
-        if (key == null || value == null) {
+        if (key == null) {
             throw new IllegalArgumentException();
         }
         if (get(key) == null) {
