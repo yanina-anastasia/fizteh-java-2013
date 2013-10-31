@@ -44,7 +44,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
         if (newActiveTable != null) {
             int uncommittedChanges = 0;
             if (activeTable != null) {
-                uncommittedChanges = activeTable.allUncommittedChanges();
+                uncommittedChanges = activeTable.uncommittedChanges();
             }
             if (uncommittedChanges > 0) {
                 return uncommittedChanges;

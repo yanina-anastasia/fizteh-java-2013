@@ -33,9 +33,8 @@ public class MultiFileHashTable implements Table {
         }
 
         table = new HashMap<String, String>();
-        uncommittedTable = new HashMap<String, String>();
+        oldValues = new HashMap<String, String>();
         readTable();
-        uncommittedTable.putAll(table);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not null");
         }
 
-        return uncommittedTable.get(key);
+        return table.get(key);
     }
 
     @Override
@@ -61,8 +60,12 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Value must be not null");
         }
 
-        ++uncommittedChanges;
-        return uncommittedTable.put(key, value);
+        String oldValue = table.put(key, value);
+        if (!oldValues.containsKey(key)) {
+            oldValues.put(key, oldValue);
+        }
+
+        return oldValue;
     }
 
     @Override
@@ -71,11 +74,11 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not null");
         }
 
-        String value = uncommittedTable.remove(key);
-        if (value != null) {
-            ++uncommittedChanges;
+        String oldValue = table.remove(key);
+        if (!oldValues.containsKey(key)) {
+            oldValues.put(key, oldValue);
         }
-        return value;
+        return oldValue;
     }
 
     public void removeTable() throws DatabaseException {
@@ -85,31 +88,33 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int size() {
-        return uncommittedTable.size();
+        return table.size();
     }
 
     @Override
     public int commit() {
-        table.clear();
-        table.putAll(uncommittedTable);
-
-        int changes = uncommittedChanges;
-        uncommittedChanges = 0;
+        int changes = oldValues.size();
+        oldValues.clear();
         return changes;
     }
 
     @Override
     public int rollback() {
-        uncommittedTable.clear();
-        uncommittedTable.putAll(table);
+        for (Map.Entry<String, String> entry : oldValues.entrySet()) {
+            if (entry.getValue() == null) {
+                table.remove(entry.getKey());
+            } else {
+                table.put(entry.getKey(), entry.getValue());
+            }
+        }
 
-        int changes = uncommittedChanges;
-        uncommittedChanges = 0;
+        int changes = oldValues.size();
+        oldValues.clear();
         return changes;
     }
 
-    public int allUncommittedChanges() {
-        return uncommittedChanges;
+    public int uncommittedChanges() {
+        return oldValues.size();
     }
 
     public void exit() {
@@ -232,12 +237,10 @@ public class MultiFileHashTable implements Table {
     }
 
     private HashMap<String, String> table;
-    private HashMap<String, String> uncommittedTable;
+    private HashMap<String, String> oldValues;
 
     private final String tableName;
     private final File tableDirectory;
-
-    private int uncommittedChanges = 0;
 
     private static final int ALL_DIRECTORIES = 16;
     private static final int FILES_IN_DIRECTORY = 16;
