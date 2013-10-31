@@ -118,7 +118,7 @@ public final class DataBase implements Table {
     }
 
     private void checkKey(final String key) {
-        if ((key == null) || (key.length() == 0) || (key.contains(" "))) {
+        if ((key == null) || (key.length() == 0)) {
             throw new IllegalArgumentException("Wrong key!");
         }
     }

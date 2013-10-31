@@ -132,4 +132,14 @@ public class MyTableTest {
     public void testNullValue() {
         table.put("null_value", null);
     }
+
+    @Test
+    public void testWorkWithTable() {
+        Assert.assertNull(table.put("work", "with"));
+        Assert.assertEquals(table.get("work"), "with");
+        Assert.assertEquals(table.remove("work"), "with");
+        Assert.assertEquals(table.commit(), 0);
+        Assert.assertEquals(table.rollback(), 0);
+        Assert.assertEquals(table.size(), 0);
+    }
 }
