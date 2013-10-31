@@ -7,6 +7,9 @@ public class MyTableProviderFactory implements TableProviderFactory {
     public MyTableProviderFactory() { }
     
     public TableProvider create(String dir) {
+        if (dir == null || dir.isEmpty()) {
+            return null;
+        }
         return new MyTableProvider(dir);
     }   
 }

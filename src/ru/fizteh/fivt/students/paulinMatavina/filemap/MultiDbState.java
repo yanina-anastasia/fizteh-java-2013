@@ -239,7 +239,7 @@ public class MultiDbState extends State implements Table {
             throw new IllegalArgumentException();
         }
         if (!isDbChosen() || isDropped) {
-            throw new IllegalArgumentException("0");
+            return null;
         }
         
         int folder = getFolderNum(key);
