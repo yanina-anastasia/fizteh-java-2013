@@ -5,11 +5,12 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.belousova.filemap.TableState;
 
 public class MultiFileShellState extends TableState{
-    private TableProvider tableProvider = null;
+    private ChangesCountingTableProvider tableProvider = null;
 
-    public MultiFileShellState(TableProvider tableProvider, Table table) {
-        this.tableProvider = tableProvider;
-        this.currentTable = table;
+
+    public MultiFileShellState(ChangesCountingTableProvider provider, ChangesCountingTable table) {
+        tableProvider = provider;
+        currentTable = table;
     }
 
     public Table getTable(String name) {

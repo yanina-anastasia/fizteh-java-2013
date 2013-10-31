@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MultiFileTableProvider implements TableProvider {
+public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private Map<String, Table> tableMap = new HashMap<String, Table>();
     private File dataDitectory;
 
@@ -29,16 +29,19 @@ public class MultiFileTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String name) {
+    public ChangesCountingTable getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("empty name");
         }
         if (!tableMap.containsKey(name)) {
             return null;
         }
         File tableFile = new File(dataDitectory, name);
         try {
-            Table table = new MultiFileTable(tableFile);
+            ChangesCountingTable table = new MultiFileTable(tableFile);
             return table;
         } catch (IOException e) {
             throw new RuntimeException("read error");
@@ -46,9 +49,12 @@ public class MultiFileTableProvider implements TableProvider {
     }
 
     @Override
-    public Table createTable(String name) {
+    public ChangesCountingTable createTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("empty name");
         }
         File tableDirectory = new File(dataDitectory, name);
         if (!tableDirectory.mkdir()) {
@@ -56,7 +62,7 @@ public class MultiFileTableProvider implements TableProvider {
         }
 
         try {
-            Table table = new MultiFileTable(tableDirectory);
+            ChangesCountingTable table = new MultiFileTable(tableDirectory);
             tableMap.put(name, table);
             return table;
         } catch (IOException e) {
@@ -69,6 +75,9 @@ public class MultiFileTableProvider implements TableProvider {
     public void removeTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("empty name");
         }
         if (!tableMap.containsKey(name)) {
             throw new IllegalStateException("table doesn't exists");

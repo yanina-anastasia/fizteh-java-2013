@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MultiFileTable implements Table {
+public class MultiFileTable implements ChangesCountingTable {
 
     private Map<String, String> dataBase = new HashMap<String, String>();
     private Map<String, String> addedKeys = new HashMap<String, String>();
@@ -34,6 +34,9 @@ public class MultiFileTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("empty key");
+        }
         if (addedKeys.containsKey(key)) {
             return addedKeys.get(key);
         }
@@ -48,8 +51,14 @@ public class MultiFileTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("empty key");
+        }
         if (value == null) {
             throw new IllegalArgumentException("null value");
+        }
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("empty value");
         }
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
             deletedKeys.add(key);
@@ -68,6 +77,9 @@ public class MultiFileTable implements Table {
     public String remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("null key");
+        }
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("empty key");
         }
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
             deletedKeys.add(key);
@@ -111,5 +123,10 @@ public class MultiFileTable implements Table {
         int counter = changesCounter;
         changesCounter = 0;
         return counter;
+    }
+
+    @Override
+    public int getChangesCount() {
+        return changesCounter;
     }
 }

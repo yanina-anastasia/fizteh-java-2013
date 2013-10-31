@@ -20,6 +20,11 @@ public class MultiFileTableProviderFactoryTest {
         tableProviderFactory.create(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateEmpty() throws Exception {
+        tableProviderFactory.create("");
+    }
+
     @Test
     public void testCreateNotExisted() throws Exception {
         Assert.assertNotNull(tableProviderFactory.create("newNotExistedTable"));

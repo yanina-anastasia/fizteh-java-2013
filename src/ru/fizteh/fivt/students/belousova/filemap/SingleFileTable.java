@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.ChangesCountingTable;
 import ru.fizteh.fivt.students.belousova.utils.Predicate;
 import ru.fizteh.fivt.students.belousova.utils.FileMapUtils;
 import ru.fizteh.fivt.students.belousova.utils.TruePredicate;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SingleFileTable implements Table {
+public class SingleFileTable implements ChangesCountingTable {
     private Map<String, String> dataBase = new HashMap<String, String>();
     private File dataFile;
 
@@ -61,6 +62,11 @@ public class SingleFileTable implements Table {
 
     @Override
     public int rollback() {
+        throw new UnsupportedOperationException("this operation is not supported");
+    }
+
+    @Override
+    public int getChangesCount() {
         throw new UnsupportedOperationException("this operation is not supported");
     }
 }

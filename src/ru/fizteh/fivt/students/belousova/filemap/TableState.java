@@ -1,13 +1,14 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.ChangesCountingTable;
 
 public class TableState {
-    protected Table currentTable = null;
+    protected ChangesCountingTable currentTable = null;
 
     public TableState(){}
 
-    public TableState(Table table) {
+    public TableState(ChangesCountingTable table) {
         currentTable = table;
     }
 
@@ -40,5 +41,9 @@ public class TableState {
 
     public int rollbackCurrentTable() {
         return currentTable.rollback();
+    }
+
+    public int getChangesCountOfCurrentTable() {
+        return currentTable.getChangesCount();
     }
 }

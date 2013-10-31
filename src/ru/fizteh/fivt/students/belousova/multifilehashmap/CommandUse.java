@@ -19,12 +19,14 @@ public class CommandUse implements Command {
     @Override
     public void execute(String[] args) throws IOException {
         String tableName = args[1];
-
         if (state.getTable(tableName) == null) {
             System.out.println(tableName + " not exists");
         } else {
             if (state.getCurrentTable() != null) {
-                state.commitCurrentTable();
+                if (state.getChangesCountOfCurrentTable() > 0) {
+                    System.out.println(state.getChangesCountOfCurrentTable() + " unsaved changes");
+                    return;
+                }
             }
             state.setCurrentTable(tableName);
             System.out.println("using " + tableName);

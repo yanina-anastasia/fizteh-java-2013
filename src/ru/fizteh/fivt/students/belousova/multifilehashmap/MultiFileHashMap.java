@@ -7,8 +7,8 @@ public class MultiFileHashMap {
     public static void main(String[] args) {
         MultiFileShell shell = new MultiFileShell();
         String dir = System.getProperty("fizteh.db.dir");
-        TableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
-        TableProvider tableProvider = tableProviderFactory.create(dir);
+        ChangesCountingTableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
+        ChangesCountingTableProvider tableProvider = tableProviderFactory.create(dir);
         MultiFileShellState multiFileShellState = new MultiFileShellState(tableProvider, null);
         shell.run(args, multiFileShellState);
     }

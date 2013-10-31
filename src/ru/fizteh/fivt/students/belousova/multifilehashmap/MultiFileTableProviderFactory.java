@@ -6,13 +6,16 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class MultiFileTableProviderFactory implements TableProviderFactory {
+public class MultiFileTableProviderFactory implements ChangesCountingTableProviderFactory {
     @Override
-    public TableProvider create(String dir) {
+    public ChangesCountingTableProvider create(String dir) {
         if (dir == null) {
             throw new IllegalArgumentException("null directory");
         }
-        TableProvider tableProvider = null;
+        if (dir.isEmpty()) {
+            throw new IllegalArgumentException("empty directory");
+        }
+        ChangesCountingTableProvider tableProvider = null;
         try {
             File file = new File(dir);
             file.mkdir();

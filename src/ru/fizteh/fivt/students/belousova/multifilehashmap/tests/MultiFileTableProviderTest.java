@@ -20,6 +20,7 @@ public class MultiFileTableProviderTest {
         }
         testDirectory.mkdir();
         tableProvider = new MultiFileTableProvider(testDirectory);
+        tableProvider.createTable("existingTable");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -27,15 +28,19 @@ public class MultiFileTableProviderTest {
         tableProvider.getTable(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableEmpty() throws Exception {
+        tableProvider.getTable("");
+    }
+
     @Test
     public void testGetTableExisted() throws Exception {
-        Table table = tableProvider.createTable("newExistingTable");
-        Assert.assertEquals(tableProvider.getTable("newExistingTable").getName(), "newExistingTable");
+        Assert.assertEquals(tableProvider.getTable("existingTable").getName(), "existingTable");
     }
 
     @Test
     public void testGetTableNotExisted() throws Exception {
-        Assert.assertNull(tableProvider.getTable("newNotExistingTable"));
+        Assert.assertNull(tableProvider.getTable("notExistingTable"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -43,15 +48,20 @@ public class MultiFileTableProviderTest {
         tableProvider.createTable(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableEmpty() throws Exception {
+        tableProvider.createTable("");
+    }
+
     @Test
     public void testCreateTableExisted() throws Exception {
-        tableProvider.createTable("newExistingTable");
-        Assert.assertNull(tableProvider.createTable("newExistingTable"));
+        Assert.assertNull(tableProvider.createTable("existingTable"));
     }
 
     @Test
     public void testCreateTableNotExisted() throws Exception {
-        Assert.assertNotNull(tableProvider.createTable("newNotExistingTable"));
+        Assert.assertNotNull(tableProvider.createTable("notExistingTable"));
+        tableProvider.removeTable("notExistingTable");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -59,14 +69,18 @@ public class MultiFileTableProviderTest {
         tableProvider.removeTable(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableEmpty() throws Exception {
+        tableProvider.removeTable("");
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testRemoveTableNotExisted() throws Exception {
-        tableProvider.removeTable("table");
+        tableProvider.removeTable("notExistingTable");
     }
 
     @Test
     public void testRemoveTableExisted() throws Exception {
-        tableProvider.createTable("table");
-        tableProvider.removeTable("table");
+        tableProvider.removeTable("existingTable");
     }
 }

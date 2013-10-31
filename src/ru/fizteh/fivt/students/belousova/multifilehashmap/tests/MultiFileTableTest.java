@@ -19,11 +19,6 @@ public class MultiFileTableTest {
         multiFileTable = new MultiFileTable(testDirectory);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
     @Test
     public void testGetName() throws Exception {
         Assert.assertEquals(multiFileTable.getName(), testDirectory.getName());
@@ -46,6 +41,11 @@ public class MultiFileTableTest {
         multiFileTable.get(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetEmpty() throws Exception {
+        multiFileTable.get("");
+    }
+
     @Test
     public void testPutNew() throws Exception {
         Assert.assertNull(multiFileTable.put("key", "value"));
@@ -63,13 +63,28 @@ public class MultiFileTableTest {
     }
 
     @Test (expected = IllegalArgumentException.class)
+    public void testPutEmptyKey() throws Exception {
+        multiFileTable.put("", "value");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
     public void testPutNullValue() throws Exception {
         multiFileTable.put("key", null);
     }
 
     @Test (expected = IllegalArgumentException.class)
+    public void testPutEmptyValue() throws Exception {
+        multiFileTable.put("key", "");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
     public void testRemoveNull() throws Exception {
         multiFileTable.remove(null);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testRemoveEmpty() throws Exception {
+        multiFileTable.remove("");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.ChangesCountingTable;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public class FileMap {
     public static void main(String[] args) {
         File data = new File(System.getProperty("fizteh.db.dir"), "db.dat");
         try {
-            Table table = new SingleFileTable(data);
+            ChangesCountingTable table = new SingleFileTable(data);
             TableState tableState = new TableState(table);
             makeCommandList(tableState);
         } catch (IOException e) {
