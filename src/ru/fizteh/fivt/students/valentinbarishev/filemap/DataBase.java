@@ -144,27 +144,19 @@ public final class DataBase implements Table {
 
     @Override
     public String put(final String keyStr, final String valueStr) {
-        try {
         checkKey(keyStr);
         checkKey(valueStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         return file.put(keyStr, valueStr);
-        } catch (NullPointerException e) {
-            throw new DataBaseException("asd");
-        }
     }
 
     @Override
     public String get(final String keyStr) {
-        try {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         return file.get(keyStr);
-        } catch (NullPointerException e) {
-            throw new DataBaseException("asdf");
-        }
     }
 
     @Override

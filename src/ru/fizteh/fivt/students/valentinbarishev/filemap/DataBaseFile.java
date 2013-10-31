@@ -257,7 +257,12 @@ public class DataBaseFile {
             if (index == -1) {
                 return null;
             } else {
-                String result = new String(data.get(index).value);
+                String result;
+                if (data.get(index).status == DELETED_NODE) {
+                    result = null;
+                } else {
+                    result = new String(data.get(index).value);
+                }
                 data.get(index).remove();
                 return result;
             }
