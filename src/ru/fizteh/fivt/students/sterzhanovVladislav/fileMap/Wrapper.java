@@ -18,7 +18,7 @@ public class Wrapper {
             System.exit(-1);
         }
         Path dbPath = Paths.get(dbDir);
-        try(DatabaseContext context = new DatabaseContext(dbPath)) {
+        try (DatabaseContext context = new DatabaseContext(dbPath)) {
             cmdMap.put("put", new FileMapCommands.Put().setContext(context));
             cmdMap.put("get", new FileMapCommands.Get().setContext(context));
             cmdMap.put("remove", new FileMapCommands.Remove().setContext(context));
