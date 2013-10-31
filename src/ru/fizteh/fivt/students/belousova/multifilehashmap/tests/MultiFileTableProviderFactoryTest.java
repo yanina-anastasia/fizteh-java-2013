@@ -6,10 +6,9 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTableProviderFactory;
 
-import java.io.File;
-
 public class MultiFileTableProviderFactoryTest {
     private TableProviderFactory tableProviderFactory;
+
     @Before
     public void setUp() throws Exception {
         tableProviderFactory = new MultiFileTableProviderFactory();

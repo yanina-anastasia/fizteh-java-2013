@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.belousova.utils.MultiFileUtils;
 
 import java.io.File;

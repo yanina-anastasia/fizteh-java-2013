@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap.tests;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTable;
 
@@ -9,6 +11,7 @@ import java.io.File;
 public class MultiFileTableTest {
     private Table multiFileTable;
     private File testDirectory;
+
     @Before
     public void setUp() throws Exception {
         testDirectory = new File("javatest");
@@ -57,32 +60,32 @@ public class MultiFileTableTest {
         Assert.assertEquals(multiFileTable.put("key", "value1"), "value");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testPutNullKey() throws Exception {
         multiFileTable.put(null, "value");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testPutEmptyKey() throws Exception {
         multiFileTable.put("", "value");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testPutNullValue() throws Exception {
         multiFileTable.put("key", null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testPutEmptyValue() throws Exception {
         multiFileTable.put("key", "");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRemoveNull() throws Exception {
         multiFileTable.remove(null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRemoveEmpty() throws Exception {
         multiFileTable.remove("");
     }

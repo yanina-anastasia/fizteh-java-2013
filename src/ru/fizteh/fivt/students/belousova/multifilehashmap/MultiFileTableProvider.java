@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 
 import java.io.File;
@@ -29,7 +28,7 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
     }
 
     @Override
-    public ChangesCountingTable getTable(String name) {
+    public MultiFileTable getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
         }
@@ -41,15 +40,14 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
         }
         File tableFile = new File(dataDitectory, name);
         try {
-            ChangesCountingTable table = new MultiFileTable(tableFile);
-            return table;
+            return new MultiFileTable(tableFile);
         } catch (IOException e) {
             throw new RuntimeException("read error");
         }
     }
 
     @Override
-    public ChangesCountingTable createTable(String name) {
+    public MultiFileTable createTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
         }
@@ -62,7 +60,7 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
         }
 
         try {
-            ChangesCountingTable table = new MultiFileTable(tableDirectory);
+            MultiFileTable table = new MultiFileTable(tableDirectory);
             tableMap.put(name, table);
             return table;
         } catch (IOException e) {

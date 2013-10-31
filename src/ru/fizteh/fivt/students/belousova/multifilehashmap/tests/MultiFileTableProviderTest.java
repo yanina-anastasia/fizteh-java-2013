@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.belousova.multifilehashmap.tests;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTableProvider;
 
@@ -12,6 +11,7 @@ import java.io.File;
 public class MultiFileTableProviderTest {
     private TableProvider tableProvider;
     private File testDirectory;
+
     @Before
     public void setUp() throws Exception {
         testDirectory = new File("javatest");
