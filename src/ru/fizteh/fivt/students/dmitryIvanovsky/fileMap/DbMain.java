@@ -20,6 +20,7 @@ public class DbMain {
             //e.printStackTrace();
             System.out.println("Ошибка загрузки");
             FileMapUtils.getMessage(e);
+            System.exit(1);
         }
     }
 
