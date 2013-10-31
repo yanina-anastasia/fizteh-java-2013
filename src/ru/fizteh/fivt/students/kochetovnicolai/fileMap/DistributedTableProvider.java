@@ -20,8 +20,8 @@ public class DistributedTableProvider implements TableProvider {
         }
     }
 
-    protected boolean isValidName(String name) {
-        return name != null && !name.contains(".") && !name.equals("") && !name.contains("\\") && !name.contains("/");
+    public static boolean isValidName(String name) {
+        return name != null && !name.matches(".*[.\\\\/\\s].*");
     }
 
     protected void loadTable(String name) {
@@ -53,6 +53,9 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
+        if (tables.containsKey(name)) {
+            return null;
+        }
         loadTable(name);
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
