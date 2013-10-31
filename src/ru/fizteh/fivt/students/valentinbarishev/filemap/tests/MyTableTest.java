@@ -117,4 +117,19 @@ public class MyTableTest {
         Assert.assertEquals(table.put("key", "value"), "value_new");
         Assert.assertEquals(table.commit(), 0);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyKey() {
+        table.put("", "empty_key");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyValue() {
+        table.put("empty_value", "");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullValue() {
+        table.put("null_value", null);
+    }
 }

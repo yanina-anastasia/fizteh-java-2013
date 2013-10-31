@@ -118,8 +118,8 @@ public final class DataBase implements Table {
     }
 
     private void checkKey(final String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Null pointer key!");
+        if ((key == null) || (key.length() == 0)) {
+            throw new IllegalArgumentException("Wrong key!");
         }
     }
 
@@ -145,6 +145,7 @@ public final class DataBase implements Table {
     @Override
     public String put(final String keyStr, final String valueStr) {
         checkKey(keyStr);
+        checkKey(valueStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         return file.put(keyStr, valueStr);

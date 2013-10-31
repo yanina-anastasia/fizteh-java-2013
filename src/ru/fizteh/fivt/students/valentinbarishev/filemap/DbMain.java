@@ -44,7 +44,7 @@ public class DbMain {
             while (!parser.isEmpty()) {
                 shell.executeCommand(parser.getCommand());
             }
-        } catch (InvalidCommandException|MultiDataBaseException|DataBaseWrongFileFormat e) {
+        } catch (InvalidCommandException|MultiDataBaseException|DataBaseWrongFileFormat|RuntimeException e) {
             System.err.println(e.getMessage());
         }
     }
@@ -69,7 +69,7 @@ public class DbMain {
                     shell.executeCommand(parser.getCommand());
                 }
             } catch (MultiDataBaseException|DataBaseWrongFileFormat|InvalidCommandException
-                    |IllegalArgumentException e) {
+                    |RuntimeException e) {
                 System.err.println(e.getMessage());
             } finally {
                 System.out.print("$ ");
