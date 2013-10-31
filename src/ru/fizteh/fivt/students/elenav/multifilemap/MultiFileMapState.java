@@ -78,6 +78,8 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 				if (files != null) {
 					for (File f : files) {
 						getWorkingTable().readFile(f);
+						f.delete();
+						f.createNewFile();
 					}
 				}
 			}
@@ -114,7 +116,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 
 				File out = getWhereWrite(key);
 				DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-
+				out.
 				byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
 				s.writeInt(bkey.length);
 				byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
