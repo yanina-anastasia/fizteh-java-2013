@@ -5,9 +5,11 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MyTableProvider implements TableProvider {
     private MultiDbState table;
+    private String rootDir;
     
     public MyTableProvider(String dir) {
         table = new MultiDbState(dir);
+        rootDir = dir;
     }
     
     public Table getTable(String name) {
@@ -29,7 +31,7 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException();
         }
         
-        MultiDbState newTable = table;
+        MultiDbState newTable = new MultiDbState(rootDir);
         try {
             newTable.create(name);
         } catch (DbReturnStatus e) {
