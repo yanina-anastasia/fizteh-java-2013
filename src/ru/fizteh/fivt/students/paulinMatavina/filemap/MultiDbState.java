@@ -107,7 +107,6 @@ public class MultiDbState extends State implements Table {
         dbSize = 0;
         changesNum = 0;
         File lastDir = shell.currentDir;
-        shell.currentDir = new File(makeNewSource(name));
         int result = shell.cd(makeNewSource(name));
         if (result == 0) {
             try {
@@ -270,7 +269,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String getName() {
-        return (shell.currentDir.getName());
+        return tableName;
     }
     
     public void use(String dbName) {
