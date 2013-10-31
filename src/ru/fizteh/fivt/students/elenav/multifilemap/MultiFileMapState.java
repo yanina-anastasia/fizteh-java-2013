@@ -79,9 +79,9 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 					for (File f : files) {
 						getWorkingTable().readFile(f);
 						f.delete();
-						f.createNewFile();
 					}
 				}
+				file.delete();
 			}
 				
 		}
