@@ -28,7 +28,7 @@ public class TableProviderCommands implements TableProvider {
     public Table getTable(String name) {
         isCorrectArgument(name);
         if (!tableDir.exists()) {
-            throw new IllegalArgumentException(name + " doesn't exists");
+            return null;
         }
         if (!tableDir.isDirectory()) {
             throw new IllegalArgumentException(name + " is not a directory");
