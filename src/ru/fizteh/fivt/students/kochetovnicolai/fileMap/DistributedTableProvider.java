@@ -54,13 +54,7 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
-        if (!isValidName(name)) {
-            throw new IllegalArgumentException("invalid table name");
-        }
-        if (!tables.containsKey(name)) {
-            return null;
-        }
-        //loadTable(name);
+        loadTable(name);
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
         } else {
