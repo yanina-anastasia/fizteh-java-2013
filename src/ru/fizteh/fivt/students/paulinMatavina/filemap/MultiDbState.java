@@ -200,14 +200,14 @@ public class MultiDbState extends State implements Table {
     }
     
     public String put(String key, String value) { 
-        key = key.trim();
-        value = value.trim();
-        if (key == null || value == null) {
+        if (key == null || value == null 
+              || key.trim() == null || value.trim() == null) {
             throw new IllegalArgumentException();
         }
-         if (!isDbChosen() || isDropped) {
+
+        if (!isDbChosen() || isDropped) {
             return null;
-         }
+        }
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
@@ -220,8 +220,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String get(String key) {
-        key = key.trim();
-        if (key == null) {
+        if (key == null || key.trim() == null) {
             throw new IllegalArgumentException();
         }
         
@@ -235,8 +234,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String remove(String key) {
-        key = key.trim();
-        if (key == null) {
+        if (key == null || key.trim() == null) {
             throw new IllegalArgumentException();
         }
         if (!isDbChosen() || isDropped) {
@@ -278,7 +276,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public void use(String dbName) {
-        if (dbName == null) {
+        if (dbName == null || dbName.trim() == null) {
             throw new IllegalArgumentException();
         }
         if (dbName.matches(".*" + File.separator + ".*") 
