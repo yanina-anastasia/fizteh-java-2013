@@ -1,6 +1,5 @@
-package ru.fizteh.fivt.students.vyatkina.database.providerCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
 import java.util.concurrent.ExecutionException;

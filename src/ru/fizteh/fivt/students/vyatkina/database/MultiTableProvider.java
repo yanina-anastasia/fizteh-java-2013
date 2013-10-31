@@ -1,10 +1,6 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseUtils;
-import ru.fizteh.fivt.students.vyatkina.database.Diff;
-import ru.fizteh.fivt.students.vyatkina.database.tables.MultiTable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,18 +28,11 @@ public class MultiTableProvider extends AbstractTableProvider {
     private final int NUMBER_OF_DIRECTORIES = 16;
     private final String DOT_DIR = ".dir";
     private final String DOT_DAT = ".dat";
-    public static final int MAX_SUPPORTED_NAME_LENGTH = 1024;
 
     public MultiTableProvider (DatabaseState state) throws IOException {
         super (state);
         state.setTableProvider (this);
         getDatabaseFromDisk ();
-    }
-
-    protected void validTableNameCheck (String tableName) throws IllegalArgumentException {
-        if ((tableName == null) || (tableName.length () > MAX_SUPPORTED_NAME_LENGTH)) {
-            throw new IllegalArgumentException ("Unsupported table name");
-        }
     }
 
     private boolean isValidDatabaseFileName (String name) {
@@ -122,7 +111,7 @@ public class MultiTableProvider extends AbstractTableProvider {
             }
         }
         if (table == null) {
-            throw new IllegalStateException ("Try to delete unknown table");
+            throw new IllegalStateException (TABLE_NOT_EXIST);
         }
     }
 
@@ -170,8 +159,6 @@ public class MultiTableProvider extends AbstractTableProvider {
                 }
             }
         }
-
-
     }
 
 
@@ -194,12 +181,20 @@ public class MultiTableProvider extends AbstractTableProvider {
             MultiTable table = createNewTable (tableDirectory.getName ());
             File[] directories = tableDirectory.listFiles ();
 
+            if (directories == null) {
+                return;
+            }
+
             for (File directory : directories) {
 
                 if (!isValidDatabaseDirectoryName (directory.getName ())) {
                     continue;
                 }
                 File[] files = directory.listFiles ();
+
+                if (files == null) {
+                    continue;
+                }
 
                 for (File file : files) {
                     isFileCheck (file.toPath ());

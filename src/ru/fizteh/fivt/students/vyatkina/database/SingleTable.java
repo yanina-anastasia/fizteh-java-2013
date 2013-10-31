@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.vyatkina.database.tables;
-
-import ru.fizteh.fivt.students.vyatkina.database.providers.SingleTableProvider;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import java.io.IOException;
 import java.util.Map;

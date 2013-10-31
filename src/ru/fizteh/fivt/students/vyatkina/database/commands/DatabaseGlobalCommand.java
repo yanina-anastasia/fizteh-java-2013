@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.vyatkina.database.providerCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.tables.MultiTable;
+import ru.fizteh.fivt.students.vyatkina.database.MultiTable;
 
 public abstract class DatabaseGlobalCommand extends DatabaseCommand {
 

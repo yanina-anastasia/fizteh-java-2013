@@ -1,18 +1,16 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.students.vyatkina.Command;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.CreateCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.DropCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProviderFactory;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.CommitCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.ExitDatabaseCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.UseCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.GetCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.PutCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RemoveCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RollbackCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.SizeCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.CreateCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.DropCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.CommitCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.ExitDatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.UseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.GetCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.PutCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.RemoveCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.RollbackCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.SizeCommand;
 import ru.fizteh.fivt.students.vyatkina.shell.Shell;
 
 import java.nio.file.Path;

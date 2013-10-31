@@ -1,12 +1,11 @@
-package ru.fizteh.fivt.students.vyatkina.database.tableCommands;
-
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
 import java.util.concurrent.ExecutionException;
 
-public class SizeCommand extends DatabaseCommand {
+public class RollbackCommand extends DatabaseCommand {
 
     @Override
     public void execute (String[] args) throws ExecutionException {
@@ -14,12 +13,12 @@ public class SizeCommand extends DatabaseCommand {
             state.getIoStreams ().out.println ("no table");
             return;
         }
-       state.getIoStreams ().out.println (state.getTable ().size ());
+        state.getIoStreams ().out.println (state.getTable ().rollback ());
     }
 
-    public SizeCommand (DatabaseState state) {
+    public RollbackCommand (DatabaseState state) {
         super (state);
-        this.name = "size";
+        this.name = "rollback";
         this.argsCount = 0;
     }
 

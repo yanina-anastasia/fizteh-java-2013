@@ -1,9 +1,6 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseUtils;
-import ru.fizteh.fivt.students.vyatkina.database.tables.SingleTable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Set;
 
 public class SingleTableProvider extends AbstractTableProvider {
 

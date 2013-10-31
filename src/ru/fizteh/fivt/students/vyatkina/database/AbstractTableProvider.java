@@ -1,8 +1,9 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,22 @@ import java.nio.file.Path;
 public abstract class AbstractTableProvider implements TableProvider {
 
     public DatabaseState state;
+
+    public static final String UNSUPPORTED_TABLE_NAME = "Unsupported table name";
+    public static final String TABLE_NOT_EXIST = "Table not exist";
+    public static final int MAX_SUPPORTED_NAME_LENGTH = 1024;
+
+    protected void validTableNameCheck (String tableName) throws IllegalArgumentException {
+        if ((tableName == null) || (tableName.length () > MAX_SUPPORTED_NAME_LENGTH)) {
+            throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
+        }
+        if (tableName.contains ("\\.") || tableName.contains (File.pathSeparator) || tableName.contains (File.separator) ) {
+            throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
+        }
+        if (tableName.trim().isEmpty ()) {
+            throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
+        }
+    }
 
     public AbstractTableProvider (DatabaseState state) throws IOException {
         this.state = state;

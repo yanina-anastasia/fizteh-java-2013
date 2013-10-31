@@ -1,10 +1,9 @@
-package ru.fizteh.fivt.students.vyatkina.database.tables;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.vyatkina.database.Diff;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
+import ru.fizteh.fivt.students.vyatkina.database.MultiTableProvider;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +13,8 @@ public class MultiTable implements Table {
     private MultiTableProvider tableProvider;
     protected Map <String, Diff <String> > values;
     private final String name;
+    public static final String KEY_SHOULD_NOT_BE_NULL = "Key should not be null";
+    public static final String VALUE_SHOULD_NOT_BE_NULL = "Value should not be null";
 
     public MultiTable (String name, Map <String, Diff <String> > values, MultiTableProvider tableProvider) {
         this.name = name;
@@ -30,7 +31,7 @@ public class MultiTable implements Table {
     public String get (String key) {
 
         if (key == null) {
-            throw new IllegalArgumentException ("Key should be not null");
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
         }
 
         Diff <String> diff = values.get (key);
@@ -45,8 +46,12 @@ public class MultiTable implements Table {
     @Override
     public String put (String key, String value) {
 
-        if ((key == null) || (value == null)) {
-            throw new IllegalArgumentException ("Key and Value should be not null");
+        if (key == null)  {
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException (VALUE_SHOULD_NOT_BE_NULL);
         }
 
         Diff <String> oldValue = values.get (key);

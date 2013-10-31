@@ -1,9 +1,7 @@
-package ru.fizteh.fivt.students.vyatkina.database.providerCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.tables.MultiTable;
 
 
 import java.util.concurrent.ExecutionException;
