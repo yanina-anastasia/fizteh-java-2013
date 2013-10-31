@@ -120,12 +120,12 @@ public class MyTableTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyKey() {
-        table.put("", "empty_key");
+        table.put("   ", "empty_key");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyValue() {
-        table.put("empty_value", "");
+        table.put("empty_value", "   ");
     }
 
     @Test(expected = IllegalArgumentException.class)

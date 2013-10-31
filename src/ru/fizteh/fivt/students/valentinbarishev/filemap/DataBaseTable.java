@@ -13,12 +13,12 @@ public final class DataBaseTable implements  TableProvider {
     }
 
     private void checkName(final String name) {
-        if ((name == null) || name.length() == 0) {
+        if ((name == null) || name.trim().length() == 0) {
             throw new IllegalArgumentException("Cannot create table! Wrong name!");
         }
 
-        if (name.contains(".") || name.contains(File.separator)) {
-            throw new RuntimeException("Illegal symbols in name!");
+        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+")) {
+            throw new RuntimeException("Wrong symbols in name!");
         }
     }
 
