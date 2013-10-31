@@ -70,7 +70,7 @@ public abstract class AbstractTable implements Table {
             String message = key == null ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be null");
         }
-        if (key.equals("") || value.equals("")) {
+        if (key.equals("") || value.equals("") || key.trim().isEmpty() || value.trim().isEmpty()) {
             String message = key.equals("") ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be empty");
         }
