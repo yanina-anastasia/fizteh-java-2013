@@ -29,18 +29,18 @@ public class OpenFile {
             System.err.println("Error with getting property");
             System.exit(1);
         }
-        if (new File(path).isFile()) {
+        File databaseDirectory = new File(path);
+        if (databaseDirectory.isFile()) {
             System.err.println("The path from the property is not a directory");
             System.exit(1);
         }
-        File databaseDirectory = new File(path);
         if (!databaseDirectory.exists()) {
             databaseDirectory.mkdir();
             System.exit(1);
         }
 
         HashMap<String, String> loadingTable = new HashMap<String, String>();
-        for (File table : new File(path).listFiles()) {
+        for (File table : databaseDirectory.listFiles()) {
             curTable = table.getName();
             File[] files = new File(path, curTable).listFiles();
             for (File step : files) {
