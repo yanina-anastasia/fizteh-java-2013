@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class DistributedTableProviderFactory implements TableProviderFactory {
     HashMap<String, DistributedTableProvider> providers;
 
-    DistributedTableProviderFactory() {
+    public DistributedTableProviderFactory() {
         providers = new HashMap<>();
     }
 

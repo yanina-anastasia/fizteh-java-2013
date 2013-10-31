@@ -26,10 +26,6 @@ public class DistributedTable extends FileManager implements Table {
         return tableName;
     }
 
-    public int getRecordNumber() {
-        return recordNumber;
-    }
-
     private byte getFirstByte(String s) {
         return (byte) Math.abs(s.getBytes(StandardCharsets.UTF_8)[0]);
     }
@@ -78,7 +74,7 @@ public class DistributedTable extends FileManager implements Table {
         return tableSize;
     }
 
-    DistributedTable(File tableDirectory, String name) throws IOException {
+    public DistributedTable(File tableDirectory, String name) throws IOException {
         currentPath = new File(tableDirectory.getPath() + File.separator + name);
         tableName = name;
         if (!currentPath.exists()) {
