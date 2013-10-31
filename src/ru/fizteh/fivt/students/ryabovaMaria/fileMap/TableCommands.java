@@ -253,8 +253,7 @@ public class TableCommands implements Table {
             }
         } catch (Exception e) {
             throw new IllegalArgumentException();
-        } 
-
+        }
     }
     
     public int countChanges(boolean isWrite) {
@@ -315,5 +314,4 @@ public class TableCommands implements Table {
         assigment(list, lastList);
         return result;
     }
-    
 }
