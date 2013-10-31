@@ -51,7 +51,7 @@ public class DbMain {
                 System.exit(1);
             }
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             System.err.println("Ошибка выполнения");
             FileMapUtils.getMessage(e);
             System.exit(1);
