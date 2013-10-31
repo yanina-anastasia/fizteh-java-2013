@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.elenav.filemap;
 import java.io.File;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.elenav.utils.ExitException;
+
 public class FileMap {
 	
 	static FileMapState createFileMapState(String name, File in) throws IOException {
@@ -26,7 +28,7 @@ public class FileMap {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
-		} catch (OutOfMemoryError f) {
+		} catch (ExitException f) {
 			fileMap.writeFile(in);
 			System.exit(0);
 		}
