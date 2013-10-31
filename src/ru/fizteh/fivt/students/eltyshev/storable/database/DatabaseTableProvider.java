@@ -26,6 +26,9 @@ public class DatabaseTableProvider implements TableProvider {
     private DatabaseTable activeTable = null;
 
     public DatabaseTableProvider(String databaseDirectoryPath) {
+        if (databaseDirectoryPath == null) {
+            throw new IllegalArgumentException("database directory cannot be null");
+        }
         this.databaseDirectoryPath = databaseDirectoryPath;
         File databaseDirectory = new File(databaseDirectoryPath);
         if (databaseDirectory.isFile()) {
@@ -64,7 +67,7 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
@@ -73,6 +76,8 @@ public class DatabaseTableProvider implements TableProvider {
         if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("column types cannot be null");
         }
+
+        checkColumnTypes(columnTypes);
 
         if (tables.containsKey(name)) {
             return null;
