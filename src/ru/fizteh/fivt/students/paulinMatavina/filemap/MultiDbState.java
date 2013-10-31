@@ -18,7 +18,6 @@ public class MultiDbState extends State implements Table {
     public boolean isDropped;
     public int changesNum;
     private int dbSize;
-    private int dbSizeBeforeRollback;
     
     public MultiDbState(String property) throws IllegalArgumentException {
         if (property == null) {
@@ -65,6 +64,7 @@ public class MultiDbState extends State implements Table {
     }
     
     private void loadData() throws IOException, DataFormatException {
+        dbSize = 0;
         data = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
@@ -80,7 +80,6 @@ public class MultiDbState extends State implements Table {
                 dbSize += data[i][j].loadData();
             }
         }
-        dbSizeBeforeRollback = dbSize;
     }
     
     public boolean fileExist(String name) {
@@ -203,7 +202,7 @@ public class MultiDbState extends State implements Table {
     
     public String put(String key, String value) { 
         if (key == null || value == null 
-              || key.trim() == null || value.trim() == null) {
+           || key.trim() == null || value.trim() == null) {
             throw new IllegalArgumentException();
         }
 
@@ -260,7 +259,6 @@ public class MultiDbState extends State implements Table {
     public int rollback() {
         int chNum = changesNum;
         changesNum = 0;
-        dbSize = dbSizeBeforeRollback;
         try {
             loadData();
         } catch (DataFormatException e) {
