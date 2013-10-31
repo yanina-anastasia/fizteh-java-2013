@@ -57,10 +57,10 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        if (tables.containsKey(name)) {
+        if (!tables.containsKey(name)) {
             return null;
         }
-        loadTable(name);
+        //loadTable(name);
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
         } else {
@@ -73,9 +73,9 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        if (tables.containsKey(name)) {
+        /*if (tables.containsKey(name)) {
             throw new IllegalArgumentException("table already exists");
-        }
+        }*/
         loadTable(name);
         if (!tables.containsKey(name)) {
             try {
