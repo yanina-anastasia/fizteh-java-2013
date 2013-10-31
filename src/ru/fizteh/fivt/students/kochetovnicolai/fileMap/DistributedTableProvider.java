@@ -108,8 +108,5 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalStateException(e.getMessage());
         }
         tables.remove(name);
-        if (!new File(currentPath + File.separator + name).delete()) {
-            throw new IllegalStateException("couldn't remove table");
-        }
     }
 }
