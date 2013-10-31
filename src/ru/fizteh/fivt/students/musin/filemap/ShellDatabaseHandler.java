@@ -250,6 +250,16 @@ public class ShellDatabaseHandler {
                     }
                     return 0;
                 }
+            }),
+            new Shell.ShellCommand("exit", new Shell.ShellExecutable() {
+                @Override
+                public int execute(Shell shell, ArrayList<String> args) {
+                    shell.stop();
+                    if (current != null) {
+                        current.commit();
+                    }
+                    return 0;
+                }
             })
     };
 
