@@ -281,8 +281,8 @@ public class MultiDbState extends State implements Table {
         if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if (dbName.matches(".*" + File.separator + ".*") 
-                || dbName.matches(".*\\.\\..*")) {
+        if (dbName.matches(".*[?/\\].*") 
+                || dbName.equals(".") || dbName.equals("..")) {
             throw new IllegalArgumentException();
         }
         if (!fileExist(dbName)) {
