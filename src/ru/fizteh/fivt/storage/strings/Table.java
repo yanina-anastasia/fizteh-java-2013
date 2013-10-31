@@ -54,6 +54,7 @@ public interface Table {
      * Выполняет фиксацию изменений.
      *
      * @return Количество сохранённых ключей.
+     * @throws Exception
      */
     int commit();
 
