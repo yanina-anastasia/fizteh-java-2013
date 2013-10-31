@@ -279,8 +279,9 @@ public class MultiDbState extends State implements Table {
             throw new IllegalArgumentException();
         }
         if (dbName.contains("/") || dbName.contains("\\") || dbName.contains("?")
-                || dbName.contains(".") || dbName.contains("*")) {
-            throw new IllegalArgumentException();
+                || dbName.contains(".") || dbName.contains("*") 
+                || dbName.contains(":") || dbName.contains("\"")) {
+            throw new RuntimeException();
         }
         if (!fileExist(dbName)) {
             throw new DbReturnStatus(2);
