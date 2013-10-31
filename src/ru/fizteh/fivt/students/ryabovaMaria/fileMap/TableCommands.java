@@ -165,14 +165,20 @@ public class TableCommands implements Table {
 
     @Override
     public String get(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Bad key");
+        }
         getUsingDatFile(key);
         return list[numberOfDir][numberOfFile].get(key);
     }
 
     @Override
     public String put(String key, String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Bad value");
+        if (value == null || key == null) {
+            throw new IllegalArgumentException("Bad args");
+        }
+        if (value.trim().isEmpty() || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Bad args");
         }
         getUsingDatFile(key);
         update.put(numberOfDir*16 + numberOfFile, " ");
@@ -253,7 +259,8 @@ public class TableCommands implements Table {
             }
         } catch (Exception e) {
             throw new IllegalArgumentException();
-        }
+        } 
+
     }
     
     public int countChanges(boolean isWrite) {
@@ -314,4 +321,5 @@ public class TableCommands implements Table {
         assigment(list, lastList);
         return result;
     }
+    
 }
