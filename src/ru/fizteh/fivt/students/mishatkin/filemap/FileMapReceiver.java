@@ -32,43 +32,41 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
 		} catch (IOException e) {
-			throw new FileMapDatabaseException("DB file not found.");
-		} finally {
-			DataInputStream dis = null;
-			try {
-				dis = new DataInputStream(in);
-				boolean hasNext = true;
-				while (hasNext) {
-					try {
-						dis.mark(1024 * 1024); // 1 MB
-						int keyLength = dis.readInt();
-						int valueLength = dis.readInt();
-						if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
-							throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
-						}
-						byte[] keyBinary = new byte[keyLength];
-						byte[] valueBinary = new byte[valueLength];
-						dis.read(keyBinary, 0, keyLength);
-						dis.read(valueBinary, 0, valueLength);
-						String key = new String(keyBinary, "UTF-8");
-						String value = new String(valueBinary, "UTF-8");
-						dictionary.put(key, value);
-					} catch (EOFException e) {
-						hasNext = false;
-					} catch (IOException e) {
-						throw new FileMapDatabaseException("DB file missing or corrupted.");
-					}
-				}
-			} finally {
+			throw new FileMapDatabaseException("Some internal error.");
+		}
+		DataInputStream dis = null;
+		try {
+			dis = new DataInputStream(in);
+			boolean hasNext = true;
+			while (hasNext) {
 				try {
-					if (dis != null) {
-						dis.close();
+					dis.mark(1024 * 1024); // 1 MB
+					int keyLength = dis.readInt();
+					int valueLength = dis.readInt();
+					if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
+						throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
 					}
-				} catch (NullPointerException | IOException ignored) {
+					byte[] keyBinary = new byte[keyLength];
+					byte[] valueBinary = new byte[valueLength];
+					dis.read(keyBinary, 0, keyLength);
+					dis.read(valueBinary, 0, valueLength);
+					String key = new String(keyBinary, "UTF-8");
+					String value = new String(valueBinary, "UTF-8");
+					dictionary.put(key, value);
+				} catch (EOFException e) {
+					hasNext = false;
+				} catch (IOException e) {
+					throw new FileMapDatabaseException("DB file missing or corrupted.");
 				}
 			}
+		} finally {
+			try {
+				if (dis != null) {
+					dis.close();
+				}
+			} catch (NullPointerException | IOException ignored) {
+			}
 		}
-
 	}
 
 	public void showPrompt() {
