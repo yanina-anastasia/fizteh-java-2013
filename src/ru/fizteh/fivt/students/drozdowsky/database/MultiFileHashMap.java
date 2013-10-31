@@ -51,6 +51,7 @@ public class MultiFileHashMap {
         if (table.exists()) {
             if (table.getAbsolutePath().equals(currentDatabase.getPath())) {
                 currentDatabase.close();
+                currentDatabase = null;
             }
             String[] newArgs = {"rm", args[1]};
             ShellCommands.rm(curDir, newArgs);
