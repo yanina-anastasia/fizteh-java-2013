@@ -18,6 +18,42 @@ public class FileMapProvider implements TableProvider {
         used = new HashMap<String, MultiFileMap>();
     }
 
+    private boolean badSymbolCheck(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) <= 31) {
+                return false;
+            }
+            if (string.charAt(i) == '\\') {
+                return false;
+            }
+            if (string.charAt(i) == '/') {
+                return false;
+            }
+            if (string.charAt(i) == '*') {
+                return false;
+            }
+            if (string.charAt(i) == ':') {
+                return false;
+            }
+            if (string.charAt(i) == '<') {
+                return false;
+            }
+            if (string.charAt(i) == '>') {
+                return false;
+            }
+            if (string.charAt(i) == '"') {
+                return false;
+            }
+            if (string.charAt(i) == '|') {
+                return false;
+            }
+            if (string.charAt(i) == '?') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isValidLocation() {
         if (!location.exists() || location.exists() && !location.isDirectory()) {
             return false;
@@ -40,6 +76,12 @@ public class FileMapProvider implements TableProvider {
     public MultiFileMap getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
+        }
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Empty name");
+        }
+        if (!badSymbolCheck(name)) {
+            throw new RuntimeException("Illegal characters");
         }
         if (!isValidLocation()) {
             throw new RuntimeException("Database location is invalid");
@@ -65,6 +107,12 @@ public class FileMapProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
         }
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Empty name");
+        }
+        if (!badSymbolCheck(name)) {
+            throw new RuntimeException("Illegal characters");
+        }
         if (!isValidLocation()) {
             throw new RuntimeException("Database location is invalid");
         }
@@ -86,6 +134,12 @@ public class FileMapProvider implements TableProvider {
     public void removeTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
+        }
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Empty name");
+        }
+        if (!badSymbolCheck(name)) {
+            throw new RuntimeException("Illegal characters");
         }
         if (!isValidLocation()) {
             throw new RuntimeException("Database location is invalid");

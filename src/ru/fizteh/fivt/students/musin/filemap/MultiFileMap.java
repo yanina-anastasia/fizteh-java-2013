@@ -182,6 +182,9 @@ public class MultiFileMap implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
         }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Empty key");
+        }
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
         int file = ((hashCode / 16 % 16) + 16) % 16;
@@ -216,6 +219,9 @@ public class MultiFileMap implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
         }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Empty key");
+        }
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
         int file = ((hashCode / 16 % 16) + 16) % 16;
@@ -225,6 +231,9 @@ public class MultiFileMap implements Table {
     public String remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
+        }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Empty key");
         }
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
