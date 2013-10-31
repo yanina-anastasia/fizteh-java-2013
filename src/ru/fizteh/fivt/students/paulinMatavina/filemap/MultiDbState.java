@@ -148,15 +148,15 @@ public class MultiDbState extends State implements Table {
             return tryToCommit();
         } catch (IOException e) {
             System.out.println("multifilemap: error while writing data to the disk");
-            return -1;
+            return 0;
         } catch (DataFormatException e) {
             System.out.println("multifilemap: " + e.getMessage());
-            return -1;
+            return 0;
         }
     }
     
     private int tryToCommit() throws IOException, DataFormatException {
-        if (isDropped) {
+        if (isDropped || !isDbChosen()) {
             return 0;
         }
         
