@@ -24,7 +24,7 @@ public class DistributedTableProvider implements TableProvider {
         return name != null && !name.contains(".") && !name.equals("") && !name.contains("\\") && !name.contains("/");
     }
 
-    public boolean existsTable(String name) {
+    protected void loadTable(String name) {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
@@ -36,6 +36,10 @@ public class DistributedTableProvider implements TableProvider {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }
+    }
+
+    public boolean existsTable(String name) {
+        loadTable(name);
         return tables.containsKey(name);
     }
 
@@ -49,27 +53,17 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
-        if (!isValidName(name)) {
-            throw new IllegalArgumentException("invalid table name");
-        }
-        checkTableDirectory(name);
+        loadTable(name);
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
         } else {
             return null;
         }
-        /*if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
-            return null;
-        }
-        return createTable(name);*/
     }
 
     @Override
     public TableMember createTable(String name) throws IllegalArgumentException {
-        if (!isValidName(name)) {
-            throw new IllegalArgumentException("invalid table name");
-        }
-        checkTableDirectory(name);
+        loadTable(name);
         if (!tables.containsKey(name)) {
             try {
                 DistributedTable table = new DistributedTable(currentPath, name);
@@ -83,20 +77,8 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException {
-        if (!isValidName(name)) {
-            throw new IllegalArgumentException("invalid table name");
-        }
-        checkTableDirectory(name);
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
+        if (!existsTable(name)) {
             throw new IllegalStateException("table is not exists");
-        }
-        if (!tables.containsKey(name)) {
-            try {
-                getTable(name);
-                tables.put(name, new DistributedTable(currentPath, name));
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage());
-            }
         }
         try {
             tables.get(name).clear();
