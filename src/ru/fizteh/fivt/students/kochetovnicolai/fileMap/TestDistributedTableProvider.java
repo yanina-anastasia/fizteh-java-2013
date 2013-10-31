@@ -6,6 +6,7 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
@@ -41,16 +42,13 @@ public class TestDistributedTableProvider extends FileManager {
 
     @DataPoints
     public static String[] argumentsWithBadSymbols = new String [] {
-        ".",
-        "..",
-        "....",
-        "...dir",
-        "\t",
-        "\n",
-        "     ",
-        "\t  ",
-        "\\",
-        "dir/17.dir",
+            "",
+            ".",
+            "..",
+            "....",
+            "...dir",
+            "\\",
+            "dir/17.dir",
     };
 
     @Theory
@@ -69,5 +67,16 @@ public class TestDistributedTableProvider extends FileManager {
     public void getTableBadSymbolShouldFail(String name) {
         thrown.expect(IllegalArgumentException.class);
         provider.getTable(name);
+    }
+
+    @Test
+    public void getTableShouldGetNullIfTableDoesNotExists() {
+        Assert.assertEquals("getTable should return null", provider.getTable("abcd"), null);
+    }
+
+    @Test
+    public void createTableShouldBeOK() {
+        Table table = provider.createTable("abcd");
+        Assert.assertEquals("table shouldn't be null", table != null);
     }
 }
