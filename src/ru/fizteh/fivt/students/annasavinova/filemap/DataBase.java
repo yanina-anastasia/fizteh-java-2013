@@ -17,17 +17,26 @@ public class DataBase implements Table {
     private static String rootDir = "";
     private boolean hasLoadedData = false;
 
-    public DataBase(String tableName, String root) throws IllegalArgumentException {
+    public DataBase(String tableName, String root) throws IllegalArgumentException, IllegalStateException {
         if (tableName == null) {
             IllegalArgumentException e = new IllegalArgumentException("table name is null");
             throw e;
         } else {
             currTable = tableName;
         }
+        if (root == null || root.isEmpty()) {
+            throw new IllegalArgumentException("Root name is empty");
+        }
+        if (!(new File(root).exists())) {
+            throw new IllegalStateException("Root not exists");
+        }
         if (root.endsWith(File.separator)) {
             rootDir = root;
         } else {
             rootDir = root + File.separatorChar;
+        }
+        if (!(new File(rootDir + tableName).exists())) {
+            throw new IllegalStateException("Table not exists");
         }
         loadData();
     }
@@ -49,12 +58,10 @@ public class DataBase implements Table {
                 File currentDir = getDirWithNum(i);
                 if (!currentDir.exists()) {
                     if (!currentDir.mkdir()) {
-                        RuntimeException e = new RuntimeException("Cannot create new directory");
-                        throw e;
+                        throw new RuntimeException("Cannot create new directory");
                     }
                 } else if (!currentDir.isDirectory()) {
-                    RuntimeException e = new RuntimeException("Incorrect files in table");
-                    throw e;
+                    throw new RuntimeException("Incorrect files in table");
                 }
                 for (int j = 0; j < 16; ++j) {
                     File currentFile = getFileWithNum(j, i);
@@ -62,8 +69,7 @@ public class DataBase implements Table {
                         try {
                             currentFile.createNewFile();
                         } catch (IOException e) {
-                            RuntimeException e1 = new RuntimeException("Cannot create new file");
-                            throw e1;
+                            throw new RuntimeException("Cannot create new file");
                         }
                     }
                     loadFile(currentFile, i, j);
@@ -80,8 +86,7 @@ public class DataBase implements Table {
                 File currentDir = getDirWithNum(i);
                 if (currentDir.list().length == 0) {
                     if (!currentDir.delete()) {
-                        RuntimeException e = new RuntimeException("Cannot unload data");
-                        throw e;
+                        throw new RuntimeException("Cannot unload data");
                     }
                 }
             }
@@ -95,8 +100,7 @@ public class DataBase implements Table {
             int valueLong = dataFile.readInt();
             if (keyLong <= 0 || valueLong <= 0) {
                 dataFile.close();
-                RuntimeException e3 = new RuntimeException("Cannot Load File");
-                throw e3;
+                throw new RuntimeException("Cannot Load File1");
             } else {
                 byte[] keyBytes = new byte[keyLong];
                 byte[] valueBytes = new byte[valueLong];
@@ -107,8 +111,7 @@ public class DataBase implements Table {
                 int ndirectory = b % 16;
                 int nfile = b / 16 % 16;
                 if (ndirectory != dirNum || nfile != fileNum) {
-                    RuntimeException e2 = new RuntimeException("Incorrect input");
-                    throw e2;
+                    throw new RuntimeException("Incorrect input");
                 }
                 String key = new String(keyBytes);
                 String value = new String(valueBytes);
@@ -119,21 +122,25 @@ public class DataBase implements Table {
             try {
                 dataFile.close();
             } catch (IOException e1) {
-                RuntimeException e3 = new RuntimeException("Cannot Load File");
-                throw e3;
+                throw new RuntimeException("Cannot Load File2");
             }
-            RuntimeException e3 = new RuntimeException("Cannot Load File");
-            throw e3;
+            throw new RuntimeException("Cannot Load File3");
         }
     }
 
-    protected void loadFile(File data, int dirNum, int fileNum) {
+    protected void loadFile(File data, int dirNum, int fileNum) throws RuntimeException {
         RandomAccessFile dataFile = null;
         try {
+            if (!data.exists()) {
+                try {
+                    data.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot create new file");
+                }
+            }
             dataFile = new RandomAccessFile(data, "rw");
         } catch (FileNotFoundException e2) {
-            RuntimeException e = new RuntimeException("Cannot Load File");
-            throw e;
+            throw new RuntimeException("Cannot Load File4");
         }
         try {
             dataFile.seek(0);
@@ -144,11 +151,15 @@ public class DataBase implements Table {
             try {
                 dataFile.close();
             } catch (IOException e1) {
-                RuntimeException e3 = new RuntimeException("Cannot Load File");
-                throw e3;
+                throw new RuntimeException("Cannot Load File5");
             }
-            RuntimeException e3 = new RuntimeException("Cannot Load File");
-            throw e3;
+            throw new RuntimeException("Cannot Load File6");
+        } finally {
+            try {
+                dataFile.close();
+            } catch (IOException e1) {
+                throw new RuntimeException("Cannot Load File5");
+            }
         }
     }
 
@@ -179,7 +190,6 @@ public class DataBase implements Table {
                     filesArray[ndirectory * 16 + nfile].write(valueBytes);
                 }
             }
-            copyMap(oldDataMap, dataMap);
             try {
                 for (int i = 0; i < 16; ++i) {
                     for (int j = 0; j < 16; ++j) {
@@ -190,12 +200,10 @@ public class DataBase implements Table {
                     }
                 }
             } catch (IOException e) {
-                RuntimeException e3 = new RuntimeException("Cannot unload file");
-                throw e3;
+                throw new RuntimeException("Cannot unload file");
             }
         } catch (IOException e) {
-            RuntimeException e3 = new RuntimeException("Cannot unload file correctly");
-            throw e3;
+            throw new RuntimeException("Cannot unload file correctly");
         }
     }
 
@@ -219,8 +227,11 @@ public class DataBase implements Table {
         if (key.isEmpty()) {
             throw new IllegalArgumentException(name + " is empty");
         }
+        if (key.matches("[\\s]+")) {
+            throw new IllegalArgumentException(name + " is empty");
+        }
     }
-    
+
     @Override
     public String get(String key) throws IllegalArgumentException {
         checkValue(key, "Key");
@@ -248,13 +259,21 @@ public class DataBase implements Table {
 
     @Override
     public int size() {
-        return dataMap.size();
+        int count = 0;
+        Set<Map.Entry<String, String>> entries = dataMap.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            if (entry.getValue() != null) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     @Override
     public int commit() {
         int changesCount = countChanges();
         unloadData();
+        copyMap(oldDataMap, dataMap);
         return changesCount;
     }
 
