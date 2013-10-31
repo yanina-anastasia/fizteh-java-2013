@@ -12,6 +12,9 @@ public class DatabaseTableProvider implements TableProvider {
     private MultifileTable activeTable = null;
 
     public DatabaseTableProvider(String databaseDirectoryPath) {
+        if (databaseDirectoryPath == null) {
+            throw new IllegalArgumentException("database directory cannot be null");
+        }
         this.databaseDirectoryPath = databaseDirectoryPath;
         File databaseDirectory = new File(databaseDirectoryPath);
         for (final File tableFile : databaseDirectory.listFiles()) {
@@ -24,7 +27,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Table getTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
         MultifileTable table = tables.get(name);
@@ -42,7 +45,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
@@ -56,7 +59,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
