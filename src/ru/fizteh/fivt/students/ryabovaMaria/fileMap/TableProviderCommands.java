@@ -18,7 +18,7 @@ public class TableProviderCommands implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("null argument");
         }
-        if (name.contains("/") || name.contains("\\") || name.contains(".")) {
+        if (name.isEmpty() || name.contains("/") || name.contains("\\") || name.contains(".")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
         tableDir = curDir.toPath().resolve(name).normalize().toFile();
@@ -67,4 +67,5 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalStateException(name + " cannot be deleted");
         }
     }
+    
 }
