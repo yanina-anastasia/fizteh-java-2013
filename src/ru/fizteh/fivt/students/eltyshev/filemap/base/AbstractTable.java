@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public abstract class AbstractTable implements Table {
-    protected static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
     protected final HashMap<String, String> oldData;
     protected final HashMap<String, String> modifiedData;
@@ -149,5 +149,15 @@ public abstract class AbstractTable implements Table {
             oldValue = oldData.get(key);
         }
         return oldValue;
+    }
+
+    void rawPut(String key, String value)
+    {
+        oldData.put(key, value);
+    }
+
+    String rawGet(String key)
+    {
+        return oldData.get(key);
     }
 }

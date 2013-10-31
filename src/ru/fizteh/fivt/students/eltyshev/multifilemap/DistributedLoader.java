@@ -1,0 +1,26 @@
+package ru.fizteh.fivt.students.eltyshev.multifilemap;
+
+import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapReader;
+import ru.fizteh.fivt.students.eltyshev.filemap.base.SimpleTableBuilder;
+import ru.fizteh.fivt.students.eltyshev.filemap.base.TableBuilder;
+
+import java.io.File;
+import java.io.IOException;
+
+public class DistributedLoader {
+    public static void load(TableBuilder builder) throws IOException {
+        File tableDirectory = builder.getTableDirectory();
+        if (tableDirectory.listFiles() == null) {
+            return;
+        }
+
+        for (final File bucket : tableDirectory.listFiles()) {
+            if (bucket.isFile()) {
+                continue;
+            }
+            for (final File file : bucket.listFiles()) {
+                FilemapReader.loadFromFile(file.getAbsolutePath(), builder);
+            }
+        }
+    }
+}

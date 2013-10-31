@@ -12,7 +12,7 @@ public class FileMapMain {
     public static void main(String[] args) {
         Shell<FileMapShellState> shell = new Shell<FileMapShellState>();
 
-        List<Command> commands = new ArrayList<Command>();
+        List<Command<?>> commands = new ArrayList<Command<?>>();
 
         commands.add(new PutCommand());
         commands.add(new GetCommand());

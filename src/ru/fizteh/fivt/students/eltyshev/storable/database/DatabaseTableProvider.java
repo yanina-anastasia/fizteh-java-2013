@@ -1,0 +1,179 @@
+package ru.fizteh.fivt.students.eltyshev.storable.database;
+
+import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.students.eltyshev.multifilemap.MultifileMapUtils;
+import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
+import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlDeserializer;
+import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlSerializer;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class DatabaseTableProvider implements TableProvider {
+    static final String SIGNATURE_FILE = "signature.tsv";
+
+    HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
+    private String databaseDirectoryPath;
+    private DatabaseTable activeTable = null;
+
+    public DatabaseTableProvider(String databaseDirectoryPath) {
+        this.databaseDirectoryPath = databaseDirectoryPath;
+        File databaseDirectory = new File(databaseDirectoryPath);
+        for (final File tableFile : databaseDirectory.listFiles()) {
+            if (tableFile.isFile()) {
+                continue;
+            }
+            DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, tableFile.getName(), readTableSignature(tableFile.getName()));
+            tables.put(table.getName(), table);
+        }
+    }
+
+    @Override
+    public Table getTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+
+        DatabaseTable table = tables.get(name);
+
+        if (table == null) {
+            return null;
+        }
+
+        if (activeTable != null && activeTable.getUncommittedChangesCount() > 0) {
+            throw new IllegalStateException(String.format("%d unsaved changes", activeTable.getUncommittedChangesCount()));
+        }
+
+        activeTable = table;
+        return table;
+    }
+
+    @Override
+    public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (name == null) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+
+        if (tables.containsKey(name)) {
+            return null;
+        }
+
+        DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, name, columnTypes);
+        tables.put(name, table);
+        return table;
+    }
+
+    @Override
+    public void removeTable(String name) throws IOException {
+        if (name == null) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+
+        if (!tables.containsKey(name)) {
+            throw new IllegalStateException(String.format("%s not exists", name));
+        }
+
+        tables.remove(name);
+
+        File tableFile = new File(databaseDirectoryPath, name);
+        MultifileMapUtils.deleteFile(tableFile);
+    }
+
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        XmlDeserializer deserializer = new XmlDeserializer(value);
+        Storeable result = null;
+        List<Object> values = new ArrayList<>(table.getColumnsCount());
+        for (int index = 0; index < table.getColumnsCount(); ++index) {
+            try {
+                Object columnValue = deserializer.getNext(table.getColumnType(index));
+                values.add(columnValue);
+            } catch (ColumnFormatException e) {
+                throw new ParseException("incompatible type: " + e.getMessage(), index);
+            } catch (IndexOutOfBoundsException e) {
+                throw new ParseException("Xml representation doesn't match the format", index);
+            }
+        }
+        try {
+            deserializer.close();
+            result = createFor(table, values);
+        } catch (ColumnFormatException e) {
+            throw new ParseException("incompatible types: " + e.getMessage(), 0);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ParseException("Xml representation doesn't match the format", 0);
+        } catch (IOException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
+        return result;
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        try {
+            XmlSerializer xmlSerializer = new XmlSerializer();
+            for (int index = 0; index < table.getColumnsCount(); ++index) {
+                xmlSerializer.write(value.getColumnAt(index));
+            }
+            xmlSerializer.close();
+            return xmlSerializer.getRepresentation();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        return rawCreateFor(table);
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        DatabaseRow row = rawCreateFor(table);
+        row.setColumns(values);
+        return row;
+    }
+
+    private List<Class<?>> readTableSignature(String tableName) {
+        File tableDirectory = new File(databaseDirectoryPath, tableName);
+        File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
+        String signature = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
+            signature = reader.readLine();
+        } catch (IOException e) {
+            System.err.println("error loading signature file: " + e.getMessage());
+            return null;
+        }
+
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        for (final String columnType : signature.split("\\s")) {
+            Class<?> type = StoreableUtils.parseColumnType(columnType);
+            if (type == null) {
+                throw new IllegalArgumentException("unknown type");
+            }
+            columnTypes.add(type);
+        }
+        return columnTypes;
+    }
+
+    private boolean checkCorrectTable(File tableDirectory) {
+        File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
+        return signatureFile.exists();
+    }
+
+    private DatabaseRow rawCreateFor(Table table)
+    {
+        DatabaseRow row = new DatabaseRow();
+        for(int index = 0; index < table.getColumnsCount(); ++index)
+        {
+            row.addColumn(table.getColumnType(index));
+        }
+        return row;
+    }
+}

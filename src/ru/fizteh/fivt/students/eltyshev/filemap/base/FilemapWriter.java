@@ -22,17 +22,17 @@ public class FilemapWriter implements Closeable {
         file.setLength(0);
     }
 
-    public static void saveToFile(String filePath, Set<String> keys, HashMap<String, String> data) throws IOException {
+    public static void saveToFile(String filePath, Set<String> keys, TableBuilder builder) throws IOException {
         FilemapWriter writer = new FilemapWriter(filePath);
         int offset = FileMapUtils.getKeysLength(keys, AbstractTable.CHARSET);
 
         for (final String key : keys) {
             writer.writeKey(key);
             writer.writeOffset(offset);
-            offset += FileMapUtils.getByteCount(data.get(key), AbstractTable.CHARSET);
+            offset += FileMapUtils.getByteCount(builder.get(key), AbstractTable.CHARSET);
         }
         for (final String key : keys) {
-            writer.writeValue(data.get(key));
+            writer.writeValue(builder.get(key));
         }
         try {
             writer.close();

@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.filemap;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractTable;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapReader;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapWriter;
+import ru.fizteh.fivt.students.eltyshev.filemap.base.SimpleTableBuilder;
 
 import java.io.*;
 
@@ -15,11 +16,11 @@ public class SingleFileTable extends AbstractTable {
     }
 
     protected void load() throws IOException {
-        FilemapReader.loadFromFile(getDatabaseFilePath(), oldData);
+        FilemapReader.loadFromFile(getDatabaseFilePath(), new SimpleTableBuilder(this));
     }
 
     protected void save() throws IOException {
-        FilemapWriter.saveToFile(getDatabaseFilePath(), oldData.keySet(), oldData);
+        FilemapWriter.saveToFile(getDatabaseFilePath(), oldData.keySet(), new SimpleTableBuilder(this));
     }
 
     private String getDatabaseFilePath() {

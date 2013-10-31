@@ -1,17 +1,21 @@
-package ru.fizteh.fivt.students.eltyshev.multifilemap.commands;
+package ru.fizteh.fivt.students.eltyshev.storable.commands;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.AbstractCommand;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.CommandParser;
+import ru.fizteh.fivt.students.eltyshev.storable.StoreableShellState;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class UseCommand extends AbstractCommand<MultifileMapShellState> {
+public class UseCommand extends AbstractCommand<StoreableShellState> {
     public UseCommand() {
-        super("use", "use <table name>");
+        super("use", "use <table name");
     }
 
-    public void executeCommand(String params, MultifileMapShellState shellState) {
+    @Override
+    public void executeCommand(String params, StoreableShellState shellState) throws IOException {
         ArrayList<String> parameters = CommandParser.parseParams(params);
         if (parameters.size() > 1) {
             throw new IllegalArgumentException("too many arguments!");
@@ -21,7 +25,7 @@ public class UseCommand extends AbstractCommand<MultifileMapShellState> {
         }
         Table newTable = null;
         try {
-            newTable = shellState.tableProvider.getTable(parameters.get(0));
+            newTable = shellState.provider.getTable(parameters.get(0));
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return;

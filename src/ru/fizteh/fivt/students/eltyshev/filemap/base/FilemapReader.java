@@ -21,7 +21,7 @@ public class FilemapReader implements Closeable {
         file.seek(0);
     }
 
-    public static void loadFromFile(String filePath, HashMap<String, String> data) throws IOException {
+    public static void loadFromFile(String filePath, TableBuilder builder) throws IOException {
         if (!FileMapUtils.checkFileExists(filePath)) {
             return;
         }
@@ -29,7 +29,7 @@ public class FilemapReader implements Closeable {
         while (!reader.endOfFile()) {
             String key = reader.readKey();
             String value = reader.readValue();
-            data.put(key, value);
+            builder.put(key, value);
         }
         reader.close();
     }
