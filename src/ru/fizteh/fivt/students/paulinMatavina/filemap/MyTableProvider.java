@@ -22,17 +22,22 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         if (!MultiDbState.checkNameValidity(name)) {
             throw new RuntimeException();
         }
+        
+        MultiDbState newTable = table;
         try {
-            table.create(name);
+            newTable.create(name);
         } catch (DbReturnStatus e) {
             if (Integer.parseInt(e.getMessage()) == 2) {
                 return null;
             }
         }
-        return table;
+        return newTable;
     }
 
     public void removeTable(String name) {

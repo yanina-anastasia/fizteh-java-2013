@@ -300,12 +300,16 @@ public class MultiDbState extends State implements Table {
             throw new IllegalArgumentException();
         }
         
+        
         if (fileExist(name)) {
             throw new DbReturnStatus(2);
         }
         
+        tableName = name;
+        changesNum = 0;
         name = makeNewSource(name);
         shell.mkdir(new String[] {name});
+        use(name);
         throw new DbReturnStatus(0);
     }
 }
