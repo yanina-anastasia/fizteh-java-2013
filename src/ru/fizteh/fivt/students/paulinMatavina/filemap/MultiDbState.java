@@ -285,7 +285,7 @@ public class MultiDbState extends State implements Table {
                 || dbName.matches(".*\\.\\..*")) {
             throw new IllegalArgumentException();
         }
-        if (!fileExist(dbName)) {
+        if (fileExist(dbName)) {
             throw new DbReturnStatus(2);
         }
         
