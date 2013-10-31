@@ -100,14 +100,14 @@ public class MultiDbState extends State implements Table {
         }
     }
     
-    public int changeBase(String name) throws IllegalArgumentException {
+    public int changeBase(String name) {
         if (isDbChosen()) {
             commit();   
         }
         dbSize = 0;
         changesNum = 0;
         File lastDir = shell.currentDir;
-        
+        shell.currentDir = new File(makeNewSource(name));
         int result = shell.cd(makeNewSource(name));
         if (result == 0) {
             try {
