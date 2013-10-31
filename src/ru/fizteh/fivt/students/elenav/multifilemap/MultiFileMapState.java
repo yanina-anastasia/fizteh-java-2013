@@ -116,7 +116,6 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 
 				File out = getWhereWrite(key);
 				DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-				out.
 				byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
 				s.writeInt(bkey.length);
 				byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
