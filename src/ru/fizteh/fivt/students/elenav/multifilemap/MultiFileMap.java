@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.elenav.multifilemap;
 import java.io.File;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.elenav.utils.ExitException;
+
 public class MultiFileMap {
 	
 	public static void main(String[] args) throws IOException {
@@ -22,7 +24,7 @@ public class MultiFileMap {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
-		} catch (OutOfMemoryError err) {
+		} catch (ExitException err) {
 			multi.write();
 		}
 		System.exit(0);
