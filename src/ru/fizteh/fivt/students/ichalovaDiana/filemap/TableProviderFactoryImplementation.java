@@ -14,7 +14,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
     @Override
     public TableProvider create(String dir) {
         
-        if (dir == null) {
+        if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Invalid dir path");
         }
          

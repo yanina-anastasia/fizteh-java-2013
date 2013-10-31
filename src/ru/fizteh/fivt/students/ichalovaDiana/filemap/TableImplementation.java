@@ -175,7 +175,7 @@ public class TableImplementation implements Table {
     }
     
     private boolean isValidValue(final String value) {
-        if (value == null || value.isEmpty() || value.contains("\0")) {
+        if (value == null || value.trim().isEmpty() || value.contains("\0")) {
             return false;
         }
         return true;
