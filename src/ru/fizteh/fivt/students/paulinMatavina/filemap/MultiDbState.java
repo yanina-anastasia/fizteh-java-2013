@@ -106,6 +106,8 @@ public class MultiDbState extends State implements Table {
         }
         dbSize = 0;
         changesNum = 0;
+        tableName = name;
+        isDropped = false;
         File lastDir = shell.currentDir;
         int result = shell.cd(makeNewSource(name));
         if (result == 0) {
@@ -122,10 +124,6 @@ public class MultiDbState extends State implements Table {
             }
         }
         
-        if (result == 0) {
-            tableName = name;
-            isDropped = false;
-        }
         return result;
     }
      
@@ -280,8 +278,7 @@ public class MultiDbState extends State implements Table {
         if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if (dbName.contains("/") || dbName.contains("\\") || dbName.contains("?")
-                || dbName.equals(".") || dbName.equals("..")) {
+        if (dbName.matches(".*\\.?/\\.*")) {
             throw new IllegalArgumentException();
         }
         if (!fileExist(dbName)) {
