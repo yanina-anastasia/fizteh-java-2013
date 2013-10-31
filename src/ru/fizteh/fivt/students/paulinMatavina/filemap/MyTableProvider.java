@@ -28,7 +28,7 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         if (!MultiDbState.checkNameValidity(name)) {
-            throw new RuntimeException();
+            throw new RuntimeException(name);
         }
         
         MultiDbState newTable = new MultiDbState(rootDir);

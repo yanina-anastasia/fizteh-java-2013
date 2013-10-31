@@ -285,7 +285,7 @@ public class MultiDbState extends State implements Table {
             throw new IllegalArgumentException();
         }
         if (!checkNameValidity(dbName)) {
-            throw new RuntimeException();
+            throw new RuntimeException("in use " + dbName);
         }
         if (!fileExist(dbName)) {
             throw new DbReturnStatus(2);
