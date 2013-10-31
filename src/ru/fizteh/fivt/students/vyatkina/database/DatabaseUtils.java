@@ -21,6 +21,7 @@ public class DatabaseUtils {
         }
     }
 
+
     public static void writeKeyValue (KeyValue pair, DataOutputStream out) throws IOException {
         byte[] keyBytes = pair.key.getBytes (StandardCharsets.UTF_8);
         byte[] valueBytes = pair.value.getBytes (StandardCharsets.UTF_8);

@@ -5,11 +5,14 @@ import ru.fizteh.fivt.students.vyatkina.database.providerCommands.CreateCommand;
 import ru.fizteh.fivt.students.vyatkina.database.providerCommands.DropCommand;
 import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
 import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProviderFactory;
+import ru.fizteh.fivt.students.vyatkina.database.tableCommands.CommitCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.ExitDatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.providerCommands.UseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.GetCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.PutCommand;
 import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RemoveCommand;
+import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RollbackCommand;
+import ru.fizteh.fivt.students.vyatkina.database.tableCommands.SizeCommand;
 import ru.fizteh.fivt.students.vyatkina.shell.Shell;
 
 import java.nio.file.Path;
@@ -28,6 +31,10 @@ public class MultiHashFileMap {
         commands.add (new CreateCommand (state));
         commands.add (new DropCommand (state));
         commands.add (new UseCommand (state));
+        commands.add (new CommitCommand (state));
+        commands.add (new SizeCommand (state));
+        commands.add (new RollbackCommand (state));
+
         return commands;
     }
 
@@ -43,6 +50,7 @@ public class MultiHashFileMap {
 
         MultiTableProviderFactory multiTableProviderFactory = new MultiTableProviderFactory ();
         try {
+
             MultiTableProvider tableProvider = (MultiTableProvider) multiTableProviderFactory.create (databasePath.toString ());
             Set<Command> commands = getMultiHashFileMapCommands (tableProvider.state);
 

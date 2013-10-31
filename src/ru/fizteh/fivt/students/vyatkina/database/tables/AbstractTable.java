@@ -7,7 +7,7 @@ import java.util.Set;
 
 public abstract class AbstractTable implements Table {
 
-    protected Map<String, String> values;
+    protected Map <String, String> values;
 
     public Set<String> getKeys () {
         return values.keySet ();

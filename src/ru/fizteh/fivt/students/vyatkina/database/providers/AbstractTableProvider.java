@@ -34,6 +34,4 @@ public abstract class AbstractTableProvider implements TableProvider {
     }
 
     protected abstract void getDatabaseFromDisk () throws IOException, IllegalArgumentException;
-
-    public abstract void writeDatabaseOnDisk () throws IOException, IllegalArgumentException;
 }

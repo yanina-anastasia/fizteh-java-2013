@@ -16,7 +16,9 @@ public class MultiTableProviderFactory implements TableProviderFactory {
 
     @Override
     public TableProvider create (String dir) throws IllegalArgumentException {
+
         Path directory = Paths.get (dir);
+
         if (directory == null) {
             throw new IllegalArgumentException ("Directory is null");
         }
@@ -26,7 +28,9 @@ public class MultiTableProviderFactory implements TableProviderFactory {
         if (!Files.isDirectory (directory)) {
             throw new IllegalArgumentException ("The file [" + directory + "] is not a directory");
         }
+
         MultiTableProvider multiTableProvider;
+
         try {
             multiTableProvider = new MultiTableProvider (new DatabaseState (new FileManager (directory)));
             multiTableProvider.state.setTableProvider (multiTableProvider);
@@ -34,6 +38,7 @@ public class MultiTableProviderFactory implements TableProviderFactory {
         catch (IOException | IllegalArgumentException e) {
             throw new IllegalArgumentException (e.getMessage ());
         }
+
         return multiTableProvider;
     }
 }

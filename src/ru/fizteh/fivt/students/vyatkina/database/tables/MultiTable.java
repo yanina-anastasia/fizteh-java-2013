@@ -1,17 +1,21 @@
 package ru.fizteh.fivt.students.vyatkina.database.tables;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.vyatkina.database.Diff;
 import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
-
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class MultiTable extends AbstractTable {
+public class MultiTable implements Table {
 
-    MultiTableProvider tableProvider;
-    protected String name;
+    private MultiTableProvider tableProvider;
+    protected Map <String, Diff <String> > values;
+    private final String name;
 
-    public MultiTable (String name, Map<String, String> values, MultiTableProvider tableProvider) {
+    public MultiTable (String name, Map <String, Diff <String> > values, MultiTableProvider tableProvider) {
         this.name = name;
         this.values = values;
         this.tableProvider = tableProvider;
@@ -23,14 +27,139 @@ public class MultiTable extends AbstractTable {
     }
 
     @Override
+    public String get (String key) {
+
+        if (key == null) {
+            throw new IllegalArgumentException ("Key should be not null");
+        }
+
+        Diff <String> diff = values.get (key);
+        String value = null;
+        if (diff != null) {
+            value = diff.getValue ();
+        }
+
+        return value;
+    }
+
+    @Override
+    public String put (String key, String value) {
+
+        if ((key == null) || (value == null)) {
+            throw new IllegalArgumentException ("Key and Value should be not null");
+        }
+
+        Diff <String> oldValue = values.get (key);
+        String oldStringValue;
+
+        if (oldValue == null) {
+          values.put (key, new Diff (null,value));
+          oldStringValue = null;
+
+        } else {
+          oldStringValue = oldValue.getValue ();
+          oldValue.setValue (value);
+        }
+
+        return oldStringValue;
+    }
+
+    @Override
+    public String remove (String key) {
+
+        if (key == null) {
+            throw new IllegalArgumentException ("Key should be not null");
+        }
+
+        Diff <String> oldValue = values.get (key);
+        String oldStringValue;
+
+        if (oldValue == null) {
+            oldStringValue = null;
+
+        } else {
+            oldStringValue = oldValue.getValue ();
+            oldValue.setValue (null);
+        }
+
+        return oldStringValue;
+    }
+
+    @Override
     public int commit () throws IllegalArgumentException {
+        int commited = 0;
         try {
-            tableProvider.writeDatabaseOnDisk ();
+            tableProvider.writeTableOnDisk (this);
+            for (String key: values.keySet ()) {
+                Diff <String> diff = values.get (key);
+                if (diff.isNeedToCommit ()) {
+                    diff.changeAsIfCommited ();
+                    ++commited;
+                }
+            }
         }
         catch (IOException e) {
             throw new IllegalArgumentException (e.getMessage ());
         }
-        return 0;
+        return commited;
+    }
+
+    @Override
+    public int size () {
+        return values.size ();
+    }
+
+    @Override
+    public int rollback () {
+        int changes = 0;
+        Set<String> keys = values.keySet ();
+        for (String key: keys) {
+            Diff <String> diff = values.get (key);
+            if (diff.isNeedToCommit ()) {
+                ++changes;
+                diff.setValue (diff.getCommitedValue ());
+            }
+        }
+        return changes;
+    }
+
+    public Set <String> getKeys () {
+        return values.keySet ();
+    }
+
+    public Set <String> getKeysThatValuesHaveChanged () {
+        Set <String> keysThatValuesHaveChanged = new HashSet<> ();
+        for (String key: values.keySet ()) {
+          if (values.get (key).isNeedToCommit ()) {
+              keysThatValuesHaveChanged.add (key);
+          }
+        }
+        return keysThatValuesHaveChanged;
+    }
+
+    public Map <String, String> tableToWriteOnDisk () {
+        Map <String, String> tableToWriteOnDisk = new HashMap<> ();
+        for (String key: values.keySet ()) {
+            String value = values.get (key).getValue ();
+             if (value != null) {
+                tableToWriteOnDisk.put (key,value);
+             }
+        }
+        return tableToWriteOnDisk;
+    }
+
+    public void putValueFromDisk (String key, String value) {
+        values.put (key, new Diff (value, value));
+    }
+
+    public int unsavedChanges () {
+        int unsavedChanges = 0;
+        for (String key: values.keySet ()) {
+            if (values.get (key).isNeedToCommit ()) {
+                ++unsavedChanges;
+            }
+        }
+        return unsavedChanges;
     }
 
 }

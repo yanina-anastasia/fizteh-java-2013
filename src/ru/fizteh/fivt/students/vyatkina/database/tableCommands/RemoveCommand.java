@@ -15,7 +15,7 @@ public class RemoveCommand extends DatabaseCommand {
     public void execute (String[] args) {
         String key = args[0];
         if (state.getTable () == null) {
-            state.getIoStreams ().out.println("no table");
+            state.getIoStreams ().out.println ("no table");
             return;
         }
         String result = state.getTable ().remove (key);

@@ -3,11 +3,12 @@ package ru.fizteh.fivt.students.vyatkina.database.providerCommands;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
+import ru.fizteh.fivt.students.vyatkina.database.tables.MultiTable;
 
 
 import java.util.concurrent.ExecutionException;
 
-public class CreateCommand extends DatabaseCommand {
+public class CreateCommand extends DatabaseGlobalCommand {
 
     public CreateCommand (DatabaseState state) {
         super (state);
@@ -18,6 +19,9 @@ public class CreateCommand extends DatabaseCommand {
     @Override
     public void execute (String[] args) throws ExecutionException {
         String name = args[0];
+        if (previousTableUnsavedChanges () != 0) {
+            return;
+        }
         try {
             Table table = state.getTableProvider ().createTable (name);
             if (table != null) {

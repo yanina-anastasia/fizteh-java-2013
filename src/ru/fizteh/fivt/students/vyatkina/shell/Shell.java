@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.vyatkina.shell;
 
 import ru.fizteh.fivt.students.vyatkina.Command;
-import ru.fizteh.fivt.students.vyatkina.ExitCommand;
+import ru.fizteh.fivt.students.vyatkina.shell.commands.ExitCommand;
 import ru.fizteh.fivt.students.vyatkina.FileManager;
 import ru.fizteh.fivt.students.vyatkina.State;
 import ru.fizteh.fivt.students.vyatkina.shell.commands.*;
