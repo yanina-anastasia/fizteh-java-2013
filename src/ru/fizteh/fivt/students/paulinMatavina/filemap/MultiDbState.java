@@ -201,8 +201,8 @@ public class MultiDbState extends State implements Table {
     }
     
     public String put(String key, String value) { 
-        if (key == null || value == null || key.trim() == null || value.trim() == null
-                    || key.isEmpty() || value.isEmpty()) {
+        if (key == null || value == null || key.trim().isEmpty() 
+                || value.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -221,7 +221,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String get(String key) {
-        if (key == null || key.trim() == null || key.isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
         
@@ -235,7 +235,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String remove(String key) {
-        if (key == null || key.trim() == null || key.isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (!isDbChosen() || isDropped) {
