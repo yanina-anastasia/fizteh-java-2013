@@ -8,25 +8,21 @@ import java.util.ArrayList;
 
 public class StartFileMap {
     public static void main(String[] args) {
-        Shell shell = new Shell(new DBState());
+        Shell shell = new Shell(new MultiDBState());
         try {
-            if (!OpenFile.open(shell.curState)) {
-                System.err.println("Error with opening file");
-                System.exit(1);
-            }
+            OpenFile.open(shell.curState);
         } catch (IOException e) {
             System.err.println("Error in IO");
             System.exit(1);
         }
         ArrayList<Command> cmdList = new ArrayList<Command>();
-        Command cmd = new CommandPut();
-        cmdList.add(cmd);
-        cmd = new CommandGet();
-        cmdList.add(cmd);
-        cmd = new CommandRemove();
-        cmdList.add(cmd);
-        cmd = new CommandExit();
-        cmdList.add(cmd);
+        cmdList.add(new CommandPut());
+        cmdList.add(new CommandGet());
+        cmdList.add(new CommandRemove());
+        cmdList.add(new CommandCreate());
+        cmdList.add(new CommandDrop());
+        cmdList.add(new CommandUse());
+        cmdList.add(new CommandExit());
         shell.fillHashMap(cmdList);
         if (args.length == 0) {
             shell.interActive();
