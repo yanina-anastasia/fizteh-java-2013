@@ -80,6 +80,7 @@ public class MultiDbState extends State implements Table {
                 dbSize += data[i][j].loadData();
             }
         }
+        closeAll();
     }
     
     public boolean fileExist(String name) {
@@ -152,6 +153,14 @@ public class MultiDbState extends State implements Table {
         }
     }
     
+    public void closeAll() throws IOException {
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                data[i][j].dbFile.close(); 
+            }
+        }
+    }
+    
     private int tryToCommit() throws IOException, DataFormatException {
         if (isDropped || !isDbChosen()) {
             return 0;
@@ -169,12 +178,6 @@ public class MultiDbState extends State implements Table {
                     String[] arg = {shell.makeNewSource(fold, file)};
                     shell.rm(arg);
                 }
-                
-                try {
-                    data[i][j].dbFile.close();
-                } catch (IOException e) {
-                    throw new IOException("error in file closing");
-                }
             }
            
             if (new File(shell.makeNewSource(fold)).listFiles().length == 0) {
@@ -182,6 +185,8 @@ public class MultiDbState extends State implements Table {
                 shell.rm(arg);
             }
         }
+        
+        closeAll();
         int chNum = changesNum;
         changesNum = 0;
         return chNum;

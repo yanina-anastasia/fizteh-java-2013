@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import java.io.IOException;
+
 import ru.fizteh.fivt.storage.strings.*;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
@@ -37,8 +39,21 @@ public class MyTableProvider implements TableProvider {
             }
         }
         
+        if (table.isDbChosen()) {
+            try {
+                table.closeAll();
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
+        }
         table.tableName = null;
-        table.use(name);
+        try {
+            table.use(name);
+        } catch (DbReturnStatus e) {
+            if (Integer.parseInt(e.getMessage()) != 0) {
+                throw new RuntimeException();
+            }
+        }
         return table;
     }
 
