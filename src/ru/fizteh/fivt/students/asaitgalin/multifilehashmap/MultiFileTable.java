@@ -84,7 +84,7 @@ public class MultiFileTable implements ChangesCountingTable {
                 if (!removedKeys.contains(key)) {
                     ++changesCount;
                 }
-                removedKeys.add(currentValue);
+                removedKeys.add(key);
             }
         } else {
             if (originalTable.containsKey(key)) {
