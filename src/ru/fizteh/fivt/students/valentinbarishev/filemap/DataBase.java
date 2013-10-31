@@ -161,14 +161,10 @@ public final class DataBase implements Table {
 
     @Override
     public String remove(final String keyStr) {
-        try {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         return file.remove(keyStr);
-        } catch (NullPointerException e) {
-            throw new DataBaseException("a");
-            }
     }
 
     @Override
