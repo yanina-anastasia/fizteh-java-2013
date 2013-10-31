@@ -12,6 +12,10 @@ public class MultiFileMap {
 			System.exit(1);
 		}
 		File f = new File(property);
+		if (f.isFile()) {
+			System.err.println("it is not dir, it is file");
+			System.exit(1);
+		}
 		MultiFileMapState multi = new MultiFileMapState("MyFirstMultiFileMap", f, System.out);
 		try {
 			multi.run(args);
