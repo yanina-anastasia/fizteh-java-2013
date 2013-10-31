@@ -117,13 +117,13 @@ public class MultiFileHashTable implements Table {
         return oldValues.size();
     }
 
-    public void exit() {
+    public void exit() throws DatabaseException {
         try {
             writeTable();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-        } catch (DatabaseException e) {
-            System.err.println(e.getMessage());
+            DatabaseException exception = new DatabaseException("Database io error");
+            exception.addSuppressed(e);
+            throw exception;
         }
     }
 
@@ -164,7 +164,9 @@ public class MultiFileHashTable implements Table {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    DatabaseException exception = new DatabaseException("Database io error");
+                    exception.addSuppressed(e);
+                    throw exception;
                 }
             }
         }
@@ -219,7 +221,9 @@ public class MultiFileHashTable implements Table {
                 try {
                     input.close();
                 }  catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    DatabaseException exception = new DatabaseException("Database file have incorrect format");
+                    exception.addSuppressed(e);
+                    throw exception;
                 }
             }
         }

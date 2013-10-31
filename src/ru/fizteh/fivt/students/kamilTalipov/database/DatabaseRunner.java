@@ -35,7 +35,11 @@ public class DatabaseRunner {
             System.err.println(e.getMessage());
             System.exit(1);
         } finally {
-            database.exit();
+            try {
+                database.exit();
+            } catch (DatabaseException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 }

@@ -105,7 +105,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     }
 
     @Override
-    public void exit() {
+    public void exit() throws DatabaseException {
         tableProvider.exit();
     }
 

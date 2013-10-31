@@ -82,7 +82,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         tables.remove(tableIndex);
     }
 
-    public void exit() {
+    public void exit() throws DatabaseException {
         for (MultiFileHashTable table : tables) {
             table.exit();
         }
