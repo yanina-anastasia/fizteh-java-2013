@@ -76,8 +76,8 @@ public class TableProviderImplementation implements TableProvider {
     }
     
     private boolean isValidTableName(String tableName) {
-        if (tableName == null || tableName.contains("\\") || tableName.contains("/") || tableName.contains(".") 
-                || tableName.contains("*") || tableName.contains("?") || tableName.contains("\0")) { // add more
+        if (tableName == null || tableName.isEmpty() || tableName.contains("\\") || tableName.contains("/") 
+                || tableName.contains(".") || tableName.contains("*") || tableName.contains("?") || tableName.contains("\0")) { // add more
             return false;
         }
         return true;
