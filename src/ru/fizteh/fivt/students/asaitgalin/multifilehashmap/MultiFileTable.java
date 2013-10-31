@@ -54,8 +54,11 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null || value.isEmpty() || key.isEmpty()) {
+        if (key == null || value == null) {
             throw new IllegalArgumentException("put: key or value is null");
+        }
+        if (value.isEmpty() || key.isEmpty() || key.trim().isEmpty() || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("put: key or value is empty");
         }
         String oldValue = originalTable.get(key);
         String currentValue = currentTable.put(key, value);

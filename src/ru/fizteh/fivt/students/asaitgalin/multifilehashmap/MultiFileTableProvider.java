@@ -7,9 +7,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class MultiFileTableProvider implements ChangesCountingTableProvider {
+    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
     private File dbDirectory;
 
     public MultiFileTableProvider(File dbDirectory) {
+        if (!dbDirectory.isDirectory()) {
+            throw new IllegalArgumentException("failed to create provider: name is not a folder");
+        }
         this.dbDirectory = dbDirectory;
     }
 
@@ -17,6 +21,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
     public MultiFileTable getTable(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to get table: invalid name");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new RuntimeException("failed to get table: incorrect table name");
         }
         File tableDir = new File(dbDirectory, name);
         if (!tableDir.exists()) {
@@ -35,6 +42,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
     public MultiFileTable createTable(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("failed to create table: invalid name");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new RuntimeException("failed to create table: incorrect table name");
         }
         File tableDir = new File(dbDirectory, name);
         if (tableDir.exists()) {
