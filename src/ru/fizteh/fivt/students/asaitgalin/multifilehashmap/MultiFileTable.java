@@ -103,7 +103,7 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int commit() {
-        int count = changesCount;
+        int count = Math.abs(size() - originalTable.size());
         for (String key : removedKeys) {
             originalTable.remove(key);
         }
@@ -121,8 +121,7 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int rollback() {
-        // size - originalTable.size
-        int count = changesCount;
+        int count = Math.abs(size() - originalTable.size());
         currentTable.clear();
         removedKeys.clear();
         changesCount = 0;
