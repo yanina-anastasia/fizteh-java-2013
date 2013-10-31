@@ -18,7 +18,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
             throw new IllegalArgumentException("Invalid dir path");
         }
          
-        Path dbDir = Paths.get(dir); // throws InvalidPathException
+        Path dbDir = Paths.get(dir);
     
         if (!Files.isDirectory(dbDir)) {
             throw new IllegalArgumentException(dbDir + " doesn't exist or is not a directory");
@@ -62,8 +62,11 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
     }
     
     private static void isCorrectTableFile(Path tableFile) throws IllegalArgumentException {
-        
-          
+        try (FileDatabase currentDatabase = new FileDatabase(tableFile)) {
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while reading from file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
     }
     
 }

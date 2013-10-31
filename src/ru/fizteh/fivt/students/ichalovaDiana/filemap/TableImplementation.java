@@ -221,8 +221,7 @@ public class TableImplementation implements Table {
                 .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
             
             return currentDatabase.remove(key);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error while removing value from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
@@ -253,8 +252,7 @@ public class TableImplementation implements Table {
                         .resolve(dirName).resolve(fileName))) {
                     
                     size += currentDatabase.getSize();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw new RuntimeException("Error while openning file: "
                             + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                 }
