@@ -62,12 +62,12 @@ public class IOUtility {
         safeRead(fstream, keyBuf, keySize);
         byte[] valueBuf = new byte[valueSize];
         safeRead(fstream, valueBuf, valueSize);
-        int hashcode = new String(keyBuf, "UTF-8").hashCode();
-        int directoryID = hashcode % 16;
+        int b = keyBuf[0];
+        int directoryID = b % 16;
         if (directoryID < 0) {
             directoryID *= -1;
         }
-        int fileID = hashcode / 16 % 16;
+        int fileID = b / 16 % 16;
         if (fileID < 0) {
             fileID *= -1;
         }
@@ -85,12 +85,12 @@ public class IOUtility {
         }
         dir.toFile().mkdir();
         for (Map.Entry<String, String> entry : database.entrySet()) {
-            int hashcode = entry.getKey().hashCode();
-            int directoryID = hashcode % 16;
+            int b = entry.getKey().getBytes()[0];
+            int directoryID = b % 16;
             if (directoryID < 0) {
                 directoryID *= -1;
             }
-            int fileID = hashcode / 16 % 16;
+            int fileID = b / 16 % 16;
             if (fileID < 0) {
                 fileID *= -1;
             }
