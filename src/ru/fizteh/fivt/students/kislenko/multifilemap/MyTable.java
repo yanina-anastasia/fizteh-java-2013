@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 import ru.fizteh.fivt.storage.strings.Table;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,18 +11,28 @@ import java.util.Map;
 public class MyTable implements Table {
     private String name;
     private Map<String, String> storage;
+    private Map<String, String> newStorage;
     private boolean[][] uses;
     private long byteSize;
+    private int count;
+    private int newCount;
 
     public MyTable(String tableName) {
         name = tableName;
         storage = new HashMap<String, String>();
+        byteSize = 0;
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j)
                 uses[i][j] = false;
         }
-        byteSize = 0;
+        try {
+            count = Utils.getTableSize(this);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            count = -1;
+        }
+        newCount = count;
     }
 
     @Override
@@ -42,6 +53,9 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
+        if (storage.get(key) == null) {
+            ++newCount;
+        }
         return storage.put(key, value);
     }
 
@@ -50,12 +64,15 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
+        if (storage.get(key) != null) {
+            --newCount;
+        }
         return storage.remove(key);
     }
 
     @Override
     public int size() {
-        return storage.size();
+        return count;
     }
 
     @Override
@@ -93,11 +110,23 @@ public class MyTable implements Table {
         return f.toPath();
     }
 
-    public void setSize(long newSize) {
+    public void setByteSize(long newSize) {
         byteSize = newSize;
     }
 
-    public long getSize() {
+    public long getByteSize() {
         return byteSize;
+    }
+
+    public void setSize(int newSize) {
+        count = newCount;
+    }
+
+    public void updateSize() {
+        count = newCount;
+    }
+
+    public int getSize() {
+        return newCount;
     }
 }

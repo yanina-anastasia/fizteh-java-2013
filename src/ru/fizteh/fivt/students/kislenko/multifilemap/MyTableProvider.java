@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,9 @@ public class MyTableProvider implements TableProvider {
     @Override
     public MyTable createTable(String name) {
         MyTable table = new MyTable(name);
+        if (table.getSize() == -1) {
+            return null;
+        }
         tables.put(name, table);
         return table;
     }

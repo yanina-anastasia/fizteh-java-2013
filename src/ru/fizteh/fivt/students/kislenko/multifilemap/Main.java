@@ -11,6 +11,10 @@ public class Main {
     public static void main(String[] args) {
         String dbAddress = System.getProperty("fizteh.db.dir");
         try {
+            if (dbAddress == null) {
+                System.err.println("fuck");
+                System.exit(0);
+            }
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (!dbDir.isDirectory()) {
                 System.err.println("Incorrect database directory.");
@@ -28,7 +32,7 @@ public class Main {
             Path db = dbDir.toPath();
             MultiFileHashMapState state = new MultiFileHashMapState(db);
             Command[] commandList = new Command[]{new CommandMultiRemove(), new CommandMultiPut(), new CommandCreate(),
-                    new CommandDrop(), new CommandMultiGet(), new CommandUse()};
+                    new CommandDrop(), new CommandMultiGet(), new CommandUse(), new CommandSize()};
             MultiFilemapBuilder builder = new MultiFilemapBuilder();
             builder.build(state);
             Shell<MultiFileHashMapState> shell = new Shell<MultiFileHashMapState>(state, commandList);
