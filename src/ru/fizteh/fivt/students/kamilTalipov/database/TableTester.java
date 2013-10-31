@@ -28,7 +28,7 @@ public class TableTester {
     }
 
     @Test
-    public void putGetTest() {
+    public void putGetCommitTest() {
         table.put("123", "abc");
         Assert.assertEquals(table.get("123"), "abc");
         Assert.assertEquals(table.size(), 1);
@@ -40,6 +40,13 @@ public class TableTester {
         Assert.assertEquals(table.remove("fff"), null);
         table.put("qwe", "ggg");
         Assert.assertEquals(table.remove("qwe"), "ggg");
+    }
+
+    @Test
+    public void rollbackTest() {
+        Assert.assertEquals(table.put("fits", "1235"), null);
+        Assert.assertEquals(table.rollback(), 1);
+        Assert.assertEquals(table.get("fits"), null);
     }
 
     @Test
