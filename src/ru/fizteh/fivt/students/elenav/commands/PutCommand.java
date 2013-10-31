@@ -24,7 +24,7 @@ public class PutCommand extends AbstractCommand {
 				getState().getStream().println(result);
 			}
 			else {
-				if(args[1] == "Никодим") {
+				if(args[1] == "4key") {
 					fileMap.get("1key");
 				}
 				getState().getStream().println("new");
