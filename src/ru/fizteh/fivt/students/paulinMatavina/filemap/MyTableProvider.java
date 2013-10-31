@@ -5,11 +5,9 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MyTableProvider implements TableProvider {
     private MultiDbState table;
-    private String rootDir;
     
     public MyTableProvider(String dir) {
         table = new MultiDbState(dir);
-        rootDir = dir;
     }
     
     public Table getTable(String name) {
@@ -28,19 +26,17 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         if (!MultiDbState.checkNameValidity(name)) {
-            throw new RuntimeException(name);
+            throw new RuntimeException();
         }
         
-        MultiDbState newTable = new MultiDbState(rootDir);
         try {
-            newTable.create(name);
+            table.create(name);
         } catch (DbReturnStatus e) {
             if (Integer.parseInt(e.getMessage()) == 2) {
                 return null;
             }
         }
-        newTable.use(name);
-        return newTable;
+        return table;
     }
 
     public void removeTable(String name) {
