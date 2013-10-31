@@ -258,6 +258,8 @@ public class MultiDbState extends State implements Table {
             String res2 = unsavedData[folder][file].remove(new String[] {key});
             if (res2 == null) {
                 changesNum++;
+            } else {
+                changesNum--;
             }
             dbSize--;
             //changesNum++;
