@@ -30,7 +30,7 @@ public class DataBase {
     }
 
     public DataBase(String currTablePath, int numbDir, int numbFile, HashMap<String, String> map,
-            boolean createIfNotExists) {
+            boolean createIfNotExists) throws RuntimeException {
         tablePath = currTablePath;
         ndir = numbDir;
         nfile = numbFile;
@@ -59,11 +59,21 @@ public class DataBase {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
             } catch (FileNotFoundException e) {
-                System.err.println(filePath + ": file not found");
-                System.exit(1);
+                throw new RuntimeException(filePath + ": file not found");
+//                System.err.println(filePath + ": file not found");
+//                System.exit(1);
             }
-            load(dataFile, map);
-            closeDataFile();
+            try {
+                load(dataFile, map);
+            } catch (RuntimeException e) {
+                throw e;
+            } finally {
+                try {
+                    closeDataFile();
+                } catch (RuntimeException e2) {
+                    throw e2;
+                }
+            }
         }
     }
 
@@ -109,7 +119,7 @@ public class DataBase {
         return result;
     }
 
-    public void load(RandomAccessFile dataFile, HashMap<String, String> map) {
+    public void load(RandomAccessFile dataFile, HashMap<String, String> map) throws RuntimeException {
         try {
             if (dataFile.length() == 0) {
                 return;
@@ -155,10 +165,10 @@ public class DataBase {
                 keyFirst = keySecond;
                 newOffset = nextOffset;
             } while (currPtr <= firstOffset);
-        } catch (IOException | OutOfMemoryError e) {
-            closeDataFile();
-            System.err.println("can't read values from file");
-            System.exit(1);
+        } catch (IOException e) {
+            throw new RuntimeException(filePath + " can't read values from file");
+        } catch (OutOfMemoryError e) {
+            throw new RuntimeException(filePath + " can't read values from file: out of memory");
         }
     }
 
@@ -181,29 +191,33 @@ public class DataBase {
         return curr;
     }
 
-    protected void closeDataFile() {
+    protected void closeDataFile() throws RuntimeException {
         try {
             if (dataFile != null) {
                 dataFile.close();
             }
         } catch (IOException e) {
-            System.err.println("can't close file");
-            System.exit(1);
+            throw new RuntimeException(filePath + " can't close file");
         }
     }
 
-    public void commitChanges() throws IOException  {
+    public void commitChanges() throws IOException, RuntimeException  {
         IOException e1 = new IOException();
         try {
             dataFile = new RandomAccessFile(filePath, "rw");
         } catch (FileNotFoundException e) {
-            System.err.println(filePath + " can't get access to file");
-            System.exit(1);
+            throw new RuntimeException(filePath + " can't get access to file"); 
         }
         if (data == null || data.isEmpty()) {
-            closeDataFile();
+            try {
+                closeDataFile();
+            } catch (RuntimeException e2) {
+                throw e2;
+            }
             Shell sh = new Shell(tablePath);
-            sh.rm(filePath);
+            if (sh.rm(filePath) != Shell.ExitCode.OK) {
+                throw new RuntimeException(filePath + " can't delete file");
+            }
             return;
         }
 
@@ -229,13 +243,11 @@ public class DataBase {
             for (Map.Entry<String, String> myEntry : mySet) {
                 dataFile.write(myEntry.getValue().getBytes());
             }
-            if (dataFile.length() == 0) {
-                Shell sh = new Shell(tablePath);
-                sh.rm(filePath);
-                return;
+            try {
+                closeDataFile();
+            } catch (RuntimeException e3) {
+                throw e3;
             }
-//            data.clear();
-            closeDataFile();
         } catch (IOException e2) {
             throw e2;
         }

@@ -9,7 +9,7 @@ public class FileMapMain implements TableProviderFactory{
         
     public TableProvider create(String dir) throws IllegalArgumentException {
         IllegalArgumentException e = null;
-        if (dir == null) {
+        if (dir == null || dir.isEmpty()) {
             e = new IllegalArgumentException("directory is null");
         } else {
             File tmpDir = new File(dir);
@@ -24,15 +24,27 @@ public class FileMapMain implements TableProviderFactory{
         if (e != null) {
             throw e;
         }
-        return new MyTableProvider(dir);
+        try {
+            return new MyTableProvider(dir);
+        } catch (IllegalArgumentException e1) {
+            throw e1;
+        }
     }
     
     public static void main(String[] args) {
         FileMapMain myFactory = new FileMapMain();
-        MyTableProvider provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
-        Filemap mp = new Filemap(null, null);
-        ExecuteCmd exec = new ExecuteCmd(mp, provider);
-        exec.workWithUser(args);
-        mp.saveChanges();
+        MyTableProvider provider;
+        try {
+            provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
+            Filemap mp = new Filemap(null, null);
+            ExecuteCmd exec = new ExecuteCmd(mp, provider);
+            exec.workWithUser(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            System.exit(1);
+        } catch (RuntimeException e2) {
+            System.err.println(e2);
+            System.exit(1);
+        }
     }
 }

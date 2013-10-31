@@ -15,7 +15,11 @@ public class ExecuteCmd extends Shell {
 
     @Override
     public void exitWithError() {
-        mp.saveChanges();
+        try {
+            mp.saveChanges();
+        } catch (RuntimeException e) {
+            System.err.println(e);
+        }
         System.exit(1);
     }
 
@@ -43,7 +47,12 @@ public class ExecuteCmd extends Shell {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = mp.put(arg[1], arg[2]);
+                try {
+                    ans = mp.put(arg[1], arg[2]);
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 if (ans == null) {
                     System.out.println("new");
                 } else {
@@ -59,7 +68,12 @@ public class ExecuteCmd extends Shell {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = mp.get(arg[1]);
+                try {
+                    ans = mp.get(arg[1]);
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 if (ans == null) {
                     System.out.println("not found");
                 } else {
@@ -75,7 +89,12 @@ public class ExecuteCmd extends Shell {
                     System.out.println("no table");
                     return ExitCode.OK;
                 }
-                ans = mp.remove(arg[1]);
+                try {
+                    ans = mp.remove(arg[1]);
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 if (ans == null) {
                     System.out.println("not found");
                 } else {
@@ -92,8 +111,8 @@ public class ExecuteCmd extends Shell {
                     } else {
                         System.out.println("created");
                     }
-                } catch (IllegalArgumentException e1) {
-                    System.err.println(arg[1] + " illegal name");
+                } catch (RuntimeException e1) {
+                    System.err.println(e1);
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -101,7 +120,6 @@ public class ExecuteCmd extends Shell {
             break;
         case "drop":
             if (arg.length == 2) {
-                //TODO catch exceptions
                 try {
                     mtp.removeTable(arg[1]);
                     if (mp.getName() != null && mp.getName().equals(arg[1])) {
@@ -110,8 +128,9 @@ public class ExecuteCmd extends Shell {
                     System.out.println("dropped");
                 } catch (IllegalStateException e2) {
                     System.out.println(arg[1] + " not exists");
-                } catch (IllegalArgumentException e1) {
-                    System.err.println(arg[1] + " illegal name");
+                    System.err.println(e2);
+                } catch (RuntimeException e1) {
+                    System.err.println(e1);
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -131,8 +150,8 @@ public class ExecuteCmd extends Shell {
                         mp = newFileMap;
                         System.out.println("using " + arg[1]);
                     }
-                } catch (IllegalArgumentException e1) {
-                    System.err.println(arg[1] + " illegal name");
+                } catch (RuntimeException e1) {
+                    System.err.println(e1);
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -140,24 +159,52 @@ public class ExecuteCmd extends Shell {
             break;
         case "size":
             if (arg.length == 1) {
+                if (mp.getName() == null) {
+                    System.out.println("no table");
+                    return ExitCode.OK;
+                }
                 System.out.println(mp.size());
                 return ExitCode.OK;
             }
             break;
         case "commit":
             if (arg.length == 1) {
-                System.out.println(mp.commit());
+                if (mp.getName() == null) {
+                    System.out.println("no table");
+                    return ExitCode.OK;
+                }
+                try {
+                    System.out.println(mp.commit());
+                } catch (RuntimeException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 return ExitCode.OK;
             }
             break;
         case "rollback":
+            if (mp.getName() == null) {
+                System.out.println("no table");
+                return ExitCode.OK;
+            }
             if (arg.length == 1) {
-                System.out.println(mp.rollback());
+                try {
+                    System.out.println(mp.rollback());
+                } catch (RuntimeException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 return ExitCode.OK;
             }
             break;
         case "exit":
             if (arg.length == 1) {
+                try {
+                    mp.commit();
+                } catch (RuntimeException e) {
+                    System.err.println(e);
+                    return ExitCode.ERR;
+                }
                 return ExitCode.EXIT;
             }
             break;
