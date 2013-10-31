@@ -8,13 +8,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String dbAddress = System.getProperty("fizteh.db.dir");
+        if (dbAddress == null) {
+            throw new IOException("fuck");
+        }
         try {
-            if (dbAddress == null) {
-                System.err.println("fuck");
-                System.exit(0);
-            }
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (!dbDir.isDirectory()) {
                 System.err.println("Incorrect database directory.");
