@@ -21,7 +21,8 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     public static boolean isValidName(String name) {
-        return name != null && !name.equals("") && !name.matches(".*[.\\\\/].*");
+        return name != null && !name.equals("") && !name.contains(".") && !name.contains("/") && !name.contains("\\");
+        //&& !name.matches(".*[.\\\\/].*");
     }
 
     protected void loadTable(String name) {
