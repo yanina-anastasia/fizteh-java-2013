@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap.tests;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +23,11 @@ public class MultiFileTableTest {
         multiFileTable = new MultiFileTable(testDirectory);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        multiFileTable.commit();
+    }
+
     @Test
     public void testGetName() throws Exception {
         Assert.assertEquals(multiFileTable.getName(), testDirectory.getName());
@@ -31,12 +37,14 @@ public class MultiFileTableTest {
     public void testGetEnglish() throws Exception {
         multiFileTable.put("key", "value");
         Assert.assertEquals(multiFileTable.get("key"), "value");
+        multiFileTable.remove("key");
     }
 
     @Test
     public void testGetRussian() throws Exception {
         multiFileTable.put("ключ", "значение");
         Assert.assertEquals(multiFileTable.get("ключ"), "значение");
+        multiFileTable.remove("ключ");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -57,12 +65,14 @@ public class MultiFileTableTest {
     @Test
     public void testPutNew() throws Exception {
         Assert.assertNull(multiFileTable.put("key", "value"));
+        multiFileTable.remove("key");
     }
 
     @Test
     public void testPutOld() throws Exception {
         multiFileTable.put("key", "value");
         Assert.assertEquals(multiFileTable.put("key", "value1"), "value");
+        multiFileTable.remove("key");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -122,6 +132,9 @@ public class MultiFileTableTest {
         multiFileTable.put("key2", "value2");
         multiFileTable.put("key3", "value3");
         Assert.assertEquals(multiFileTable.size(), 3);
+        multiFileTable.remove("key1");
+        multiFileTable.remove("key2");
+        multiFileTable.remove("key3");
     }
 
     @Test
@@ -130,6 +143,9 @@ public class MultiFileTableTest {
         multiFileTable.put("key2", "value2");
         multiFileTable.put("key3", "value3");
         Assert.assertEquals(multiFileTable.commit(), 3);
+        multiFileTable.remove("key1");
+        multiFileTable.remove("key2");
+        multiFileTable.remove("key3");
     }
 
     @Test
@@ -138,6 +154,9 @@ public class MultiFileTableTest {
         multiFileTable.put("key2", "value2");
         multiFileTable.put("key3", "value3");
         Assert.assertEquals(multiFileTable.rollback(), 3);
+        multiFileTable.remove("key1");
+        multiFileTable.remove("key2");
+        multiFileTable.remove("key3");
     }
 }
 
