@@ -13,6 +13,7 @@ public class DistributedTable extends FileManager implements Table {
 
     protected File currentFile;
     protected String tableName;
+    protected HashMap<String, String> cache;
     protected HashMap<String, String> changes;
     protected int recordNumber;
     protected int oldRecordNumber;
@@ -97,13 +98,14 @@ public class DistributedTable extends FileManager implements Table {
             }
         }
         oldRecordNumber = readTable();
+        cache = new HashMap<>();
         changes = new HashMap<>();
         rollback();
     }
 
     @Override
     public int rollback() {
-        int canceled = recordNumber - oldRecordNumber;
+        int canceled = changes.size();
         recordNumber = oldRecordNumber;
         changes.clear();
         return canceled;
@@ -119,14 +121,16 @@ public class DistributedTable extends FileManager implements Table {
         }
         if (changes.containsKey(key)) {
             return changes.get(key);
-        } else if (!changes.containsKey(key)) {
+        } else if (cache.containsKey(key)) {
+            return cache.get(key);
+        } else {
             try {
-                changes.put(key, readValue(key));
+                cache.put(key, readValue(key));
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage());
             }
+            return cache.get(key);
         }
-        return changes.get(key);
     }
 
     @Override
@@ -146,6 +150,13 @@ public class DistributedTable extends FileManager implements Table {
     @Override
     public int commit() {
         int updated = changes.size();
+        for (String key : changes.keySet()) {
+            cache.put(key, changes.get(key));
+        }
+        changes.clear();
+        for (String key : cache.keySet()) {
+            changes.put(key, cache.get(key));
+        }
         boolean isClosed = true;
         DataInputStream[][] inputStreams = new DataInputStream[partsNumber][partsNumber];
         DataOutputStream[][] outputStreams = new DataOutputStream[partsNumber][partsNumber];

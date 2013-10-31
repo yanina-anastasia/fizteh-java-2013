@@ -26,7 +26,7 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     protected boolean isValidName(String name) {
-        return name != null && !name.contains(".") && !name.equals("")
+        return name != null && !name.contains(".") && !name.equals("") && !name.contains("\\s")
                 && !name.contains(File.separator) && !name.contains(File.pathSeparator);
     }
 
@@ -45,11 +45,13 @@ public class DistributedTableProvider implements TableProvider {
         }
         if (tables.containsKey(name)) {
             return new TableMember(tables.get(name), this);
-        }
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
+        } else {
             return null;
         }
-        return createTable(name);
+        /*if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
+            return null;
+        }
+        return createTable(name);*/
     }
 
     @Override

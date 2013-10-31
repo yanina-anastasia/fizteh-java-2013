@@ -37,7 +37,8 @@ public class TableMember implements Table {
     @Override
     public int rollback() {
         checkExistence();
-        int canceled = changes.size();
+        merge();
+        int canceled = table.rollback();
         changes.clear();
         return canceled;
     }
@@ -78,7 +79,12 @@ public class TableMember implements Table {
 
     protected void merge() {
         for (String key : changes.keySet()) {
-            table.put(key, changes.get(key));
+            String value = changes.get(key);
+            if (value != null) {
+                table.put(key, changes.get(key));
+            } else {
+                table.remove(key);
+            }
         }
     }
 
