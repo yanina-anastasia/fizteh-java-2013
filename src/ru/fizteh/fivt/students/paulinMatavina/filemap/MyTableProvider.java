@@ -38,8 +38,10 @@ public class MyTableProvider implements TableProvider {
             }
         }
         
+        table.use(name);
+        MultiDbState newTable = table;
         table = oldTable;
-        return table;
+        return newTable;
     }
 
     public void removeTable(String name) {
