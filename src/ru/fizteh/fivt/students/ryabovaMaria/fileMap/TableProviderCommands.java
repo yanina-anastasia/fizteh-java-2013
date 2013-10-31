@@ -18,7 +18,7 @@ public class TableProviderCommands implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("null argument");
         }
-        if (name.contains("/")) {
+        if (name.contains("/") || name.contains("\\") || name.contains(".")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
         tableDir = curDir.toPath().resolve(name).normalize().toFile();
@@ -31,7 +31,7 @@ public class TableProviderCommands implements TableProvider {
             return null;
         }
         if (!tableDir.isDirectory()) {
-            return null;
+            throw new IllegalArgumentException(name + " is not a directory");
         }
         myTable = new TableCommands(tableDir);
         return myTable;
