@@ -36,6 +36,7 @@ public class MyTableProvider implements TableProvider {
                 return null;
             }
         }
+        table.use(name);
         return table;
     }
 
