@@ -22,7 +22,7 @@ public class DbMain {
 			code = 1;
 		} catch (ExitRuntimeException d) {
 			try {
-				st.commitDiff(); 
+				st.commitDif(); 
 			} catch (IOException e) {
 				System.err.println("can't write data to file");
 				code = 1;

@@ -18,7 +18,7 @@ public class ExitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        fileWriter.writeDataToFile(curState);
+        fileWriter.writeDataToFile(curState.getDataFile(), curState.dataStorage);
         System.exit(0);
     }
 

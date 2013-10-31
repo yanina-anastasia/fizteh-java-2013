@@ -137,13 +137,13 @@ public class StackCalculator {
             }
             String expression = sb.toString ();
             try {
-            ExpressionCheck.bracketBalanceCheck (expression);
-            ExpressionCheck.invalidExpressionCheck (expression);
+                ExpressionCheck.bracketBalanceCheck (expression);
+                ExpressionCheck.invalidExpressionCheck (expression);
 
-            StackCalculator sc = new StackCalculator ();
+                StackCalculator sc = new StackCalculator ();
 
-            int result = sc.calculateExpression (expression);
-            System.out.println (Integer.toString (result, sc.RADIX));
+                int result = sc.calculateExpression (expression);
+                System.out.println (Integer.toString (result, sc.RADIX));
             }
             catch (IllegalArgumentException iae) {
                 System.err.println (iae.getMessage ());

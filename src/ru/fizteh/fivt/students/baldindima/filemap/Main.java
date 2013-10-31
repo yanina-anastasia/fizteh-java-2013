@@ -1,29 +1,29 @@
 package ru.fizteh.fivt.students.baldindima.filemap;
 
+
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.baldindima.shell.ExitException;
-import ru.fizteh.fivt.students.baldindima.shell.FileFunctions;
 import ru.fizteh.fivt.students.baldindima.shell.Shell;
 import ru.fizteh.fivt.students.baldindima.shell.ShellExit;
 
 public class Main {
     private static Shell shell;
-    private static FileFunctions fileFunctions;
-    private static DataBase dataBase;
+    private static DataBaseTable dataBaseTable;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
+        shell = new Shell();
+        dataBaseTable = new DataBaseTable();
         try {
-
-            shell = new Shell();
-            fileFunctions = new FileFunctions();
-            dataBase = new DataBase();
-            shell.addCommand(new ShellDbPut(dataBase));
-            shell.addCommand(new ShellDbGet(dataBase));
-            shell.addCommand(new ShellDbRemove(dataBase));
+            shell.addCommand(new ShellDbCreateTable(dataBaseTable));
+            shell.addCommand(new ShellDbDropTable(dataBaseTable));
+            shell.addCommand(new ShellDbUseTable(dataBaseTable));
+            shell.addCommand(new ShellDbGet(dataBaseTable));
+            shell.addCommand(new ShellDbPut(dataBaseTable));
+            shell.addCommand(new ShellDbRemove(dataBaseTable));
             shell.addCommand(new ShellExit());
-            dataBase.read(shell, fileFunctions);
+
             if (args.length > 0) {
                 shell.nonInteractiveMode(args);
 
@@ -31,21 +31,14 @@ public class Main {
                 shell.interactiveMode();
             }
 
-
         } catch (ExitException e) {
-            try {
-                dataBase.write(shell, fileFunctions);
-            } catch (IOException ee) {
-                System.err.println(ee.getMessage());
-                System.exit(1);
-            }
-
-
+            dataBaseTable.saveTable();
             System.exit(0);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
     }
+
 
 }

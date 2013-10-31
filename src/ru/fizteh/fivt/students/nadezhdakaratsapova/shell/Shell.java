@@ -25,6 +25,10 @@ public class Shell {
                 }
             } catch (IOException e) {
                 System.err.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
+            } catch (IllegalStateException e) {
+                System.err.println(e.getMessage());
             }
         }
     }
