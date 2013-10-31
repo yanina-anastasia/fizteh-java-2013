@@ -141,6 +141,7 @@ public class DbState extends State{
             
             if (key.getBytes().length > 0) {
                 if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
+                    dbFile.close();
                     throw new IOException("wrong key in file");
                 }
                 result++;
@@ -150,6 +151,7 @@ public class DbState extends State{
             key = key2;
             startOffset = endOffset;
         } while (position <= firstOffset); 
+        dbFile.close();
         return result;
     }
 
