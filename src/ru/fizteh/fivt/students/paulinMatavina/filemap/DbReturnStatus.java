@@ -1,17 +1,17 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-class DbException extends RuntimeException {
+class DbReturnStatus extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public DbException() {
+    public DbReturnStatus() {
         super();
     }
         
-    public DbException(String text) {
+    public DbReturnStatus(String text) {
         super(text);
     }
         
-    public DbException(int status) {
+    public DbReturnStatus(int status) {
         super(Integer.toString(status));         
     }
 }

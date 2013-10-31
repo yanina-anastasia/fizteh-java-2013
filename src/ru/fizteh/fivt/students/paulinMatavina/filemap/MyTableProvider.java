@@ -6,19 +6,18 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class MyTableProvider implements TableProvider {
     private MultiDbState table;
     
-    public MyTableProvider(String dir) throws IllegalArgumentException {
+    public MyTableProvider(String dir) {
         table = new MultiDbState(dir);
     }
     
     public Table getTable(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException();
+        try {
+            table.use(name);
+        } catch (DbReturnStatus e) {
+            if (Integer.parseInt(e.getMessage()) == 2) {
+                return null;
+            }
         }
-        if (!table.fileExist(name)) {
-            return null;
-        }
-        Command use = new MultiDbUse();
-        use.execute(new String[] {name}, table);
         return table;
     }
 
@@ -29,6 +28,7 @@ public class MyTableProvider implements TableProvider {
         if (table.fileExist(name)) {
             return null;
         }
+        
         Command create = new MultiDbCreate();
         create.execute(new String[] {name}, table);
         return table;

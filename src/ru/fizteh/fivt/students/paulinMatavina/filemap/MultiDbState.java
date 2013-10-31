@@ -130,16 +130,16 @@ public class MultiDbState extends State implements Table {
     }
      
     @Override
-    public int exitWithError(int errCode) throws DbException {
+    public int exitWithError(int errCode) throws DbExitException {
         if (!isDbChosen()) {
-            throw new DbException(0);
+            throw new DbExitException(0);
         }
         int result = commit();
         if (result < 0) {
             errCode = 1;
         }
         
-        throw new DbException(errCode);
+        throw new DbExitException(errCode);
     }
     
     public int commit() {
@@ -154,7 +154,7 @@ public class MultiDbState extends State implements Table {
         }
     }
     
-    public int tryToCommit() throws IOException, DataFormatException {
+    private int tryToCommit() throws IOException, DataFormatException {
         if (isDropped) {
             return 0;
         }
@@ -189,24 +189,25 @@ public class MultiDbState extends State implements Table {
         return chNum;
     }
     
-    public int getFolderNum(String key) {
+    private int getFolderNum(String key) {
         byte[] bytes = key.getBytes();
         return (Math.abs(bytes[0]) % 16);
     }
     
-    public int getFileNum(String key) {
+    private int getFileNum(String key) {
         byte[] bytes = key.getBytes();
         return (Math.abs(bytes[0]) / 16 % 16);
     }
     
-    public String put(String key, String value) {
-        if (!isDbChosen() || isDropped) {
-            return null;
-        }
-        
+    public String put(String key, String value) { 
+        key = key.trim();
+        value = value.trim();
         if (key == null || value == null) {
             throw new IllegalArgumentException();
         }
+         if (!isDbChosen() || isDropped) {
+            return null;
+         }
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
@@ -219,12 +220,13 @@ public class MultiDbState extends State implements Table {
     }
     
     public String get(String key) {
-        if (!isDbChosen() || isDropped) {
-            return null;
-        }
-        
+        key = key.trim();
         if (key == null) {
             throw new IllegalArgumentException();
+        }
+        
+        if (!isDbChosen() || isDropped) {
+            throw new IllegalArgumentException("0");
         }
         
         int folder = getFolderNum(key);
@@ -233,12 +235,12 @@ public class MultiDbState extends State implements Table {
     }
     
     public String remove(String key) {
-        if (!isDbChosen() || isDropped) {
-            return null;
-        }
-        
+        key = key.trim();
         if (key == null) {
             throw new IllegalArgumentException();
+        }
+        if (!isDbChosen() || isDropped) {
+            throw new IllegalArgumentException("0");
         }
         
         int folder = getFolderNum(key);
@@ -273,5 +275,21 @@ public class MultiDbState extends State implements Table {
             return null;
         }
         return (shell.currentDir.getName());
+    }
+    
+    public void use(String dbName) {
+        if (dbName == null) {
+            throw new IllegalArgumentException();
+        }
+        if (dbName.matches(".*" + File.separator + ".*") 
+                || dbName.matches(".*\\.\\..*")) {
+            throw new IllegalArgumentException();
+        }
+        if (!fileExist(dbName)) {
+            throw new DbReturnStatus(2);
+        }
+        
+        changeBase(dbName);
+        throw new DbReturnStatus(0);
     }
 }

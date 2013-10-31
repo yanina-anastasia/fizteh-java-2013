@@ -6,17 +6,16 @@ public class MultiDbUse implements Command {
     @Override
     public int execute(String[] args, State state) {
         String dbName = args[0];
-        if (dbName == null) {
-            throw new IllegalArgumentException();
-        }
         MultiDbState multiState = (MultiDbState) state;
-        if (!(multiState.fileExist(dbName))) {
-            System.out.println(dbName + " not exists");
-            return 0;
+        try {
+            multiState.use(dbName);
+        } catch (DbReturnStatus e) {
+            if (Integer.parseInt(e.getMessage()) == 2) {
+                System.out.println(dbName + " not exists");
+            } else {
+                System.out.println("using " + dbName);
+            }
         }
-        
-        multiState.changeBase(dbName);
-        System.out.println("using " + dbName);
         return 0;
     }
     
