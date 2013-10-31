@@ -186,16 +186,11 @@ public class FileMap implements Table {
         }
     }
 
-    protected void finalize() throws ErrorShell {
-        if (tableData.isEmpty() && existDir) {
-            mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
-        }
-    }
-
     public void closeTable() throws Exception {
         mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
         existDir = false;
-
+        mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+        existDir = true;
         if (tableData.isEmpty()) {
             return;
         }
