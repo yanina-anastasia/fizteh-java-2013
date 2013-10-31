@@ -85,6 +85,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 			}
 				
 		}
+		
 	}
 
 	
@@ -124,6 +125,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 				s.write(bvalue);
 				s.close();
 			}
+			getWorkingTable().map.clear();
 		}
 	}
 	

@@ -19,13 +19,15 @@ public class UseCommand extends AbstractCommand {
 		if (!f.exists()) {
 			getState().getStream().println(args[1] + " not exists");
 		} else {
-			MultiFileMapState multi = (MultiFileMapState) getState();
-			if (multi.getWorkingTable() != null) {
-				multi.write();
+			if (args[1] != getState().getWorkingDirectory().getName()) {
+				MultiFileMapState multi = (MultiFileMapState) getState();
+				if (multi.getWorkingTable() != null) {
+					multi.write();
+				}
+				multi.setWorkingTable(new FileMapState(args[1], f, getState().getStream()));
+				multi.read();
+				getState().getStream().println("using " + args[1]);
 			}
-			multi.setWorkingTable(new FileMapState(args[1], f, getState().getStream()));
-			multi.read();
-			getState().getStream().println("using " + args[1]);
 		}
 	}
 
