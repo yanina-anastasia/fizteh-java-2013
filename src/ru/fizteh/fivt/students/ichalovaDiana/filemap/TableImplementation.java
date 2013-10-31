@@ -167,7 +167,7 @@ public class TableImplementation implements Table {
     }
     
     private boolean isValidKey(final String key) {
-        if (key == null || key.isEmpty() || key.contains(" ") || key.contains("\n") || key.contains("\t") 
+        if (key == null || key.trim().isEmpty() || key.contains(" ") || key.contains("\n") || key.contains("\t") 
                 || key.contains("\0")) {
             return false;
         }
