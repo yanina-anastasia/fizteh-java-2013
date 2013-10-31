@@ -79,6 +79,7 @@ public class MultiDbState extends State implements Table {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
                 savedData[i][j] = new DbState(filePath, i, j);
+                unsavedData[i][j] = new DbState(filePath, i, j);
                 File f = new File(savedData[i][j].path);
                 f.createNewFile();
                 dbSize += savedData[i][j].loadData();
@@ -162,6 +163,7 @@ public class MultiDbState extends State implements Table {
         for (int i = 0; i < folderNum; i++) {
             for (int j = 0; j < fileInFolderNum; j++) {
                 savedData[i][j].dbFile.close(); 
+                unsavedData[i][j].dbFile.close(); 
             }
         }
     }
