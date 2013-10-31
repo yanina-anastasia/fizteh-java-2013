@@ -12,8 +12,7 @@ public class MultiDbState extends State implements Table {
     final int folderNum = 16;
     final int fileInFolderNum = 16;
     public String tableName;
-    DbState[][] savedData;
-    DbState[][] unsavedData;
+    DbState[][] data;
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
@@ -30,8 +29,7 @@ public class MultiDbState extends State implements Table {
         dbSize = 0;
         isDropped = false;
         rootPath = new File(property).getAbsolutePath();
-        savedData = new DbState[folderNum][fileInFolderNum];
-        unsavedData = new DbState[folderNum][fileInFolderNum];
+        data = new DbState[folderNum][fileInFolderNum];
         shell = new ShellState();
         shell.cd(rootPath);
         
@@ -68,8 +66,7 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, DataFormatException {
         dbSize = 0;
-        savedData = new DbState[folderNum][fileInFolderNum];
-        unsavedData = new DbState[folderNum][fileInFolderNum];
+        data = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -78,15 +75,13 @@ public class MultiDbState extends State implements Table {
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
-                savedData[i][j] = new DbState(filePath, i, j);
-                unsavedData[i][j] = new DbState(filePath, i, j);
-                File f = new File(savedData[i][j].path);
+                data[i][j] = new DbState(filePath, i, j);
+                File f = new File(data[i][j].path);
                 f.createNewFile();
-                dbSize += savedData[i][j].loadData();
+                dbSize += data[i][j].loadData();
             }
         }
         primaryDbSize = dbSize;
-        closeAll();
     }
     
     public boolean fileExist(String name) {
@@ -159,15 +154,6 @@ public class MultiDbState extends State implements Table {
         }
     }
     
-    public void closeAll() throws IOException {
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
-                savedData[i][j].dbFile.close(); 
-                unsavedData[i][j].dbFile.close(); 
-            }
-        }
-    }
-    
     private int tryToCommit() throws IOException, DataFormatException {
         if (isDropped || !isDbChosen()) {
             return 0;
@@ -180,11 +166,12 @@ public class MultiDbState extends State implements Table {
             }
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
-                savedData[i][j].commit();
-                if (savedData[i][j].data.isEmpty()) {
+                data[i][j].commit();
+                if (data[i][j].data.isEmpty()) {
                     String[] arg = {shell.makeNewSource(fold, file)};
                     shell.rm(arg);
                 }
+                data[i][j].unsaved = new HashMap<String, String>();
             }
            
             if (new File(shell.makeNewSource(fold)).listFiles().length == 0) {
@@ -193,7 +180,6 @@ public class MultiDbState extends State implements Table {
             }
         }
         
-        closeAll();
         int chNum = changesNum;
         primaryDbSize = dbSize;
         changesNum = 0;
@@ -222,11 +208,11 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        String result = savedData[folder][file].put(new String[] {key, value});
+        String result = data[folder][file].put(new String[] {key, value});
         if (result == null) {
             changesNum++;
             dbSize++;
-            unsavedData[folder][file].put(new String[] {key, value});
+            data[folder][file].unsaved.put(key, value);
         }
         return result;  
     }
@@ -242,7 +228,7 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        return savedData[folder][file].get(new String[] {key});  
+        return data[folder][file].get(new String[] {key});  
     }
     
     public String remove(String key) {
@@ -255,16 +241,14 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        String result = savedData[folder][file].remove(new String[] {key});
+        String result = data[folder][file].remove(new String[] {key});
         if (result != null) {
-            String res2 = unsavedData[folder][file].remove(new String[] {key});
-            if (res2 == null) {
+            if (data[folder][file].unsaved.containsKey(key)) {
+                data[folder][file].unsaved.remove(key);
+            } else {  
                 changesNum++;
-            } else {
-                changesNum--;
             }
             dbSize--;
-            //changesNum++;
         }
         return result;  
     }

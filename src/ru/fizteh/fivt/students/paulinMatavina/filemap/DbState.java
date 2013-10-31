@@ -13,6 +13,7 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class DbState extends State{
     public HashMap<String, String> data;
+    public HashMap<String, String> unsaved;
     public RandomAccessFile dbFile;
     public String path;
     private int foldNum;
@@ -23,8 +24,8 @@ public class DbState extends State{
         fileNum = file;
         path = dbPath;
         commands = new HashMap<String, Command>();
-        fileCheck();
         data = new HashMap<String, String>();
+        unsaved = new HashMap<String, String>();
         try {
             loadData();
         } catch (IOException e) {
@@ -64,8 +65,8 @@ public class DbState extends State{
         try {
             dbFile = new RandomAccessFile(path, "rw");
         } catch (FileNotFoundException e) {
-            System.err.println("filemap: database file does not exist");
-            System.exit(1);
+            System.err.println("filemap: database file does not exist " + path);
+            throw new DbExitException(1);
         }
         return;
     }
@@ -115,6 +116,7 @@ public class DbState extends State{
     }
     
     public int loadData() throws IOException {
+        fileCheck();
         if (dbFile.length() == 0) {
                 return 0;
         } 
@@ -174,6 +176,7 @@ public class DbState extends State{
             dbFile.write(value);
             offset += value.length;
         }
+        dbFile.close();
     }
     
     public int getFolderNum(String key) {
