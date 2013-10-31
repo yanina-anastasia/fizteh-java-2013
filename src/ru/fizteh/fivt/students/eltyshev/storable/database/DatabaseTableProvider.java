@@ -60,6 +60,10 @@ public class DatabaseTableProvider implements TableProvider {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
+        if (columnTypes == null || columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("column types cannot be null");
+        }
+
         if (tables.containsKey(name)) {
             return null;
         }
@@ -167,11 +171,9 @@ public class DatabaseTableProvider implements TableProvider {
         return signatureFile.exists();
     }
 
-    private DatabaseRow rawCreateFor(Table table)
-    {
+    private DatabaseRow rawCreateFor(Table table) {
         DatabaseRow row = new DatabaseRow();
-        for(int index = 0; index < table.getColumnsCount(); ++index)
-        {
+        for (int index = 0; index < table.getColumnsCount(); ++index) {
             row.addColumn(table.getColumnType(index));
         }
         return row;

@@ -29,8 +29,7 @@ public class UseCommand extends AbstractCommand<StoreableShellState> {
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return;
-        } catch (IllegalStateException e)
-        {
+        } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
             return;
         }

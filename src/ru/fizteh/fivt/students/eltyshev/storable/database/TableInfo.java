@@ -4,8 +4,7 @@ package ru.fizteh.fivt.students.eltyshev.storable.database;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableInfo
-{
+public class TableInfo {
     private String tableName;
     private List<Class<?>> columnTypes;
 
@@ -14,8 +13,7 @@ public class TableInfo
         this.tableName = tableName;
     }
 
-    public void addColumn(Class<?> columnType)
-    {
+    public void addColumn(Class<?> columnType) {
         columnTypes.add(columnType);
     }
 

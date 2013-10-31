@@ -5,7 +5,10 @@ import java.util.Set;
 
 public interface TableBuilder {
     public String get(String key);
+
     public void put(String key, String value);
+
     public Set<String> getKeys();
+
     public File getTableDirectory();
 }

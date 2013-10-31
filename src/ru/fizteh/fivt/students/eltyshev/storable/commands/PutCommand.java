@@ -18,8 +18,7 @@ public class PutCommand extends AbstractCommand<StoreableShellState> {
 
     @Override
     public void executeCommand(String params, StoreableShellState shellState) throws IOException {
-        if (shellState.table == null)
-        {
+        if (shellState.table == null) {
             System.err.println("no table");
             return;
         }

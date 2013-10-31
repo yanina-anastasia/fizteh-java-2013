@@ -15,8 +15,7 @@ public class DistributedSaver {
     private static final int BUCKET_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
 
-    public static void save(TableBuilder builder) throws IOException
-    {
+    public static void save(TableBuilder builder) throws IOException {
         File tableDirectory = builder.getTableDirectory();
         ArrayList<Set<String>> keysToSave = new ArrayList<Set<String>>();
         boolean isBucketEmpty;

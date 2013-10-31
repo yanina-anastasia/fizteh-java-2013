@@ -11,10 +11,8 @@ import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlDeserializer;
 
 public class StoreableUtils {
 
-    public static Class<?> parseColumnType(String columnType)
-    {
-        switch (columnType)
-        {
+    public static Class<?> parseColumnType(String columnType) {
+        switch (columnType) {
             case "int":
                 return Integer.class;
             case "long":
@@ -34,10 +32,8 @@ public class StoreableUtils {
         }
     }
 
-    public static String formatColumnType(Class<?> columnType)
-    {
-        switch (columnType.getName())
-        {
+    public static String formatColumnType(Class<?> columnType) {
+        switch (columnType.getName()) {
             case "java.lang.Integer":
                 return "int";
             case "java.lang.Long":
@@ -57,70 +53,57 @@ public class StoreableUtils {
         }
     }
 
-    public static List<Object> parseValues(List<String> valuesRepresentation, Table table) throws ColumnFormatException
-    {
+    public static List<Object> parseValues(List<String> valuesRepresentation, Table table) throws ColumnFormatException {
         // values start from index 1
         List<Object> values = new ArrayList<>(valuesRepresentation.size() - 1);
 
-        for(int index = 1; index < valuesRepresentation.size(); ++index)
-        {
+        for (int index = 1; index < valuesRepresentation.size(); ++index) {
             Object value = XmlDeserializer.parseValue(valuesRepresentation.get(index), table.getColumnType(index - 1));
             values.add(value);
         }
         return values;
     }
 
-    public static String join(List<?> list)
-    {
+    public static String join(List<?> list) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for(final Object listEntry : list)
-        {
-            if (!first)
-            {
+        for (final Object listEntry : list) {
+            if (!first) {
                 sb.append(" ");
             }
             first = false;
-            if (listEntry == null)
-            {
+            if (listEntry == null) {
                 sb.append("null");
-            }
-            else
-            {
+            } else {
                 sb.append(listEntry.toString());
             }
         }
         return sb.toString();
     }
 
-    public static TableInfo parseCreateCommand(String parameters) throws IllegalArgumentException
-    {
+    public static TableInfo parseCreateCommand(String parameters) throws IllegalArgumentException {
         parameters = parameters.trim();
         List<String> params = new ArrayList<String>();
         String tableName = parameters.split("\\s+")[0];
         parameters = parameters.replaceAll("\\s+", " ");
         int spaceIndex = parameters.indexOf(' ');
-        if (spaceIndex == -1)
-        {
+        if (spaceIndex == -1) {
             throw new IllegalArgumentException("incorrect format!");
         }
         String columnTypesString = parameters.substring(spaceIndex).replaceAll("\\((.*)\\)", "$1");
         List<String> columnTypes = CommandParser.parseParams(columnTypesString);
 
         TableInfo info = new TableInfo(tableName);
-        for(final String columnType : columnTypes)
-        {
+        for (final String columnType : columnTypes) {
             info.addColumn(parseColumnType(columnType));
         }
 
         return info;
     }
 
-    public static List<String> formatColumnTypes(List<Class<?>> columnTypes)
-    {
+    public static List<String> formatColumnTypes(List<Class<?>> columnTypes) {
         List<String> formattedColumnTypes = new ArrayList<String>();
-        for(final Class<?> columnType : columnTypes)
-        {
+        for (final Class<?> columnType : columnTypes) {
             formattedColumnTypes.add(formatColumnType(columnType));
         }
         return formattedColumnTypes;

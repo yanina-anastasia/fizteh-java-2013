@@ -11,7 +11,7 @@ public class XmlSerializer implements Closeable {
     StringWriter stringWriter = new StringWriter();
     XMLStreamWriter writer = null;
 
-    public XmlSerializer() throws IOException{
+    public XmlSerializer() throws IOException {
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         try {
             writer = factory.createXMLStreamWriter(stringWriter);
@@ -21,8 +21,7 @@ public class XmlSerializer implements Closeable {
         }
     }
 
-    public void write(Object value) throws IOException
-    {
+    public void write(Object value) throws IOException {
         try {
             writer.writeStartElement("col");
             writer.writeCharacters(value.toString());
@@ -32,8 +31,7 @@ public class XmlSerializer implements Closeable {
         }
     }
 
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         try {
             writer.writeEndElement();
             writer.flush();
@@ -42,8 +40,7 @@ public class XmlSerializer implements Closeable {
         }
     }
 
-    public String getRepresentation()
-    {
+    public String getRepresentation() {
         return stringWriter.getBuffer().toString();
     }
 }

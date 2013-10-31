@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StoreableMain {
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Shell<StoreableShellState> shell = new Shell<StoreableShellState>();
 
         List<Command<?>> commands = new ArrayList<Command<?>>();
@@ -29,8 +28,7 @@ public class StoreableMain {
 
         shell.setCommands(commands);
         String databaseDirectory = System.getProperty("fizteh.db.dir");
-        if (databaseDirectory == null)
-        {
+        if (databaseDirectory == null) {
             System.err.println("You haven't set database directory");
             return;
         }

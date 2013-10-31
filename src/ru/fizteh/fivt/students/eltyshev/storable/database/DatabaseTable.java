@@ -30,6 +30,10 @@ public class DatabaseTable implements Table {
     protected HashSet<String> deletedKeys;
 
     public DatabaseTable(DatabaseTableProvider provider, String databaseDirectory, String tableName, List<Class<?>> columnTypes) {
+        if (columnTypes == null || columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("column types cannot be null");
+        }
+
         this.tableName = tableName;
         this.databaseDirectory = databaseDirectory;
         this.columnTypes = columnTypes;
@@ -39,7 +43,6 @@ public class DatabaseTable implements Table {
         modifiedData = new HashMap<String, Storeable>();
         deletedKeys = new HashSet<String>();
         uncommittedChangesCount = 0;
-
 
 
         try {
@@ -57,16 +60,13 @@ public class DatabaseTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null)
-        {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("key cannot be null");
         }
-        if (modifiedData.containsKey(key))
-        {
+        if (modifiedData.containsKey(key)) {
             return modifiedData.get(key);
         }
-        if (deletedKeys.contains(key))
-        {
+        if (deletedKeys.contains(key)) {
             return null;
         }
 
@@ -80,10 +80,14 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException(message + "cannot be null");
         }
 
+        key = key.trim();
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("key cannot be empty");
+        }
+
         Storeable oldValue = getOldValueFor(key);
         modifiedData.put(key, value);
-        if (oldValue == null)
-        {
+        if (oldValue == null) {
             size += 1;
         }
         uncommittedChangesCount += 1;
@@ -119,12 +123,10 @@ public class DatabaseTable implements Table {
     @Override
     public int commit() throws IOException {
         int recordsCommitted = Math.abs(oldData.size() - size);
-        for(final String keyToDelete : deletedKeys)
-        {
+        for (final String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
-        for(final String keyToAdd : modifiedData.keySet())
-        {
+        for (final String keyToAdd : modifiedData.keySet()) {
             oldData.put(keyToAdd, modifiedData.get(keyToAdd));
         }
         deletedKeys.clear();
@@ -154,8 +156,7 @@ public class DatabaseTable implements Table {
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex < 0 || columnIndex > getColumnsCount())
-        {
+        if (columnIndex < 0 || columnIndex > getColumnsCount()) {
             throw new IndexOutOfBoundsException();
         }
         return columnTypes.get(columnIndex);
@@ -165,8 +166,7 @@ public class DatabaseTable implements Table {
         return uncommittedChangesCount;
     }
 
-    public String getDatabaseDirectory()
-    {
+    public String getDatabaseDirectory() {
         return databaseDirectory;
     }
 
@@ -178,8 +178,7 @@ public class DatabaseTable implements Table {
         DistributedSaver.save(new StoreableTableBuilder(provider, this));
     }
 
-    private Storeable getOldValueFor(String key)
-    {
+    private Storeable getOldValueFor(String key) {
         Storeable oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
             oldValue = oldData.get(key);
@@ -187,18 +186,15 @@ public class DatabaseTable implements Table {
         return oldValue;
     }
 
-    private void checkTableDirectory() throws IOException
-    {
+    private void checkTableDirectory() throws IOException {
         File tableDirectory = new File(getDatabaseDirectory(), getName());
-        if (!tableDirectory.exists())
-        {
+        if (!tableDirectory.exists()) {
             tableDirectory.mkdir();
             writeSignatureFile();
         }
     }
 
-    private void writeSignatureFile() throws IOException
-    {
+    private void writeSignatureFile() throws IOException {
         File tableDirectory = new File(getDatabaseDirectory(), getName());
         File signatureFile = new File(tableDirectory, DatabaseTableProvider.SIGNATURE_FILE);
         signatureFile.createNewFile();

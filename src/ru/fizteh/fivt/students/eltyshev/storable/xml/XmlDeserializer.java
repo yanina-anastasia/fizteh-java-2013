@@ -14,7 +14,7 @@ public class XmlDeserializer {
     String xmlRepresentation;
     XMLStreamReader xmlReader;
 
-    public XmlDeserializer(String xmlRepresentation) throws ParseException{
+    public XmlDeserializer(String xmlRepresentation) throws ParseException {
         this.xmlRepresentation = xmlRepresentation;
         try {
             xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(xmlRepresentation));
@@ -37,38 +37,29 @@ public class XmlDeserializer {
         }
     }
 
-    public Object getNext(Class<?> expectedType) throws ColumnFormatException, ParseException
-    {
+    public Object getNext(Class<?> expectedType) throws ColumnFormatException, ParseException {
         String tagName;
         Object value = null;
-        try
-        {
+        try {
             int nodeType = xmlReader.next();
-            if (nodeType != XMLStreamConstants.START_ELEMENT || !xmlReader.getName().getLocalPart().equals("col"))
-            {
+            if (nodeType != XMLStreamConstants.START_ELEMENT || !xmlReader.getName().getLocalPart().equals("col")) {
                 throw new ParseException("incorrect xml", 0);
             }
             nodeType = xmlReader.next();
-            if (nodeType == XMLStreamConstants.CHARACTERS)
-            {
+            if (nodeType == XMLStreamConstants.CHARACTERS) {
                 value = parseValue(xmlReader.getText(), expectedType);
-            }
-            else
-            {
-                if (!xmlReader.getName().getLocalPart().equals("null"))
-                {
+            } else {
+                if (!xmlReader.getName().getLocalPart().equals("null")) {
                     throw new ParseException("incorrect xml", 0);
                 }
                 value = null;
                 nodeType = xmlReader.next();
-                if (nodeType != XMLStreamConstants.END_ELEMENT)
-                {
+                if (nodeType != XMLStreamConstants.END_ELEMENT) {
                     throw new ParseException("incorrect xml", 0);
                 }
             }
             nodeType = xmlReader.next();
-            if (nodeType != XMLStreamConstants.END_ELEMENT)
-            {
+            if (nodeType != XMLStreamConstants.END_ELEMENT) {
                 throw new ParseException("incorrect xml", 0);
             }
         } catch (XMLStreamException e) {
@@ -77,8 +68,7 @@ public class XmlDeserializer {
         return value;
     }
 
-    public void close() throws IOException, ParseException
-    {
+    public void close() throws IOException, ParseException {
         try {
             int nodeType = xmlReader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT && nodeType != XMLStreamConstants.END_DOCUMENT) {
@@ -91,10 +81,8 @@ public class XmlDeserializer {
 
     public static Object parseValue(String valueRepresentation, Class<?> expectedType) throws ColumnFormatException {
         Object value = null;
-        try
-        {
-            switch (expectedType.getName())
-            {
+        try {
+            switch (expectedType.getName()) {
                 case "java.lang.Integer":
                     value = Integer.parseInt(valueRepresentation);
                     break;
@@ -117,8 +105,7 @@ public class XmlDeserializer {
                     value = valueRepresentation;
                     break;
             }
-        } catch (NumberFormatException e)
-        {
+        } catch (NumberFormatException e) {
             throw new ColumnFormatException(e);
         }
         return value;
