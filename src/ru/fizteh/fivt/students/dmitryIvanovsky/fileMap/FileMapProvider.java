@@ -204,6 +204,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     public void multiDrop(String[] args) throws ErrorFileMap {
         String nameTable = args[0];
         try {
+            if (nameTable.equals(useNameTable)) {
+                useNameTable = "";
+            }
             removeTable(nameTable);
             outPrint("dropped");
         } catch (IllegalStateException e) {
