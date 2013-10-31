@@ -52,7 +52,7 @@ public abstract class AbstractTable implements Table {
     }
 
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.equals("")) {
             throw new IllegalArgumentException("key cannot be null!");
         }
         if (modifiedData.containsKey(key)) {
@@ -70,6 +70,10 @@ public abstract class AbstractTable implements Table {
             String message = key == null ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be null");
         }
+        if (key.equals("") || value.equals("")) {
+            String message = key.equals("") ? "key " : "value ";
+            throw new IllegalArgumentException(message + "cannot be empty");
+        }
         String oldValue = getOldValueFor(key);
         modifiedData.put(key, value);
         if (oldValue == null) {
@@ -80,7 +84,7 @@ public abstract class AbstractTable implements Table {
     }
 
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.equals("")) {
             throw new IllegalArgumentException("key cannot be null");
         }
         String oldValue = getOldValueFor(key);

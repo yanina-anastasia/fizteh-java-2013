@@ -2,11 +2,14 @@ package ru.fizteh.fivt.students.eltyshev.multifilemap;
 
 import ru.fizteh.fivt.storage.strings.*;
 
-import javax.swing.plaf.multi.MultiInternalFrameUI;
 import java.io.File;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatabaseTableProvider implements TableProvider {
+    private static final String CHECK_EXPRESSION = "[^0-9A-Za-zА-Яа-я-_\\(\\)\\[\\]\\{\\}]";
+
     HashMap<String, MultifileTable> tables = new HashMap<String, MultifileTable>();
     private String databaseDirectoryPath;
     private MultifileTable activeTable = null;
@@ -49,6 +52,8 @@ public class DatabaseTableProvider implements TableProvider {
             throw new IllegalArgumentException("table's name cannot be null");
         }
 
+        checkTableName(name);
+
         if (tables.containsKey(name)) {
             return null;
         }
@@ -71,5 +76,13 @@ public class DatabaseTableProvider implements TableProvider {
 
         File tableFile = new File(databaseDirectoryPath, name);
         MultifileMapUtils.deleteFile(tableFile);
+    }
+
+    private void checkTableName(String name) {
+        Pattern pattern = Pattern.compile(CHECK_EXPRESSION);
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("bad symbol in table's name");
+        }
     }
 }
