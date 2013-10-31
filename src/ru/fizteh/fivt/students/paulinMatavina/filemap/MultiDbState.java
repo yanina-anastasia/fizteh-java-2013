@@ -18,6 +18,7 @@ public class MultiDbState extends State implements Table {
     public boolean isDropped;
     public int changesNum;
     private int dbSize;
+    private int primaryDbSize;
     
     public MultiDbState(String property) throws IllegalArgumentException {
         if (property == null || property.isEmpty()) {
@@ -80,6 +81,7 @@ public class MultiDbState extends State implements Table {
                 dbSize += data[i][j].loadData();
             }
         }
+        primaryDbSize = dbSize;
         closeAll();
     }
     
@@ -188,6 +190,7 @@ public class MultiDbState extends State implements Table {
         
         closeAll();
         int chNum = changesNum;
+        primaryDbSize = dbSize;
         changesNum = 0;
         return chNum;
     }
@@ -274,6 +277,7 @@ public class MultiDbState extends State implements Table {
         } catch (IOException e) {
             System.err.println("database: wrong format");
         }   
+        dbSize = primaryDbSize;
         return chNum;
     }
     
