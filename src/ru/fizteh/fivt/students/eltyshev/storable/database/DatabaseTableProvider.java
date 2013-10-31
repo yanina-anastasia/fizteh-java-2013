@@ -205,7 +205,7 @@ public class DatabaseTableProvider implements TableProvider {
 
     private void checkColumnTypes(List<Class<?>> columnTypes) {
         for (final Class<?> columnType : columnTypes) {
-            if (StoreableUtils.formatColumnType(columnType) == null) {
+            if (columnType == null || StoreableUtils.formatColumnType(columnType) == null) {
                 throw new IllegalArgumentException("unknown column type");
             }
         }
