@@ -77,22 +77,23 @@ public class MultiFileTable implements ChangesCountingTable {
         if (key == null) {
             throw new IllegalArgumentException("remove: key is null");
         }
-        String currentValue = currentTable.remove(key);
-        if (currentValue == null) {
-            currentValue = originalTable.get(key);
-            if (currentValue != null) {
-                if (!removedKeys.contains(key)) {
-                    ++changesCount;
-                }
-                removedKeys.add(key);
-            }
-        } else {
+        String oldValue = currentTable.get(key);
+        if (oldValue == null && !removedKeys.contains(key)) {
+            oldValue = originalTable.get(key);
+        }
+        if (currentTable.containsKey(key)) {
+            --changesCount;
+            currentTable.remove(key);
             if (originalTable.containsKey(key)) {
                 removedKeys.add(key);
             }
-            --changesCount;
+        } else {
+            if (originalTable.containsKey(key) && !removedKeys.contains(key)) {
+                removedKeys.add(key);
+                ++changesCount;
+            }
         }
-        return currentValue;
+        return oldValue;
     }
 
     @Override
