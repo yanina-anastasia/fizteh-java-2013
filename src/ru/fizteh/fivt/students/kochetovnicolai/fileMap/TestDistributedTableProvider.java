@@ -64,4 +64,10 @@ public class TestDistributedTableProvider extends FileManager {
         thrown.expect(IllegalArgumentException.class);
         provider.createTable(name);
     }
+
+    @Theory
+    public void getTableBadSymbolShouldFail(String name) {
+        thrown.expect(IllegalArgumentException.class);
+        provider.getTable(name);
+    }
 }

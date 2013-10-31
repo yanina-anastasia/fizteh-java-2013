@@ -21,7 +21,7 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     public static boolean isValidName(String name) {
-        return name != null && !name.matches(".*[.\\\\/\\s].*");
+        return name != null && !name.equals("") && !name.matches(".*[.\\\\/\\s].*");
     }
 
     protected void loadTable(String name) {
@@ -73,7 +73,7 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalArgumentException("invalid table name");
         }
         if (tables.containsKey(name)) {
-            return null;
+            throw new IllegalArgumentException("invalid table name");
         }
         loadTable(name);
         if (!tables.containsKey(name)) {
