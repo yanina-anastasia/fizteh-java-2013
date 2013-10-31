@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.vyatkina.database.providers;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseUtils;
 import ru.fizteh.fivt.students.vyatkina.database.Diff;

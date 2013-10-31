@@ -106,7 +106,13 @@ public class MultiTable implements Table {
 
     @Override
     public int size () {
-        return values.size ();
+        int realSize = 0;
+        for (Diff diff: values.values ()) {
+            if (diff.getValue () != null) {
+                ++realSize;
+            }
+        }
+        return realSize;
     }
 
     @Override
@@ -135,17 +141,6 @@ public class MultiTable implements Table {
           }
         }
         return keysThatValuesHaveChanged;
-    }
-
-    public Map <String, String> tableToWriteOnDisk () {
-        Map <String, String> tableToWriteOnDisk = new HashMap<> ();
-        for (String key: values.keySet ()) {
-            String value = values.get (key).getValue ();
-             if (value != null) {
-                tableToWriteOnDisk.put (key,value);
-             }
-        }
-        return tableToWriteOnDisk;
     }
 
     public void putValueFromDisk (String key, String value) {
