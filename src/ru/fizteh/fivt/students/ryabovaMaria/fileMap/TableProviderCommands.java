@@ -67,5 +67,4 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalStateException(name + " cannot be deleted");
         }
     }
-    
 }
