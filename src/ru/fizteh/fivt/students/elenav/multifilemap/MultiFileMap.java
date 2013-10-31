@@ -7,6 +7,10 @@ public class MultiFileMap {
 	
 	public static void main(String[] args) throws IOException {
 		String property = System.getProperty("fizteh.db.dir");
+		if (property == null) {
+			System.err.println("db dir passed");
+			System.exit(1);
+		}
 		File f = new File(property);
 		MultiFileMapState multi = new MultiFileMapState("MyFirstMultiFileMap", f, System.out);
 		try {
