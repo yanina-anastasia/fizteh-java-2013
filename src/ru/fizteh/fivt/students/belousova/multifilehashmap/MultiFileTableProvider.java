@@ -14,7 +14,7 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
 
     public MultiFileTableProvider(File directory) throws IOException {
         if (!directory.exists()) {
-            throw new IOException("directory doesn't exist");
+            directory.mkdir();
         }
         if (!directory.isDirectory()) {
             throw new IOException("'" + directory.getName() + "' is not a directory");
