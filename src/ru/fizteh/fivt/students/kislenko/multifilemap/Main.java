@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String dbAddress = System.getProperty("fizteh.db.dir");
         if (dbAddress == null) {
-            throw new Error("fuck");
+            System.exit(-1);
         }
         try {
             File dbDir = new File(dbAddress).getCanonicalFile();
