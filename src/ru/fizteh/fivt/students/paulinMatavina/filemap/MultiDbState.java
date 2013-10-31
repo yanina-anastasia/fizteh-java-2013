@@ -269,6 +269,9 @@ public class MultiDbState extends State implements Table {
     }
     
     public String getName() {
+        if (!isDbChosen()) {
+            return null;
+        }
         return (shell.currentDir.getName());
     }
 }
