@@ -20,7 +20,7 @@ public class MultiDbState extends State implements Table {
     private int dbSize;
     
     public MultiDbState(String property) throws IllegalArgumentException {
-        if (property == null) {
+        if (property == null || property.isEmpty()) {
             throw new IllegalArgumentException("wrong root directory");
         }
         
@@ -201,8 +201,8 @@ public class MultiDbState extends State implements Table {
     }
     
     public String put(String key, String value) { 
-        if (key == null || value == null 
-           || key.trim() == null || value.trim() == null) {
+        if (key == null || value == null || key.trim() == null || value.trim() == null
+                    || key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -221,7 +221,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String get(String key) {
-        if (key == null || key.trim() == null) {
+        if (key == null || key.trim() == null || key.isEmpty()) {
             throw new IllegalArgumentException();
         }
         
@@ -235,7 +235,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public String remove(String key) {
-        if (key == null || key.trim() == null) {
+        if (key == null || key.trim() == null || key.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (!isDbChosen() || isDropped) {
@@ -278,7 +278,7 @@ public class MultiDbState extends State implements Table {
             System.out.println(changesNum + " uncommited changes");
             return;
         }
-        if (dbName == null || dbName.trim() == null) {
+        if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (dbName.matches(".*" + File.separator + ".*") 
@@ -294,7 +294,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public void create(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         

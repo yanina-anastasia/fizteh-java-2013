@@ -22,7 +22,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (table.fileExist(name)) {
@@ -35,7 +35,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (!table.fileExist(name)) {
