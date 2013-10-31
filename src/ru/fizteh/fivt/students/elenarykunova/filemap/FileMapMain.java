@@ -9,7 +9,7 @@ public class FileMapMain implements TableProviderFactory{
         
     public TableProvider create(String dir) throws IllegalArgumentException {
         IllegalArgumentException e = null;
-        if (dir == null || dir.isEmpty()) {
+        if (dir == null || dir.isEmpty() || dir.trim().isEmpty()) {
             e = new IllegalArgumentException("directory is null");
         } else {
             File tmpDir = new File(dir);
