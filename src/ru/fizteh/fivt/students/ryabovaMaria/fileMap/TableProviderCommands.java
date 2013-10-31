@@ -31,7 +31,7 @@ public class TableProviderCommands implements TableProvider {
             return null;
         }
         if (!tableDir.isDirectory()) {
-            throw new IllegalArgumentException(name + " is not a directory");
+            return null;
         }
         myTable = new TableCommands(tableDir);
         return myTable;
