@@ -99,7 +99,7 @@ public class MultiDbState extends State implements Table {
         }
     }
     
-    public int changeBase(String name) {
+    public int changeBase(String name) throws IllegalArgumentException {
         if (isDbChosen()) {
             commit();   
         }
@@ -114,11 +114,11 @@ public class MultiDbState extends State implements Table {
             } catch (IOException e) {
                 shell.currentDir = lastDir;
                 System.err.println("multifilemap: loading data: " + e.getMessage());
-                return 1;
+                throw new IllegalArgumentException();
             } catch (DataFormatException e) {
                 shell.currentDir = lastDir;
                 System.err.println("multifilemap: " + e.getMessage());
-                return 1;
+                throw new IllegalArgumentException();
             }
         }
         
