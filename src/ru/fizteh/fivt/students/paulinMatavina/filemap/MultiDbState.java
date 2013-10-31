@@ -21,7 +21,7 @@ public class MultiDbState extends State implements Table {
     private int primaryDbSize;
     
     public MultiDbState(String property) throws IllegalArgumentException {
-        if (property == null || property.isEmpty()) {
+        if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong root directory");
         }
         
@@ -282,11 +282,11 @@ public class MultiDbState extends State implements Table {
     }
     
     public void use(String dbName) {
-        if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
+        if (dbName == null || dbName.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (!checkNameValidity(dbName)) {
-            throw new RuntimeException("in use " + dbName);
+            throw new RuntimeException();
         }
         if (!fileExist(dbName)) {
             throw new DbReturnStatus(2);
@@ -297,7 +297,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public void create(String name) {
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }      
         
