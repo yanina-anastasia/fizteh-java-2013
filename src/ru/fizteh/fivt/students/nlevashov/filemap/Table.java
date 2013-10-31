@@ -17,8 +17,7 @@ public class Table {
         addr = address;
         map = new HashMap<String, String>();
         if (Files.exists(addr)) {
-            BufferedInputStream i = new BufferedInputStream(Files.newInputStream(addr));
-            try {
+            try (BufferedInputStream i = new BufferedInputStream(Files.newInputStream(addr))) {
                 int c = i.read();
                 if (c != -1) {
                     int pos = 1;
@@ -79,8 +78,6 @@ public class Table {
                         map.put(keys.get(j), new String(buf, "UTF8"));
                     }
                 }
-            } finally {
-                i.close();
             }
         }
     }
@@ -89,8 +86,7 @@ public class Table {
         Files.deleteIfExists(addr);
         Files.createFile(addr);
         if (!map.isEmpty()) {
-            BufferedOutputStream o = new BufferedOutputStream(Files.newOutputStream(addr));
-            try {
+            try (BufferedOutputStream o = new BufferedOutputStream(Files.newOutputStream(addr))) {
                 byte[][] keys = new byte[map.size()][];
                 byte[][] values = new byte[map.size()][];
                 Vector<Integer> valuesLengthSum = new Vector<Integer>();
@@ -121,8 +117,6 @@ public class Table {
                 for (i = 0; i < map.size(); i++) {
                     o.write(values[i], 0, values[i].length);
                 }
-            } finally {
-                o.close();
             }
         }
     }
