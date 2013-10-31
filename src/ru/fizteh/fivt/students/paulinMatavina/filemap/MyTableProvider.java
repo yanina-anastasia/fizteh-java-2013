@@ -36,8 +36,10 @@ public class MyTableProvider implements TableProvider {
                 return null;
             }
         }
-        table.use(name);
-        return table;
+        
+        MultiDbState table2 = table;
+        table2.use(name);
+        return table2;
     }
 
     public void removeTable(String name) {
