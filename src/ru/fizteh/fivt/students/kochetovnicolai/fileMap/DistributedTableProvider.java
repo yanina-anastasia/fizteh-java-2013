@@ -27,7 +27,7 @@ public class DistributedTableProvider implements TableProvider {
 
     public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
         currentPath = workingDirectory;
-        if (currentPath == null || currentPath.isDirectory() || (!currentPath.exists()  && !currentPath.mkdir())) {
+        if (currentPath == null || !currentPath.isDirectory() || (!currentPath.exists()  && !currentPath.mkdir())) {
             throw new IllegalArgumentException("couldn't create working directory");
         }
         tables = new HashMap<>();
