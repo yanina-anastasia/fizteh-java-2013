@@ -12,9 +12,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if (dir == null) {
             throw new IllegalArgumentException("Bad directory");
         }
-        if (dir.contains(".") || dir.contains("/") || dir.contains("\\")) {
-            throw new IllegalArgumentException("Bad directory");
-        }
         curDir = new File(dir);
         if (!curDir.exists()) {
             throw new IllegalArgumentException("Directory doesn't exists");
