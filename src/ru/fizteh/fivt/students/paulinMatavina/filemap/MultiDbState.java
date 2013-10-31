@@ -277,15 +277,11 @@ public class MultiDbState extends State implements Table {
     }
     
     public void use(String dbName) {
-        if (changesNum > 0) {
-            System.out.println(changesNum + " uncommited changes");
-            return;
-        }
         if (dbName == null || dbName.trim() == null || dbName.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if (!checkNameValidity(dbName)) {
-            throw new RuntimeException();
+            throw new RuntimeException("in use " + dbName);
         }
         if (!fileExist(dbName)) {
             throw new DbReturnStatus(2);
@@ -298,15 +294,12 @@ public class MultiDbState extends State implements Table {
     public void create(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
-        }
-        
+        }      
         
         if (fileExist(name)) {
             throw new DbReturnStatus(2);
         }
         
-        tableName = name;
-        changesNum = 0;
         name = makeNewSource(name);
         shell.mkdir(new String[] {name});
         throw new DbReturnStatus(0);

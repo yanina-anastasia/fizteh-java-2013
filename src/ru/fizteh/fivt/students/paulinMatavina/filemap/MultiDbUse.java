@@ -7,6 +7,10 @@ public class MultiDbUse implements Command {
     public int execute(String[] args, State state) {
         String dbName = args[0];
         MultiDbState multiState = (MultiDbState) state;
+        if (multiState.changesNum > 0) {
+            System.out.println(multiState.changesNum + " uncommited changes");
+            return 0;
+        }
         try {
             multiState.use(dbName);
         } catch (DbReturnStatus e) {

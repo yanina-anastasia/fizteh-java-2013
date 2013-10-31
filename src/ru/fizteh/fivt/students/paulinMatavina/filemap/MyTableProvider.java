@@ -5,20 +5,31 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MyTableProvider implements TableProvider {
     private MultiDbState table;
+    private String rootDir;
     
     public MyTableProvider(String dir) {
         table = new MultiDbState(dir);
+        rootDir = dir;
     }
     
     public Table getTable(String name) {
-        try {
+        /*try {
             table.use(name);
         } catch (DbReturnStatus e) {
             if (Integer.parseInt(e.getMessage()) == 2) {
                 return null;
             }
         }
-        return table;
+        return table;*/
+        MultiDbState newTable = new MultiDbState(rootDir);
+        try {
+            newTable.use(name);
+        } catch (DbReturnStatus e) {
+            if (Integer.parseInt(e.getMessage()) == 2) {
+                return null;
+            }
+        }
+        return newTable;
     }
 
     public Table createTable(String name) {
@@ -29,18 +40,15 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException();
         }
         
-        MultiDbState oldTable = table;
+        MultiDbState newTable = new MultiDbState(rootDir);
         try {
-            table.create(name);
+            newTable.create(name);
         } catch (DbReturnStatus e) {
             if (Integer.parseInt(e.getMessage()) == 2) {
                 return null;
             }
         }
-        
-        table.use(name);
-        MultiDbState newTable = table;
-        table = oldTable;
+        newTable.use(name);
         return newTable;
     }
 
