@@ -48,12 +48,6 @@ class FileDatabase implements AutoCloseable {
         saveChanges();
         
         return oldValue;
-        /*if (oldValue != null) {
-            System.out.println("overwrite");
-            System.out.println(oldValue);
-        } else {
-            System.out.println("new");
-        }*/
     }
     
     public String get(String key) throws Exception {
@@ -68,12 +62,6 @@ class FileDatabase implements AutoCloseable {
             saveChanges();
         }
         return value;
-        /*if (value != null) {
-            saveChanges();
-            System.out.println("removed");
-        } else {
-            System.out.println("not found");
-        }*/
         
     }
     

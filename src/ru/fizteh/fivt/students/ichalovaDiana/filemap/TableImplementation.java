@@ -135,7 +135,7 @@ public class TableImplementation implements Table {
 
     @Override
     public int commit() {
-        int changesNumber = putChanges.size() + removeChanges.size();
+        int changesNumber = countChanges();
         originTableSize = currentTableSize;
         
         String value;
@@ -155,13 +155,16 @@ public class TableImplementation implements Table {
 
     @Override
     public int rollback() {
-        int changesNumber = putChanges.size() + removeChanges.size();
+        int changesNumber = countChanges();
         currentTableSize = originTableSize;
         putChanges.clear();
         removeChanges.clear();
         return changesNumber;
     }
     
+    public int countChanges() {
+        return putChanges.size() + removeChanges.size();
+    }
     
     private boolean isValidKey(final String key) {
         if (key == null || key.contains(" ") || key.contains("\n") || key.contains("\t") 

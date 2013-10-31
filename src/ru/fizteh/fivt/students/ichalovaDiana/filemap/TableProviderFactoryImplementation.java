@@ -24,7 +24,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
             throw new IllegalArgumentException(dbDir + " doesn't exist or is not a directory");
         }
         
-        // is correct
+        isCorrectDatabaseDirectory(dbDir);
         
         TableProvider database = new TableProviderImplementation(dbDir);
         return database;
