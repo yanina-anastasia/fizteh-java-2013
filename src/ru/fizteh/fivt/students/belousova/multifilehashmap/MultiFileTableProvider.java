@@ -11,10 +11,13 @@ import java.util.Map;
 public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private Map<String, Table> tableMap = new HashMap<String, Table>();
     private File dataDitectory;
+    private final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
     public MultiFileTableProvider(File directory) throws IOException {
         if (!directory.exists()) {
             directory.mkdir();
+        } else if (!directory.isDirectory()) {
+            throw new IllegalArgumentException("'" + directory.getName() + "' is not a directory");
         }
 
         dataDitectory = directory;
@@ -31,6 +34,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
         }
         if (name.isEmpty()) {
             throw new IllegalArgumentException("empty name");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("incorrect name");
         }
         if (!tableMap.containsKey(name)) {
             return null;
@@ -50,6 +56,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
         }
         if (name.isEmpty()) {
             throw new IllegalArgumentException("empty name");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("incorrect name");
         }
         File tableDirectory = new File(dataDitectory, name);
         if (!tableDirectory.mkdir()) {

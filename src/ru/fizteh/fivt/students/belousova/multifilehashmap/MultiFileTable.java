@@ -33,9 +33,10 @@ public class MultiFileTable implements ChangesCountingTable {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
-        if (key.isEmpty()) {
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("empty key");
         }
+
         if (addedKeys.containsKey(key)) {
             return addedKeys.get(key);
         }
@@ -50,13 +51,13 @@ public class MultiFileTable implements ChangesCountingTable {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
-        if (key.isEmpty()) {
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("empty key");
         }
         if (value == null) {
             throw new IllegalArgumentException("null value");
         }
-        if (value.isEmpty()) {
+        if (value.trim().isEmpty()) {
             throw new IllegalArgumentException("empty value");
         }
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
@@ -77,7 +78,7 @@ public class MultiFileTable implements ChangesCountingTable {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
-        if (key.isEmpty()) {
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("empty key");
         }
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
@@ -99,13 +100,13 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int commit() {
+        int counter = Math.abs(addedKeys.size() - deletedKeys.size());
         for (String key : deletedKeys) {
             dataBase.remove(key);
         }
         dataBase.putAll(addedKeys);
         deletedKeys.clear();
         addedKeys.clear();
-        int counter = changesCounter;
         changesCounter = 0;
         try {
             MultiFileUtils.write(dataDirectory, dataBase);
@@ -117,9 +118,9 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int rollback() {
+        int counter = Math.abs(addedKeys.size() - deletedKeys.size());
         deletedKeys.clear();
         addedKeys.clear();
-        int counter = changesCounter;
         changesCounter = 0;
         return counter;
     }

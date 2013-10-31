@@ -33,6 +33,11 @@ public class MultiFileTableProviderTest {
         tableProvider.getTable("");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableIncorrect() throws Exception {
+        tableProvider.getTable("@#$@%");
+    }
+
     @Test
     public void testGetTableExisted() throws Exception {
         Assert.assertEquals(tableProvider.getTable("existingTable").getName(), "existingTable");
@@ -51,6 +56,11 @@ public class MultiFileTableProviderTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateTableEmpty() throws Exception {
         tableProvider.createTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableIncorrect() throws Exception {
+        tableProvider.createTable("@#$@%");
     }
 
     @Test
