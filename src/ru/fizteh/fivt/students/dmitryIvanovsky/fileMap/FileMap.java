@@ -195,9 +195,6 @@ public class FileMap implements Table {
             return;
         }
 
-        mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
-        existDir = true;
-
         Map<String, String>[][] arrayMap = new HashMap[16][16];
         boolean[] useDir = new boolean[16];
         for (String key : tableData.keySet()) {
