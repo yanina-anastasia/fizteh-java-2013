@@ -226,7 +226,7 @@ public class MultiDbState extends State implements Table {
         }
         
         if (!isDbChosen() || isDropped) {
-            throw new IllegalArgumentException("0");
+            return null;
         }
         
         int folder = getFolderNum(key);
@@ -270,13 +270,14 @@ public class MultiDbState extends State implements Table {
     }
     
     public String getName() {
-        if (!isDbChosen()) {
-            return null;
-        }
         return (shell.currentDir.getName());
     }
     
     public void use(String dbName) {
+        if (changesNum > 0) {
+            System.out.println(changesNum + " uncommited changes");
+            return;
+        }
         if (dbName == null || dbName.trim() == null) {
             throw new IllegalArgumentException();
         }
