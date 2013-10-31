@@ -12,7 +12,8 @@ public class MultiDbState extends State implements Table {
     final int folderNum = 16;
     final int fileInFolderNum = 16;
     public String tableName;
-    DbState[][] data;
+    DbState[][] savedData;
+    DbState[][] unsavedData;
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
@@ -29,7 +30,8 @@ public class MultiDbState extends State implements Table {
         dbSize = 0;
         isDropped = false;
         rootPath = new File(property).getAbsolutePath();
-        data = new DbState[folderNum][fileInFolderNum];
+        savedData = new DbState[folderNum][fileInFolderNum];
+        unsavedData = new DbState[folderNum][fileInFolderNum];
         shell = new ShellState();
         shell.cd(rootPath);
         
@@ -66,7 +68,8 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, DataFormatException {
         dbSize = 0;
-        data = new DbState[folderNum][fileInFolderNum];
+        savedData = new DbState[folderNum][fileInFolderNum];
+        unsavedData = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -75,10 +78,10 @@ public class MultiDbState extends State implements Table {
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
-                data[i][j] = new DbState(filePath, i, j);
-                File f = new File(data[i][j].path);
+                savedData[i][j] = new DbState(filePath, i, j);
+                File f = new File(savedData[i][j].path);
                 f.createNewFile();
-                dbSize += data[i][j].loadData();
+                dbSize += savedData[i][j].loadData();
             }
         }
         primaryDbSize = dbSize;
@@ -158,7 +161,7 @@ public class MultiDbState extends State implements Table {
     public void closeAll() throws IOException {
         for (int i = 0; i < folderNum; i++) {
             for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].dbFile.close(); 
+                savedData[i][j].dbFile.close(); 
             }
         }
     }
@@ -175,8 +178,8 @@ public class MultiDbState extends State implements Table {
             }
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
-                data[i][j].commit();
-                if (data[i][j].data.isEmpty()) {
+                savedData[i][j].commit();
+                if (savedData[i][j].data.isEmpty()) {
                     String[] arg = {shell.makeNewSource(fold, file)};
                     shell.rm(arg);
                 }
@@ -217,10 +220,11 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        String result = data[folder][file].put(new String[] {key, value});
+        String result = savedData[folder][file].put(new String[] {key, value});
         if (result == null) {
             changesNum++;
             dbSize++;
+            unsavedData[folder][file].put(new String[] {key, value});
         }
         return result;  
     }
@@ -236,7 +240,7 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        return data[folder][file].get(new String[] {key});  
+        return savedData[folder][file].get(new String[] {key});  
     }
     
     public String remove(String key) {
@@ -249,10 +253,14 @@ public class MultiDbState extends State implements Table {
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
-        String result = data[folder][file].remove(new String[] {key});
+        String result = savedData[folder][file].remove(new String[] {key});
         if (result != null) {
+            String res2 = unsavedData[folder][file].remove(new String[] {key});
+            if (res2 == null) {
+                changesNum++;
+            }
             dbSize--;
-            changesNum++;
+            //changesNum++;
         }
         return result;  
     }
