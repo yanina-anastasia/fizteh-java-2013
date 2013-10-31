@@ -29,6 +29,7 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException();
         }
         
+        MultiDbState oldTable = table;
         try {
             table.create(name);
         } catch (DbReturnStatus e) {
@@ -37,9 +38,8 @@ public class MyTableProvider implements TableProvider {
             }
         }
         
-        MultiDbState table2 = table;
-        table2.use(name);
-        return table2;
+        table = oldTable;
+        return table;
     }
 
     public void removeTable(String name) {
