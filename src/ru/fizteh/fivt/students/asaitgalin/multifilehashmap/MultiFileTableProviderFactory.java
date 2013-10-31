@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTableProviderFactory;
 
 import java.io.File;
 
-public class MultiFileTableProviderFactory implements TableProviderFactory {
+public class MultiFileTableProviderFactory implements ChangesCountingTableProviderFactory {
     @Override
-    public TableProvider create(String dir) {
+    public ChangesCountingTableProvider create(String dir) {
         if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("factory: directory name is null");
         }

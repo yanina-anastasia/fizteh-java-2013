@@ -1,12 +1,12 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTableProvider;
 import ru.fizteh.fivt.students.asaitgalin.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MultiFileTableProvider implements TableProvider {
+public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private File dbDirectory;
 
     public MultiFileTableProvider(File dbDirectory) {

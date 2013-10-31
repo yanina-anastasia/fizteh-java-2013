@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands.*;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTableProviderFactory;
 import ru.fizteh.fivt.students.asaitgalin.shell.CommandTable;
 import ru.fizteh.fivt.students.asaitgalin.shell.ShellUtils;
 import ru.fizteh.fivt.students.asaitgalin.shell.commands.ExitCommand;
@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         CommandTable table = new CommandTable();
 
-        TableProviderFactory factory = new MultiFileTableProviderFactory();
+        ChangesCountingTableProviderFactory factory = new MultiFileTableProviderFactory();
         MultiFileTableState state = new MultiFileTableState();
         state.provider = factory.create(System.getProperty("fizteh.db.dir"));
 

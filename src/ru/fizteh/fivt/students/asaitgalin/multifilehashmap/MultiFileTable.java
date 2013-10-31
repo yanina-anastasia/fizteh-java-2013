@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryReader;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTable;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MultiFileTable implements Table {
+public class MultiFileTable implements ChangesCountingTable {
     private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
 
@@ -121,6 +121,7 @@ public class MultiFileTable implements Table {
         return count;
     }
 
+    @Override
     public int getChangesCount() {
         return changesCount;
     }

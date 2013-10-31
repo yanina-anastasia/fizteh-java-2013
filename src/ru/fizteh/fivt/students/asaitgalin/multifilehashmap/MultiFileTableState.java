@@ -1,9 +1,9 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTable;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTableProvider;
 
 public class MultiFileTableState {
-    public TableProvider provider;
-    public Table currentTable;
+    public ChangesCountingTableProvider provider;
+    public ChangesCountingTable currentTable;
 }
