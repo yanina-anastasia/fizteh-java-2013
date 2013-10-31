@@ -55,13 +55,6 @@ public class TableProviderImplementation implements TableProvider {
         return tables.get(name);
     }
 
-    /**
-     * ”дал€ет таблицу с указанным названием.
-     *
-     * @param name Ќазвание таблицы.
-     * @throws IllegalArgumentException ≈сли название таблицы null или имеет недопустимое значение.
-     * @throws IllegalStateException ≈сли таблицы с указанным названием не существует.
-     */
     @Override
     public void removeTable(String name) {
         if (!isValidTableName(name)) {
