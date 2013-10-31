@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DatabaseTableProvider implements TableProvider {
-    private static final String CHECK_EXPRESSION = "[^0-9A-Za-zА-Яа-я-_\\(\\)\\[\\]\\{\\}]";
+    private static final String CHECK_EXPRESSION = "[^0-9A-Za-zА-Яа-я]";
 
     HashMap<String, MultifileTable> tables = new HashMap<String, MultifileTable>();
     private String databaseDirectoryPath;
