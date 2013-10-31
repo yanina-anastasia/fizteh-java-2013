@@ -52,7 +52,7 @@ public class FileMapUtils {
         return new String[]{key.toString(), value.toString()};
     }
 
-    static void getMessage(Exception e) {
+    public static void getMessage(Exception e) {
         if (e.getMessage() != null) {
             errPrint(e.getMessage());
         }
