@@ -10,14 +10,16 @@ public class MultiDbCreate implements Command {
             throw new IllegalArgumentException();
         }
         MultiDbState multiState = (MultiDbState) state;
-        if (multiState.fileExist(name)) {
-            System.out.println(name + " exists");
-            return 0;
-        }
         
-        args[0] = multiState.makeNewSource(args[0]);
-        multiState.shell.mkdir(args);
-        System.out.println("created");
+        try {
+            multiState.create(name);
+        } catch (DbReturnStatus e) {
+            if (Integer.parseInt(e.getMessage()) == 2) {
+                System.out.println(name + " exists");
+            } else {
+                System.out.println("created");
+            }
+        }
         return 0;
     }
     

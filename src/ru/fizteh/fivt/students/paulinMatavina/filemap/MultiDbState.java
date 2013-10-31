@@ -291,4 +291,18 @@ public class MultiDbState extends State implements Table {
         changeBase(dbName);
         throw new DbReturnStatus(0);
     }
+    
+    public void create(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        if (fileExist(name)) {
+            throw new DbReturnStatus(2);
+        }
+        
+        name = makeNewSource(name);
+        shell.mkdir(new String[] {name});
+        throw new DbReturnStatus(0);
+    }
 }
