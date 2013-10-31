@@ -22,6 +22,7 @@ public class FilesMap {
 		Integer ndirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());
 		String baseFileKey = MultiFileMapUtils.makeKey(ndirectory, nfile);
+		
 		if (baseFileMaps.get(baseFileKey) == null) {
 			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
 			baseFileMaps.put(baseFileKey, new FileMap(fileMapDirectory + File.separator + nfile.toString() + ".dat"));
@@ -61,11 +62,11 @@ public class FilesMap {
 
 	public void writeData() throws IOException {	
 		clearFilesMapDirectory();
-		
+	
 		for (String key: baseFileMaps.keySet()) {
 			FileMap baseFileMap = baseFileMaps.get(key);			
 			if (baseFileMap.getCurrentTable().isEmpty()) {
-				return;
+				continue;
 			}
 			
 			String ndirectory = key.substring(0, key.indexOf(" "));

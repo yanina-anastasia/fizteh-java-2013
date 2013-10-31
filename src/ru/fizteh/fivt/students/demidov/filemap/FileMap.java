@@ -15,6 +15,8 @@ public class FileMap implements FileMapState {
 			path += File.separator + "db.dat";
 		}
 		this.path = path;
+		
+		currentTable = new HashMap<String, String>();
 	}
 	
 	public FileMap getCurrentFileMap(String key) {
@@ -30,6 +32,10 @@ public class FileMap implements FileMapState {
 		
 		if (currentFile.exists()) {
 			currentFile.delete();
+		}
+		
+		if (!currentFile.createNewFile()) {
+			throw new IOException("unable to create " + path);
 		}
 	}
 	
@@ -103,15 +109,7 @@ public class FileMap implements FileMapState {
 	public void writeDataToFile() throws IOException {
 		clearFile();
 		
-		File currentFile = new File(path);
-		
-		if (!currentFile.exists()) {
-			if (!currentFile.createNewFile()) {
-				throw new IOException("unable to create " + path);
-			}
-		}
-		
-		try(RandomAccessFile dataBaseFile = new RandomAccessFile(currentFile, "rwd")) {		
+		try(RandomAccessFile dataBaseFile = new RandomAccessFile(new File(path), "rwd")) {		
 			int offset = 0;		
 			for (String key: getCurrentTable().keySet()) {
 				offset += 5 + key.getBytes("UTF-8").length;
@@ -138,6 +136,6 @@ public class FileMap implements FileMapState {
 		}
 	}
 	
-	private final Map<String, String> currentTable = new HashMap<String, String>();
+	private Map<String, String> currentTable;
 	private String path;
 }
