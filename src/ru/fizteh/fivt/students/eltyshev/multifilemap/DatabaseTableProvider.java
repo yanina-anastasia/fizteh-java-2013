@@ -33,6 +33,9 @@ public class DatabaseTableProvider implements TableProvider {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
+
+        checkTableName(name);
+
         MultifileTable table = tables.get(name);
 
         if (table == null) {
