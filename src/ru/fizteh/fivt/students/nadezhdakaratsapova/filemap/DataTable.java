@@ -105,7 +105,7 @@ public class DataTable implements Table {
             }
             removeKeys.clear();
         }
-        int returnSize = commitSize;
+        int returnSize = Math.abs(commitSize);
         commitSize = 0;
         return returnSize;
     }
@@ -121,7 +121,7 @@ public class DataTable implements Table {
         if (!removeKeys.isEmpty()) {
             removeKeys.clear();
         }
-        int returnSize = commitSize;
+        int returnSize = Math.abs(commitSize);
         commitSize = 0;
         return returnSize;
     }

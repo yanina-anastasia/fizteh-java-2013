@@ -54,7 +54,7 @@ public class MultiFileHashMapProvider implements TableProvider {
     }
 
     public Table getTable(String name) throws IllegalArgumentException {
-        if (name == null) {
+        if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
         return dataBaseTables.get(name);
