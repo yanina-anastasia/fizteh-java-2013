@@ -16,7 +16,6 @@ public class MultiFileHashMapTable implements Table {
 
         dataBase = new HashMap<String, String>();
         dataFile = currentFile;
-        //MultiFileHashMapUtils.read(dataFile, dataBase);
     }
 
     public Map<String, String> getDataBase() {

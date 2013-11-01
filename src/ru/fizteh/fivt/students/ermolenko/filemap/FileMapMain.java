@@ -14,11 +14,11 @@ public class FileMapMain {
             System.exit(0);
         }
         File base = new File(currentProperty);
-        if (!base.exists()) {
-            base.createNewFile();
-        }
-
         try {
+            if (!base.exists()) {
+                base.createNewFile();
+            }
+
             base = base.getCanonicalFile().toPath().resolve("db.dat").toFile();
             FileMapState startState = new FileMapState(base);
             FileMapUtils.readDataBase(startState);

@@ -27,7 +27,6 @@ public class MultiFileHashMapState {
     public Table createTable(String name) throws IOException {
 
         Table tmp = provider.createTable(name);
-        //currentTable = (MultiFileHashMapTable) tmp;
         return tmp;
     }
 
@@ -49,7 +48,6 @@ public class MultiFileHashMapState {
     public void deleteTable(String name) throws IOException {
 
         provider.removeTable(name);
-        //currentTable = null;
     }
 
     public String putToCurrentTable(String key, String value) {

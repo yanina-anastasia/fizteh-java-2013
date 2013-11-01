@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 import ru.fizteh.fivt.students.ermolenko.shell.Executor;
 
-public class MultiFileHashMapExecutor extends Executor {
+public class MultiFileHashMapExecutor extends Executor<MultiFileHashMapState> {
 
     public MultiFileHashMapExecutor() {
 

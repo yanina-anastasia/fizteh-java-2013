@@ -17,11 +17,8 @@ public class CmdUse implements Command<MultiFileHashMapState> {
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
 
-        //если мы работали с одной таблицей, а теперь переключились на другую
-        //нужно сохранить изменения
-        //или таблица не была выбрана
         if (inState.getCurrentTable() != null) {
-            if (inState.getCurrentTable().getName() != args[0]) {
+            if (!inState.getCurrentTable().getName().equals(args[0])) {
                 File fileForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataFile();
                 Map<String, String> mapForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataBase();
                 MultiFileHashMapUtils.write(fileForWrite, mapForWrite);
