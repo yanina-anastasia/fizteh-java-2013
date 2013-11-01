@@ -41,7 +41,6 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     public boolean existsTable(String name) {
-        loadTable(name);
         return tables.containsKey(name);
     }
 
@@ -101,8 +100,9 @@ public class DistributedTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IllegalArgumentException {
         if (!existsTable(name)) {
-            throw new IllegalStateException("table is not exists");
+            throw new IllegalArgumentException("table is not exists");
         }
+        loadTable(name);
         try {
             tables.get(name).clear();
             File dir = new File(currentPath.getPath() + File.separator + name);

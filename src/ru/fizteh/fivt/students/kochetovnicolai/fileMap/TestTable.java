@@ -5,12 +5,11 @@ import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
-
-import java.io.File;
 
 @RunWith(Theories.class)
 public class TestTable extends FileManager {
@@ -18,15 +17,16 @@ public class TestTable extends FileManager {
     DistributedTableProviderFactory factory;
     TableProvider provider;
     Table table;
-    protected File workingDirectory = new File("./TestTable");
     protected String validTableName = "default";
     protected String validString = " just simple valid key \n or \t value   ";
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void createWorkingDirectoryAndTable() {
         factory = new DistributedTableProviderFactory();
-        Assert.assertTrue(workingDirectory.mkdir());
-        provider = factory.create(workingDirectory.getPath());
+        provider = factory.create(folder.getRoot().getPath());
         table = provider.createTable(validTableName);
     }
 
@@ -35,9 +35,6 @@ public class TestTable extends FileManager {
         factory = null;
         provider = null;
         table = null;
-        if (workingDirectory.exists()) {
-            Assert.assertTrue(recursiveRemove(workingDirectory, "TestDistributedTableProvider"));
-        }
     }
 
     @DataPoints
@@ -108,7 +105,7 @@ public class TestTable extends FileManager {
         factory = null;
 
         factory = new DistributedTableProviderFactory();
-        provider = factory.create(workingDirectory.getPath());
+        provider = factory.create(folder.getRoot().getPath());
         table = provider.createTable(validTableName);
 
         Assert.assertEquals("table size should be equals 3", table.size(), 3);

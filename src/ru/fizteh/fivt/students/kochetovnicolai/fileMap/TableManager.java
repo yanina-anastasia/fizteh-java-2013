@@ -11,12 +11,15 @@ public class TableManager extends Manager {
     HashMap<String, TableMember> tables;
 
     public boolean existsTable(String name) {
-        try {
-            return provider.existsTable(name);
-        } catch (RuntimeException e) {
-            printMessage(e.getMessage());
-            return false;
+        if (!tables.containsKey(name)) {
+            try {
+                createTable(name);
+            } catch (IllegalArgumentException e) {
+                printMessage(e.getMessage());
+                return false;
+            }
         }
+        return tables.containsKey(name);
     }
 
     public TableManager(DistributedTableProvider provider) {
@@ -45,7 +48,10 @@ public class TableManager extends Manager {
         if (!tables.containsKey(name)) {
             try {
                 tables.put(name, provider.createTable(name));
-            } catch (RuntimeException e) {
+                if (tables.get(name) == null) {
+                   tables.put(name, provider.getTable(name)); 
+                }
+            } catch (IllegalArgumentException e) {
                 printMessage(e.getMessage());
             }
         }
@@ -62,7 +68,7 @@ public class TableManager extends Manager {
         tables.remove(name);
         try {
             provider.removeTable(name);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             printMessage(e.getMessage());
             return false;
         }

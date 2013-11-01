@@ -1,33 +1,25 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
-import java.io.File;
 import java.io.IOException;
 
 public class TestDistributedTableFactory extends FileManager {
 
     protected DistributedTableProviderFactory factory;
-    protected File workingDirectory = new File("./TestDistributedTableFactory");
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void createWorkingDirectoryAndFactory() {
-        if (workingDirectory.exists()) {
-            recursiveRemove(workingDirectory, "TestDistributedTableFactory");
-        }
-        Assert.assertTrue(workingDirectory.mkdir());
         factory = new DistributedTableProviderFactory();
     }
 
     @After
     public void removeWorkingDirectoryAndFactory() {
-        if (workingDirectory.exists()) {
-            recursiveRemove(workingDirectory, "TestDistributedTableFactory");
-        }
         factory = null;
     }
 
@@ -39,13 +31,11 @@ public class TestDistributedTableFactory extends FileManager {
     @Test(expected = IllegalArgumentException.class)
     public void createProviderOnFileShouldFail() throws IOException {
         String name = "file";
-        File file = new File(workingDirectory.getPath() + File.separator + name);
-        Assert.assertTrue(file.createNewFile());
-        factory.create(name);
+        factory.create(folder.newFile(name).getName());
     }
 
     @Test
     public void createProvider() {
-        Assert.assertTrue("failed create provider", factory.create("abcd") != null);
+        Assert.assertTrue("failed create provider", factory.create(folder.getRoot().getName()) != null);
     }
 }

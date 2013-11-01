@@ -9,29 +9,28 @@ import org.junit.runner.RunWith;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
+import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
+import java.io.IOException;
 
 @RunWith(Theories.class)
 public class TestTableProvider extends FileManager {
     protected DistributedTableProviderFactory factory;
     protected TableProvider provider;
-    protected File workingDirectory = new File("./TestDistributedTableFactory");
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
-    public void createWorkingDirectoryAndProvider() {
+    public void createWorkingDirectoryAndProvider() throws IOException {
         factory = new DistributedTableProviderFactory();
-        Assert.assertTrue(workingDirectory.mkdir());
-        provider = factory.create(workingDirectory.getPath());
+        provider = factory.create(folder.getRoot().getPath());
     }
 
     @After
     public void removeWorkingDirectoryAndProvider() {
         provider = null;
         factory = null;
-        if (workingDirectory.exists()) {
-            Assert.assertTrue(recursiveRemove(workingDirectory, "TestDistributedTableProvider"));
-        }
     }
 
     @Test(expected = IllegalArgumentException.class)
