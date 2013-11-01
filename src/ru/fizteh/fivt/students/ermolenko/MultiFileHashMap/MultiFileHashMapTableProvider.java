@@ -68,6 +68,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         } catch (IOException e) {
             System.err.println(e);
         }
+
         mapOfTables.remove(name);
     }
 }

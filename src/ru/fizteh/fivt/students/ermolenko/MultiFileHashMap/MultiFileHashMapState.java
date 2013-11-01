@@ -48,6 +48,7 @@ public class MultiFileHashMapState {
     public void deleteTable(String name) throws IOException {
 
         provider.removeTable(name);
+        currentTable = null;
     }
 
     public String putToCurrentTable(String key, String value) {
