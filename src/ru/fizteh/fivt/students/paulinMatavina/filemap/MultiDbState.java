@@ -28,14 +28,23 @@ public class MultiDbState extends State implements Table {
         changesNum = 0;
         dbSize = 0;
         isDropped = false;
-        rootPath = new File(property).getAbsolutePath();
+        rootPath = property;
         data = new DbState[folderNum][fileInFolderNum];
         shell = new ShellState();
+        currentDir = new File(rootPath);
+        if (!currentDir.exists() || !currentDir.isDirectory()) {
+            throw new IllegalArgumentException();
+        }
         shell.cd(rootPath);
+        shell.cd(dbName);
         
         tableName = dbName;
-        if (setCurrentDir() != 0) {
-            throw new IllegalArgumentException(property + ": wrong root directory");
+        try {
+            loadData();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        } catch (DataFormatException e) {
+            throw new IllegalArgumentException();
         }
         
         commands = new HashMap<String, Command>();
@@ -88,18 +97,6 @@ public class MultiDbState extends State implements Table {
         isDropped = true;
     }
     
-    private int setCurrentDir() {
-        currentDir = new File(rootPath);
-        if (!currentDir.exists() || !currentDir.isDirectory()) {
-            throw new IllegalArgumentException();
-        } else {
-            shell.cd(rootPath);
-            return 0;
-        }
-    }
-    
-    
-     
     @Override
     public int exitWithError(int errCode) throws DbExitException {
         int result = commit();
@@ -126,7 +123,7 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             return 0;
         }
-        
+       System.out.println("try to commit in " + shell.currentDir.getAbsolutePath());
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -134,10 +131,11 @@ public class MultiDbState extends State implements Table {
             }
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
-                data[i][j].commit();
-                if (data[i][j].data.isEmpty()) {
+                if (data[i][j].data.isEmpty() && new File(shell.makeNewSource(fold, file)).exists()) {
                     String[] arg = {shell.makeNewSource(fold, file)};
                     shell.rm(arg);
+                } else {
+                    data[i][j].commit();
                 }
                 data[i][j].unsaved = new HashMap<String, String>();
             }
