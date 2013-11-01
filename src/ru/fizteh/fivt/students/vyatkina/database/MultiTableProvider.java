@@ -116,7 +116,7 @@ public class MultiTableProvider extends AbstractTableProvider {
     }
 
     @Override
-    public Table getTable (String tableName) throws IllegalArgumentException {
+    public Table getTable (String tableName) {
         validTableNameCheck (tableName);
         return tables.get (tableName);
     }
