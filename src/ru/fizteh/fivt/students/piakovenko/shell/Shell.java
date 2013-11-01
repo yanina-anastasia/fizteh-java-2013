@@ -37,6 +37,7 @@ public class Shell {
             }
             sb.append(args[args.length - 1]);
             cm.execute(sb.toString());
+            cm.execute("exit");
         } catch (MyException e) {
             System.err.println("Error! " + e.what());
             System.exit(1);

@@ -17,7 +17,7 @@ public class Start {
     public static void  main (String[] args) {
         try {
             DataBasesFactory dbf = new DataBasesFactory();
-            dbf.create(System.getProperty("fizteh.db.dir"));
+            dbf.create(".");
             dbf.start(args);
         } catch (IllegalArgumentException e) {
             System.err.println("Error! " + e.getMessage());

@@ -35,7 +35,7 @@ public class Exit implements Commands {
             throw new MyException(new Exception("Wrong arguments! Usage ~ exit"));
         }
         if (db == null) {
-            return;
+            System.exit(0);
         }
         try {
             db.saveDataBase();

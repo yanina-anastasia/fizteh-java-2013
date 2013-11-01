@@ -66,7 +66,6 @@ public class DataBasesCommander implements TableProvider {
     public DataBasesCommander(Shell s, File storage) {
         shell = s;
         dataBaseDirectory = storage;
-        fulfillFiles();
         File modeFile = null;
         if ((modeFile = getMode(storage)) != null ) {
             currentDataBase = new DataBase(shell, modeFile);
