@@ -27,8 +27,8 @@ public class TableManager implements TableProvider {
         if (!atDirectory.isDirectory()) {
             throw new IOException(atDirectory.getName() + ": not a directory");
         }
-
         allTablesDirectory = atDirectory;
+
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new TableStorage(tableFile);
             allTablesMap.put(tableFile.getName(), table);

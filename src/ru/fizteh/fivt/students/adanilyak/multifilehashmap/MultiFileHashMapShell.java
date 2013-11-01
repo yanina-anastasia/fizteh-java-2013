@@ -15,13 +15,14 @@ import java.io.File;
  */
 public class MultiFileHashMapShell extends GenericShell {
     public MultiFileHashMapShell(String[] args) {
-        if (System.getProperty("fizteh.db.dir") == null) {
+        String workingDirectory = System.getProperty("fizteh.db.dir");
+        if (workingDirectory == null) {
             System.err.println("Data Base directory is not set");
             System.exit(3);
         }
         try {
             TableManagerCreator tableManagerCreator = new TableManagerCreator();
-            TableProvider tableManager = tableManagerCreator.create(System.getProperty("fizteh.db.dir"));
+            TableProvider tableManager = tableManagerCreator.create(workingDirectory);
             DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
             runMFHMShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
