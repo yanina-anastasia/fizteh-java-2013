@@ -12,6 +12,7 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.PutCommand;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.RemoveCommand;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseReader;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseWriter;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseState;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.FileMapProvider;
 import java.util.Map;
 import java.util.HashMap;
@@ -32,10 +33,9 @@ public class Main {
 		}
 
 		try {
-			DataBaseReader.readFileMap(new File(System.getProperty("fizteh.db.dir")), 
-				new File(System.getProperty("fizteh.db.dir"), "db.dat"), fileMap);
+			DataBaseReader.readFileMap(System.getProperty("fizteh.db.dir"), "db.dat", fileMap);
 		} catch (IOException ex) {
-			System.err.println("Unable to retrieve entries from file" + ex.getMessage());
+			System.err.println("Unable to retrieve entries from file: " + ex.getMessage());
 			System.exit(2);
 		} catch (ValidityCheckFailedException ex) {
 			System.err.println("Validity check failed: " + ex.getMessage());

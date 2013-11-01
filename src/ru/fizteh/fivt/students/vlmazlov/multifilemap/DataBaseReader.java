@@ -96,6 +96,19 @@ public class DataBaseReader {
 		}
 	}
 
+	public static void readFileMap(String root, String storage, FileMap fileMap)
+	throws IOException, ValidityCheckFailedException	 {
+		if (root == null) {
+			throw new FileNotFoundException("Directory not specified");
+		}
+
+		if (storage == null) {
+			throw new FileNotFoundException("File not specified");
+		}
+
+		readFileMap(new File(root), new File(root, storage), fileMap);
+	}
+
 	public static void readFileMap(File root, File storage, FileMap fileMap) 
 	throws IOException, ValidityCheckFailedException {
 		if (root == null) {
