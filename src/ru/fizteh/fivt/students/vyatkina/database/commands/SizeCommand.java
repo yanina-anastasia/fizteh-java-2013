@@ -14,7 +14,7 @@ public class SizeCommand extends DatabaseCommand {
             state.getIoStreams ().out.println ("no table");
             return;
         }
-       state.getIoStreams ().out.println (state.getTable ().size ());
+        state.getIoStreams ().out.println (state.getTable ().size ());
     }
 
     public SizeCommand (DatabaseState state) {

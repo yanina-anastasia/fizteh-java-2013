@@ -13,7 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class MultiTableProviderTestClass {
+public class MultiTableProviderTest {
+
     private MultiTableProvider tableProvider;
     String workingDirectory = System.getProperty ("fizteh.db.dir");
     private final String STANDART_TABLE_NAME = "MultiTableProviderTestTable";
@@ -21,9 +22,9 @@ public class MultiTableProviderTestClass {
     public ExpectedException thrown = ExpectedException.none ();
 
     @Before
-    public void setTableProvider  () {
-         MultiTableProviderFactory factory = new MultiTableProviderFactory ();
-         tableProvider = (MultiTableProvider) factory.create (workingDirectory);
+    public void setTableProvider () {
+        MultiTableProviderFactory factory = new MultiTableProviderFactory ();
+        tableProvider = (MultiTableProvider) factory.create (workingDirectory);
     }
 
     @After
@@ -39,7 +40,7 @@ public class MultiTableProviderTestClass {
 
     @Test
     public void UsingTableShouldBeNull () {
-        Assert.assertEquals ("Using table should be null",null, tableProvider.state.getTable ());
+        Assert.assertEquals ("Using table should be null", null, tableProvider.state.getTable ());
     }
 
     @Test
@@ -55,9 +56,9 @@ public class MultiTableProviderTestClass {
 
     @Test
     public void createTableWithNullNameShouldFail () {
-          thrown.expect (IllegalArgumentException.class);
-          thrown.expectMessage (MultiTableProvider.UNSUPPORTED_TABLE_NAME);
-          tableProvider.createTable (null);
+        thrown.expect (IllegalArgumentException.class);
+        thrown.expectMessage (MultiTableProvider.UNSUPPORTED_TABLE_NAME);
+        tableProvider.createTable (null);
     }
 
     @Test
@@ -103,9 +104,9 @@ public class MultiTableProviderTestClass {
 
     @Test
     public void removeTableThatNotExistShouldThrowIllegalStateException () {
-       thrown.expect (IllegalStateException.class);
-       thrown.expectMessage (MultiTableProvider.TABLE_NOT_EXIST);
-       tableProvider.removeTable (STANDART_TABLE_NAME);
+        thrown.expect (IllegalStateException.class);
+        thrown.expectMessage (MultiTableProvider.TABLE_NOT_EXIST);
+        tableProvider.removeTable (STANDART_TABLE_NAME);
     }
 
 
@@ -136,8 +137,6 @@ public class MultiTableProviderTestClass {
         thrown.expectMessage (MultiTableProvider.UNSUPPORTED_TABLE_NAME);
         tableProvider.getTable ("    ");
     }
-
-
 
 
 }

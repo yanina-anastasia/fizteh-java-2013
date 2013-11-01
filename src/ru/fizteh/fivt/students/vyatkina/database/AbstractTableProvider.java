@@ -20,10 +20,10 @@ public abstract class AbstractTableProvider implements TableProvider {
         if ((tableName == null) || (tableName.length () > MAX_SUPPORTED_NAME_LENGTH)) {
             throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
         }
-        if (tableName.contains ("\\.") || tableName.contains (File.pathSeparator) || tableName.contains (File.separator) ) {
+        if (tableName.contains ("\\.") || tableName.contains (File.pathSeparator) || tableName.contains (File.separator)) {
             throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
         }
-        if (tableName.trim().isEmpty ()) {
+        if (tableName.trim ().isEmpty ()) {
             throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
         }
     }

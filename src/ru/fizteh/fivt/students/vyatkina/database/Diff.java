@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
-public class Diff <ValueType>  {
+public class Diff<ValueType> {
+
     private ValueType commitedValue;
     private ValueType value;
 
