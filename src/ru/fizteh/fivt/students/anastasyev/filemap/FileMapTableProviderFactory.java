@@ -7,9 +7,6 @@ import java.io.IOException;
 
 public class FileMapTableProviderFactory implements TableProviderFactory {
 
-    public FileMapTableProviderFactory() {
-    }
-
     @Override
     public FileMapTableProvider create(String dir) throws IllegalArgumentException {
         if (dir == null) {
