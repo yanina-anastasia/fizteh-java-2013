@@ -6,8 +6,10 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MyTableProviderFactoryTest {
+    @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test(expected = IllegalArgumentException.class)
@@ -17,9 +19,8 @@ public class MyTableProviderFactoryTest {
     }
 
     @Test
-    public void testCreateNotNull() {
+    public void testCreateNotNull() throws IOException {
         TableProviderFactory factory = new MyTableProviderFactory();
-        Assert.assertNotNull(factory.create(folder.toString()));
-        new File(folder.toString()).delete();
+        Assert.assertNotNull(factory.create(folder.newFolder("folder").getCanonicalPath()));
     }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
-public final class DataBaseTable implements  TableProvider {
+public final class DataBaseTable implements TableProvider {
     private String tableDir;
     private Map<String, DataBase> tableInUse;
 

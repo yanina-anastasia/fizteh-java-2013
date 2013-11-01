@@ -4,11 +4,9 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MyTableProviderFactory implements TableProviderFactory {
-
-    public MyTableProviderFactory() {
-    }
 
     @Override
     public TableProvider create(String dir) {
@@ -19,8 +17,12 @@ public class MyTableProviderFactory implements TableProviderFactory {
         File tableDirFile = new File(dir);
 
         if (!tableDirFile.exists()) {
-            if (!tableDirFile.mkdir()) {
-                throw new IllegalArgumentException("Cannot create directory!");
+            if (!tableDirFile.mkdirs()) {
+                try {
+                    throw new IllegalArgumentException("Cannot create directory! " + tableDirFile.getCanonicalPath());
+                } catch (IOException e) {
+                    throw new RuntimeException("Mkdirs failed", e);
+                }
             }
         }
 

@@ -8,29 +8,26 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class MyTableTest {
     static Table table;
     static TableProviderFactory factory;
     static TableProvider provider;
-    static TemporaryFolder folder = new TemporaryFolder();
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
 
     @BeforeClass
     public static void beforeClass() {
         factory = new MyTableProviderFactory();
-        provider = factory.create(folder.toString());
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        folder.delete();
-        new File(folder.toString()).delete();
     }
 
     @Before
-    public void beforeTest() {
+    public void beforeTest() throws IOException {
+        provider = factory.create(folder.newFolder("folder").getCanonicalPath());
         table = provider.createTable("new");
     }
 

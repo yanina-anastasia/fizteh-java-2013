@@ -7,10 +7,13 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MyTableProviderTest {
     static TableProviderFactory factory;
     static TableProvider provider;
+
+    @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
@@ -19,15 +22,9 @@ public class MyTableProviderTest {
     }
 
     @Before
-    public void before() {
-        provider = factory.create(folder.toString());
+    public void before() throws IOException{
+        provider = factory.create(folder.newFolder().getCanonicalPath());
         Assert.assertNotNull(provider);
-    }
-
-    @After
-    public void after() {
-        folder.delete();
-        new File(folder.toString()).delete();
     }
 
     @Test
