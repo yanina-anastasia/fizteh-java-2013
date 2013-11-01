@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
 import java.io.IOException;
-import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
 
 public class Main {
     private static MyHashMap dtb;
