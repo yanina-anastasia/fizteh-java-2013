@@ -32,11 +32,11 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
-        if (name == null || name.equals("")) {
-            throw new IllegalArgumentException("Incorrect table name.");
-        }
         if (!tables.containsKey(name)) {
             throw new IllegalStateException("Have no table to remove.");
+        }
+        if (name == null || name.equals("")) {
+            throw new IllegalArgumentException("Incorrect table name.");
         }
         tables.remove(name);
     }
