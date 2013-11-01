@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
 import java.io.File;
+import java.util.HashMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
@@ -10,7 +11,8 @@ import ru.fizteh.fivt.students.elenarykunova.shell.Shell.ExitCode;
 public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
-
+    private HashMap<String, Filemap> tables = new HashMap<String, Filemap>();
+    
     public MyTableProvider() {
     }
 
@@ -32,6 +34,7 @@ public class MyTableProvider implements TableProvider {
             throw e;
         }
         rootDir = newRootDir;
+        tables = new HashMap<String, Filemap>();
     }
 
     public String getPath(String tableName) {
@@ -73,7 +76,7 @@ public class MyTableProvider implements TableProvider {
             return null;
         }
         try {
-            return new Filemap(tablePath, name);
+            return tables.get(name);
         } catch (RuntimeException e) {
             throw e;
         }
@@ -93,12 +96,22 @@ public class MyTableProvider implements TableProvider {
         }
         File tmpFile = new File(tablePath);
         if (tmpFile.exists() && tmpFile.isDirectory()) {
+            if (tables.get(name) == null) {
+                Filemap result = new Filemap(tablePath, name);
+                tables.put(name, result);                
+            }
             return null;
         } else {
             Shell sh = new Shell(rootDir);
             if (sh.mkdir(name) == ExitCode.OK) {
                 try {
-                    return new Filemap(tablePath, name);
+                    if (tables.get(name) == null) {
+                        Filemap result = new Filemap(tablePath, name);
+                        tables.put(name, result);
+                        return result;
+                    } else {
+                        return tables.get(name);
+                    }
                 } catch (RuntimeException e) {
                     throw e;
                 }
@@ -124,6 +137,9 @@ public class MyTableProvider implements TableProvider {
         if (!tmpFile.exists() || !tmpFile.isDirectory()) { 
             throw new IllegalStateException(name + " not exists");
         } else {
+            if (tables.get(name) != null) {
+                tables.remove(name);
+            }
             Shell sh = new Shell(rootDir);
             if (sh.rm(name) == ExitCode.OK) {
                 return;
