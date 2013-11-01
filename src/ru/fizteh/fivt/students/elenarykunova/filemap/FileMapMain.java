@@ -24,11 +24,13 @@ public class FileMapMain implements TableProviderFactory{
         if (e != null) {
             throw e;
         }
+        MyTableProvider prov = null;
         try {
-            return new MyTableProvider(dir);
+            prov = new MyTableProvider(dir);
         } catch (IllegalArgumentException e1) {
             throw e1;
         }
+        return prov;
     }
     
     public static void main(String[] args) {
@@ -40,10 +42,10 @@ public class FileMapMain implements TableProviderFactory{
             ExecuteCmd exec = new ExecuteCmd(mp, provider);
             exec.workWithUser(args);
         } catch (IllegalArgumentException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
             System.exit(1);
         } catch (RuntimeException e2) {
-            System.err.println(e2);
+            System.err.println(e2.getMessage());
             System.exit(1);
         }
     }
