@@ -6,9 +6,11 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.DatabaseFactory;
 
+import java.util.Random;
+
 public class MultifileTableTest {
     private static final int KEYS_COUNT = 20;
-    private static final String TABLE_NAME = "test_table";
+    private static final String TABLE_NAME = "testtable";
 
     TableProviderFactory factory = new DatabaseFactory();
     TableProvider provider = factory.create("C:\\temp\\database_test");
@@ -38,8 +40,9 @@ public class MultifileTableTest {
     @Test
     public void testTableNonExistingData() {
         // non-existing data
+        Random random = new Random();
         for (int index = 0; index < KEYS_COUNT; ++index) {
-            String key = String.format("k%d", (int) (Math.random() * 100));
+            String key = String.format("k%d", random.nextInt(100));
             Assert.assertNull(currentTable.get(key));
         }
     }
@@ -75,7 +78,12 @@ public class MultifileTableTest {
             currentTable.put(key, value);
         }
 
-        Assert.assertEquals(2 * KEYS_COUNT, currentTable.commit());
+        Assert.assertEquals(KEYS_COUNT, currentTable.commit());
+
+        for (int index = 0; index < 2 * KEYS_COUNT; ++index) {
+            String key = String.format("key%d", index);
+            Assert.assertNotNull(currentTable.get(key));
+        }
     }
 
     @Test
@@ -89,6 +97,11 @@ public class MultifileTableTest {
         }
 
         Assert.assertEquals(2 * KEYS_COUNT, currentTable.rollback());
+
+        for (int index = 0; index < 2 * KEYS_COUNT; ++index) {
+            String key = String.format("key%d", index);
+            Assert.assertNull(currentTable.get(key));
+        }
     }
 
     @Test
