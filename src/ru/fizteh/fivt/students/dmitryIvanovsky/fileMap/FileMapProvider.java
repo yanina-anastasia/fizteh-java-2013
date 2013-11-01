@@ -227,8 +227,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public Table createTable(String name) {
-        if (name == null || name.contains("/") || name.equals("")) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException();
+        }
+        if (name.contains("/")) {
+            throw new RuntimeException();
         }
         if (setDirTable.contains(name)) {
             return null;
@@ -238,22 +241,27 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 FileMap fileMap = new FileMap(pathDb, name);
                 return fileMap;
             } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                //e.printStackTrace();
+                //return null;
+                throw new RuntimeException();
             }
         }
     }
 
     public Table getTable(String name) {
-        if (name == null || name.equals("") || name.contains("/")) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException();
+        }
+        if (name.contains("/")) {
+            throw new RuntimeException();
         }
         if (setDirTable.contains(name)) {
             try {
                 FileMap fileMap = new FileMap(pathDb, name);
                 return fileMap;
             } catch (Exception e) {
-                return null;
+                //return null;
+                throw new IllegalArgumentException();
             }
         } else {
             return null;

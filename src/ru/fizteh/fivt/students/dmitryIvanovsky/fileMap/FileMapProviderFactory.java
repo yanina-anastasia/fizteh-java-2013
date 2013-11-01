@@ -15,7 +15,7 @@ public class FileMapProviderFactory implements TableProviderFactory {
         try {
             return new FileMapProvider(pathTables.toFile().getCanonicalPath());
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException();
         }
     }
 
