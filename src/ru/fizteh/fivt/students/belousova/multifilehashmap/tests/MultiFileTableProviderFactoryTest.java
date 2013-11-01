@@ -7,12 +7,7 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTableProviderFactory;
 
 public class MultiFileTableProviderFactoryTest {
-    private TableProviderFactory tableProviderFactory;
-
-    @Before
-    public void setUp() throws Exception {
-        tableProviderFactory = new MultiFileTableProviderFactory();
-    }
+    private TableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNull() throws Exception {

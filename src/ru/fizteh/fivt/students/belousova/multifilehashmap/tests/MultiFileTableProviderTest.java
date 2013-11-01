@@ -4,22 +4,19 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileTableProviderFactory;
 
 import java.io.File;
 
 public class MultiFileTableProviderTest {
     private TableProvider tableProvider;
-    private File testDirectory;
 
     @Before
     public void setUp() throws Exception {
-        testDirectory = new File("javatest");
-        if (testDirectory.exists()) {
-            testDirectory.delete();
-        }
-        testDirectory.mkdir();
-        tableProvider = new MultiFileTableProvider(testDirectory);
+        TableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
+        tableProvider = tableProviderFactory.create("javatest");
         tableProvider.createTable("existingTable");
     }
 
