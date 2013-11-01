@@ -131,7 +131,7 @@ public class DataBasesCommander implements TableProvider {
     }
 
     public Table createTable (String dataBase) throws IllegalArgumentException{
-        if (dataBase == null) {
+        if (dataBase == null || dataBase.trim().equals("")) {
             throw new IllegalArgumentException("Null pointer to name!");
         }
         if (filesMap.containsKey(dataBase)) {
