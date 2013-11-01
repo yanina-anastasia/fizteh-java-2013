@@ -1,23 +1,77 @@
-package ru.fizteh.fivt.students.dobrinevski.shell;
+package multiFileHashMap;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.Scanner;
 
 public class Shell {
     private File currentDir;
+    private MyHashMap currentDtb;
+
 
     Shell() {
         currentDir = new File(System.getProperty("user.dir"));
     }
 
-    private void executeCommand(String command) throws SException {
+    //ULTIMATE MODE
+    Shell(MyHashMap dtb) {
+        currentDir = new File(System.getProperty("user.dir"));
+        currentDtb = dtb;
+    }
+
+    private void executeCommand(String command) throws SException, IOException {
         if (command.trim().isEmpty()) {
             return;
         }
         String[] args = command.trim().split("[\t ]+");
         String commandName = args[0];
-        if (commandName.equals("cd")) {
+        if (commandName.equals("create")) {
+            mkTable(args);
+        } else if (commandName.equals("drop")) {
+            if (currentDtb.curTable != null && currentDtb.curTable.getCanonicalPath().toString()
+                    .equals(currentDir + File.separator + args[1])) {
+                currentDtb.writeOut();
+                currentDtb.curTable = null;
+            }
+            removeTable(args);
+        } else if (commandName.equals("use")) {
+            try {
+                checkLen(args[0], args.length - 1, 1);
+                currentDtb.use(args[1]);
+            } catch (SException se) {
+                throw se;
+            } catch (Exception e) {
+                throw new SException(args[0], e.getMessage());
+            }
+        } else if (commandName.equals("put")) {
+            try {
+                checkLen(args[0], args.length - 1, 2);
+                currentDtb.put(args);
+            } catch (SException se) {
+                throw se;
+            } catch (Exception e) {
+                throw new SException(args[0], e.getMessage());
+            }
+        } else if (commandName.equals("get")) {
+            try {
+                checkLen(args[0], args.length - 1, 1);
+                currentDtb.get(args[1]);
+            } catch (SException se) {
+                throw se;
+            } catch (Exception e) {
+                throw new SException(args[0], e.getMessage());
+            }
+        } else if (commandName.equals("remove")) {
+            try {
+                checkLen(args[0], args.length - 1, 1);
+                currentDtb.remove(args[1]);
+            } catch (SException se) {
+                throw se;
+            } catch (Exception e) {
+                throw new SException(args[0], e.getMessage());
+            }
+        } else         if (commandName.equals("cd")) {
             cd(args);
 
         } else if (commandName.equals("mkdir")) {
@@ -38,16 +92,16 @@ public class Shell {
         } else if (commandName.equals("dir")) {
             dir(args);
 
-        } else if (commandName.equals("exit")) {
-            System.out.println();
+        } if (commandName.equals("exit")) {
+            currentDtb.exit();
+            System.out.println("exit");
             System.exit(0);
-
         } else {
             throw new SException("shell", "No such command");
         }
     }
 
-    public void executeCommands(String cmds) throws SException {
+    public void executeCommands(String cmds) throws SException, IOException {
         Scanner scanner = new Scanner(cmds);
         try {
             while (scanner.hasNextLine()) {
@@ -61,7 +115,7 @@ public class Shell {
         }
     }
 
-    public void iMode() {
+    public void iMode() throws IOException {
         Scanner scan = new Scanner(System.in);
         String greeting;
 
@@ -82,7 +136,7 @@ public class Shell {
             try {
                 executeCommands(commands);
             } catch (SException e) {
-            //    scan.close();
+                //    scan.close();
                 System.out.println(e);
             }
             try {
@@ -96,6 +150,50 @@ public class Shell {
             }
             System.out.print(greeting);
             System.out.flush();
+        }
+    }
+
+    private void remove(String[] args) throws SException {
+        try {
+            checkLen(args[0], args.length - 1, 1);
+            Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
+            if (!Files.exists(pathToRemove)) {
+                throw new SException(args[0], "Cannot be removed: File does not exist");
+            }
+            if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
+                throw new SException(args[0], "\'" + args[1] +
+                        "\': Cannot be removed: First of all, leave this directory");
+            }
+
+            File fileToRemove = new File(pathAppend(args[1]));
+            File[] filesToRemove = fileToRemove.listFiles();
+            if (filesToRemove != null) {
+                for (File file : filesToRemove) {
+                    try {
+                        String[] toRemove = new String[2];
+                        toRemove[0] = args[0];
+                        toRemove[1] = file.getPath();
+                        remove(toRemove);
+                    } catch (Exception e) {
+                        throw new SException(args[0], "\'" + file.getCanonicalPath()
+                                + "\' : File cannot be removed: " + e.getMessage() + " ");
+                    }
+                }
+            }
+            try {
+                if (!Files.deleteIfExists(pathToRemove)) {
+                    throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath()
+                            + "\' : File cannot be removed ");
+                }
+            } catch (DirectoryNotEmptyException e) {
+                throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath() + "\' : Directory not empty");
+            }
+        } catch (SException se) {
+            throw se;
+        } catch (AccessDeniedException e) {
+            throw new SException(args[0], "Access denied");
+        } catch (Exception e) {
+            throw new SException(args[0], e.getMessage());
         }
     }
 
@@ -144,15 +242,34 @@ public class Shell {
         }
     }
 
+    private void mkTable(String[] args) throws SException {
+        try {
+            checkLen(args[0], args.length - 1, 1);
+            File tmpFile = new File(pathAppend(args[1]));
+            if (tmpFile.exists() && tmpFile.isDirectory()) {
+                System.out.println(args[1] + " exists");
+                return;
+            }
+            if (!tmpFile.mkdir()) {
+                throw new SException(args[0], "\'" + args[1] + "\': Tablename wasn't created");
+            }
+            System.out.println("created");
+        } catch (SException se) {
+            throw se;
+        } catch (Exception e) {
+            throw new SException(args[0], e.getMessage());
+        }
+    }
+
     private void mkdir(String[] args) throws SException {
         try {
             checkLen(args[0], args.length - 1, 1);
             File tmpFile = new File(pathAppend(args[1]));
-            if (tmpFile.exists()) {
-                throw new SException(args[0], "\'" + args[1] + "\': File or directory exist in time");
+            if (tmpFile.exists() && tmpFile.isDirectory()) {
+                return;
             }
             if (!tmpFile.mkdir()) {
-                throw new SException(args[0], "\'" + args[1] + "\': Directory wasn't created");
+                throw new SException(args[0], "\'" + args[1] + "\': Tablename wasn't created");
             }
         } catch (SException se) {
             throw se;
@@ -161,7 +278,7 @@ public class Shell {
         }
     }
 
-    private void remove(String[] args) throws SException {
+    private void removeFile(String[] args) throws SException {
         try {
             checkLen(args[0], args.length - 1, 1);
             Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
@@ -169,8 +286,8 @@ public class Shell {
                 throw new SException(args[0], "Cannot be removed: File does not exist");
             }
             if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
-                throw new SException(args[0], "\'" + args[1] +
-                        "\': Cannot be removed: First of all, leave this directory");
+                throw new SException(args[0], "\'" + args[1]
+                        + "\': Cannot be removed: First of all, leave this directory");
             }
 
             File fileToRemove = new File(pathAppend(args[1]));
@@ -181,7 +298,7 @@ public class Shell {
                         String[] toRemove = new String[2];
                         toRemove[0] = args[0];
                         toRemove[1] = file.getPath();
-                        remove(toRemove);
+                        removeFile(toRemove);
                     } catch (Exception e) {
                         throw new SException(args[0], "\'" + file.getCanonicalPath()
                                 + "\' : File cannot be removed: " + e.getMessage() + " ");
@@ -203,6 +320,48 @@ public class Shell {
         } catch (Exception e) {
             throw new SException(args[0], e.getMessage());
         }
+    }
+
+    private void removeTable(String[] args) throws SException {
+        try {
+            checkLen(args[0], args.length - 1, 1);
+            Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
+            if (!Files.exists(pathToRemove)) {
+                System.out.println(args[1] + " not exists");
+                return;
+            }
+
+            File fileToRemove = new File(pathAppend(args[1]));
+            File[] filesToRemove = fileToRemove.listFiles();
+            if (filesToRemove != null) {
+                for (File file : filesToRemove) {
+                    try {
+                        String[] toRemove = new String[2];
+                        toRemove[0] = args[0];
+                        toRemove[1] = file.getPath();
+                        removeFile(toRemove);
+                    } catch (Exception e) {
+                        throw new SException(args[0], "\'" + file.getCanonicalPath()
+                                + "\' : File cannot be removed: " + e.getMessage() + " ");
+                    }
+                }
+            }
+            try {
+                if (!Files.deleteIfExists(pathToRemove)) {
+                    throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath()
+                            + "\' : File cannot be removed ");
+                }
+            } catch (DirectoryNotEmptyException e) {
+                throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath() + "\' : Directory not empty");
+            }
+        } catch (SException se) {
+            throw se;
+        } catch (AccessDeniedException e) {
+            throw new SException(args[0], "Access denied");
+        } catch (Exception e) {
+            throw new SException(args[0], e.getMessage());
+        }
+        System.out.println("dropped");
     }
 
     private void copyOrMove(String[] args, boolean moveOrCopy) throws SException {
