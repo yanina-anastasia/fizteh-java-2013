@@ -22,6 +22,7 @@ public class DataBasesCommander implements TableProvider {
     private DataBase currentDataBase = null;
     private Map<String, DataBase> filesMap = new HashMap<String, DataBase>();
     private Shell shell = null;
+    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
     private static File getMode (File directory) {
         for (File f: directory.listFiles()) {
@@ -134,6 +135,9 @@ public class DataBasesCommander implements TableProvider {
         if (dataBase == null || dataBase.trim().equals("")) {
             throw new IllegalArgumentException("Null pointer to name!");
         }
+        if (!dataBase.matches(TABLE_NAME_FORMAT)) {
+            throw new RuntimeException("incorrect table name");
+        }
         if (filesMap.containsKey(dataBase)) {
             System.out.println(dataBase + " exists");
         } else {
@@ -155,6 +159,9 @@ public class DataBasesCommander implements TableProvider {
     public Table getTable(String name) throws IllegalArgumentException {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Null pointer to name of Table");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new RuntimeException("incorrect table name");
         }
         if (filesMap.containsKey(name)) {
             return filesMap.get(name);
