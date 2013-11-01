@@ -35,7 +35,7 @@ public class CmdUse implements Command<MultiFileHashMapState> {
 
         Map<String, String> tmpDataBase = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataBase();
         File tmpDataFile = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataFile();
-        MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
+        //MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
         inState.setCurrentTable(args[0]);
 
         inState.changeCurrentTable(tmpDataBase, tmpDataFile);
