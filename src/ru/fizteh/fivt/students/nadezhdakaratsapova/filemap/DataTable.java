@@ -77,12 +77,12 @@ public class DataTable implements Table {
                 return putKeys.remove(key);
             }
         }
-        if (dataStorage.get(key) != null) {
+        String value;
+        if ((value = dataStorage.get(key)) != null) {
             --commitSize;
             removeKeys.add(key);
         }
-        System.out.println(commitSize);
-        return dataStorage.remove(key);
+        return value;
     }
 
     public boolean isEmpty() {
@@ -90,8 +90,6 @@ public class DataTable implements Table {
     }
 
     public int size() {
-        //System.out.println(commitSize);
-        //System.out.println(dataStorage.size());
         return dataStorage.size() + commitSize;
     }
 
