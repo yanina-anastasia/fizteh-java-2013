@@ -10,6 +10,9 @@ public class FileMap {
             CommandRunner.run(args, state);
         } catch (DbExitException e) {
             System.exit(Integer.parseInt(e.getMessage()));
+        } catch (RuntimeException e) {
+            System.out.println("multifilemap: " + e.getMessage());
+            System.exit(1);
         }
     }
 }
