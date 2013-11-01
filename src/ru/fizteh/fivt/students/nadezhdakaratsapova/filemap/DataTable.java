@@ -77,6 +77,9 @@ public class DataTable implements Table {
                 return putKeys.remove(key);
             }
         }
+        if (!removeKeys.isEmpty()) {
+            return null;
+        }
         String value;
         if ((value = dataStorage.get(key)) != null) {
             --commitSize;
