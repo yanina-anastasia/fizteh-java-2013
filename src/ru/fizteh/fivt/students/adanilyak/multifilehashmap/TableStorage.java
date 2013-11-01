@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
 
 import java.io.File;
@@ -38,8 +39,8 @@ public class TableStorage implements Table {
 
     @Override
     public String get(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("get: key is null");
+        if (!CheckOnCorrect.goodArg(key)) {
+            throw new IllegalArgumentException("get: key is bad");
         }
         String resultOfGet = changes.get(key);
         if (resultOfGet == null) {
@@ -53,8 +54,8 @@ public class TableStorage implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException("put: key||value is null");
+        if (!CheckOnCorrect.goodArg(key) || !CheckOnCorrect.goodArg(value)) {
+            throw new IllegalArgumentException("put: key or value is bad");
         }
         String valueInData = data.get(key);
         String resultOfPut = changes.put(key, value);
@@ -71,7 +72,7 @@ public class TableStorage implements Table {
 
     @Override
     public String remove(String key) {
-        if (key == null) {
+        if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("remove: key is null");
         }
         String resultOfRemove = changes.remove(key);

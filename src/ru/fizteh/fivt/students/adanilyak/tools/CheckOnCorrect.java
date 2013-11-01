@@ -13,4 +13,15 @@ public class CheckOnCorrect {
             return false;
         }
     }
+
+    public static boolean goodArg(String arg) {
+        if (arg == null) {
+            return false;
+        }
+        if (arg.trim().isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
 }

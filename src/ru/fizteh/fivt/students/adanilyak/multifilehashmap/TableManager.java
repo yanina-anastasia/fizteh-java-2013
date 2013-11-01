@@ -18,7 +18,6 @@ import java.util.Map;
 public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
-
     public TableManager(File atDirectory) {
         if (atDirectory == null) {
             throw new IllegalArgumentException("Directory is not set");
