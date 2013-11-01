@@ -80,10 +80,11 @@ public class DataBaseProvider implements TableProvider {
             throw new RuntimeException("name is incorrect");
         }
         File fileTable = new File(rootDir + name);
-        if (!fileTable.exists()) {
+        if (!fileTable.exists() && tableBase.get(name) == null) {
             throw new IllegalStateException("table not exists");
         }
         doDelete(fileTable);
+        tableBase.remove(name);
     }
 
     public static void doDelete(File currFile) throws RuntimeException {
