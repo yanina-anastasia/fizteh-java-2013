@@ -49,7 +49,8 @@ public class DbState extends State {
 		return data.put(key, value);
 	}
 	
-	public void commitDif() throws IOException {
+	public int commitDif() throws IOException {
 		FileStorage.commitDiff(dbFile, data);
+		return 0;
 	}
 }
