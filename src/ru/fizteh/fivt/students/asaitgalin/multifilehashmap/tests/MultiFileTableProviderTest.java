@@ -24,6 +24,16 @@ public class MultiFileTableProviderTest {
         provider.removeTable("table1");
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testCreateTableBadSymbols() throws Exception {
+        provider.createTable(":123+");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testGetTableBadSymbols() throws Exception {
+        provider.getTable(":123+");
+    }
+
     @Test
     public void testGetTable() {
         provider.createTable("table2");

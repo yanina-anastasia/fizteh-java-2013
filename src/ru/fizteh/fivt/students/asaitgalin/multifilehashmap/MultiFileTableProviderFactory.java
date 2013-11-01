@@ -8,8 +8,8 @@ import java.io.File;
 public class MultiFileTableProviderFactory implements ChangesCountingTableProviderFactory {
     @Override
     public ChangesCountingTableProvider create(String dir) {
-        if (dir == null || dir.isEmpty()) {
-            throw new IllegalArgumentException("factory: directory name is null");
+        if (dir == null || dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("factory: directory name is invalid");
         }
         return new MultiFileTableProvider(new File(dir));
     }

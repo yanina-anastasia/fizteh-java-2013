@@ -46,6 +46,13 @@ public class MultiFileTableTest {
         testTable.put("key", null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutWithSpaces() throws Exception {
+        testTable.put("   ", "value");
+        testTable.put("  ", " ");
+        testTable.put("key", " ");
+    }
+
     @Test
     public void testPut() throws Exception {
         Assert.assertNull(testTable.put("new_key", "new_value"));
@@ -93,7 +100,7 @@ public class MultiFileTableTest {
         testTable.commit();
         testTable.put("rollbackKey4", "value4");
         testTable.put("newKey", "newValue");
-        Assert.assertEquals(testTable.rollback(), 2);
+        Assert.assertEquals(testTable.rollback(), 1);
         Assert.assertNull(testTable.get("newKey"));
         Assert.assertEquals(testTable.get("rollbackKey4"), "4");
     }

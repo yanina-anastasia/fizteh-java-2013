@@ -11,6 +11,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private File dbDirectory;
 
     public MultiFileTableProvider(File dbDirectory) {
+        if (dbDirectory == null) {
+            throw new IllegalArgumentException("failed to create provider: name is null");
+        }
         if (!dbDirectory.isDirectory()) {
             throw new IllegalArgumentException("failed to create provider: name is not a folder");
         }

@@ -12,7 +12,13 @@ public class Main {
 
         ChangesCountingTableProviderFactory factory = new MultiFileTableProviderFactory();
         MultiFileTableState state = new MultiFileTableState();
-        state.provider = factory.create(System.getProperty("fizteh.db.dir"));
+
+        try {
+            state.provider = factory.create(System.getProperty("fizteh.db.dir"));
+        } catch (IllegalArgumentException iae) {
+            System.err.println("no dir provided");
+            System.exit(-1);
+        }
 
         table.appendCommand(new PutCommand(state));
         table.appendCommand(new GetCommand(state));
