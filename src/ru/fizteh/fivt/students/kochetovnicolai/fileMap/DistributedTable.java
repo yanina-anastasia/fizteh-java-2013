@@ -267,8 +267,9 @@ public class DistributedTable extends FileManager implements Table {
         }
         if (get(key) != null) {
             recordNumber--;
+            return changes.put(key, null);
         }
-        return changes.put(key, null);
+        return get(key);
     }
 
     @Override

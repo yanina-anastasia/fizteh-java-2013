@@ -7,6 +7,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
+import java.io.IOException;
 
 public class TestDistributedTableFactory extends FileManager {
 
@@ -33,5 +34,18 @@ public class TestDistributedTableFactory extends FileManager {
     @Test(expected = IllegalArgumentException.class)
     public void createProviderEmptyShouldFail() {
         factory.create(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createProviderOnFileShouldFail() throws IOException {
+        String name = "file";
+        File file = new File(workingDirectory.getPath() + File.separator + name);
+        Assert.assertTrue(file.createNewFile());
+        factory.create(name);
+    }
+
+    @Test
+    public void createProvider() {
+        Assert.assertTrue("failed create provider", factory.create("abcd") != null);
     }
 }

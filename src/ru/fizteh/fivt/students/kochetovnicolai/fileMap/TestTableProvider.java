@@ -7,28 +7,31 @@ import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.File;
 
 @RunWith(Theories.class)
-public class TestDistributedTableProvider extends FileManager {
-    protected DistributedTableProviderFactory factory = new DistributedTableProviderFactory();
-    protected DistributedTableProvider provider;
+public class TestTableProvider extends FileManager {
+    protected DistributedTableProviderFactory factory;
+    protected TableProvider provider;
     protected File workingDirectory = new File("./TestDistributedTableFactory");
 
     @Before
     public void createWorkingDirectoryAndProvider() {
+        factory = new DistributedTableProviderFactory();
         Assert.assertTrue(workingDirectory.mkdir());
         provider = factory.create(workingDirectory.getPath());
     }
 
     @After
     public void removeWorkingDirectoryAndProvider() {
-        if (workingDirectory.exists()) {
-            recursiveRemove(workingDirectory, "TestDistributedTableProvider");
-        }
         provider = null;
+        factory = null;
+        if (workingDirectory.exists()) {
+            Assert.assertTrue(recursiveRemove(workingDirectory, "TestDistributedTableProvider"));
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -77,6 +80,18 @@ public class TestDistributedTableProvider extends FileManager {
     @Test
     public void createTableShouldBeOK() {
         Table table = provider.createTable("abcd");
-        Assert.assertEquals("table shouldn't be null", table != null);
+        Assert.assertTrue("table shouldn't be null", table != null);
+        Table table2 = provider.createTable("abcd");
+        /***/
+        Assert.assertEquals("createTable should return null on the same names", null, table2);
+        //
+        table2 = provider.getTable("abcd");
+        /***/
+        Assert.assertEquals("getTable should return same objects on the same names", table, table2);
+        //
+        provider.removeTable("abcd");
+        Assert.assertEquals("getTable should return null after remove", provider.getTable("abcd"), null);
+        table = provider.createTable("abcd");
+        Assert.assertTrue("createTable should return table after remove", table != null);
     }
 }
