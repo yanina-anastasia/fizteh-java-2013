@@ -40,17 +40,15 @@ public class DataBaseProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new RuntimeException("name is incorrect");
         }
-        if (new File(rootDir + name).exists()) {
-            DataBase getTable = tableBase.get(name);
-            if (getTable == null) {
+        DataBase getTable = tableBase.get(name);
+        if (getTable == null) {
+            if (new File(rootDir + name).exists()) {
                 DataBase table = new DataBase(name, rootDir);
                 tableBase.put(name, table);
                 return table;
-            } else {
-                return getTable;
             }
         }
-        return null;
+        return getTable;
     }
 
     @Override
