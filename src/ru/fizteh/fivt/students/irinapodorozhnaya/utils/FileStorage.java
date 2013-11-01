@@ -11,25 +11,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.Table;
+import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTable;
 
 public class FileStorage {
 	
-	public static Map<String, String> openDataFile(File file, int n) throws IOException {
+	public static Map<String, String> openDataFile(File file, int n){
 		Map<String, String> data = null;		
 		if (file.exists()) {
 			try {
 				data = loadDataFromFile(file, n);
-			} catch (EOFException e) {
-				throw new IOException("File has wrong format");
+			} catch (IOException e) {
+				throw new IllegalArgumentException("File has wrong format");
 			}
 		}
 		return data;
 	}
 	
-	private static Map<String, String> loadDataFromFile(File file, int n) throws FileNotFoundException, IOException {
+	private static Map<String, String> loadDataFromFile(File file, int n) 
+		throws FileNotFoundException, IOException {
+	    
 		RandomAccessFile dbFile = new RandomAccessFile(file, "r");
-		Map<String, String>data = new HashMap<String, String>();
+		Map<String, String> data = new HashMap<String, String>();
 		
 		if (dbFile.length() == 0) {
 			dbFile.close();
@@ -63,7 +65,7 @@ public class FileStorage {
 	
 	private static String readValue(RandomAccessFile dbFile, long l) throws IOException {
 		int len = (int) l;
-		if ( len < 0) {
+		if (len < 0) {
 			throw new IOException("File has incorrect format");
 		}
 		byte[] bytes = new byte[len];
@@ -79,8 +81,8 @@ public class FileStorage {
 			c = dbFile.readByte();
 		}
 		String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
-		if (n >= 0 ) {
-			if (Table.getFileNumber(key) != n) {
+		if (n >= 0) {
+			if (MyTable.getFileNumber(key) != n) {
 				throw new IOException("key lies in wrong file");
 			}
 		}
@@ -89,7 +91,7 @@ public class FileStorage {
 	
 	public static void commitDiff(File file, Map<String, String> data) throws IOException {
 		
-		File tmp = new File (file.getName() + '~');
+		File tmp = new File(file.getName() + '~');
 		tmp.createNewFile();
 		RandomAccessFile tmpR = new RandomAccessFile(tmp, "rw");
 		int offset = 0;

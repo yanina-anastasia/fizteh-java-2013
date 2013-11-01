@@ -23,20 +23,20 @@ public class CommandRemove extends AbstractCommand {
 			if (f.getCanonicalPath().equals(state.getCurrentDir().getCanonicalPath())) {
 				throw new IOException("rm: '" + args[1]+ "' can't delete current directory");
 			}
-			DeleteRecursivly(f);
+			deleteRecursivly(f);
 		} else {
 			throw new IOException("rm: '" + args[1]+ "doesn't exist");
 		}
 	}
 	
-	public static void DeleteRecursivly(File f) throws IOException {
+	public static void deleteRecursivly(File f) {
 		if (f.isDirectory()) {
-			for ( File s: f.listFiles()) {
-				DeleteRecursivly(s);
+			for (File s: f.listFiles()) {
+				deleteRecursivly(s);
 			}
 		}
 		if (!f.delete()){
-			throw new IOException(f.getName() + ": can't delete file or directory");
+			throw new IllegalStateException(f.getName() + ": can't delete file or directory");
 		}
 	}
 }
