@@ -126,7 +126,7 @@ public class DataBasesCommander implements TableProvider {
             System.out.println("dropped");
         } else {
             System.out.println(dataBase + " not exists");
-            throw new IllegalArgumentException(dataBase +" not exists");
+            throw new IllegalStateException(dataBase +" not exists");
         }
     }
 
@@ -138,6 +138,9 @@ public class DataBasesCommander implements TableProvider {
             System.out.println(dataBase + " exists");
         } else {
             File newFileMap = new File(dataBaseDirectory, dataBase);
+            if (!newFileMap.exists()) {
+                throw new IllegalArgumentException("this directory doesn't exists");
+            }
             if (!newFileMap.mkdirs()){
                 System.err.println("Unable to create this directory - " + dataBase);
                 System.exit(1);
