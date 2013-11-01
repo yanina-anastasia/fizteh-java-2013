@@ -300,7 +300,7 @@ public class FileMap implements Table {
         if (onlySpace(key) || onlySpace(value)) {
             throw new IllegalArgumentException();
         }
-        if (key.contains(" ")) {
+        if (key.contains(" ") || value.contains(" ")) {
             throw new IllegalArgumentException();
         }
         if (tableData.containsKey(key)) {

@@ -20,7 +20,7 @@ public class DbMain {
 //            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 //        }
 //        return;
-
+        //System.out.println("  123".contains(" "));
         try {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
