@@ -9,7 +9,6 @@ import ru.fizteh.fivt.students.valentinbarishev.shell.CommandParser;
 import ru.fizteh.fivt.students.valentinbarishev.shell.Main;
 
 public class DbMain {
-    private static DataBaseTable context;
     private static Shell shell;
 
     private static void checkDbDir() {
@@ -21,6 +20,7 @@ public class DbMain {
     }
 
     private static void initShell() {
+
         shell = new Shell();
 
         TableProviderFactory factory = new MyTableProviderFactory();

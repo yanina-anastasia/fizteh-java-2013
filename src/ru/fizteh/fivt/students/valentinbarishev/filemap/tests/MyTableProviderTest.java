@@ -1,3 +1,4 @@
+package ru.fizteh.fivt.students.valentinbarishev.filemap.tests;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;

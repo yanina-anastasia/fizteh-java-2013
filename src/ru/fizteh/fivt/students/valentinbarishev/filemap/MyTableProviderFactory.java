@@ -5,7 +5,7 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
 
-public class MyTableProviderFactory implements TableProviderFactory{
+public class MyTableProviderFactory implements TableProviderFactory {
 
     public MyTableProviderFactory() {
     }

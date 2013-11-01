@@ -1,3 +1,5 @@
+package ru.fizteh.fivt.students.valentinbarishev.filemap.tests;
+
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.Table;
@@ -105,7 +107,7 @@ public class MyTableTest {
     @Test
     public void testRollbackWithNoChanges() {
         Assert.assertNull(table.put("no_changes", "will_be_deleted_soon"));
-        Assert.assertEquals(table.remove("no_changes"),"will_be_deleted_soon");
+        Assert.assertEquals(table.remove("no_changes"), "will_be_deleted_soon");
         Assert.assertEquals(table.rollback(), 0);
 
         Assert.assertNull(table.put("key", "value"));
@@ -118,7 +120,7 @@ public class MyTableTest {
     @Test
     public void testCommitWithNoChanges() {
         Assert.assertNull(table.put("no_changes", "will_be_deleted_soon"));
-        Assert.assertEquals(table.remove("no_changes"),"will_be_deleted_soon");
+        Assert.assertEquals(table.remove("no_changes"), "will_be_deleted_soon");
         Assert.assertEquals(table.commit(), 0);
 
         Assert.assertNull(table.put("key", "value"));
