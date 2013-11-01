@@ -26,7 +26,7 @@ public class Drop implements CommandInterface {
             if (new File(System.getProperty("fizteh.db.dir") + File.separator + table).isDirectory()) {
                 HashMap<String, HashMap<String, String>> myMultiMap = MultiFileMap.getMultiFileMap();
                 myMultiMap.remove(table);
-                MultiFileMap.realRemove(table);
+                ShellRemove.execute(table);
                 System.out.println("dropped");
                 if (table.equals(MultiFileMap.getWorkingTable())) {
                     MultiFileMap.changeWorkingTable("noTable");

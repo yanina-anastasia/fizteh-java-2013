@@ -24,7 +24,7 @@ public class Remove implements CommandInterface {
         String currTable = MultiFileMap.getWorkingTable();
         HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
         if (fileMap == null) {
-            fileMap = new HashMap<String, String>();
+            fileMap = new HashMap<>();
         }
         String value = fileMap.remove(key);
         if (value == null) {

@@ -11,7 +11,7 @@ import java.util.Vector;
 public class Main {
 
     public static Vector<CommandInterface> getCommandObjects() {
-        Vector<CommandInterface> arr = new Vector<CommandInterface>();
+        Vector<CommandInterface> arr = new Vector<>();
         Put put = new Put();
         Get get = new Get();
         Remove remove = new Remove();
@@ -30,7 +30,7 @@ public class Main {
     }
 
     public static Vector<String> getCommandNames() {
-        Vector<String> arr = new Vector<String>();
+        Vector<String> arr = new Vector<>();
         arr.add("put");
         arr.add("get");
         arr.add("remove");

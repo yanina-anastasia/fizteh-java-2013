@@ -11,6 +11,9 @@ public class Use implements CommandInterface {
     public void execute(Vector<String> args) throws IOException {
         String str = args.elementAt(0);
         int spaceIndex = str.indexOf(' ', 0);
+        if (spaceIndex == -1) {
+            throw new IOException("use: wrong parameters");
+        }
         while (str.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
             ++spaceIndex;
         }

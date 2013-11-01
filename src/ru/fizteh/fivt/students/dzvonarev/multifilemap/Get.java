@@ -24,7 +24,7 @@ public class Get implements CommandInterface {
         String currTable = MultiFileMap.getWorkingTable();
         HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
         if (fileMap == null) {
-            fileMap = new HashMap<String, String>();
+            fileMap = new HashMap<>();
         }
         String value = fileMap.get(key);
         if (value == null) {

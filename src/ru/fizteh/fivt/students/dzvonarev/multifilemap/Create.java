@@ -34,7 +34,7 @@ public class Create implements CommandInterface {
             if (!(new File(System.getProperty("fizteh.db.dir") + File.separator + newName)).mkdir()) {
                 throw new IOException("create: can't create table");
             }
-            HashMap<String, String> newMap = new HashMap<String, String>();
+            HashMap<String, String> newMap = new HashMap<>();
             HashMap<String, HashMap<String, String>> myMultiMap = MultiFileMap.getMultiFileMap();
             myMultiMap.put(newName, newMap);
             System.out.println("created");

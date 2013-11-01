@@ -30,7 +30,7 @@ public class Put implements CommandInterface {
         String currTable = MultiFileMap.getWorkingTable();
         HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
         if (fileMap == null) {
-            fileMap = new HashMap<String, String>();
+            fileMap = new HashMap<>();
         }
         if (fileMap.containsKey(key)) {
             System.out.println("overwrite");

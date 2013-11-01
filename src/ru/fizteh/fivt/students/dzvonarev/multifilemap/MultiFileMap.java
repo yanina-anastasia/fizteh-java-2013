@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class MultiFileMap {
 
     public static void readMultiFileMap(String workingDir) throws IOException, RuntimeException {
         changeWorkingTable("noTable");
-        multiFileMap = new HashMap<String, HashMap<String, String>>();
+        multiFileMap = new HashMap<>();
         File currDir = new File(workingDir);
         if (currDir.exists() && currDir.isDirectory()) {
             String[] tables = currDir.list();
@@ -41,7 +42,8 @@ public class MultiFileMap {
                     }
                     String[] dbDirs = dirTable.list();
                     if (dbDirs != null && dbDirs.length != 0) {
-                        HashMap<String, String> tempMap = new HashMap<String, String>();
+                        HashMap<String, String> tempMap;
+                        tempMap = new HashMap<>();
                         for (String dbDir : dbDirs) {
                             if (!isValidDir(dbDir)) {
                                 throw new RuntimeException("directory " + dbDir + " is not valid");
@@ -63,7 +65,7 @@ public class MultiFileMap {
                     if (new File(workingDir + File.separator + table).isFile()) {
                         continue;
                     }
-                    MultiFileMap.realRemove(table);
+                    ShellRemove.execute(table);
                     if (!(new File(workingDir + File.separator + table)).mkdir()) {
                         throw new IOException("exit: can't make " + table + " directory");
                     }
@@ -72,6 +74,46 @@ public class MultiFileMap {
         } else {
             throw new RuntimeException("working directory is not valid");
         }
+    }
+
+
+    public static void readFileMap(HashMap<String, String> fileMap, String fileName, String dir, String file) throws IOException, RuntimeException {
+        RandomAccessFile fileReader = openFileForRead(fileName);
+        long endOfFile = fileReader.length();
+        long currFilePosition = fileReader.getFilePointer();
+        if (endOfFile == 0) {
+            closeFile(fileReader);
+            throw new RuntimeException("reading directory: " + dir + " is not valid");
+        }
+        while (currFilePosition != endOfFile) {
+            int keyLen = fileReader.readInt();
+            int valueLen = fileReader.readInt();
+            if (keyLen <= 0 || valueLen <= 0) {
+                closeFile(fileReader);
+                throw new RuntimeException(fileName + " : file is broken");
+            }
+            byte[] keyByte;
+            byte[] valueByte;
+            try {
+                keyByte = new byte[keyLen];
+                valueByte = new byte[valueLen];
+            } catch (OutOfMemoryError e) {
+                closeFile(fileReader);
+                throw new RuntimeException(fileName + " : file is broken");
+            }
+            fileReader.readFully(keyByte, 0, keyLen);
+            fileReader.readFully(valueByte, 0, valueLen);
+            String key = new String(keyByte);
+            String value = new String(valueByte);
+            if (!keyIsValid(key, dir, file)) {
+                closeFile(fileReader);
+                throw new RuntimeException("file " + file + " in " + dir + " is not valid");
+            }
+            fileMap.put(key, value);
+            currFilePosition = fileReader.getFilePointer();
+            endOfFile = fileReader.length();
+        }
+        closeFile(fileReader);
     }
 
     public static boolean isFilesInDirValid(String dirName) {
@@ -115,23 +157,6 @@ public class MultiFileMap {
         return true;
     }
 
-    public static void printMultiMap() {
-        HashMap<String, HashMap<String, String>> myMultiHash = multiFileMap;
-        Set mapSet = myMultiHash.entrySet();
-        Iterator<Map.Entry<String, HashMap<String, String>>> i = mapSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, HashMap<String, String>> currItem = i.next();
-            System.out.println(currItem.getKey() + ":");
-            HashMap<String, String> map = currItem.getValue();
-            Set set = map.entrySet();
-            Iterator<Map.Entry<String, String>> j = set.iterator();
-            while (j.hasNext()) {
-                Map.Entry<String, String> curr = j.next();
-                System.out.println(curr.getKey() + " " + curr.getValue());
-            }
-        }
-    }
-
     public static boolean keyIsValid(String key, String dir, String file) {
         int b = key.getBytes()[0];
         int nDirectory = Math.abs(b) % 16;
@@ -141,44 +166,67 @@ public class MultiFileMap {
         return (dir.equals(rightDir) && file.equals(rightFile));
     }
 
-    public static void readFileMap(HashMap<String, String> fileMap, String fileName, String dir, String file) throws IOException, RuntimeException {
-        RandomAccessFile fileReader = openFileForRead(fileName);
-        long endOfFile = fileReader.length();
-        long currFilePosition = fileReader.getFilePointer();
-        if (endOfFile == 0) {
-            closeFile(fileReader);
-            throw new RuntimeException("reading directory: " + dir + " is not valid");
+    public static void writeMap(HashMap<String, HashMap<String, String>> map, String table) throws IOException {
+        HashMap<String, String> fileMap = map.get(table);
+        if (fileMap == null) {
+            return;
+        } else {
+            if (fileMap.isEmpty()) {
+                return;
+            }
         }
-        while (currFilePosition != endOfFile) {
-            int keyLen = fileReader.readInt();
-            int valueLen = fileReader.readInt();
-            if (keyLen <= 0 || valueLen <= 0) {
-                closeFile(fileReader);
-                throw new RuntimeException(fileName + " : file is broken");
+        Set fileSet = fileMap.entrySet();
+        Iterator<Map.Entry<String, String>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> currItem = i.next();
+            String key = currItem.getKey();
+            String value = currItem.getValue();
+            int b = key.getBytes()[0];
+            int nDirectory = Math.abs(b) % 16;
+            int nFile = Math.abs(b) / 16 % 16;
+            String rightDir = Integer.toString(nDirectory) + ".dir";
+            String rightFile = Integer.toString(nFile) + ".dat";
+            String path = System.getProperty("fizteh.db.dir") + File.separator + table +
+                    File.separator + rightDir + File.separator + rightFile;
+            String dir = System.getProperty("fizteh.db.dir") + File.separator + table +
+                    File.separator + rightDir;
+            File file = new File(path);
+            File fileDir = new File(dir);
+            if (!fileDir.exists()) {
+                if (!fileDir.mkdir()) {
+                    throw new IOException("can't create directory " + dir);
+                }
             }
-            byte[] keyByte = null;
-            byte[] valueByte = null;
-            try {
-                keyByte = new byte[keyLen];
-                valueByte = new byte[valueLen];
-            } catch (OutOfMemoryError e) {
-                closeFile(fileReader);
-                throw new RuntimeException(fileName + " : file is broken");
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    throw new IOException("can't create file " + path);
+                }
             }
-            fileReader.readFully(keyByte, 0, keyLen);
-            fileReader.readFully(valueByte, 0, valueLen);
-            String key = new String(keyByte);
-            String value = new String(valueByte);
-            if (!keyIsValid(key, dir, file)) {
-                closeFile(fileReader);
-                throw new RuntimeException("file " + file + " in " + dir + " is not valid");
-            }
-            fileMap.put(key, value);
-            currFilePosition = fileReader.getFilePointer();
-            endOfFile = fileReader.length();
+            writeInFile(path, key, value);
         }
-        closeFile(fileReader);
     }
+
+    public static void writeInFile(String path, String key, String value) throws IOException {
+        RandomAccessFile fileWriter = MultiFileMap.openFileForWrite(path);
+        fileWriter.skipBytes((int) fileWriter.length());
+        try {
+            if (key == null || value == null) {
+                MultiFileMap.closeFile(fileWriter);
+                throw new IOException("updating file: error in writing");
+            }
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
+            fileWriter.writeInt(keyBytes.length);
+            fileWriter.writeInt(valueBytes.length);
+            fileWriter.write(keyBytes);
+            fileWriter.write(valueBytes);
+        } catch (IOException e) {
+            throw new IOException("updating file: error in writing");
+        } finally {
+            MultiFileMap.closeFile(fileWriter);
+        }
+    }
+
 
     public static RandomAccessFile openFileForRead(String fileName) throws IOException {
         RandomAccessFile newFile;
@@ -205,40 +253,6 @@ public class MultiFileMap {
             file.close();
         } catch (IOException e) {
             throw new IOException("error in closing file");
-        }
-    }
-
-    private static void remove(File aim) throws IOException {
-        if (aim.isDirectory()) {
-            if (aim.list().length == 0) {
-                if (!aim.delete()) {
-                    throw new IOException("drop: can't remove " + aim + " : no such file or directory");
-                }
-            } else {
-                String[] file = aim.list();
-                for (String aFile : file) {
-                    File currFile = new File(aim, aFile);
-                    remove(currFile);
-                }
-                if (aim.list().length == 0) {
-                    if (!aim.delete()) {
-                        throw new IOException("drop: can't remove " + aim + " : no such file or directory");
-                    }
-                }
-            }
-        } else {
-            if (!aim.delete()) {
-                throw new IOException("drop: can't remove " + aim + " : no such file or directory");
-            }
-        }
-    }
-
-    public static void realRemove(String expr) throws IOException {
-        String path = System.getProperty("fizteh.db.dir") + File.separator + expr;
-        if ((new File(path)).isFile() || (new File(path)).isDirectory()) {
-            remove(new File(path));
-        } else {
-            throw new IOException("drop: can't remove " + path);
         }
     }
 
