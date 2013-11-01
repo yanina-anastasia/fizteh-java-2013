@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 public abstract class AbstractTableProvider implements TableProvider {
 
@@ -20,7 +21,7 @@ public abstract class AbstractTableProvider implements TableProvider {
         if ((tableName == null) || (tableName.length () > MAX_SUPPORTED_NAME_LENGTH)) {
             throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
         }
-        if (tableName.contains ("\\p{Punct}") || tableName.contains (File.pathSeparator) || tableName.contains (File.separator)) {
+        if (!Pattern.matches ("[a-zA-zа-яА-Я0-9]+",tableName)) {
             throw new IllegalArgumentException (UNSUPPORTED_TABLE_NAME);
         }
         if (tableName.trim ().isEmpty ()) {
