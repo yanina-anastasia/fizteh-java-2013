@@ -42,8 +42,7 @@ public class MultiHashFileMap {
         if (input != null) {
             databasePath = Paths.get (input);
         } else {
-            System.err.println ("This is MultiDatabase. To run program, give it empty directory -Dfizteh.db.dir=<directory>");
-            return;
+            throw new IllegalArgumentException ("Directory in property 'fizteh.db.dir' is expected.");
         }
 
         MultiTableProviderFactory multiTableProviderFactory = new MultiTableProviderFactory ();
