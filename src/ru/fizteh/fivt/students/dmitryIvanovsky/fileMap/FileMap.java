@@ -306,6 +306,10 @@ public class FileMap implements Table {
         if (tableData.containsKey(key)) {
             String oldValue = tableData.get(key);
 
+            if (oldValue.equals(value)) {
+                return oldValue;
+            }
+
             if (!changeTable.containsKey(key)) {
                 changeTable.put(key, oldValue);
             }
