@@ -16,6 +16,7 @@ public class MultiTable implements Table {
     private final String name;
     public static final String KEY_SHOULD_NOT_BE_NULL = "Key should not be null";
     public static final String VALUE_SHOULD_NOT_BE_NULL = "Value should not be null";
+    public static final String KEY_SHOULD_NOT_BE_EMPTY = "Key should not be empty";
 
     public MultiTable (String name, Map<String, Diff<String>> values, MultiTableProvider tableProvider) {
         this.name = name;
@@ -35,6 +36,11 @@ public class MultiTable implements Table {
             throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
         }
 
+        if (key.trim ().isEmpty ()) {
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_EMPTY);
+        }
+
+
         Diff<String> diff = values.get (key);
         String value = null;
         if (diff != null) {
@@ -49,6 +55,10 @@ public class MultiTable implements Table {
 
         if (key == null) {
             throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
+        }
+
+        if (key.trim ().isEmpty ()) {
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_EMPTY);
         }
 
         if (value == null) {

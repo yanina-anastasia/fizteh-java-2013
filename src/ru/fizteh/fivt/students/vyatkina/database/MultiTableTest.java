@@ -67,10 +67,35 @@ public class MultiTableTest {
     }
 
     @Test
+    public void putEmptyKeyShouldFail () {
+        thrown.expect (IllegalArgumentException.class);
+        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_EMPTY);
+        table.put ("   ", SAMPLE_VALUE1);
+
+    }
+
+
+    @Test
     public void putNullValueShouldFail () {
         thrown.expect (IllegalArgumentException.class);
         thrown.expectMessage (MultiTable.VALUE_SHOULD_NOT_BE_NULL);
         table.put (SAMPLE_KEY1, null);
+
+    }
+
+    @Test
+    public void getEmptyKeyShouldFail () {
+        thrown.expect (IllegalArgumentException.class);
+        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_EMPTY);
+        table.get ("   ");
+
+    }
+
+    @Test
+    public void getNullKeyShouldFail () {
+        thrown.expect (IllegalArgumentException.class);
+        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_NULL);
+        table.get (null);
 
     }
 
