@@ -8,10 +8,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.myParsing;
 
@@ -24,6 +21,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     FileMap dbData;
     boolean err;
     boolean out;
+    Map<String, FileMap> mapFileMap;
 
     public Map<String, Object[]> mapComamnd() {
         Map<String, Object[]> commandList = new HashMap<String, Object[]>(){ {
@@ -49,6 +47,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         this.mySystem = new CommandShell(pathDb, false, false);
         this.dbData = null;
         this.setDirTable = new HashSet<>();
+        this.mapFileMap = new HashMap<>();
 
         try {
             checkBdDir(this.pathDb);
@@ -219,7 +218,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException();
         }
-        if (name.contains("/")) {
+        if (antiCorrectDir(name)) {
             throw new RuntimeException();
         }
         if (setDirTable.contains(name)) {
@@ -228,6 +227,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             setDirTable.add(name);
             try {
                 FileMap fileMap = new FileMap(pathDb, name);
+
                 return fileMap;
             } catch (Exception e) {
                 //e.printStackTrace();
@@ -237,16 +237,26 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
+    private Boolean antiCorrectDir(String dir) {
+        return dir.contains("/") || dir.contains(":") || dir.contains("*") ||
+               dir.contains("?") || dir.contains("\"") || dir.contains("\\") ||
+               dir.contains(">") || dir.contains("<") || dir.contains("|");
+    }
+
     public Table getTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException();
         }
-        if (name.contains("/")) {
+        if (antiCorrectDir(name)) {
             throw new RuntimeException();
+        }
+        if (mapFileMap.containsKey(name)) {
+            return mapFileMap.get(name);
         }
         if (setDirTable.contains(name)) {
             try {
                 FileMap fileMap = new FileMap(pathDb, name);
+                mapFileMap.put(name, fileMap);
                 return fileMap;
             } catch (Exception e) {
                 //return null;
@@ -271,7 +281,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 throw ex;
             }
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalStateException();
         }
     }
 
