@@ -1,16 +1,15 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTable;
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableState;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class DropCommand implements Command {
-    private MultiFileTableProvider provider;
+    private MultiFileTableState state;
 
-    public DropCommand(MultiFileTableProvider provider) {
-        this.provider = provider;
+    public DropCommand(MultiFileTableState state) {
+        this.state = state;
     }
 
     @Override
@@ -21,10 +20,9 @@ public class DropCommand implements Command {
     @Override
     public void execute(String[] args) throws IOException {
         try {
-            provider.removeTable(args[1]);
-            MultiFileTable table = provider.getCurrentTable();
-            if (table != null && args[1].equals(table.getName())) {
-                provider.setCurrentTable(null);
+            state.provider.removeTable(args[1]);
+            if (state.currentTable != null && args[1].equals(state.currentTable.getName())) {
+                state.currentTable = null;
             }
             System.out.println("dropped");
         } catch (IllegalStateException e) {
