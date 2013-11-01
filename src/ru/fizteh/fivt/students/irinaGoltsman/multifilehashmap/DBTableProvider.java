@@ -31,15 +31,16 @@ public class DBTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(String tableName) throws IllegalArgumentException {
         if (tableName == null) {
-            throw new IllegalArgumentException("table name: can not be null");
+            throw new IllegalArgumentException("null table name");
         }
-
+        if (tableName.contains("\\")) {
+            throw new RuntimeException("table name: can not be null");
+        }
         if (!allTables.containsKey(tableName)) {
             return null;
         }
-
         File tableFile = new File(rootDirectoryOfTables, tableName);
         try {
             return new DBTable(tableFile);
@@ -53,6 +54,9 @@ public class DBTableProvider implements TableProvider {
     public Table createTable(String tableName) throws IllegalArgumentException {
         if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
+        }
+        if (tableName.contains("\\")) {
+            throw new RuntimeException("table name: can not be null");
         }
         File tableFile = new File(rootDirectoryOfTables, tableName);
         if (tableFile.exists()) {
@@ -72,7 +76,10 @@ public class DBTableProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String tableName) throws IllegalArgumentException {
+    public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
+        if (!allTables.containsKey(tableName)) {
+            throw new IllegalStateException("null table name");
+        }
         //File table = new File(rootDirectoryOfTables, tableName);
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
