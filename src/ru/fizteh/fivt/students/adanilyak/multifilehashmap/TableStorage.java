@@ -123,7 +123,8 @@ public class TableStorage implements Table {
         changes.clear();
         removedKeys.clear();
 
-        int result = amountOfChanges;
+        int result = changes.size() - removedKeys.size();
+        result = result * Integer.signum(result);
         amountOfChanges = 0;
         return result;
     }
