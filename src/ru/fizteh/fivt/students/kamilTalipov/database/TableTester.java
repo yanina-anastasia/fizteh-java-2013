@@ -3,20 +3,26 @@ package ru.fizteh.fivt.students.kamilTalipov.database;
 
 import org.junit.*;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class TableTester {
-    static Table table;
+    static MultiFileHashTable table;
+
+    @Rule
+    static TemporaryFolder tmpDir = new TemporaryFolder();
 
     @BeforeClass
     public static void beforeClass() {
         try {
-            table = new MultiFileHashTable("/home/kamilz/DB", "Test");
+            table = new MultiFileHashTable(tmpDir.newFile().getAbsolutePath(), "Test");
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
         } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+        } catch (IOException e) {
             System.err.println(e.getMessage());
         }
 
@@ -70,5 +76,12 @@ public class TableTester {
         table.remove(null);
     }
 
-
+    @AfterClass
+    public static void afterClass() {
+        try {
+            table.removeTable();
+        } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
+        }
+    }
 }

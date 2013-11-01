@@ -37,5 +37,10 @@ public class SimpleDatabase implements Database{
         table.exit();
     }
 
+    @Override
+    public int size() {
+        return 0;
+    }
+
     private final SimpleTable table;
 }

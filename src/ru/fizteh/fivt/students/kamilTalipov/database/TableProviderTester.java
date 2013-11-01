@@ -1,21 +1,27 @@
 package ru.fizteh.fivt.students.kamilTalipov.database;
 
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 public class TableProviderTester {
     public static TableProvider provider;
 
+    @Rule
+    static TemporaryFolder tmpDir = new TemporaryFolder();
+
     @BeforeClass
     public static void beforeClass() throws FileNotFoundException, DatabaseException {
-        provider = new MultiFileHashTableProvider("/home/kamilz/DB");
+        provider = new MultiFileHashTableProvider(tmpDir.getRoot().getAbsolutePath());
     }
 
     @Test(expected = FileNotFoundException.class)
     public void  illegalInitTest() throws FileNotFoundException, DatabaseException {
-        TableProvider badProvider = new MultiFileHashTableProvider("/dsfsd/dsfsdfsdf");
+        TableProvider badProvider = new MultiFileHashTableProvider(tmpDir.getRoot().getAbsolutePath()
+                                                                    + File.separator + "not_exist");
     }
 
     @Test

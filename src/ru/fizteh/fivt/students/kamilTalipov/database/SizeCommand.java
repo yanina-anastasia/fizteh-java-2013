@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class SizeCommand extends SimpleCommand {
-    public SizeCommand(TransactionDatabase database) {
+    public SizeCommand(Database database) {
         super("size", 0);
         this.database = database;
     }
@@ -23,5 +23,5 @@ public class SizeCommand extends SimpleCommand {
         }
     }
 
-    private final TransactionDatabase database;
+    private final Database database;
 }
