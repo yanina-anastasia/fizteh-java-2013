@@ -15,17 +15,12 @@ public class TableManagerCreator implements TableProviderFactory {
     @Override
     public TableProvider create(String directoryWithTables) {
         if (directoryWithTables == null || directoryWithTables.trim().isEmpty()) {
-            throw new IllegalArgumentException("directory name: can not be null");
+            throw new IllegalArgumentException("Directory not set or set incorrectly");
         }
 
         TableProvider tableManager = null;
-        try {
-            File file = new File(directoryWithTables);
-            tableManager = new TableManager(file);
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(2);
-        }
+        File file = new File(directoryWithTables);
+        tableManager = new TableManager(file);
         return tableManager;
 
     }
