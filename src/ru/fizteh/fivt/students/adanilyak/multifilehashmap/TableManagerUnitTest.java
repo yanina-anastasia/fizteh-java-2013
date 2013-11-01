@@ -25,19 +25,34 @@ public class TableManagerUnitTest {
 
     @Test
     public void createTableTest() {
-        Assert.assertNotNull(testManager.createTable("testTable#1"));
-        Assert.assertNull(testManager.createTable("testTable#1"));
+        Assert.assertNotNull(testManager.createTable("testTable1"));
+        Assert.assertNull(testManager.createTable("testTable1"));
 
-        Assert.assertNotNull(testManager.createTable("тестоваяТаблица#2"));
-        Assert.assertNull(testManager.createTable("тестоваяТаблица#2"));
+        Assert.assertNotNull(testManager.createTable("тестоваяТаблица2"));
+        Assert.assertNull(testManager.createTable("тестоваяТаблица2"));
 
-        testManager.removeTable("testTable#1");
-        testManager.removeTable("тестоваяТаблица#2");
+        testManager.removeTable("testTable1");
+        testManager.removeTable("тестоваяТаблица2");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createNullTableTest() {
         testManager.createTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createEmptyTableTest() {
+        testManager.createTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createNlTableTest() {
+        testManager.createTable("    ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createBadNameTableTest() {
+        testManager.createTable("not_normal-name@for$table^!");
     }
 
     /**
@@ -47,22 +62,37 @@ public class TableManagerUnitTest {
 
     @Test
     public void getTableTest() {
-        Assert.assertNull(testManager.getTable("testNonExictingTable#3"));
-        Assert.assertNull(testManager.getTable("тестоваяНесуществующаяТаблица#4"));
+        Assert.assertNull(testManager.getTable("testNonExictingTable3"));
+        Assert.assertNull(testManager.getTable("тестоваяНесуществующаяТаблица4"));
 
-        testManager.createTable("testTable#5");
-        Assert.assertNotNull(testManager.getTable("testTable#5"));
+        testManager.createTable("testTable5");
+        Assert.assertNotNull(testManager.getTable("testTable5"));
 
-        testManager.createTable("тестоваяТаблица#6");
-        Assert.assertNotNull(testManager.getTable("тестоваяТаблица#6"));
+        testManager.createTable("тестоваяТаблица6");
+        Assert.assertNotNull(testManager.getTable("тестоваяТаблица6"));
 
-        testManager.removeTable("testTable#5");
-        testManager.removeTable("тестоваяТаблица#6");
+        testManager.removeTable("testTable5");
+        testManager.removeTable("тестоваяТаблица6");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getNullTableTest() {
         testManager.getTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getEmptyTableTest() {
+        testManager.getTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getNlTableTest() {
+        testManager.getTable("    ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getBadNameTableTest() {
+        testManager.getTable("not_normal-name@for$table^!");
     }
 
     /**
@@ -72,15 +102,38 @@ public class TableManagerUnitTest {
 
     @Test
     public void removeTableTest() {
-        testManager.createTable("testTable#7");
-        testManager.createTable("тестоваяТаблица#8");
+        testManager.createTable("testTable7");
+        testManager.createTable("тестоваяТаблица8");
 
-        testManager.removeTable("testTable#7");
-        Assert.assertNull(testManager.getTable("testTable#7"));
+        testManager.removeTable("testTable7");
+        Assert.assertNull(testManager.getTable("testTable7"));
 
-        testManager.removeTable("тестоваяТаблица#8");
-        Assert.assertNull(testManager.getTable("тестоваяТаблица#8"));
-
+        testManager.removeTable("тестоваяТаблица8");
+        Assert.assertNull(testManager.getTable("тестоваяТаблица8"));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void removeNullTableTest() {
+        testManager.removeTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeEmptyTableTest() {
+        testManager.removeTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeNlTableTest() {
+        testManager.removeTable("    ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeBadNameTableTest() {
+        testManager.removeTable("not_normal-name@for$table^!");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void removeNonExictingTable() {
+        testManager.removeTable("testNonExictingTable11");
+    }
 }

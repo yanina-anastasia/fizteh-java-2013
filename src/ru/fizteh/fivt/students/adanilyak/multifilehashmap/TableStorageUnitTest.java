@@ -19,14 +19,14 @@ public class TableStorageUnitTest {
     @Before
     public void setUpTestObject() throws IOException {
         testManager = new TableManager(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
-        testTableEng = testManager.createTable("testTable#9");
-        testTableRus = testManager.createTable("тестоваяТаблица#10");
+        testTableEng = testManager.createTable("testTable9");
+        testTableRus = testManager.createTable("тестоваяТаблица10");
     }
 
     @After
     public void tearDownTestObject() {
-        testManager.removeTable("testTable#9");
-        testManager.removeTable("тестоваяТаблица#10");
+        testManager.removeTable("testTable9");
+        testManager.removeTable("тестоваяТаблица10");
     }
 
     /**
@@ -36,8 +36,8 @@ public class TableStorageUnitTest {
 
     @Test
     public void getNameTest() {
-        Assert.assertEquals("testTable#9", testTableEng.getName());
-        Assert.assertEquals("тестоваяТаблица#10", testTableRus.getName());
+        Assert.assertEquals("testTable9", testTableEng.getName());
+        Assert.assertEquals("тестоваяТаблица10", testTableRus.getName());
     }
 
     /**
@@ -59,8 +59,10 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getNullTest() {
+    public void getBadNameTest() {
         testTableEng.get(null);
+        testTableEng.get("");
+        testTableEng.get("    ");
     }
 
     /**
@@ -82,10 +84,14 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putNullTest() {
+    public void putBadNameTest() {
         testTableEng.put(null, "value");
         testTableEng.put("key", null);
         testTableEng.put(null, null);
+        testTableEng.put("", "value");
+        testTableEng.put("    ", "value");
+        testTableEng.put("key", "");
+        testTableEng.put("key", "    ");
     }
 
     /**
@@ -105,8 +111,10 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void removeNullTest() {
+    public void removeBadNameTest() {
         testTableEng.remove(null);
+        testTableEng.remove("");
+        testTableEng.remove("    ");
     }
 
     /**
@@ -175,7 +183,7 @@ public class TableStorageUnitTest {
         testTableEng.commit();
         testTableEng.put("key2", "anotherValue2");
         testTableEng.put("key4", "anotherValue4");
-        Assert.assertEquals(2, testTableEng.rollback());
+        Assert.assertEquals(0, testTableEng.rollback());
         Assert.assertEquals("value2", testTableEng.get("key2"));
         Assert.assertEquals("value4", testTableEng.get("key4"));
         for(int i = 1; i <= 5; ++i) {

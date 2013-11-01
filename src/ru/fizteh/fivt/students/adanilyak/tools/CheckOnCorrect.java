@@ -24,7 +24,6 @@ public class CheckOnCorrect {
         if (arg.trim().isEmpty()) {
             return false;
         }
-
         return true;
     }
 }
