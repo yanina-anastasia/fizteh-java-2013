@@ -5,17 +5,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMap;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class TestFileMapProvider {
 
@@ -71,6 +70,15 @@ public class TestFileMapProvider {
     @Test()
     public void getTableNotExist() {
         assertNull(multiMap.getTable("12345679"));
+    }
+
+    @Test()
+    public void removeCreateTable() {
+        File file = new File(String.valueOf(pathTables.resolve("12345").toAbsolutePath()));
+        multiMap.createTable("12345");
+        assertTrue(file.isDirectory());
+        multiMap.removeTable("12345");
+        assertFalse(file.exists());
     }
 
     @AfterClass
