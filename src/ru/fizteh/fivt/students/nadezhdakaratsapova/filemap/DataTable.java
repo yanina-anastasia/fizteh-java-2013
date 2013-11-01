@@ -45,7 +45,10 @@ public class DataTable implements Table {
         return dataStorage.keySet();
     }
 
-    public String get(String key) {
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Not correct key");
+        }
         String value = null;
         if (!removeKeys.contains(key)) {
             value = dataStorage.get(key);
