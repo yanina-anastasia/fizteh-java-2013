@@ -42,7 +42,16 @@ public class DBTableProvider implements TableProvider {
         if (tableName.matches(TABLE_NAME_FORMAT)) {
             throw new RuntimeException("get table: error table name");
         }
-        return allTables.get(tableName);
+        if (!allTables.containsKey(tableName)) {
+            return null;
+        }
+        File tableFile = new File(rootDirectoryOfTables, tableName);
+        try {
+            return new DBTable(tableFile);
+        } catch (Exception exc) {
+            System.err.println(exc.getMessage());
+            return null;
+        }
     }
 
     @Override
