@@ -11,8 +11,11 @@ public class FileMap {
         } catch (IllegalArgumentException e) {
             System.err.println("multifilemap: " + e.getMessage());
             System.exit(1);
-        } catch (RuntimeException e) {
+        } catch (DbExitException e) {
             System.exit(Integer.parseInt(e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("multifilemap: " + e.getMessage());
+            System.exit(1);
         }
     }
 }
