@@ -63,7 +63,7 @@ public class DBTableProvider implements TableProvider {
         }
         File tableFile = new File(rootDirectoryOfTables, tableName);
         if (tableFile.exists()) {
-            throw new IllegalArgumentException(tableName + " exists");
+            return null;
         }
         if (!tableFile.mkdir()) {
             return null;
