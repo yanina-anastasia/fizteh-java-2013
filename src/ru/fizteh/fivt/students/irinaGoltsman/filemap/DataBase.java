@@ -21,8 +21,7 @@ public class DataBase {
     }
 
     public static Code use(String[] args) {
-        //Вот тут не нужно, чтобы выводилось число изменений.
-
+        //TODO: тут нужно проверять, есть ли незакомиченные изменения и выводить сообщение об ошибки, если они есть
         if (currentTable != null) {
             realCommit();
         }
@@ -142,6 +141,16 @@ public class DataBase {
             return Code.ERROR;
         }
         System.out.println(currentTable.size());
+        return Code.OK;
+    }
+
+    public static Code rollBack() {
+        if (currentTable == null) {
+            System.out.println(0);
+            return Code.ERROR;
+        }
+        int countOfChangedKeys = currentTable.rollback();
+        System.out.println(countOfChangedKeys);
         return Code.OK;
     }
 }

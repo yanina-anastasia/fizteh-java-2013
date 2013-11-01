@@ -203,4 +203,29 @@ public class DBCommands {
             return DataBase.size();
         }
     }
+
+    public static class RollBack implements Command {
+        protected final String name = "rollback";
+        protected final int countOfArguments = 0;
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public int getCountOfArguments() {
+            return countOfArguments;
+        }
+
+        @Override
+        public boolean check(String[] parts) {
+            return ((parts.length - 1) == countOfArguments);
+        }
+
+        @Override
+        public Code perform(String[] args) {
+            return DataBase.rollBack();
+        }
+    }
 }

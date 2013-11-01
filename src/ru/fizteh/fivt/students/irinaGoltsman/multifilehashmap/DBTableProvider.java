@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,14 +14,14 @@ public class DBTableProvider implements TableProvider {
     private Map<String, Table> allTables = new HashMap<String, Table>();
     private File rootDirectoryOfTables;
 
-    public DBTableProvider(File rootDirectory) throws Exception {
+    public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
             if (!rootDirectory.mkdir()) {
-                throw new Exception(rootDirectory.getName() + ": not exist and can't be created");
+                throw new IOException(rootDirectory.getName() + ": not exist and can't be created");
             }
         }
         if (!rootDirectory.isDirectory()) {
-            throw new Exception(rootDirectory.getName() + ": not a directory");
+            throw new IOException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
         for (File tableFile : rootDirectoryOfTables.listFiles()) {
