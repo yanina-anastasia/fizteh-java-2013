@@ -16,7 +16,7 @@ public class DbMain {
         try {
            mainManager = new TableManager(workingDirectoryName);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Bad property");
             System.exit(1);
         }
 
