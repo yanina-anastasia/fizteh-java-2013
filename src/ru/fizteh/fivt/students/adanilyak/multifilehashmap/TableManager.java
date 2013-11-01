@@ -62,9 +62,6 @@ public class TableManager implements TableProvider {
 
     @Override
     public void removeTable(String tableName) {
-        if (!CheckOnCorrect.goodName(tableName)) {
-            throw new RuntimeException("Bad table name");
-        }
         File tableFile = new File(allTablesDirectory, tableName);
         try {
             DeleteDirectory.rm(tableFile);
