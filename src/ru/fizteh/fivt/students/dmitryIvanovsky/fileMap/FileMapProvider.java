@@ -227,7 +227,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             setDirTable.add(name);
             try {
                 FileMap fileMap = new FileMap(pathDb, name);
-
+                mapFileMap.put(name, fileMap);
                 return fileMap;
             } catch (Exception e) {
                 //e.printStackTrace();
@@ -256,7 +256,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (setDirTable.contains(name)) {
             try {
                 FileMap fileMap = new FileMap(pathDb, name);
-                mapFileMap.put(name, fileMap);
                 return fileMap;
             } catch (Exception e) {
                 //return null;
