@@ -345,8 +345,8 @@ public class DataBase implements Table {
         map.getMap().clear();
         try {
             load();
+            System.out.println(changed);
             changed = 0;
-            System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());

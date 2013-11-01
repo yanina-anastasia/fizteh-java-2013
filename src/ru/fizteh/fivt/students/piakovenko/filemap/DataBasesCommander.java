@@ -100,7 +100,7 @@ public class DataBasesCommander implements TableProvider {
     }
 
     public void removeTable (String dataBase) throws IllegalArgumentException {
-        if (dataBase == null) {
+        if (dataBase == null || dataBase.trim().equals("")) {
             throw new IllegalArgumentException("Null pointer to dataBase name");
         }
         if (filesMap.containsKey(dataBase)) {
@@ -153,7 +153,7 @@ public class DataBasesCommander implements TableProvider {
     }
 
     public Table getTable(String name) throws IllegalArgumentException {
-        if (name == null) {
+        if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Null pointer to name of Table");
         }
         if (filesMap.containsKey(name)) {
