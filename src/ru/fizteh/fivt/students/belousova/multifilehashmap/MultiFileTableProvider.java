@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
-    private Map<String, Table> tableMap = new HashMap<String, Table>();
+    private Map<String, ChangesCountingTable> tableMap = new HashMap<String, ChangesCountingTable>();
     private File dataDitectory;
 
     public MultiFileTableProvider(File directory) {
@@ -25,13 +25,12 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
 
         dataDitectory = directory;
         for (File tableFile : directory.listFiles()) {
-            Table table = new MultiFileTable(tableFile);
-            tableMap.put(tableFile.getName(), table);
+            tableMap.put(tableFile.getName(), new MultiFileTable(tableFile));
         }
     }
 
     @Override
-    public MultiFileTable getTable(String name) {
+    public ChangesCountingTable getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
         }
@@ -44,13 +43,13 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
         if (!tableMap.containsKey(name)) {
             return null;
         }
-        File tableFile = new File(dataDitectory, name);
+        //File tableFile = new File(dataDitectory, name);
 
-        return new MultiFileTable(tableFile);
+        return tableMap.get(name);
     }
 
     @Override
-    public MultiFileTable createTable(String name) {
+    public ChangesCountingTable createTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("null name");
         }
