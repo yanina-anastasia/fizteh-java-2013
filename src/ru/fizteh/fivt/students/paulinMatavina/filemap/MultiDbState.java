@@ -123,7 +123,6 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             return 0;
         }
-       System.out.println("try to commit in " + shell.currentDir.getAbsolutePath());
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {

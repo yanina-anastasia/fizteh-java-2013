@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class CommandRunner {    
-    public static void run(String[] args, State state) throws Exception {  
+    public static void run(String[] args, State state) throws RuntimeException {  
         if (args.length > 0) {
             StringBuilder str = new StringBuilder();
             for (int i = 0; i < args.length; i++) {
@@ -28,7 +28,7 @@ public class CommandRunner {
         }
     }
     
-    private static int execute(String query, State state) throws Exception {
+    private static int execute(String query, State state) throws RuntimeException {
         query = query.trim();
         if (query.equals("")) {
             return 0;
@@ -79,7 +79,7 @@ public class CommandRunner {
         return 1;
     }
 
-    private static int executeQueryLine(String queryLine, State state) throws Exception {
+    private static int executeQueryLine(String queryLine, State state) throws RuntimeException {
         Scanner scanner = new Scanner(queryLine);
         scanner.useDelimiter(";");
         while (scanner.hasNext()) {
