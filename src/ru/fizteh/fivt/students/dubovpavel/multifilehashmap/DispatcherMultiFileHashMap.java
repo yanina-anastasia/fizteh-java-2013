@@ -11,7 +11,7 @@ public class DispatcherMultiFileHashMap extends Dispatcher implements DataBaseAc
         try {
             storage = new Storage(getInitProperty(stPath), this, builder);
         } catch (DispatcherException e) {
-            storage = null;
+            System.exit(-1);
         }
     }
 
