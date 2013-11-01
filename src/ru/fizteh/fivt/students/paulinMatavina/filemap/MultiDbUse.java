@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MultiDbUse implements Command {
@@ -7,13 +8,15 @@ public class MultiDbUse implements Command {
     public int execute(String[] args, State state) {
         String dbName = args[0];
         MyTableProvider multiState = (MyTableProvider) state;
-        int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum;
-        if (chNum > 0) {
-            System.out.println(chNum + " uncommited changes");
-            return 0;
-        }
+        if (multiState.getCurrTable() != null) {
+            int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum;
+            if (chNum > 0) {
+                System.out.println(chNum + " uncommited changes");
+                return 0;
+            }
+        }     
         
-        MultiDbState table = (MultiDbState) multiState.getTable(dbName);
+        Table table = multiState.getTable(dbName);
         
         if (table == null) {
             System.out.println(dbName + " not exists");

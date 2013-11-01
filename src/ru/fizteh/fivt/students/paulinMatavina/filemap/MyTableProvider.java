@@ -48,8 +48,7 @@ public class MyTableProvider extends State implements TableProvider {
                 tableMap.put(name, newTable);
                 
             }
-        }
-        
+        }   
         return tableMap.get(name);
     }
 
