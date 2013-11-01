@@ -62,15 +62,11 @@ public class FileMapUtils {
     }
 
     static void errPrint(String message) {
-        //if (err) {
-            System.err.println(message);
-        //}
+        System.err.println(message);
     }
 
     static void outPrint(String message) {
-        //if (out) {
-            System.out.println(message);
-        //}
+        System.out.println(message);
     }
 
 }

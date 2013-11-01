@@ -33,7 +33,7 @@ public class FileMap implements Table {
                 mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
                 existDir = true;
             } catch (Exception e) {
-                e.addSuppressed(new ErrorFileMap("Не могу создать папку таблицы " + nameTable));
+                e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
                 throw e;
             }
         }
@@ -41,7 +41,7 @@ public class FileMap implements Table {
         try {
             loadTable(nameTable);
         } catch (Exception e) {
-            e.addSuppressed(new ErrorFileMap("Ошибка формата хранения таблицы " + nameTable));
+            e.addSuppressed(new ErrorFileMap("Format error storage table " + nameTable));
             throw e;
         }
     }
@@ -53,7 +53,7 @@ public class FileMap implements Table {
     private void loadTable(String nameMap) throws Exception {
         File currentFileMap = pathDb.resolve(nameMap).toFile();
         if (!currentFileMap.isDirectory()) {
-            throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " не директория");
+            throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
         }
 
         File[] listFileMap = currentFileMap.listFiles();
@@ -65,14 +65,14 @@ public class FileMap implements Table {
 
         for (File nameDir : listFileMap) {
             if (!nameDir.isDirectory()) {
-                throw new ErrorFileMap(nameDir.getAbsolutePath() + " не директория");
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " isn't directory");
             }
             String nameStringDir = nameDir.getName();
             Pattern p = Pattern.compile("(^[0-9].dir$)|(^1[0-5].dir$)");
             Matcher m = p.matcher(nameStringDir);
 
             if (!(m.matches() && m.start() == 0 && m.end() == nameStringDir.length())) {
-                throw new ErrorFileMap(nameDir.getAbsolutePath() + " неверное название папки");
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " wrong folder name");
             }
 
             File[] listNameDir = nameDir.listFiles();
@@ -86,13 +86,13 @@ public class FileMap implements Table {
                 m = p.matcher(randomFile.getName());
                 int lenRandomFile = randomFile.getName().length();
                 if (!(m.matches() && m.start() == 0 && m.end() == lenRandomFile)) {
-                    throw new ErrorFileMap(randomFile.getAbsolutePath() + " неверное название файла");
+                    throw new ErrorFileMap(randomFile.getAbsolutePath() + " invalid file name");
                 }
 
                 try {
                     loadTableFile(randomFile, tableData, nameDir.getName());
                 } catch (Exception e) {
-                    e.addSuppressed(new ErrorFileMap("Ошибка в файле " + randomFile.getAbsolutePath()));
+                    e.addSuppressed(new ErrorFileMap("Error in file " + randomFile.getAbsolutePath()));
                     throw e;
                 }
             }
@@ -101,22 +101,21 @@ public class FileMap implements Table {
 
     public void loadTableFile(File randomFile, Map dbMap, String nameDir) throws Exception {
         if (randomFile.isDirectory()) {
-            throw new ErrorFileMap("файл данных не может быть директорией");
+            throw new ErrorFileMap("data file can't be a directory");
         }
         int intDir = FileMapUtils.getCode(nameDir);
         int intFile = FileMapUtils.getCode(randomFile.getName());
 
         RandomAccessFile dbFile = null;
-        try {
-            dbFile = new RandomAccessFile(randomFile, "rw");
-        } catch (Exception e) {
-            throw new ErrorFileMap("файл не открылся");
-        }
-
         Exception error = null;
         try {
+            try {
+                dbFile = new RandomAccessFile(randomFile, "rw");
+            } catch (Exception e) {
+                throw new ErrorFileMap("file doesn't open");
+            }
             if (dbFile.length() == 0) {
-                throw new ErrorFileMap("пустой файл");
+                throw new ErrorFileMap("file is clear");
             }
             dbFile.seek(0);
 
@@ -159,7 +158,7 @@ public class FileMap implements Table {
                     String key = new String(arrayByte, "UTF8");
 
                     if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
-                        throw new ErrorFileMap("в файле несоответствующий ключ");
+                        throw new ErrorFileMap("wrong key in the file");
                     }
                     dbMap.put(key, value);
 
@@ -176,7 +175,7 @@ public class FileMap implements Table {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                ErrorFileMap notClose = new ErrorFileMap("не закрылся");
+                ErrorFileMap notClose = new ErrorFileMap("doesn't close");
                 error.addSuppressed(e);
                 error.addSuppressed(notClose);
                 throw error;
@@ -236,7 +235,7 @@ public class FileMap implements Table {
         try {
             dbFile = new RandomAccessFile(randomFile, "rw");
         } catch (Exception e) {
-            throw new ErrorFileMap(randomFile.getAbsolutePath() + " не открылся");
+            throw new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
         }
         try {
             dbFile.setLength(0);
@@ -268,7 +267,7 @@ public class FileMap implements Table {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                ErrorFileMap notClose = new ErrorFileMap(randomFile.getAbsolutePath() + " не закрылся");
+                ErrorFileMap notClose = new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
                 error.addSuppressed(e);
                 error.addSuppressed(notClose);
                 throw error;
@@ -295,13 +294,13 @@ public class FileMap implements Table {
 
     public String put(String key, String value) {
         if (key == null || value == null || key.equals("") || value.equals("")) {
-            throw new IllegalArgumentException("Пустые key или value");
+            throw new IllegalArgumentException("key or value is clear");
         }
         if (onlySpace(key) || onlySpace(value)) {
-            throw new IllegalArgumentException("Только пробелы");
+            throw new IllegalArgumentException("only spaces");
         }
         if (key.contains("\n") || value.contains("\n")) {
-            throw new IllegalArgumentException("Переносы строк");
+            throw new IllegalArgumentException("newline in key or value");
         }
         if (tableData.containsKey(key)) {
             String oldValue = tableData.get(key);
@@ -329,7 +328,7 @@ public class FileMap implements Table {
 
     public String get(String key) {
         if (key == null) {
-            throw new IllegalArgumentException("пустой key");
+            throw new IllegalArgumentException("key is clear");
         }
         if (tableData.containsKey(key)) {
             return tableData.get(key);
@@ -340,7 +339,7 @@ public class FileMap implements Table {
 
     public String remove(String key) {
         if (key == null) {
-            throw new IllegalArgumentException("пустой key");
+            throw new IllegalArgumentException("key is clear");
         }
         if (tableData.containsKey(key)) {
 

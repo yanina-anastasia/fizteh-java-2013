@@ -10,25 +10,15 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
-//        String path = "/home/deamoon/Music/deamoonSql";
+        //String path = "/home/deamoon/Music/deamoonSql";
 
-//        try {
-//            Path pathTables1 = Paths.get(".").resolve(path);
-//            FileMap a = new FileMap(pathTables1, "123");
-//            a.put("key","key ");
-//        } catch (Exception e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-//        return;
-        //System.out.println("  123".contains(" "));
         try {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
 
         } catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("Ошибка загрузки");
+            System.out.println("Error loading");
             FileMapUtils.getMessage(e);
             System.exit(1);
         }
@@ -37,9 +27,10 @@ public class DbMain {
     public static void runDb(String[] args, String path) throws IOException {
         FileMapProvider fileMapCommand = null;
         try {
-            fileMapCommand = new FileMapProvider(path);
+            FileMapProviderFactory factory = new FileMapProviderFactory();
+            fileMapCommand = factory.create(path);
         } catch (Exception e) {
-            System.err.println("Ошибка загрузки базы данных");
+            System.err.println("Error loading database");
             FileMapUtils.getMessage(e);
             System.exit(1);
         }
@@ -48,8 +39,7 @@ public class DbMain {
         try {
             sys = new CommandLauncher(fileMapCommand);
         } catch (Exception e) {
-            //e.printStackTrace();
-            System.err.println("Не реализован метод из fileMapCommand");
+            System.err.println("Not implemented method of fileMapCommand");
             FileMapUtils.getMessage(e);
             System.exit(1);
         }
@@ -57,12 +47,11 @@ public class DbMain {
         try {
             Code res = sys.runShell(args);
             if (res == Code.ERROR) {
-                System.err.println("Ошибка выполнения");
+                System.err.println("Runtime Error");
                 System.exit(1);
             }
         } catch (Exception e) {
-            //e.printStackTrace();
-            System.err.println("Ошибка выполнения");
+            System.err.println("Runtime Error");
             FileMapUtils.getMessage(e);
             System.exit(1);
         }

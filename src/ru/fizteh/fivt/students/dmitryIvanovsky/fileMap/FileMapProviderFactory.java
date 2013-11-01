@@ -16,13 +16,13 @@ public class FileMapProviderFactory implements TableProviderFactory {
         try {
             file = new File(dir);
         } catch (Exception e) {
-            throw new IllegalArgumentException(dir + " папка не открывается");
+            throw new IllegalArgumentException(dir + " directory doesn't open");
         }
         if (!file.exists()) {
-            throw new IllegalArgumentException(dir + " не существует");
+            throw new IllegalArgumentException(dir + " not exists");
         }
         if (!file.isDirectory()) {
-            throw new IllegalArgumentException(dir + " не папка");
+            throw new IllegalArgumentException(dir + " isn't directory");
         }
         Path pathTables = Paths.get(".").resolve(dir);
         try {

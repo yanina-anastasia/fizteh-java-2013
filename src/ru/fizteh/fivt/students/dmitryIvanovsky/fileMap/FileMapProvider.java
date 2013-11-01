@@ -52,7 +52,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         try {
             checkBdDir(this.pathDb);
         } catch (Exception e) {
-            e.addSuppressed(new ErrorFileMap("Ошибка загрузки базы"));
+            e.addSuppressed(new ErrorFileMap("Error loading base"));
             throw e;
         }
 
@@ -67,15 +67,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     private void checkBdDir(Path pathTables) throws Exception {
         File currentFile = pathTables.toFile();
         File[] listFiles = currentFile.listFiles();
-        /*if (listFiles == null) {
-            throw new ErrorFileMap("папка пуста");
-        }
-        if (listFiles.length == 0) {
-            throw new ErrorFileMap("папка пуста");
-        } */
         for (File nameMap : listFiles) {
             if (!nameMap.isDirectory()) {
-                throw new ErrorFileMap(nameMap.getAbsolutePath() + " не папка");
+                throw new ErrorFileMap(nameMap.getAbsolutePath() + " isn't directory");
             } else {
                 setDirTable.add(nameMap.getName());
             }
@@ -86,12 +80,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         try {
             File currentFileMap = pathDb.resolve(nameMap).toFile();
             if (!currentFileMap.isDirectory()) {
-                throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " не директория");
+                throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
             }
             return new FileMap(pathDb, nameMap);
         } catch (Exception e) {
             e.printStackTrace();
-            e.addSuppressed(new ErrorFileMap("ошибка открытия таблицы " + nameMap));
+            e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
             throw e;
             //return null;
         }
@@ -216,10 +210,10 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     public Table createTable(String name) {
         if (name == null || name.equals("")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("name is clear");
         }
         if (antiCorrectDir(name)) {
-            throw new RuntimeException();
+            throw new RuntimeException("bad symbol in name");
         }
         if (setDirTable.contains(name)) {
             return null;
@@ -245,10 +239,10 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     public Table getTable(String name) {
         if (name == null || name.equals("")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("name is clear");
         }
         if (antiCorrectDir(name)) {
-            throw new RuntimeException();
+            throw new RuntimeException("bad symbol in name");
         }
         if (mapFileMap.containsKey(name)) {
             return mapFileMap.get(name);
@@ -268,7 +262,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     public void removeTable(String name) {
         if (name == null || name.equals("")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("name is clear");
         }
         if (setDirTable.contains(name)) {
             setDirTable.remove(name);
