@@ -51,12 +51,16 @@ public class DbMain {
     public static void main(String[] args) {
         //TODO: remove that for MULTI
         try {
-            path = Paths.get(System.getProperty("fizteh.db.dir"));
+            String dir = System.getProperty("fizteh.db.dir");
+            if (dir == null) {
+                throw new Exception("directory not declared");
+            }
+            path = Paths.get(dir);
             if (!Files.isDirectory(path)) {
                 throw new Exception(path + " doesn't exist or is not a directory");
             }
         } catch (Exception e) {
-            System.out.println("Error opening database" + (e.getMessage() == null ? "" : (": " + e.getMessage())));
+            System.err.println("Error opening database" + (e.getMessage() == null ? "" : (": " + e.getMessage())));
             System.exit(1);
         }
 
