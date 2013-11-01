@@ -20,6 +20,7 @@ public class DataBaseReader {
 	}
 
 	private static void addTablePart(FileMap tablePart, FileMap whole) {
+
 		for (Map.Entry<String, String> entry : tablePart) {
 			whole.put(entry.getKey(), entry.getValue());
 		}
@@ -40,20 +41,25 @@ public class DataBaseReader {
 		return new String(bytes, "UTF-8");
 	}
 
-	public static void readMultiTableDataBase(MultiTableDataBase multiTableDataBase) 
+	public static void readMultiTableDataBase(FileMapProvider multiTableDataBase) 
 	throws IOException, ValidityCheckFailedException {
 
-		File root = multiTableDataBase.getRoot();
+		String rootPath = multiTableDataBase.getRoot();
 
-		ValidityChecker.checkMultiTableRoot(root);
+		ValidityChecker.checkMultiTableRoot(rootPath);
 		
+		File root = new File(rootPath);
+
 		for (File entry : root.listFiles()) {
 			
-			multiTableDataBase.create(entry.getName());
+			multiTableDataBase.createTable(entry.getName());
 
 			FileMap curTable = multiTableDataBase.getTable(entry.getName());
 
 			readMultiFileMap(curTable, entry);
+
+			//read data has to be preserved
+			curTable.commit();
 		}
 	}
 
@@ -64,7 +70,7 @@ public class DataBaseReader {
 		FileMap[][] tableParts = new FileMap[DIRECTORIES_QUANTITY][FILES_QUANTITY];
 		for (int i = 0;i < tableParts.length;++i) {
 			for (int j = 0;j < tableParts[i].length;++j) {
-				tableParts[i][j] = new FileMap();
+				tableParts[i][j] = new FileMap(null);
 			}
 		}
 
@@ -83,6 +89,8 @@ public class DataBaseReader {
 
 		for (int i = 0;i < tableParts.length;++i) {
 			for (int j = 0;j < tableParts[i].length;++j) {
+				//iterating is only possible over commited entries
+				tableParts[i][j].commit();
 				addTablePart(tableParts[i][j], fileMap);
 			}
 		}

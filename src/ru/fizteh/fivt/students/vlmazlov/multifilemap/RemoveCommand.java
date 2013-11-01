@@ -1,24 +1,22 @@
-package ru.fizteh.fivt.students.vlmazlov.filemap;
+package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class RemoveCommand extends AbstractFileMapCommand {
+public class RemoveCommand extends AbstractDataBaseCommand {
 	public RemoveCommand() {
 		super("remove", 1);
 	}
 
-	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
-		FileMap fileMap = state.getFileMap();
-		
-		if (fileMap == null) {
+	public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
+		if (state.getActiveTable() == null) {
 			displayMessage("no table" + SEPARATOR, out);
 			return;
 		}
 
 		String key = args[0];
-		String oldValue = fileMap.remove(key);
+		String oldValue = state.getActiveTable().remove(key);
 
 		if (oldValue == null) {
 			displayMessage("not found" + SEPARATOR, out);

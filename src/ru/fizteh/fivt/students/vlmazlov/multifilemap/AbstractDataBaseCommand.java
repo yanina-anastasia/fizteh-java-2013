@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vlmazlov.filemap;
+package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.AbstractCommand;
 

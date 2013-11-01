@@ -9,14 +9,14 @@ import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
 import java.io.IOException;
 import java.io.FileNotFoundException;		
 
-public class Main {
+public class NoCommitsMain {
 	public static void main(String[] args) {
 
 		DataBaseState state = null;
-		FileMapProviderFactory factory = new FileMapProviderFactory();
+		FileMapProviderFactory factory = new FileMapProviderFactory(true);
 
 		try {
-			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")), false);
+			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
 		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
@@ -36,8 +36,7 @@ public class Main {
 			new GetCommand(), new PutCommand(), 
 			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateCommand(),
-			new DropCommand(), new CommitCommand(),
-			new RollBackCommand()
+			new DropCommand()
 		};
 
 		Shell<DataBaseState> shell = new Shell<DataBaseState>(commands, state);

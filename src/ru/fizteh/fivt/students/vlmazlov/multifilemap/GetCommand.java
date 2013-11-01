@@ -1,23 +1,21 @@
-package ru.fizteh.fivt.students.vlmazlov.filemap;
+package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import java.io.OutputStream;
 
-public class GetCommand extends AbstractFileMapCommand {
+public class GetCommand extends AbstractDataBaseCommand {
 	public GetCommand() {
 		super("get", 1);
 	}
 
-	public void execute(String[] args, FileMapState state, OutputStream out) throws CommandFailException {
-		FileMap fileMap = state.getFileMap();
-
-		if (fileMap == null) {
+	public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
+		if (state.getActiveTable() == null) {
 			displayMessage("no table" + SEPARATOR, out);
 			return;
 		}
 
 		String key = args[0];
-		String value = fileMap.get(key);
+		String value = state.getActiveTable().get(key);
 
 		if (value == null) {
 			displayMessage("not found" + SEPARATOR, out);

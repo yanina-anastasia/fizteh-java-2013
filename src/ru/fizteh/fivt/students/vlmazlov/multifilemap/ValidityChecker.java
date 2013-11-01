@@ -26,14 +26,20 @@ public class ValidityChecker {
 		}
 	}
 
-	public static void checkMultiTableRoot(File root) throws ValidityCheckFailedException {
+	public static void checkMultiTableRoot(String rootName) throws ValidityCheckFailedException {
+		if (rootName == null) {
+			throw new ValidityCheckFailedException("directory not specified");
+		}
+
+		File root = new File(rootName);
+
 		if (!root.isDirectory()) {
 			throw new ValidityCheckFailedException(root.getPath() + " doesn't denote a directory");
 		}
 
 		for (File entry : root.listFiles()) {
 			if (!entry.isDirectory()) {
-				throw new ValidityCheckFailedException("Root directory contains file " + entry.getName()); 
+				throw new ValidityCheckFailedException("root directory contains file " + entry.getName()); 
 			}
 		}
 	}
@@ -56,6 +62,11 @@ public class ValidityChecker {
 		}
 	}
 
+	public static void checkMultiFileMapName(String name) throws ValidityCheckFailedException {
+		//for now, the criteria is the same
+		checkFileMapKey(name);
+	}
+
 	public static void checkFileMapRoot(File root) throws ValidityCheckFailedException {
 		if (!root.isDirectory()) {
 			throw new ValidityCheckFailedException(root.getPath() + " doesn't denote a directory");
@@ -63,6 +74,11 @@ public class ValidityChecker {
 	}
 
 	public static void checkFileMapKey(String key) throws ValidityCheckFailedException {
+		if (key == null) {
+			throw new ValidityCheckFailedException(key + " not specified");
+		}
+
+		key = key.trim();
 		if ((key.length() < MIN_KEY_LEN) || (key.length() > MAX_KEY_LEN)) {
 			throw new ValidityCheckFailedException(key + " is not a valid key");
 		}
@@ -75,6 +91,11 @@ public class ValidityChecker {
 	}
 
 	public static void checkFileMapValue(String value) throws ValidityCheckFailedException {
+		if (value == null) {
+			throw new ValidityCheckFailedException(value + " not specified");
+		}
+
+		value = value.trim();
 		if ((value.length() < MIN_VALUE_LEN) || (value.length() > MAX_VALUE_LEN)) {
 			throw new ValidityCheckFailedException(value + " is not a valid value");
 		}
