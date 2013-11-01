@@ -18,13 +18,13 @@ public class DataBasesFactory implements TableProviderFactory {
 
     public TableProvider create (String dir) throws IllegalArgumentException {
         if (dir == null || dir.trim().isEmpty()) {
-            throw new IllegalArgumentException("s invalid");
+            throw new IllegalArgumentException("Directory path is invalid");
         }
         File fileMapStorage = new File(dir);
-        if (!fileMapStorage.exists()) {
-            System.err.println(fileMapStorage + " doesn't exist!");
-            System.exit(1);
-        }
+        //if (!fileMapStorage.exists()) {
+        //    System.err.println(fileMapStorage + " doesn't exist!");
+        //    System.exit(1);
+        //}
         shell = new Shell();
         return new DataBasesCommander(shell,fileMapStorage);
     }
