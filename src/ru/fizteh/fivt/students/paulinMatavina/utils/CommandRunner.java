@@ -66,12 +66,20 @@ public class CommandRunner {
                         } 
                     }
                     args[command.getArgNum() - 1] = query.substring(currSize).trim();
-                    return command.execute(args, state);
+                    try {
+                        return command.execute(args, state);
+                    } catch (RuntimeException e) {
+                        System.err.println(e.getMessage());
+                    }
                 }                
                 for (int i = 0; i < command.getArgNum(); i++) {
                     args[i] = token.nextToken();
                 }
-                return command.execute(args, state);
+                try {
+                    return command.execute(args, state);
+                } catch (RuntimeException e) {
+                    System.err.println(e.getMessage());
+                }
             }
         }
         

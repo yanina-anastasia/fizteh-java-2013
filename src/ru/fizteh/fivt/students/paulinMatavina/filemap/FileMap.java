@@ -8,14 +8,8 @@ public class FileMap {
             String property = System.getProperty("fizteh.db.dir");
             MyTableProvider state = new MyTableProvider(property);  
             CommandRunner.run(args, state);
-        } catch (IllegalArgumentException e) {
-            System.err.println("multifilemap: " + e.getMessage());
-            System.exit(1);
         } catch (DbExitException e) {
             System.exit(Integer.parseInt(e.getMessage()));
-        } catch (Exception e) {
-            System.err.println("multifilemap: " + e.getMessage());
-            System.exit(1);
         }
     }
 }

@@ -22,7 +22,7 @@ public class MultiDbState extends State implements Table {
     
     public MultiDbState(String property, String dbName) {
         if (property == null || property.trim().isEmpty()) {
-            throw new IllegalArgumentException("wrong root directory");
+            throw new IllegalArgumentException("empty root directory");
         }
         
         changesNum = 0;
@@ -33,7 +33,7 @@ public class MultiDbState extends State implements Table {
         shell = new ShellState();
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("wrong root directory " + rootPath);
         }
         shell.cd(rootPath);
         shell.cd(dbName);
@@ -42,9 +42,9 @@ public class MultiDbState extends State implements Table {
         try {
             loadData();
         } catch (IOException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("wrong database file " + dbName);
         } catch (DataFormatException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("wrong database file " + dbName);
         }
     }
     
@@ -214,7 +214,7 @@ public class MultiDbState extends State implements Table {
     
     private void validate(String key) {
         if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("empty parameter");
         }
     }
 }

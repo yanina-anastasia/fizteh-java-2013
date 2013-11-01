@@ -17,7 +17,7 @@ public class MyTableProvider extends State implements TableProvider {
         validate(dir);
         File root = new File(dir);
         if (!root.exists() || !root.isDirectory()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("wrong root directory was set");
         }
         
         commands = new HashMap<String, Command>();
@@ -83,7 +83,7 @@ public class MyTableProvider extends State implements TableProvider {
         validate(name);
         
         if (!fileExist(name)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("removing not existing table");
         }
         
         if (tableMap.get(name) != null) {
@@ -101,7 +101,7 @@ public class MyTableProvider extends State implements TableProvider {
     
     private void validate(String key) {
         if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("argument was not set");
         }
     }
     
@@ -110,12 +110,12 @@ public class MyTableProvider extends State implements TableProvider {
                 || dbName.contains("?") || dbName.contains(".") 
                 || dbName.contains("*") || dbName.contains(":") 
                 || dbName.contains("\"")) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("name contains wrong symbols");
         }
     }
     
     public boolean isDbChosen() {
-        return currTableName == null;
+        return currTableName != null;
     }
     
     public Table getCurrTable() {
