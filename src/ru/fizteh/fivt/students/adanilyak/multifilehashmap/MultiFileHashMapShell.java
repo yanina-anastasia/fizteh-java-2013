@@ -16,6 +16,7 @@ import java.io.File;
 public class MultiFileHashMapShell extends GenericShell {
     public MultiFileHashMapShell(String[] args) {
         String workingDirectory = System.getProperty("fizteh.db.dir");
+        System.err.println("multifile shell first print" + workingDirectory);
         if (workingDirectory == null) {
             System.err.println("Data Base directory is not set");
             System.exit(3);
