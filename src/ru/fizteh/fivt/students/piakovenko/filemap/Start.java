@@ -14,7 +14,7 @@ import java.io.File;
  */
 
 public class Start {
-    public static int main (String[] args) {
+    public static void  main (String[] args) {
         try {
             DataBasesFactory dbf = new DataBasesFactory();
             dbf.create(System.getProperty("fizteh.db.dir"));
@@ -23,6 +23,5 @@ public class Start {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
         }
-        return 0;
     }
 }
