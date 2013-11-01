@@ -81,6 +81,7 @@ public class DataTable implements Table {
             --commitSize;
             removeKeys.add(key);
         }
+        System.out.println(commitSize);
         return dataStorage.remove(key);
     }
 
@@ -89,6 +90,8 @@ public class DataTable implements Table {
     }
 
     public int size() {
+        //System.out.println(commitSize);
+        //System.out.println(dataStorage.size());
         return dataStorage.size() + commitSize;
     }
 
