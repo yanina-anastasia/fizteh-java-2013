@@ -14,7 +14,6 @@ public class CommandRemove extends Command {
             throw new IllegalArgumentException("Illegal arguments");
         }
         if (myState.database.curTable.remove(args[0]) != null) {
-            //myState.table.remove(args[0]);
             System.out.println("removed");
         } else {
             System.out.println("not found");

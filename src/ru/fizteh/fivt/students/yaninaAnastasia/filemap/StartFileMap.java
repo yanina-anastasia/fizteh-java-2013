@@ -16,14 +16,19 @@ public class StartFileMap {
             System.exit(1);
         }
         DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
-        curState.database = factory.create(path);
         try {
+        curState.database = factory.create(path);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+        /*try {
             OpenFile opener = new OpenFile(curState);
             opener.open(curState);
         } catch (IOException e) {
             System.err.println("Error in IO");
             System.exit(1);
-        }
+        }  */
         ArrayList<Command> cmdList = new ArrayList<Command>();
         cmdList.add(new CommandPut());
         cmdList.add(new CommandGet());

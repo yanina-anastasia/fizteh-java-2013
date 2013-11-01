@@ -50,8 +50,8 @@ public class DatabaseTable implements Table {
     }
 
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty()) ||
-                (value == null || (value.isEmpty() || value.trim().isEmpty()))) {
+        if (key == null || (key.isEmpty() || key.trim().isEmpty())
+                || (value == null || (value.isEmpty() || value.trim().isEmpty()))) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
         String oldValue = null;
@@ -193,7 +193,8 @@ public class DatabaseTable implements Table {
             try {
                 Files.delete(Paths.get(path));
             } catch (IOException e) {
-
+                System.err.println("IO exception");
+                return false;
             }
             return false;
         }

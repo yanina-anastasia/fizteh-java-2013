@@ -8,7 +8,7 @@ public class CommandCommit extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
         if (myState.table == null) {
-            System.exit(0);   //very bad
+            throw new IllegalArgumentException("Wrong table for commit");
         }
         if (args.length != 0) {
             throw new IllegalArgumentException("Illegal arguments");
