@@ -52,15 +52,26 @@ public class CommandRunner {
                     System.err.println("Something went wrong!");
                     return;
                 }
+                if (!input.hasNextLine()) {
+                    try {
+                        factory.makeCommand("exit").run(new String[]{});
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
+                }
                 String commands = input.nextLine();
                 if (commands.length() != 0) {
-                   runCommands(commands);
+                   try {
+                       runCommands(commands);
+                   } catch (Exception e) {
+                       System.err.println(e.getMessage());
+                   }
                 }
             }
         }
     }
 
-    public void runCommands(String commands) {
+    public void runCommands(String commands) throws Exception {
         String[] commandsList = commands.split(";");
         for (String commandWithArguments: commandsList) {
             String[] tokens = tokenizeCommand(commandWithArguments);
@@ -71,19 +82,17 @@ public class CommandRunner {
             try {
                 command = factory.makeCommand(tokens[0]);
             } catch (Exception e) {
-                System.err.println(e.getMessage());
-                return;
+                throw e;
             }
             try {
                 command.run(Arrays.copyOfRange(tokens, 1, tokens.length));
             } catch (Exception e) {
-                System.err.println(command.name + ": " + e.getMessage());
-                return;
+                throw new Exception(command.name + ": " + e.getMessage());
             }
         }
     }
 
-    public String[] tokenizeCommand(String s) {
+    public String[] tokenizeCommand(String s) throws Exception {
         s = s.trim();
         StringTokenizer tokenizer = new StringTokenizer(s);
         String[] result = new String[tokenizer.countTokens()];
