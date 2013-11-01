@@ -43,9 +43,10 @@ public class DataBaseMap {
         if (!map.containsKey(key)) {
             System.out.println("not found");
         } else {
+            String returnValue = map.get(key);
             map.remove(key);
             System.out.println("removed");
-            return key;
+            return returnValue;
         }
         return null;
     }
