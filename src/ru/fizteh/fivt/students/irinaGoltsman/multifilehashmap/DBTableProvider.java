@@ -35,6 +35,9 @@ public class DBTableProvider implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("null table name");
         }
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("table name is empty");
+        }
         if (tableName.contains("\\")) {
             throw new RuntimeException("table name: can not be null");
         }
@@ -79,6 +82,9 @@ public class DBTableProvider implements TableProvider {
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
         if (tableName == null || tableName.contains("\\")) {
             throw new IllegalArgumentException("incorrect table name");
+        }
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("table name is empty");
         }
         if (!allTables.containsKey(tableName)) {
             throw new IllegalStateException("no such table");
