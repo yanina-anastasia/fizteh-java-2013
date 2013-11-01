@@ -14,7 +14,6 @@ import java.io.IOException;
 public class TableManagerCreator implements TableProviderFactory {
     @Override
     public TableProvider create(String directoryWithTables) {
-        System.err.println("tableproviderfactorycreate print --- " + directoryWithTables);
         if (directoryWithTables == null || directoryWithTables.trim().isEmpty()) {
             throw new IllegalArgumentException("directory name: can not be null");
         }

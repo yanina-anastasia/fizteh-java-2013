@@ -22,9 +22,6 @@ public class MultiFileHashMapShell extends GenericShell {
         }
         try {
             TableManagerCreator tableManagerCreator = new TableManagerCreator();
-
-            System.err.println("multifile shell first print --- " + workingDirectory);
-
             TableProvider tableManager = tableManagerCreator.create(workingDirectory);
             DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
             runMFHMShell(args, makeUpCmdList(state));
