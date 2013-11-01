@@ -20,6 +20,17 @@ public class MyTableProvider extends State implements TableProvider {
             throw new IllegalArgumentException();
         }
         
+        commands = new HashMap<String, Command>();
+        this.add(new DbGet());
+        this.add(new DbPut());
+        this.add(new DbRemove());
+        this.add(new MultiDbDrop());
+        this.add(new MultiDbCreate());
+        this.add(new MultiDbUse());
+        this.add(new DbCommit());
+        this.add(new DbRollback());
+        this.add(new DbSize());
+        
         currTableName = null;
         shell = new ShellState();
         shell.cd(dir);
