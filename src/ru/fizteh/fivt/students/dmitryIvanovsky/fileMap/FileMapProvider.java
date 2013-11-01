@@ -40,29 +40,29 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         return commandList;
     }
 
-    public FileMapProvider(String pathT) throws Exception {
+    public FileMapProvider(String pathDb) throws Exception {
         this.out = true;
         this.err = true;
         File file = null;
         try {
-            file = new File(pathT);
+            file = new File(pathDb);
         } catch (Exception e) {
-            throw new ErrorFileMap(pathT + " папка не открывается");
+            throw new IllegalArgumentException(pathDb + " папка не открывается");
         }
         if (!file.exists()) {
-            throw new ErrorFileMap(pathT + " не существует");
+            throw new IllegalArgumentException(pathDb + " не существует");
         }
         if (!file.isDirectory()) {
-            throw new ErrorFileMap(pathT + " не папка");
+            throw new IllegalArgumentException(pathDb + " не папка");
         }
         this.useNameTable = "";
-        this.pathDb = Paths.get(pathT);
-        this.mySystem = new CommandShell(pathT, false, false);
+        this.pathDb = Paths.get(pathDb);
+        this.mySystem = new CommandShell(pathDb, false, false);
         this.dbData = null;
         this.setDirTable = new HashSet<>();
 
         try {
-            checkBdDir(pathDb);
+            checkBdDir(this.pathDb);
         } catch (Exception e) {
             e.addSuppressed(new ErrorFileMap("Ошибка загрузки базы"));
             throw e;
@@ -227,7 +227,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public Table createTable(String name) {
-        if (name == null) {
+        if (name == null || name.contains("/") || name.equals("")) {
             throw new IllegalArgumentException();
         }
         if (setDirTable.contains(name)) {
@@ -245,7 +245,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public Table getTable(String name) {
-        if (name == null) {
+        if (name == null || name.equals("") || name.contains("/")) {
             throw new IllegalArgumentException();
         }
         if (setDirTable.contains(name)) {

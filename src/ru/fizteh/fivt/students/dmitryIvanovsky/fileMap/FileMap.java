@@ -285,7 +285,7 @@ public class FileMap implements Table {
     }
 
     public String put(String key, String value) {
-        if (key == null || value == null) {
+        if (key == null || value == null || key.equals("") || value.equals("")) {
             throw new IllegalArgumentException();
         }
         if (tableData.containsKey(key)) {

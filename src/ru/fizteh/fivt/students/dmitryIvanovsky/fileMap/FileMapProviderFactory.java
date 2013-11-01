@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 public class FileMapProviderFactory implements TableProviderFactory {
 
     public FileMapProvider create(String dir) {
-        if (dir == null) {
+        if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException();
         }
         Path pathTables = Paths.get(".").resolve(dir);
