@@ -55,7 +55,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             e.addSuppressed(new ErrorFileMap("Error loading base"));
             throw e;
         }
-
     }
 
     public void exit() throws Exception {
@@ -224,9 +223,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 mapFileMap.put(name, fileMap);
                 return fileMap;
             } catch (Exception e) {
-                //e.printStackTrace();
-                //return null;
-                throw new RuntimeException();
+                RuntimeException error = new RuntimeException();
+                error.addSuppressed(e);
+                throw error;
             }
         }
     }

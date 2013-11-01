@@ -6,10 +6,17 @@ import org.junit.runner.notification.Failure;
 
 public class TestRunner {
     public static void main(String[] args) {
-        Result result = JUnitCore.runClasses(TestFileMap.class);
+        runTest(TestFileMap.class);
+        runTest(TestFileMapProvider.class);
+        runTest(TestFileMapProviderFactory.class);
+    }
+
+    public static void runTest(Class testClass) {
+        Result result = JUnitCore.runClasses(testClass);
         for (Failure failure : result.getFailures()) {
             System.out.println(failure.toString());
         }
         System.out.println(result.wasSuccessful());
     }
+
 }
