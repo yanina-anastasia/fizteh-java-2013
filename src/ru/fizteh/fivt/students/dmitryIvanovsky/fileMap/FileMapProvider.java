@@ -43,18 +43,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     public FileMapProvider(String pathDb) throws Exception {
         this.out = true;
         this.err = true;
-        File file = null;
-        try {
-            file = new File(pathDb);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(pathDb + " папка не открывается");
-        }
-        if (!file.exists()) {
-            throw new IllegalArgumentException(pathDb + " не существует");
-        }
-        if (!file.isDirectory()) {
-            throw new IllegalArgumentException(pathDb + " не папка");
-        }
+
         this.useNameTable = "";
         this.pathDb = Paths.get(pathDb);
         this.mySystem = new CommandShell(pathDb, false, false);
@@ -261,7 +250,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 return fileMap;
             } catch (Exception e) {
                 //return null;
-                throw new IllegalArgumentException();
+                throw new RuntimeException();
             }
         } else {
             return null;
@@ -277,12 +266,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             try {
                 mySystem.rm(new String[]{pathDb.resolve(name).toString()});
             } catch (Exception e) {
-                IllegalStateException ex = new IllegalStateException();
+                IllegalArgumentException ex = new IllegalArgumentException();
                 ex.addSuppressed(e);
                 throw ex;
             }
         } else {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
     }
 
