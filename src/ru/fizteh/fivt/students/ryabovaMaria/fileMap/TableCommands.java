@@ -177,7 +177,7 @@ public class TableCommands implements Table {
         if (value == null || key == null) {
             throw new IllegalArgumentException("Bad args");
         }
-        if (value.contains("\n") || key.contains("\n")) {
+        if (value.contains("\n") || key.contains("\n") || key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Bad args");
         }
         getUsingDatFile(key);
