@@ -17,6 +17,10 @@ public class UseCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
+        int commitSize;
+        if ((commitSize = curState.dataStorage.commitSize()) != 0) {
+            throw new IOException(commitSize + " unsaved changes");
+        }
         File newTable = new File(curState.getWorkingDirectory(), args[1]);
         if (newTable.getCanonicalFile().exists()) {
             curState.setNextTable(newTable.getCanonicalFile());

@@ -15,12 +15,15 @@ public class Main {
             Shell multiFileHashMap = new Shell();
             MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
             MultiFileHashMapProvider state = providerFactory.create(dirName);
+            multiFileHashMap.addCommand(new CommitCommand(state));
             multiFileHashMap.addCommand(new CreateCommand(state));
             multiFileHashMap.addCommand(new DropCommand(state));
             multiFileHashMap.addCommand(new ExitCommand(state));
             multiFileHashMap.addCommand(new GetCommand(state));
             multiFileHashMap.addCommand(new PutCommand(state));
             multiFileHashMap.addCommand(new RemoveCommand(state));
+            multiFileHashMap.addCommand(new RollbackCommand(state));
+            multiFileHashMap.addCommand(new SizeCommand(state));
             multiFileHashMap.addCommand(new UseCommand(state));
             if (args.length == 0) {
                 multiFileHashMap.interactiveMode();

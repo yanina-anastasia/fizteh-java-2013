@@ -8,15 +8,25 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MultiFileHashMapProvider implements TableProvider {
     private File curTable = null;
     private File nextTable;
     private File workingDirectory;
-    public DataTable dataStorage;
+    public DataTable dataStorage = new DataTable();
+    private Map<String, DataTable> dataBaseTables = new HashMap<String, DataTable>();
+
 
     public MultiFileHashMapProvider(File dir) {
         workingDirectory = dir;
+        /*File[] tables = workingDirectory.listFiles();
+        for (File f: tables) {
+            if (f.isDirectory()) {
+                dataBaseTables.put(f.getName(), new DataTable(f.getName()));
+            }
+        }*/
     }
 
     public void setCurTable(File newTable) {
@@ -47,7 +57,8 @@ public class MultiFileHashMapProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
-        File tableDir = new File(workingDirectory, name);
+        return dataBaseTables.get(name);
+       /* File tableDir = new File(workingDirectory, name);
         try {
             tableDir = tableDir.getCanonicalFile();
         } catch (IOException e) {
@@ -60,51 +71,66 @@ public class MultiFileHashMapProvider implements TableProvider {
                 throw new IllegalArgumentException("The table should be a directory");
             }
             return new DataTable(name);
-        }
+        }*/
     }
 
     public Table createTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
-        File newTable = new File(workingDirectory, name);
-        try {
-            newTable = newTable.getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Programme's mistake in getting canonical file");
+        if (dataBaseTables.get(name) != null) {
+            return null;
+        } else {
+            File newTableFile = new File(workingDirectory, name);
+            try {
+                newTableFile = newTableFile.getCanonicalFile();
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Programme's mistake in getting canonical file");
+            }
+            newTableFile.mkdir();
+            DataTable newTable = new DataTable(name);
+            dataBaseTables.put(name, newTable);
+            return newTable;
         }
-        if (newTable.exists()) {
+        /*if (newTable.exists()) {
             if (!newTable.isDirectory()) {
                 throw new IllegalArgumentException(name + " should be a directory");
             }
             return null;
         } else {
             newTable.mkdir();
+            dataBaseTables.put(name, new DataTable(name));
             return new DataTable(name);
-        }
+        } */
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
         if (name == null) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
-        File table = new File(workingDirectory, name);
-        try {
-            table = table.getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Programme's mistake in getting canonical file");
+        if (dataBaseTables.get(name) != null) {
+            File table = new File(workingDirectory, name);
+            try {
+                table = table.getCanonicalFile();
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Programme's mistake in getting canonical file");
+            }
+            try {
+                CommandUtils.recDeletion(table);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
+            dataBaseTables.remove(name);
+
         }
-        if (!table.exists()) {
+
+       /* if (!table.exists()) {
             throw new IllegalStateException(name + " not exists");
         }
         if (!table.isDirectory()) {
             throw new IllegalArgumentException("table " + name + " should be a directory");
-        }
-        try {
-            CommandUtils.recDeletion(table);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        } */
+
     }
 }
 

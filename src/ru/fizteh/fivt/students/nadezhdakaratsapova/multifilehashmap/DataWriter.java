@@ -34,6 +34,7 @@ public class DataWriter {
                                     file.getCanonicalFile().createNewFile();
                                 }
                                 keysToFile.put(key, state.dataStorage.get(key));
+                                keysToFile.commit();
                             }
                         }
 
