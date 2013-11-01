@@ -154,7 +154,7 @@ public class DatabaseTable implements Table {
                         CommandDrop.recRemove(path);
                     }
                 } catch (IOException e) {
-                    System.err.println("IOException thrown");
+                    //System.err.println("IOException thrown");
                     return false;
                 }
                 continue;
@@ -167,7 +167,7 @@ public class DatabaseTable implements Table {
                         return false;
                     }
                 } catch (IOException e) {
-                    System.err.println("IOException");
+                    //System.err.println("IOException");
                     return false;
                 }
             }
