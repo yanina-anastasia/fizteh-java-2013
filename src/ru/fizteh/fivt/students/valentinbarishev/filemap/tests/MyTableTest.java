@@ -138,6 +138,7 @@ public class MyTableTest {
         Assert.assertNull(table.put("work", "with"));
         Assert.assertEquals(table.get("work"), "with");
         Assert.assertEquals(table.remove("work"), "with");
+        Assert.assertEquals(table.remove("work"), null);
         Assert.assertEquals(table.commit(), 0);
         Assert.assertEquals(table.rollback(), 0);
         Assert.assertEquals(table.size(), 0);
