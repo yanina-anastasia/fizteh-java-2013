@@ -9,6 +9,7 @@ import java.util.HashMap;
 public class DistributedTableProvider implements TableProvider {
 
     HashMap<String, DistributedTable> tables;
+    HashMap<String, TableMember> tableMembers;
     File currentPath;
 
     protected void checkTableDirectory(String name) {
@@ -50,13 +51,19 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalArgumentException("couldn't create working directory");
         }
         tables = new HashMap<>();
+        tableMembers = new HashMap<>();
     }
 
     @Override
     public TableMember getTable(String name) throws IllegalArgumentException {
         loadTable(name);
         if (tables.containsKey(name)) {
-            return new TableMember(tables.get(name), this);
+            /**/
+            if (!tableMembers.containsKey(name)) {
+                tableMembers.put(name, new TableMember(tables.get(name), this));
+            }
+            return tableMembers.get(name);
+            //return new TableMember(tables.get(name), this);
         } else {
             return null;
         }
@@ -67,9 +74,6 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        /*if (tables.containsKey(name)) {
-            throw new IllegalArgumentException("table already exists");
-        }*/
         loadTable(name);
         if (!tables.containsKey(name)) {
             try {
@@ -79,7 +83,12 @@ public class DistributedTableProvider implements TableProvider {
                 throw new IllegalStateException(e.getMessage());
             }
         }
-        return new TableMember(tables.get(name), this);
+        /**/
+        if (!tableMembers.containsKey(name)) {
+            tableMembers.put(name, new TableMember(tables.get(name), this));
+        }
+        return tableMembers.get(name);
+        //return new TableMember(tables.get(name), this);
     }
 
     @Override
@@ -97,5 +106,10 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalStateException(e.getMessage());
         }
         tables.remove(name);
+        /***/
+        if (tableMembers.containsKey(name)) {
+            tableMembers.remove(name);
+        }
+        //
     }
 }
