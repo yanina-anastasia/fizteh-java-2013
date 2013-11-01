@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,8 @@ public final class DataBaseTable implements  TableProvider {
             throw new IllegalArgumentException("Cannot create table! Wrong name!");
         }
 
-        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+")) {
+        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+") || name.contains(File.separator)
+                || name.contains(".")) {
             throw new RuntimeException("Wrong symbols in name!");
         }
     }

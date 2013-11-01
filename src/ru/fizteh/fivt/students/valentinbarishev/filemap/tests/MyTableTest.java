@@ -1,20 +1,30 @@
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
+import java.io.File;
 import java.util.Random;
 
 public class MyTableTest {
     static Table table;
     static TableProviderFactory factory;
     static TableProvider provider;
+    static TemporaryFolder folder = new TemporaryFolder();
+
 
     @BeforeClass
     public static void beforeClass() {
         factory = new MyTableProviderFactory();
-        provider = factory.create("//home/bajiuk/database");
+        provider = factory.create(folder.toString());
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        folder.delete();
+        new File(folder.toString()).delete();
     }
 
     @Before

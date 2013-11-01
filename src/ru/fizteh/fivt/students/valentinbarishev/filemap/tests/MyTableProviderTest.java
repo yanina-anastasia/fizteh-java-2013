@@ -1,5 +1,6 @@
 
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
@@ -9,6 +10,7 @@ import java.io.File;
 public class MyTableProviderTest {
     static TableProviderFactory factory;
     static TableProvider provider;
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
     public static void beforeClass() {
@@ -17,8 +19,14 @@ public class MyTableProviderTest {
 
     @Before
     public void before() {
-        provider = factory.create("//home/bajiuk/database");
+        provider = factory.create(folder.toString());
         Assert.assertNotNull(provider);
+    }
+
+    @After
+    public void after() {
+        folder.delete();
+        new File(folder.toString()).delete();
     }
 
     @Test
@@ -88,6 +96,13 @@ public class MyTableProviderTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetTableWithEmptyName() {
         provider.getTable("");
+    }
+
+    @Test
+    public void testSameInstanceGetCreate() {
+        Assert.assertEquals(provider.createTable("instance"), provider.getTable("instance"));
+        Assert.assertEquals(provider.getTable("instance"), provider.getTable("instance"));
+        provider.removeTable("instance");
     }
 }
 
