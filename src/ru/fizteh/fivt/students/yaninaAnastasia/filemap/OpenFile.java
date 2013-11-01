@@ -2,18 +2,21 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 
 public class OpenFile {
-    public static String curTable;
+    public String curTable;
 
-    public static File getDirWithNum(int dirNum) {
+    public OpenFile(MultiDBState curState) {
+        curTable = curState.curTableName;
+    }
+
+    public File getDirWithNum(int dirNum) {
         String dirName = String.format("%d.dir", dirNum);
         File res = new File(System.getProperty("fizteh.db.dir"), curTable);
         return new File(res, dirName);
     }
 
-    public static File getFileWithNum(int fileNum, int dirNum) {
+    public File getFileWithNum(int fileNum, int dirNum) {
         String dirName = String.format("%d.dir", dirNum);
         String fileName = String.format("%d.dat", fileNum);
         File res = new File(System.getProperty("fizteh.db.dir"), curTable);
@@ -21,26 +24,25 @@ public class OpenFile {
         return new File(res, fileName);
     }
 
-    public static boolean open(State curState) throws IOException {
+    public boolean open(State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        curTable = myState.curTableName;
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
             System.err.println("Error with getting property");
             System.exit(1);
         }
-        File databaseDirectory = new File(path);
-        if (databaseDirectory.isFile()) {
+        if (new File(path).isFile()) {
             System.err.println("The path from the property is not a directory");
             System.exit(1);
         }
+        File databaseDirectory = new File(path);
         if (!databaseDirectory.exists()) {
             databaseDirectory.mkdir();
             System.exit(1);
         }
 
-        HashMap<String, String> loadingTable = new HashMap<String, String>();
-        for (File table : databaseDirectory.listFiles()) {
+        DatabaseTable loadingTable = new DatabaseTable(curTable);
+        for (File table : new File(path).listFiles()) {
             curTable = table.getName();
             File[] files = new File(path, curTable).listFiles();
             for (File step : files) {
@@ -50,7 +52,7 @@ public class OpenFile {
                 }
             }
             if (files.length == 0) {
-                myState.myDatabase.database.put(curTable, loadingTable);
+                myState.database.tables.put(curTable, loadingTable);
                 continue;
             }
             for (int i = 0; i < 16; i++) {
@@ -87,13 +89,14 @@ public class OpenFile {
                     }
                 }
             }
-            myState.myDatabase.database.put(curTable, loadingTable);
+            loadingTable.uncommittedChanges = 0;
+            myState.database.tables.put(curTable, loadingTable);
         }
         myState.table = null;
         return true;
     }
 
-    private static void loadTable(RandomAccessFile temp, HashMap<String, String> table, int i, int j) throws IOException {
+    private void loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j) throws IOException {
         if (temp.length() == 0) {
             return;
         }
@@ -128,7 +131,7 @@ public class OpenFile {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (i == MultiFileMapUtils.getDirectoryNum(key) && j == MultiFileMapUtils.getFileNum(key)) {
+            if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
                 table.put(key, putValue);
             } else {
                 throw new IOException("File has incorrect format");
@@ -145,7 +148,7 @@ public class OpenFile {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        if (i == MultiFileMapUtils.getDirectoryNum(key) && j == MultiFileMapUtils.getFileNum(key)) {
+        if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
             table.put(nextKey, putValue);
         } else {
             throw new IOException("File has incorrect format");

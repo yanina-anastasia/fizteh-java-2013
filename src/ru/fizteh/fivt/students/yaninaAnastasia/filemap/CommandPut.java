@@ -8,12 +8,10 @@ public class CommandPut extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         DBState myState = DBState.class.cast(curState);
         if (myState.table == null) {
-            System.out.println("no table");
-            return false;
+            throw new IllegalArgumentException("no table");
         }
         if (args.length != 2) {
-            System.err.println("Invalid arguments");
-            return false;
+            throw new IllegalArgumentException("Illegal arguments");
         }
         String prevValue = myState.table.put(args[0], args[1]);
         if (prevValue == null) {
@@ -30,3 +28,4 @@ public class CommandPut extends Command {
 
     }
 }
+

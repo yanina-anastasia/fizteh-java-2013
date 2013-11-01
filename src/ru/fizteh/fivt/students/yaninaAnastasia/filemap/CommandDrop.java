@@ -4,8 +4,7 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 
 public class CommandDrop extends Command {
     public static boolean recRemove(File file) throws IOException {
@@ -14,10 +13,8 @@ public class CommandDrop extends Command {
                 recRemove(innerFile);
             }
         }
-        try {
-            Files.delete(Paths.get(file.getAbsolutePath()));
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+        if (!file.delete()) {
+            System.err.println("Error while deleting");
             return false;
         }
         return true;
@@ -26,15 +23,16 @@ public class CommandDrop extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
         if (args.length != 1) {
-            System.err.println("Invalid arguments");
-            return false;
+            throw new IllegalArgumentException("Illegal arguments");
         }
         String path = myState.getProperty(myState);
-        if (!myState.myDatabase.database.containsKey(args[0])) {
+        if (!myState.database.tables.containsKey(args[0])) {
             System.out.println(args[0] + " not exists");
             return false;
         }
+        myState.database.tables.remove(args[0]);
         File temp = new File(path, args[0]);
+
         if (temp.exists()) {
             File file = temp;
             if (!recRemove(file)) {
@@ -45,24 +43,12 @@ public class CommandDrop extends Command {
             System.out.println(args[0] + " not exists");
             return false;
         }
-        myState.myDatabase.database.remove(args[0]);
+
         if (args[0].equals(myState.curTableName)) {
-            for (String step : myState.myDatabase.database.keySet()) {
-                myState.table = myState.myDatabase.database.get(step);
-                myState.curTableName = step;
-                if (myState.table != null) {
-                    MultiFileMapUtils saver = new MultiFileMapUtils();
-                    if (!saver.save(myState)) {
-                        System.err.println("Previous file was not saved");
-                        return false;
-                    }
-                }
-            }
             myState.table = null;
-            myState.curTableName = "";
+            myState.table.putName("");
         }
         System.out.println("dropped");
-
         return true;
     }
 

@@ -101,7 +101,12 @@ public class Shell {
                 String input = scan.nextLine();
                 String[] commandArray = input.split(";");
                 for (final String command : commandArray) {
-                    if (!processCommand(command)) {
+                    try {
+                        if (!processCommand(command)) {
+                            System.getProperty("line.separator");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
                         System.getProperty("line.separator");
                     }
                 }
@@ -114,6 +119,8 @@ public class Shell {
                 System.exit(0);
             } catch (IOException r) {
                 System.exit(1);
+            } catch (IllegalArgumentException f) {
+                System.err.println(f.getMessage());
             }
             System.exit(1);
         }
