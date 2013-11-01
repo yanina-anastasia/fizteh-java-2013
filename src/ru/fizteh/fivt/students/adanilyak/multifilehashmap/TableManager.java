@@ -62,6 +62,14 @@ public class TableManager implements TableProvider {
 
     @Override
     public void removeTable(String tableName) {
+        if (!CheckOnCorrect.goodArg(tableName)) {
+            throw new IllegalArgumentException("Bad table name");
+        }
+
+        if (allTablesMap.get(tableName) == null) {
+            throw new IllegalStateException(tableName + " not exists");
+        }
+
         File tableFile = new File(allTablesDirectory, tableName);
         try {
             DeleteDirectory.rm(tableFile);
