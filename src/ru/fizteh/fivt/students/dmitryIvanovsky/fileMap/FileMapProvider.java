@@ -255,8 +255,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 FileMap fileMap = new FileMap(pathDb, name);
                 return fileMap;
             } catch (Exception e) {
-                //return null;
-                throw new RuntimeException();
+                RuntimeException error = new RuntimeException();
+                error.addSuppressed(e);
+                throw error;
             }
         } else {
             return null;
