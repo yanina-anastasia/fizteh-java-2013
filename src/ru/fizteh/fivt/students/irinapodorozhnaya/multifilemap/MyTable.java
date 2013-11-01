@@ -35,7 +35,7 @@ public class MyTable implements ExtendTable {
 
     @Override
     public String get(String key) {
-        if (key == null) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument");
         }
         int nfile = getFileNumber(key);
@@ -48,7 +48,7 @@ public class MyTable implements ExtendTable {
 
     @Override
     public String remove(String key) {
-        if (key == null) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument");
         }
         int nfile = getFileNumber(key);
@@ -70,7 +70,7 @@ public class MyTable implements ExtendTable {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null) {
+        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
              throw new IllegalArgumentException("null argument");
         }
 
