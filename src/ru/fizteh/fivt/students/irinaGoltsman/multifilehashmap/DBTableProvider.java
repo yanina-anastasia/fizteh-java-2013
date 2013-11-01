@@ -13,8 +13,6 @@ import java.util.Map;
 public class DBTableProvider implements TableProvider {
     private Map<String, Table> allTables = new HashMap<String, Table>();
     private File rootDirectoryOfTables;
-    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
-
     public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
             if (!rootDirectory.mkdir()) {
@@ -39,8 +37,8 @@ public class DBTableProvider implements TableProvider {
         if (tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("table name is empty");
         }
-        if (tableName.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("get table: error table name");
+        if (tableName.contains("\\")) {
+            throw new RuntimeException("table name: can not be null");
         }
         if (!allTables.containsKey(tableName)) {
             return null;
@@ -62,8 +60,8 @@ public class DBTableProvider implements TableProvider {
         if (tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("table name is empty");
         }
-        if (tableName.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("create table: error table name");
+        if (tableName.contains("\\")) {
+            throw new RuntimeException("table name: can not be null");
         }
         File tableFile = new File(rootDirectoryOfTables, tableName);
         if (tableFile.exists()) {
@@ -84,8 +82,8 @@ public class DBTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
-        if (tableName == null || tableName.matches(TABLE_NAME_FORMAT)) {
-            throw new IllegalArgumentException("remove table: error table name");
+        if (tableName == null || tableName.contains("\\")) {
+            throw new IllegalArgumentException("incorrect table name");
         }
         if (tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("table name is empty");
