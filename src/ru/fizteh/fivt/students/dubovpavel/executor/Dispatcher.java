@@ -68,6 +68,9 @@ public class Dispatcher {
             ArrayList<Command> commands = parser.getCommands(this, commandSequence);
             for(Command command: commands) {
                 try {
+                    if(shutdown) {
+                        break;
+                    }
                     boolean performed = false;
                     for(Performer performer: performers) {
                         if(performer.pertains(command)) {
@@ -84,9 +87,6 @@ public class Dispatcher {
                     if(forwarding) {
                         throw new DispatcherException(e.getMessage());
                     }
-                }
-                if(shutdown) {
-                    break;
                 }
             }
         } catch(Parser.IncorrectSyntaxException e) {
