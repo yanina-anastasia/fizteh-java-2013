@@ -39,7 +39,7 @@ public class TableManager implements TableProvider {
     @Override
     public Table getTable(String tableName) {
         if (!CheckOnCorrect.goodName(tableName)) {
-            throw new IllegalArgumentException("table name: can not be null");
+            throw new IllegalArgumentException("get table: name is bad");
         }
         return allTablesMap.get(tableName);
     }
@@ -47,7 +47,7 @@ public class TableManager implements TableProvider {
     @Override
     public Table createTable(String tableName) {
         if (!CheckOnCorrect.goodName(tableName)) {
-            throw new IllegalArgumentException("table name: can not be null");
+            throw new IllegalArgumentException("create table: name is bad");
         }
 
         File tableFile = new File(allTablesDirectory, tableName);
