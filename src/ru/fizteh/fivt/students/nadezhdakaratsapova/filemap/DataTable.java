@@ -23,7 +23,7 @@ public class DataTable implements Table {
     }
 
     public String put(String key, String value) throws IllegalArgumentException {
-        if ((key == null) || (key.isEmpty()) || (value == null)) {
+        if ((key == null) || (key.trim().isEmpty()) || (value == null)) {
             throw new IllegalArgumentException("Not correct key or value");
         }
         String oldValue = null;
