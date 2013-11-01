@@ -20,9 +20,7 @@ public class TableManager implements TableProvider {
 
     public TableManager(File atDirectory) throws IOException {
         if (!atDirectory.exists()) {
-            if (!atDirectory.mkdir()) {
-                throw new IOException(atDirectory.toString() + ": can not create directory, something went wrong");
-            }
+            atDirectory.mkdir();
         }
         if (!atDirectory.isDirectory()) {
             throw new IOException(atDirectory.getName() + ": not a directory");
