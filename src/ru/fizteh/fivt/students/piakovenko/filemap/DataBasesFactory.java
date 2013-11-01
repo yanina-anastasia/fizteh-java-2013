@@ -17,6 +17,9 @@ public class DataBasesFactory implements TableProviderFactory {
     private Shell shell = null;
 
     public TableProvider create (String dir) throws IllegalArgumentException {
+        if (dir == null || dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("s invalid");
+        }
         File fileMapStorage = new File(dir);
         if (!fileMapStorage.exists()) {
             System.err.println(fileMapStorage + " doesn't exist!");
