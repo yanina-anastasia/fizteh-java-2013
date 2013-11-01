@@ -21,13 +21,11 @@ public class CommandMultiGet implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Command<FilemapState> getter = new CommandGet();
-        FilemapState fmState = new FilemapState(null);
 
-        TwoLayeredString key = new TwoLayeredString(args[0]);
-        Utils.loadFile(table, key);
-
-        fmState.setMap(table.getMap());
-        getter.run(fmState, args);
+        if (state.getCurrentTable().get(args[0]) != null) {
+            System.out.println("found\n" + state.getCurrentTable().get(args[0]));
+        } else {
+            System.out.println("not found");
+        }
     }
 }

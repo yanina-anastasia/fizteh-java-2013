@@ -6,7 +6,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
     @Override
     public MyTableProvider create(String dir) {
         MyTableProvider provider = new MyTableProvider();
-        provider.createTable(dir);
+        provider.createTable("");
         return provider;
     }
 }

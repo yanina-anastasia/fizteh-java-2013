@@ -11,15 +11,16 @@ import java.util.Map;
 public class MyTable implements Table {
     private String name;
     private Map<String, String> storage;
-    private Map<String, String> newStorage;
+    private Map<String, String> changes;
     private boolean[][] uses;
     private long byteSize;
+    private int oldCount;
     private int count;
-    private int newCount;
 
     public MyTable(String tableName) {
         name = tableName;
         storage = new HashMap<String, String>();
+        changes = new HashMap<String, String>();
         byteSize = 0;
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
@@ -27,12 +28,13 @@ public class MyTable implements Table {
                 uses[i][j] = false;
         }
         try {
-            count = Utils.getTableSize(this);
+            Utils.readTable(this);
+            oldCount = Utils.getTableSize(this);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            count = -1;
+            oldCount = -1;
         }
-        newCount = count;
+        count = oldCount;
     }
 
     @Override
@@ -45,6 +47,9 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
+        if (changes.containsKey(key)) {
+            return changes.get(key);
+        }
         return storage.get(key);
     }
 
@@ -53,10 +58,17 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if (storage.get(key) == null) {
-            ++newCount;
+        if (storage.get(key) == null && changes.get(key) == null) {
+            ++count;
         }
-        return storage.put(key, value);
+        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+        uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+        String s = get(key);
+        changes.put(key, value);
+        if (value.equals(storage.get(key))) {
+            changes.remove(key);
+        }
+        return s;
     }
 
     @Override
@@ -65,9 +77,16 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (storage.get(key) != null) {
-            --newCount;
+            --count;
         }
-        return storage.remove(key);
+        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+        uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+        String s = get(key);
+        changes.put(key, null);
+        if (storage.get(key) == null) {
+            changes.remove(key);
+        }
+        return s;
     }
 
     @Override
@@ -77,12 +96,25 @@ public class MyTable implements Table {
 
     @Override
     public int commit() {
-        throw new UnsupportedOperationException("WTF???");
+        for (String key : changes.keySet()) {
+            if (changes.get(key) == null) {
+                storage.remove(key);
+            } else {
+                storage.put(key, changes.get(key));
+            }
+        }
+        int n = changes.size();
+        changes.clear();
+        oldCount = count;
+        return n;
     }
 
     @Override
     public int rollback() {
-        throw new UnsupportedOperationException("WTF???");
+        int n = changes.size();
+        changes.clear();
+        count = oldCount;
+        return n;
     }
 
     public boolean isUsing(int nDirectory, int nFile) {
@@ -95,14 +127,11 @@ public class MyTable implements Table {
 
     public void clear() {
         storage.clear();
+        changes.clear();
     }
 
     public Map<String, String> getMap() {
         return storage;
-    }
-
-    public void setMap(Map<String, String> newMap) {
-        storage = newMap;
     }
 
     public Path getPath() {
@@ -118,15 +147,11 @@ public class MyTable implements Table {
         return byteSize;
     }
 
-    public void setSize(int newSize) {
-        count = newCount;
-    }
-
-    public void updateSize() {
-        count = newCount;
-    }
-
     public int getSize() {
-        return newCount;
+        return count;
+    }
+
+    public int getChangeCount() {
+        return changes.size();
     }
 }

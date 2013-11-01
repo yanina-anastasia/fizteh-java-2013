@@ -22,15 +22,12 @@ public class CommandMultiRemove implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Command<FilemapState> remover = new CommandRemove();
-        FilemapState fmState = new FilemapState(null);
 
-        TwoLayeredString key = new TwoLayeredString(args[0]);
-        Utils.loadFile(table, key);
-        fmState.setMap(table.getMap());
-
-        remover.run(fmState, args);
-
-        table.setMap(fmState.getMap());
+        if (table.get(args[0]) != null) {
+            table.remove(args[0]);
+            System.out.println("removed");
+        } else {
+            System.out.println("not found");
+        }
     }
 }

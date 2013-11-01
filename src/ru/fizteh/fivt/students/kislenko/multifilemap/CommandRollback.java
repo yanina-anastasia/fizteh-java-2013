@@ -4,11 +4,11 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandCommit implements Command<MultiFileHashMapState> {
+public class CommandRollback implements Command<MultiFileHashMapState> {
 
     @Override
     public String getName() {
-        return "commit";
+        return "rollback";
     }
 
     @Override
@@ -22,6 +22,6 @@ public class CommandCommit implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        System.out.println(state.getCurrentTable().commit());
+        System.out.println(state.getCurrentTable().rollback());
     }
 }

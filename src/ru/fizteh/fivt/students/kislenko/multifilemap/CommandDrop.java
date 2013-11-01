@@ -36,7 +36,7 @@ public class CommandDrop implements Command<MultiFileHashMapState> {
                 state.setWorkingPath("");
             }
             db.delete();
-            state.deleteTable(args[0]);
+            state.deleteTable(state.getPath().resolve(args[0]).toString());
             System.out.println("dropped");
         }
     }

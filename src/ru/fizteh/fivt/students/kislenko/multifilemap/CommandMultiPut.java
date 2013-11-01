@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
-import ru.fizteh.fivt.students.kislenko.filemap.CommandPut;
-import ru.fizteh.fivt.students.kislenko.filemap.FilemapState;
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
@@ -21,15 +19,12 @@ public class CommandMultiPut implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        Command<FilemapState> putter = new CommandPut();
-        FilemapState fmState = new FilemapState(null);
 
-        TwoLayeredString key = new TwoLayeredString(args[0]);
-        Utils.loadFile(table, key);
-        fmState.setMap(table.getMap());
-
-        putter.run(fmState, args);
-
-        table.setMap(fmState.getMap());
+        if (table.get(args[0]) != null) {
+            System.out.println("overwrite\n" + table.put(args[0], args[1]));
+        } else {
+            System.out.println("new");
+            table.put(args[0], args[1]);
+        }
     }
 }

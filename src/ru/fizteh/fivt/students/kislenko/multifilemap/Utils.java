@@ -14,6 +14,22 @@ public class Utils {
     final static private int MAX_TABLE_SIZE = 100 * 1024 * 1024;
     final static private int MAX_FILE_SIZE = 50 * 1024 * 1024;
 
+    static public void readTable(MyTable table) throws IOException {
+        File tableDir = new File(table.getName());
+        if (tableDir.listFiles() != null) {
+            for (File dir : tableDir.listFiles()) {
+                if (dir.listFiles() != null) {
+                    for (File file : dir.listFiles()) {
+                        RandomAccessFile f = new RandomAccessFile(file, "r");
+                        readFile(table, f);
+                        f.close();
+                    }
+                }
+            }
+        }
+        table.commit();
+    }
+
     public static void loadFile(MyTable table, TwoLayeredString key) throws IOException {
         byte nDirectory = getDirNumber(key);
         byte nFile = getFileNumber(key);
@@ -51,6 +67,7 @@ public class Utils {
         if (table == null) {
             return;
         }
+        table.rollback();
         table.setByteSize(0);
         File[] dirs = new File[16];
         Map<Integer, File> files = new TreeMap<Integer, File>();
@@ -101,7 +118,7 @@ public class Utils {
                 table.setByteSize(table.getByteSize() + datafile.length());
                 if (table.getByteSize() > MAX_TABLE_SIZE) {
                     dumpTable(table);
-                    table.getMap().clear();
+                    table.clear();
                 }
                 if (datafile.length() > MAX_FILE_SIZE) {
                     datafile.close();
@@ -128,6 +145,7 @@ public class Utils {
                     datafile.read(valueSymbols);
                     ++size;
                 }
+                datafile.close();
             }
         }
         return size;

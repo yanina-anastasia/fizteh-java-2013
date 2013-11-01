@@ -19,11 +19,12 @@ public class CommandUse implements Command<MultiFileHashMapState> {
             return;
         }
         MyTable table = state.getCurrentTable();
+        if (table != null && table.getChangeCount() != 0) {
+            System.out.println(state.getCurrentTable().getChangeCount() + " unsaved changes");
+            throw new IOException("Unsaved changes detected.");
+        }
         File newPath = state.getPath().resolve(args[0]).toFile();
         if (newPath.exists()) {
-            if (table != null) {
-                Utils.dumpTable(table);
-            }
             if (!state.getWorkingTableName().equals("")) {
                 if (table != null) {
                     table.clear();

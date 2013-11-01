@@ -31,7 +31,8 @@ public class Main {
             Path db = dbDir.toPath();
             MultiFileHashMapState state = new MultiFileHashMapState(db);
             Command[] commandList = new Command[]{new CommandMultiRemove(), new CommandMultiPut(), new CommandCreate(),
-                    new CommandDrop(), new CommandMultiGet(), new CommandUse(), new CommandSize()};
+                    new CommandDrop(), new CommandMultiGet(), new CommandUse(), new CommandSize(),
+                    new CommandCommit(), new CommandRollback()};
             MultiFilemapBuilder builder = new MultiFilemapBuilder();
             builder.build(state);
             Shell<MultiFileHashMapState> shell = new Shell<MultiFileHashMapState>(state, commandList);
