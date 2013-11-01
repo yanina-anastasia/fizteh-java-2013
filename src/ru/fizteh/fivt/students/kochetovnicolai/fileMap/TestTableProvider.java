@@ -59,6 +59,12 @@ public class TestTableProvider extends FileManager {
         provider.removeTable(name);
     }
 
+    @Test
+    public void removeNotExistingTableShouldFail() {
+        thrown.expect(IllegalStateException.class);
+        provider.removeTable("test");
+    }
+
     @Theory
     public void createTableBadSymbolShouldFail(String name) {
         thrown.expect(IllegalArgumentException.class);

@@ -98,9 +98,12 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String name) throws IllegalArgumentException {
+    public void removeTable(String name) throws IllegalStateException, IllegalArgumentException {
+        if (!isValidName(name)) {
+            throw new IllegalArgumentException("invalid argument");
+        }
         if (!existsTable(name)) {
-            throw new IllegalArgumentException("table is not exists");
+            throw new IllegalStateException("table is not exists");
         }
         loadTable(name);
         try {
