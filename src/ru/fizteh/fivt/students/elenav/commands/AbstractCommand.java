@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.File;
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.elenav.shell.ShellState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public abstract class AbstractCommand implements Command {

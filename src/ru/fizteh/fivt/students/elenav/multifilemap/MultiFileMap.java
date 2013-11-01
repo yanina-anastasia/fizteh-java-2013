@@ -8,6 +8,7 @@ import ru.fizteh.fivt.students.elenav.utils.ExitException;
 public class MultiFileMap {
 	
 	public static void main(String[] args) throws IOException {
+		
 		String property = System.getProperty("fizteh.db.dir");
 		if (property == null) {
 			System.err.println("db dir passed");
@@ -19,6 +20,7 @@ public class MultiFileMap {
 			System.exit(1);
 		}
 		MultiFileMapState multi = new MultiFileMapState("MyFirstMultiFileMap", f, System.out);
+		
 		try {
 			multi.run(args);
 		} catch (IOException e) {

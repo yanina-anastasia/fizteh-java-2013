@@ -58,16 +58,18 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 		DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 		Set<Entry<String, String>> set = map.entrySet();
 		for (Entry<String, String> element : set) {
-			String key = element.getKey();
-			String value = element.getValue();
-			byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bkey.length);
-			byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bvalue.length);
-			s.write(bkey);
-			s.write(bvalue);
+			writePair(element.getKey(), element.getValue(), s);
 		}
 		s.close();
+	}
+	
+	public void writePair(String key, String value, DataOutputStream out) throws IOException {
+		byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
+		out.writeInt(bkey.length);
+		byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
+		out.writeInt(bvalue.length);
+		out.write(bkey);
+		out.write(bvalue);
 	}
 
 	public String get(String key) {

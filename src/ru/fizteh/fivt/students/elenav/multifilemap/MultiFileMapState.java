@@ -5,7 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -25,6 +26,8 @@ import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
 public class MultiFileMapState extends MonoMultiAbstractState implements TableProvider {
 	
+	private static final int DIR_COUNT = 16;
+    private static final int FILES_PER_DIR = 16;
 	private final ShellState shell;
 	
 	protected MultiFileMapState(String n, File wd, PrintStream s) {
@@ -87,46 +90,60 @@ public class MultiFileMapState extends MonoMultiAbstractState implements TablePr
 		}
 		
 	}
-
 	
-	private File getWhereWrite(String key) throws IOException {
+	public void write() throws IOException {
+		if (getWorkingTable() != null) {
+			for (int i = 0; i < DIR_COUNT; ++i) {
+				for (int j = 0; j < FILES_PER_DIR; ++j) {
+					Map<String, String> toWriteInCurFile = new HashMap<>();
+			
+					for (String key : getWorkingTable().map.keySet()) {
+						if (getDir(key) == i && getFile(key) == j) {
+							toWriteInCurFile.put(key, getWorkingTable().map.get(key));
+						}
+					}
+					
+					if (toWriteInCurFile.size() > 0) {
+						File out = new File(getWorkingTable().getWorkingDirectory()
+								+ File.separator + i + ".dir" + File.separator + j + ".dat");
+						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
+						Set<Entry<String, String>> set = toWriteInCurFile.entrySet();
+						for (Entry<String, String> element : set) {
+							getWorkingTable().writePair(element.getKey(), element.getValue(), s);
+						}
+						s.close();
+					}
+				}
+		
+			}
+			getWorkingTable().map.clear();
+		}
+	}
+
+	private int getDir(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
 		int ndirectory = hashcode % 16;
-		int nfile = hashcode / 16 % 16;
 		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
 				throw new IOException("can't create file");
 			}
 		}
+		return ndirectory;
+	}
+
+	private int getFile(String key) throws IOException {
+		int hashcode = Math.abs(key.hashCode());
+		int ndirectory = hashcode % 16;
+		int nfile = hashcode / 16 % 16;
+		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
 		File file = new File(dir.getCanonicalPath(), nfile + ".dat");
 		if (!file.exists()) {
 			if (!file.createNewFile()) {
 				throw new IOException("can't create file");
 			}
 		}
-		return file;
-	}
-	
-	public void write() throws IOException {
-		if (getWorkingTable() != null) {
-			Set<Entry<String, String>> set = getWorkingTable().map.entrySet();
-			for (Entry<String, String> element : set) {
-				String key = element.getKey();
-				String value = element.getValue();
-
-				File out = getWhereWrite(key);
-				DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-				byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
-				s.writeInt(bkey.length);
-				byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
-				s.writeInt(bvalue.length);
-				s.write(bkey);
-				s.write(bvalue);
-				s.close();
-			}
-			getWorkingTable().map.clear();
-		}
+		return nfile;
 	}
 	
 	
