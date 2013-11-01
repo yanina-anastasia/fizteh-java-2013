@@ -295,13 +295,13 @@ public class FileMap implements Table {
 
     public String put(String key, String value) {
         if (key == null || value == null || key.equals("") || value.equals("")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Пустые key или value");
         }
         if (onlySpace(key) || onlySpace(value)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Только пробелы");
         }
         if (key.contains("\n") || value.contains("\n")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Переносы строк");
         }
         if (tableData.containsKey(key)) {
             String oldValue = tableData.get(key);
@@ -329,7 +329,7 @@ public class FileMap implements Table {
 
     public String get(String key) {
         if (key == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("пустой key");
         }
         if (tableData.containsKey(key)) {
             return tableData.get(key);
@@ -340,7 +340,7 @@ public class FileMap implements Table {
 
     public String remove(String key) {
         if (key == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("пустой key");
         }
         if (tableData.containsKey(key)) {
 
@@ -375,8 +375,9 @@ public class FileMap implements Table {
                 tableData.put(key, changeTable.get(key));
             }
         }
+        int count = changeTable.size();
         changeTable.clear();
-        return changeTable.size();
+        return count;
     }
 
 }
