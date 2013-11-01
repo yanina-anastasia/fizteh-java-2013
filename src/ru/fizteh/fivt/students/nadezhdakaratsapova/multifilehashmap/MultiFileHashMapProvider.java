@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultiFileHashMapProvider implements TableProvider {
+    public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
     private File curTable = null;
     private File nextTable;
     private File workingDirectory;
@@ -57,6 +58,9 @@ public class MultiFileHashMapProvider implements TableProvider {
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
+        if (!name.matches(TABLE_NAME)) {
+            throw new RuntimeException("Not correct file name");
+        }
         return dataBaseTables.get(name);
        /* File tableDir = new File(workingDirectory, name);
         try {
@@ -77,6 +81,9 @@ public class MultiFileHashMapProvider implements TableProvider {
     public Table createTable(String name) throws IllegalArgumentException {
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
+        }
+        if (!name.matches(TABLE_NAME)) {
+            throw new RuntimeException("Not correct file name");
         }
         if (dataBaseTables.get(name) != null) {
             return null;
@@ -108,6 +115,9 @@ public class MultiFileHashMapProvider implements TableProvider {
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
+        if (!name.matches(TABLE_NAME)) {
+            throw new RuntimeException("Not correct file name");
+        }
         if (dataBaseTables.get(name) != null) {
             File table = new File(workingDirectory, name);
             try {
@@ -122,6 +132,8 @@ public class MultiFileHashMapProvider implements TableProvider {
             }
             dataBaseTables.remove(name);
 
+        } else {
+            throw new IllegalStateException(name + "not exists");
         }
 
        /* if (!table.exists()) {

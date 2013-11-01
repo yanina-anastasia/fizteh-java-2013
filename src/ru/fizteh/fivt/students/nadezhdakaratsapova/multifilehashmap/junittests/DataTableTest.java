@@ -90,7 +90,7 @@ public class DataTableTest {
         dataTable.put("3", "4");
         dataTable.put("5", "6");
         dataTable.remove("3");
-        Assert.assertEquals(dataTable.commit(), 3);
+        Assert.assertEquals(dataTable.commit(), 2);
     }
 
     @Test
