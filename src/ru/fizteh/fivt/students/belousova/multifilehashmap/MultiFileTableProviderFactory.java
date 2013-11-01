@@ -8,7 +8,7 @@ public class MultiFileTableProviderFactory implements ChangesCountingTableProvid
         if (dir == null) {
             throw new IllegalArgumentException("null directory");
         }
-        if (dir.isEmpty()) {
+        if (dir.trim().isEmpty()) {
             throw new IllegalArgumentException("empty directory");
         }
 

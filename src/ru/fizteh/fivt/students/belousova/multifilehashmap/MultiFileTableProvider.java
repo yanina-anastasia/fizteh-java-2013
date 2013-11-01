@@ -14,6 +14,9 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
     private File dataDitectory;
 
     public MultiFileTableProvider(File directory) {
+        if (directory == null) {
+            throw new IllegalArgumentException("null directory");
+        }
         if (!directory.exists()) {
             directory.mkdir();
         } else if (!directory.isDirectory()) {
