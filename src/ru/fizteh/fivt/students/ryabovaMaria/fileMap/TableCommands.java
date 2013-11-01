@@ -177,7 +177,7 @@ public class TableCommands implements Table {
         if (value == null || key == null) {
             throw new IllegalArgumentException("Bad args");
         }
-        if (value.trim().isEmpty() || key.trim().isEmpty()) {
+        if (value.contains("\n") || key.contains("\n")) {
             throw new IllegalArgumentException("Bad args");
         }
         getUsingDatFile(key);
@@ -321,5 +321,4 @@ public class TableCommands implements Table {
         assigment(list, lastList);
         return result;
     }
-    
 }
