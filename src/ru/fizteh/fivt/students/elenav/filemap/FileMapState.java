@@ -14,22 +14,23 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.elenav.commands.ExitFileMapCommand;
+import ru.fizteh.fivt.students.elenav.commands.ExitCommand;
 import ru.fizteh.fivt.students.elenav.commands.GetCommand;
 import ru.fizteh.fivt.students.elenav.commands.PutCommand;
 import ru.fizteh.fivt.students.elenav.commands.RemoveCommand;
-import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
-public class FileMapState extends FilesystemState implements Table {
+public class FileMapState extends MonoMultiAbstractState implements Table {
 	
-	public FileMapState(String n, File f, PrintStream s) {
-		super(n, f, s);
+	public FileMapState(String n, File wd, PrintStream s) {
+		super(n, wd, s);
+		setWorkingTable(this);
 	}
 	
 	public HashMap<String, String> map = new HashMap<>();
 	
-	public void readFile() throws IOException {
-		DataInputStream s = new DataInputStream(new FileInputStream(getWorkingDirectory()));
+	public void readFile(File in) throws IOException {
+		DataInputStream s = new DataInputStream(new FileInputStream(in));
 		boolean flag = true;
 		do {
 			try {
@@ -38,7 +39,7 @@ public class FileMapState extends FilesystemState implements Table {
 				if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
 					throw new IOException("Invalid input");
 				}
-				byte[] tempKey = new byte[keyLength];
+				byte[] tempKey = new byte[keyLength];	
 				s.read(tempKey);
 				String key = new String(tempKey, StandardCharsets.UTF_8);
 				byte[] tempValue = new byte[valueLength];
@@ -48,44 +49,47 @@ public class FileMapState extends FilesystemState implements Table {
 			} catch (EOFException e) {
 				break;
 			}
-			} while (flag);
-			s.close();
-		
+		} while (flag);
+		s.close();
 	
 	}
 	
-	public void writeFile() throws IOException {
-		DataOutputStream s = new DataOutputStream(new FileOutputStream(getWorkingDirectory()));
+	public void writeFile(File out) throws IOException {
+		DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 		Set<Entry<String, String>> set = map.entrySet();
 		for (Entry<String, String> element : set) {
-			String key = element.getKey();
-			String value = element.getValue();
-			byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bkey.length);
-			byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
-			s.writeInt(bvalue.length);
-			s.write(bkey);
-			s.write(bvalue);
+			writePair(element.getKey(), element.getValue(), s);
 		}
 		s.close();
+	}
+	
+	public void writePair(String key, String value, DataOutputStream out) throws IOException {
+		byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
+		out.writeInt(bkey.length);
+		byte[] bvalue = value.getBytes(StandardCharsets.UTF_8);
+		out.writeInt(bvalue.length);
+		out.write(bkey);
+		out.write(bvalue);
 	}
 
 	public String get(String key) {
 		GetCommand g = new GetCommand(this);
-		g.execute(key.split("\\s+"), getStream());
+		String[] args = {"get", key};
+		g.execute(args, getStream());
 		return null;
 	}                                                                                                                                                                                      
 
 	public String put(String key, String value) {
 		PutCommand c = new PutCommand(this);
-		String[] args = {key, value};
+		String[] args = {"put", key, value};
 		c.execute(args, getStream());
 		return null;
 	}
 
 	public String remove(String key) {
 		RemoveCommand c = new RemoveCommand(this);
-		c.execute(key.split("\\s+"), getStream());
+		String[] args = {"remove", key};
+		c.execute(args, getStream());
 		return null;
 	}
 
@@ -105,7 +109,8 @@ public class FileMapState extends FilesystemState implements Table {
 		commands.add(new GetCommand(this));
 		commands.add(new PutCommand(this));
 		commands.add(new RemoveCommand(this));
-		commands.add(new ExitFileMapCommand(this));
+		commands.add(new ExitCommand(this));
 	}
+
 	
 }

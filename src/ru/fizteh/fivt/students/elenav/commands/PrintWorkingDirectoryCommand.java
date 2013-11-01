@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.elenav.commands;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class PrintWorkingDirectoryCommand extends AbstractCommand {
 	public PrintWorkingDirectoryCommand(FilesystemState s) { 
