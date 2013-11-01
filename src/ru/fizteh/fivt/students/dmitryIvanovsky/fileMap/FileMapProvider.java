@@ -268,7 +268,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public void removeTable(String name) {
-        if (name == null) {
+        if (name == null || name.equals("")) {
             throw new IllegalArgumentException();
         }
         if (setDirTable.contains(name)) {

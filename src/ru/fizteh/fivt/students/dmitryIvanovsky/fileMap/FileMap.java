@@ -284,8 +284,20 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
+    private Boolean onlySpace(String s) {
+        for (char c : s.toCharArray()) {
+            if (c != ' ') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String put(String key, String value) {
         if (key == null || value == null || key.equals("") || value.equals("")) {
+            throw new IllegalArgumentException();
+        }
+        if (onlySpace(key) || onlySpace(value)) {
             throw new IllegalArgumentException();
         }
         if (tableData.containsKey(key)) {
