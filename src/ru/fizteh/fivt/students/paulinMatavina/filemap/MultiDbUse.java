@@ -6,19 +6,19 @@ public class MultiDbUse implements Command {
     @Override
     public int execute(String[] args, State state) {
         String dbName = args[0];
-        MultiDbState multiState = (MultiDbState) state;
-        if (multiState.changesNum > 0) {
-            System.out.println(multiState.changesNum + " uncommited changes");
+        MyTableProvider multiState = (MyTableProvider) state;
+        int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum;
+        if (chNum > 0) {
+            System.out.println(chNum + " uncommited changes");
             return 0;
         }
-        try {
-            multiState.use(dbName);
-        } catch (DbReturnStatus e) {
-            if (Integer.parseInt(e.getMessage()) == 2) {
-                System.out.println(dbName + " not exists");
-            } else {
-                System.out.println("using " + dbName);
-            }
+        
+        MultiDbState table = (MultiDbState) multiState.getTable(dbName);
+        
+        if (table == null) {
+            System.out.println(dbName + " not exists");
+        } else {
+            System.out.println("using " + dbName);
         }
         return 0;
     }

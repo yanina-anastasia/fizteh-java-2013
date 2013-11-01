@@ -9,13 +9,13 @@ public class DbGet implements Command {
         if (key == null) {
             throw new IllegalArgumentException();
         }
-        MultiDbState multiState = (MultiDbState) state;
-        if (!multiState.isDbChosen() || multiState.isDropped) {
+        MyTableProvider multiState = (MyTableProvider) state;
+        if (multiState.getCurrTable() == null) {
             System.out.println("no table");
             return 0;
         }
         
-        String result = multiState.get(key);  
+        String result = multiState.getCurrTable().get(key);  
         if (result != null) {
             System.out.println("found");
             System.out.println(result);

@@ -5,13 +5,13 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class DbRollback implements Command {
     @Override
     public int execute(String[] args, State state) {
-        MultiDbState multiState = (MultiDbState) state;
-        if (!multiState.isDbChosen() || multiState.isDropped) {
+        MyTableProvider multiState = (MyTableProvider) state;
+        if (multiState.getCurrTable() == null) {
             System.out.println("no table");
             return 0;
         }
         
-        int result = multiState.rollback();  
+        int result = multiState.getCurrTable().rollback();  
         System.out.println(result);
         return 0;
     }

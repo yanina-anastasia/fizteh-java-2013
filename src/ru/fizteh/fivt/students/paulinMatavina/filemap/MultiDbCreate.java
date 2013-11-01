@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
+import ru.fizteh.fivt.storage.strings.*;
 
 public class MultiDbCreate implements Command {
     @Override
@@ -9,16 +10,12 @@ public class MultiDbCreate implements Command {
         if (name == null) {
             throw new IllegalArgumentException();
         }
-        MultiDbState multiState = (MultiDbState) state;
-        
-        try {
-            multiState.create(name);
-        } catch (DbReturnStatus e) {
-            if (Integer.parseInt(e.getMessage()) == 2) {
-                System.out.println(name + " exists");
-            } else {
-                System.out.println("created");
-            }
+        MyTableProvider multiState = (MyTableProvider) state;
+        Table table = multiState.createTable(name);
+        if (table == null) {
+            System.out.println(name + " exists");
+        }  else {
+            System.out.println("created");
         }
         return 0;
     }

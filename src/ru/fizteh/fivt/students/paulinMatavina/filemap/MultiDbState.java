@@ -11,7 +11,7 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class MultiDbState extends State implements Table {
     final int folderNum = 16;
     final int fileInFolderNum = 16;
-    public String tableName;
+    private String tableName;
     DbState[][] data;
     public ShellState shell;
     private String rootPath;
@@ -20,7 +20,7 @@ public class MultiDbState extends State implements Table {
     private int dbSize;
     private int primaryDbSize;
     
-    public MultiDbState(String property) throws IllegalArgumentException {
+    public MultiDbState(String property, String dbName) {
         if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong root directory");
         }
@@ -33,7 +33,7 @@ public class MultiDbState extends State implements Table {
         shell = new ShellState();
         shell.cd(rootPath);
         
-        tableName = null;
+        tableName = dbName;
         if (setCurrentDir() != 0) {
             throw new IllegalArgumentException(property + ": wrong root directory");
         }
@@ -84,56 +84,24 @@ public class MultiDbState extends State implements Table {
         primaryDbSize = dbSize;
     }
     
-    public boolean fileExist(String name) {
-        return new File(makeNewSource(name)).exists();
-    }
-    
-    public boolean isDbChosen() {
-        return tableName != null;
+    public void dropped() {
+        isDropped = true;
     }
     
     private int setCurrentDir() {
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
-            return 1;
+            throw new IllegalArgumentException();
         } else {
             shell.cd(rootPath);
             return 0;
         }
     }
     
-    public int changeBase(String name) {
-        if (isDbChosen()) {
-            commit();   
-        }
-        dbSize = 0;
-        changesNum = 0;
-        tableName = name;
-        isDropped = false;
-        File lastDir = shell.currentDir;
-        int result = shell.cd(makeNewSource(name));
-        if (result == 0) {
-            try {
-                loadData();
-            } catch (IOException e) {
-                shell.currentDir = lastDir;
-                System.err.println("multifilemap: loading data: " + e.getMessage());
-                throw new IllegalArgumentException();
-            } catch (DataFormatException e) {
-                shell.currentDir = lastDir;
-                System.err.println("multifilemap: " + e.getMessage());
-                throw new IllegalArgumentException();
-            }
-        }
-        
-        return result;
-    }
+    
      
     @Override
     public int exitWithError(int errCode) throws DbExitException {
-        if (!isDbChosen()) {
-            throw new DbExitException(0);
-        }
         int result = commit();
         if (result < 0) {
             errCode = 1;
@@ -155,7 +123,7 @@ public class MultiDbState extends State implements Table {
     }
     
     private int tryToCommit() throws IOException, DataFormatException {
-        if (isDropped || !isDbChosen()) {
+        if (isDropped) {
             return 0;
         }
         
@@ -197,12 +165,10 @@ public class MultiDbState extends State implements Table {
     }
     
     public String put(String key, String value) { 
-        if (key == null || value == null || key.trim().isEmpty() 
-                || value.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
+        validate(key);
+        validate(value);
 
-        if (!isDbChosen() || isDropped) {
+        if (isDropped) {
             return null;
         }
         
@@ -218,24 +184,20 @@ public class MultiDbState extends State implements Table {
     }
     
     public String get(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
+        validate(key);
         
-        if (!isDbChosen() || isDropped) {
+        if (isDropped) {
             return null;
         }
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
         return data[folder][file].get(new String[] {key});  
-    }
+    }   
     
     public String remove(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-        if (!isDbChosen() || isDropped) {
+        validate(key);
+        if (isDropped) {
             return null;
         }
         
@@ -252,15 +214,8 @@ public class MultiDbState extends State implements Table {
         }
         return result;  
     }
-    
     public int size() {
         return dbSize;
-    }
-    
-    public static boolean checkNameValidity(String dbName) {
-        return !(dbName.contains("/") || dbName.contains("\\") || dbName.contains("?")
-                || dbName.contains(".") || dbName.contains("*") 
-                || dbName.contains(":") || dbName.contains("\""));
     }
     
     public int rollback() {
@@ -281,32 +236,9 @@ public class MultiDbState extends State implements Table {
         return tableName;
     }
     
-    public void use(String dbName) {
-        if (dbName == null || dbName.trim().isEmpty()) {
+    private void validate(String key) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if (!checkNameValidity(dbName)) {
-            throw new RuntimeException();
-        }
-        if (!fileExist(dbName)) {
-            throw new DbReturnStatus(2);
-        }
-        
-        changeBase(dbName);
-        throw new DbReturnStatus(0);
-    }
-    
-    public void create(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }      
-        
-        if (fileExist(name)) {
-            throw new DbReturnStatus(2);
-        }
-        
-        name = makeNewSource(name);
-        shell.mkdir(new String[] {name});
-        throw new DbReturnStatus(0);
     }
 }
