@@ -28,11 +28,13 @@ public class MyTableProvider extends State implements TableProvider {
     }
     
     public Table getTable(String name) {
-        if (!tableMap.containsKey(name)) {
+        validate(name);
+        MultiDbState newTable;
+        if (tableMap.get(name) != null) {
             return tableMap.get(name);
         } else {
             if (fileExist(name)) {
-                MultiDbState newTable = new MultiDbState(rootDir, name);
+                newTable = new MultiDbState(rootDir, name);
                 tableMap.put(name, newTable);
                 return newTable;
             }
@@ -44,7 +46,7 @@ public class MyTableProvider extends State implements TableProvider {
     public Table createTable(String name) {
         validate(name);     
         
-        if (tableMap.containsKey(name) || fileExist(name)) {
+        if (fileExist(name)) {
             return null;
         }
         
@@ -63,7 +65,7 @@ public class MyTableProvider extends State implements TableProvider {
             throw new IllegalStateException();
         }
         
-        if (tableMap.containsKey(name) && tableMap.get(name) != null) {
+        if (tableMap.get(name) != null) {
             tableMap.get(name).dropped();
         }
         tableMap.put(name, null);
