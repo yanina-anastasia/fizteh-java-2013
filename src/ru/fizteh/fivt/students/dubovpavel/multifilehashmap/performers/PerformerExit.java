@@ -4,8 +4,8 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Command;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.executor.Performer;
 import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageAccessible;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageException;
 
 public class PerformerExit<D extends Dispatcher & StorageAccessible> extends Performer<D> {
     public boolean pertains(Command command) {
@@ -16,7 +16,7 @@ public class PerformerExit<D extends Dispatcher & StorageAccessible> extends Per
         try {
             dispatcher.getStorage().save();
             dispatcher.shutDown();
-        } catch (Storage.StorageException e) {
+        } catch (StorageException e) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("Can not exit, use 'halt' if you really want to: %s", e.getMessage())));
         }
