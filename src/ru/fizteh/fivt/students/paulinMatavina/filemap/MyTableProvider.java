@@ -29,31 +29,30 @@ public class MyTableProvider extends State implements TableProvider {
     
     public Table getTable(String name) {
         validate(name);
+        checkNameIsCorrect(name);
         MultiDbState newTable;
-        if (tableMap.get(name) != null) {
-            return tableMap.get(name);
-        } else {
+        if (tableMap.get(name) == null) {
             if (fileExist(name)) {
                 newTable = new MultiDbState(rootDir, name);
                 tableMap.put(name, newTable);
-                return newTable;
+                
             }
         }
         
-        return null;
+        return tableMap.get(name);
     }
 
     public Table createTable(String name) {
-        validate(name);     
+        validate(name);   
+        checkNameIsCorrect(name);
         
         if (fileExist(name)) {
             return null;
         }
-        
-        MultiDbState table = new MultiDbState(rootDir, name);
+   
         name = makeNewSource(name);
         shell.mkdir(new String[] {name});
-
+        MultiDbState table = new MultiDbState(rootDir, name);
         tableMap.put(name, table);
         return table;
     }
@@ -75,7 +74,7 @@ public class MyTableProvider extends State implements TableProvider {
     }
     
     public boolean fileExist(String name) {
-        return new File(makeNewSource(name)).exists();
+        return new File(shell.makeNewSource(name)).exists();
     }
     
     private void validate(String key) {
@@ -84,11 +83,13 @@ public class MyTableProvider extends State implements TableProvider {
         }
     }
     
-    public boolean checkNameIsCorrect(String dbName) {
-        return !(dbName.contains("/") || dbName.contains("\\") 
+    public void checkNameIsCorrect(String dbName) {
+        if (dbName.contains("/") || dbName.contains("\\") 
                 || dbName.contains("?") || dbName.contains(".") 
                 || dbName.contains("*") || dbName.contains(":") 
-                || dbName.contains("\""));
+                || dbName.contains("\"")) {
+            throw new IllegalStateException();
+        }
     }
     
     public boolean isDbChosen() {
