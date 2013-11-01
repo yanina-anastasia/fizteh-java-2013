@@ -39,7 +39,7 @@ class MultiFileMapShell extends ShellEmulator {
                 MultiFileMapLoaderWriter.writeDatabase(dataBasesWorkspace, currentDatabaseName, currentDatabase);
             }
         } catch (Exception e) {
-            throw new ShellException(e.toString(), null);
+            throw new ShellException(e);
         }
     }
 
