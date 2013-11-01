@@ -26,7 +26,7 @@ public class FileMap {
             database = factory.create(dbDir);
             
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(((e.getMessage() != null) ? e.getMessage() : "unknown error"));
             System.exit(1);
         }
 
