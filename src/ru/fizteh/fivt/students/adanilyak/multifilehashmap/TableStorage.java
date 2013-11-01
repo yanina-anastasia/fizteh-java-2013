@@ -75,19 +75,22 @@ public class TableStorage implements Table {
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("remove: key is null");
         }
-        String resultOfRemove = changes.remove(key);
-        if (resultOfRemove == null) {
+
+        String resultOfRemove = changes.get(key);
+        if (resultOfRemove == null && !removedKeys.contains(key)) {
             resultOfRemove = data.get(key);
-            if (resultOfRemove == null) {
-                return null;
-            } else {
-                if (!removedKeys.contains(key)) {
-                    amountOfChanges++;
-                }
+        }
+        if (changes.containsKey(key)) {
+            amountOfChanges--;
+            changes.remove(key);
+            if (data.containsKey(key)) {
                 removedKeys.add(key);
             }
         } else {
-            amountOfChanges--;
+            if (data.containsKey(key) && !removedKeys.contains(key)) {
+                removedKeys.add(key);
+                amountOfChanges++;
+            }
         }
         return resultOfRemove;
     }
