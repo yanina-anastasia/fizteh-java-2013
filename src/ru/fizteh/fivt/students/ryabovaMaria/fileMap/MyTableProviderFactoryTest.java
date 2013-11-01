@@ -25,6 +25,6 @@ public class MyTableProviderFactoryTest {
     @Test
     public void dirIsCorrect() {
         TableProvider createdTableProvider = tempFactory.create("C:\\Users\\Маша\\my space\\javaWork");
-        assertFalse("Object of TableProvider sholdn't be null", createdTableProvider == null);
+        assertNotNull("Object of Table Provider shouldn't be null", createdTableProvider);
     }
 }
