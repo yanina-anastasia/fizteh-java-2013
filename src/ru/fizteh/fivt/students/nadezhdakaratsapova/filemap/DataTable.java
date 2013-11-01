@@ -78,6 +78,7 @@ public class DataTable implements Table {
             }
         }
         if (dataStorage.get(key) != null) {
+            --commitSize;
             removeKeys.add(key);
         }
         return dataStorage.remove(key);
