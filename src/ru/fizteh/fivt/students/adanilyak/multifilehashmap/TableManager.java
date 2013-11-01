@@ -19,9 +19,10 @@ public class TableManager implements TableProvider {
     private File allTablesDirectory;
 
     public TableManager(File atDirectory) throws IOException {
-        System.err.println("CAN NOT FIND MISTAKE:" + atDirectory.toString());
         if (!atDirectory.exists()) {
-            atDirectory.mkdir();
+            if (!atDirectory.mkdir()) {
+                throw new IOException(atDirectory.toString() + ": can not create directory, something went wrong");
+            }
         }
         if (!atDirectory.isDirectory()) {
             throw new IOException(atDirectory.getName() + ": not a directory");

@@ -20,7 +20,8 @@ public class MultiFileHashMapShell extends GenericShell {
             System.exit(3);
         }
         try {
-            TableProvider tableManager = new TableManager(new File(System.getProperty("fizteh.db.dir")));
+            TableManagerCreator tableManagerCreator = new TableManagerCreator();
+            TableProvider tableManager = tableManagerCreator.create(System.getProperty("fizteh.db.dir"));
             DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
             runMFHMShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
