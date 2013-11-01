@@ -21,6 +21,7 @@ public class MultiDbUse implements Command {
         if (table == null) {
             System.out.println(dbName + " not exists");
         } else {
+            multiState.currTableName = dbName;
             System.out.println("using " + dbName);
         }
         return 0;

@@ -11,7 +11,7 @@ public class MyTableProvider extends State implements TableProvider {
     private HashMap<String, MultiDbState> tableMap;
     private String rootDir;
     private ShellState shell;
-    private String currTableName;
+    public String currTableName;
     
     public MyTableProvider(String dir) {
         validate(dir);

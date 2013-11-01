@@ -16,6 +16,9 @@ public class DbRemove implements Command {
         }
         
         if (multiState.getCurrTable().remove(key) != null) {
+            if (multiState.currTableName.equals(key)) {
+                multiState.currTableName = null;
+            }
             System.out.println("removed");
         } else {
             System.out.println("not found");
