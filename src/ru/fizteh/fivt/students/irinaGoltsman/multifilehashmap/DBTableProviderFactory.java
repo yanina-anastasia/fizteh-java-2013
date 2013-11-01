@@ -15,7 +15,7 @@ public class DBTableProviderFactory implements TableProviderFactory {
             File file = new File(rootDir);
             newTableProvider = new DBTableProvider(file);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
         return newTableProvider;
     }
