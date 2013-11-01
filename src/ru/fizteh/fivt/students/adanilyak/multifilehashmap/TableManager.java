@@ -23,12 +23,14 @@ public class TableManager implements TableProvider {
         if (atDirectory == null) {
             throw new IllegalArgumentException("Directory is not set");
         }
+
         if (!atDirectory.exists()) {
             atDirectory.mkdir();
         } else if (!atDirectory.isDirectory()) {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
+
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new TableStorage(tableFile);
             allTablesMap.put(tableFile.getName(), table);
@@ -37,7 +39,7 @@ public class TableManager implements TableProvider {
 
     @Override
     public Table getTable(String tableName) {
-        if (CheckOnCorrect.goodName(tableName)) {
+        if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
         return allTablesMap.get(tableName);
@@ -45,13 +47,15 @@ public class TableManager implements TableProvider {
 
     @Override
     public Table createTable(String tableName) {
-        if (CheckOnCorrect.goodName(tableName)) {
+        if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
+
         File tableFile = new File(allTablesDirectory, tableName);
         if (!tableFile.mkdir()) {
             return null;
         }
+
         Table newTable = new TableStorage(tableFile);
         allTablesMap.put(tableName, newTable);
         return newTable;
@@ -59,8 +63,8 @@ public class TableManager implements TableProvider {
 
     @Override
     public void removeTable(String tableName) {
-        if (CheckOnCorrect.goodName(tableName)) {
-            throw new IllegalArgumentException("table name: can not be null");
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new RuntimeException("Bad table name");
         }
         File tableFile = new File(allTablesDirectory, tableName);
         try {
