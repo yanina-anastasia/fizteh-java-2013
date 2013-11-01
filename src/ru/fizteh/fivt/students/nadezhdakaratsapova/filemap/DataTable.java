@@ -9,7 +9,7 @@ public class DataTable implements Table {
     private Map<String, String> dataStorage = new HashMap<String, String>();
     private Map<String, String> putKeys = new HashMap<String, String>();
     private Set<String> removeKeys = new HashSet<String>();
-
+    int commitSize = 0;
 
     public DataTable() {
     }
@@ -30,7 +30,14 @@ public class DataTable implements Table {
         if (!removeKeys.contains(key)) {
             if ((oldValue = putKeys.get(key)) == null) {
                 oldValue = dataStorage.get(key);
-                putKeys.put(key, value);
+                if (oldValue == null) {
+                    putKeys.put(key, value);
+                    ++commitSize;
+                } else {
+                    if (!oldValue.equals(value)) {
+                        putKeys.put(key, value);
+                    }
+                }
             } else {
                 putKeys.put(key, value);
             }
@@ -66,6 +73,7 @@ public class DataTable implements Table {
         if (!putKeys.isEmpty()) {
             if (putKeys.get(key) != null) {
                 removeKeys.add(key);
+                --commitSize;
                 return putKeys.remove(key);
             }
         }
@@ -80,17 +88,14 @@ public class DataTable implements Table {
     }
 
     public int size() {
-        return dataStorage.size();
+        return dataStorage.size() + commitSize;
     }
 
     public int commit() {
-        int commitSize = 0;
         if (!putKeys.isEmpty()) {
             Set<String> putKeysToCommit = putKeys.keySet();
             for (String key : putKeysToCommit) {
-                if (dataStorage.put(key, putKeys.get(key)) == null) {
-                    ++commitSize;
-                }
+                dataStorage.put(key, putKeys.get(key));
             }
             putKeys.clear();
         }
@@ -100,34 +105,28 @@ public class DataTable implements Table {
             }
             removeKeys.clear();
         }
-        return commitSize;
+        int returnSize = commitSize;
+        commitSize = 0;
+        return returnSize;
     }
 
     public int rollback() {
-        int rollbackSize = 0;
         if (!putKeys.isEmpty()) {
             Set<String> putKeysToRollback = putKeys.keySet();
             for (String key : putKeysToRollback) {
-                if (!dataStorage.containsKey(key)) {
-                    ++rollbackSize;
-                }
+                dataStorage.containsKey(key);
             }
             putKeys.clear();
         }
         if (!removeKeys.isEmpty()) {
             removeKeys.clear();
         }
-        return rollbackSize;
+        int returnSize = commitSize;
+        commitSize = 0;
+        return returnSize;
     }
 
     public int commitSize() {
-        int commitSize = 0;
-        if (!putKeys.isEmpty()) {
-            commitSize += putKeys.size();
-        }
-        if (!removeKeys.isEmpty()) {
-            commitSize += removeKeys.size();
-        }
         return commitSize;
     }
 }
