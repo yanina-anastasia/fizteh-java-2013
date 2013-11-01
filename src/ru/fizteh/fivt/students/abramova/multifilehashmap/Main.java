@@ -15,7 +15,8 @@ public class Main {
         if (property != null) {
             root = new File(property);
         }
-        if (property != null && (!root.exists() || !root.isDirectory())) {
+//        if (property != null && (!root.exists() || !root.isDirectory())) {
+        if (property == null || !root.exists() || !root.isDirectory()) {
             System.err.println("No such directory");
             System.exit(-1);
         }
