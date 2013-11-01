@@ -14,7 +14,7 @@ public class DBaseProviderFactory implements TableProviderFactory {
 
     public DBaseProviderFactory() throws RuntimeException {
         if (System.getProperty("fizteh.db.dir") == null) {
-            throw new RuntimeException("root dir isn't selected");
+            throw new RuntimeException("root dir not selected");
         }
         File r = new File(System.getProperty("fizteh.db.dir"));
         if (!r.exists()) {
@@ -32,7 +32,7 @@ public class DBaseProviderFactory implements TableProviderFactory {
     @Override
     public TableProvider create(String dir) throws IllegalArgumentException {
         if (dir == null) {
-            IllegalArgumentException e = new IllegalArgumentException("dir isn't selected");
+            IllegalArgumentException e = new IllegalArgumentException("dir not selected");
             throw e;
         }
         if (!(new File(dir).exists())) {

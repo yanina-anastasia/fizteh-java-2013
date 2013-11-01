@@ -1,15 +1,17 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.File;
+import java.util.HashMap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
 public class DataBaseProvider implements TableProvider {
-
+    private HashMap<String, DataBase> tableBase;
     private String rootDir = "";
 
     public DataBaseProvider(String dir) throws IllegalArgumentException, IllegalStateException {
+        tableBase = new HashMap<>();
         if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Empty directory name");
         }
@@ -39,8 +41,14 @@ public class DataBaseProvider implements TableProvider {
             throw new RuntimeException("name is incorrect");
         }
         if (new File(rootDir + name).exists()) {
-            DataBase table = new DataBase(name, rootDir);
-            return table;
+            DataBase getTable = tableBase.get(name);
+            if (getTable == null) {
+                DataBase table = new DataBase(name, rootDir);
+                tableBase.put(name, table);
+                return table;
+            } else {
+                return getTable;
+            }
         }
         return null;
     }
@@ -59,6 +67,7 @@ public class DataBaseProvider implements TableProvider {
                 throw new RuntimeException("Cannot create dir");
             }
             DataBase table = new DataBase(name, rootDir);
+            tableBase.put(name, table);
             return table;
         }
         return null;
