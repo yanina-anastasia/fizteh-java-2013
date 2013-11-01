@@ -58,50 +58,6 @@ public class MultiTableTest {
         Assert.assertEquals ("Table name should be " + SAMPLE_TABLE_NAME1, SAMPLE_TABLE_NAME1, table.getName ());
     }
 
-    @Test
-    public void putNullKeyShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_NULL);
-        table.put (null, SAMPLE_VALUE1);
 
-    }
-
-    @Test
-    public void putEmptyKeyShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_EMPTY);
-        table.put ("   ", SAMPLE_VALUE1);
-
-    }
-
-
-    @Test
-    public void putNullValueShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTable.VALUE_SHOULD_NOT_BE_NULL);
-        table.put (SAMPLE_KEY1, null);
-
-    }
-
-    @Test
-    public void getEmptyKeyShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_EMPTY);
-        table.get ("   ");
-
-    }
-
-    @Test
-    public void getNullKeyShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTable.KEY_SHOULD_NOT_BE_NULL);
-        table.get (null);
-
-    }
-
-    @AfterClass
-    public static void deleteAllWork () throws IOException {
-        tableProvider.state.getFileManager ().deleteAllFilesInCurrentDirectory ();
-    }
 
 }

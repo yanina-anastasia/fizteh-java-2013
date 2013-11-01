@@ -118,17 +118,10 @@ public class MultiTableProviderTest {
     }
 
     @Test
-    public void getTableWithNameContainingPathSeparatorShouldFail () {
+    public void getTableWithNameContainingBadSymbolShouldFail () {
         thrown.expect (IllegalArgumentException.class);
         thrown.expectMessage (MultiTableProvider.UNSUPPORTED_TABLE_NAME);
         tableProvider.getTable (STANDART_TABLE_NAME + File.pathSeparator);
-    }
-
-    @Test
-    public void getTableWithNameContainingSeparatorShouldFail () {
-        thrown.expect (IllegalArgumentException.class);
-        thrown.expectMessage (MultiTableProvider.UNSUPPORTED_TABLE_NAME);
-        tableProvider.getTable (STANDART_TABLE_NAME + File.separator);
     }
 
     @Test
