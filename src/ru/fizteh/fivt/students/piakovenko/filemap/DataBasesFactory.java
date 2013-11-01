@@ -21,6 +21,9 @@ public class DataBasesFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Directory path is invalid");
         }
         File fileMapStorage = new File(dir);
+        if (fileMapStorage.isFile()) {
+            throw new IllegalArgumentException("try create provider on file");
+        }
         //if (!fileMapStorage.exists()) {
         //    System.err.println(fileMapStorage + " doesn't exist!");
         //    System.exit(1);
