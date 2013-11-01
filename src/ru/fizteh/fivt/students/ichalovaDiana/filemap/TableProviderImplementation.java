@@ -1,11 +1,8 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -68,7 +65,7 @@ public class TableProviderImplementation implements TableProvider {
         
         Path tablePath = databaseDirectory.resolve(name);
         try {
-            delete(tablePath);
+            FileUtils.resursiveDelete(tablePath);
         } catch (IOException e) {
             throw new RuntimeException("Error while deleting a directory: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
@@ -84,25 +81,4 @@ public class TableProviderImplementation implements TableProvider {
         return true;
     }
     
-    private void delete(Path path) throws IOException {
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                    throws IOException {
-                if (e == null) {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                } else {
-                    throw e;
-                }
-            }
-        });
-    }
 }

@@ -1,12 +1,9 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -22,7 +19,7 @@ public class TestsForTableProvider {
     static TableProvider tableProvider;
     
     @BeforeClass
-    static public void createDatabase() throws IOException {
+    public static void createDatabase() throws IOException {
         databaseDirectory = Files.createTempDirectory(Paths.get(System.getProperty("user.dir")), null);
     }
     
@@ -32,26 +29,8 @@ public class TestsForTableProvider {
     }
     
     @AfterClass
-    static public void deleteDatabase() throws IOException {
-        Files.walkFileTree(databaseDirectory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                    throws IOException {
-                if (e == null) {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                } else {
-                    throw e;
-                }
-            }
-        });
+    public static void deleteDatabase() throws IOException {
+        FileUtils.resursiveDelete(databaseDirectory);
     }
     
     
@@ -66,7 +45,7 @@ public class TestsForTableProvider {
     }
     
     public void getNonExistingTable() {
-        Assert.assertTrue(tableProvider.getTable("not-exists") == null);
+        Assert.assertNull(tableProvider.getTable("not-exists"));
     }
     
     @Test
@@ -80,7 +59,7 @@ public class TestsForTableProvider {
     @Test
     public void createTableForExistingTableReturnsNull() {
         tableProvider.createTable("temp");
-        Assert.assertTrue(tableProvider.createTable("temp") == null);
+        Assert.assertNull(tableProvider.createTable("temp"));
         tableProvider.removeTable("temp");
     }
     
@@ -114,8 +93,8 @@ public class TestsForTableProvider {
     @Test 
     public void createRemove() {
         tableProvider.createTable("temp");
-        Assert.assertTrue(tableProvider.getTable("temp") != null);
+        Assert.assertNotNull(tableProvider.getTable("temp"));
         tableProvider.removeTable("temp");
-        Assert.assertTrue(tableProvider.getTable("temp") == null);
+        Assert.assertNull(tableProvider.getTable("temp"));
     }
 }

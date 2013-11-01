@@ -1,12 +1,9 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,7 +17,7 @@ public class TestsForTableProviderFactory {
     static TableProviderFactory tableProviderFactory;
     
     @BeforeClass
-    static public void createDatabase() throws IOException {
+    public static void createDatabase() throws IOException {
         databaseDirectory = Files.createTempDirectory(Paths.get(System.getProperty("user.dir")), null);
     }
     
@@ -30,26 +27,8 @@ public class TestsForTableProviderFactory {
     }
     
     @AfterClass
-    static public void deleteDatabase() throws IOException {
-        Files.walkFileTree(databaseDirectory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                    throws IOException {
-                if (e == null) {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                } else {
-                    throw e;
-                }
-            }
-        });
+    public static void deleteDatabase() throws IOException {
+        FileUtils.resursiveDelete(databaseDirectory);
     }
     
     @Test(expected = IllegalArgumentException.class)
