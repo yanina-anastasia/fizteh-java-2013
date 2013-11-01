@@ -40,16 +40,7 @@ public class DBTableProvider implements TableProvider {
         if (tableName.contains("\\")) {
             throw new RuntimeException("table name: can not be null");
         }
-        if (!allTables.containsKey(tableName)) {
-            return null;
-        }
-        File tableFile = new File(rootDirectoryOfTables, tableName);
-        try {
-            return new DBTable(tableFile);
-        } catch (Exception exc) {
-            System.err.println(exc.getMessage());
-            return null;
-        }
+        return allTables.get(tableName);
     }
 
     @Override
