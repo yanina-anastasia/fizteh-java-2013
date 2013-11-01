@@ -19,6 +19,7 @@ public class TableManagerCreator implements TableProviderFactory {
 
     @Override
     public TableProvider create(String directoryWithTables) {
+        System.err.println(directoryWithTables);
         if (directoryWithTables == null) {
             throw new IllegalArgumentException("directory name: can not be null");
         }
