@@ -9,7 +9,7 @@ public class MultiFileHashMap {
             MultiFileShellState multiFileShellState = new MultiFileShellState(tableProviderFactory.create(dir), null);
             shell.run(args, multiFileShellState);
         } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
+            //System.err.println(e.getMessage());
             System.exit(1);
         }
 
