@@ -120,11 +120,10 @@ public class TableStorage implements Table {
     }
 
     private int setDefault() {
+        int result = size() - data.size();
+        result = result * Integer.signum(result);
         changes.clear();
         removedKeys.clear();
-
-        int result = changes.size() - removedKeys.size();
-        result = result * Integer.signum(result);
         amountOfChanges = 0;
         return result;
     }
