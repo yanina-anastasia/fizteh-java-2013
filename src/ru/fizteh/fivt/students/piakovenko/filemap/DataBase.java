@@ -289,7 +289,7 @@ public class DataBase implements Table {
     }
 
     public String put (String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null) {
+        if (key == null || value == null || key.trim().equals("")) {
             throw new IllegalArgumentException("key or value equals NULL");
         }
         String putValue = map.put(key, value);
