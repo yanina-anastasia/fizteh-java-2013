@@ -42,7 +42,8 @@ public class MultiHashFileMap {
         if (input != null) {
             databasePath = Paths.get (input);
         } else {
-            System.exit (-1);
+           databasePath = null;
+           System.exit (-1);
         }
 
         MultiTableProviderFactory multiTableProviderFactory = new MultiTableProviderFactory ();
