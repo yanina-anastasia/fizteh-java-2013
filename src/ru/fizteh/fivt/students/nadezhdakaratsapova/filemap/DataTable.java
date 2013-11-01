@@ -57,6 +57,11 @@ public class DataTable implements Table {
             throw new IllegalArgumentException("Not correct key");
         }
         String value = null;
+        if (!putKeys.isEmpty()) {
+            if (putKeys.containsKey(key)) {
+                return putKeys.get(key);
+            }
+        }
         if (!removeKeys.contains(key)) {
             value = dataStorage.get(key);
             if (value == null) {
@@ -78,7 +83,9 @@ public class DataTable implements Table {
             }
         }
         if (!removeKeys.isEmpty()) {
-            return null;
+            if (removeKeys.contains(key)) {
+                return null;
+            }
         }
         String value;
         if ((value = dataStorage.get(key)) != null) {
