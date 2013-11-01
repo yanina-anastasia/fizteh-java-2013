@@ -38,6 +38,19 @@ public class MyTableProvider extends State implements TableProvider {
         rootDir = dir;
     }
     
+    @Override
+    public int exitWithError(int errCode) throws DbExitException {
+        int result = 0;
+        if (isDbChosen()) {
+            result = getCurrTable().commit();
+        }
+        if (result < 0) {
+            errCode = 1;
+        }
+        
+        throw new DbExitException(errCode);
+    }
+    
     public Table getTable(String name) {
         validate(name);
         checkNameIsCorrect(name);

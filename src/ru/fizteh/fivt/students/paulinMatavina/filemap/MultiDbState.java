@@ -86,16 +86,6 @@ public class MultiDbState extends State implements Table {
         isDropped = true;
     }
     
-    @Override
-    public int exitWithError(int errCode) throws DbExitException {
-        int result = commit();
-        if (result < 0) {
-            errCode = 1;
-        }
-        
-        throw new DbExitException(errCode);
-    }
-    
     public int commit() {
         try {
             return tryToCommit();
