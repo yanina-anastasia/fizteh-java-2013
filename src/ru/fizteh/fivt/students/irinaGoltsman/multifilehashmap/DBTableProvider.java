@@ -77,8 +77,11 @@ public class DBTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
+        if (tableName == null || tableName.contains("\\")) {
+            throw new IllegalArgumentException("incorrect table name");
+        }
         if (!allTables.containsKey(tableName)) {
-            throw new IllegalStateException("null table name");
+            throw new IllegalStateException("no such table");
         }
         //File table = new File(rootDirectoryOfTables, tableName);
         MapOfCommands cm = new MapOfCommands();
@@ -87,7 +90,7 @@ public class DBTableProvider implements TableProvider {
         cm.commandProcessing("cd " + rootDirectoryOfTables.toString());
         Code returnCode = cm.commandProcessing("rm " + tableName);
         if (returnCode != Code.OK) {
-            throw new IllegalArgumentException("");
+            throw new RuntimeException("");
         }
         allTables.remove(tableName);
     }
