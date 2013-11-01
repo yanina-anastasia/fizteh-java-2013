@@ -105,7 +105,7 @@ public class MultiFileHashMapProvider implements TableProvider {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
+        if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
         if (dataBaseTables.get(name) != null) {
