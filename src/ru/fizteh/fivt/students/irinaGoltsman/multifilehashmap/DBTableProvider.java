@@ -58,6 +58,9 @@ public class DBTableProvider implements TableProvider {
         if (tableName == null) {
             throw new IllegalArgumentException("table name: can not be null");
         }
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("table name is empty");
+        }
         if (tableName.contains("\\")) {
             throw new RuntimeException("table name: can not be null");
         }
