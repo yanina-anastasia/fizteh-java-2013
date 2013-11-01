@@ -14,14 +14,34 @@ public class MultiTable implements Table {
     private MultiTableProvider tableProvider;
     protected Map<String, Diff<String>> values;
     private final String name;
+
     public static final String KEY_SHOULD_NOT_BE_NULL = "Key should not be null";
     public static final String VALUE_SHOULD_NOT_BE_NULL = "Value should not be null";
     public static final String KEY_SHOULD_NOT_BE_EMPTY = "Key should not be empty";
+    public static final String VALUE_SHOULD_NOT_BE_EMPTY = "Value should not be empty";
 
     public MultiTable (String name, Map<String, Diff<String>> values, MultiTableProvider tableProvider) {
         this.name = name;
         this.values = values;
         this.tableProvider = tableProvider;
+    }
+
+    void keyValidCheck (String key) {
+        if (key == null) {
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
+        }
+        if (key.trim ().isEmpty ()) {
+            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_EMPTY);
+        }
+    }
+
+    void valueValidCheck (String value) {
+        if (value == null) {
+            throw new IllegalArgumentException (VALUE_SHOULD_NOT_BE_NULL);
+        }
+        if (value.trim ().isEmpty ()) {
+            throw new IllegalArgumentException (VALUE_SHOULD_NOT_BE_EMPTY);
+        }
     }
 
     @Override
@@ -32,14 +52,7 @@ public class MultiTable implements Table {
     @Override
     public String get (String key) {
 
-        if (key == null) {
-            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
-        }
-
-        if (key.trim ().isEmpty ()) {
-            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_EMPTY);
-        }
-
+        keyValidCheck (key);
 
         Diff<String> diff = values.get (key);
         String value = null;
@@ -53,17 +66,8 @@ public class MultiTable implements Table {
     @Override
     public String put (String key, String value) {
 
-        if (key == null) {
-            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_NULL);
-        }
-
-        if (key.trim ().isEmpty ()) {
-            throw new IllegalArgumentException (KEY_SHOULD_NOT_BE_EMPTY);
-        }
-
-        if (value == null) {
-            throw new IllegalArgumentException (VALUE_SHOULD_NOT_BE_NULL);
-        }
+        keyValidCheck (key);
+        valueValidCheck (value);
 
         Diff<String> oldValue = values.get (key);
         String oldStringValue;
@@ -83,9 +87,7 @@ public class MultiTable implements Table {
     @Override
     public String remove (String key) {
 
-        if (key == null) {
-            throw new IllegalArgumentException ("Key should be not null");
-        }
+        keyValidCheck (key);
 
         Diff<String> oldValue = values.get (key);
         String oldStringValue;
@@ -102,7 +104,7 @@ public class MultiTable implements Table {
     }
 
     @Override
-    public int commit () throws IllegalArgumentException {
+    public int commit ()  {
         int commited = 0;
         try {
             tableProvider.writeTableOnDisk (this);
@@ -115,7 +117,7 @@ public class MultiTable implements Table {
             }
         }
         catch (IOException e) {
-            throw new IllegalArgumentException (e.getMessage ());
+            throw new WrappedIOException (e.getMessage ());
         }
         return commited;
     }

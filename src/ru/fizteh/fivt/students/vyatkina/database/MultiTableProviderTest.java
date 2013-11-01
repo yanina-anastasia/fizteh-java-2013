@@ -84,7 +84,7 @@ public class MultiTableProviderTest {
 
     @Test
     public void createTableWithTestName () {
-        Table table = tableProvider.createTable (STANDART_TABLE_NAME);
+        tableProvider.createTable (STANDART_TABLE_NAME);
         Assert.assertTrue (tableProvider.tables.containsKey (STANDART_TABLE_NAME));
     }
 
