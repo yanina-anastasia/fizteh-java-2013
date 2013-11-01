@@ -31,8 +31,11 @@ public class CmdExit implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            workState.commit();
+        boolean autoCommitOnExit = false;
+        if (autoCommitOnExit) {
+            if (workState.currentTable != null) {
+                workState.commit();
+            }
         }
         System.exit(0);
     }

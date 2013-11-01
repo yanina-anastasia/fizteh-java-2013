@@ -15,6 +15,10 @@ import java.io.File;
  */
 public class MultiFileHashMapShell extends GenericShell {
     public MultiFileHashMapShell(String[] args) {
+        if (System.getProperty("fizteh.db.dir") == null) {
+            System.err.println("Data Base directory is not set");
+            System.exit(3);
+        }
         try {
             TableProvider tableManager = new TableManager(new File(System.getProperty("fizteh.db.dir")));
             DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
