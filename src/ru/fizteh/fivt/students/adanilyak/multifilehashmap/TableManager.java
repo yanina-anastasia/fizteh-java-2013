@@ -18,14 +18,16 @@ public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
-    public TableManager(File atDirectory) throws IOException {
-        if (!atDirectory.exists()) {
-            if (!atDirectory.mkdir()) {
-                throw new IOException(atDirectory.toString() + ": can not create directory, something went wrong");
-            }
+    public TableManager(File atDirectory) {
+
+        if (atDirectory == null) {
+            throw new IllegalArgumentException("Directory is not set");
         }
-        if (!atDirectory.isDirectory()) {
-            throw new IOException(atDirectory.getName() + ": not a directory");
+
+        if (!atDirectory.exists()) {
+            atDirectory.mkdir();
+        } else if (!atDirectory.isDirectory()) {
+            throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
 
@@ -54,14 +56,9 @@ public class TableManager implements TableProvider {
             return null;
         }
 
-        try {
-            Table newTable = new TableStorage(tableFile);
-            allTablesMap.put(tableName, newTable);
-            return newTable;
-        } catch (IOException exc) {
-            System.err.println(exc.getMessage());
-            return null;
-        }
+        Table newTable = new TableStorage(tableFile);
+        allTablesMap.put(tableName, newTable);
+        return newTable;
     }
 
     @Override

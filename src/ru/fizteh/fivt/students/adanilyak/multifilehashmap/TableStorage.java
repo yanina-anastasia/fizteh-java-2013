@@ -22,9 +22,13 @@ public class TableStorage implements Table {
     private Set<String> removedKeys = new HashSet<String>();
     private int amountOfChanges = 0;
 
-    public TableStorage(File dataDirectory) throws IOException {
+    public TableStorage(File dataDirectory) {
         tableStorageDirectory = dataDirectory;
-        WorkWithMFHM.readIntoDataBase(tableStorageDirectory, data);
+        try {
+            WorkWithMFHM.readIntoDataBase(tableStorageDirectory, data);
+        } catch (IOException exc) {
+            throw new IllegalArgumentException("Read from file failed", exc);
+        }
     }
 
     @Override
