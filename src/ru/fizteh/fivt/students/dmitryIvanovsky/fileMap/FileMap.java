@@ -300,6 +300,9 @@ public class FileMap implements Table {
         if (onlySpace(key) || onlySpace(value)) {
             throw new IllegalArgumentException();
         }
+        if (key.contains(" ")) {
+            throw new IllegalArgumentException();
+        }
         if (tableData.containsKey(key)) {
             String oldValue = tableData.get(key);
 

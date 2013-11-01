@@ -10,17 +10,19 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
-        String path = "/home/deamoon/Music/deamoonSql";
+        //String path = "/home/deamoon/Music/deamoonSql";
 
-        //try {
-        //    FileMap a = new FileMap("/home/deamoon/Music/deamoonSql", "123");
-        //} catch (Exception e) {
-        //    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        //}
-        //return;
+//        try {
+//            Path pathTables1 = Paths.get(".").resolve(path);
+//            FileMap a = new FileMap(pathTables1, "123");
+//            a.put("key","key ");
+//        } catch (Exception e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+//        return;
 
         try {
-            //String path = System.getProperty("fizteh.db.dir");
+            String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
 
