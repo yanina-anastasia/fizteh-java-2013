@@ -24,7 +24,7 @@ public class Dispatcher {
 
     protected String getInitProperty(String key) throws DispatcherException {
         String value = System.getProperty(key);
-        if(key == null) {
+        if(value == null) {
             shutdown = true;
             throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
         } else {
