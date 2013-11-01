@@ -138,9 +138,6 @@ public class DataBasesCommander implements TableProvider {
             System.out.println(dataBase + " exists");
         } else {
             File newFileMap = new File(dataBaseDirectory, dataBase);
-            if (!newFileMap.exists()) {
-                throw new IllegalArgumentException("this directory doesn't exists");
-            }
             if (!newFileMap.mkdirs()){
                 System.err.println("Unable to create this directory - " + dataBase);
                 System.exit(1);
