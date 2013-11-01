@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
@@ -13,8 +14,14 @@ public class FileMapCommands extends AbstractCommands {
     private boolean usingTable = false;
     
     public FileMapCommands(String curDir) {
+        String propertyString = System.getProperty(curDir);
+        if (propertyString == null) {
+            System.err.println("Bad property");
+            System.exit(1);
+        }
+        File currentDirectory = new File(propertyString);
         myTableProviderFactory = new MyTableProviderFactory();
-        myTableProvider = myTableProviderFactory.create(curDir);
+        myTableProvider = myTableProviderFactory.create(currentDirectory.toString());
     }
     
     public void create() throws Exception {
