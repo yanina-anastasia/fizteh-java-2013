@@ -20,17 +20,17 @@ public class FileMap implements Table {
     Map<String, String> changeTable;
     boolean existDir = false;
 
-    public FileMap(Path pathT, String nameTable) throws Exception {
+    public FileMap(Path pathDb, String nameTable) throws Exception {
         this.nameTable = nameTable;
-        this.pathDb = pathT;
+        this.pathDb = pathDb;
         this.changeTable = new HashMap<>();
         this.tableData = new HashMap<>();
-        this.mySystem = new CommandShell(pathT.toString(), false, false);
+        this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
-        File theDir = new File(String.valueOf(pathT.resolve(nameTable)));
+        File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
         if (!theDir.exists()) {
             try {
-                mySystem.mkdir(new String[]{pathT.resolve(nameTable).toString()});
+                mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
                 existDir = true;
             } catch (Exception e) {
                 e.addSuppressed(new ErrorFileMap("Не могу создать папку таблицы " + nameTable));
@@ -300,7 +300,7 @@ public class FileMap implements Table {
         if (onlySpace(key) || onlySpace(value)) {
             throw new IllegalArgumentException();
         }
-        if (key.contains(" ") || value.contains(" ")) {
+        if (key.contains("\n") || value.contains("\n")) {
             throw new IllegalArgumentException();
         }
         if (tableData.containsKey(key)) {
