@@ -50,8 +50,7 @@ public class MyTableProvider extends State implements TableProvider {
             return null;
         }
    
-        name = makeNewSource(name);
-        shell.mkdir(new String[] {name});
+        shell.mkdir(new String[] {shell.makeNewSource(name)});
         MultiDbState table = new MultiDbState(rootDir, name);
         tableMap.put(name, table);
         return table;
