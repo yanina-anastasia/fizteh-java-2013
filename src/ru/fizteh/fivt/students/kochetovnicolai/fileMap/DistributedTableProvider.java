@@ -41,7 +41,12 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     public boolean existsTable(String name) {
-        return tables.containsKey(name);
+        if (tables.containsKey(name)) {
+            return true;
+        }
+        loadTable(name);
+        checkTableDirectory(name);
+        return new File(currentPath + File.separator + name).exists();
     }
 
     public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {

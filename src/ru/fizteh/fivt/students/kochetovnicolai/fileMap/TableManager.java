@@ -13,7 +13,7 @@ public class TableManager extends Manager {
     public boolean existsTable(String name) {
         if (!tables.containsKey(name)) {
             try {
-                createTable(name);
+                return provider.existsTable(name);
             } catch (IllegalArgumentException e) {
                 printMessage(e.getMessage());
                 return false;
