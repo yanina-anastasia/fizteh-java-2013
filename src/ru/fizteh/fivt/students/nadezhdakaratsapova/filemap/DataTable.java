@@ -22,7 +22,10 @@ public class DataTable implements Table {
         return tableName;
     }
 
-    public String put(String key, String value) {
+    public String put(String key, String value) throws IllegalArgumentException {
+        if ((key == null) || (value == null)) {
+            throw new IllegalArgumentException("Not correct key or value");
+        }
         String oldValue = null;
         if (!removeKeys.contains(key)) {
             if ((oldValue = putKeys.get(key)) == null) {
@@ -79,16 +82,16 @@ public class DataTable implements Table {
         if (!putKeys.isEmpty()) {
             Set<String> putKeysToCommit = putKeys.keySet();
             for (String key : putKeysToCommit) {
-                dataStorage.put(key, putKeys.get(key));
+                if (dataStorage.put(key, putKeys.get(key)) == null) {
+                    ++commitSize;
+                }
             }
-            commitSize += putKeys.size();
             putKeys.clear();
         }
         if (!removeKeys.isEmpty()) {
             for (String key : removeKeys) {
                 dataStorage.remove(key);
             }
-            commitSize += removeKeys.size();
             removeKeys.clear();
         }
         return commitSize;
@@ -97,11 +100,15 @@ public class DataTable implements Table {
     public int rollback() {
         int rollbackSize = 0;
         if (!putKeys.isEmpty()) {
-            rollbackSize += putKeys.size();
+            Set<String> putKeysToRollback = putKeys.keySet();
+            for (String key : putKeysToRollback) {
+                if (!dataStorage.containsKey(key)) {
+                    ++rollbackSize;
+                }
+            }
             putKeys.clear();
         }
         if (!removeKeys.isEmpty()) {
-            rollbackSize += removeKeys.size();
             removeKeys.clear();
         }
         return rollbackSize;
