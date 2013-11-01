@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.tests;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
 
@@ -32,6 +33,13 @@ public class MultiFileTableProviderTest {
     @Test(expected = RuntimeException.class)
     public void testGetTableBadSymbols() throws Exception {
         provider.getTable(":123+");
+    }
+
+    @Test
+    public void testGetTableInstance() throws Exception {
+        Table table = provider.createTable("newtable");
+        Assert.assertSame(provider.getTable("newtable"), table);
+        Assert.assertSame(provider.getTable("newtable"), provider.getTable("newtable"));
     }
 
     @Test
