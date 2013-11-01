@@ -8,7 +8,11 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.myParsing;
 
@@ -231,9 +235,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     private Boolean antiCorrectDir(String dir) {
-        return dir.contains("/") || dir.contains(":") || dir.contains("*") ||
-               dir.contains("?") || dir.contains("\"") || dir.contains("\\") ||
-               dir.contains(">") || dir.contains("<") || dir.contains("|");
+        return dir.contains("/") || dir.contains(":") || dir.contains("*")
+               || dir.contains("?") || dir.contains("\"") || dir.contains("\\")
+               || dir.contains(">") || dir.contains("<") || dir.contains("|");
     }
 
     public Table getTable(String name) {
