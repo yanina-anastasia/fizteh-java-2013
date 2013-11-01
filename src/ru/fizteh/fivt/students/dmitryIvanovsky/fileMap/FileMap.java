@@ -302,6 +302,7 @@ public class FileMap implements Table {
         if (key.contains("\n") || value.contains("\n")) {
             throw new IllegalArgumentException("newline in key or value");
         }
+
         if (tableData.containsKey(key)) {
             String oldValue = tableData.get(key);
 
@@ -319,6 +320,10 @@ public class FileMap implements Table {
 
             if (!changeTable.containsKey(key)) {
                 changeTable.put(key, null);
+            } else {
+                if (changeTable.get(key) != null && changeTable.get(key).equals(value)) {
+                    changeTable.remove(key);
+                }
             }
 
             tableData.put(key, value);
