@@ -201,12 +201,25 @@ public class MyTable implements Table {
      */
     @Override
     public int rollback() {
-        int newSize = map.size();
-        System.out.println(tableName + " -" + oldMap.size() + " | " + newSize);
+        int difference = 0;
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (!oldMap.containsKey(entry.getKey())) {
+                difference++;
+            } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
+                difference++;
+            }
+
+        }
+        for (Map.Entry<String, String> entry : oldMap.entrySet()) {
+            if (!oldMap.containsKey(entry.getKey())) {
+                difference++;
+            }
+        }
+
         map.clear();
         map.putAll(oldMap);
-        System.out.println(tableName + " --" + oldMap.size() + " | " + newSize);
-        return (newSize - map.size());
+        //System.out.println(tableName + " --" + oldMap.size() + " | " + newSize);
+        return difference;
     }
 
     /**
@@ -223,7 +236,6 @@ public class MyTable implements Table {
         for (Map.Entry<String, String> entry : map.entrySet()) {
             int hash = entry.getKey().hashCode();
             hash *= Integer.signum(hash);
-            //String putString = parts[hash % 16][hash / 16 % 16].put(key, value);
             parts.get(hash % 16).get(hash / 16 % 16).put(entry.getKey(), entry.getValue());
         }
         for (int dirNum = 0; dirNum < 16; dirNum++) {
