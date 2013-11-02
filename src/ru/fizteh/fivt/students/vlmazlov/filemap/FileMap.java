@@ -13,7 +13,7 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedExceptio
 
 public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountingTable {
 
-	private Map<String, String> commited, added;
+	private Map<String, String> commited, added, overwritten;
 	private Set<String> deleted;
 	private String name;
 	private int diff;
@@ -24,6 +24,7 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		commited = new HashMap<String, String>();
 		added = new HashMap<String, String>();
 		deleted = new HashSet<String>();
+		overwritten = new HashMap<String, String>();
 		this.autoCommit = true;
 	}
 
@@ -32,6 +33,7 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		commited = new HashMap<String, String>();
 		added = new HashMap<String, String>();
 		deleted = new HashSet<String>();
+		overwritten = new HashMap<String, String>();
 		this.autoCommit = autoCommit;
 	}
 
@@ -55,11 +57,11 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		String oldValue = commited.get(key);
 		String returnValue = null;	
 
-		//overwriting the key from the last commit
-		if ((!deleted.contains(key)) && (oldValue != null) && (added.get(key) == null)) {
+		//overwriting the key from the last commit for the first time
+		if ((!deleted.contains(key)) && (oldValue != null) && (overwritten.get(key) == null)) {
 			if (!value.equals(oldValue)) {
 				++diff;
-				added.put(key, value);
+				overwritten.put(key, value);
 			}
 
 			returnValue = oldValue;
@@ -69,12 +71,12 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 			++diff;
 			returnValue = added.put(key, value);
 
-		//adding back something added after the commit that was deleted
+		//adding back something from the last commit that was deleted
 		} else if (deleted.contains(key)) {
 			deleted.remove(key);
 
 			if (!oldValue.equals(value)) {
-				added.put(key, value);
+				overwritten.put(key, value);
 			} else {
 				--diff;
 			}
@@ -82,11 +84,11 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 			returnValue = null;
 
 		//overwriting a key from the last commit not for the first time
-		} else if ((oldValue != null) && (added.get(key) != null)) {
-			returnValue = added.put(key, value);
+		} else if (overwritten.get(key) != null) {
+			returnValue = overwritten.put(key, value);
 
 		//overwriting a key added after the last commit
-		} else if ((oldValue == null) && (added.get(key) != null)) {
+		} else if (added.get(key) != null) {
 			returnValue = added.put(key, value);
 		}
 
@@ -124,36 +126,29 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		String oldValue = commited.get(key);
 		String returnValue = null;
 
-		//remove key from last commit
-		if ((oldValue != null) && (added.get(key) == null)) {
+		//removing key from last commit for the first time
+		if ((oldValue != null) && (!deleted.contains(key))) {
 			deleted.add(key);
 			++diff;
 			returnValue = oldValue;
 
-		//remove a key that was added after the last commit
-		} else if ((oldValue == null) && (added.get(key) != null)) {
+		//removing a key that was added after the last commit
+		} else if (added.get(key) != null) {
 			--diff;
 			returnValue = added.remove(key);
-		} else {
-
-			String previousValue = added.remove(key);
-			
-			if (oldValue != null) {
-				deleted.add(key);
-			}
-			
-			returnValue = previousValue;
-		}
+		} 
 
 		if (autoCommit) {
 			commit();
 		}
+		//removing key from last commit not for the first time
+		//and removing a non-existant key both simply result in returning null
 		return returnValue;
 	}
 
 	@Override
 	public int size() {
-		return commited.size() + added.size();
+		return commited.size() - deleted.size() + added.size();
 	}
 
 	@Override
@@ -169,6 +164,10 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 			commited.put(entry.getKey(), entry.getValue());
 		}
 
+		for (Map.Entry<String, String> entry: overwritten.entrySet()) {
+			commited.put(entry.getKey(), entry.getValue());
+		}
+
 		for (String entry : deleted) {
 			commited.remove(entry);
 		}
@@ -178,6 +177,7 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 
 		added.clear();
 		deleted.clear();
+		overwritten.clear();
 
 		return diffNum;
 	}
