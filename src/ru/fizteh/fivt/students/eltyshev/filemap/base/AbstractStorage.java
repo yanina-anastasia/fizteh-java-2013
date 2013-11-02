@@ -13,7 +13,13 @@ public abstract class AbstractStorage<Key, Value> {
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
     protected final HashMap<Key, Value> oldData;
-    protected final HashMap<Key, ValueDifference<Value>> modifiedData;
+    protected final ThreadLocal<HashMap<Key, ValueDifference<Value>>> modifiedData = new ThreadLocal<HashMap<Key, ValueDifference<Value>>>() {
+        @Override
+        protected HashMap<Key, ValueDifference<Value>> initialValue()
+        {
+            return new HashMap<Key, ValueDifference<Value>>();
+        }
+    };
 
     final private String tableName;
     private int size;
@@ -30,7 +36,7 @@ public abstract class AbstractStorage<Key, Value> {
         this.directory = directory;
         this.tableName = tableName;
         oldData = new HashMap<Key, Value>();
-        modifiedData = new HashMap<Key, ValueDifference<Value>>();
+        //modifiedData = new HashMap<Key, ValueDifference<Value>>();
         uncommittedChangesCount = 0;
         try {
             load();
@@ -54,8 +60,8 @@ public abstract class AbstractStorage<Key, Value> {
         if (key == null) {
             throw new IllegalArgumentException("key cannot be null!");
         }
-        if (modifiedData.containsKey(key)) {
-            return modifiedData.get(key).newValue;
+        if (getModifiedTable().containsKey(key)) {
+            return getModifiedTable().get(key).newValue;
         }
 
         return oldData.get(key);
@@ -99,8 +105,8 @@ public abstract class AbstractStorage<Key, Value> {
 
     public int storageCommit() {
         int recordsCommitted = 0;
-        for (final Key key : modifiedData.keySet()) {
-            ValueDifference diff = modifiedData.get(key);
+        for (final Key key : getModifiedTable().keySet()) {
+            ValueDifference diff = getModifiedTable().get(key);
             if (diff.oldValue != diff.newValue) {
                 if (diff.newValue == null) {
                     oldData.remove(key);
@@ -110,7 +116,7 @@ public abstract class AbstractStorage<Key, Value> {
                 recordsCommitted += 1;
             }
         }
-        modifiedData.clear();
+        getModifiedTable().clear();
         size = oldData.size();
         try {
             save();
@@ -125,13 +131,13 @@ public abstract class AbstractStorage<Key, Value> {
 
     public int storageRollback() {
         int recordsDeleted = 0;
-        for (final Key key : modifiedData.keySet()) {
-            ValueDifference diff = modifiedData.get(key);
+        for (final Key key : getModifiedTable().keySet()) {
+            ValueDifference diff = getModifiedTable().get(key);
             if (diff.oldValue != diff.newValue) {
                 recordsDeleted += 1;
             }
         }
-        modifiedData.clear();
+        getModifiedTable().clear();
         size = oldData.size();
 
         uncommittedChangesCount = 0;
@@ -145,18 +151,23 @@ public abstract class AbstractStorage<Key, Value> {
 
     // internal methods
     private Value getOldValueFor(Key key) {
-        if (modifiedData.containsKey(key)) {
-            return modifiedData.get(key).newValue;
+        if (getModifiedTable().containsKey(key)) {
+            return getModifiedTable().get(key).newValue;
         }
         return oldData.get(key);
     }
 
     private void addChange(Key key, Value value) {
-        if (modifiedData.containsKey(key)) {
-            modifiedData.get(key).newValue = value;
+        if (getModifiedTable().containsKey(key)) {
+            getModifiedTable().get(key).newValue = value;
         } else {
-            modifiedData.put(key, new ValueDifference(oldData.get(key), value));
+            getModifiedTable().put(key, new ValueDifference(oldData.get(key), value));
         }
+    }
+
+    private HashMap<Key, ValueDifference<Value>> getModifiedTable()
+    {
+        return modifiedData.get();
     }
 
     void rawPut(Key key, Value value) {
