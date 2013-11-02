@@ -62,6 +62,9 @@ public class DatabaseTable implements Table {
             oldValue = oldData.get(key);
         }
         modifiedData.put(key, value);
+        if (deletedKeys.contains(key)) {
+            deletedKeys.remove(key);
+        }
         if (oldValue == null) {
             size += 1;
         }
