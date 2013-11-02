@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class DatabaseTableProvider implements TableProvider {
     static final String SIGNATURE_FILE = "signature.tsv";
-    private static final String CHECK_EXPRESSION = "[^0-9A-Za-zА-Яа-я]";
+    private static final String CHECK_EXPRESSION = "[0-9A-Za-zА-Яа-я]+";
 
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     private String databaseDirectoryPath;
@@ -212,10 +212,8 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     private void checkTableName(String name) {
-        Pattern pattern = Pattern.compile(CHECK_EXPRESSION);
-        Matcher matcher = pattern.matcher(name);
-        if (matcher.find()) {
-            throw new IllegalArgumentException("bad symbol in table's name");
+        if (!name.matches(CHECK_EXPRESSION)) {
+            throw new IllegalArgumentException("Bad symbol!");
         }
     }
 }

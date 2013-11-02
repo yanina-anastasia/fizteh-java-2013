@@ -1,13 +1,11 @@
 package ru.fizteh.fivt.students.eltyshev.filemap;
 
-import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractTable;
-import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapReader;
-import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapWriter;
-import ru.fizteh.fivt.students.eltyshev.filemap.base.SimpleTableBuilder;
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.eltyshev.filemap.base.*;
 
 import java.io.*;
 
-public class SingleFileTable extends AbstractTable {
+public class SingleFileTable extends StringTable {
 
     private static final String DATABASE_FILE_NAME = "db.dat";
 
@@ -27,4 +25,6 @@ public class SingleFileTable extends AbstractTable {
         File databaseFile = new File(getDirectory(), DATABASE_FILE_NAME);
         return databaseFile.getAbsolutePath();
     }
+
+
 }

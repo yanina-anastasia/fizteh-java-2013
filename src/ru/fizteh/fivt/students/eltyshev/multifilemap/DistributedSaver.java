@@ -1,8 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.multifilemap;
 
-import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractTable;
+import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractStorage;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.FilemapWriter;
-import ru.fizteh.fivt.students.eltyshev.filemap.base.SimpleTableBuilder;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.TableBuilder;
 
 import java.io.File;
@@ -58,13 +57,13 @@ public class DistributedSaver {
     }
 
     private static int getDirNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractTable.CHARSET);
+        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
         int firstSymbol = Math.abs(bytes[0]);
         return firstSymbol % BUCKET_COUNT;
     }
 
     private static int getFileNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractTable.CHARSET);
+        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
         int firstSymbol = Math.abs(bytes[0]);
         return firstSymbol / BUCKET_COUNT % FILES_PER_DIR;
     }

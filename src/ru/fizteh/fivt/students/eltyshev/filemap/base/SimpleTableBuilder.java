@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.Set;
 
 public class SimpleTableBuilder implements TableBuilder {
-    AbstractTable table;
+    StringTable table;
 
-    public SimpleTableBuilder(AbstractTable table) {
+    public SimpleTableBuilder(StringTable table) {
         this.table = table;
     }
 

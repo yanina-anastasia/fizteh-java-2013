@@ -43,8 +43,8 @@ public class DatabaseTableProvider implements TableProvider {
             return table;
         }
 
-        if (activeTable != null && activeTable.getUncommitedChangesCount() > 0) {
-            throw new IllegalStateException(String.format("%d unsaved changes", activeTable.getUncommitedChangesCount()));
+        if (activeTable != null && activeTable.getUncommittedChangesCount() > 0) {
+            throw new IllegalStateException(String.format("%d unsaved changes", activeTable.getUncommittedChangesCount()));
         }
 
         activeTable = table;

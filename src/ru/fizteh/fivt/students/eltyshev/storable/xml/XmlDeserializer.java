@@ -38,7 +38,6 @@ public class XmlDeserializer {
     }
 
     public Object getNext(Class<?> expectedType) throws ColumnFormatException, ParseException {
-        String tagName;
         Object value = null;
         try {
             int nodeType = xmlReader.next();

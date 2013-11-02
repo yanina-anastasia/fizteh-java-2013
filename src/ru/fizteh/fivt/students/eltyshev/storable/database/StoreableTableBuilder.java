@@ -41,11 +41,11 @@ public class StoreableTableBuilder implements TableBuilder {
 
     @Override
     public Set<String> getKeys() {
-        return table.oldData.keySet();
+        return table.rawGetKeys();
     }
 
     @Override
     public File getTableDirectory() {
-        return new File(table.getDatabaseDirectory(), table.getName());
+        return new File(table.getDirectory(), table.getName());
     }
 }
