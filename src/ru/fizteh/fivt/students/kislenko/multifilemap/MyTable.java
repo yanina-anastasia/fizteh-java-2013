@@ -26,13 +26,7 @@ public class MyTable implements Table {
             for (int j = 0; j < 16; ++j)
                 uses[i][j] = false;
         }
-        try {
-            Utils.readTable(this);
-            oldCount = Utils.getTableSize(this);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            oldCount = -1;
-        }
+        oldCount = storage.size();
         count = oldCount;
     }
 
@@ -157,10 +151,6 @@ public class MyTable implements Table {
 
     public long getByteSize() {
         return byteSize;
-    }
-
-    public int getSize() {
-        return count;
     }
 
     public int getChangeCount() {
