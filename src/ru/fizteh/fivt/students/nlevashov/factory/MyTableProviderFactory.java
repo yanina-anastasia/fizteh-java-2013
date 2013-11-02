@@ -47,7 +47,8 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public TableProvider create(String dir) {
-        if (dir == null) {
+        //if (dir == null) {
+        if (dir.isEmpty()) {
             throw new IllegalArgumentException("TableProviderFactory.create: dir is null");
         }
         return (new MyTableProvider(Paths.get(dir).normalize()));
