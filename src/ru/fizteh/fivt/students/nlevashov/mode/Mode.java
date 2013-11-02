@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.nlevashov.mode;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.Scanner;
+import java.io.IOException;
 
 public class Mode {
     public static Vector<String> parse(String str, String separators) {
@@ -17,10 +18,10 @@ public class Mode {
     }
 
     public interface Executor {
-        boolean execute(String cmd) throws Exception;
+        boolean execute(String cmd) throws IOException;
     }
 
-    public static void start(String[] args, Executor exec) throws Exception {
+    public static void start(String[] args, Executor exec) throws IOException {
         if (args.length == 0) {
             Scanner sc = new Scanner(System.in);
             boolean flag = true;
