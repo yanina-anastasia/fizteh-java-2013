@@ -192,6 +192,7 @@ public class MyTable implements Table {
         } catch (Exception e) {
             throw new RuntimeException("Table.commit: writing on disk error with message \"" + e.getMessage() + "\"");
         }
+        System.out.println(tableName + " ++" + oldSize + " | " + map.size());
         return (map.size() - oldSize);
     }
 
@@ -206,6 +207,7 @@ public class MyTable implements Table {
         System.out.println(tableName + " -" + oldMap.size() + " | " + newSize);
         map.clear();
         map.putAll(oldMap);
+        System.out.println(tableName + " --" + oldMap.size() + " | " + newSize);
         return (newSize - map.size());
     }
 
