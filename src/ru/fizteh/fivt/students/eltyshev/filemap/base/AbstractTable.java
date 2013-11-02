@@ -76,9 +76,6 @@ public abstract class AbstractTable implements Table {
         }
         String oldValue = getOldValueFor(key);
         modifiedData.put(key, value);
-        if (deletedKeys.contains(key)) {
-            deletedKeys.remove(key);
-        }
         if (oldValue == null) {
             size += 1;
         }
