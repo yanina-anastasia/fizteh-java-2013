@@ -109,7 +109,11 @@ public class DatabaseTable implements Table {
             oldData.remove(keyToDelete);
         }
         for (String keyToAdd : modifiedData.keySet()) {
-            oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+            if (modifiedData.get(keyToAdd) != null)   {
+                oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+            } else {
+                oldData.remove(keyToAdd);
+            }
         }
         deletedKeys.clear();
         modifiedData.clear();
@@ -162,7 +166,6 @@ public class DatabaseTable implements Table {
                         CommandDrop.recRemove(path);
                     }
                 } catch (IOException e) {
-                    //System.err.println("IOException thrown");
                     return false;
                 }
                 continue;
@@ -188,7 +191,7 @@ public class DatabaseTable implements Table {
                 try {
                     saveTable(keys.get(j), filePath.toString());
                 } catch (IOException e) {
-                    System.out.println("ERROR SAD");
+                    //System.out.println("ERROR SAD");
                     return false;
                 }
             }
