@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.storable.tests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseRow;
 
@@ -36,15 +37,23 @@ public class DatabaseRowTests {
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void putValueOutOfBound()
-    {
+    public void putValueOutOfBound() {
         storeable.setColumnAt(3, null);
     }
 
     @Test
-    public void putNullValueShouldPass()
-    {
+    public void putNullValueShouldPass() {
         storeable.setColumnAt(0, null);
         storeable.setColumnAt(1, null);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void putIncorrectType1ShouldFail() {
+        storeable.setColumnAt(0, "adasda");
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void putIncorrectType2ShouldFail() {
+        storeable.setColumnAt(1, 2);
     }
 }
