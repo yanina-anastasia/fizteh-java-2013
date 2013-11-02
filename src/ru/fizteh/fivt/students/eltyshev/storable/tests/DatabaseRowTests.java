@@ -34,4 +34,17 @@ public class DatabaseRowTests {
     public void putEmptyValueShouldFail() {
         storeable.setColumnAt(1, "");
     }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void putValueOutOfBound()
+    {
+        storeable.setColumnAt(3, null);
+    }
+
+    @Test
+    public void putNullValueShouldPass()
+    {
+        storeable.setColumnAt(0, null);
+        storeable.setColumnAt(1, null);
+    }
 }

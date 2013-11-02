@@ -14,6 +14,10 @@ public class DatabaseRow implements Storeable {
 
     public DatabaseRow(List<Class<?>> classes) {
         this.classes = classes;
+
+        for (int index = 0; index < classes.size(); ++index) {
+            columns.add(null);
+        }
     }
 
     public DatabaseRow() {
@@ -22,11 +26,13 @@ public class DatabaseRow implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
-        checkColumnType(columnIndex, value.getClass());
-        try {
-            StoreableUtils.checkValue(value, value.getClass());
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("incorrect value");
+        if (value != null) {
+            checkColumnType(columnIndex, value.getClass());
+            try {
+                StoreableUtils.checkValue(value, value.getClass());
+            } catch (ParseException e) {
+                throw new IllegalArgumentException("incorrect value");
+            }
         }
         columns.set(columnIndex, value);
     }
@@ -116,8 +122,8 @@ public class DatabaseRow implements Storeable {
         }
     }
 
-    private void checkColumnType(int columnIndex, Class<?> type) throws ColumnFormatException {
-        if (classes.get(columnIndex) != type) {
+    private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
+        if (classes.get(columnIndex) != value.getClass()) {
             throw new ColumnFormatException();
         }
     }

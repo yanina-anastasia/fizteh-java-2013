@@ -111,6 +111,10 @@ public class StoreableUtils {
     }
 
     public static void checkValue(Object value, Class<?> type) throws ParseException {
+        if (value == null) {
+            return;
+        }
+
         switch (formatColumnType(type)) {
             case "String":
                 String stringValue = (String) value;
