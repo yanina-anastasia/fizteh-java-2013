@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.storable.database;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,10 +12,22 @@ public class DatabaseRow implements Storeable {
     List<Class<?>> classes = new ArrayList<>();
     List<Object> columns = new ArrayList<>();
 
+    public DatabaseRow(List<Class<?>> classes) {
+        this.classes = classes;
+    }
+
+    public DatabaseRow() {
+    }
+
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, value.getClass());
+        try {
+            StoreableUtils.checkValue(value, value.getClass());
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("incorrect value");
+        }
         columns.set(columnIndex, value);
     }
 
