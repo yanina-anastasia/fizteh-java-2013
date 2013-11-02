@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.eltyshev.shell.commands.HelpCommand;
 import ru.fizteh.fivt.students.eltyshev.storable.commands.*;
 import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseTableProviderFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +33,14 @@ public class StoreableMain {
             System.err.println("You haven't set database directory");
             System.exit(1);
         }
-        DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
-        StoreableShellState shellState = new StoreableShellState(factory.create(databaseDirectory));
-        shell.setShellState(shellState);
+        try {
+            DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
+            StoreableShellState shellState = new StoreableShellState(factory.create(databaseDirectory));
+            shell.setShellState(shellState);
+        } catch (IOException e) {
+            System.err.println("some error occured during loading");
+            System.exit(1);
+        }
         shell.start();
     }
 }

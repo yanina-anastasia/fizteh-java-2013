@@ -23,7 +23,11 @@ public class DatabaseTableTests {
     public void beforeTest()
     {
         DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
-        provider = factory.create(DATABASE);
+        try {
+            provider = factory.create(DATABASE);
+        } catch (IOException e) {
+
+        }
 
         List<Class<?>> columnTypes = new ArrayList<>();
         columnTypes.add(Integer.class);

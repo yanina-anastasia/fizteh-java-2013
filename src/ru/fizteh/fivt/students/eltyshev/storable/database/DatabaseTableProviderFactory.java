@@ -3,10 +3,11 @@ package ru.fizteh.fivt.students.eltyshev.storable.database;
 import ru.fizteh.fivt.storage.structured.*;
 
 import java.io.File;
+import java.io.IOException;
 
 public class DatabaseTableProviderFactory implements TableProviderFactory {
     @Override
-    public TableProvider create(String directory) {
+    public TableProvider create(String directory) throws IOException{
         if (directory == null) {
             throw new IllegalArgumentException("directory cannot be null");
         }
@@ -14,8 +15,12 @@ public class DatabaseTableProviderFactory implements TableProviderFactory {
         if (databaseDirectory.isFile()) {
             throw new IllegalArgumentException("cannot create database in file. Provide a directory, please");
         }
+
         if (!databaseDirectory.exists()) {
-            databaseDirectory.mkdir();
+            if (!databaseDirectory.mkdir())
+            {
+                throw new IOException("provider is unavailable");
+            }
         }
         return new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
     }
