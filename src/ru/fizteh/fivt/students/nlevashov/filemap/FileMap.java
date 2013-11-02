@@ -120,8 +120,8 @@ public class FileMap {
                 System.exit(1);
             }
             Path addrPath = Shell.makePath(addr).toPath();
-            TableProviderFactory factory = new MyTableProviderFactory(addrPath);
-            provider = factory.create(".");
+            TableProviderFactory factory = new MyTableProviderFactory();
+            provider = factory.create(addrPath.toString());
             Mode.start(args, new Mode.Executor() {
                 public boolean execute(String cmd) throws IOException {
                     Vector<String> tokens = parse(cmd, " ");
