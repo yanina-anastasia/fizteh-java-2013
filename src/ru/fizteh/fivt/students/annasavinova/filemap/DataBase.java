@@ -69,7 +69,7 @@ public class DataBase implements Table {
                         try {
                             currentFile.createNewFile();
                         } catch (IOException e) {
-                            throw new RuntimeException("Cannot create new file");
+                            throw new RuntimeException("Cannot create new file", e);
                         }
                     }
                     loadFile(currentFile, i, j);
@@ -118,7 +118,7 @@ public class DataBase implements Table {
                 oldDataMap.put(key, value);
             }
         } catch (IOException | OutOfMemoryError e) {
-            throw new RuntimeException("Cannot Load File3");
+            throw new RuntimeException("Cannot Load File3", e);
         }
     }
 
@@ -129,7 +129,7 @@ public class DataBase implements Table {
                 try {
                     data.createNewFile();
                 } catch (IOException e) {
-                    throw new RuntimeException("Cannot create new file");
+                    throw new RuntimeException("Cannot create new file", e);
                 }
             }
             dataFile = new RandomAccessFile(data, "rw");
@@ -138,16 +138,16 @@ public class DataBase implements Table {
                 loadKeyAndValue(dataFile, dirNum, fileNum);
             }
         } catch (FileNotFoundException e2) {
-            throw new RuntimeException("Cannot Load File4");
+            throw new RuntimeException("Cannot Load File4", e2);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot Load File6");
+            throw new RuntimeException("Cannot Load File6", e);
         } finally {
             try {
                 if (dataFile != null) {
                     dataFile.close();
                 }
             } catch (Throwable e1) {
-                throw new RuntimeException("Cannot Load File5");
+                // not OK
             }
         }
     }
@@ -181,7 +181,7 @@ public class DataBase implements Table {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Cannot unload file correctly");
+            throw new RuntimeException("Cannot unload file correctly", e);
         } finally {
             try {
                 for (int i = 0; i < 16; ++i) {
@@ -195,7 +195,7 @@ public class DataBase implements Table {
                     }
                 }
             } catch (Throwable e) {
-                throw new RuntimeException("Cannot unload file");
+                // not OK
             }
         }
     }
