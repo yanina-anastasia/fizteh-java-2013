@@ -36,15 +36,12 @@ public class DbMain {
             try {
                 Parser.parser(arg, DbMain.class, commandsList);
             } catch (Exception e) {
-                e.printStackTrace();
                 System.err.println(e.toString());
             }
         } catch (RuntimeException e) {
-            e.printStackTrace();
             System.err.println(e.toString());
             System.exit(1);
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println(e.toString());
             System.exit(1);
         }
