@@ -123,7 +123,9 @@ public class FileMap {
              e = exp;
         } finally {
             try {
-                fileDataBase.close();
+              if (fileDataBase != null) {
+                    fileDataBase.close();
+                }
             } catch (Throwable th) {
                 e.addSuppressed(th);
             }
