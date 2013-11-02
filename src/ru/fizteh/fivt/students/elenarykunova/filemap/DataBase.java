@@ -14,14 +14,15 @@ import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class DataBase {
 
-    private HashMap<String, String> data = new HashMap<String, String>();
+    public HashMap<String, String> data = new HashMap<String, String>();
+    public RandomAccessFile dataFile = null;
     private String filePath = null;
     private String tablePath = null;
     private int ndir;
     private int nfile;
 
     public boolean hasFile() {
-        return (filePath != null);
+        return (dataFile != null);
     }
 
     public String getFileName(int ndir, int nfile) {
@@ -30,7 +31,6 @@ public class DataBase {
 
     public DataBase(String currTablePath, int numbDir, int numbFile, HashMap<String, String> map,
             boolean createIfNotExists) throws RuntimeException {
-        RandomAccessFile dataFile = null;
         tablePath = currTablePath;
         ndir = numbDir;
         nfile = numbFile;
@@ -59,20 +59,23 @@ public class DataBase {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
                 load(dataFile, map);
-            } catch (Throwable e) {
-                filePath = null;
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (FileNotFoundException e) {
                 throw new RuntimeException(filePath + ": file not found", e);
+//                System.err.println(filePath + ": file not found");
+//                System.exit(1);
             } finally {
                 try {
-                    closeDataFile(dataFile);
-                } catch (Throwable e2) {
-                    //
+                    closeDataFile();
+                } catch (RuntimeException e2) {
+                    throw e2;
                 }
             }
         }
     }
 
-    public void checkOffset(long offset, long currPtr, RandomAccessFile dataFile) throws IOException {
+    public void checkOffset(long offset, long currPtr) throws IOException {
         if (offset < currPtr || offset > dataFile.length()) {
             IOException e = new IOException();
             throw e;
@@ -86,7 +89,7 @@ public class DataBase {
         return (currNumbDir == ndir && currNumbFile == nfile);
     }
 
-    public String getKeyFromFile(RandomAccessFile dataFile) throws IOException {
+    public String getKeyFromFile() throws IOException {
         byte ch = 0;
         Vector<Byte> v = new Vector<Byte>();
         ch = dataFile.readByte();
@@ -106,7 +109,7 @@ public class DataBase {
         return result;
     }
 
-    public String getValueFromFile(long nextOffset, RandomAccessFile dataFile) throws IOException {
+    public String getValueFromFile(long nextOffset) throws IOException {
         int beginPtr = (int) dataFile.getFilePointer();
         byte[] res = new byte[(int) (nextOffset - beginPtr)];
         dataFile.read(res);
@@ -129,19 +132,19 @@ public class DataBase {
             String value;
 
             dataFile.seek(currPtr);
-            keyFirst = getKeyFromFile(dataFile);
+            keyFirst = getKeyFromFile();
 
             newOffset = dataFile.readInt();
             currPtr = dataFile.getFilePointer();
-            checkOffset(newOffset, currPtr, dataFile);
+            checkOffset(newOffset, currPtr);
             firstOffset = newOffset;
             do {
                 dataFile.seek(currPtr);
                 if (currPtr < firstOffset) {
-                    keySecond = getKeyFromFile(dataFile);
+                    keySecond = getKeyFromFile();
                     nextOffset = dataFile.readInt();
                     currPtr = dataFile.getFilePointer();
-                    checkOffset(nextOffset, currPtr, dataFile);
+                    checkOffset(nextOffset, currPtr);
                 } else if (currPtr == firstOffset) {
                     nextOffset = dataFile.length();
                     currPtr++;
@@ -152,7 +155,7 @@ public class DataBase {
                 }
 
                 dataFile.seek(newOffset);
-                value = getValueFromFile(nextOffset, dataFile);
+                value = getValueFromFile(nextOffset);
 
                 data.put(keyFirst, value);
                 map.put(keyFirst, value);
@@ -161,9 +164,9 @@ public class DataBase {
                 newOffset = nextOffset;
             } while (currPtr <= firstOffset);
         } catch (IOException e) {
-            throw new RuntimeException(filePath + " can't read values from file", e);
+            throw new RuntimeException(filePath + " can't read values from file");
         } catch (OutOfMemoryError e) {
-            throw new RuntimeException(filePath + " can't read values from file: out of memory", e);
+            throw new RuntimeException(filePath + " can't read values from file: out of memory");
         }
     }
 
@@ -186,66 +189,65 @@ public class DataBase {
         return curr;
     }
 
-    protected void closeDataFile(RandomAccessFile dataFile) throws RuntimeException {
+    protected void closeDataFile() throws RuntimeException {
         try {
             if (dataFile != null) {
                 dataFile.close();
             }
-        } catch (Throwable e) {
-            throw new RuntimeException(filePath + " can't close file", e);
+        } catch (IOException e) {
+            throw new RuntimeException(filePath + " can't close file");
         }
     }
 
     public void commitChanges() throws IOException, RuntimeException  {
-        RandomAccessFile dataFile = null;
+        IOException e1 = new IOException();
         try {
-            dataFile = new RandomAccessFile(filePath, "rw"); 
-            if (data == null || data.isEmpty()) {
-                try {
-                    closeDataFile(dataFile);
-                } catch (Throwable e2) {
-                    throw e2;
-                }
-                Shell sh = new Shell(tablePath);
-                if (sh.rm(filePath) != Shell.ExitCode.OK) {
-                    throw new RuntimeException(filePath + " can't delete file");
-                }
-                return;
-            }
-    
-            int offset = 0;
-            Set<Map.Entry<String, String>> mySet = data.entrySet();
-            for (Map.Entry<String, String> myEntry : mySet) {
-                try {
-                    offset += getLength(myEntry.getKey()) + 1 + 4;
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("can't read", e);
-                }
-            }
-            int currOffset = offset;
+            dataFile = new RandomAccessFile(filePath, "rw");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(filePath + " can't get access to file"); 
+        }
+        if (data == null || data.isEmpty()) {
             try {
-                dataFile.setLength(0);
-                dataFile.seek(0);
-                for (Map.Entry<String, String> myEntry : mySet) {
-                    dataFile.write(myEntry.getKey().getBytes());
-                    dataFile.writeByte(0);
-                    dataFile.writeInt(currOffset);
-                    currOffset += getLength(myEntry.getValue());
-                }
-                for (Map.Entry<String, String> myEntry : mySet) {
-                    dataFile.write(myEntry.getValue().getBytes());
-                }
-            } catch (IOException e2) {
+                closeDataFile();
+            } catch (RuntimeException e2) {
                 throw e2;
             }
-        } catch (Throwable e) {
-            throw new RuntimeException(filePath + " can't get access to file", e); 
-        } finally {
-            try {
-                closeDataFile(dataFile);
-            } catch (Throwable e4) {
-                //
+            Shell sh = new Shell(tablePath);
+            if (sh.rm(filePath) != Shell.ExitCode.OK) {
+                throw new RuntimeException(filePath + " can't delete file");
             }
+            return;
+        }
+
+        int offset = 0;
+        Set<Map.Entry<String, String>> mySet = data.entrySet();
+        for (Map.Entry<String, String> myEntry : mySet) {
+            try {
+                offset += getLength(myEntry.getKey()) + 1 + 4;
+            } catch (UnsupportedEncodingException e) {
+                throw e1;
+            }
+        }
+        int currOffset = offset;
+        try {
+            dataFile.setLength(0);
+            dataFile.seek(0);
+            for (Map.Entry<String, String> myEntry : mySet) {
+                dataFile.write(myEntry.getKey().getBytes());
+                dataFile.writeByte(0);
+                dataFile.writeInt(currOffset);
+                currOffset += getLength(myEntry.getValue());
+            }
+            for (Map.Entry<String, String> myEntry : mySet) {
+                dataFile.write(myEntry.getValue().getBytes());
+            }
+            try {
+                closeDataFile();
+            } catch (RuntimeException e3) {
+                throw e3;
+            }
+        } catch (IOException e2) {
+            throw e2;
         }
     }
 }
