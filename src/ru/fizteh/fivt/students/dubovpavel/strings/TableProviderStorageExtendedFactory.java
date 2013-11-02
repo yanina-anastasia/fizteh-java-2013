@@ -5,10 +5,15 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
+import java.io.File;
+
 public class TableProviderStorageExtendedFactory implements TableProviderFactory {
     public TableProvider create(String dir) {
         if(dir == null || dir.equals("")) {
             throw new IllegalArgumentException();
+        }
+        if(!new File(dir).isDirectory()) {
+            throw new RuntimeException();
         }
         DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, false, dir, new WrappedMindfulDataBaseMultiFileHashMapBuilder());
         WrappedMindfulDataBaseMultiFileHashMapBuilder builder = new WrappedMindfulDataBaseMultiFileHashMapBuilder();
