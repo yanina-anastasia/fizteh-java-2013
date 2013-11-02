@@ -30,7 +30,7 @@ public class StoreableMain {
         String databaseDirectory = System.getProperty("fizteh.db.dir");
         if (databaseDirectory == null) {
             System.err.println("You haven't set database directory");
-            return;
+            System.exit(1);
         }
         DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
         StoreableShellState shellState = new StoreableShellState(factory.create(databaseDirectory));
