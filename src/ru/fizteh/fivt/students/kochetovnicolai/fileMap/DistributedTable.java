@@ -257,14 +257,14 @@ public class DistributedTable extends FileManager implements Table {
                         if (inputStreams[i][j] != null) {
                             inputStreams[i][j].close();
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         isClosed = false;
                     }
                     try {
                         if (outputStreams[i][j] != null) {
                             outputStreams[i][j].close();
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         isClosed = false;
                     }
                 }
