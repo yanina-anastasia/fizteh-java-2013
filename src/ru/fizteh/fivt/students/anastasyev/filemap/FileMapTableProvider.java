@@ -109,6 +109,7 @@ public class FileMapTableProvider extends State implements TableProvider {
             allFileMapTablesHashtable.put(name, fileMapTable);
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
+            // IllegalArgumentException("FileMapTable", e);
         }
         return fileMapTable;
     }
@@ -125,6 +126,7 @@ public class FileMapTableProvider extends State implements TableProvider {
             allFileMapTablesHashtable.remove(name);
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
+            // IllegalArgumentException("FileMapTable", e);
         }
         if (deleteTable.equals(currentFileMapTable)) {
             currentFileMapTable = null;

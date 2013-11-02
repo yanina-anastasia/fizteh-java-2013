@@ -19,7 +19,7 @@ public class FileMapTableTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    @BeforeClass
+    @BeforeClass                           //Before
     public static void setTableProviderFactory() {
         factory = new FileMapTableProviderFactory();
     }

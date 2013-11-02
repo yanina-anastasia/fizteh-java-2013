@@ -14,7 +14,11 @@ public class CommitCommand implements Command<FileMapTableProvider> {
             System.out.println("no table");
             return false;
         }
-        System.out.println(fileMapTable.commit());
+        try {
+            System.out.println(fileMapTable.commit());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+        }
         return true;
     }
 

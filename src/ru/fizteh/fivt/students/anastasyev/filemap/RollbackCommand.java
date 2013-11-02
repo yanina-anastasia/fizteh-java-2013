@@ -14,7 +14,11 @@ public class RollbackCommand implements Command<FileMapTableProvider> {
             System.out.println("no table");
             return false;
         }
-        System.out.println(fileMapTable.rollback());
+        try {
+            System.out.println(fileMapTable.rollback());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+        }
         return true;
     }
 

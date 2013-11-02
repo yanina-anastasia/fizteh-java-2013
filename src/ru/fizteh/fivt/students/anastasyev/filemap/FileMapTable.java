@@ -150,8 +150,7 @@ public class FileMapTable implements Table {
         try {
             mapsTable[dirHash][datHash] = openFileMap(absHash);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            return null;
+            throw new IllegalArgumentException("Can't open fileMap");
         }
         String str = mapsTable[dirHash][datHash].put(key, value);
         Value element = changedKeys.get(key);
@@ -219,7 +218,7 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public int commit() {
+    public int commit() throws RuntimeException {
         int changesCount = changesCount();
         changedKeys.clear();
         for (int i = 0; i < 16; ++i) {
@@ -228,13 +227,13 @@ public class FileMapTable implements Table {
                     try {
                         mapsTable[i][j].save();
                     } catch (IOException e) {
-                        System.err.println(e.getMessage());
+                        throw new RuntimeException(e.getMessage(), e);
                     }
                     if (mapsTable[i][j].isEmpty()) {
                         try {
                             mapsTable[i][j].delete();
                         } catch (IOException e) {
-                            System.err.println(e.getMessage());
+                            throw new RuntimeException(e.getMessage(), e);
                         }
                     }
                 }
@@ -244,11 +243,11 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public int rollback() {
+    public int rollback() throws RuntimeException {
         try {
             readTable();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
         int changesCount = changesCount();
         changedKeys.clear();
