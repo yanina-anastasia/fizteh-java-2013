@@ -146,7 +146,7 @@ public class Filemap implements Table{
                 }
             }
         }
-        Shell sh = new Shell(currTablePath);
+        Shell sh = new Shell(currTablePath, false);
         for (int i = 0; i < 16; i++) {
             File tmpDir = new File(currTablePath + File.separator + i + ".dir");
             if (tmpDir.exists() && tmpDir.list().length == 0) {

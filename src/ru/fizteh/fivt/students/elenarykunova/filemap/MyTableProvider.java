@@ -12,23 +12,26 @@ public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
     private HashMap<String, Filemap> tables = new HashMap<String, Filemap>();
-    
+
     public MyTableProvider() {
     }
 
     public MyTableProvider(String newRootDir) throws IllegalArgumentException {
         IllegalArgumentException e = null;
-        if (newRootDir == null || newRootDir.isEmpty() || newRootDir.trim().isEmpty()) {
+        if (newRootDir == null || newRootDir.isEmpty()
+                || newRootDir.trim().isEmpty()) {
             e = new IllegalArgumentException("directory is null");
         } else {
             File tmpDir = new File(newRootDir);
             if (!tmpDir.exists()) {
                 if (!tmpDir.mkdirs()) {
-                    e = new IllegalArgumentException(newRootDir + " doesn't exist and I can't create it");
+                    e = new IllegalArgumentException(newRootDir
+                            + " doesn't exist and I can't create it");
                 }
             } else if (!tmpDir.isDirectory()) {
-                e = new IllegalArgumentException(newRootDir + " isn't a directory");
-            }            
+                e = new IllegalArgumentException(newRootDir
+                        + " isn't a directory");
+            }
         }
         if (e != null) {
             throw e;
@@ -52,7 +55,8 @@ public class MyTableProvider implements TableProvider {
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (c == '\\' || c == '/' || c == '.' || c == ':' || c == '*'
-                    || c == '?' || c == '|' || c == '"' || c == '<' || c == '>' || c == ' ') {
+                    || c == '?' || c == '|' || c == '"' || c == '<' || c == '>'
+                    || c == ' ') {
                 return true;
             }
         }
@@ -104,26 +108,22 @@ public class MyTableProvider implements TableProvider {
         if (tmpFile.exists() && tmpFile.isDirectory()) {
             if (tables.get(name) == null) {
                 Filemap result = new Filemap(tablePath, name);
-                tables.put(name, result);                
+                tables.put(name, result);
             }
             return null;
         } else {
-            Shell sh = new Shell(rootDir);
-            if (sh.mkdir(name) == ExitCode.OK) {
-                try {
-                    if (tables.get(name) == null) {
-                        Filemap result = new Filemap(tablePath, name);
-                        tables.put(name, result);
-                        return result;
-                    } else {
-                        return tables.get(name);
-                    }
-                } catch (RuntimeException e) {
-                    throw e;
-                }
-            } else {
+            if (!tmpFile.mkdir()) {
                 throw new RuntimeException(name + " can't create a table");
+            } else {
+                if (tables.get(name) == null) {
+                    Filemap result = new Filemap(tablePath, name);
+                    tables.put(name, result);
+                    return result;
+                } else {
+                    return tables.get(name);
+                }
             }
+
         }
     }
 
@@ -140,13 +140,13 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException("no root directory");
         }
         File tmpFile = new File(tablePath);
-        if (!tmpFile.exists() || !tmpFile.isDirectory()) { 
+        if (!tmpFile.exists() || !tmpFile.isDirectory()) {
             throw new IllegalStateException(name + " not exists");
         } else {
             if (tables.get(name) != null) {
                 tables.remove(name);
             }
-            Shell sh = new Shell(rootDir);
+            Shell sh = new Shell(rootDir, false);
             if (sh.rm(name) == ExitCode.OK) {
                 return;
             } else {
