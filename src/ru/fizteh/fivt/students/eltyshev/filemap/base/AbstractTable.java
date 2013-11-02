@@ -160,18 +160,16 @@ public abstract class AbstractTable implements Table {
         return oldValue;
     }
 
-    private int changesCount()
-    {
+    private int changesCount() {
         HashSet<String> tempSet = new HashSet<>();
+        HashSet<String> toRemove = new HashSet<>();
         tempSet.addAll(modifiedData.keySet());
         tempSet.addAll(deletedKeys);
-        for(String key : tempSet)
-        {
-            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key))
-            {
-                tempSet.remove(key);
+        for (String key : tempSet) {
+            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key)) {
+                toRemove.add(key);
             }
         }
-        return tempSet.size();
+        return tempSet.size() - toRemove.size();
     }
 }
