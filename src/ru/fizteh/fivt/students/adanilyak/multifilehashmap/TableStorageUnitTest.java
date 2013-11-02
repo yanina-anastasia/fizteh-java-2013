@@ -223,7 +223,7 @@ public class TableStorageUnitTest {
         testTableEng.commit();
         testTableEng.put("key2", "anotherValue2");
         testTableEng.put("key4", "anotherValue4");
-        Assert.assertEquals(0, testTableEng.rollback());
+        Assert.assertEquals(2, testTableEng.rollback());
         Assert.assertEquals("value2", testTableEng.get("key2"));
         Assert.assertEquals("value4", testTableEng.get("key4"));
         for (int i = 1; i <= 5; ++i) {

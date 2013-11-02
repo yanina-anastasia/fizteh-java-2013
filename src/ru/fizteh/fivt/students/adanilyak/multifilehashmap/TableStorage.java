@@ -63,7 +63,9 @@ public class TableStorage implements Table {
 
         if (resultOfPut == null) {
             amountOfChanges++;
-            resultOfPut = valueInData;
+            if (!removedKeys.contains(key)) {
+                resultOfPut = valueInData;
+            }
         }
         if (valueInData != null) {
             removedKeys.add(key);
