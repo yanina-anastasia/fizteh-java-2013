@@ -70,6 +70,7 @@ public class FileMap implements Table {
                     db.remove(key);
             }
         }
+        diff.clear();
         return result;
     }
 
