@@ -17,6 +17,7 @@ public class MyTable implements Table {
     Path addr;
     HashMap<String, String> oldMap;
     HashMap<String, String> map;
+    String tableName;
 
     /**
      * Конструктор. Открывает и читают базу.
@@ -25,6 +26,7 @@ public class MyTable implements Table {
      */
     public MyTable(Path address) {
         addr = address;
+        tableName = addr.getFileName().toString();
         map = new HashMap<String, String>();
 
         for (int dirNum = 0; dirNum < 16; dirNum++) {
@@ -108,7 +110,7 @@ public class MyTable implements Table {
      */
     @Override
     public String getName() {
-        return addr.getParent().toString();
+        return tableName;
     }
 
     /**
@@ -182,7 +184,7 @@ public class MyTable implements Table {
     @Override
     public int commit() {
         int oldSize = oldMap.size();
-        System.out.println(oldSize + " | " + map.size());
+        //System.out.println(oldSize + " | " + map.size());
         oldMap.clear();
         oldMap.putAll(map);
         try {
