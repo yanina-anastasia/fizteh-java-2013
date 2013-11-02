@@ -205,14 +205,17 @@ public class MyTable implements Table {
         for (Map.Entry<String, String> entry : map.entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {
                 difference++;
+                System.out.println("1");
             } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
                 difference++;
+                System.out.println("2");
             }
 
         }
         for (Map.Entry<String, String> entry : oldMap.entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {
                 difference++;
+                System.out.println("3");
             }
         }
 
