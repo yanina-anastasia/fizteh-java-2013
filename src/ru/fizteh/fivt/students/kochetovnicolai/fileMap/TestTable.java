@@ -92,7 +92,7 @@ public class TestTable extends FileManager {
     }
 
     @Test
-    public void commitPutAndRemoveShouldWork() {
+    public void commitAndRollbackShouldWork() {
         Assert.assertTrue("put new key should be null", table.put("key", "value") == null);
         Assert.assertEquals("remove should return value", table.remove("key"), "value");
         Assert.assertEquals("commit should return 0", table.commit(), 0);
@@ -103,6 +103,14 @@ public class TestTable extends FileManager {
         Assert.assertEquals("remove should return value", table.remove("key"), "value");
         Assert.assertTrue("put new key should be null", table.put("key", "value") == null);
         Assert.assertEquals("commit should return 0", table.commit(), 0);
+
+        Assert.assertTrue("put new key should be null", table.put("key1", "value1") == null);
+        Assert.assertTrue("put new key should be null", table.put("key2", "value2") == null);
+        Assert.assertEquals("commit should return 2", table.commit(), 2);
+        Assert.assertEquals("remove should return value1", table.remove("key1"), "value1");
+        Assert.assertEquals("put should return value1", table.put("key2", "value"), "value2");
+        Assert.assertTrue("put new key should be null", table.put("key3", "value3") == null);
+        Assert.assertEquals("rollback should return 3", table.rollback(), 3);
     }
 
     @Test

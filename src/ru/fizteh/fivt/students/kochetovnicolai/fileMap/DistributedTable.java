@@ -150,10 +150,14 @@ public class DistributedTable extends FileManager implements Table {
     protected int findDifference() {
         int diff = 0;
         for (String key : changes.keySet()) {
-            if (changes.get(key) == null && cache.containsKey(key) && cache.get(key) != null) {
-                diff++;
-            } else if (!cache.containsKey(key) || cache.get(key) == null) {
-                diff++;
+            if (changes.get(key) == null) {
+                if (cache.containsKey(key) && cache.get(key) != null) {
+                    diff++;
+                }
+            } else {
+                if (!cache.containsKey(key) || !changes.get(key).equals(cache.get(key))) {
+                    diff++;
+                }
             }
         }
         return diff;
