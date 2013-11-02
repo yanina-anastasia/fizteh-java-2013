@@ -55,7 +55,7 @@ public class Shell {
 
         File fileToRemove = new File(args[1]);
         if (!fileToRemove.isAbsolute()) {
-            fileToRemove = new File(parentShell.currentDir.getCanonicalPath() + File.separator + args[1]);
+            fileToRemove = new File(currentDir.getCanonicalPath() + File.separator + args[1]);
         }
         File[] filesToRemove = fileToRemove.listFiles();
         if (filesToRemove != null) {
