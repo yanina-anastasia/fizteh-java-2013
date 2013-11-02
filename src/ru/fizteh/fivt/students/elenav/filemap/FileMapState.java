@@ -9,11 +9,10 @@ import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Set;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
-import ru.fizteh.fivt.students.elenav.states.Writer;
+import ru.fizteh.fivt.students.elenav.utils.Writer;
 
-public class FileMapState extends MonoMultiAbstractState implements Table {
+public class FileMapState extends MonoMultiAbstractState {
 
 	public HashMap<String, String> map = new HashMap<>();
 	
@@ -44,21 +43,6 @@ public class FileMapState extends MonoMultiAbstractState implements Table {
 	@Override
 	public String remove(String key) {
 		return map.remove(key);
-	}
-
-	@Override
-	public int size() {
-		return map.size();
-	}
-
-	@Override
-	public int commit() {
-		return 0;
-	}
-
-	@Override
-	public int rollback() {
-		return 0;
-	}                                                                                                                                                                                     
+	}                                                                                                                                                                        
 
 }

@@ -100,7 +100,5 @@ public abstract class FilesystemState {
 	public File getWorkingDirectory() {
 		return workingDirectory;
 	}
-
-	
 	
 }

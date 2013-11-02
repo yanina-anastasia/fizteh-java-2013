@@ -7,8 +7,8 @@ import ru.fizteh.fivt.students.elenav.commands.ExitCommand;
 import ru.fizteh.fivt.students.elenav.commands.GetCommand;
 import ru.fizteh.fivt.students.elenav.commands.PutCommand;
 import ru.fizteh.fivt.students.elenav.commands.RemoveCommand;
-import ru.fizteh.fivt.students.elenav.states.Reader;
 import ru.fizteh.fivt.students.elenav.utils.ExitException;
+import ru.fizteh.fivt.students.elenav.utils.Reader;
 
 public class FileMap {
 	

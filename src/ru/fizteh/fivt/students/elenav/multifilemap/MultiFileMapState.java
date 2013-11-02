@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
-import ru.fizteh.fivt.students.elenav.states.Reader;
-import ru.fizteh.fivt.students.elenav.states.Writer;
+import ru.fizteh.fivt.students.elenav.utils.Reader;
+import ru.fizteh.fivt.students.elenav.utils.Writer;
 
 public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 	
@@ -105,7 +105,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 
 	@Override
 	public String get(String key) {
-		if (key == null) {
+		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get null key");
 		}
 		String value = map.get(key);
@@ -119,7 +119,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 
 	@Override
 	public String put(String key, String value) {
-		if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
+		if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't put null key or(and) value");
 		}
 		String currentValue = map.put(key, value);
@@ -148,7 +148,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 	
 	@Override
 	public String remove(String key) {
-		if (key == null || key.isEmpty()) {
+		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't remove null key");
 		}
 		String oldValue = startMap.get(key);

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenav.states;
+package ru.fizteh.fivt.students.elenav.utils;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
