@@ -63,8 +63,6 @@ public class DataBase {
                 throw e;
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(filePath + ": file not found", e);
-//                System.err.println(filePath + ": file not found");
-//                System.exit(1);
             } finally {
                 try {
                     closeDataFile();
@@ -202,52 +200,61 @@ public class DataBase {
     public void commitChanges() throws IOException, RuntimeException  {
         IOException e1 = new IOException();
         try {
-            dataFile = new RandomAccessFile(filePath, "rw");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(filePath + " can't get access to file"); 
-        }
-        if (data == null || data.isEmpty()) {
             try {
-                closeDataFile();
-            } catch (RuntimeException e2) {
+                dataFile = new RandomAccessFile(filePath, "rw");
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(filePath + " can't get access to file", e); 
+            }
+            if (data == null || data.isEmpty()) {
+                try {
+                    closeDataFile();
+                } catch (RuntimeException e2) {
+                    throw e2;
+                }
+                Shell sh = new Shell(tablePath);
+                if (sh.rm(filePath) != Shell.ExitCode.OK) {
+                    throw new RuntimeException(filePath + " can't delete file", e);
+                }
+                return;
+            }
+    
+            int offset = 0;
+            Set<Map.Entry<String, String>> mySet = data.entrySet();
+            for (Map.Entry<String, String> myEntry : mySet) {
+                try {
+                    offset += getLength(myEntry.getKey()) + 1 + 4;
+                } catch (UnsupportedEncodingException e) {
+                    throw e1;
+                }
+            }
+            int currOffset = offset;
+            try {
+                dataFile.setLength(0);
+                dataFile.seek(0);
+                for (Map.Entry<String, String> myEntry : mySet) {
+                    dataFile.write(myEntry.getKey().getBytes());
+                    dataFile.writeByte(0);
+                    dataFile.writeInt(currOffset);
+                    currOffset += getLength(myEntry.getValue());
+                }
+                for (Map.Entry<String, String> myEntry : mySet) {
+                    dataFile.write(myEntry.getValue().getBytes());
+                }
+                try {
+                    closeDataFile();
+                } catch (RuntimeException e3) {
+                    throw e3;
+                }
+            } catch (IOException e2) {
                 throw e2;
             }
-            Shell sh = new Shell(tablePath);
-            if (sh.rm(filePath) != Shell.ExitCode.OK) {
-                throw new RuntimeException(filePath + " can't delete file");
-            }
-            return;
-        }
-
-        int offset = 0;
-        Set<Map.Entry<String, String>> mySet = data.entrySet();
-        for (Map.Entry<String, String> myEntry : mySet) {
-            try {
-                offset += getLength(myEntry.getKey()) + 1 + 4;
-            } catch (UnsupportedEncodingException e) {
-                throw e1;
-            }
-        }
-        int currOffset = offset;
-        try {
-            dataFile.setLength(0);
-            dataFile.seek(0);
-            for (Map.Entry<String, String> myEntry : mySet) {
-                dataFile.write(myEntry.getKey().getBytes());
-                dataFile.writeByte(0);
-                dataFile.writeInt(currOffset);
-                currOffset += getLength(myEntry.getValue());
-            }
-            for (Map.Entry<String, String> myEntry : mySet) {
-                dataFile.write(myEntry.getValue().getBytes());
-            }
+        } catch (Throwable e) {
+        } finally {
             try {
                 closeDataFile();
-            } catch (RuntimeException e3) {
-                throw e3;
+            } catch (RuntimeException e5) {
+                throw e5;
             }
-        } catch (IOException e2) {
-            throw e2;
         }
     }
 }
