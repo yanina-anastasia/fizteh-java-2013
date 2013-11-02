@@ -351,7 +351,9 @@ public class FileMap implements Table {
             if (!changeTable.containsKey(key)) {
                 changeTable.put(key, tableData.get(key));
             } else {
-                changeTable.remove(key);
+                if (changeTable.get(key) == null) {
+                    changeTable.remove(key);
+                }
             }
 
             String value = tableData.get(key);
