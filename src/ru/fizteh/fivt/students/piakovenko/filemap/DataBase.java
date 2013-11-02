@@ -292,10 +292,8 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("key or value equals NULL");
         }
         String putValue = map.put(key, value);
-        if (putValue == null) {
-            ++changed;
-            map.getChangedMap().put(key, value);
-        }
+        ++changed;
+        map.getChangedMap().put(key, value);
         return putValue;
     }
 
