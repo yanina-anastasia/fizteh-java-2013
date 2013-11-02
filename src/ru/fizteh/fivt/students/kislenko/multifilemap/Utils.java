@@ -1,11 +1,9 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -30,19 +28,19 @@ public class Utils {
         table.commit();
     }
 
-    public static void loadFile(MyTable table, TwoLayeredString key) throws IOException {
-        byte nDirectory = getDirNumber(key);
-        byte nFile = getFileNumber(key);
-        if (!table.isUsing(nDirectory, nFile) && table.getPath().toFile().exists()) {
-            File temp = new File(table.getPath().resolve(nDirectory + ".dir").resolve(nFile + ".dat").toString());
-            if (temp.exists()) {
-                RandomAccessFile file = new RandomAccessFile(temp, "r");
-                readFile(table, file);
-                file.close();
-            }
-            table.setUsing(nDirectory, nFile, true);
-        }
-    }
+//    public static void loadFile(MyTable table, TwoLayeredString key) throws IOException {
+//        byte nDirectory = getDirNumber(key);
+//        byte nFile = getFileNumber(key);
+//        if (!table.isUsing(nDirectory, nFile) && table.getPath().toFile().exists()) {
+//            File temp = new File(table.getPath().resolve(nDirectory + ".dir").resolve(nFile + ".dat").toString());
+//            if (temp.exists()) {
+//                RandomAccessFile file = new RandomAccessFile(temp, "r");
+//                readFile(table, file);
+//                file.close();
+//            }
+//            table.setUsing(nDirectory, nFile, true);
+//        }
+//    }
 
     public static void readFile(MyTable table, RandomAccessFile datafile) throws IOException {
         int keyLength;
@@ -67,7 +65,7 @@ public class Utils {
         if (table == null) {
             return;
         }
-        table.rollback();
+        //table.commit();
         table.setByteSize(0);
         File[] dirs = new File[16];
         Map<Integer, File> files = new TreeMap<Integer, File>();
