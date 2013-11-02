@@ -99,7 +99,6 @@ public class DataBase implements Table {
             int keyLong = dataFile.readInt();
             int valueLong = dataFile.readInt();
             if (keyLong <= 0 || valueLong <= 0) {
-                dataFile.close();
                 throw new RuntimeException("Cannot Load File1");
             } else {
                 byte[] keyBytes = new byte[keyLong];
@@ -119,11 +118,6 @@ public class DataBase implements Table {
                 oldDataMap.put(key, value);
             }
         } catch (IOException | OutOfMemoryError e) {
-            try {
-                dataFile.close();
-            } catch (IOException e1) {
-                throw new RuntimeException("Cannot Load File2");
-            }
             throw new RuntimeException("Cannot Load File3");
         }
     }
@@ -185,20 +179,24 @@ public class DataBase implements Table {
                     filesArray[ndirectory * 16 + nfile].write(valueBytes);
                 }
             }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot unload file correctly");
+        } finally {
             try {
                 for (int i = 0; i < 16; ++i) {
                     for (int j = 0; j < 16; ++j) {
                         if (filesArray[i * 16 + j].length() == 0) {
                             getFileWithNum(j, i).delete();
                         }
-                        filesArray[i * 16 + j].close();
+                        if (filesArray[i * 16 + j] != null) {
+                            filesArray[i * 16 + j].close();
+                        }
                     }
                 }
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 throw new RuntimeException("Cannot unload file");
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot unload file correctly");
         }
     }
 
