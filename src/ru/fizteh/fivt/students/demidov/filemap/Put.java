@@ -5,11 +5,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Put extends BasicFileMapCommand {
-	public Put(FileMap usedFileMap) {
-		super(usedFileMap);
+	public Put(FileMapState currentFileMapState) {
+		super(currentFileMapState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = super.fileMap.getCurrentTable().put(arguments[0], arguments[1]);
+		String value = fileMapState.getCurrentFileMap(arguments[0]).getCurrentTable().put(arguments[0], arguments[1]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("new");
 		} else {

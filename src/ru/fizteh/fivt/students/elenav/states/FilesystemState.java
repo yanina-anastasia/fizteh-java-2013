@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenav.shell;
+package ru.fizteh.fivt.students.elenav.states;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,25 +13,17 @@ import ru.fizteh.fivt.students.elenav.commands.Command;
 public abstract class FilesystemState {
 	
 	private final PrintStream stream;
-	private File workingDirectory;
 	private final String name;
+	private File workingDirectory = null;
 	protected final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
 		
-	protected FilesystemState(String n, File wd, PrintStream s) {
-		stream = s;
-		workingDirectory = wd;
-		name = n;
-		init();
-	}
-	
 	protected abstract void init();
 	
-	public void setWorkingDirectory(File f) {
-		workingDirectory = f;
-	}
-	
-	public File getWorkingDirectory() {
-		return workingDirectory;
+	protected FilesystemState(String n, File wd, PrintStream s) {
+		stream = s;
+		name = n;
+		workingDirectory = wd;
+		init();
 	}
 	
 	public PrintStream getStream() {
@@ -72,7 +64,11 @@ public abstract class FilesystemState {
 			command = command.trim();
 			String[] commands = command.split("\\s*;\\s*");
 			for (String c : commands) {
-				execute(c);
+				try {
+					execute(c);
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
 			}
 		} while (flag);
 	}
@@ -95,5 +91,15 @@ public abstract class FilesystemState {
 			}
 		}
 	}
+
+	public void setWorkingDirectory(File f) {
+		workingDirectory = f;
+	}
+	
+	public File getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	
 	
 }

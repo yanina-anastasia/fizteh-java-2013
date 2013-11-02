@@ -1,16 +1,16 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTable;
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableState;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTable;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class UseCommand implements Command {
-    private MultiFileTableProvider provider;
+    private MultiFileTableState state;
 
-    public UseCommand(MultiFileTableProvider provider) {
-        this.provider = provider;
+    public UseCommand(MultiFileTableState state) {
+        this.state = state;
     }
 
     @Override
@@ -20,13 +20,15 @@ public class UseCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        MultiFileTable table = provider.getTable(args[1]);
-        if (table != null) {
-            provider.saveCurrentTable();
-            provider.setCurrentTable(table);
-            System.out.println("using " + args[1]);
+        if (state.currentTable != null) {
+            int changes = state.currentTable.getChangesCount();
+            if (changes != 0) {
+                System.out.println(changes + " unsaved changes");
+            } else {
+                changeTable(args[1]);
+            }
         } else {
-            System.out.println(args[1] + " not exists");
+            changeTable(args[1]);
         }
     }
 
@@ -34,4 +36,15 @@ public class UseCommand implements Command {
     public int getArgsCount() {
         return 1;
     }
+
+    private void changeTable(String name) {
+        ChangesCountingTable table = state.provider.getTable(name);
+        if (table != null) {
+            state.currentTable = table;
+            System.out.println("using " + name);
+        } else {
+            System.out.println(name + " not exists");
+        }
+    }
+
 }
