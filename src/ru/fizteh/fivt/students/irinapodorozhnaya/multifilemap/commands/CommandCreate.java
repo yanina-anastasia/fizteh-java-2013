@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands;
 
 import java.io.IOException;
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MultiFileMapState;
+import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MultiDbState;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.AbstractCommand;
 
 public class CommandCreate extends AbstractCommand{
-    private MultiFileMapState state;
+    private MultiDbState state;
     
-    public CommandCreate(MultiFileMapState st) {
+    public CommandCreate(MultiDbState st) {
         super(1);
         state = st;
     }
@@ -17,9 +17,9 @@ public class CommandCreate extends AbstractCommand{
     }
     
     public void execute(String[] args) throws IOException {
-            try {
-                state.create(args[1]);
-        } catch (IllegalStateException e) {
+        try {
+            state.create(args[1]);
+        } catch (IllegalArgumentException e) {
             throw new IOException(e.getMessage());
         }
         state.getOutputStream().println("created");

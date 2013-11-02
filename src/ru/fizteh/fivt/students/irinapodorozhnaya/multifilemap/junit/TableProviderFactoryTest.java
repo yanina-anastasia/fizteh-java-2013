@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.junit;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,7 @@ public class TableProviderFactoryTest {
     
     @Before
     public void setUp() throws Exception {
+        (new File(DATA_BASE_DIR)).mkdir();
         factory = new MyTableProviderFactory();
     }
 

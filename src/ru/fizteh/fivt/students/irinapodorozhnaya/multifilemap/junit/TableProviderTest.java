@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.junit;
 
 import java.io.File;
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTableProviderFactory;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 
 import org.junit.After;
@@ -15,16 +15,19 @@ public class TableProviderTest {
     
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
     private TableProvider provider;
-    private File testDir = new File(DATA_BASE_DIR, "TableProdiverTest");
 
     @Before
     public void setUp() throws Exception {
-        testDir.mkdir();
-        provider = new MyTableProvider(testDir);
+        (new File(DATA_BASE_DIR)).mkdir();
+        provider = new MyTableProviderFactory().create(DATA_BASE_DIR);
     }
+    
     @After
     public void thearDown() {
-        CommandRemove.deleteRecursivly(testDir);
+        File f = new File(DATA_BASE_DIR);
+        for (File s: f.listFiles()) {
+            CommandRemove.deleteRecursivly(s);
+        }
     }
 
     @Test

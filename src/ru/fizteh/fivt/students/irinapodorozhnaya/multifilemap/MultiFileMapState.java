@@ -3,17 +3,23 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import ru.fizteh.fivt.students.irinapodorozhnaya.db.DbState;
+
+import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandGet;
+import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandPut;
+import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandRemove;
+import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandExit;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandCommit;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandCreate;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandDrop;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandRollBack;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandSize;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandUse;
+
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.extend.ExtendTable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
 
-public class MultiFileMapState extends DbState {
+public class MultiFileMapState extends State implements MultiDbState {
     
     private ExtendTable workingTable;
     private final ExtendProvider provider;
@@ -25,6 +31,11 @@ public class MultiFileMapState extends DbState {
             throw new IOException("can't get property");
         }
         provider = new MyTableProviderFactory().create(path);
+        
+        add(new CommandExit(this));
+        add(new CommandPut(this));
+        add(new CommandRemove(this));
+        add(new CommandGet(this));
         add(new CommandUse(this));
         add(new CommandCreate(this));
         add(new CommandDrop(this));
@@ -33,10 +44,6 @@ public class MultiFileMapState extends DbState {
         add(new CommandRollBack(this));
     }
 
-    @Override
-    protected void open() throws IOException {        
-    }
-    
     @Override
     public String getValue(String key) throws IOException {
         if (workingTable == null) {
@@ -68,38 +75,42 @@ public class MultiFileMapState extends DbState {
         }
         return 0;
     }
-
+    
+    @Override
     public int getCurrentTableSize() {
         return workingTable.size();
     }
 
+    @Override
     public int rollBack() {
         return workingTable.rollback();
     }
     
-    public void drop(String name) {
+    @Override
+    public void drop(String name) throws IOException {
         provider.removeTable(name);
     }
 
-    public ExtendTable create(String name) throws IOException {
+    @Override
+    public void create(String name) throws IOException {
         ExtendTable table = provider.createTable(name);
         if (table == null) {
-        throw new IOException(name + " exists");
-        }
-        return table;
+            throw new IOException(name + " exists");
+        } 
     }
     
+    @Override
     public void use(String name) throws IOException {
         ExtendTable table = provider.getTable(name);
         if (table == null) {
-        throw new IOException(name + " not exists");
+            throw new IOException(name + " not exists");
         }
-        if (this.workingTable != null) {
-            int n = this.workingTable.getChangedValuesNumber();
+        if (workingTable != null) {
+            int n = workingTable.getChangedValuesNumber();
             if (n != 0) {
                 throw new IOException(n + " unsaved changed");
             }
-            }
+        }
         this.workingTable = table;
     }
 }

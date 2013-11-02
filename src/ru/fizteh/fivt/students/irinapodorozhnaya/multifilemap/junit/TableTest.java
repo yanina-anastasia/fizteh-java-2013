@@ -7,26 +7,25 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTableProviderFactory;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 
 public class TableTest {
 
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
-    private final File testDir = new File(DATA_BASE_DIR, "TableTest");
     private Table testTable;
     private TableProvider provider;
 
     @Before
     public void setUp() {
-        testDir.mkdir();
-        provider = new MyTableProvider(testDir);
+        (new File(DATA_BASE_DIR)).mkdir();
+        provider = new MyTableProviderFactory().create(DATA_BASE_DIR);
         testTable = provider.createTable("table");
     }
 
     @After
     public void tearDown() throws Exception {
-        CommandRemove.deleteRecursivly(testDir);
+        provider.removeTable("table");
     }
 
     @Test

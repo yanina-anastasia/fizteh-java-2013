@@ -25,7 +25,7 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public ExtendTable getTable(String name) {
         if (name == null || !name.matches(STRING_NAME_FORMAT)) {
-            throw new IllegalArgumentException("table name is null or has illigal name");
+            throw new IllegalArgumentException("table name is null or has illegal name");
         }
         return tables.get(name);
     }
@@ -33,14 +33,14 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public ExtendTable createTable(String name) {
         if (name == null || !name.matches(STRING_NAME_FORMAT)) {
-            throw new IllegalArgumentException("table name is null or has illigal name");
+            throw new IllegalArgumentException("table name is null or has illegal name");
         }
         File table = new File(dataBaseDir, name);
         if (table.isDirectory()) {
             return null;
         }
         if (!table.mkdir()) {
-            throw new IllegalArgumentException("table has illigal name");
+            throw new IllegalArgumentException("table has illegal name");
         }
         tables.put(name, new MyTable(name, dataBaseDir));
         return tables.get(name);
@@ -49,7 +49,7 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public void removeTable(String name) {
         if (name == null || !name.matches(STRING_NAME_FORMAT)) {
-            throw new IllegalArgumentException("table name is null or has illigal name");
+            throw new IllegalArgumentException("table name is null or has illegal name");
         }
         if (tables.remove(name) == null) {
             throw new IllegalStateException(name + " not exists");
