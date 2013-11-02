@@ -6,20 +6,21 @@ import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DBTable implements Table {
 
     private File tableDirectory;
-    private HashMap<String, String> tableStorage = new HashMap<>();
-    //TODO:Нужно более хитро считать число изменений.
-    //TODO:Если я сделаю put key value; remove key - то по сути я не сделала ни одного изменения.
-    private int numberOfChangedValues = 0;
+    private HashMap<String, String> tableOfChanges = new HashMap<>();
+    private HashMap<String, String> originalTable = new HashMap<>();
+    private Set<String> removedKeys = new HashSet<>();
 
-    public DBTable(File dataDirectory) throws Exception {
-        tableDirectory = dataDirectory;
-        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tableStorage);
+    public DBTable(File inputTableDirectory) throws IOException {
+        tableDirectory = inputTableDirectory;
+        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, originalTable);
         if (returnCOde != Code.OK) {
-            throw new Exception("Error while reading table: " + this.getName());
+            throw new IOException("Error while reading table: " + this.getName());
         }
     }
 
@@ -30,42 +31,108 @@ public class DBTable implements Table {
 
     @Override
     public String get(String key) {
-        return tableStorage.get(key);
+        if (key == null) {
+            throw new IllegalArgumentException("remove: key is null");
+        }
+        String value = tableOfChanges.get(key);
+        if (value == null) {
+            if (removedKeys.contains(key)) {
+                return null;
+            }
+            value = originalTable.get(key);
+        }
+        return value;
     }
 
     @Override
     public String put(String key, String value) {
-        numberOfChangedValues++;
-        return tableStorage.put(key, value);
+        if (value == null || key == null) {
+            throw new IllegalArgumentException("put: key or value is null");
+        }
+        if (key.trim().isEmpty() || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("put: key or value is empty");
+        }
+        String originalValue = originalTable.get(key);
+        String oldValue = tableOfChanges.put(key, value);
+        //Значит здесь впервые происходит перезаписывание старого значения.
+        if (!removedKeys.contains(key) && oldValue == null) {
+            oldValue = originalValue;
+        }
+        if (originalValue != null) {
+            removedKeys.add(key);
+        }
+        return oldValue;
     }
 
     @Override
     public String remove(String key) {
-        numberOfChangedValues++;
-        return tableStorage.remove(key);
+        if (key == null) {
+            throw new IllegalArgumentException("remove: key is null");
+        }
+        String value = tableOfChanges.get(key);
+        if (value == null) {
+            if (!removedKeys.contains(key)) {
+                value = originalTable.get(key);
+                if (value != null) {
+                    removedKeys.add(key);
+                }
+            }
+        } else {
+            tableOfChanges.remove(key);
+            if (originalTable.containsKey(key)) {
+                removedKeys.add(key);
+            }
+        }
+        return value;
     }
 
     @Override
     public int size() {
-        return tableStorage.size();
+        return tableOfChanges.size() + originalTable.size() - removedKeys.size();
     }
 
-    //@return Количество сохранённых ключей. Вывод - число измененных значений:
+    //@return Количество сохранённых ключей.
     @Override
     public int commit() {
-        try {
-            FileManager.writeTableOnDisk(tableDirectory, tableStorage);
-        } catch (IOException e) {
-            return -1;
+        int count = countTheNumberOfChanges();
+        for (String delString : removedKeys) {
+            originalTable.remove(delString);
         }
-        int result = numberOfChangedValues;
-        numberOfChangedValues = 0;
-        return result;
+        originalTable.putAll(tableOfChanges);
+        try {
+            FileManager.writeTableOnDisk(tableDirectory, originalTable);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        tableOfChanges.clear();
+        removedKeys.clear();
+        return count;
     }
 
-    //Ещё не написанная функция.
     @Override
     public int rollback() {
-        return 0;
+        int count = countTheNumberOfChanges();
+        tableOfChanges.clear();
+        removedKeys.clear();
+        return count;
+    }
+
+    public int countTheNumberOfChanges() {
+        int countOfChanges = 0;
+        for (String currentKey : removedKeys) {
+            if (tableOfChanges.containsKey(currentKey)) {
+                String currentValue = tableOfChanges.get(currentKey);
+                if (originalTable.get(currentKey).equals(currentValue)) {
+                    continue;
+                }
+            }
+            countOfChanges++;
+        }
+        for (String currentKey : tableOfChanges.keySet()) {
+            if (!originalTable.containsKey(currentKey)) {
+                countOfChanges++;
+            }
+        }
+        return countOfChanges;
     }
 }

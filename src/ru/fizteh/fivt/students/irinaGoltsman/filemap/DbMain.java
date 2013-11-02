@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProviderFactory;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Shell;
@@ -16,10 +18,10 @@ public class DbMain {
             System.err.println("Error with path to the root directory");
             System.exit(1);
         }
+        TableProviderFactory newTableProviderFactory = new DBTableProviderFactory();
         TableProvider newTableProvider = null;
         try {
-            File file = new File(path);
-            newTableProvider = new DBTableProvider(file);
+            newTableProvider = newTableProviderFactory.create(path);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -35,6 +37,7 @@ public class DbMain {
         cm.addCommand(new DBCommands.Drop());
         cm.addCommand(new DBCommands.Use());
         cm.addCommand(new DBCommands.Size());
+        cm.addCommand(new DBCommands.RollBack());
         Code codeOfShell = Shell.shell(args);
         Code codeOfClosing = myDataBase.closeDB();
         if (codeOfClosing == Code.ERROR || codeOfClosing == Code.SYSTEM_ERROR

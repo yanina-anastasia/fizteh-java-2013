@@ -6,21 +6,22 @@ import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DBTableProvider implements TableProvider {
     private Map<String, Table> allTables = new HashMap<String, Table>();
     private File rootDirectoryOfTables;
-
-    public DBTableProvider(File rootDirectory) throws Exception {
+    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
+    public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
             if (!rootDirectory.mkdir()) {
-                throw new Exception(rootDirectory.getName() + ": not exist and can't be created");
+                throw new IOException(rootDirectory.getName() + ": not exist and can't be created");
             }
         }
         if (!rootDirectory.isDirectory()) {
-            throw new Exception(rootDirectory.getName() + ": not a directory");
+            throw new IOException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
         for (File tableFile : rootDirectoryOfTables.listFiles()) {
@@ -30,32 +31,33 @@ public class DBTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(String tableName) throws IllegalArgumentException {
         if (tableName == null) {
-            throw new IllegalArgumentException("table name: can not be null");
+            throw new IllegalArgumentException("null table name");
         }
-
-        if (!allTables.containsKey(tableName)) {
-            return null;
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("table name is empty");
         }
-
-        File tableFile = new File(rootDirectoryOfTables, tableName);
-        try {
-            return new DBTable(tableFile);
-        } catch (Exception exc) {
-            System.err.println(exc.getMessage());
-            return null;
+        if (!tableName.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("get table: error table name");
         }
+        return allTables.get(tableName);
     }
 
     @Override
-    public Table createTable(String tableName) throws IllegalStateException {
+    public Table createTable(String tableName) throws IllegalArgumentException {
         if (tableName == null) {
-            throw new IllegalArgumentException("table name: can not be null");
+            throw new IllegalArgumentException("create table: null table name");
+        }
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("create table: table name is empty");
+        }
+        if (!tableName.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("create table: error table name");
         }
         File tableFile = new File(rootDirectoryOfTables, tableName);
         if (tableFile.exists()) {
-            throw new IllegalStateException(tableName + " exists");
+            return null;
         }
         if (!tableFile.mkdir()) {
             return null;
@@ -71,7 +73,16 @@ public class DBTableProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String tableName) throws IllegalStateException {
+    public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
+        if (tableName == null || !tableName.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("remove table: incorrect table name");
+        }
+        if (tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("remove table: table name is empty");
+        }
+        if (!allTables.containsKey(tableName)) {
+            throw new IllegalStateException("remove table: no such table");
+        }
         //File table = new File(rootDirectoryOfTables, tableName);
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
@@ -79,7 +90,7 @@ public class DBTableProvider implements TableProvider {
         cm.commandProcessing("cd " + rootDirectoryOfTables.toString());
         Code returnCode = cm.commandProcessing("rm " + tableName);
         if (returnCode != Code.OK) {
-            throw new IllegalStateException("");
+            throw new RuntimeException("");
         }
         allTables.remove(tableName);
     }
