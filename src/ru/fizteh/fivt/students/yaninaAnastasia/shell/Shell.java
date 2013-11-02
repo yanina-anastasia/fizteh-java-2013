@@ -83,7 +83,7 @@ public class Shell {
                 System.exit(0);
             }
         } catch (IllegalArgumentException e) {
-            System.err.println("Error: illegal arguments");
+            System.err.println(e.getMessage());
             return false;
         } catch (IOException e) {
             e.printStackTrace();

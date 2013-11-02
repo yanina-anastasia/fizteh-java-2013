@@ -50,9 +50,11 @@ public class DatabaseTable implements Table {
     }
 
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())
-                || (value == null || (value.isEmpty() || value.trim().isEmpty()))) {
-            throw new IllegalArgumentException("table's name cannot be null");
+        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
+            throw new IllegalArgumentException("key's name cannot be null");
+        }
+        if (value == null || (value.isEmpty() || value.trim().isEmpty())) {
+            throw new IllegalArgumentException("value's name cannot be null");
         }
         String oldValue = null;
         oldValue = modifiedData.get(key);
@@ -69,7 +71,7 @@ public class DatabaseTable implements Table {
 
     public String remove(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("table's name cannot be null");
+            throw new IllegalArgumentException("key's name cannot be null");
         }
         String oldValue = null;
         oldValue = modifiedData.get(key);
@@ -113,7 +115,7 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = Math.abs(size - oldData.size());
+        int recordsDeleted = uncommittedChanges;
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
@@ -193,7 +195,7 @@ public class DatabaseTable implements Table {
             try {
                 Files.delete(Paths.get(path));
             } catch (IOException e) {
-                System.err.println("IO exception");
+                //System.err.println("IO exception");
                 return false;
             }
             return false;
