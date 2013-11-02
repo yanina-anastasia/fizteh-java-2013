@@ -186,7 +186,7 @@ public class MyTableProviderTest {
         if (existingDir.isDirectory()) {
             try {
                 Table res2 = prov.getTable("existingDirPath");
-                assertNull(res2);            
+                assertNotNull(res2);            
             } catch (RuntimeException e) {
                 //ok, shit happens, fileMap could throw exception
             }

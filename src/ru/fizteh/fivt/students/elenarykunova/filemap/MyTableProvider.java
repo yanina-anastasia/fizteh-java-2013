@@ -76,7 +76,13 @@ public class MyTableProvider implements TableProvider {
             return null;
         }
         try {
-            return tables.get(name);
+            if (tables.get(name) != null) {
+                return tables.get(name);
+            } else {
+                Filemap result = new Filemap(tablePath, name);
+                tables.put(name, result);
+                return result;
+            }
         } catch (RuntimeException e) {
             throw e;
         }
