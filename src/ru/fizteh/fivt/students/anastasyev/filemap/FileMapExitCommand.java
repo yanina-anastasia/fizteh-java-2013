@@ -9,7 +9,6 @@ public class FileMapExitCommand implements Command<FileMapTableProvider> {
             System.err.println("exit: Usage - exit");
             return false;
         }
-        //state.getCurrentFileMapTable().commit();
         System.exit(0);
         return true;
     }
