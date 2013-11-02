@@ -28,6 +28,7 @@ public class TableCommands implements Table {
         tableDir = directory;
         update = new HashMap<Integer, String>();
         isCorrectTable();
+        assigment(lastList, list);
     }
     
     private void isCorrectTable() {
@@ -285,11 +286,7 @@ public class TableCommands implements Table {
             for (Map.Entry entry : lastList[numberOfDir][numberOfFile].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
-                if (list[numberOfDir][numberOfFile].containsKey(key)) {
-                    if (!list[numberOfDir][numberOfFile].get(key).equals(value)) {
-                        ++result;
-                    }
-                } else {
+                if (!list[numberOfDir][numberOfFile].containsKey(key)) {
                     ++result;
                 }
             }
