@@ -10,7 +10,12 @@ import java.util.ArrayList;
 public class main {
     public static void main(String[] args) throws IOException {
 
-        MultiFileMapState mfhm = new MultiFileMapState(System.getProperty("fizteh.db.dir"));
+        String s = System.getProperty("fiztehdb.dir");
+        if (s == null) {
+            System.exit(-1);
+        }
+
+        MultiFileMapState mfhm = new MultiFileMapState(s);
         Shell sh = new Shell(mfhm);
 
         ArrayList<Command> Commands = new ArrayList<Command>();
