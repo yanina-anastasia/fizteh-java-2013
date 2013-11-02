@@ -41,11 +41,12 @@ public class FileMap {
         if (!isLoaded) {
             try {
                 readerFile();
-            } catch (IOException e) {
-                throw new RuntimeException("Reading error", e);
             } catch (DataFormatException e) {
                 throw new RuntimeException("Bad data", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Reading error", e);
             }
+
         }
         return fileMap.put(key, value);
     }
@@ -61,10 +62,10 @@ public class FileMap {
         if (!isLoaded) {
             try {
                 readerFile();
-            } catch (IOException e) {
-                throw new RuntimeException("Reading error", e);
             } catch (DataFormatException e) {
                 throw new RuntimeException("Bad data", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Reading error", e);
             }
         }
         return fileMap.get(key);
@@ -81,28 +82,21 @@ public class FileMap {
         if (!isLoaded) {
             try {
                 readerFile();
-            } catch (IOException e) {
-                throw new RuntimeException("Reading error", e);
             } catch (DataFormatException e) {
                 throw new RuntimeException("Bad data", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Reading error", e);
             }
         }
         return fileMap.remove(key);
     }
 
-    private void writerFile() throws IOException {
+    private void writerFile() throws Exception {
         RandomAccessFile fileDataBase = null;
+        Exception e = new Exception("Writing error");
         try {
             fileDataBase = new RandomAccessFile(file, "rw");
             fileDataBase.setLength(0);
-        } catch (Exception e) {
-            if (fileDataBase != null) {
-                fileDataBase.close();                      // Мне нужен открытый файл далее, если я закрою его здесь
-            }                                              //в finally, кажется, у меня возникнут проблемы при
-            throw new IOException("Writing error", e);     //отсутствии исключения
-        }
-
-        try {
             HashMap<String, Long> offsets = new HashMap<String, Long>();
             long currentOffsetOfValue;
             long offset = fileDataBase.getFilePointer();
@@ -125,10 +119,14 @@ public class FileMap {
                 fileDataBase.writeInt(lastOffsetInt);
                 fileDataBase.seek(currentPosition);
             }
-        } catch (Exception e) {
-            throw new IOException("Writing error", e);
+        } catch (Exception exp) {
+             e = exp;
         } finally {
-            fileDataBase.close();
+            try {
+                fileDataBase.close();
+            } catch (Throwable th) {
+                e.addSuppressed(th);
+            }
         }
         if (file.length() == 0) {
             deleteEmptyFile();
@@ -154,34 +152,12 @@ public class FileMap {
         }
     }
 
-    void readerFile() throws IOException, DataFormatException {
+    void readerFile() throws Exception {
+        Exception e = new Exception("Reading error");
         RandomAccessFile dataBase = null;
+        String key1;
         try {
             dataBase = new RandomAccessFile(file, "r");
-        } catch (FileNotFoundException e) {
-            if (dataBase != null) {
-                dataBase.close();
-            }
-            return;
-        } catch (Exception e) {
-            if (dataBase != null) {
-                dataBase.close();
-            }
-            throw new IOException(file.getName() + ": Reading error", e);
-        }
-        try {
-            if (dataBase.length() == 0) {
-                dataBase.close();
-                deleteEmptyFile();
-                return;
-            }
-        } catch (Exception e) {
-            if (dataBase != null) {
-                dataBase.close();
-            }
-            throw new IOException(file.getName() + ": Reading error", e);
-        }
-        try {
             HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
             HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
             String key = readKey(dataBase);
@@ -190,18 +166,15 @@ public class FileMap {
                 b *= (-1);
             }
             if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-                dataBase.close();
                 throw new DataFormatException("Illegal key in file " + file.toPath().toString());
             }
             if (keyAndValueLength.containsKey(key)) {
-                dataBase.close();
                 throw new DataFormatException("Illegal key in file " + file.toPath().toString());
             }
             Integer offset = 0;
             try {
                 offset = dataBase.readInt();
-            } catch (EOFException e) {
-                dataBase.close();
+            } catch (EOFException e1) {
                 throw new DataFormatException(file.getName());
             }
             offsetAndKeyMap.put(offset, key);
@@ -217,46 +190,43 @@ public class FileMap {
                     offsetAndKeyMap.put(offset, key);
                     keyAndValueLength.put(lastKey, offset - lastOffset);
                     if (keyAndValueLength.containsKey(key)) {
-                        dataBase.close();
                         throw new DataFormatException(file.getName() + ": " + key + ": The key is already contained");
                     }
                 }
                 keyAndValueLength.put(key, (int) dataBase.length() - offset);
-            } catch (EOFException e) {
-                dataBase.close();
+            } catch (EOFException e1) {
                 throw new DataFormatException(file.getName());
             }
             int lengthOfValue = 0;
-            try {
-                while (dataBase.getFilePointer() < dataBase.length()) {
-                    int currentOffset = (int) dataBase.getFilePointer();
-                    if (!offsetAndKeyMap.containsKey(currentOffset)) {
-                        dataBase.close();
-                        throw new DataFormatException("Illegal key in file " + file.toPath().toString());
-                    } else {
-                        key = offsetAndKeyMap.get(currentOffset);
-                        lengthOfValue = keyAndValueLength.get(key);
-                    }
-                    byte[] valueInBytes = new byte[lengthOfValue];
-                    for (int i = 0; i < lengthOfValue; ++i) {
-                        valueInBytes[i] = dataBase.readByte();
-                    }
-                    String value = new String(valueInBytes, "UTF8");
-                    fileMap.put(key, value);
+            while (dataBase.getFilePointer() < dataBase.length()) {
+                int currentOffset = (int) dataBase.getFilePointer();
+                if (!offsetAndKeyMap.containsKey(currentOffset)) {
+                    throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                } else {
+                    key = offsetAndKeyMap.get(currentOffset);
+                    lengthOfValue = keyAndValueLength.get(key);
                 }
-            } catch (EOFException e) {
-                dataBase.close();
-                throw new DataFormatException(file.getName());
+                byte[] valueInBytes = new byte[lengthOfValue];
+                for (int i = 0; i < lengthOfValue; ++i) {
+                    valueInBytes[i] = dataBase.readByte();
+                }
+                String value = new String(valueInBytes, "UTF8");
+                fileMap.put(key, value);
             }
-        } catch (Exception e) {
-            try {
-                dataBase.close();
-            } catch (Exception e2) {
-                throw new IOException(file.getName(), e2);
-            }
-            throw new IOException(file.getName(), e);
+        } catch (FileNotFoundException e1) {
+            return;
+        } catch (EOFException e2) {
+            throw new DataFormatException(file.getName());
+        } catch (Exception exp) {
+            e = exp;
         } finally {
-            dataBase.close();
+            if (dataBase != null) {
+                try {
+                    dataBase.close();
+                } catch (Throwable th) {
+                    e.addSuppressed(th);
+                }
+            }
         }
         fileMapInitial.clear();
         for (String key: fileMap.keySet()) {
@@ -265,6 +235,7 @@ public class FileMap {
         size = fileMap.size();
         isLoaded = true;
     }
+
 
     private String readKey(RandomAccessFile dateBase) throws IOException, DataFormatException {
         Vector<Byte> keyBuilder = new Vector<Byte>();
@@ -319,8 +290,7 @@ public class FileMap {
         if (numberOfChanges != 0) {
             try {
                 writerFile();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
                 throw new RuntimeException("Writing error", e);
             }
         }
@@ -339,14 +309,13 @@ public class FileMap {
         if (!isLoaded) {
             try {
                 readerFile();
-            } catch (IOException e) {
-                throw new RuntimeException("reading error", e);
             } catch (DataFormatException e) {
                 throw new RuntimeException("Bad dates", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Reading error", e);
             }
         }
         return fileMap.size();
     }
 
 }
-
