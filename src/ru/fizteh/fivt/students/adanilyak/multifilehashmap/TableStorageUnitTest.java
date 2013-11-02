@@ -59,9 +59,17 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getBadNameTest() {
+    public void getNullTest() {
         testTableEng.get(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getEmptyTest() {
         testTableEng.get("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getNlTest() {
         testTableEng.get("    ");
     }
 
@@ -84,13 +92,37 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putBadNameTest() {
+    public void putNullKeyTest() {
         testTableEng.put(null, "value");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putNullValueTest() {
         testTableEng.put("key", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putNullBothTest() {
         testTableEng.put(null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putEmptyKeyTest() {
         testTableEng.put("", "value");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putNlKeyTest() {
         testTableEng.put("    ", "value");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putEmptyValueTest() {
         testTableEng.put("key", "");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putNlValueTest() {
         testTableEng.put("key", "    ");
     }
 
@@ -111,9 +143,17 @@ public class TableStorageUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void removeBadNameTest() {
+    public void removeNullTest() {
         testTableEng.remove(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeEmptyTest() {
         testTableEng.remove("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeNlTest() {
         testTableEng.remove("    ");
     }
 
@@ -136,18 +176,18 @@ public class TableStorageUnitTest {
         testTableEng.commit();
         Assert.assertEquals(5, testTableEng.size());
 
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableRus.put("ключ" + i, "значение" + i);
         }
         Assert.assertEquals(5, testTableRus.size());
         testTableRus.rollback();
         Assert.assertEquals(0, testTableRus.size());
 
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableEng.remove("key" + i);
         }
 
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableRus.remove("ключ" + i);
         }
     }
@@ -160,11 +200,11 @@ public class TableStorageUnitTest {
     @Test
     public void commitTest() {
         Assert.assertEquals(0, testTableEng.commit());
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableEng.put("key" + i, "value" + i);
         }
         Assert.assertEquals(5, testTableEng.commit());
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableEng.remove("key" + i);
         }
     }
@@ -177,7 +217,7 @@ public class TableStorageUnitTest {
     @Test
     public void rollbackTest() {
         Assert.assertEquals(0, testTableEng.rollback());
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableEng.put("key" + i, "value" + i);
         }
         testTableEng.commit();
@@ -186,7 +226,7 @@ public class TableStorageUnitTest {
         Assert.assertEquals(0, testTableEng.rollback());
         Assert.assertEquals("value2", testTableEng.get("key2"));
         Assert.assertEquals("value4", testTableEng.get("key4"));
-        for(int i = 1; i <= 5; ++i) {
+        for (int i = 1; i <= 5; ++i) {
             testTableEng.remove("key" + i);
         }
     }
