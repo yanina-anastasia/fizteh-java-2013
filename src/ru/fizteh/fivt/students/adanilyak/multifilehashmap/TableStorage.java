@@ -121,8 +121,9 @@ public class TableStorage implements Table {
 
     @Override
     public int rollback() {
+        int result = CountingTools.correctCountingOfChanges(data, changes, removedKeys);
         setDefault();
-        return CountingTools.correctCountingOfChanges(data, changes, removedKeys);
+        return result;
     }
 
     private void setDefault() {
