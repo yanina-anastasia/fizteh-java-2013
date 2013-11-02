@@ -35,7 +35,7 @@ class CheckDatabasesWorkspace {
             }
             return result;
         } catch (Exception e) {
-            throw new DatabaseException(e.toString());
+            throw new DatabaseException(e);
         }
     }
 
@@ -147,7 +147,7 @@ class CheckDatabasesWorkspace {
         } catch (DatabaseException dbe) {
             throw dbe;
         } catch (Exception ioException) {
-            throw new DatabaseException(exceptionPrefix, ioException.toString());
+            throw new DatabaseException(exceptionPrefix, ioException);
         }
     }
 }

@@ -8,8 +8,7 @@ import java.nio.file.Paths;
 public class FileMap {
 
     public static void main(String[] args) {
-        String dbDir;
-        dbDir = System.getProperty("fizteh.db.dir");
+        String dbDir = System.getProperty("fizteh.db.dir");
         if (dbDir == null) {
             System.err.println("Empty property");
             System.exit(1);

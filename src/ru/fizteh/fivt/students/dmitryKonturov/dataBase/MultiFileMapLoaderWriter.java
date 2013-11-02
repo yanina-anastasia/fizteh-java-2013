@@ -19,7 +19,7 @@ class MultiFileMapLoaderWriter {
         } catch (DatabaseException dbe) {
             throw dbe;
         } catch (Exception ioException) {
-            throw new DatabaseException("Fail to load" + subDir.toString(), ioException.toString());
+            throw new DatabaseException("Fail to load" + subDir.toString(), ioException);
         }
     }
 
@@ -29,7 +29,7 @@ class MultiFileMapLoaderWriter {
             baseDir = workspace.resolve(baseName);
             CheckDatabasesWorkspace.checkDatabaseDirectory(baseDir);
         } catch (Exception e) {
-            throw new DatabaseException("Load", e.toString());
+            throw new DatabaseException("Load", e);
         }
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(baseDir)) {
             for (Path entry : stream) {
@@ -38,7 +38,7 @@ class MultiFileMapLoaderWriter {
         } catch (DatabaseException dbe) {
           throw dbe;
         } catch (Exception ioException) {
-            throw new DatabaseException("Load", ioException.toString());
+            throw new DatabaseException("Load", ioException);
         }
     }
 
@@ -100,7 +100,7 @@ class MultiFileMapLoaderWriter {
         } catch (DatabaseException dbe) {
             throw dbe;
         } catch (Exception e) {
-            throw new DatabaseException("Something go wrong", e.toString());
+            throw new DatabaseException(e);
         }
     }
 }

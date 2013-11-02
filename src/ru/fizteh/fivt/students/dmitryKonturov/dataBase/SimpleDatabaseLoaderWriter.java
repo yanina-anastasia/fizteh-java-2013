@@ -57,7 +57,6 @@ final class SimpleDatabaseLoaderWriter {
 
     public static void databaseLoadFromFile(SimpleDatabase dataBase, Path fileToRead) throws DatabaseException,
                                                                                              IOException {
-        InputStream input = null;
         long fileLength;
         String exceptionPrefix = String.format("Load from \'%s\'", fileToRead.toString());
         try {
@@ -71,8 +70,7 @@ final class SimpleDatabaseLoaderWriter {
             throw new DatabaseException(exceptionPrefix, e);
         }
 
-        try {
-            input = Files.newInputStream(fileToRead);
+        try (InputStream input = Files.newInputStream(fileToRead)) {
             HashMap<String, String> tmpBase = new HashMap<>();
             while (fileLength > 0) {
                 int keyLen = readInt(input);
@@ -94,14 +92,6 @@ final class SimpleDatabaseLoaderWriter {
             throw ioexc;
         } catch (Exception e) {
             throw new DatabaseException(exceptionPrefix, e);
-        } finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException ignored) {
-                // So what???
-            }
         }
     }
 
@@ -126,10 +116,8 @@ final class SimpleDatabaseLoaderWriter {
     public static void databaseWriteToFile(SimpleDatabase database, Path fileToWrite) throws DatabaseException,
                                                                                              IOException {
 
-        OutputStream output = null;
         String exceptionPrefix = String.format("Write to \'%s\'", fileToWrite.toString());
-        try {
-            output = Files.newOutputStream(fileToWrite);
+        try (OutputStream output = Files.newOutputStream(fileToWrite)) {
             Set<Map.Entry<String, Object>> databaseSet = database.getEntries();
 
             for (Map.Entry<String, Object> entry : databaseSet) {
@@ -147,15 +135,6 @@ final class SimpleDatabaseLoaderWriter {
             throw e;
         } catch (Exception e) {
             throw new DatabaseException(exceptionPrefix, e);
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (Exception e) {
-                // ignored
-            }
         }
-
     }
 }

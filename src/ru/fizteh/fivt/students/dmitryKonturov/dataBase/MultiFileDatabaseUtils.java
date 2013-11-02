@@ -73,7 +73,7 @@ class MultiFileDatabaseUtils {
                     System.out.println("created");
                 }
             } catch (IOException e) {
-                throw new ShellException("create: Couldnt create directory", e.toString());
+                throw new ShellException("create: Couldnt create directory", e);
             }
 
         }
@@ -94,7 +94,7 @@ class MultiFileDatabaseUtils {
         } catch (ShellException e) {
             throw new ShellException("Cannot remove", toRemove.toAbsolutePath().toString());
         } catch (Exception e) {
-            throw new ShellException("Cannot remove", e.toString());
+            throw new ShellException("Cannot remove", e);
         }
     }
 
@@ -137,7 +137,7 @@ class MultiFileDatabaseUtils {
                     System.out.println(toDropDatabaseName + " not exists");
                 }
             } catch (Exception e) {
-                throw new ShellException("Cannot drop", e.toString());
+                throw new ShellException("Cannot drop", e);
             }
         }
     }
@@ -176,7 +176,7 @@ class MultiFileDatabaseUtils {
                 //shell.currentDatabase = null;
                 //shell.currentDatabaseName = null;
             } catch (Exception e) {
-                throw new ShellException("write", e.toString());
+                throw new ShellException("write", e);
             }
 
             try {
@@ -195,7 +195,7 @@ class MultiFileDatabaseUtils {
             } catch (Exception e) {
                 shell.currentDatabaseName = null;
                 shell.currentDatabase = null;
-                throw new ShellException(getName(), e.toString());
+                throw new ShellException(getName(), e);
             }
         }
     }
