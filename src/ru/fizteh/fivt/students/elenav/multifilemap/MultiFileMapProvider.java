@@ -11,7 +11,7 @@ import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class MultiFileMapProvider implements TableProvider {
 
-	private final String NAME_FORMAT = "[a-zA-Zà-ßÀ-ß0-9]+";
+	private final String NAME_FORMAT = "[a-zA-Zà-ÿÀ-ß0-9]+";
 	
 	private File workingDirectory = null;
 	private PrintStream stream;
