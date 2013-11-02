@@ -53,6 +53,11 @@ public class MyTableProvider implements TableProvider {
         if ((name == null) || name.trim().isEmpty()) {
             throw new IllegalArgumentException("TableProvider.getTable: name is null");
         }
+        if (name.contains("/") || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"") || name.contains("\\")
+                || name.contains(">") || name.contains("<") || name.contains("|")) {
+            throw new RuntimeException("bad table name : \"" + name + "\"");
+        }
         return tables.get(name);
     }
 
