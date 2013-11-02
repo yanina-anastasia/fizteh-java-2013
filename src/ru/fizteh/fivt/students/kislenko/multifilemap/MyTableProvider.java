@@ -11,7 +11,7 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public MyTable getTable(String name) {
-        if (name == null || name.equals("")) {
+        if (name == null) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         return tables.get(name);
@@ -19,7 +19,7 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public MyTable createTable(String name) {
-        if (name == null || name.equals("")) {
+        if (name == null) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         MyTable table = new MyTable(name);
@@ -35,7 +35,7 @@ public class MyTableProvider implements TableProvider {
         if (!tables.containsKey(name)) {
             throw new IllegalStateException("Have no table to remove.");
         }
-        if (name == null || name.equals("")) {
+        if (name == null) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         tables.remove(name);
