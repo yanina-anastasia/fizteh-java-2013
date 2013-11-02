@@ -15,7 +15,7 @@ import java.util.EnumSet;
 public class ShellCommands {
     public static class Cd extends ShellCommand {
         @Override
-        public void innerExecute() throws Exception {
+        public void innerExecute(String[] args) throws Exception {
             Path newPath = Paths.get(args[1]);
             newPath = parentShell.getAbsolutePath(newPath);
             if (newPath.toFile().isDirectory()) {
@@ -25,23 +25,14 @@ public class ShellCommands {
             }
         }
         
-        @Override
-        public Command newCommand() {
-            return new Cd();
-        }
-        
         public Cd() {
             super(2);
-        }
-        
-        public Cd(String... arguments) {
-            super(arguments, 2);
         }
     }
     
     public static class Mkdir extends ShellCommand {
         @Override
-        public void innerExecute() throws Exception {
+        public void innerExecute(String[] args) throws Exception {
             Path newPath = Paths.get(args[1]);
             newPath = parentShell.getAbsolutePath(newPath);
             if (!newPath.toFile().mkdir()) {
@@ -49,43 +40,25 @@ public class ShellCommands {
             }
         }
         
-        @Override
-        public Command newCommand() {
-            return new Mkdir();
-        }
-        
         public Mkdir() {
             super(2);
-        }
-        
-        public Mkdir(String... arguments) {
-            super(arguments, 2);
         }
     }
     
     public static class Pwd extends ShellCommand {
         @Override
-        public void innerExecute() {
+        public void innerExecute(String[] args) {
             parentShell.out.println(parentShell.getWorkingDir());
-        }
-        
-        @Override
-        public Command newCommand() {
-            return new Pwd();
         }
         
         public Pwd() {
             super(1);
         }
-        
-        public Pwd(String... arguments) {
-            super(arguments, 1);
-        }
     }
     
     public static class Rm extends ShellCommand {
         @Override
-        public void innerExecute() throws IOException, Exception {
+        public void innerExecute(String[] args) throws IOException, Exception {
             Path path = Paths.get(args[1]);
             path = parentShell.getAbsolutePath(path);
             if (path.toFile().isFile()) {
@@ -99,23 +72,14 @@ public class ShellCommands {
             }
         }
         
-        @Override
-        public Command newCommand() {
-            return new Rm();
-        }
-        
         public Rm() {
             super(2);
-        }
-        
-        public Rm(String... arguments) {
-            super(arguments, 2);
         }
     }
     
     public static class Cp extends ShellCommand {
         @Override
-        public void innerExecute() throws Exception, IOException {
+        public void innerExecute(String[] args) throws Exception, IOException {
             Path source = Paths.get(args[1]);
             Path destination = Paths.get(args[2]);
             source = parentShell.getAbsolutePath(source);
@@ -164,83 +128,47 @@ public class ShellCommands {
             }
         }
         
-        @Override
-        public Command newCommand() {
-            return new Cp();
-        }
-        
         public Cp() {
             super(3);
-        }
-        
-        public Cp(String... arguments) {
-            super(arguments, 3);
         }
     }
     
     public static class Mv extends ShellCommand {
         @Override
-        public void innerExecute() throws Exception {
-            Command cp = new Cp("cp", args[1], args[2]).setShell(parentShell);
-            Command rm = new Rm("rm", args[1]).setShell(parentShell);
-            cp.execute();
-            rm.execute();
-        }
-        
-        @Override
-        public Command newCommand() {
-            return new Mv();
+        public void innerExecute(String[] args) throws Exception {
+            Command cp = new Cp().setShell(parentShell);
+            Command rm = new Rm().setShell(parentShell);
+            cp.execute("cp", args[1], args[2]);
+            rm.execute("rm", args[1]);
         }
         
         public Mv() {
             super(3);
         }
-        
-        public Mv(String... args) {
-            super(args, 3);
-        }
     }
     
     public static class Dir extends ShellCommand {
         @Override
-        public void innerExecute() {
+        public void innerExecute(String[] args) {
             Path cwd = parentShell.getWorkingDir();
             for (String fileName : cwd.toFile().list()) {
                 parentShell.out.println(fileName);
             }
         }
         
-        @Override
-        public Command newCommand() {
-            return new Dir();
-        }
-        
         public Dir() {
             super(1);
-        }
-        
-        public Dir(String... args) {
-            super(args, 1);
         }
     }
     
     public static class Exit extends ShellCommand {
         @Override
-        public void innerExecute() {
+        public void innerExecute(String[] args) {
             parentShell.exit(0);
-        }
-        
-        @Override
-        public Command newCommand() {
-            return new Exit();
         }
         
         public Exit() {
             super(1);
-        }
-        
-        public Exit(String... arguments) {
-            super(arguments, 1);
         }
     }
 }

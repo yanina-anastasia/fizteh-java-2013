@@ -19,6 +19,9 @@ public class IOUtility {
     public static FileMap parseDatabase(Path dbDir) 
             throws IllegalStateException, IOException {
         HashMap<String, String> map = new HashMap<String, String>();
+        if (!dbDir.toFile().exists() || !dbDir.toFile().isDirectory()) {
+            throw new IOException("directory does not exist");
+        }
         for (File subdir : dbDir.toFile().listFiles()) {
             if (!subdir.isDirectory() || !subdir.getName().matches("^([0-9]|[1][0-5])\\.dir$")) {
                 throw new IllegalStateException("Malformed database");

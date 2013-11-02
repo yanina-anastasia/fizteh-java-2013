@@ -43,21 +43,49 @@ public class FileMap implements Table {
 
     @Override
     public int size() {
-        return db.size(); //TODO: return size after merge
+        return db.size() + estimateDiffSize();
     }
 
     @Override
     public int commit() {
-        int result = diff.size();
-        // TODO Merge
+        int result = estimateDiffSize();
+        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue().value;
+            switch (entry.getValue().type) {
+                case ADD:
+                    db.put(key, value);
+                    break;
+                case REMOVE:
+                    db.remove(key);
+            }
+        }
         return result;
     }
 
     @Override
     public int rollback() {
-        int result = diff.size();
+        int result = estimateDiffSize();
         diff.clear();
         return result;
+    }
+    
+    private int estimateDiffSize() {
+        int diffSize = 0;
+        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
+            String key = entry.getKey();
+            switch (entry.getValue().type) {
+                case ADD:
+                    if (!db.containsKey(key)) {
+                        ++diffSize;
+                    }
+                case REMOVE:
+                    if (db.containsKey(key)) {
+                        --diffSize;
+                    }
+            }
+        }
+        return diffSize;
     }
 
     public void setName(String name) {

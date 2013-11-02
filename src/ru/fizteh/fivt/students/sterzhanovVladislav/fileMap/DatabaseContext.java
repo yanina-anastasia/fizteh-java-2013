@@ -42,6 +42,13 @@ public class DatabaseContext implements Closeable {
         return activeMap.rollback();
     }
     
+    public int getActiveSize() {
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
+        }
+        return activeMap.size();
+    }
+    
     public void loadTable(String dbName) throws IllegalStateException, IOException {
         if (activeMap != null && activeMap.isDirty()) {
             throw new IllegalStateException(activeMap.getDiffSize() + " unsaved changes");
@@ -63,7 +70,7 @@ public class DatabaseContext implements Closeable {
     
     public void removeTable(String dbName) throws IllegalStateException {
         provider.removeTable(dbName);
-        if (dbName.equals(activeMap.getName())) {
+        if (!(activeMap == null) && dbName.equals(activeMap.getName())) {
             activeMap = null;
         }
     }

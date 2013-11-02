@@ -23,6 +23,9 @@ public class Wrapper {
             cmdMap.put("drop", new FileMapCommands.Drop().setContext(context));
             cmdMap.put("use", new FileMapCommands.Use().setContext(context));
             cmdMap.put("exit", new FileMapCommands.Exit().setContext(context));
+            cmdMap.put("commit", new FileMapCommands.Commit().setContext(context));
+            cmdMap.put("rollback", new FileMapCommands.Rollback().setContext(context));
+            cmdMap.put("size", new FileMapCommands.Size().setContext(context));
 
             ShellUtility.execShell(args, cmdMap);
         } catch (Exception e) {
