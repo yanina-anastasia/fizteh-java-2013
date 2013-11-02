@@ -111,6 +111,10 @@ public class MultiFileHashMapCommands {
                     parentShell.removeFile(toRemove);
                 }
             }
+            if (!Files.deleteIfExists(pathToRemove)) {
+                throw new Exception("\'" + fileToRemove.getCanonicalPath()
+                        + "\' : File cannot be removed ");
+            }
             System.out.println("dropped");
         }
         Drop() {
