@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.anastasyev.filemap.tests;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
+
+import java.io.IOException;
 
 import static junit.framework.Assert.*;
 
@@ -13,12 +15,17 @@ public class FileMapTableProviderTest {
     static TableProviderFactory tableProviderFactory;
     static TableProvider tableProvider;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @BeforeClass
     public static void setUp() {
-        //System.getProperties().setProperty("fizteh.db.dir", "C:\\Users\\qBic
-        // \\Documents\\GitHub\\fizteh-java-2013\\src\\ru\\fizteh\\fivt\\students\\anastasyev\\filemap\\db.dir");
         tableProviderFactory = new FileMapTableProviderFactory();
-        tableProvider = tableProviderFactory.create(System.getProperty("fizteh.db.dir"));
+    }
+
+    @Before
+    public void setTableProvider() throws IOException {
+        tableProvider = tableProviderFactory.create(folder.newFolder().toString());
         assertNotNull(tableProvider);
     }
 

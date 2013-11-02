@@ -1,9 +1,12 @@
 package ru.fizteh.fivt.students.anastasyev.filemap.tests;
 
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.*;
 
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
+
+import java.io.IOException;
 
 import static junit.framework.Assert.*;
 
@@ -13,18 +16,21 @@ public class FileMapTableTest {
     Table currTable;
     String currTableName;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @BeforeClass
-    public static void setUp() {
-        //System.getProperties().setProperty("fizteh.db.dir", "C:\\Users\\qBic\\Documents
-        // \\GitHub\\fizteh-java-2013\\src\\ru\\fizteh\\fivt\\students\\anastasyev\\filemap\\db.dir");
+    public static void setTableProviderFactory() {
         factory = new FileMapTableProviderFactory();
-        tableProvider = factory.create(System.getProperty("fizteh.db.dir"));
     }
 
     @Before
-    public void setCurrTable() {
+    public void setCurrTable() throws IOException {
+        tableProvider = factory.create(folder.newFolder().toString());
+        assertNotNull(tableProvider);
         currTable = tableProvider.createTable("TestTable");
         currTableName = "TestTable";
+        assertEquals(currTable.getName(), currTableName);
     }
 
     @After
@@ -121,20 +127,22 @@ public class FileMapTableTest {
 
     @Test
     public void testRollback() throws Exception {
-        assertNull(currTable.put("key1", "value"));
-        assertEquals(currTable.put("key1", "value"), "value");
-        assertNull(currTable.put("key2", "value"));
-        assertEquals(currTable.put("key2", "value"), "value");
-        assertNull(currTable.put("key3", "value"));
-        assertEquals(currTable.put("key3", "value"), "value");
-        assertEquals(currTable.commit(), 3);
-        assertEquals(currTable.remove("key1"), "value");
+        assertNull(currTable.put("key1", "value1"));
+        assertNull(currTable.put("key2", "value2"));
+        assertEquals(currTable.remove("key2"), "value2");
+        assertNull(currTable.put("key3", "value3"));
+        assertEquals(currTable.commit(), 2);
+        assertEquals(currTable.remove("key1"), "value1");
         assertNull(currTable.put("key4", "value"));
-        assertEquals(currTable.put("key2", "value1"), "value");
+        assertEquals(currTable.put("key3", "newValue"), "value3");
         assertEquals(currTable.remove("key4"), "value");
         assertNull(currTable.get("key1"));
         assertEquals(currTable.rollback(), 2);
         assertNotNull(currTable.get("key1"));
+
+        assertEquals(currTable.remove("key1"), "value1");
+        assertNull(currTable.put("key1", "value1"));
+        assertEquals(currTable.rollback(), 0);
     }
 
     @Test

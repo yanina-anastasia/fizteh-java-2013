@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileMapTableProviderFactory implements TableProviderFactory {
-
     @Override
     public FileMapTableProvider create(String dir) throws IllegalArgumentException {
         if (dir == null) {
@@ -14,7 +13,7 @@ public class FileMapTableProviderFactory implements TableProviderFactory {
         }
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
-            if (!fileDir.mkdir()) {
+            if (!fileDir.mkdirs()) {
                 throw new IllegalArgumentException("Can't create directory");
             }
         }
