@@ -15,6 +15,7 @@ public class MultiFileTable implements ChangesCountingTable {
     private Map<String, String> addedKeys = new HashMap<String, String>();
     private Set<String> deletedKeys = new HashSet<String>();
     private int changesCounter = 0;
+    private int rollbackChangesCounter = 0;
 
     private File dataDirectory;
 
@@ -64,7 +65,7 @@ public class MultiFileTable implements ChangesCountingTable {
         if (value.trim().isEmpty()) {
             throw new IllegalArgumentException("empty value");
         }
-
+        rollbackChangesCounter++;
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
             deletedKeys.add(key);
             String oldValue = dataBase.get(key);
@@ -88,11 +89,13 @@ public class MultiFileTable implements ChangesCountingTable {
         }
 
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
+            rollbackChangesCounter++;
             deletedKeys.add(key);
             changesCounter++;
             return dataBase.get(key);
         }
         if (addedKeys.containsKey(key)) {
+            rollbackChangesCounter++;
             changesCounter--;
             return addedKeys.remove(key);
         }
@@ -115,6 +118,7 @@ public class MultiFileTable implements ChangesCountingTable {
         deletedKeys.clear();
         addedKeys.clear();
         changesCounter = 0;
+        rollbackChangesCounter = 0;
         try {
             MultiFileUtils.write(dataDirectory, dataBase);
         } catch (IOException e) {
@@ -135,10 +139,11 @@ public class MultiFileTable implements ChangesCountingTable {
     @Override
     public int rollback() {
         countChanges();
-        int counter = changesCounter;
+        int counter = rollbackChangesCounter;
         deletedKeys.clear();
         addedKeys.clear();
         changesCounter = 0;
+        rollbackChangesCounter = 0;
         return counter;
     }
 
