@@ -4,9 +4,9 @@ package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
-class MultiFileSimpleCommands {
+class MultiFileWorkWithSimpleTableUtils {
 
-    private MultiFileSimpleCommands() {
+    private MultiFileWorkWithSimpleTableUtils() {
 
     }
 

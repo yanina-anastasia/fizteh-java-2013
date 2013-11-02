@@ -27,8 +27,8 @@ class MultiFileMapShell extends ShellEmulator {
 
     @Override
     protected void justBeforeExecutingAction(String commandName) {
-        MultiFileDatabaseUtils.setShell(this);
-        MultiFileSimpleCommands.setShell(this);
+        MultiFileTablesManagerUtils.setShell(this);
+        MultiFileWorkWithSimpleTableUtils.setShell(this);
     }
 
     @Override
@@ -62,7 +62,7 @@ class MultiFileMapShell extends ShellEmulator {
         dataBasesWorkspace = workingDir;
         currentDatabase = null;
         currentDatabaseName = null;
-        addToCommandList(MultiFileDatabaseUtils.getCommandsList());
-        addToCommandList(MultiFileSimpleCommands.getCommandList());
+        addToCommandList(MultiFileTablesManagerUtils.getCommandsList());
+        addToCommandList(MultiFileWorkWithSimpleTableUtils.getCommandList());
     }
 }
