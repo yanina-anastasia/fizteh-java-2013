@@ -89,6 +89,7 @@ public class FileMapProvider implements TableProvider {
                 || name.contains(":") || name.contains("*")
                 || name.contains("?") || name.contains("\"")
                 || name.contains("<") || name.contains(">")
-                || name.contains("|"));
+                || name.contains("\n") || name.contains(" ")
+                || name.contains("|") || name.contains("\t"));
     }
 }
