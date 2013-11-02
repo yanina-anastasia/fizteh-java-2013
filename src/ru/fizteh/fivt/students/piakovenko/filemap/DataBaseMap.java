@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public class DataBaseMap {
     private Map<String, String> map = new HashMap<String, String>(15);
+    private Map<String, String> changedMap = new HashMap<String, String>(15);
 
     public String put (String key, String value) {
         String oldValue = null;
@@ -57,6 +58,10 @@ public class DataBaseMap {
 
     public Map<String, String> getMap () {
         return map;
+    }
+
+    public Map<String, String> getChangedMap() {
+        return changedMap;
     }
 
 }

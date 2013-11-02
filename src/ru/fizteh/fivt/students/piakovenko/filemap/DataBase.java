@@ -294,8 +294,9 @@ public class DataBase implements Table {
         String putValue = map.put(key, value);
         if (putValue == null) {
             ++changed;
+            map.getChangedMap().put(key, value);
         } else {
-            if (!putValue.equals(value)) {
+            if (!putValue.equals(value) && !map.getChangedMap().containsKey(key)) {
                 ++changed;
             }
         }
@@ -308,7 +309,10 @@ public class DataBase implements Table {
         }
         String removed = map.remove(key);
         if (removed != null) {
-            if (changed > 0) {
+            if (!map.getChangedMap().containsKey(key)) {
+                ++changed;
+            } else {
+                map.getChangedMap().remove(key);
                 --changed;
             }
         }
@@ -329,6 +333,7 @@ public class DataBase implements Table {
         try {
             saveDataBase();
             changed = 0;
+            map.getChangedMap().clear();
             System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
@@ -341,6 +346,7 @@ public class DataBase implements Table {
     public int rollback () {
         int tempChanged = changed;
         map.getMap().clear();
+        map.getChangedMap().clear();
         try {
             load();
             System.out.println(changed);
