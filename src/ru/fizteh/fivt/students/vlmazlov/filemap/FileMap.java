@@ -140,9 +140,9 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		//removing key from last commit for the first time
 		if ((oldValue != null) && (!deleted.contains(key))) {
 			deleted.add(key);
-			++diff;
 
 			if (overwritten.get(key) == null) {
+				++diff;
 				returnValue = oldValue;
 			} else {
 				returnValue = overwritten.get(key);
