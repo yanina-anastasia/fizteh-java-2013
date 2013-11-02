@@ -54,6 +54,7 @@ public class DBTable implements Table {
         }
         String originalValue = originalTable.get(key);
         String oldValue = tableOfChanges.put(key, value);
+        //Значит здесь впервые происходит перезаписывание старого значения.
         if (!removedKeys.contains(key) && oldValue == null) {
             oldValue = originalValue;
         }
@@ -93,6 +94,7 @@ public class DBTable implements Table {
     //@return Количество сохранённых ключей.
     @Override
     public int commit() {
+        int count = countTheNumberOfChanges();
         for (String delString : removedKeys) {
             originalTable.remove(delString);
         }
@@ -102,17 +104,35 @@ public class DBTable implements Table {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        int countOfChangedKeys = Math.abs(tableOfChanges.size() - removedKeys.size());
         tableOfChanges.clear();
         removedKeys.clear();
-        return countOfChangedKeys;
+        return count;
     }
 
     @Override
     public int rollback() {
-        int countOfChangedKeys = Math.abs(tableOfChanges.size() - removedKeys.size());
+        int count = countTheNumberOfChanges();
         tableOfChanges.clear();
         removedKeys.clear();
-        return countOfChangedKeys;
+        return count;
+    }
+
+    public int countTheNumberOfChanges() {
+        int countOfChanges = 0;
+        for (String currentKey : removedKeys) {
+            if (tableOfChanges.containsKey(currentKey)) {
+                String currentValue = tableOfChanges.get(currentKey);
+                if (originalTable.get(currentKey).equals(currentValue)) {
+                    continue;
+                }
+            }
+            countOfChanges++;
+        }
+        for (String currentKey : tableOfChanges.keySet()) {
+            if (!originalTable.containsKey(currentKey)) {
+                countOfChanges++;
+            }
+        }
+        return countOfChanges;
     }
 }
