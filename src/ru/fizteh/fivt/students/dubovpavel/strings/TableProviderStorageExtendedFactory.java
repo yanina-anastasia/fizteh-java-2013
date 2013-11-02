@@ -12,7 +12,11 @@ public class TableProviderStorageExtendedFactory implements TableProviderFactory
         if(dir == null || dir.equals("")) {
             throw new IllegalArgumentException();
         }
-        if(!new File(dir).isDirectory()) {
+        File corresponding = new File(dir);
+        if(corresponding.isFile()) {
+            throw new IllegalArgumentException();
+        }
+        if(!corresponding.isDirectory()) {
             throw new RuntimeException();
         }
         DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, false, dir, new WrappedMindfulDataBaseMultiFileHashMapBuilder());
