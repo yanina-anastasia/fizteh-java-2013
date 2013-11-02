@@ -4,6 +4,7 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
+import java.io.File;
 import java.io.IOException;
 
 public class TestDistributedTableFactory extends FileManager {
@@ -31,7 +32,8 @@ public class TestDistributedTableFactory extends FileManager {
     @Test(expected = IllegalArgumentException.class)
     public void createProviderOnFileShouldFail() throws IOException {
         String name = "file";
-        factory.create(folder.newFile(name).getName());
+        File file = folder.newFile(name);
+        factory.create(file.getName());
     }
 
     @Test
