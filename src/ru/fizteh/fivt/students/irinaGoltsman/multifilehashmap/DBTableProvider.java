@@ -39,7 +39,7 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException("table name is empty");
         }
         if (!tableName.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("get table: error table name");
+            throw new IllegalArgumentException("get table: error table name");
         }
         return allTables.get(tableName);
     }
