@@ -296,9 +296,9 @@ public class DataBase implements Table {
             ++changed;
             map.getChangedMap().put(key, value);
         } else {
-            if (map.getChangedMap().containsKey(key)){
+            if (map.getChangedMap().containsKey(key) || map.getOverwriteMap().containsKey(key)){
             } else {
-                map.getChangedMap().put(key, value);
+                map.getOverwriteMap().put(key, value);
                 ++changed;
             }
         }
@@ -314,6 +314,7 @@ public class DataBase implements Table {
             if (map.getChangedMap().containsKey(key)) {
                 map.getChangedMap().remove(key);
                 --changed;
+            } else if (map.getOverwriteMap().containsKey(key)) {
             } else {
                 ++changed;
             }
