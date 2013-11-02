@@ -42,7 +42,7 @@ public class MultiFileHashMapCommands {
                 System.out.println("no table");
                 return;
             }
-            Integer hashCode = args.hashCode();
+            Integer hashCode = args[1].hashCode();
             hashCode = Math.abs(hashCode);
             Integer nDirectory = hashCode % 16;
             Integer nFile = hashCode / 16 % 16;
@@ -145,7 +145,7 @@ public class MultiFileHashMapCommands {
                 System.out.println("no table");
                 return;
             }
-            Integer hashCode = args.hashCode();
+            Integer hashCode = args[1].hashCode();
             hashCode = Math.abs(hashCode);
             Integer nDirectory = hashCode % 16;
             Integer nFile = hashCode / 16 % 16;
