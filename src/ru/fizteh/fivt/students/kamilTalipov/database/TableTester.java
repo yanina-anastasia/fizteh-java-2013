@@ -3,21 +3,16 @@ package ru.fizteh.fivt.students.kamilTalipov.database;
 
 import org.junit.*;
 
-import org.junit.rules.TemporaryFolder;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class TableTester {
     static MultiFileHashTable table;
 
-    @Rule
-    static TemporaryFolder tmpDir = new TemporaryFolder();
-
     @BeforeClass
     public static void beforeClass() {
         try {
-            table = new MultiFileHashTable(tmpDir.newFile().getAbsolutePath(), "Test");
+            table = new MultiFileHashTable(System.getProperty("user.dir"), "Test");
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
         } catch (FileNotFoundException e) {
@@ -35,8 +30,8 @@ public class TableTester {
 
     @Test
     public void putGetCommitTest() {
-        table.put("123", "abc");
-        Assert.assertEquals(table.get("123"), "abc");
+        table.put("123", "hello");
+        Assert.assertEquals(table.get("123"), "hello");
         Assert.assertEquals(table.size(), 1);
         Assert.assertEquals(table.commit(), 1);
     }
@@ -46,6 +41,7 @@ public class TableTester {
         Assert.assertEquals(table.remove("fff"), null);
         table.put("qwe", "ggg");
         Assert.assertEquals(table.remove("qwe"), "ggg");
+        Assert.assertEquals(table.rollback(), 1);
     }
 
     @Test
@@ -59,6 +55,7 @@ public class TableTester {
     public void overwriteTest() {
         table.put("123", "abc");
         Assert.assertEquals(table.put("123", "xyz"), "abc");
+        table.commit();
     }
 
     @Test(expected = IllegalArgumentException.class)

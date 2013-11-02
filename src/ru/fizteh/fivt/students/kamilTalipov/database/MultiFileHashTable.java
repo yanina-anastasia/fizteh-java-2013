@@ -72,7 +72,7 @@ public class MultiFileHashTable implements Table {
         String oldValue = table.put(key, value);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
-        } else if (oldValues.get(key).equals(value)) {
+        } else if (oldValues.get(key) != null && oldValues.get(key).equals(value)) {
             oldValues.remove(key);
         }
 

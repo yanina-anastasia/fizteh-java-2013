@@ -2,17 +2,13 @@ package ru.fizteh.fivt.students.kamilTalipov.database;
 
 import org.junit.*;
 
-import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class TableFactoryTester {
-    static TableProviderFactory factory;
-
-    @Rule
-    static TemporaryFolder tmpDir = new TemporaryFolder();
+    static MultiFileHashTableFactory factory;
 
     @BeforeClass
     public static void beforeClass() {
@@ -21,11 +17,14 @@ public class TableFactoryTester {
 
     @Test
     public void normalCreateTest() throws FileNotFoundException, DatabaseException {
-        factory.create(tmpDir.getRoot().getAbsolutePath());
+        MultiFileHashTableProvider provider = factory.create(System.getProperty("user.dir")
+                                                            + File.separator + "Test");
+        provider.remove();
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void notFoundTest() throws FileNotFoundException, DatabaseException {
-        factory.create(tmpDir.getRoot().getAbsolutePath() + File.separator + "not_exist");
+    @Test(expected = IllegalArgumentException.class)
+    public void nullCreateTest() throws FileNotFoundException, DatabaseException {
+        factory.create(null);
     }
+
 }

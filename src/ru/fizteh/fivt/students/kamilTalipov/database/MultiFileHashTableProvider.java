@@ -54,12 +54,12 @@ public class MultiFileHashTableProvider implements TableProvider {
         try {
             newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(), name);
             tables.add(newTable);
-        } catch (DatabaseException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Database error");
-            exception.addSuppressed(e);
-            throw exception;
         } catch (FileNotFoundException e) {
             IllegalArgumentException exception = new IllegalArgumentException("File not found");
+            exception.addSuppressed(e);
+            throw exception;
+        } catch (DatabaseException e) {
+            IllegalArgumentException exception = new IllegalArgumentException("Database error");
             exception.addSuppressed(e);
             throw exception;
         }
@@ -96,6 +96,10 @@ public class MultiFileHashTableProvider implements TableProvider {
         for (MultiFileHashTable table : tables) {
             table.exit();
         }
+    }
+
+    public void remove() {
+        FileUtils.remove(databaseDirectory);
     }
 
     private int indexOfTable(String tableName) {
