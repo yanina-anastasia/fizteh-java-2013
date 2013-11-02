@@ -59,14 +59,14 @@ public class MyTable implements Table {
     @Override
     public String put(String key, String value) {
         if (key == null || value == null) {
-            throw new IllegalArgumentException("Incorrect key to get.");
+            throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         key = key.trim();
         value = value.trim();
         if (key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if (changes.get(key) == null) {
+        if ((!changes.containsKey(key) && !storage.containsKey(key)) || (changes.containsKey(key) && changes.get(key) == null)) {
             ++count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
@@ -86,7 +86,7 @@ public class MyTable implements Table {
         }
         key = key.trim();
         if (key.isEmpty()) {
-            throw new IllegalArgumentException("Incorrect key to get.");
+            throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
             --count;
