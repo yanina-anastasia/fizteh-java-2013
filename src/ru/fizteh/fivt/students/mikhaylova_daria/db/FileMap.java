@@ -317,19 +317,19 @@ public class FileMap {
     void commit() {
         int numberOfChanges = numberOfChangesCounter();
         if (numberOfChanges != 0) {
-                try {
-                    writerFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Writing error", e);
-                }
+            try {
+                writerFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Writing error", e);
+            }
         }
     }
 
     int rollback() {
         int numberOfChanges = numberOfChangesCounter();
         fileMap.clear();
-        for (String key: fileMapInitial.keySet()) {
+        for (String key : fileMapInitial.keySet()) {
             fileMap.put(key, fileMapInitial.get(key));
         }
         return numberOfChanges;
@@ -340,7 +340,7 @@ public class FileMap {
             try {
                 readerFile();
             } catch (IOException e) {
-                throw  new RuntimeException("reading error", e);
+                throw new RuntimeException("reading error", e);
             } catch (DataFormatException e) {
                 throw new RuntimeException("Bad dates", e);
             }
@@ -349,3 +349,4 @@ public class FileMap {
     }
 
 }
+
