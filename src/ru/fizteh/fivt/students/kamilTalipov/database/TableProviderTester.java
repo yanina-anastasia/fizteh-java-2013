@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.kamilTalipov.database;
 
 import org.junit.*;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
