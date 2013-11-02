@@ -44,7 +44,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table getTable(String name) {
-        if ((name == null) || name.isEmpty()) {
+        if ((name == null) || name.trim().isEmpty()) {
             throw new IllegalArgumentException("TableProvider.getTable: name is null");
         }
         return tables.get(name);
@@ -59,7 +59,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table createTable(String name) {
-        if ((name == null) || name.isEmpty()) {
+        if ((name == null) || name.trim().isEmpty()) {
             throw new IllegalArgumentException("TableProvider.createTable: name is null");
         }
         if (tables.containsKey(name)) {
@@ -91,7 +91,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public void removeTable(String name) {
-        if ((name == null) || name.isEmpty()) {
+        if ((name == null) || name.trim().isEmpty()) {
             throw new IllegalArgumentException("TableProvider.removeTable: name is null");
         }
         if (tables.containsKey(name)) {
