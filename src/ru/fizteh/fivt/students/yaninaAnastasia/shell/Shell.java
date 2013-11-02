@@ -103,11 +103,9 @@ public class Shell {
                 for (final String command : commandArray) {
                     try {
                         if (!processCommand(command)) {
-                            System.getProperty("line.separator");
                         }
                     } catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
-                        System.getProperty("line.separator");
                     }
                 }
                 System.out.print("$ ");
