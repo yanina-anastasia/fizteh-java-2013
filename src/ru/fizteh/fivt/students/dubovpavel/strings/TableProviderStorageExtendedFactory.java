@@ -10,7 +10,7 @@ public class TableProviderStorageExtendedFactory implements TableProviderFactory
         if(dir == null) {
             throw new IllegalArgumentException("TableProviderFactory.create: dir is null");
         }
-        DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, "fizteh.db.dir", new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, false, dir, new WrappedMindfulDataBaseMultiFileHashMapBuilder());
         WrappedMindfulDataBaseMultiFileHashMapBuilder builder = new WrappedMindfulDataBaseMultiFileHashMapBuilder();
         builder.setDispatcher(dispatcher);
         Storage<WrappedMindfulDataBaseMultiFileHashMap> storage = new Storage<>(dir, dispatcher, builder);
