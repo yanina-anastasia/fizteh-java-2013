@@ -117,6 +117,12 @@ public class MyTableProvider implements TableProvider {
             if (!Files.isDirectory(table)) {
                 throw new IOException("there is object which is not a directory in root directory");
             }
+            String tableName = table.getFileName().toString();
+            if (tableName.contains("/") || tableName.contains(":") || tableName.contains("*")
+                || tableName.contains("?") || tableName.contains("\"") || tableName.contains("\\")
+                || tableName.contains(">") || tableName.contains("<") || tableName.contains("|")) {
+                throw new IOException("bad table name : \"" + tableName + "\"");
+            }
             DirectoryStream<Path> levels = Files.newDirectoryStream(table);
             for (Path level : levels) {
                 if (!Files.isDirectory(level)) {
