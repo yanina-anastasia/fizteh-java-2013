@@ -17,6 +17,14 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        String way = System.getProperty("user.dir");
+        if (way == null) {
+            throw new Exception("Illegal table");
+        }
+        File dbsDir = new File(way);
+        if (!dbsDir.isDirectory()) {
+            throw new Exception(dbsDir + " doesn't exist or is not a directory");
+        }
         Shell sl = new Shell(cmdMap, "user.dir");
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
