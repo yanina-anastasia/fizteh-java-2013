@@ -9,7 +9,7 @@ import java.nio.file.Files;
  *
  */
 
-public class ShellReceiver {
+public class ShellReceiver implements CommandReceiver{
 	protected boolean interactiveMode;
 
 	protected PrintStream out;
@@ -108,7 +108,7 @@ public class ShellReceiver {
 		File destinationDirectory = normalizedFile(destinationDirectoryName);
 		File destinationFileOrDirectory = new File(destinationDirectory, sourceFileOrDirectory.getName());
 		if (destinationFileOrDirectory.exists()) {
-			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
+			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destinfation directory already exists");
 		}
 		if (!destinationFileOrDirectory.isDirectory()) {
 			if (destinationDirectory.toPath().equals(sourceFileOrDirectory.toPath())) {
