@@ -1,0 +1,45 @@
+package ru.fizteh.fivt.students.irinaGoltsman.filemap;
+
+import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
+import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
+import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
+import ru.fizteh.fivt.students.irinaGoltsman.shell.Shell;
+import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
+
+import java.io.File;
+
+public class DbMain {
+    public static void main(String[] args) {
+        String path = System.getProperty("fizteh.db.dir");
+        if (path == null) {
+            System.err.println("Error with path to the root directory");
+            System.exit(1);
+        }
+        TableProvider newTableProvider = null;
+        try {
+            File file = new File(path);
+            newTableProvider = new DBTableProvider(file);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+        DataBase myDataBase = new DataBase(newTableProvider);
+        MapOfCommands cm = new MapOfCommands();
+        cm.addCommand(new ShellCommands.Exit());
+        cm.addCommand(new DBCommands.Put());
+        cm.addCommand(new DBCommands.Get());
+        cm.addCommand(new DBCommands.Remove());
+        cm.addCommand(new DBCommands.Commit());
+        cm.addCommand(new DBCommands.CreateTable());
+        cm.addCommand(new DBCommands.Drop());
+        cm.addCommand(new DBCommands.Use());
+        cm.addCommand(new DBCommands.Size());
+        Code codeOfShell = Shell.shell(args);
+        Code codeOfClosing = myDataBase.closeDB();
+        if (codeOfClosing == Code.ERROR || codeOfClosing == Code.SYSTEM_ERROR
+                || codeOfShell == Code.SYSTEM_ERROR || codeOfShell == Code.ERROR) {
+            System.exit(1);
+        }
+    }
+}
