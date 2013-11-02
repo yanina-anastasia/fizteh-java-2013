@@ -44,27 +44,8 @@ public abstract class ShellEmulator {
     }
 
     protected void executeCommand(String query) throws ShellException {
-        /*StringTokenizer tokenizer = new StringTokenizer(query);
-        int argNum = tokenizer.countTokens();
-        if (argNum == 0) {
-            return; // empty query
-        }
-
-        String commandName = tokenizer.nextToken();
-        String[] commandArgs = new String[argNum - 1];
-        for(int i = 0; i < argNum - 1; ++i) {
-            commandArgs[i] = tokenizer.nextToken();
-        }
-
-        ShellCommand currentCommand = mapCommand.get(commandName);
-        if (currentCommand == null) {
-            throw new ShellException(commandName, "No such command.");
-        }
-
-        currentCommand.execute(commandArgs);*/
-
-        String commandName = null;
-        String[] arguments = new String[0];
+        String commandName;
+        String[] arguments;
         try {
             String[] commandAndArgument = query.trim().split("\\s", 2);
             commandName = "";
@@ -81,7 +62,7 @@ public abstract class ShellEmulator {
                 arguments = shellParseArguments(commandAndArgument[1]);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ShellException(e);
         }
 
         ShellCommand currentCommand = mapCommand.get(commandName);

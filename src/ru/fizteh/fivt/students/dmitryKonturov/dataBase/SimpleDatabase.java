@@ -9,7 +9,7 @@ import java.util.Set;
  *
  */
 
-public class SimpleDatabase {
+class SimpleDatabase {
     private HashMap<String, Object> dbMap;
 
     public SimpleDatabase() {

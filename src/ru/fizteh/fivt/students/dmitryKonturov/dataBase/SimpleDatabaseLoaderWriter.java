@@ -15,9 +15,11 @@ import java.util.Set;
  *  Loads simpleDatabase from a file
  */
 
-public class SimpleDatabaseLoaderWriter {
+final class SimpleDatabaseLoaderWriter {
 
-    private static void readSomeBytes(InputStream input, byte[] toRead, int len) throws DatabaseException {
+    private SimpleDatabaseLoaderWriter() { }
+
+    private static void readSomeBytes(InputStream input, byte[] toRead, int len) throws DatabaseException, IOException {
         int wasRead = 0;
         try {
             while (wasRead < len) {
@@ -28,57 +30,47 @@ public class SimpleDatabaseLoaderWriter {
                 wasRead += tmp;
             }
         } catch (IOException e) {
-            throw new DatabaseException("Input/output problems" + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException(e);
         }
     }
 
-    private static int readInt(InputStream input) throws DatabaseException {
+    private static int readInt(InputStream input) throws DatabaseException, IOException {
         byte[] number = new byte[4];
         readSomeBytes(input, number, 4);
         return ByteBuffer.wrap(number).getInt();
     }
 
-    private static String readString(InputStream input, int len, long restToRead) throws DatabaseException {
+    private static String readString(InputStream input, int len, long restToRead) throws DatabaseException,
+                                                                                         IOException {
         if (len < 0) {
             throw new DatabaseException("Invalid database file", "Negative string length");
         } else if ((long) len > restToRead) {
-            throw new DatabaseException("Invalid database file", "Length of file to read is greater than unread part of file");
+            throw new DatabaseException("Invalid database file", "Length of file to read is greater "
+                                        + "than unread part of file");
         }
         byte[] stringInBytes = new byte[len];
         readSomeBytes(input, stringInBytes, len);
         return new String(stringInBytes, StandardCharsets.UTF_8);
     }
 
-    public static void databaseLoadFromFile(SimpleDatabase dataBase, Path fileToRead) throws DatabaseException {
-        InputStream input;
+    public static void databaseLoadFromFile(SimpleDatabase dataBase, Path fileToRead) throws DatabaseException,
+                                                                                             IOException {
         long fileLength;
+        String exceptionPrefix = String.format("Load from \'%s\'", fileToRead.toString());
         try {
             if (!Files.exists(fileToRead)) {
                 return;
             }
             fileLength = Files.size(fileToRead);
-            input = Files.newInputStream(fileToRead);
-        } catch (UnsupportedOperationException unsuppExc) {
-            String reason = "Could not load file: Your system does not support converting Path to InputStream";
-            if (unsuppExc.getMessage() != null) {
-                reason += ": " + unsuppExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
-        } catch (IOException ioExc) {
-            String reason = String.format("Could not load file: Input/Output problems with %s", fileToRead.toString());
-            if (ioExc.getMessage() != null) {
-                reason += ": " + ioExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
-        } catch (SecurityException secExc) {
-            String reason = String.format("Could not load file: Security problems with %s", fileToRead.toString());
-            if (secExc.getMessage() != null) {
-                reason += ": " + secExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException(exceptionPrefix, e);
         }
 
-        try {
+        try (InputStream input = Files.newInputStream(fileToRead)) {
             HashMap<String, String> tmpBase = new HashMap<>();
             while (fileLength > 0) {
                 int keyLen = readInt(input);
@@ -94,16 +86,17 @@ public class SimpleDatabaseLoaderWriter {
             for (Map.Entry<String, String> entry : mapSet) {
                 dataBase.put(entry.getKey(), entry.getValue());
             }
-        } finally {
-            try {
-                input.close();
-            } catch (IOException ignored) {
-                // So what???
-            }
+        } catch (DatabaseException dbe) {
+            throw new DatabaseException(exceptionPrefix, dbe);
+        } catch (IOException ioexc) {
+            throw ioexc;
+        } catch (Exception e) {
+            throw new DatabaseException(exceptionPrefix, e);
         }
     }
 
-    private static void writeKeyValuePair(OutputStream output, String key, String value) throws DatabaseException {
+    private static void writeKeyValuePair(OutputStream output, String key, String value) throws DatabaseException,
+                                                                                                IOException {
         try {
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
@@ -114,38 +107,17 @@ public class SimpleDatabaseLoaderWriter {
             output.write(keyBytes);
             output.write(valueBytes);
         } catch (IOException ioe) {
-            throw new DatabaseException("Write data to file: Input/output problems" + ioe.getMessage());
+            throw ioe;
         } catch (Exception e) {
-            //Some unimportant exceptions ignored
+            throw new DatabaseException(e);
         }
     }
 
-    public static void databaseWriteToFile(SimpleDatabase database, Path fileToWrite) throws DatabaseException {
-        OutputStream output;
+    public static void databaseWriteToFile(SimpleDatabase database, Path fileToWrite) throws DatabaseException,
+                                                                                             IOException {
 
-        try {
-            output = Files.newOutputStream(fileToWrite);
-        } catch (UnsupportedOperationException unsuppExc) {
-            String reason = "Could not load file: Your system does not support converting Path to OutputStream";
-            if (unsuppExc.getMessage() != null) {
-                reason += ": " + unsuppExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
-        } catch (IOException ioExc) {
-            String reason = String.format("Could not write file: Input/Output problems with %s", fileToWrite.toString());
-            if (ioExc.getMessage() != null) {
-                reason += ": " + ioExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
-        } catch (SecurityException secExc) {
-            String reason = String.format("Could not write file: Security problems with %s", fileToWrite.toString());
-            if (secExc.getMessage() != null) {
-                reason += ": " + secExc.getMessage();
-            }
-            throw new DatabaseException("databaseLoader", reason);
-        }
-
-        try {
+        String exceptionPrefix = String.format("Write to \'%s\'", fileToWrite.toString());
+        try (OutputStream output = Files.newOutputStream(fileToWrite)) {
             Set<Map.Entry<String, Object>> databaseSet = database.getEntries();
 
             for (Map.Entry<String, Object> entry : databaseSet) {
@@ -159,13 +131,10 @@ public class SimpleDatabaseLoaderWriter {
                 }
                 writeKeyValuePair(output, key, valueString);
             }
-        } finally {
-            try {
-                output.close();
-            } catch (IOException e) {
-                // So what??
-            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException(exceptionPrefix, e);
         }
-
     }
 }

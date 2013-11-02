@@ -1,30 +1,26 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
 
-import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator.ShellCommand;
+
+import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
-/**
- *  Interface between database and shell
- */
+class MultiFileWorkWithSimpleTableUtils {
 
-public class SimpleFileMapShellUtils {
-
-    private SimpleFileMapShellUtils() {
+    private MultiFileWorkWithSimpleTableUtils() {
 
     }
 
-    private static SimpleFileMapShell shell = null;
+    private static MultiFileMapShell shell = null;
 
-    static void setShell(SimpleFileMapShell newShell) {
+    static void setShell(MultiFileMapShell newShell) {
         shell = newShell;
     }
 
-    public static ShellCommand[] getCommandList() {
-        return new ShellCommand[] {
+    public static ShellEmulator.ShellCommand[] getCommandList() {
+        return new ShellEmulator.ShellCommand[] {
                 new RemoveShellCommand(),
                 new GetShellCommand(),
                 new PutShellCommand(),
-                new ExitShellCommand()
         };
     }
 
@@ -39,7 +35,7 @@ public class SimpleFileMapShellUtils {
         return tmpStr;
     }
 
-    static class RemoveShellCommand implements ShellCommand {
+    static class RemoveShellCommand implements ShellEmulator.ShellCommand {
         @Override
         public String getName() {
             return "remove";
@@ -62,13 +58,13 @@ public class SimpleFileMapShellUtils {
                 throw new ShellException(getName(), "Bad shell");
             }
 
-            if (shell.currentDataBase == null) {
+            if (shell.currentDatabase == null) {
                 System.out.println("no table");
-                throw new ShellException(getName(), "no table");
+                return;
             }
 
             String key = realArgs[0];
-            String value = (String) shell.currentDataBase.remove(key);
+            String value = (String) shell.currentDatabase.remove(key);
             if (value != null) {
                 System.out.println("removed");
             } else {
@@ -77,7 +73,7 @@ public class SimpleFileMapShellUtils {
         }
     }
 
-    static class PutShellCommand implements ShellCommand {
+    static class PutShellCommand implements ShellEmulator.ShellCommand {
         @Override
         public String getName() {
             return "put";
@@ -100,15 +96,15 @@ public class SimpleFileMapShellUtils {
                 throw new ShellException(getName(), "Bad shell");
             }
 
-            if (shell.currentDataBase == null) {
+            if (shell.currentDatabase == null) {
                 System.out.println("no table");
-                throw new ShellException(getName(), "no table");
+                return;
             }
 
             String key = realArgs[0];
             String value = realArgs[1];
 
-            Object oldValue = shell.currentDataBase.put(key, value);
+            Object oldValue = shell.currentDatabase.put(key, value);
             if (oldValue == null) {
                 System.out.println("new");
             } else if (oldValue instanceof String) {
@@ -122,7 +118,7 @@ public class SimpleFileMapShellUtils {
         }
     }
 
-    static class GetShellCommand implements ShellCommand {
+    static class GetShellCommand implements ShellEmulator.ShellCommand {
         @Override
         public String getName() {
             return "get";
@@ -145,13 +141,13 @@ public class SimpleFileMapShellUtils {
                 throw new ShellException(getName(), "Bad shell");
             }
 
-            if (shell.currentDataBase == null) {
+            if (shell.currentDatabase == null) {
                 System.out.println("no table");
-                throw new ShellException(getName(), "no table");
+                return;
             }
 
             String key = realArgs[0];
-            Object value = shell.currentDataBase.get(key);
+            Object value = shell.currentDatabase.get(key);
             if (value == null) {
                 System.out.println("not found");
             } else if (value instanceof String) {
@@ -161,35 +157,6 @@ public class SimpleFileMapShellUtils {
                 System.err.println("Bad Database: Not only strings");
                 System.exit(1);
             }
-        }
-    }
-
-    static class ExitShellCommand implements ShellCommand {
-        @Override
-        public String getName() {
-            return "exit";
-        }
-
-        @Override
-        public void execute(String[] args) throws ShellException {
-
-            if (args.length != 0) {
-                throw new ShellException(getName(), "Bad arguments");
-            }
-
-            if (shell == null) {
-                throw new ShellException(getName(), "Bad shell");
-            }
-
-            try {
-                if (shell.currentDataBase != null && shell.databasePath != null) {
-                    SimpleDatabaseLoaderWriter.databaseWriteToFile(shell.currentDataBase, shell.databasePath);
-                }
-            } catch (DatabaseException e) {
-                System.err.println(e.toString());
-                System.exit(1);
-            }
-            System.exit(0);
         }
     }
 }
