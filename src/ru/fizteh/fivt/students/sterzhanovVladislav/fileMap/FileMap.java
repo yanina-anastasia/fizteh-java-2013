@@ -53,12 +53,12 @@ public class FileMap implements Table {
 
     @Override
     public int size() {
-        return db.size() + estimateDiffSize();
+        return db.size() + estimateDiffDelta();
     }
 
     @Override
     public int commit() {
-        int result = diff.size();
+        int result = estimateDiffSize();
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue().value;
@@ -77,12 +77,12 @@ public class FileMap implements Table {
 
     @Override
     public int rollback() {
-        int result = diff.size();
+        int result = estimateDiffSize();
         diff.clear();
         return result;
     }
     
-    private int estimateDiffSize() {
+    private int estimateDiffDelta() {
         int diffSize = 0;
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
@@ -101,7 +101,27 @@ public class FileMap implements Table {
         }
         return diffSize;
     }
-
+    
+    private int estimateDiffSize() {
+        int diffSize = 0;
+        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
+            String key = entry.getKey();
+            switch (entry.getValue().type) {
+                case ADD:
+                    if (!db.containsKey(key)) {
+                        ++diffSize;
+                    }
+                    break;
+                case REMOVE:
+                    if (db.containsKey(key)) {
+                        ++diffSize;
+                    }
+                    break;
+            }
+        }
+        return diffSize;
+    }
+    
     public void setName(String name) {
         this.name = new String(name);
     }
@@ -148,7 +168,7 @@ public class FileMap implements Table {
     }
     
     public int getDiffSize() {
-        return diff.size();
+        return estimateDiffSize();
     }
     
     public void writeOut(String dirPath) throws IOException {
