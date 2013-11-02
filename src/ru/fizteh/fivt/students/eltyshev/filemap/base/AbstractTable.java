@@ -116,7 +116,7 @@ public abstract class AbstractTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = modifiedData.size() + deletedKeys.size();
+        int recordsCommited = changesCount();
         for (final String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
@@ -138,7 +138,7 @@ public abstract class AbstractTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = modifiedData.size() + deletedKeys.size();
+        int recordsDeleted = changesCount();
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
@@ -161,5 +161,13 @@ public abstract class AbstractTable implements Table {
             oldValue = oldData.get(key);
         }
         return oldValue;
+    }
+
+    private int changesCount()
+    {
+        HashSet<String> tempSet = new HashSet<>();
+        tempSet.addAll(modifiedData.keySet());
+        tempSet.addAll(deletedKeys);
+        return tempSet.size();
     }
 }

@@ -147,8 +147,11 @@ public class MultifileTableTest {
         }
         Assert.assertEquals(KEYS_COUNT, currentTable.rollback());
 
+        currentTable.remove("non-exists");
+        currentTable.remove("non-exists1");
         currentTable.remove("key1");
         currentTable.put("key1", "value1");
+        Assert.assertEquals(1, currentTable.rollback());
     }
 
     private void prepareData() {
