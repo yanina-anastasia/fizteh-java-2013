@@ -123,16 +123,9 @@ public class DatabaseRow implements Storeable {
     }
 
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
-        try {
-            classes.get(columnIndex).cast(value);
-        } catch (ClassCastException e) {
+        if (!classes.get(columnIndex).equals(value.getClass())) {
             throw new ColumnFormatException();
         }
-
-
-       /* if (!classes.get(columnIndex).equals(value.getClass())) {
-            throw new ColumnFormatException();
-        }       */
     }
 
     @Override
