@@ -16,6 +16,7 @@ public class CommandUse implements Command<MultiFileHashMapState> {
 
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
         if (state.getWorkingPath().getFileName().toString().equals(args[0])) {
+            System.out.println("using " + args[0]);
             return;
         }
         MyTable table = state.getCurrentTable();
@@ -25,10 +26,12 @@ public class CommandUse implements Command<MultiFileHashMapState> {
         }
         File newPath = state.getPath().resolve(args[0]).toFile();
         if (newPath.exists()) {
+            Utils.dumpTable(table);
             if (table != null) {
                 table.clear();
             }
             state.setCurrentTable(args[0]);
+            Utils.readTable(state.getCurrentTable());
             System.out.println("using " + args[0]);
         } else {
             System.out.println(args[0] + " not exists");

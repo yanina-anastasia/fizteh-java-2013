@@ -39,9 +39,9 @@ public class MyTableProvider implements TableProvider {
             return null;
         }
         MyTable table = new MyTable(name);
-        if (table.getSize() == -1) {
-            return null;
-        }
+        //if (table.getSize() == -1) {
+        //    return null;
+        //}
         tables.put(name, table);
         return table;
     }
