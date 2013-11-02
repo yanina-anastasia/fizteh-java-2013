@@ -108,7 +108,7 @@ public class FileMap implements Table {
             String key = entry.getKey();
             switch (entry.getValue().type) {
                 case ADD:
-                    if (!db.containsKey(key) || !db.get(key).equals(entry.getValue())) {
+                    if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
                         ++diffSize;
                     }
                     break;
