@@ -15,10 +15,16 @@ public class Shell {
             System.err.println("Не реализован метод из CommandShell");
             System.exit(1);
         }
-        Code res = sys.runShell(args);
-        if (res == Code.ERROR) {
+        try {
+            Code res = sys.runShell(args);
+            if (res == Code.ERROR) {
+                System.exit(1);
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка выполнения");
             System.exit(1);
         }
+
     }
 
 }

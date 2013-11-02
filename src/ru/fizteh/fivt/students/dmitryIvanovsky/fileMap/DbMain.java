@@ -11,21 +11,27 @@ public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
+
         try {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
+
         } catch (Exception e) {
-            System.out.println("Ошибка загрузки");
+            System.out.println("Error loading");
+            FileMapUtils.getMessage(e);
+            System.exit(1);
         }
     }
 
     public static void runDb(String[] args, String path) throws IOException {
-        FileMap fileMapCommand = null;
+        FileMapProvider fileMapCommand = null;
         try {
-            fileMapCommand = new FileMap(path);
+            FileMapProviderFactory factory = new FileMapProviderFactory();
+            fileMapCommand = factory.create(path);
         } catch (Exception e) {
-            System.err.println("Ошибка загрузки базы данных");
+            System.err.println("Error loading database");
+            FileMapUtils.getMessage(e);
             System.exit(1);
         }
 
@@ -33,18 +39,20 @@ public class DbMain {
         try {
             sys = new CommandLauncher(fileMapCommand);
         } catch (Exception e) {
-            System.err.println("Не реализован метод из fileMapCommand");
+            System.err.println("Not implemented method of fileMapCommand");
+            FileMapUtils.getMessage(e);
             System.exit(1);
         }
 
         try {
             Code res = sys.runShell(args);
             if (res == Code.ERROR) {
-                System.err.println("Ошибка выполнения");
+                System.err.println("Runtime Error");
                 System.exit(1);
             }
         } catch (Exception e) {
-            System.err.println("Ошибка выполнения");
+            System.err.println("Runtime Error");
+            FileMapUtils.getMessage(e);
             System.exit(1);
         }
     }
