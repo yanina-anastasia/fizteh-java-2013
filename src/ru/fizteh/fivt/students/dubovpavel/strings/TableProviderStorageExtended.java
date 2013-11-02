@@ -16,7 +16,7 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table getTable(String name) {
-        if(name == null || name.equals("")) {
+        if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if(!isNameValid(name)) {
@@ -26,7 +26,7 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table createTable(String name) {
-        if(name == null || name.equals("")) {
+        if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if(!isNameValid(name)) {
@@ -36,7 +36,7 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public void removeTable(String name) {
-        if(name == null || name.equals("")) {
+        if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         if(storage.drop(name) == null) {

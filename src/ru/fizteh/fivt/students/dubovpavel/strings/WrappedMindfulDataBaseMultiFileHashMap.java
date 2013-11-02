@@ -5,7 +5,6 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
 
 import java.io.File;
-import java.util.regex.Pattern;
 
 public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMultiFileHashMap implements Table {
     DispatcherMultiFileHashMap dispatcher;

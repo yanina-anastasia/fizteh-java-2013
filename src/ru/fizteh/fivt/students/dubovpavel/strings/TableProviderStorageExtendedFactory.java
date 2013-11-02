@@ -9,7 +9,7 @@ import java.io.File;
 
 public class TableProviderStorageExtendedFactory implements TableProviderFactory {
     public TableProvider create(String dir) {
-        if(dir == null || dir.equals("")) {
+        if(dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException();
         }
         File corresponding = new File(dir);
