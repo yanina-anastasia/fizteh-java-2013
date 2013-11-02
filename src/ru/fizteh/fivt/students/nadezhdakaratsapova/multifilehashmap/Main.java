@@ -10,7 +10,6 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            System.setProperty("fizteh.db.dir", "/home/hope/JavaTests");
             String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
             MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
