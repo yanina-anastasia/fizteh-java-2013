@@ -33,7 +33,7 @@ public class TestDistributedTableFactory extends FileManager {
     public void createProviderOnFileShouldFail() throws IOException {
         String name = "file";
         File file = folder.newFile(name);
-        factory.create(file.getName());
+        factory.create(file.getAbsolutePath());
     }
 
     @Test
