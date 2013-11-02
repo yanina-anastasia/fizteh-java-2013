@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.visamsonov.storage;
 
 import java.io.*;
 
-class MultiFileStorage implements TableInterface {
+public class MultiFileStorage implements TableInterface {
 
 	private final int NUMBER_OF_DIRS = 16;
 	private final int NUMBER_OF_FILES = 16;
