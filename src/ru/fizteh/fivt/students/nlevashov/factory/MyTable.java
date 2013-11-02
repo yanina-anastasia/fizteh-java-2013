@@ -181,6 +181,7 @@ public class MyTable implements Table {
     @Override
     public int commit() {
         int oldSize = oldMap.size();
+        System.out.println(oldSize + " | " + map.size());
         oldMap = map;
         try {
             refreshDiskData();
