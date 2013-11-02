@@ -49,13 +49,11 @@ public class DataTable implements Table {
                 } else {
                     if (!oldValue.equals(value)) {
                         putKeys.put(key, value);
+                        ++commitSize;
                     }
                 }
             } else {
                 putKeys.put(key, value);
-                if (dataStorage.containsKey(key)) {
-                    ++commitSize;
-                }
             }
         } else {
             putKeys.put(key, value);
@@ -105,7 +103,7 @@ public class DataTable implements Table {
         }
         String value;
         if ((value = dataStorage.get(key)) != null) {
-            --commitSize;
+            ++commitSize;
             removeKeys.add(key);
         }
         return value;
