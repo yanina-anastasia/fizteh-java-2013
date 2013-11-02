@@ -53,7 +53,9 @@ public class MFHMController {
                 return false;
             }
             if (multiFileHashMap.getTable(name) != null) {
-                multiFileHashMap.stopUsing(currentdb.getName());
+                if (currentdb != null) {
+                    multiFileHashMap.stopUsing(currentdb.getName());
+                }
                 currentdb = multiFileHashMap.getTable(name);
                 System.out.println("using " + name);
             } else {
