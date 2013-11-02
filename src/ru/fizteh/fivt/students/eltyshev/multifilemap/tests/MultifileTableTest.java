@@ -152,6 +152,12 @@ public class MultifileTableTest {
         currentTable.remove("key1");
         currentTable.put("key1", "value1");
         Assert.assertEquals(1, currentTable.rollback());
+
+        currentTable.put("key1", "value1");
+        currentTable.commit();
+        currentTable.remove("key1");
+        currentTable.put("key1", "value1");
+        Assert.assertEquals(0, currentTable.rollback());
     }
 
     private void prepareData() {

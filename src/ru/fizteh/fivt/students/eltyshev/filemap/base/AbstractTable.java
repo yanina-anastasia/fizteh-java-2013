@@ -165,6 +165,13 @@ public abstract class AbstractTable implements Table {
         HashSet<String> tempSet = new HashSet<>();
         tempSet.addAll(modifiedData.keySet());
         tempSet.addAll(deletedKeys);
+        for(String key : tempSet)
+        {
+            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key))
+            {
+                tempSet.remove(key);
+            }
+        }
         return tempSet.size();
     }
 }
