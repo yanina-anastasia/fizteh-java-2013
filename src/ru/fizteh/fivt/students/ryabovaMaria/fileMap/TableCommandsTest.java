@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 import org.junit.After;
@@ -27,7 +28,7 @@ public class TableCommandsTest {
     public TemporaryFolder tempFolder = new TemporaryFolder();
     
     @Before
-    public void initTempTableProvider() {
+    public void initTempTableProvider() throws IOException {
         createdFolder = tempFolder.newFolder("workFolder");
         tempTableProvider = tempFactory.create(createdFolder.toString());
         assertNotNull("Object of TableProvider shouldn't be null",tempTableProvider);

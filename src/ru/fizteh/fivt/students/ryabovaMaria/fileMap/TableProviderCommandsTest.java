@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -20,7 +21,7 @@ public class TableProviderCommandsTest {
     public TemporaryFolder tempFolder = new TemporaryFolder();
     
     @Before
-    public void initTempTableProvider() {
+    public void initTempTableProvider() throws IOException {
         createdFolder = tempFolder.newFolder("workFolder");
         File existsTable = new File(createdFolder, "table");
         existsTable.mkdir();
