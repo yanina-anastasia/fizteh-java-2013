@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
-import ru.fizteh.fivt.students.piakovenko.shell.CurrentStatus;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 
 import java.io.IOException;
 
@@ -25,23 +23,15 @@ public class Exit implements Commands {
         db = dataBase;
     }
 
-    public void changeCurrentStatus (Object obj){
-        db = (DataBase)obj;
-    }
-
-
-    public void perform(String[] s) throws MyException, IOException {
+    public void perform(String[] s) throws IOException {
         if (s.length != 1) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ exit"));
+            throw new IOException("Wrong arguments! Usage ~ exit");
         }
         if (db == null) {
             System.exit(0);
         }
         try {
             db.saveDataBase();
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);

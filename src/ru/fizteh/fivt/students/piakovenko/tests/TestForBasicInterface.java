@@ -1,13 +1,17 @@
 package ru.fizteh.fivt.students.piakovenko.tests;
 
+/**
+ * Created with IntelliJ IDEA.
+ * User: Pavel
+ * Date: 01.11.13
+ * Time: 22:07
+ * To change this template use File | Settings | File Templates.
+ */
+
 import junit.framework.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.piakovenko.filemap.DataBasesCommander;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
-import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
 import java.io.IOException;
 
@@ -18,7 +22,7 @@ import java.io.IOException;
  * Time: 20:01
  * To change this template use File | Settings | File Templates.
  */
-public class TestOne {
+public class TestForBasicInterface {
 
 
 
@@ -95,3 +99,4 @@ public class TestOne {
 
 
 }
+

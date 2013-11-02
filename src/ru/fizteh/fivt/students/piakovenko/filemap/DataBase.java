@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 import ru.fizteh.fivt.students.piakovenko.shell.Remove;
 
@@ -60,32 +59,32 @@ public class DataBase implements Table {
         return b / 16 % 16;
     }
 
-    private void readFromFile() throws IOException, MyException {
+    private void readFromFile() throws IOException {
         long length = raDataBaseFile.length();
         while (length > 0) {
             int l1 = raDataBaseFile.readInt();
             if (l1 <= 0) {
-                throw new MyException(new Exception("Length of new key less or equals zero"));
+                throw new IOException("Length of new key less or equals zero");
             } else if (l1 > 1024 * 1024) {
-                throw new MyException(new Exception("Key greater than 1 MB"));
+                throw new IOException("Key greater than 1 MB");
             }
             length -= 4;
             int l2 = raDataBaseFile.readInt();
             if (l2 <= 0) {
-                throw new MyException(new Exception("Length of new value less or equals zero"));
+                throw new IOException("Length of new value less or equals zero");
             } else if (l2 > 1024 * 1024) {
-                throw new MyException(new Exception("Value greater than 1 MB"));
+                throw new IOException("Value greater than 1 MB");
             }
             length -= 4;
             byte [] key = new byte [l1];
             byte [] value = new byte [l2];
             if (raDataBaseFile.read(key) < l1) {
-                throw new MyException(new Exception("Key: read less, that it was pointed to read"));
+                throw new IOException("Key: read less, that it was pointed to read");
             } else {
                 length -= l1;
             }
             if (raDataBaseFile.read(value) < l2) {
-                throw new MyException(new Exception("Value: read less, that it was pointed to read"));
+                throw new IOException("Value: read less, that it was pointed to read");
             } else {
                 length -= l2;
             }
@@ -93,56 +92,55 @@ public class DataBase implements Table {
         }
     }
 
-    private void readFromFile (File storage, int numberOfDirectory) throws MyException, IOException {
-        RandomAccessFile ra = new RandomAccessFile(storage, "rw");
-        int numberOfFile =  Integer.parseInt(storage.getName().substring(0, storage.getName().indexOf('.')), 10);
+    private void readFromFile (File storage, int numberOfDirectory) throws IOException {
+        RandomAccessFile ra = null;
         try {
+             ra = new RandomAccessFile(storage, "rw");
+            int numberOfFile =  Integer.parseInt(storage.getName().substring(0, storage.getName().indexOf('.')), 10);
             long length = ra.length();
             while (length > 0) {
                 int l1 = ra.readInt();
                 if (l1 <= 0) {
-                    throw new MyException(new Exception("Length of new key less or equals zero"));
+                    throw new IOException("Length of new key less or equals zero");
                 } else if (l1 > 1024 * 1024) {
-                    throw new MyException(new Exception("Key greater than 1 MB"));
+                    throw new IOException("Key greater than 1 MB");
                 }
                 length -= 4;
                 int l2 = ra.readInt();
                 if (l2 <= 0) {
-                    throw new MyException(new Exception("Length of new value less or equals zero"));
+                    throw new IOException("Length of new value less or equals zero");
                 } else if (l2 > 1024 * 1024) {
-                    throw new MyException(new Exception("Value greater than 1 MB"));
+                    throw new IOException("Value greater than 1 MB");
                 }
                 length -= 4;
                 byte [] key = new byte [l1];
                 byte [] value = new byte [l2];
                 if (ra.read(key) < l1) {
-                    throw new MyException(new Exception("Key: read less, that it was pointed to read"));
+                    throw new IOException("Key: read less, that it was pointed to read");
                 } else {
                     length -= l1;
                 }
                 if (ra.read(value) < l2) {
-                    throw new MyException(new Exception("Value: read less, that it was pointed to read"));
+                    throw new IOException("Value: read less, that it was pointed to read");
                 } else {
                     length -= l2;
                 }
                 String keyString = new String(key, StandardCharsets.UTF_8);
                 String valueString = new String(value, StandardCharsets.UTF_8);
                 if (ruleNumberFile(keyString) != numberOfFile || ruleNumberDirectory(keyString) != numberOfDirectory) {
-                    throw new MyException(new Exception("Wrong place of key value! Key: " + keyString + " Value: " + valueString));
+                    throw new IOException("Wrong place of key value! Key: " + keyString + " Value: " + valueString);
                 } else {
                     map.primaryPut( keyString, valueString);
                 }
             }
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            ra.close();
-            System.exit(1);
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
-            ra.close();
             System.exit(1);
+        } finally {
+            if (ra != null) {
+                ra.close();
+            }
         }
-        ra.close();
     }
 
     private void saveToFile () throws IOException {
@@ -161,23 +159,27 @@ public class DataBase implements Table {
     }
 
     private void saveToFile(File f, String key, String value) throws IOException {
-        RandomAccessFile ra = new RandomAccessFile(f, "rw");
-        ra.seek(ra.length());
-        byte [] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-        byte [] valueBytes = value.getBytes(StandardCharsets.UTF_8);
-        ra.writeInt(keyBytes.length);
-        ra.writeInt(valueBytes.length);
-        ra.write(keyBytes);
-        ra.write(valueBytes);
-        ra.close();
+        RandomAccessFile ra = null;
+        try {
+            ra = new RandomAccessFile(f, "rw");
+            ra.seek(ra.length());
+            byte [] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            byte [] valueBytes = value.getBytes(StandardCharsets.UTF_8);
+            ra.writeInt(keyBytes.length);
+            ra.writeInt(valueBytes.length);
+            ra.write(keyBytes);
+            ra.write(valueBytes);
+        } finally {
+            ra.close();
+        }
     }
 
-    private void saveToDirectory() throws IOException, MyException{
+    private void saveToDirectory() throws IOException{
         if (dataBaseStorage.exists()) {
             Remove.removeRecursively(dataBaseStorage);
         }
         if (!dataBaseStorage.mkdirs()){
-            throw new MyException(new Exception("Unable to create this directory - " + dataBaseStorage.getCanonicalPath()));
+            throw new IOException("Unable to create this directory - " + dataBaseStorage.getCanonicalPath());
         }
         for (String key : map.getMap().keySet()) {
             Integer numberOfDirectory = ruleNumberDirectory(key);
@@ -185,7 +187,7 @@ public class DataBase implements Table {
             File directory = new File (dataBaseStorage, numberOfDirectory.toString() + ".dir");
             if (!directory.exists()) {
                 if (!directory.mkdirs()){
-                    throw new MyException(new Exception("Unable to create this directory - " + directory.getCanonicalPath()));
+                    throw new IOException("Unable to create this directory - " + directory.getCanonicalPath());
                 }
             }
             File writeFile = new File(directory, numberOfFile.toString() + ".dat" );
@@ -196,29 +198,29 @@ public class DataBase implements Table {
         }
     }
 
-    private void loadDataBase (File dataBaseFile) throws IOException, MyException {
+    private void loadDataBase (File dataBaseFile) throws IOException {
        raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
        try {
             readFromFile();
-       } catch (MyException e) {
-            System.err.println("Error! " + e.what());
+       } catch (IOException e) {
+            System.err.println("Error! " + e.getCause());
             System.exit(1);
        }
     }
 
-    private void readFromDirectory(File dir, int numberOfDirectory) throws MyException, IOException {
+    private void readFromDirectory(File dir, int numberOfDirectory) throws IOException {
         for (File f: dir.listFiles()) {
             if (!isValidNameFile(f.getName())) {
-                throw new MyException(new Exception("Wrong name of file!"));
+                throw new IOException("Wrong name of file!");
             }
             readFromFile(f, numberOfDirectory);
         }
     }
 
-    private void loadFromDirectory (File directory) throws MyException, IOException {
+    private void loadFromDirectory (File directory) throws IOException {
         for (File f : directory.listFiles()) {
             if (!isValidNameDirectory(f.getName())) {
-                throw new MyException(new Exception("Wrong name of directory!"));
+                throw new IOException("Wrong name of directory!");
             }
             int numberOfDirectory = Integer.parseInt(f.getName().substring(0, f.getName().indexOf('.')), 10);
             readFromDirectory(f, numberOfDirectory);
@@ -241,7 +243,7 @@ public class DataBase implements Table {
         changed = 0;
     }
 
-    public void load () throws IOException, MyException{
+    public void load () throws IOException {
         if (dataBaseStorage.isFile()) {
             loadDataBase(dataBaseStorage);
         } else {
@@ -263,13 +265,10 @@ public class DataBase implements Table {
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
         }
     }
 
-    public void saveDataBase () throws IOException, MyException {
+    public void saveDataBase () throws IOException {
         if (dataBaseStorage.isFile()) {
             try {
                 saveToFile();
@@ -329,9 +328,6 @@ public class DataBase implements Table {
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
         }
         return 0;
     }
@@ -346,9 +342,6 @@ public class DataBase implements Table {
             return tempChanged;
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
-            System.exit(1);
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
             System.exit(1);
         }
         return 0;

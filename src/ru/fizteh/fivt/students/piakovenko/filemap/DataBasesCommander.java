@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
 import java.io.File;
@@ -38,15 +37,6 @@ public class DataBasesCommander implements TableProvider {
         }
     }
 
-    private void changeCommandsStatus(DataBase database) throws MyException {
-        shell.changeCommandStatus("put", database);
-        shell.changeCommandStatus("get", database);
-        shell.changeCommandStatus("remove", database);
-        shell.changeCommandStatus("exit", database);
-        shell.changeCommandStatus("size", database);
-        shell.changeCommandStatus("commit", database);
-        shell.changeCommandStatus("rollback", database);
-    }
 
     public DataBasesCommander () {
         shell = new Shell();
@@ -79,7 +69,7 @@ public class DataBasesCommander implements TableProvider {
         }
     }
 
-    public void use (String dataBase) throws MyException, IOException {
+    public void use (String dataBase) throws IOException {
         if (filesMap.containsKey(dataBase)) {
             if (currentDataBase != null && currentDataBase.numberOfChanges() != 0) {
                 System.out.println(currentDataBase.numberOfChanges() + " unsaved changes");
@@ -92,8 +82,9 @@ public class DataBasesCommander implements TableProvider {
                 currentDataBase.saveDataBase();
             }
             currentDataBase = filesMap.get(dataBase);
-            changeCommandsStatus(currentDataBase);
             currentDataBase.load();
+            removeWhenUse();
+            initializeWhenUse();
             System.out.println("using " + dataBase);
         } else {
             System.out.println(dataBase + " not exists");
@@ -108,9 +99,9 @@ public class DataBasesCommander implements TableProvider {
             if (filesMap.get(dataBase).equals(currentDataBase)) {
                 currentDataBase = null;
                 try {
-                    changeCommandsStatus(currentDataBase);
-                } catch (MyException e) {
-                    System.err.println("Error! " + e.what());
+                    removeWhenUse();
+                } catch (IOException e) {
+                    System.err.println("Error! " + e.getMessage());
                     System.exit(1);
                 }
             }
@@ -118,9 +109,6 @@ public class DataBasesCommander implements TableProvider {
                 ru.fizteh.fivt.students.piakovenko.shell.Remove.removeRecursively(filesMap.get(dataBase).returnFiledirectory());
             } catch (IOException e) {
                 System.err.println("Error! " + e.getMessage());
-                System.exit(1);
-            } catch (MyException e) {
-                System.err.println("Error! " + e.what());
                 System.exit(1);
             }
             filesMap.remove(dataBase);
@@ -180,5 +168,25 @@ public class DataBasesCommander implements TableProvider {
         shell.addCommand(new Size(currentDataBase));
         shell.addCommand(new Commit(currentDataBase));
         shell.addCommand(new Rollback(currentDataBase));
+    }
+
+    private void initializeWhenUse () {
+        shell.addCommand(new Exit(currentDataBase));
+        shell.addCommand(new Get(currentDataBase));
+        shell.addCommand(new Put(currentDataBase));
+        shell.addCommand(new Remove(currentDataBase));
+        shell.addCommand(new Size(currentDataBase));
+        shell.addCommand(new Commit(currentDataBase));
+        shell.addCommand(new Rollback(currentDataBase));
+    }
+
+    private void removeWhenUse() throws IOException{
+        shell.removeCommand("exit");
+        shell.removeCommand("get");
+        shell.removeCommand("put");
+        shell.removeCommand("rollback");
+        shell.removeCommand("commit");
+        shell.removeCommand("size");
+        shell.removeCommand("remove");
     }
 }

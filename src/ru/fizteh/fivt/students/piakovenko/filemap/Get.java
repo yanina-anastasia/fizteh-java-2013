@@ -2,7 +2,8 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 
 
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
+
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,21 +20,17 @@ public class Get implements Commands {
         db = dataBase;
     }
 
-    public void changeCurrentStatus (Object obj){
-        db = (DataBase)obj;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void perform(String[] args) throws MyException {
+    public void perform(String[] args) throws IOException {
         if (db == null) {
             System.out.println("no table");
             return;
         }
         if (args.length != 2) {
-            throw new MyException(new Exception("Wrong number of arguments! Usage: get <keyValue>"));
+            throw new IOException("Wrong number of arguments! Usage: get <keyValue>");
         }
         db.get(args[1]);
     }

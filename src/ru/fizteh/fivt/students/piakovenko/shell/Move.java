@@ -17,18 +17,14 @@ public class Move implements Commands {
         currentStatus = cs;
     }
 
-    public void changeCurrentStatus (Object obj){
-        currentStatus = (CurrentStatus)obj;
-    }
-
     public String getName() {
         return name;
     }
 
 
-    public void perform(String[] array) throws MyException, IOException {
+    public void perform(String[] array) throws IOException {
         if (array.length != 3) {
-            throw new MyException(new Exception("Wrong arguments! Usage mv <source> <destination>"));
+            throw new IOException("Wrong arguments! Usage mv <source> <destination>");
         }
         Copy c = new Copy(currentStatus);
         Remove r = new Remove(currentStatus);

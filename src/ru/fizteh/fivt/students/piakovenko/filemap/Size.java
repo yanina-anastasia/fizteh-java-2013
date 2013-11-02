@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 
 import java.io.IOException;
 
@@ -20,21 +19,17 @@ public class Size implements Commands {
         db = dataBase;
     }
 
-    public void changeCurrentStatus (Object obj){
-        db = (DataBase)obj;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void perform(String[] args) throws MyException {
+    public void perform(String[] args) throws IOException {
         if (db == null) {
             System.out.println("no table");
             return;
         }
         if (args.length != 1) {
-            throw new MyException(new Exception("Wrong number of arguments! Usage: size"));
+            throw new IOException("Wrong number of arguments! Usage: size");
         }
         db.size();
     }

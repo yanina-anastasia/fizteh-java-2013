@@ -24,10 +24,6 @@ public class DataBasesFactory implements TableProviderFactory {
         if (fileMapStorage.isFile()) {
             throw new IllegalArgumentException("try create provider on file");
         }
-        //if (!fileMapStorage.exists()) {
-        //    System.err.println(fileMapStorage + " doesn't exist!");
-        //    System.exit(1);
-        //}
         shell = new Shell();
         return new DataBasesCommander(shell,fileMapStorage);
     }

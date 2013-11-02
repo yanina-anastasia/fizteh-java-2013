@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 
 import java.io.IOException;
 
@@ -24,13 +23,9 @@ public class Drop implements Commands {
         return name;
     }
 
-    public void changeCurrentStatus (Object obj) {
-        dbc = (DataBasesCommander)obj;
-    }
-
-    public void perform(String[] args) throws MyException, IOException {
+    public void perform(String[] args) throws IOException {
         if (args.length != 2) {
-            throw new MyException(new Exception("Wrong number of arguments! Usage: drop <keyValue>"));
+            throw new IOException("Wrong number of arguments! Usage: drop <keyValue>");
         }
         dbc.removeTable(args[1]);
     }

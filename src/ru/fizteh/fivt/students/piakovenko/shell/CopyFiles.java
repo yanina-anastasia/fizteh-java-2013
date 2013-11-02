@@ -27,11 +27,11 @@ public class CopyFiles {
         }
     }
 
-    public static void copyRecursively (File from, File to) throws MyException, IOException {
+    public static void copyRecursively (File from, File to) throws IOException {
         if (from.isDirectory()){
             File fromNew = new File(to.getCanonicalPath(), from.getName());
             if (!fromNew.mkdirs()){
-                throw new MyException(new Exception("Unable to create this directory - " + fromNew.getCanonicalPath()));
+                throw new IOException("Unable to create this directory - " + fromNew.getCanonicalPath());
             }
             for (File f: from.listFiles()){
                 copyRecursively(f, fromNew);
@@ -52,8 +52,6 @@ public class CopyFiles {
             while ((read = inStream.read(buffer)) > 0) {
                 outStream.write(buffer, 0, read);
             }
-        } catch (IOException e) {
-            throw new MyException(e.getCause());
         } finally {
             streamClose(inStream);
             streamClose(outStream);

@@ -20,13 +20,6 @@ public class CommandsMap {
         }
     }
 
-    public void changeCommandStatus (String name, Object obj) throws MyException {
-        if (commands.containsKey(name)) {
-            commands.get(name).changeCurrentStatus(obj);
-        } else {
-            throw new MyException(new Exception("Don't have this command " + name));
-        }
-    }
 
 
     public void execute(String commandsString) throws MyException, IOException {
@@ -36,8 +29,17 @@ public class CommandsMap {
             if (commands.containsKey(args[0])){
                 commands.get(args[0]).perform(args);
             } else {
-                throw new MyException(new Exception("No command with such name: " + args[0]));
+                throw new IOException("No command with such name: " + args[0]);
             }
+        }
+    }
+
+
+    public void removeCommand(String commandName) throws IOException{
+        if (commands.containsKey(commandName)) {
+            commands.remove(commandName);
+        } else {
+            throw new IOException("no command with name: " + commandName);
         }
     }
 

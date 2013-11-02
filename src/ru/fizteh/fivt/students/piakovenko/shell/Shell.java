@@ -21,8 +21,6 @@ public class Shell {
                 }
                 String s = sc.nextLine();
                 cm.execute(s);
-            } catch (MyException e) {
-                System.err.println("Error! " + e.what());
             } catch (IOException e) {
                 System.err.println("Error! " + e.getMessage());
             }
@@ -38,9 +36,6 @@ public class Shell {
             sb.append(args[args.length - 1]);
             cm.execute(sb.toString());
             cm.execute("exit");
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
@@ -91,12 +86,12 @@ public class Shell {
             packageMode(args);
         }
     }
-    public void executeCommand (String args) throws IOException, MyException{
+    public void executeCommand (String args) throws IOException{
         cm.execute(args);
     }
 
-    public void changeCommandStatus(String name, Object obj) throws MyException {
-        cm.changeCommandStatus(name, obj);
+    public void removeCommand (String commandName) throws IOException{
+        cm.removeCommand(commandName);
     }
 
 }

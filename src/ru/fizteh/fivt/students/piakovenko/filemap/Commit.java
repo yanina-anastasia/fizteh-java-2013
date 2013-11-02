@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 
 import java.io.IOException;
 
@@ -24,13 +23,10 @@ public class Commit implements Commands {
         return name;
     }
 
-    public void changeCurrentStatus (Object obj) {
-        db = (DataBase)obj;
-    }
 
-    public void perform(String[] args) throws MyException, IOException {
+    public void perform(String[] args) throws IOException {
         if (args.length != 1) {
-            throw new MyException(new Exception("Wrong number of arguments! Usage: commit"));
+            throw new IOException("Wrong number of arguments! Usage: commit");
         }
         db.commit();
     }
