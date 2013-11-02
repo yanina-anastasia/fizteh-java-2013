@@ -7,9 +7,10 @@ import ru.fizteh.fivt.students.mishatkin.shell.TimeToExitException;
 /**
  * Created by Vladimir Mishatkin on 10/15/13
  */
-public class ExitCommand extends ShellCommand {
+// deprecated
+public class ExitCommand<Receiver extends FileMapReceiver> extends ShellCommand<Receiver> {
 	public ExitCommand(ShellReceiver receiver) {
-		super(receiver);
+		super((Receiver) receiver);
 		setInputArgumentsCount(0);
 	}
 

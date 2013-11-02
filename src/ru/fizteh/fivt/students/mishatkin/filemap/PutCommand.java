@@ -8,15 +8,14 @@ import java.lang.reflect.Method;
 /**
  * Created by Vladimir Mishatkin on 10/15/13
  */
-public class PutCommand extends ShellCommand {
-	public PutCommand(ShellReceiver receiver) {
-		super(receiver);
+public class PutCommand<Receiver extends FileMapReceiver>  extends ShellCommand<Receiver> {
+	public PutCommand(FileMapReceiver receiver) {
+		super((Receiver) receiver);
 		setInputArgumentsCount(2);
 	}
 
-//	@Override
-//	public void execute() {
-////		Method q = ((FileMapReceiver)receiver).getClass().getMethod(PutCommand.class.getName(), String.class, String.class );
-//		receiver.putCommand(args[0], args[1]);
-//	}
+	@Override
+	public void execute() {
+		receiver.putCommand(args[0], args[1]);
+	}
 }
