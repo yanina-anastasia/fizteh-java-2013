@@ -8,10 +8,8 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMap;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import static org.junit.Assert.assertEquals;
 
 public class TestFileMap {
