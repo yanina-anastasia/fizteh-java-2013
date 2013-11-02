@@ -12,21 +12,21 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table getTable(String name) {
-        if(name == null || !IsKeyAllowable.check(name)) {
+        if(name == null) { // || !IsKeyAllowable.check(name)) {
             throw new IllegalArgumentException();
         }
         return storage.getDataBase(name);
     }
 
     public Table createTable(String name) {
-        if(name == null || !IsKeyAllowable.check(name)) {
+        if(name == null) { // || !IsKeyAllowable.check(name)) {
             throw new IllegalArgumentException();
         }
         return storage.create(name);
     }
 
     public void removeTable(String name) {
-        if(name == null || !IsKeyAllowable.check(name)) {
+        if(name == null) { // || !IsKeyAllowable.check(name)) {
             throw new IllegalArgumentException();
         }
         storage.drop(name);
