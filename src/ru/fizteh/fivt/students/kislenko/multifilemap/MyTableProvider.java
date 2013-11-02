@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +34,9 @@ public class MyTableProvider implements TableProvider {
             if (!path.getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
                 throw new IllegalArgumentException("Incorrect table name.");
             }
+        }
+        if (tables.containsKey(name)) {
+            return null;
         }
         MyTable table = new MyTable(name);
         if (table.getSize() == -1) {
