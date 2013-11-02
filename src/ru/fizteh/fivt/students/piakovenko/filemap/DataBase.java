@@ -298,6 +298,7 @@ public class DataBase implements Table {
         } else {
             if (map.getChangedMap().containsKey(key)){
             } else {
+                map.getChangedMap().put(key, value);
                 ++changed;
             }
         }
