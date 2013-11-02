@@ -131,6 +131,9 @@ public class MultiFileTable implements ChangesCountingTable {
         for (String key : addedKeys.keySet()) {
             if (deletedKeys.contains(key)) {
                 changesCounter--;
+                if (dataBase.get(key).equals(addedKeys.get(key))) {
+                    changesCounter--;
+                }
             }
         }
     }
