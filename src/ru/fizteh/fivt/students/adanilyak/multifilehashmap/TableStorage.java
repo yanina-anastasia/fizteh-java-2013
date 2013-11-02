@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
+import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
 
 import java.io.File;
@@ -116,13 +117,11 @@ public class TableStorage implements Table {
 
     @Override
     public int rollback() {
-        setDefault();
-        return amountOfChanges;
+        return setDefault();
     }
 
     private int setDefault() {
-        int result = size() - data.size();
-        result *= Integer.signum(result);
+        int result = CountingTools.correctCountingOfChanges(changes, removedKeys);
         changes.clear();
         removedKeys.clear();
         amountOfChanges = 0;
