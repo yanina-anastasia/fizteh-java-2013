@@ -120,7 +120,7 @@ public class MyTable implements Table {
      */
     @Override
     public String get(String key) {
-        if (key == null) {
+        if ((key.equals("")) || (key == null)) {
             throw new IllegalArgumentException("Table.get: key is null");
         }
         return map.get(key);
@@ -138,10 +138,10 @@ public class MyTable implements Table {
      */
     @Override
     public String put(String key, String value) {
-        if (key == null) {
+        if ((key.equals("")) || (key == null)) {
             throw new IllegalArgumentException("Table.put: key is null");
         }
-        if (value == null) {
+        if ((value.equals("")) || (value == null)) {
             throw new IllegalArgumentException("Table.put: value is null");
         }
         return map.put(key, value);
@@ -157,7 +157,7 @@ public class MyTable implements Table {
      */
     @Override
     public String remove(String key) {
-        if (key == null) {
+        if ((key.equals("")) || (key == null)) {
             throw new IllegalArgumentException("Table.remove: key is null");
         }
         return map.remove(key);

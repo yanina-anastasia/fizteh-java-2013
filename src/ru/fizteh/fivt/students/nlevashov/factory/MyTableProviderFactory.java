@@ -47,7 +47,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public TableProvider create(String dir) {
-        System.out.println("|"+ dir + "|");
         if ((dir.equals("")) || (dir == null)) {
             throw new IllegalArgumentException("TableProviderFactory.create: dir is null");
         }
