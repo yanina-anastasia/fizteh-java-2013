@@ -99,7 +99,7 @@ public class MyTable implements Table {
                 }
             }
         }
-        oldMap.clear();
+        oldMap = new HashMap<String, String>();
         oldMap.putAll(map);
     }
 
