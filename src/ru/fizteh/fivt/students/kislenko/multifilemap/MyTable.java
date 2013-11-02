@@ -44,7 +44,7 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) {
-        if (key == null) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.containsKey(key)) {
@@ -55,7 +55,7 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null) {
+        if (key == null || value == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (storage.get(key) == null && changes.get(key) == null) {
@@ -73,7 +73,7 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) {
-        if (key == null) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (storage.get(key) != null) {
