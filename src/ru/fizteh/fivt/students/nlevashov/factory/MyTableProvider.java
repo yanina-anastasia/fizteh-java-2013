@@ -65,6 +65,11 @@ public class MyTableProvider implements TableProvider {
         if (tables.containsKey(name)) {
             return null;
         } else {
+            if (name.contains("/") || name.contains(":") || name.contains("*")
+                    || name.contains("?") || name.contains("\"") || name.contains("\\")
+                    || name.contains(">") || name.contains("<") || name.contains("|")) {
+                throw new RuntimeException("bad table name : \"" + name + "\"");
+            }
             try {
                 Shell.cd(dbPath.toString());
                 Shell.mkdir(name);
@@ -116,12 +121,6 @@ public class MyTableProvider implements TableProvider {
         for (Path table : tables) {
             if (!Files.isDirectory(table)) {
                 throw new IOException("there is object which is not a directory in root directory");
-            }
-            String tableName = table.getFileName().toString();
-            if (tableName.contains("/") || tableName.contains(":") || tableName.contains("*")
-                || tableName.contains("?") || tableName.contains("\"") || tableName.contains("\\")
-                || tableName.contains(">") || tableName.contains("<") || tableName.contains("|")) {
-                throw new IOException("bad table name : \"" + tableName + "\"");
             }
             DirectoryStream<Path> levels = Files.newDirectoryStream(table);
             for (Path level : levels) {
