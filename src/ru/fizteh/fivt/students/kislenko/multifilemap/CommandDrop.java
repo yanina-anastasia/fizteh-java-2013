@@ -4,7 +4,6 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 public class CommandDrop implements Command<MultiFileHashMapState> {
     public String getName() {
@@ -30,7 +29,7 @@ public class CommandDrop implements Command<MultiFileHashMapState> {
                     dbDir.delete();
                 }
             }
-            if (state.getCurrentTable() != null && args[0].equals(state.getCurrentTable().getPath().toString())) {
+            if (state.getCurrentTable() != null && args[0].equals(state.getCurrentTable().getPath().getFileName().toString())) {
                 state.getCurrentTable().clear();
                 state.setCurrentTable(null);
             }

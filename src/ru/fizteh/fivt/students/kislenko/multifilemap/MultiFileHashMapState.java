@@ -38,6 +38,10 @@ public class MultiFileHashMapState {
     }
 
     public void setCurrentTable(String name) {
-        currentTable = tables.getTable(databasePath.resolve(name).toString());
+        if (name == null) {
+            currentTable = null;
+        } else {
+            currentTable = tables.getTable(databasePath.resolve(name).toString());
+        }
     }
 }
