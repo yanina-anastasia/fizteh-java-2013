@@ -4,6 +4,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import ru.fizteh.fivt.students.dobrinevski.shell.Command;
+import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
 
 public class MultiFileHashMapCommands {
 
