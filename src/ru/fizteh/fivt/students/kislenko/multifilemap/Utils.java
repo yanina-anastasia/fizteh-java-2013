@@ -65,7 +65,6 @@ public class Utils {
         if (table == null) {
             return;
         }
-        //table.commit();
         table.setByteSize(0);
         File[] dirs = new File[16];
         Map<Integer, File> files = new TreeMap<Integer, File>();
@@ -101,53 +100,53 @@ public class Utils {
         setUsings(table);
     }
 
-    public static int getTableSize(MyTable table) throws IOException {
-        int size = 0;
-        for (int i = 0; i < 16; ++i) {
-            File dir;
-            dir = table.getPath().resolve(i + ".dir").toFile();
-            for (int j = 0; j < 16; ++j) {
-                File file = dir.toPath().resolve(j + ".dat").toFile();
-                if (!file.exists()) {
-                    continue;
-                }
-                RandomAccessFile datafile = new RandomAccessFile(file, "r");
-
-                table.setByteSize(table.getByteSize() + datafile.length());
-                if (table.getByteSize() > MAX_TABLE_SIZE) {
-                    dumpTable(table);
-                    table.clear();
-                }
-                if (datafile.length() > MAX_FILE_SIZE) {
-                    datafile.close();
-                    throw new IOException("Too big datafile.");
-                }
-
-                int keyLength;
-                int valueLength;
-                while (datafile.getFilePointer() != datafile.length()) {
-                    keyLength = datafile.readInt();
-                    if (keyLength < 1 || keyLength > datafile.length() - datafile.getFilePointer() + 4) {
-                        datafile.close();
-                        throw new IOException("Incorrect key length in input.");
-                    }
-                    valueLength = datafile.readInt();
-                    if (valueLength < 1 || valueLength > datafile.length() - datafile.getFilePointer() + 4) {
-                        datafile.close();
-                        throw new IOException("Incorrect value length in input.");
-                    }
-
-                    byte[] keySymbols = new byte[keyLength];
-                    byte[] valueSymbols = new byte[valueLength];
-                    datafile.read(keySymbols);
-                    datafile.read(valueSymbols);
-                    ++size;
-                }
-                datafile.close();
-            }
-        }
-        return size;
-    }
+//    public static int getTableSize(MyTable table) throws IOException {
+//        int size = 0;
+//        for (int i = 0; i < 16; ++i) {
+//            File dir;
+//            dir = table.getPath().resolve(i + ".dir").toFile();
+//            for (int j = 0; j < 16; ++j) {
+//                File file = dir.toPath().resolve(j + ".dat").toFile();
+//                if (!file.exists()) {
+//                    continue;
+//                }
+//                RandomAccessFile datafile = new RandomAccessFile(file, "r");
+//
+//                table.setByteSize(table.getByteSize() + datafile.length());
+//                if (table.getByteSize() > MAX_TABLE_SIZE) {
+//                    dumpTable(table);
+//                    table.clear();
+//                }
+//                if (datafile.length() > MAX_FILE_SIZE) {
+//                    datafile.close();
+//                    throw new IOException("Too big datafile.");
+//                }
+//
+//                int keyLength;
+//                int valueLength;
+//                while (datafile.getFilePointer() != datafile.length()) {
+//                    keyLength = datafile.readInt();
+//                    if (keyLength < 1 || keyLength > datafile.length() - datafile.getFilePointer() + 4) {
+//                        datafile.close();
+//                        throw new IOException("Incorrect key length in input.");
+//                    }
+//                    valueLength = datafile.readInt();
+//                    if (valueLength < 1 || valueLength > datafile.length() - datafile.getFilePointer() + 4) {
+//                        datafile.close();
+//                        throw new IOException("Incorrect value length in input.");
+//                    }
+//
+//                    byte[] keySymbols = new byte[keyLength];
+//                    byte[] valueSymbols = new byte[valueLength];
+//                    datafile.read(keySymbols);
+//                    datafile.read(valueSymbols);
+//                    ++size;
+//                }
+//                datafile.close();
+//            }
+//        }
+//        return size;
+//    }
 
     private static void deleteUnnecessaryFiles(File[] dirs, Map<Integer, File> files) throws IOException {
         for (Integer i : files.keySet()) {
