@@ -43,6 +43,7 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) {
+        key = key.trim();
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
@@ -54,6 +55,8 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) {
+        key = key.trim();
+        value = value.trim();
         if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
@@ -72,6 +75,7 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) {
+        key = key.trim();
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
