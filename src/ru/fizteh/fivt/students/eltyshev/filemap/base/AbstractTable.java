@@ -90,6 +90,11 @@ public abstract class AbstractTable implements Table {
         if (key == null || key.equals("")) {
             throw new IllegalArgumentException("key cannot be null");
         }
+
+        if (get(key) == null) {
+            return null;
+        }
+
         String oldValue = getOldValueFor(key);
         if (modifiedData.containsKey(key)) {
             modifiedData.remove(key);

@@ -146,6 +146,9 @@ public class MultifileTableTest {
             currentTable.put(key, value);
         }
         Assert.assertEquals(KEYS_COUNT, currentTable.rollback());
+
+        currentTable.remove("key1");
+        currentTable.put("key1", "value1");
     }
 
     private void prepareData() {
