@@ -14,6 +14,8 @@ public class MyTableProvider implements TableProvider {
     @Override
     public MyTable getTable(String name) {
         if (name == null) {
+            throw new IllegalArgumentException("Incorrect table name.");
+        } else {
             File file = new File(name);
             Path path = file.toPath();
             if (!path.getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
@@ -26,6 +28,8 @@ public class MyTableProvider implements TableProvider {
     @Override
     public MyTable createTable(String name) {
         if (name == null) {
+            throw new IllegalArgumentException("Incorrect table name.");
+        } else {
             File file = new File(name);
             Path path = file.toPath();
             if (!path.getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
@@ -43,13 +47,15 @@ public class MyTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) {
         if (name == null) {
+            throw new IllegalArgumentException("Incorrect table name.");
+        } else {
             File file = new File(name);
             Path path = file.toPath();
             if (!path.getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
                 throw new IllegalArgumentException("Incorrect table name.");
             }
         }
-        if (tables.get(name) == null) {
+        if (tables.containsKey(name)) {
             throw new IllegalStateException("Have no table to remove.");
         }
         tables.remove(name);
