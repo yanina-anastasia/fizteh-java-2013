@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
 public class FileHashMap implements Table {
     private static final int NDIRS = 16;
@@ -104,7 +105,7 @@ public class FileHashMap implements Table {
     }
 
     private int getDirNum(String key) {
-        if (key == null) {
+        if (!Utils.isValid(key)) {
             throw new IllegalArgumentException();
         }
         byte b = key.getBytes()[0];
@@ -115,7 +116,7 @@ public class FileHashMap implements Table {
     }
 
     private int getFileNum(String key) {
-        if (key == null) {
+        if (!Utils.isValid(key)) {
             throw new IllegalArgumentException();
         }
         byte b = key.getBytes()[0];
