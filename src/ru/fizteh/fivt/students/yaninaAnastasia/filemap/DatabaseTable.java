@@ -98,7 +98,7 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = Math.abs(size - oldData.size());
+        int recordsCommited = changesCount();
         if (recordsCommited == 0) {
             recordsCommited = deletedKeys.size();
         }
@@ -118,15 +118,7 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = uncommittedChanges;
-        for (String s: oldData.keySet()) {
-            if (deletedKeys.contains(s)) {
-                recordsDeleted += 1;
-            }
-        }
-        /*if (recordsDeleted == 0) {
-            recordsDeleted = deletedKeys.size();
-        } */
+        int recordsDeleted = changesCount();
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
@@ -245,5 +237,18 @@ public class DatabaseTable implements Table {
     public static int getFileNum(String key) {
         int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         return (keyByte / 16) % 16;
+    }
+
+    private int changesCount() {
+        HashSet<String> tempSet = new HashSet<>();
+        HashSet<String> toRemove = new HashSet<>();
+        tempSet.addAll(modifiedData.keySet());
+        tempSet.addAll(deletedKeys);
+        for (String key : tempSet) {
+            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key)) {
+                toRemove.add(key);
+            }
+        }
+        return tempSet.size() - toRemove.size();
     }
 }
