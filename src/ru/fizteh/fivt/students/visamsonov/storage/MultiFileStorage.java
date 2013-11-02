@@ -1,15 +1,14 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import java.io.*;
 
-class MultiFileStorage implements Table {
+class MultiFileStorage implements TableInterface {
 
 	private final int NUMBER_OF_DIRS = 16;
 	private final int NUMBER_OF_FILES = 16;
 	private final String directory;
 	private final String tableName;
-	private final Table[][] database;
+	private final TableInterface[][] database;
 
 	public MultiFileStorage (String directory, String tableName) throws IOException {
 		this.directory = directory;
@@ -23,7 +22,10 @@ class MultiFileStorage implements Table {
 		}
 	}
 
-	private Table getAppropriate (String key) {
+	private TableInterface getAppropriate (String key) {
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
 		int randomData = Math.abs(key.getBytes()[0]);
 		int dirNumber = randomData % NUMBER_OF_DIRS;
 		int nfile = (randomData / NUMBER_OF_DIRS) % NUMBER_OF_FILES;
@@ -49,11 +51,33 @@ class MultiFileStorage implements Table {
 	}
 
 	public int rollback () {
-		throw new UnsupportedOperationException();
+		int result = 0;
+		for (int dirNumber = 0; dirNumber < NUMBER_OF_DIRS; dirNumber++) {
+			for (int fileNumber = 0; fileNumber < NUMBER_OF_FILES; fileNumber++) {
+				result += database[dirNumber][fileNumber].rollback();
+			}
+		}
+		return result;
 	}
 
 	public int size () {
-		throw new UnsupportedOperationException();
+		int totalSize = 0;
+		for (int dirNumber = 0; dirNumber < NUMBER_OF_DIRS; dirNumber++) {
+			for (int fileNumber = 0; fileNumber < NUMBER_OF_FILES; fileNumber++) {
+				totalSize += database[dirNumber][fileNumber].size();
+			}
+		}
+		return totalSize;
+	}
+
+	public int unsavedChanges () {
+		int totalSize = 0;
+		for (int dirNumber = 0; dirNumber < NUMBER_OF_DIRS; dirNumber++) {
+			for (int fileNumber = 0; fileNumber < NUMBER_OF_FILES; fileNumber++) {
+				totalSize += database[dirNumber][fileNumber].unsavedChanges();
+			}
+		}
+		return totalSize;
 	}
 
 	public int commit () {

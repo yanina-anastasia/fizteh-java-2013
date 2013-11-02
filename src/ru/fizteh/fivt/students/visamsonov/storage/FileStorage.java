@@ -7,10 +7,12 @@ import java.math.BigInteger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class FileStorage implements Table {
+public class FileStorage implements TableInterface {
 
 	private final File dbFilePath;
 	private final TreeMap<String, String> memoryStore;
+	private final TreeMap<String, String> diffRemoved;
+	private final TreeMap<String, String> diffAdded;
 	private final int MAX_KEY_LENGTH = 1024*1024;
 	private final int MAX_VAL_LENGTH = 1024*1024;
 	private final int MAX_TOTAL_LENGTH = 500*1024*1024;
@@ -18,6 +20,8 @@ public class FileStorage implements Table {
 	public FileStorage (String directory, String fileName) throws IOException {
 		dbFilePath = new File(directory, fileName);
 		memoryStore = new TreeMap<String, String>();
+		diffRemoved = new TreeMap<String, String>();
+		diffAdded = new TreeMap<String, String>();
 		loadDataToMemory();
 	}
 
@@ -67,7 +71,7 @@ public class FileStorage implements Table {
 					if (currentOffset > MAX_TOTAL_LENGTH) {
 						throw dataFormatError;
 					}
-					put(key.getValue(), new String(valueBytes.toByteArray(), StandardCharsets.UTF_8));
+					memoryStore.put(key.getValue(), new String(valueBytes.toByteArray(), StandardCharsets.UTF_8));
 				}
 				else {
 					final int length = offsets.firstKey() - key.getKey();
@@ -77,7 +81,7 @@ public class FileStorage implements Table {
 					currentOffset += length;
 					byte[] valueBytes = new byte[length];
 					dbFile.readFully(valueBytes);
-					put(key.getValue(), new String(valueBytes, StandardCharsets.UTF_8));
+					memoryStore.put(key.getValue(), new String(valueBytes, StandardCharsets.UTF_8));
 				}
 			}
 		}
@@ -93,31 +97,73 @@ public class FileStorage implements Table {
 	}
 
 	public String get (String key) {
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
 		return memoryStore.get(key);
 	}
 
 	public String put (String key, String value) {
+		if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
+			throw new IllegalArgumentException();
+		}
+		if (!value.equals(memoryStore.get(key))) {
+			if (value.equals(diffRemoved.get(key))) {
+				diffRemoved.remove(key);
+			}
+			else if (diffAdded.get(key) == null && diffRemoved.get(key) == null && memoryStore.get(key) != null) {
+				diffRemoved.put(key, memoryStore.get(key));
+			}
+			else if (diffRemoved.get(key) == null) {
+				diffAdded.put(key, value);
+			}
+		}
 		return memoryStore.put(key, value);
 	}
 
 	public String remove (String key) {
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
+		if (memoryStore.get(key) == null) {
+			return null;
+		}
+		if (diffAdded.get(key) == null && diffRemoved.get(key) == null) {
+			diffRemoved.put(key, memoryStore.get(key));
+		}
+		diffAdded.remove(key);
 		return memoryStore.remove(key);
 	}
 
 	public int rollback () {
-		throw new UnsupportedOperationException();
+		for (String key : diffAdded.keySet()) {
+			memoryStore.remove(key);
+		}
+		for (Map.Entry<String, String> entry : diffRemoved.entrySet()) {
+			memoryStore.put(entry.getKey(), entry.getValue());
+		}
+		int result = diffAdded.size() + diffRemoved.size();
+		diffAdded.clear();
+		diffRemoved.clear();
+		return result;
 	}
 
 	public int size () {
-		throw new UnsupportedOperationException();
+		return memoryStore.size();
+	}
+
+	public int unsavedChanges () {
+		return diffAdded.size() + diffRemoved.size();
 	}
 
 	public int commit () {
+		int result = diffAdded.size() + diffRemoved.size();
+		diffAdded.clear();
+		diffRemoved.clear();
 		if (memoryStore.size() == 0) {
 			dbFilePath.delete();
-			return 0;
+			return result;
 		}
-		int saved = 0;
 		try {
 			dbFilePath.createNewFile();
 			DataOutputStream dbFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dbFilePath)));
@@ -131,14 +177,12 @@ public class FileStorage implements Table {
 				dbFile.writeInt(dataOffset);
 				dataOffset += entry.getValue().getBytes(StandardCharsets.UTF_8).length;
 			}
-			while (memoryStore.firstEntry() != null) {
-				dbFile.write(memoryStore.firstEntry().getValue().getBytes(StandardCharsets.UTF_8));
-				memoryStore.pollFirstEntry();
-				++saved;
+			for (Map.Entry<String, String> entry : memoryStore.entrySet()) {
+				dbFile.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
 			}
 			dbFile.close();
 		}
 		catch (IOException e) {}
-		return saved;
+		return result;
 	}
 }
