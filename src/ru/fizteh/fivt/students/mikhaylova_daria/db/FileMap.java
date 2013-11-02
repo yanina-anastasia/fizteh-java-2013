@@ -123,7 +123,7 @@ public class FileMap {
              e = exp;
         } finally {
             try {
-              if (fileDataBase != null) {
+                if (fileDataBase != null) {
                     fileDataBase.close();
                 }
             } catch (Throwable th) {
@@ -216,8 +216,10 @@ public class FileMap {
                 fileMap.put(key, value);
             }
         } catch (FileNotFoundException e1) {
+            e = e1;
             return;
         } catch (EOFException e2) {
+            e = e2;
             throw new DataFormatException(file.getName());
         } catch (Exception exp) {
             e = exp;
@@ -321,3 +323,4 @@ public class FileMap {
     }
 
 }
+
