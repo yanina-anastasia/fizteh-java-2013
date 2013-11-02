@@ -5,70 +5,60 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.After;
+//import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
+import org.junit.rules.TemporaryFolder;
 
 public class FileMapMainTest {
 
     private File notExistingFile;
     private File existingFile;
     private File existingDir;
-
-
+    
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+    
     @Before
     public void prepare() {
-        notExistingFile = new File(System.getProperty("user.dir") + File.separator + "notExistingPath");
-        if (notExistingFile.exists()) {
-            notExistingFile.delete();
+        try {
+            existingDir = folder.newFolder("existingDirPath");
+        } catch (IOException e1) {
+            System.err.println("can't make tests");
         }
-        existingFile = new File(System.getProperty("user.dir") + File.separator + "existingPath");
-        if (!existingFile.exists()) {
-            try {
-                existingFile.createNewFile();
-            } catch (IOException e) {
-                //uups
-            }
+        try {
+            existingFile = folder.newFile("existingPath");
+        } catch (IOException e1) {
+            System.err.println("can't make tests");
         }
-        existingDir = new File(System.getProperty("user.dir") + File.separator + "existingDirPath");
-        if (!existingDir.exists()) {
-            existingDir.mkdir();
-        }
+        notExistingFile = new File(folder + File.separator + "notExistingPath");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testCreateNull() {
+        FileMapMain factory = new FileMapMain();
+        factory.create(null);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testCreateEmpty() {
+        FileMapMain factory = new FileMapMain();
+        factory.create("");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testCreateNl() {
+        FileMapMain factory = new FileMapMain();
+        factory.create("                         ");
     }
     
     @Test
     public void testCreate() {
-//        fail("Not yet implemented");
         FileMapMain factory = new FileMapMain();
         try {
-            factory.create(null);
-            fail("null: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("null: expected IllegalArgumentException");
-        }
-        try {
-            factory.create("");
-            fail("empty: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("empty: expected IllegalArgumentException");
-        }
-        try {
-            factory.create("                ");
-            fail("whitespaces: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("whitespaces: expected IllegalArgumentException");
-        }
-        
-        try {
-            factory.create(System.getProperty("user.dir"));
+            factory.create(existingDir.getParent());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
@@ -92,14 +82,5 @@ public class FileMapMainTest {
                 fail("inizialize TableProvider with file: expected IllegalArgumentException");
             }
         }
-    }
-    @After
-    public void clean() {
-        existingFile.delete();
-        if (existingDir.exists()) {
-            Shell sh = new Shell();
-            sh.rm(existingDir.getAbsolutePath());
-        }
-        notExistingFile.delete();
     }
 }

@@ -108,20 +108,24 @@ public class Filemap implements Table{
         
     public int commit() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(true);
-        try {
-            saveChanges();
-        } catch (RuntimeException e) {
-            throw e;
+        if (nchanges != 0) {
+            try {
+                saveChanges();
+            } catch (RuntimeException e) {
+                throw e;
+            }
         }
         return nchanges;
     }
     
     public int rollback() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(false);
-        try {
-            load();
-        } catch (RuntimeException e) {
-            throw e;
+        if (nchanges != 0) {
+            try {
+                load();
+            } catch (RuntimeException e) {
+                throw e;
+            }
         }
         return nchanges;
     }

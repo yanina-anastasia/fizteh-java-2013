@@ -18,7 +18,7 @@ public class ExecuteCmd extends Shell {
         try {
             mp.saveChanges();
         } catch (RuntimeException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
         System.exit(1);
     }
@@ -50,7 +50,7 @@ public class ExecuteCmd extends Shell {
                 try {
                     ans = mp.put(arg[1], arg[2]);
                 } catch (IllegalArgumentException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 }
                 if (ans == null) {
@@ -71,7 +71,7 @@ public class ExecuteCmd extends Shell {
                 try {
                     ans = mp.get(arg[1]);
                 } catch (IllegalArgumentException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 }
                 if (ans == null) {
@@ -92,9 +92,9 @@ public class ExecuteCmd extends Shell {
                 try {
                     ans = mp.remove(arg[1]);
                 } catch (IllegalArgumentException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
-                }
+                } 
                 if (ans == null) {
                     System.out.println("not found");
                 } else {
@@ -112,7 +112,7 @@ public class ExecuteCmd extends Shell {
                         System.out.println("created");
                     }
                 } catch (RuntimeException e1) {
-                    System.err.println(e1);
+                    System.err.println(e1.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -130,7 +130,7 @@ public class ExecuteCmd extends Shell {
                     System.out.println(arg[1] + " not exists");
                     System.err.println(e2);
                 } catch (RuntimeException e1) {
-                    System.err.println(e1);
+                    System.err.println(e1.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -151,7 +151,7 @@ public class ExecuteCmd extends Shell {
                         System.out.println("using " + arg[1]);
                     }
                 } catch (RuntimeException e1) {
-                    System.err.println(e1);
+                    System.err.println(e1.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -176,7 +176,7 @@ public class ExecuteCmd extends Shell {
                 try {
                     System.out.println(mp.commit());
                 } catch (RuntimeException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -191,7 +191,7 @@ public class ExecuteCmd extends Shell {
                 try {
                     System.out.println(mp.rollback());
                 } catch (RuntimeException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.OK;
@@ -202,7 +202,7 @@ public class ExecuteCmd extends Shell {
                 try {
                     mp.commit();
                 } catch (RuntimeException e) {
-                    System.err.println(e);
+                    System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 }
                 return ExitCode.EXIT;

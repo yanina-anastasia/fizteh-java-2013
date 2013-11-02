@@ -5,69 +5,58 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.TemporaryFolder;
+
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class MyTableProviderTest {
 
     private File notExistingFile;
     private File existingFile;
     private File existingDir;
-
+    
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+    
     @Before
     public void prepare() {
-        notExistingFile = new File(System.getProperty("user.dir") + File.separator + "notExistingPath");
-        if (notExistingFile.exists()) {
-            notExistingFile.delete();
+        try {
+            existingDir = folder.newFolder("existingDirPath");
+        } catch (IOException e1) {
+            System.err.println("can't make tests");
         }
-        existingFile = new File(System.getProperty("user.dir") + File.separator + "existingPath");
-        if (!existingFile.exists()) {
-            try {
-                existingFile.createNewFile();
-            } catch (IOException e) {
-                //uups
-            }
+        try {
+            existingFile = folder.newFile("existingPath");
+        } catch (IOException e1) {
+            System.err.println("can't make tests");
         }
-        existingDir = new File(System.getProperty("user.dir") + File.separator + "existingDirPath");
-        if (!existingDir.exists()) {
-            existingDir.mkdir();
-        }
+        notExistingFile = new File(existingDir.getParent() + File.separator + "notExistingPath");
     }
     
+    @Test (expected = IllegalArgumentException.class)
+    public void testInizializeNull() {
+        MyTableProvider prov = new MyTableProvider(null);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testInizializeEmpty() {
+        MyTableProvider prov = new MyTableProvider("");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testInizializeNl() {
+        MyTableProvider prov = new MyTableProvider("                       ");
+    }
+        
     @Test
-    public void testMyTableProviderString() {
+    public void testInizialize() {
         MyTableProvider prov;
         try {
-            prov = new MyTableProvider(null);
-            fail("null: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("null: expected IllegalArgumentException");
-        }
-        try {
-            prov = new MyTableProvider("");
-            fail("empty: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("empty: expected IllegalArgumentException");
-        }
-        try {
-            prov = new MyTableProvider("                ");
-            fail("whitespaces: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("whitespaces: expected IllegalArgumentException");
-        }
-        
-        try {
-            prov = new MyTableProvider(System.getProperty("user.dir"));
+            prov = new MyTableProvider(existingDir.getAbsolutePath());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
@@ -93,57 +82,80 @@ public class MyTableProviderTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableNull() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.getTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableEmpty() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.getTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableNl() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.getTable("     ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableNull() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.createTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableEmpty() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.createTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableNl() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.createTable("                  ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableNull() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.removeTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableEmpty() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.removeTable("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableNl() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.createTable("                   ");
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void testGetTableBadSymbol() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.getTable(".aa.aa.");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testCreateTableBadSymbol() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.createTable("/aaaa");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testRemoveTableBadSymbol() {
+        MyTableProvider prov = new MyTableProvider();
+        prov.getTable("\\aa\\aa");
+    }
+
     public void testGetTable() {
         MyTableProvider prov = new MyTableProvider();
-        try {
-            prov.getTable(null);
-            fail("null: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("null: expected IllegalArgumentException");
-        }
-        try {
-            prov.getTable("");
-            fail("empty: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("empty: expected IllegalArgumentException");
-        }
-        try {
-            prov.getTable("                     ");
-            fail("whitespaces: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("whitespaces: expected IllegalArgumentException");
-        }
-        try {
-            prov.getTable(".aaa");
-            fail("badsymbol '.' : expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '.' : expected RuntimeException");
-        }
-        try {
-            prov.getTable("/aaa");
-            fail("badsymbol '/' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '/' :expected RuntimeException");
-        }
-        try {
-            prov.getTable("a\\aa");
-            fail("badsymbol '\\' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '\\' :expected RuntimeException");
-        }
         try {
             prov.getTable("anyPath");
             fail("null RootDir :expected RuntimeException");
@@ -153,12 +165,12 @@ public class MyTableProviderTest {
             fail("null RootDir :expected RuntimeException");
         }
         try {
-            prov = new MyTableProvider(System.getProperty("user.dir"));
+            prov = new MyTableProvider(existingDir.getParent());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
         try {
-            Table res = prov.getTable("notExistingPath");
+            Table res = prov.getTable(notExistingFile.getName());
             assertNull(res);
         } catch (RuntimeException e) {
             //ok, shit happens, fileMap could throw exception
@@ -186,71 +198,26 @@ public class MyTableProviderTest {
     public void testCreateTable() {
         MyTableProvider prov = new MyTableProvider();
         try {
-            prov.createTable(null);
-            fail("null: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("null: expected IllegalArgumentException");
-        }
-        try {
-            prov.createTable("");
-            fail("empty: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("empty: expected IllegalArgumentException");
-        }
-        try {
-            prov.createTable("                     ");
-            fail("whitespaces: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("whitespaces: expected IllegalArgumentException");
-        }
-        try {
-            prov.createTable(".aaa");
-            fail("badsymbol '.' : expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '.' : expected RuntimeException");
-        }
-        try {
-            prov.createTable("/aaa");
-            fail("badsymbol '/' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '/' :expected RuntimeException");
-        }
-        try {
-            prov.createTable("a\\aa");
-            fail("badsymbol '\\' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '\\' :expected RuntimeException");
-        }
-        try {
-            prov.createTable("anyPath");
+            prov.getTable("anyPath");
             fail("null RootDir :expected RuntimeException");
         } catch (RuntimeException e) {
             // ok
         } catch (Exception e1) {
             fail("null RootDir :expected RuntimeException");
         }
-        
         try {
-            prov = new MyTableProvider(System.getProperty("user.dir"));
+            prov = new MyTableProvider(existingDir.getParent());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
         
-        Table res = prov.createTable("notExistingPath");
-        assertNotNull(res);
-        assertTrue(notExistingFile.exists() && notExistingFile.isDirectory());
+        try {
+            Table res = prov.createTable("notExistingPath");
+            assertNotNull(res);
+            assertTrue(notExistingFile.exists() && notExistingFile.isDirectory());
+        } catch (RuntimeException e1) {
+            // what a pity: couldn't create this file
+        }
                 
         if (existingFile.isFile()) {
             try {
@@ -272,70 +239,21 @@ public class MyTableProviderTest {
     public void testRemoveTable() {
         MyTableProvider prov = new MyTableProvider();
         try {
-            prov.removeTable(null);
-            fail("null: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("null: expected IllegalArgumentException");
-        }
-        try {
-            prov.removeTable("");
-            fail("empty: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("empty: expected IllegalArgumentException");
-        }
-        try {
-            prov.removeTable("                     ");
-            fail("whitespaces: expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("whitespaces: expected IllegalArgumentException");
-        }
-        try {
-            prov.removeTable(".aaa");
-            fail("badsymbol '.' : expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '.' : expected RuntimeException");
-        }
-        try {
-            prov.removeTable("/aaa");
-            fail("badsymbol '/' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '/' :expected RuntimeException");
-        }
-        try {
-            prov.removeTable("a\\aa");
-            fail("badsymbol '\\' :expected RuntimeException");
-        } catch (RuntimeException e) {
-            // ok
-        } catch (Exception e1) {
-            fail("badsymbol '\\' :expected RuntimeException");
-        }
-        try {
-            prov.removeTable("anyPath");
+            prov.getTable("anyPath");
             fail("null RootDir :expected RuntimeException");
         } catch (RuntimeException e) {
             // ok
         } catch (Exception e1) {
             fail("null RootDir :expected RuntimeException");
         }
-        
         try {
-            prov = new MyTableProvider(System.getProperty("user.dir"));
+            prov = new MyTableProvider(existingDir.getParent());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
-        
+                        
         try {
-            prov.removeTable("notExistingPath");
+            prov.removeTable(notExistingFile.getName());
             fail("remove notExistingTable: expected IllegalStateException");
         } catch (IllegalStateException e1) {
             //ok
@@ -363,13 +281,18 @@ public class MyTableProviderTest {
         }
     }
     
-    @After
-    public void clean() {
-        existingFile.delete();
-        if (existingDir.exists()) {
-            Shell sh = new Shell();
-            sh.rm(existingDir.getAbsolutePath());
+    @Test
+    public void testCreateGetRemove() {
+        MyTableProvider prov = new MyTableProvider(existingDir.getParent());
+        String name = "newTable";
+        Table createRes = prov.createTable(name);
+        Table getRes = prov.getTable(name);
+        if (createRes != getRes) {
+            fail("table from get should be the same as from create");
         }
-        notExistingFile.delete();
+        Table createAgain = prov.createTable(name);
+        assertNull(createAgain);
+        prov.removeTable(name);
+        assertNull(prov.getTable(name));
     }
 }
