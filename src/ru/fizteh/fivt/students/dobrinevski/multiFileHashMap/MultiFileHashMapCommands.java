@@ -52,7 +52,7 @@ public class MultiFileHashMapCommands {
             if (dbFile.exists() && dbFile.isFile()) {
                 parent.parseFile(dbFile, nDirectory, nFile);
             }
-            String value = parent.dataBase.get(nDirectory * 16 + nFile).get(args);
+            String value = parent.dataBase.get(nDirectory * 16 + nFile).get(args[1]);
             if (value == null) {
                 System.out.println("not found");
             } else {
@@ -155,7 +155,7 @@ public class MultiFileHashMapCommands {
             if (dbFile.exists() && dbFile.isFile()) {
                 parent.parseFile(dbFile, nDirectory, nFile);
             }
-            if (parent.dataBase.get(nDirectory * 16 + nFile).remove(args) == null) {
+            if (parent.dataBase.get(nDirectory * 16 + nFile).remove(args[1]) == null) {
                 System.out.println("not found");
             } else {
                 System.out.println("removed");
