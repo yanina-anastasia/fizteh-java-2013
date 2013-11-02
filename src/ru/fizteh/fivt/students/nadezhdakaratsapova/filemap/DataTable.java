@@ -49,7 +49,6 @@ public class DataTable implements Table {
                 } else {
                     if (!oldValue.equals(value)) {
                         putKeys.put(key, value);
-                        ++commitSize;
                     }
                 }
             } else {
