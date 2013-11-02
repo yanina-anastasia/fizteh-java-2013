@@ -213,7 +213,7 @@ public class MyTable implements Table {
 
         }
         for (Map.Entry<String, String> entry : oldMap.entrySet()) {
-            if (!oldMap.containsKey(entry.getKey())) {
+            if (!map.containsKey(entry.getKey())) {
                 difference++;
                 System.out.println("3");
             }
