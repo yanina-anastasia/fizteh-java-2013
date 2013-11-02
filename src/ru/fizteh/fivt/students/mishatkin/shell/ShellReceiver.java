@@ -100,13 +100,14 @@ public class ShellReceiver implements CommandReceiver{
 		}
 		File[] subFiles = fileToDelete.listFiles();
 		if (subFiles == null) {
-			if(fileToDelete.delete()) {
+			if(!fileToDelete.delete()) {
 				throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + ".");
 			}
-		}
-		assert subFiles != null;
-		for (File subFile : subFiles) {
-			deleteFile(subFile);
+		} else {
+			assert subFiles != null;
+			for (File subFile : subFiles) {
+				deleteFile(subFile);
+			}
 		}
 	}
 
