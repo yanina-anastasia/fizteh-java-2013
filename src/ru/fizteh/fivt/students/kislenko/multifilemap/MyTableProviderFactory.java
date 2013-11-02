@@ -9,7 +9,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Incorrect database name.");
         }
         MyTableProvider provider = new MyTableProvider();
-        provider.createTable("");
         return provider;
     }
 }

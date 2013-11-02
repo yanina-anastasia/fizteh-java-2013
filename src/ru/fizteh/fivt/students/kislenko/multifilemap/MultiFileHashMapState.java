@@ -4,13 +4,11 @@ import java.nio.file.Path;
 
 public class MultiFileHashMapState {
     private Path databasePath;
-    private String workingTableName;
     private MyTable currentTable;
     private MyTableProvider tables;
 
     public MultiFileHashMapState(Path p) {
         databasePath = p;
-        workingTableName = "";
         MyTableProviderFactory factory = new MyTableProviderFactory();
         tables = factory.create(p.toString());
     }
@@ -27,24 +25,16 @@ public class MultiFileHashMapState {
         tables.createTable(databasePath.resolve(tableName).toString());
     }
 
-    public String getWorkingTableName() {
-        return workingTableName;
-    }
-
-    public void setWorkingPath(String tableName) {
-        workingTableName = tableName;
-    }
-
     public MyTable getCurrentTable() {
-        if (workingTableName.equals("")) {
-            return null;
-        } else {
-            return currentTable;
-        }
+        return currentTable;
     }
 
     public Path getWorkingPath() {
-        return databasePath.resolve(workingTableName);
+        if (currentTable != null) {
+            return databasePath.resolve(currentTable.getName());
+        } else {
+            return databasePath;
+        }
     }
 
     public void setCurrentTable(String name) {
