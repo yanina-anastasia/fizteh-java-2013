@@ -38,5 +38,4 @@ public class FileMap extends Shell {
 		validCommands.addAll(superValidCommands);
 		return validCommands;
 	}
-	//TODO: clean up comments and deprecated classes
 }
