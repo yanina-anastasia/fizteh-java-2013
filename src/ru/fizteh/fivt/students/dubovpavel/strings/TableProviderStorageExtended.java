@@ -12,7 +12,7 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table getTable(String name) {
-        if(name == null) {
+        if(name == null || name.equals("")) {
             throw new IllegalArgumentException();
         }
         return storage.getDataBase(name);
