@@ -27,13 +27,10 @@ public class XmlSerializer implements Closeable {
     public void write(Object value) throws IOException, ParseException {
         try {
             writer.writeStartElement("col");
-            if (value == null)
-            {
+            if (value == null) {
                 writer.writeStartElement("null");
                 writer.writeEndElement();
-            }
-            else
-            {
+            } else {
                 StoreableUtils.checkValue(value, value.getClass());
                 writer.writeCharacters(value.toString());
             }

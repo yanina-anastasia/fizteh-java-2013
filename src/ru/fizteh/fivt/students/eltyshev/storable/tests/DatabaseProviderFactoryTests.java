@@ -8,8 +8,7 @@ import java.io.IOException;
 
 public class DatabaseProviderFactoryTests {
     @Test(expected = IllegalArgumentException.class)
-    public void createProviderNullDirectoryTest()
-    {
+    public void createProviderNullDirectoryTest() {
         TableProviderFactory factory = new DatabaseTableProviderFactory();
         try {
             factory.create(null);

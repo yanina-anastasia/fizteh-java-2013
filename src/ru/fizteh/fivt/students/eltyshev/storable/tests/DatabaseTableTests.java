@@ -20,8 +20,7 @@ public class DatabaseTableTests {
     Table currentTable;
 
     @Before
-    public void beforeTest()
-    {
+    public void beforeTest() {
         DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
         try {
             provider = factory.create(DATABASE);
@@ -41,8 +40,7 @@ public class DatabaseTableTests {
     }
 
     @After
-    public void afterTest()
-    {
+    public void afterTest() {
         try {
             provider.removeTable("testTable");
         } catch (IOException e) {
@@ -51,25 +49,21 @@ public class DatabaseTableTests {
     }
 
     @Test(expected = ParseException.class)
-    public void putEmptyValueTest() throws ParseException
-    {
+    public void putEmptyValueTest() throws ParseException {
         Storeable storeable = provider.deserialize(currentTable, getXml(1, ""));
     }
 
     @Test(expected = ParseException.class)
-    public void putNlValueTest() throws ParseException
-    {
+    public void putNlValueTest() throws ParseException {
         Storeable storeable = provider.deserialize(currentTable, getXml(1, "    "));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putNlKeyShouldFail()
-    {
+    public void putNlKeyShouldFail() {
         currentTable.put("  ", provider.createFor(currentTable));
     }
 
-    private String getXml(int value1, String value2)
-    {
+    private String getXml(int value1, String value2) {
         return String.format("<row><col>%d</col><col>%s</col></row>", value1, value2);
     }
 }

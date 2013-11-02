@@ -13,8 +13,7 @@ public class DatabaseRowTests {
     Storeable storeable;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         List<Class<?>> columnTypes = new ArrayList<>();
         columnTypes.add(Integer.class);
         columnTypes.add(String.class);
@@ -27,14 +26,12 @@ public class DatabaseRowTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putNlValueShouldFail()
-    {
+    public void putNlValueShouldFail() {
         storeable.setColumnAt(1, "    ");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putEmptyValueShouldFail()
-    {
+    public void putEmptyValueShouldFail() {
         storeable.setColumnAt(1, "");
     }
 }

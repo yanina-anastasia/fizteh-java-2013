@@ -105,7 +105,7 @@ public abstract class AbstractStorage<Key, Value> {
                 if (diff.newValue == null) {
                     oldData.remove(key);
                 } else {
-                    oldData.put(key, (Value)diff.newValue);
+                    oldData.put(key, (Value) diff.newValue);
                 }
                 recordsCommitted += 1;
             }
@@ -159,13 +159,11 @@ public abstract class AbstractStorage<Key, Value> {
         }
     }
 
-    void rawPut(Key key, Value value)
-    {
+    void rawPut(Key key, Value value) {
         oldData.put(key, value);
     }
 
-    Value rawGet(Key key)
-    {
+    Value rawGet(Key key) {
         return oldData.get(key);
     }
 }

@@ -152,8 +152,7 @@ public class DatabaseTableProvider implements TableProvider {
             return xmlSerializer.getRepresentation();
         } catch (IOException e) {
             System.err.println(e.getMessage());
-        } catch (ParseException e)
-        {
+        } catch (ParseException e) {
             throw new IllegalArgumentException("incorrect value");
         }
         return null;

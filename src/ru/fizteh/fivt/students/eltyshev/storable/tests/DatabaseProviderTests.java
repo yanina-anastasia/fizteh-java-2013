@@ -11,8 +11,16 @@ public class DatabaseProviderTests {
     TableProviderFactory factory = new DatabaseTableProviderFactory();
 
     @Test(expected = IOException.class)
-    public void createProviderUnavailableShouldFail() throws IOException
-    {
+    public void createProviderUnavailableShouldFail() throws IOException {
         factory.create("F:\\");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createProviderEmptyShouldFail() {
+        try {
+            factory.create("");
+        } catch (IOException e) {
+
+        }
     }
 }

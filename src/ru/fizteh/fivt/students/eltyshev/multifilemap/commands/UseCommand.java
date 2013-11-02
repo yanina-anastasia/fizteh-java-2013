@@ -25,8 +25,7 @@ public class UseCommand extends AbstractCommand<MultifileMapShellState> {
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return;
-        } catch (IllegalStateException e)
-        {
+        } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
             return;
         }

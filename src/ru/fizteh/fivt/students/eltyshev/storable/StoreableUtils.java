@@ -110,14 +110,11 @@ public class StoreableUtils {
         return formattedColumnTypes;
     }
 
-    public static void checkValue(Object value, Class<?> type) throws ParseException
-    {
-        switch (formatColumnType(type))
-        {
+    public static void checkValue(Object value, Class<?> type) throws ParseException {
+        switch (formatColumnType(type)) {
             case "String":
                 String stringValue = (String) value;
-                if (stringValue.trim().isEmpty())
-                {
+                if (stringValue.trim().isEmpty()) {
                     throw new ParseException("value cannot be null", 0);
                 }
                 break;
