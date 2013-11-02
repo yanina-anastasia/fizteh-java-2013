@@ -116,7 +116,8 @@ public class TableStorage implements Table {
 
     @Override
     public int rollback() {
-        return setDefault();
+        setDefault();
+        return amountOfChanges;
     }
 
     private int setDefault() {
