@@ -145,7 +145,7 @@ public class Filemap implements Table{
                     try {
                         data[i][j].commitChanges();
                     } catch (IOException e) {
-                        throw new RuntimeException("can't write to file");
+                        throw new RuntimeException("can't write to file", e);
                     } catch (RuntimeException e) {
                         throw e;
                     }

@@ -191,20 +191,19 @@ public class DataBase {
             if (dataFile != null) {
                 dataFile.close();
             }
-        } catch (IOException e) {
-            throw new RuntimeException(filePath + " can't close file");
+        } catch (Throwable e) {
+            throw new RuntimeException(filePath + " can't close file", e);
         }
     }
 
     public void commitChanges() throws IOException, RuntimeException  {
-        IOException e1 = new IOException();
         RandomAccessFile dataFile = null;
         try {
             dataFile = new RandomAccessFile(filePath, "rw"); 
             if (data == null || data.isEmpty()) {
                 try {
                     closeDataFile(dataFile);
-                } catch (RuntimeException e2) {
+                } catch (Throwable e2) {
                     throw e2;
                 }
                 Shell sh = new Shell(tablePath);
@@ -220,7 +219,7 @@ public class DataBase {
                 try {
                     offset += getLength(myEntry.getKey()) + 1 + 4;
                 } catch (UnsupportedEncodingException e) {
-                    throw e;
+                    throw new RuntimeException("can't read", e);
                 }
             }
             int currOffset = offset;
