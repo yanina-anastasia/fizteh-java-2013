@@ -20,6 +20,7 @@ public class CommandSize implements Command<MultiFileHashMapState> {
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
         if (state.getCurrentTable() == null) {
             System.out.println("no table");
+            throw new IOException("Database haven't initialized.");
         }
         System.out.println(state.getCurrentTable().size());
     }
