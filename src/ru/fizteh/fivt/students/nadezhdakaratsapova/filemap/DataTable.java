@@ -260,6 +260,45 @@ public class DataTable implements Table {
         }
     }
 
+    public void writeToDataBase() throws IOException {
+        Set<String> keys = dataStorage.keySet();
+        if (!keys.isEmpty()) {
+            for (int i = 0; i < DIR_COUNT; ++i) {
+                File dir = new File(new File(dataBaseDirectory, tableName), new String(i + ".dir"));
+                for (int j = 0; j < FILE_COUNT; ++j) {
+                    DataTable keysToFile = new DataTable();
+                    File file = new File(dir, new String(j + ".dat"));
+                    for (String key : keys) {
+                        int hashByte = Math.abs(key.getBytes()[0]);
+                        int ndirectory = hashByte % DIR_COUNT;
+                        int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
+                        if ((ndirectory == i) && (nfile == j)) {
+                            if (!dir.getCanonicalFile().exists()) {
+                                dir.getCanonicalFile().mkdir();
+                            }
 
+                            if (!file.getCanonicalFile().exists()) {
+                                file.getCanonicalFile().createNewFile();
+                            }
+                            keysToFile.put(key, dataStorage.get(key));
+                            keysToFile.commit();
+                        }
+                    }
+
+                    if (!keysToFile.isEmpty()) {
+                        FileWriter fileWriter = new FileWriter();
+                        fileWriter.writeDataToFile(file.getCanonicalFile(), keysToFile);
+                    } else {
+                        if (file.getCanonicalFile().exists()) {
+                            file.getCanonicalFile().delete();
+                        }
+                    }
+                }
+                if (dir.getCanonicalFile().listFiles() == null) {
+                    dir.delete();
+                }
+            }
+        }
+    }
 }
 

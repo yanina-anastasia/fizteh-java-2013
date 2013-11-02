@@ -17,7 +17,7 @@ public class ExitCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         if (curState.curDataBaseStorage != null) {
-            curState.writeData();
+            curState.curDataBaseStorage.writeToDataBase();
         }
         System.exit(0);
     }
