@@ -155,6 +155,8 @@ public class MultiDbState extends State implements Table {
             changesNum++;
             dbSize++;
             data[folder][file].unsaved.put(key, value);
+        } else if (!result.equals(value)) {
+            changesNum++;
         }
         return result;  
     }
