@@ -1,120 +1,83 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import ru.fizteh.fivt.students.anastasyev.shell.Command;
-import ru.fizteh.fivt.students.anastasyev.shell.State;
+import ru.fizteh.fivt.storage.strings.Table;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FileMapTable extends State {
-    private File multiFileHashMapDir;
-    private File currentFileMapTable = null;
+public class FileMapTable implements Table {
+    private File currentFileMapTable;
     private FileMap[][] mapsTable;
-    private Vector<Command> commands = new Vector<Command>();
-    private Hashtable<String, File> allFileMapTablesHashtable = new Hashtable<String, File>();
+    private HashMap<String, Value> changedKeys = new HashMap<String, Value>();
+    int size = 0;
 
-    @Override
-    public Vector<Command> getCommands() {
-        return commands;
+    private class Value {
+        private String value;
+        private String onDiskValue;
+
+        public Value(String newValue, String newOnDisk) {
+            value = newValue;
+            onDiskValue = newOnDisk;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getOnDisk() {
+            return onDiskValue;
+        }
     }
 
-    public FileMapTable(String dbDir) {
-        multiFileHashMapDir = new File(dbDir);
-        if (!multiFileHashMapDir.exists()) {
-            System.err.println(dbDir + " not exists");
-            System.exit(1);
-        }
-        File[] tables = multiFileHashMapDir.listFiles();
-        for (File table : tables) {
-            allFileMapTablesHashtable.put(table.getName(), table);
-        }
-        commands.add(new PutCommand());
-        commands.add(new GetCommand());
-        commands.add(new RemoveCommand());
-        commands.add(new FileMapExitCommand());
-        commands.add(new CreateCommand());
-        commands.add(new DropCommand());
-        commands.add(new UseCommand());
+    private boolean isEmptyString(String val) {
+        return (val == null || (val.isEmpty() || val.trim().isEmpty()));
     }
 
-    public void createTable(String tableName) throws IOException {
-        if (allFileMapTablesHashtable.containsKey(tableName)) {
-            System.out.println(tableName + " exists");
-        } else {
-            File newFileMapTable = new File(multiFileHashMapDir.toString() + File.separator + tableName);
-            if (!newFileMapTable.exists()) {
-                if (!newFileMapTable.mkdir()) {
-                    throw new IOException("Can't create " + tableName);
+    public FileMap getMyState(int hashCode) throws IOException {
+        int absHash = Math.abs(hashCode);
+        return mapsTable[absHash % 16][absHash / 16 % 16];
+    }
+
+    public FileMap openFileMap(int hashCode) throws IOException {
+        int absHash = Math.abs(hashCode);
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        if (mapsTable[dirHash][datHash] == null) {
+            File dir = new File(currentFileMapTable.toString() + File.separator + dirHash + ".dir");
+            if (!dir.exists()) {
+                if (!dir.mkdir()) {
+                    throw new IOException("Can't create " + dirHash + ".dir");
                 }
             }
-            if (!newFileMapTable.isDirectory()) {
-                throw new IOException(newFileMapTable.getName() + " is not a directory");
-            }
-            allFileMapTablesHashtable.put(tableName, newFileMapTable);
-            System.out.println("created");
+            String datName = dir.toString() + File.separator + datHash + ".dat";
+            mapsTable[dirHash][datHash] = new FileMap(datName, dirHash, datHash);
         }
+        return mapsTable[dirHash][datHash];
     }
 
-    private void remove(Path removing) throws IOException {
-        File remove = new File(removing.toString());
-        if (!remove.exists()) {
-            throw new IOException(removing.getFileName() + " there is not such file or directory");
-        }
-        if (remove.isFile()) {
-            if (!remove.delete()) {
-                throw new IOException(removing.getFileName() + " can't remove this file");
-            }
-        }
-        if (remove.isDirectory()) {
-            String[] fileList = remove.list();
-            for (String files : fileList) {
-                remove(removing.resolve(files));
-            }
-            if (!remove.delete()) {
-                throw new IOException(removing.getFileName() + " can't remove this directory");
-            }
-        }
+    public void deleteFileMap(int hashCode) throws IOException {
+        int absHash = Math.abs(hashCode);
+        mapsTable[absHash % 16][absHash / 16 % 16].delete();
+        mapsTable[absHash % 16][absHash / 16 % 16] = null;
     }
 
-    public void dropTable(String tableName) throws IOException {
-        File deleteTable = allFileMapTablesHashtable.get(tableName);
-        if (deleteTable == null) {
-            System.out.println(tableName + " not exists");
-            return;
-        }
-        if (deleteTable == currentFileMapTable) {
-            currentFileMapTable = null;
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    if (mapsTable[i][j] != null) {
-                        mapsTable[i][j].delete();
-                        mapsTable[i][j] = null;
-                    }
+    public void dropTable() throws IOException {
+        currentFileMapTable = null;
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (mapsTable[i][j] != null) {
+                    mapsTable[i][j].delete();
+                    mapsTable[i][j] = null;
                 }
             }
         }
-        try {
-            remove(deleteTable.toPath());
-            allFileMapTablesHashtable.remove(tableName);
-            System.out.println("dropped");
-        } catch (IOException e) {
-            throw new IOException(e.getMessage());
-        }
     }
 
-    public void useTable(String tableName) throws IOException {
-        if (currentFileMapTable != null) {
-            this.save();
-        }
-        if (!allFileMapTablesHashtable.containsKey(tableName)) {
-            System.out.println(tableName + " not exists");
-            return;
-        }
-        currentFileMapTable = allFileMapTablesHashtable.get(tableName);
+    private void readTable() throws IOException {
         mapsTable = new FileMap[16][16];
+        size = 0;
         for (int i = 0; i < 16; ++i) {
             File dbDir = new File(currentFileMapTable.toString() + File.separator + i + ".dir");
             if (dbDir.exists()) {
@@ -131,62 +94,173 @@ public class FileMapTable extends State {
                         if (mapsTable[i][j].isEmpty()) {
                             mapsTable[i][j].delete();
                             mapsTable[i][j] = null;
+                        } else {
+                            size += mapsTable[i][j].size();
                         }
                     }
                 }
-                if (dbDir.listFiles().length == 0) {
-                    if (!dbDir.delete()) {
-                        throw new IOException("Can't remove empty fileMaps directory");
+                if (dbDir.exists()) {
+                    if (dbDir.listFiles().length == 0) {
+                        if (!dbDir.delete()) {
+                            throw new IOException("Can't remove empty fileMaps directory");
+                        }
                     }
                 }
             }
         }
-        System.out.println("using " + tableName);
     }
 
-    public void deleteFileMap(int hashCode) throws IOException {
-        int absHash = Math.abs(hashCode);
-        mapsTable[absHash % 16][absHash / 16 % 16].delete();
-        mapsTable[absHash % 16][absHash / 16 % 16] = null;
+    private int changesCount() {
+        int changesCount = 0;
+        for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
+            if (entry.getValue().value != null && !entry.getValue().value.equals(entry.getValue().onDiskValue)
+                    || (entry.getValue().value == null && entry.getValue().getOnDisk() != null)) {
+                ++changesCount;
+            }
+        }
+        return changesCount;
+    }
+
+    public FileMapTable(String tableName) throws IOException {
+        currentFileMapTable = new File(tableName);
+        if (!currentFileMapTable.exists()) {
+            if (!currentFileMapTable.mkdir()) {
+                throw new IOException("Can't create " + currentFileMapTable.getName());
+            }
+        }
+        if (!currentFileMapTable.isDirectory()) {
+            throw new IOException(currentFileMapTable.getName() + " is not a directory");
+        }
+        readTable();
     }
 
     @Override
-    public void save() throws IOException {
-        if (currentFileMapTable == null) {
-            return;
+    public String getName() {
+        return currentFileMapTable.getName();
+    }
+
+    @Override
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (isEmptyString(key) || isEmptyString(value)) {
+            throw new IllegalArgumentException();
         }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        try {
+            mapsTable[dirHash][datHash] = openFileMap(absHash);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+        String str = mapsTable[dirHash][datHash].put(key, value);
+        Value element = changedKeys.get(key);
+        if (str == null) {
+            ++size;
+            if (element == null) {
+                changedKeys.put(key, new Value(value, null));
+            } else {
+                changedKeys.put(key, new Value(value, element.getOnDisk()));
+            }
+            return null;
+        } else {
+            if (element == null) {
+                changedKeys.put(key, new Value(value, str));
+            } else {
+                changedKeys.put(key, new Value(value, element.getOnDisk()));
+            }
+            return str;
+        }
+    }
+
+    @Override
+    public String remove(String key) throws IllegalArgumentException {
+        if (isEmptyString(key)) {
+            throw new IllegalArgumentException();
+        }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        if (mapsTable[dirHash][datHash] == null) {
+            return null;
+        }
+        String str = mapsTable[dirHash][datHash].remove(key);
+        if (str == null) {
+            return null;
+        } else {
+            --size;
+            Value element = changedKeys.get(key);
+            if (element == null) {
+                changedKeys.put(key, new Value(null, str));
+            } else {
+                changedKeys.put(key, new Value(null, element.getOnDisk()));
+            }
+            return str;
+        }
+    }
+
+    @Override
+    public String get(String key) throws IllegalArgumentException {
+        if (isEmptyString(key)) {
+            throw new IllegalArgumentException();
+        }
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        if (mapsTable[dirHash][datHash] == null) {
+            return null;
+        }
+        String str = mapsTable[dirHash][datHash].get(key);
+        if (str.equals("not found")) {
+            return null;
+        } else {
+            return str;
+        }
+    }
+
+    @Override
+    public int commit() {
+        int changesCount = changesCount();
+        changedKeys.clear();
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 if (mapsTable[i][j] != null) {
-                    mapsTable[i][j].save();
+                    try {
+                        mapsTable[i][j].save();
+                    } catch (IOException e) {
+                        System.err.println(e.getMessage());
+                    }
+                    if (mapsTable[i][j].isEmpty()) {
+                        try {
+                            mapsTable[i][j].delete();
+                        } catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+                    }
                 }
             }
         }
+        return changesCount;
     }
 
     @Override
-    public FileMap getMyState(int hashCode) throws IOException {
-        if (currentFileMapTable == null) {
-            throw new IOException("no table");
+    public int rollback() {
+        try {
+            readTable();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
-        int absHash = Math.abs(hashCode);
-        return mapsTable[absHash % 16][absHash / 16 % 16];
+        int changesCount = changesCount();
+        changedKeys.clear();
+        return changesCount;
     }
 
-    public FileMap openFileMap(int hashCode) throws IOException {
-        int absHash = Math.abs(hashCode);
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
-        File dir = new File(currentFileMapTable.toString() + File.separator + dirHash + ".dir");
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                throw new IOException("Can't create " + dirHash + ".dir");
-            }
-        }
-        String datName = dir.toString() + File.separator + datHash + ".dat";
-        if (mapsTable[dirHash][datHash] == null) {
-            mapsTable[dirHash][datHash] = new FileMap(datName);
-        }
-        return mapsTable[dirHash][datHash];
+    @Override
+    public int size() {
+        return size;
+    }
+
+    public int uncommittedSize() {
+        return changesCount();
     }
 }

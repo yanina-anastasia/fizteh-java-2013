@@ -10,13 +10,13 @@ public class Launcher {
     private Vector<Command> allCommands;
     private State state;
 
-    private void trySaveState() {
+    /*private void beforeStop() {
         try {
-            state.save();
+            state.stopping();
         } catch (IOException e1) {
             System.err.println(e1.getMessage());
         }
-    }
+    }*/
 
     private boolean launch(final String arg) throws IOException {
         if (arg.equals("")) {
@@ -54,7 +54,7 @@ public class Launcher {
                     }
                 }
             } catch (NoSuchElementException e) {
-                trySaveState();
+                //beforeStop();
                 System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -94,7 +94,7 @@ public class Launcher {
         } catch (ExitException e) {
             exitCode = 1;
         } finally {
-            trySaveState();
+            //beforeStop();
             System.exit(exitCode);
         }
     }
