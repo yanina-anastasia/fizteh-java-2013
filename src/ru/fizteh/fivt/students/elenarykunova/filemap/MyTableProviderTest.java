@@ -186,7 +186,7 @@ public class MyTableProviderTest {
         if (existingDir.isDirectory()) {
             try {
                 Table res2 = prov.getTable("existingDirPath");
-                assertNotNull(res2);            
+                assertNull(res2);            
             } catch (RuntimeException e) {
                 //ok, shit happens, fileMap could throw exception
             }
@@ -245,11 +245,8 @@ public class MyTableProviderTest {
         } catch (Exception e1) {
             fail("null RootDir :expected RuntimeException");
         }
-        try {
-            prov = new MyTableProvider(existingDir.getParent());
-        } catch (Exception e1) {
-            fail("RootDir is correct, shouldn't fail");
-        }
+        
+        prov = new MyTableProvider(existingDir.getParent());
                         
         try {
             prov.removeTable(notExistingFile.getName());

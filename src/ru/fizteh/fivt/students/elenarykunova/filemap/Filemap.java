@@ -121,11 +121,7 @@ public class Filemap implements Table{
     public int rollback() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(false);
         if (nchanges != 0) {
-            try {
-                load();
-            } catch (RuntimeException e) {
-                throw e;
-            }
+            load();
         }
         return nchanges;
     }
@@ -146,8 +142,6 @@ public class Filemap implements Table{
                         data[i][j].commitChanges();
                     } catch (IOException e) {
                         throw new RuntimeException("can't write to file", e);
-                    } catch (RuntimeException e) {
-                        throw e;
                     }
                 }
             }
@@ -169,11 +163,7 @@ public class Filemap implements Table{
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                try {
-                    data[i][j] = new DataBase(currTablePath, i, j, updatedMap, false);
-                } catch (RuntimeException e) {
-                    throw e;
-                }
+                data[i][j] = new DataBase(currTablePath, i, j, updatedMap, false);
             }
         }
     }
@@ -185,11 +175,7 @@ public class Filemap implements Table{
         currTablePath = path;
         currTableName = name;
         if (currTableName != null) {
-            try {
-                load();
-            } catch (RuntimeException e) {
-                throw e;
-            }
+            load();
         }
     }
 }
