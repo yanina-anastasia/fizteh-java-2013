@@ -57,24 +57,6 @@ public class ShellCommands extends AbstractCommands {
         }
         System.out.println(currentDir);
     }
-    
-    private void delete(Path name) throws Exception {
-        if (name.toFile().isDirectory()) {
-            String[] list = name.toFile().list();
-            for (int i = 0; i < list.length; ++i) {
-                File curFile = new File(list[i]);
-                Path temp = name.resolve(curFile.toPath()).normalize();
-                delete(temp);
-            }
-            if (!name.toFile().delete()) {
-                throw new Exception("rm: I can't delete this file.");
-            }
-        } else {
-            if (!name.toFile().delete()) {
-                throw new Exception("rm: I can't delete this file.");
-            }
-        }
-    }
         
     public void rm() throws Exception {
         parse();
@@ -90,7 +72,7 @@ public class ShellCommands extends AbstractCommands {
             throw new Exception("rm: I can't delete this.");
         } else {
             try {
-                delete(temp);
+                DeleteDir.delete(temp);
             } catch (Exception e) {
                 throw new Exception("rm: I can't delete this.");
             }
