@@ -86,7 +86,7 @@ public class DatabaseTable implements Table {
         } else {
             deletedKeys.add(key);
         }
-        if (oldValue != null) {
+        if (oldValue == null) {  // !=
             size -= 1;
         }
         uncommittedChanges += 1;
@@ -115,7 +115,7 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = uncommittedChanges;
+        int recordsDeleted = Math.abs(size - oldData.size());
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
