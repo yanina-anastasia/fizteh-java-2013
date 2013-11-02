@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
-import java.lang.System;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
 

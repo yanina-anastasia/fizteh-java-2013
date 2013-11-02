@@ -49,8 +49,8 @@ public class Shell {
             throw new Exception("Cannot be removed: File does not exist");
         }
         if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
-            throw new Exception("\'" + args[1] +
-                    "\': Cannot be removed: First of all, leave this directory");
+            throw new Exception("\'" + args[1]
+                    + "\': Cannot be removed: First of all, leave this directory");
         }
 
         File fileToRemove = new File(args[1]);
