@@ -2,9 +2,14 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 
 import java.io.IOException;
 
-public class CommandPrintWorkingDirectory extends AbstractCommand {	
+
+public class CommandPrintWorkingDirectory extends AbstractCommand {
+	
+	private final StateShell state;
+	
 	public CommandPrintWorkingDirectory(StateShell st) {
-		super(0, st);;
+		super(0);
+		state = st;
 	}
 	
 	public String getName() {
@@ -12,6 +17,6 @@ public class CommandPrintWorkingDirectory extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) throws IOException {
-		getState().out.println(getState().currentDir.getCanonicalPath());
+		state.getOutputStream().println(state.getCurrentDir().getCanonicalPath());
 	}
 }

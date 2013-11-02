@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class CommandDir implements Command {
+public class CommandDir implements Command<ShellState> {
     public String getName() {
         return "dir";
     }
 
-    public void run(State state, String[] empty) throws IOException {
+    public int getArgCount() {
+        return 0;
+    }
+
+    public void run(ShellState state, String[] empty) throws IOException {
         if (empty.length > 0) {
             throw new IOException("pwd: Too many arguments.");
         }

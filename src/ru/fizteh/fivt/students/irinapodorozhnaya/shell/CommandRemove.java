@@ -3,9 +3,14 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.shell;
 import java.io.File;
 import java.io.IOException;
 
+
 public class CommandRemove extends AbstractCommand {
+	
+	private final StateShell state;
+	
 	CommandRemove(StateShell st) {
-		super(1, st);
+		super(1);
+		state = st;
 	}
 	
 	public String getName() {
@@ -13,9 +18,9 @@ public class CommandRemove extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) throws IOException {
-		File f = getFileByName(args[1]);
+		File f = state.getFileByName(args[1]);
 		if (f.exists()) {
-			if (f.getCanonicalPath().equals(getState().currentDir.getCanonicalPath())) {
+			if (f.getCanonicalPath().equals(state.getCurrentDir().getCanonicalPath())) {
 				throw new IOException("rm: '" + args[1]+ "' can't delete current directory");
 			}
 			DeleteRecursivly(f);
@@ -24,7 +29,7 @@ public class CommandRemove extends AbstractCommand {
 		}
 	}
 	
-	private void DeleteRecursivly(File f) throws IOException {
+	public static void DeleteRecursivly(File f) throws IOException {
 		if (f.isDirectory()) {
 			for ( File s: f.listFiles()) {
 				DeleteRecursivly(s);

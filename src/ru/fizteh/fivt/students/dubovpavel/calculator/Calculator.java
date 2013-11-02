@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.dubovpavel.calculator;
 
-import java.util.EmptyStackException;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 class Calculator {

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class MkdirCommand implements Command {
+public class MkdirCommand implements Command<Shell> {
     private static boolean mkdir(final String dir) throws IOException {
         File newDir = new File(Shell.getUserDir().toPath().resolve(dir).toString());
         if (newDir.exists()) {
@@ -17,7 +17,7 @@ public class MkdirCommand implements Command {
     }
 
     @Override
-    public final boolean exec(final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 2) {
             System.err.println("mkdir: Usage - mkdir <dirname>");
             return false;
