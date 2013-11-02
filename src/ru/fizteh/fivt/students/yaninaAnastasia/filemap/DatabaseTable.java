@@ -98,7 +98,10 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = Math.abs(size - oldData.size()) + Math.abs(deletedKeys.size());
+        int recordsCommited = Math.abs(size - oldData.size());
+        if (recordsCommited == 0) {
+            recordsCommited = deletedKeys.size();
+        }
         for (String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
@@ -115,7 +118,15 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = Math.abs(size - oldData.size()) + Math.abs(deletedKeys.size());
+        int recordsDeleted = uncommittedChanges;
+        for (String s: oldData.keySet()) {
+            if (deletedKeys.contains(s)) {
+                recordsDeleted += 1;
+            }
+        }
+        /*if (recordsDeleted == 0) {
+            recordsDeleted = deletedKeys.size();
+        } */
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
