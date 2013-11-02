@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 import ru.fizteh.fivt.storage.strings.Table;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +75,7 @@ public class MyTable implements Table {
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        if (changes.get(key) != null && storage.get(key) != null) {
+        if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
             --count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
