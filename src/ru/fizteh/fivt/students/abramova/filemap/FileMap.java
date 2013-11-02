@@ -65,19 +65,22 @@ public class FileMap implements Closeable {
         }
     }
 
-    public void close() throws IOException {
-        DataOutputStream writer;
+    public void close() {
+        DataOutputStream writer = null;
         try {
             writer = new DataOutputStream(new FileOutputStream(fileMapName));
+            writing(fileMap, writer);
         } catch (IOException e) {
-            throw new IOException("Open error: " + e.getMessage());
+            throw new RuntimeException();
+        } finally {
+            try {
+                if (writer != null)
+                writer.close();
+            } catch (IOException e) {
+
+            }
         }
-        writing(fileMap, writer);
-        try {
-            writer.close();
-        } catch (IOException e) {
-            throw new IOException("Close error: " + e.getMessage());
-        }
+
     }
 
     private void writing(Map<String, String> fileMap, DataOutputStream writer) throws IOException {

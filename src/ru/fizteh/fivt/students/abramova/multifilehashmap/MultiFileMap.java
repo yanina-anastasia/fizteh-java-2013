@@ -12,7 +12,7 @@ import java.util.Set;
 public class MultiFileMap {
     private final String workingDirectory;
     private Set<String> tables = new HashSet<String>();
-    private Table workingTable = null;
+    private TableMultiFile workingTable = null;
 
     public MultiFileMap(String directory) throws IOException {
         workingDirectory = directory != null ? directory : new File("").getCanonicalPath();
@@ -30,19 +30,19 @@ public class MultiFileMap {
         }
     }
 
-    public Table getWorkingTable() {
+    public TableMultiFile getWorkingTable() {
         return workingTable;
     }
 
     //Возвращает null, если переданной таблицы не существует, и текущую таблицу иначе
-    public Table setWorkingTable(String table) throws IOException {
+    public TableMultiFile setWorkingTable(String table) throws IOException {
         if (!containsTable(table)) {
             return null;
         }
         if (workingTable != null) {
             workingTable.close();
         }
-        workingTable = new Table(table, workingDirectory);
+        workingTable = new TableMultiFile(table, workingDirectory);
         return workingTable;
     }
 

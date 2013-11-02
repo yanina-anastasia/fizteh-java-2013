@@ -17,7 +17,7 @@ public class GetMultiCommand extends Command {
         if (!status.isMultiFileMap()) {
             throw new IllegalStateException(getName() + ": Command do not get MultiFileMap");
         }
-        Table table = status.getMultiFileMap().getWorkingTable();
+        TableMultiFile table = status.getMultiFileMap().getWorkingTable();
         if (table == null) {
             System.out.println("no table");
         } else {

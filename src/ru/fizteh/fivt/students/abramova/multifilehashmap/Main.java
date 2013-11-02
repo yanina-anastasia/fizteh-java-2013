@@ -11,6 +11,7 @@ public class Main {
         int exitValue = 0;
         MultiFileMap multiMap = null;
         String property = System.getProperty("fizteh.db.dir");
+        System.out.println(property);
         File root = null;
         if (property != null) {
             root = new File(property);
