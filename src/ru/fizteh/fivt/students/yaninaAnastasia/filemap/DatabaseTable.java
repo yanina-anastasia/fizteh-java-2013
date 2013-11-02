@@ -115,7 +115,9 @@ public class DatabaseTable implements Table {
             oldData.remove(keyToDelete);
         }
         for (String keyToAdd : modifiedData.keySet()) {
+            if (modifiedData.get(keyToAdd) != null) {
             oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+            }
         }
         deletedKeys.clear();
         modifiedData.clear();
