@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class main {
     public static void main(String[] args) throws IOException {
 
-        String s = System.getProperty("fiztehdb.dir");
+        String s = System.getProperty("fizteh.db.dir");
         if (s == null) {
             System.exit(-1);
         }
