@@ -213,7 +213,7 @@ public class DataBase {
                 }
                 Shell sh = new Shell(tablePath);
                 if (sh.rm(filePath) != Shell.ExitCode.OK) {
-                    throw new RuntimeException(filePath + " can't delete file", e);
+                    throw new RuntimeException(filePath + " can't delete file");
                 }
                 return;
             }
