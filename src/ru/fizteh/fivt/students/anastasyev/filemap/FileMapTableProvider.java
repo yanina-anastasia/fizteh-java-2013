@@ -17,6 +17,9 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
     private String currentFileMapTable = null;
 
+
+
+
     @Override
     public Vector<Command> getCommands() {
         return commands;
