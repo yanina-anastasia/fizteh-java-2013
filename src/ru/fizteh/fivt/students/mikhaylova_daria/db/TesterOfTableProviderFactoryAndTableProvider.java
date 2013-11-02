@@ -123,19 +123,6 @@ public class TesterOfTableProviderFactoryAndTableProvider {
                 manager.getTable(existingFile.getName()), manager.getTable(existingFile.getName()));
     }
 
-
-    @Test
-    public void getExistingTableImplTable() {
-        boolean flag = false;
-        Class[] inter = manager.getTable(existingFile.getName()).getClass().getInterfaces();
-        for (Class i:inter) {
-            if (i.equals(ru.fizteh.fivt.storage.strings.Table.class)) {
-                flag = true;
-            }
-        }
-        assertTrue("Полученный объект не поддерживает интерфейс Table", flag);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void removeTableByNullStringShouldFail() {
         manager.removeTable(null);
