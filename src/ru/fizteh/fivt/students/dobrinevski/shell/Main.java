@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dobrinevski.shell;
 
 import java.io.File;
+import java.lang.Exception;
 import java.util.HashMap;
 
 public class Main {
@@ -17,7 +18,7 @@ public class Main {
         cmdMap.put("exit", new ShellCommands.Exit());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         String way = System.getProperty("user.dir");
         if (way == null) {
             throw new Exception("Illegal table");
