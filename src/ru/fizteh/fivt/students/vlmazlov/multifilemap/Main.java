@@ -16,7 +16,7 @@ public class Main {
 		FileMapProviderFactory factory = new FileMapProviderFactory();
 
 		try {
-			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")), false);
+			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
 		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
