@@ -2,18 +2,8 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandExit implements Executable {
+public class TableCommandExit extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "exit";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 1;
-    }
 
     @Override
     public boolean execute(String[] args) {
@@ -22,6 +12,7 @@ public class TableCommandExit implements Executable {
     }
 
     public TableCommandExit(TableManager tableManager) {
+        super("exit", 1);
         manager = tableManager;
     }
 }
