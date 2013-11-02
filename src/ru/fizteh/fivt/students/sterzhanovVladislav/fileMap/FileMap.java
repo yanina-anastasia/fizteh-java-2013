@@ -24,7 +24,7 @@ public class FileMap implements Table {
 
     @Override
     public String get(String key) {
-        if (key == null || key.isEmpty() || key.contains("\n")) {
+        if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
         return getDirtyValue(key);
@@ -32,8 +32,8 @@ public class FileMap implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || key.isEmpty() || key.contains("\n") || 
-                value == null || value.isEmpty() || value.contains("\n")) {
+        if (key == null || key.isEmpty() || !isValidKey(key) || 
+                value == null || value.isEmpty() || !isValidKey(value)) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
@@ -43,7 +43,7 @@ public class FileMap implements Table {
 
     @Override
     public String remove(String key) {
-        if (key == null || key.isEmpty() || key.contains("\n")) {
+        if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
@@ -177,5 +177,9 @@ public class FileMap implements Table {
                 IOUtility.writeEntry(entry, fstream);
             }
         } 
+    }
+
+    private static boolean isValidKey(String s) {
+        return !(s.contains("\n") || s.contains(" ") || s.contains("\t"));
     }
 }
