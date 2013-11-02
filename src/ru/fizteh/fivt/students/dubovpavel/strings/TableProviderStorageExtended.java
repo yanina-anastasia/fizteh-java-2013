@@ -4,22 +4,11 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
-import java.io.File;
-import java.io.IOException;
-
 public class TableProviderStorageExtended implements TableProvider{
     Storage<WrappedMindfulDataBaseMultiFileHashMap> storage;
 
     private boolean isNameValid(String name) {
-        File litmus = new File(name);
-        try {
-            if(!litmus.getCanonicalFile().getName().equals(name)) {
-                return false;
-            }
-        } catch(IOException e) {
-            return false;
-        }
-        return true;
+        return !name.contains("\\") && !name.contains("/");
     }
 
     public TableProviderStorageExtended(Storage storage) {
