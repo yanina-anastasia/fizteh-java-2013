@@ -15,6 +15,7 @@ public class MultiFileHashMap implements TableProvider {
     private HashMap<String, FileHashMap> database;
 
     public MultiFileHashMap(String workingDir) {
+        database = new HashMap<>();
         this.dir = new File(workingDir);
         if (!(dir.exists())) {
             throw new IllegalPathStateException();
