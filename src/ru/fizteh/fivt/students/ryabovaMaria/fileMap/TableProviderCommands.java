@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.ryabovaMaria.shell.DeleteDir;
 import ru.fizteh.fivt.students.ryabovaMaria.shell.ShellCommands;
 
 public class TableProviderCommands implements TableProvider {
@@ -65,12 +66,10 @@ public class TableProviderCommands implements TableProvider {
         if (!tableDir.isDirectory()) {
             throw new IllegalStateException(name + " cannot be deleted");
         }
-        ShellCommands shellCommands = new ShellCommands();
-        shellCommands.lexems = new String[2];
-        shellCommands.lexems[1] = name;
-        shellCommands.currentDir = curDir;
+             DeleteDir deleteTable = new DeleteDir();
+        File table = new File(curDir, name);
         try {
-            shellCommands.rm();
+            deleteTable.delete(table.toPath());
             names.remove(name);
         } catch (Exception e) {
             throw new IllegalStateException(name + " cannot be deleted");
