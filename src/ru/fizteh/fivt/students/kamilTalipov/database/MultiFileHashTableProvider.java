@@ -25,7 +25,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public MultiFileHashTable getTable(String name) throws IllegalArgumentException {
-        if (name == null) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name must be not null");
         }
 
@@ -62,7 +62,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name must be not null");
         }
 
