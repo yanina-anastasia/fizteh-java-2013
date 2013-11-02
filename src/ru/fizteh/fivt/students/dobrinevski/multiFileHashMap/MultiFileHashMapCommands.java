@@ -109,9 +109,9 @@ public class MultiFileHashMapCommands {
                     toRemove[0] = args[0];
                     toRemove[1] = file.getPath();
                     this.innerExecute(toRemove);
-                    System.out.println("dropped");
                 }
             }
+            System.out.println("dropped");
         }
         Drop() {
             super(2);
