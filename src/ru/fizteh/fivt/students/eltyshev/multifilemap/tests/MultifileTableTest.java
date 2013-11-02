@@ -127,6 +127,27 @@ public class MultifileTableTest {
         currentTable.remove(null);
     }
 
+    @Test
+    public void testRollbackCommit()
+    {
+        for (int index = 0; index < KEYS_COUNT; ++index) {
+            String key = String.format("key%d", index);
+            String value = String.format("value%d", index);
+            currentTable.put(key, value);
+        }
+        currentTable.commit();
+        for (int index = 0; index < KEYS_COUNT; ++index) {
+            String key = String.format("key%d", index);
+            currentTable.remove(key);
+        }
+        for (int index = 0; index < KEYS_COUNT; ++index) {
+            String key = String.format("key%d", index);
+            String value = String.format("value%d", index);
+            currentTable.put(key, value);
+        }
+        Assert.assertEquals(KEYS_COUNT, currentTable.rollback());
+    }
+
     private void prepareData() {
         for (int index = 0; index < KEYS_COUNT; ++index) {
             String key = String.format("key%d", index);
