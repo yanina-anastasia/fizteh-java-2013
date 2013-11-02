@@ -98,7 +98,7 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = Math.abs(size - oldData.size());
+        int recordsCommited = Math.abs(size - oldData.size()) + Math.abs(deletedKeys.size());
         for (String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
@@ -115,7 +115,7 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = Math.abs(size - oldData.size());
+        int recordsDeleted = Math.abs(size - oldData.size()) + Math.abs(deletedKeys.size());
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
