@@ -26,7 +26,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap getTable(String name) {
-        if (!Utils.isValid(name)) {
+        if (!Utils.isValid(name) || name.contains("/")) {
             throw new IllegalArgumentException();
         }
         File table = new File(dir.getAbsolutePath() + "/" + name);
@@ -38,7 +38,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap createTable(String name) {
-        if (!Utils.isValid(name)) {
+        if (!Utils.isValid(name) || name.contains("/")) {
             throw new IllegalArgumentException();
         }
         File newTable = new File(dir.getAbsolutePath() + "/" + name);
@@ -51,7 +51,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public void removeTable(String name) {
-        if (!Utils.isValid(name)) {
+        if (!Utils.isValid(name) || name.contains("/")) {
             throw new IllegalArgumentException();
         }
         File table = new File(dir.getAbsolutePath() + "/" + name);

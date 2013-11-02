@@ -76,6 +76,6 @@ public class Utils {
     }
 
     public static boolean isValid(String name) {
-        return !(name == null || name.equals("") || name.contains("\n") || name.contains("/"));
+        return !(name == null || name.equals("") || name.contains("\n"));
     }
 }
