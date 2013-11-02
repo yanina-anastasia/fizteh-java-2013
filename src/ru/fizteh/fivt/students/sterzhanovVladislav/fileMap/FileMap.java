@@ -24,11 +24,17 @@ public class FileMap implements Table {
 
     @Override
     public String get(String key) {
+        if (key == null || key.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         return getDirtyValue(key);
     }
 
     @Override
     public String put(String key, String value) {
+        if (key == null || key.isEmpty() || value == null || value.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         String result = getDirtyValue(key);
         diff.put(key, new Diff(DiffType.ADD, value));
         return result;
@@ -36,6 +42,9 @@ public class FileMap implements Table {
 
     @Override
     public String remove(String key) {
+        if (key == null || key.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         String result = getDirtyValue(key);
         diff.put(key, new Diff(DiffType.REMOVE, null));
         return result;
@@ -48,7 +57,7 @@ public class FileMap implements Table {
 
     @Override
     public int commit() {
-        int result = estimateDiffSize();
+        int result = diff.size();
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue().value;
@@ -65,7 +74,7 @@ public class FileMap implements Table {
 
     @Override
     public int rollback() {
-        int result = estimateDiffSize();
+        int result = diff.size();
         diff.clear();
         return result;
     }
