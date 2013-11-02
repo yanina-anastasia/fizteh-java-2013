@@ -15,21 +15,21 @@ public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMulti
     }
     @Override
     public String get(String key) {
-        if(key == null) {
+        if(key == null || key.trim().equals("")) {
             throw new IllegalArgumentException("Table.get: key is null");
         }
         return super.get(key);
     }
     @Override
     public String put(String key, String value) {
-        if(key == null || value == null) {
+        if(key == null || value == null || key.trim().equals("")) {
             throw new IllegalArgumentException("Table.put: key or value is null");
         }
         return super.put(key, value);
     }
     @Override
     public String remove(String key) {
-        if(key == null) {
+        if(key == null || key.trim().equals("")) {
             throw new IllegalArgumentException("Table.remove: key is null");
         }
         return super.remove(key);

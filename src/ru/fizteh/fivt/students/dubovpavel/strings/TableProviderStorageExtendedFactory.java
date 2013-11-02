@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
 public class TableProviderStorageExtendedFactory implements TableProviderFactory {
     public TableProvider create(String dir) {
-        if(dir == null) {
+        if(dir == null || dir.trim().equals("")) {
             throw new IllegalArgumentException("TableProviderFactory.create: dir is null");
         }
         DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, false, dir, new WrappedMindfulDataBaseMultiFileHashMapBuilder());

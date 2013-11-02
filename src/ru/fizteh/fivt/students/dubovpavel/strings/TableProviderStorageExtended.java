@@ -11,21 +11,21 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table getTable(String name) {
-        if(name == null) {
+        if(name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("TableProvide.getTable: name is null");
         }
         return storage.getDataBase(name);
     }
 
     public Table createTable(String name) {
-        if(name == null) {
+        if(name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("TableProvider.createTable: name is null");
         }
         return storage.create(name);
     }
 
     public void removeTable(String name) {
-        if(name == null) {
+        if(name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("TableProvider.removeTable: name is null");
         }
         storage.drop(name);
