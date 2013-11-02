@@ -1,83 +1,90 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public final class DataBaseTable {
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
+
+public final class DataBaseTable implements TableProvider {
     private String tableDir;
-    private File tableDirFile;
-    private String currentTable;
-    private DataBase dataBase = null;
+    private Map<String, DataBase> tableInUse;
+
+    public DataBase getTableFromMap(final String name) {
+        if (!tableInUse.containsKey(name)) {
+            tableInUse.put(name, new DataBase(name));
+        }
+        return tableInUse.get(name);
+    }
+
+    public void deleteTableFromMap(final String name) {
+       if (tableInUse.containsKey(name)) {
+           tableInUse.remove(name);
+       }
+    }
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
-        currentTable = "";
+        tableInUse = new HashMap();
+    }
 
-        tableDirFile = new File(tableDir);
-        if (!tableDirFile.exists() || !tableDirFile.isDirectory()) {
-            throw new DataBaseException(tableDir + " not exists!");
+    private void checkName(final String name) {
+        if ((name == null) || name.trim().length() == 0) {
+            throw new IllegalArgumentException("Cannot create table! Wrong name!");
+        }
+
+        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+") || name.contains(File.separator)
+                || name.contains(".")) {
+            throw new RuntimeException("Wrong symbols in name!");
         }
     }
 
-    public boolean createTable(final String tableName) {
-        File file = new File(tableDir + File.separator + tableName);
+    @Override
+    public Table createTable(final String tableName) {
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        File file = new File(fullPath);
+
         if (file.exists()) {
-            return false;
+            return null;
         }
+
         if (!file.mkdir()) {
-            throw new DataBaseException("Cannot create table " + tableName);
+            throw new MultiDataBaseException("Cannot create table " + tableName);
         }
-        return true;
+
+        return getTableFromMap(fullPath);
     }
 
-    public boolean dropTable(final String tableName) throws IOException {
-        File file = new File(tableDir + File.separator + tableName);
+    @Override
+    public void removeTable(final String tableName) {
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        File file = new File(fullPath);
         if (!file.exists()) {
-            return false;
+            throw new IllegalStateException("Table not exist already!");
         }
-        DataBase base = new DataBase(tableDir + File.separator + tableName);
+
+        DataBase base = getTableFromMap(fullPath);
         base.drop();
         if (!file.delete()) {
-            throw new DataBaseException("Cannot delte a file " + file.getCanonicalPath());
+            throw new DataBaseException("Cannot delete a file " + tableName);
         }
-        if (tableName.equals(currentTable)) {
-            dataBase = null;
+        deleteTableFromMap(fullPath);
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        File file = new File(fullPath);
+        if ((!file.exists()) || (file.isFile())) {
+            return null;
         }
-        return true;
-    }
-
-    public boolean useTable(String tableName) throws IOException {
-        if (!new File(tableDir + File.separator + tableName).exists()) {
-            return false;
-        }
-
-        save();
-
-        dataBase = null;
-        currentTable = tableName;
-        dataBase = new DataBase(tableDir + File.separator + tableName);
-        return true;
-    }
-
-    public String put(final String keyStr, final String valueStr) {
-        return dataBase.put(keyStr, valueStr);
-    }
-
-    public String get(final String keyStr) {
-        return dataBase.get(keyStr);
-    }
-
-    public boolean remove(final String keyStr) {
-        return dataBase.remove(keyStr);
-    }
-
-    public void save() {
-        if (exist()) {
-            dataBase.save();
-        }
-    }
-
-    public boolean exist() {
-        return (dataBase != null);
+        return getTableFromMap(fullPath);
     }
 }

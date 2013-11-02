@@ -2,13 +2,11 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
-import java.io.IOException;
-
 public class ShellDropTable extends SimpleShellCommand {
-    private DataBaseTable table;
+    private Context context;
 
-    public ShellDropTable(DataBaseTable newTable) {
-        table = newTable;
+    public ShellDropTable(Context newContext) {
+        context = newContext;
         setName("drop");
         setNumberOfArgs(2);
         setHint("usage: drop <table name>");
@@ -16,13 +14,14 @@ public class ShellDropTable extends SimpleShellCommand {
 
     public void run() {
         try {
-            if (table.dropTable(getArg(1))) {
-                System.out.println("dropped");
-            } else {
-                System.out.println(getArg(1) + " not exists");
+            if ((context.table != null) && (context.table.getName().equals(getArg(1)))) {
+                context.table = null;
             }
-        } catch (IOException e) {
-            throw new MultiDataBaseException(e.getMessage());
+
+            context.provider.removeTable(getArg(1));
+            System.out.println("dropped");
+        } catch (IllegalStateException e) {
+            System.out.println(getArg(1) + " not exists");
         }
     }
 }

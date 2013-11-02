@@ -12,13 +12,17 @@ public class Shell {
     public File currentDirectory;
     boolean exit;
 
+    public void stop() {
+        exit = true;
+    }
+
     public Shell(String startDirectory) {
         currentDirectory = new File(startDirectory);
         commands = new HashMap<String, ShellCommand>();
         commands.put("exit", new ShellCommand("exit", new ShellExecutable() {
             @Override
             public int execute(Shell shell, ArrayList<String> args) {
-                exit = true;
+                stop();
                 return 0;
             }
         }));
