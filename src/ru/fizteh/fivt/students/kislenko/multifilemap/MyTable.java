@@ -66,7 +66,7 @@ public class MyTable implements Table {
         if (key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if (storage.get(key) == null && changes.get(key) == null) {
+        if (changes.get(key) == null && !storage.containsKey(key)) {
             ++count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
