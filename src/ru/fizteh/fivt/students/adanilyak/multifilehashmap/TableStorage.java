@@ -105,6 +105,7 @@ public class TableStorage implements Table {
 
     @Override
     public int commit() {
+        int result = CountingTools.correctCountingOfChanges(data, changes, removedKeys);
         for (String key : removedKeys) {
             data.remove(key);
         }
@@ -114,20 +115,20 @@ public class TableStorage implements Table {
         } catch (Exception exc) {
             System.err.println("commit: " + exc.getMessage());
         }
-        return setDefault();
+        setDefault();
+        return result;
     }
 
     @Override
     public int rollback() {
-        return setDefault();
+        setDefault();
+        return CountingTools.correctCountingOfChanges(data, changes, removedKeys);
     }
 
-    private int setDefault() {
-        int result = CountingTools.correctCountingOfChanges(data, changes, removedKeys);
+    private void setDefault() {
         changes.clear();
         removedKeys.clear();
         amountOfChanges = 0;
-        return result;
     }
 
     public int getAmountOfChanges() {
