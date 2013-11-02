@@ -209,6 +209,19 @@ public class TableStorageUnitTest {
         }
     }
 
+    @Test
+    public void commitHardTest() {
+        testTableEng.put("key1", "value1");
+        testTableEng.put("key2", "value2");
+        Assert.assertEquals(2, testTableEng.commit());
+        testTableEng.put("key1", "anotherValue1");
+        testTableEng.put("key3", "value3");
+        testTableEng.remove("key2");
+        Assert.assertEquals(3, testTableEng.commit());
+        testTableEng.remove("key1");
+        testTableEng.remove("key3");
+    }
+
     /**
      * TEST BLOCK
      * ROLLBACK TESTS
@@ -231,4 +244,15 @@ public class TableStorageUnitTest {
         }
     }
 
+    @Test
+    public void rollbackHardTest() {
+        testTableEng.put("key1", "value1");
+        testTableEng.put("key2", "value2");
+        Assert.assertEquals(2, testTableEng.commit());
+        testTableEng.remove("key2");
+        testTableEng.put("key2", "value2");
+        Assert.assertEquals(0, testTableEng.rollback());
+        testTableEng.remove("key1");
+        testTableEng.remove("key2");
+    }
 }
