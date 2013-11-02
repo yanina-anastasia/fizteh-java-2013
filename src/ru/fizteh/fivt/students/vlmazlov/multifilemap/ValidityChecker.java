@@ -63,8 +63,12 @@ public class ValidityChecker {
 	}
 
 	public static void checkMultiFileMapName(String name) throws ValidityCheckFailedException {
-		//for now, the criteria is the same
+		//same criteria is applicable
 		checkFileMapKey(name);
+
+		if (!name.matches("\\w+")) {
+			throw new ValidityCheckFailedException(name + " is not a valid name");
+		}
 	}
 
 	public static void checkFileMapRoot(File root) throws ValidityCheckFailedException {
