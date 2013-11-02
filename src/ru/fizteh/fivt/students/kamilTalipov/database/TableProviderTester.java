@@ -13,10 +13,10 @@ public class TableProviderTester {
         provider = new MultiFileHashTableProvider(System.getProperty("user.dir") + File.separator + "Test");
     }
 
-    /*@Test(expected = DatabaseException.class)
+    @Test(expected = DatabaseException.class)
     public void  illegalInitTest() throws FileNotFoundException, DatabaseException {
-        TableProvider badProvider = new MultiFileHashTableProvider("gjfdou34923dkfjs");
-    }*/
+        MultiFileHashTableProvider badProvider = new MultiFileHashTableProvider("gjfdou34923dkfjs");
+    }
 
     @Test
     public void createGetRemoveTest() {
