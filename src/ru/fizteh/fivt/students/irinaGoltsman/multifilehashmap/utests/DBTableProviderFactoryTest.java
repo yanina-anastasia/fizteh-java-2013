@@ -14,7 +14,7 @@ public class DBTableProviderFactoryTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateErrorName() throws Exception {
-        factory.create("\\*&5ye");
+        factory.create("\\/*&5ye");
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -92,5 +92,4 @@ public class DBTableTest {
         String oldValue = table.put("new1", "1");
         Assert.assertNull(oldValue);
     }
-
 }
