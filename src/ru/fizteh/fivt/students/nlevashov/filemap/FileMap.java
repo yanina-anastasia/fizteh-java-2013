@@ -190,7 +190,7 @@ public class FileMap {
                     return true;
                 }
             });
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
