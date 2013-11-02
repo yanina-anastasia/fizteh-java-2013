@@ -183,7 +183,25 @@ public class MyTable implements Table {
      */
     @Override
     public int commit() {
-        int oldSize = oldMap.size();
+        //int oldSize = oldMap.size();
+        int difference = 0;
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (!oldMap.containsKey(entry.getKey())) {
+                difference++;
+                //System.out.println("1");
+            } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
+                difference++;
+                //System.out.println("2");
+            }
+
+        }
+        for (Map.Entry<String, String> entry : oldMap.entrySet()) {
+            if (!map.containsKey(entry.getKey())) {
+                difference++;
+                //System.out.println("3");
+            }
+        }
+
         oldMap.clear();
         oldMap.putAll(map);
         try {
@@ -191,7 +209,8 @@ public class MyTable implements Table {
         } catch (Exception e) {
             throw new RuntimeException("Table.commit: writing on disk error with message \"" + e.getMessage() + "\"");
         }
-        return (map.size() - oldSize);
+        return difference;
+        //return (map.size() - oldSize);
     }
 
     /**
@@ -205,17 +224,17 @@ public class MyTable implements Table {
         for (Map.Entry<String, String> entry : map.entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {
                 difference++;
-                System.out.println("1");
+                //System.out.println("1");
             } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
                 difference++;
-                System.out.println("2");
+                //System.out.println("2");
             }
 
         }
         for (Map.Entry<String, String> entry : oldMap.entrySet()) {
             if (!map.containsKey(entry.getKey())) {
                 difference++;
-                System.out.println("3");
+                //System.out.println("3");
             }
         }
 
