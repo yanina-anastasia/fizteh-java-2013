@@ -43,8 +43,11 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Incorrect key to get.");
+        }
         key = key.trim();
-        if (key == null || key.isEmpty()) {
+        if (key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.containsKey(key)) {
@@ -55,9 +58,12 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Incorrect key to get.");
+        }
         key = key.trim();
         value = value.trim();
-        if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
+        if (key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (storage.get(key) == null && changes.get(key) == null) {
@@ -75,9 +81,12 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) {
-        key = key.trim();
-        if (key == null || key.isEmpty()) {
+        if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
+        }
+        key = key.trim();
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
             --count;
