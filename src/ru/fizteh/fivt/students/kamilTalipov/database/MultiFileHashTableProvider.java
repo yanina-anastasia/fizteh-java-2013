@@ -28,6 +28,12 @@ public class MultiFileHashTableProvider implements TableProvider {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name must be not null");
         }
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Table name must be not empty");
+        }
+        if (isContainIncorrectSymbols(name)) {
+            throw new IllegalArgumentException("Table name must be correct file name");
+        }
 
         int tableIndex = indexOfTable(name);
         if (tableIndex != -1) {
@@ -42,6 +48,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         if (getTable(name) != null) {
             return null;
         }
+
 
         MultiFileHashTable newTable;
         try {
@@ -62,8 +69,11 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null) {
             throw new IllegalArgumentException("Table name must be not null");
+        }
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Table name must be not empty");
         }
 
         int tableIndex = indexOfTable(name);
@@ -105,6 +115,14 @@ public class MultiFileHashTableProvider implements TableProvider {
                 tables.add(new MultiFileHashTable(databaseDirectory.getAbsolutePath(), file.getName()));
             }
         }
+    }
+
+    private boolean isContainIncorrectSymbols(String tableName) {
+        return tableName.contains("\\") || tableName.contains("/")
+                || tableName.contains(":") || tableName.contains("*")
+                || tableName.contains("?") || tableName.contains("\"")
+                || tableName.contains("<") || tableName.contains(">")
+                || tableName.contains("|");
     }
 
     private final File databaseDirectory;
