@@ -106,8 +106,8 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 			throw new IllegalArgumentException(ex.getMessage());
 		}
 
-		if (added.get(key) != null) {
-			return added.get(key);
+		if (overwritten.get(key) != null) {
+			return overwritten.get(key);
 		} else if ((commited.get(key) != null) && (!deleted.contains(key))) {
 			return commited.get(key);
 		}
