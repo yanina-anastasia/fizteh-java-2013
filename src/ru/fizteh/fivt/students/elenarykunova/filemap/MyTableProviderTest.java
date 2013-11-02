@@ -67,17 +67,17 @@ public class MyTableProviderTest {
         } catch (IllegalArgumentException e1) {
             //ok
         } catch (Exception e2) {
-            fail("inizialize notExistingDir: expected IllegalArgumentException");
+            fail("initialize notExistingDir: expected IllegalArgumentException");
         }
                 
         if (existingFile.isFile()) {
             try {
                 prov = new MyTableProvider(existingFile.getAbsolutePath());
-                fail("inizialize TableProvider with file: expected IllegalArgumentException");
+                fail("initialize TableProvider with file: expected IllegalArgumentException");
             } catch (IllegalArgumentException e1) {
                 //ok
             } catch (Exception e2) {
-                fail("inizialize TableProvider with file: expected IllegalArgumentException");
+                fail("initialize TableProvider with file: expected IllegalArgumentException");
             }
         }
     }

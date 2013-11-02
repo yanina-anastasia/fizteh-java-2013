@@ -14,8 +14,8 @@ import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class DataBase {
 
-    public HashMap<String, String> data = new HashMap<String, String>();
-    public RandomAccessFile dataFile = null;
+    private HashMap<String, String> data = new HashMap<String, String>();
+    private RandomAccessFile dataFile = null;
     private String filePath = null;
     private String tablePath = null;
     private int ndir;
