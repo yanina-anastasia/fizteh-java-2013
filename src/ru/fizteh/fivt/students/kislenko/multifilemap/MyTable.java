@@ -55,7 +55,7 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || value == null || key.isEmpty()) {
+        if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (storage.get(key) == null && changes.get(key) == null) {

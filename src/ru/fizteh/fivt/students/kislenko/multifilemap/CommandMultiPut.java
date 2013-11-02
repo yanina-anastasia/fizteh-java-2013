@@ -19,12 +19,12 @@ public class CommandMultiPut implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
+        String result = table.put(args[0], args[1]);
 
-        if (table.get(args[0]) != null) {
-            System.out.println("overwrite\n" + table.put(args[0], args[1]));
+        if (result != null) {
+            System.out.println("overwrite\n" + result);
         } else {
             System.out.println("new");
-            table.put(args[0], args[1]);
         }
     }
 }
