@@ -308,7 +308,9 @@ public class DataBase implements Table {
         }
         String removed = map.remove(key);
         if (removed != null) {
-            ++changed;
+            if (changed > 0) {
+                --changed;
+            }
         }
         return removed;
     }
