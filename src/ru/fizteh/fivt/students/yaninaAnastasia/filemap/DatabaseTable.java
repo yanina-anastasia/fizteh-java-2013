@@ -62,7 +62,7 @@ public class DatabaseTable implements Table {
             oldValue = oldData.get(key);
         }
         modifiedData.put(key, value);
-        if (oldValue == null) {
+        if (oldValue != null) {   //==
             size += 1;
         }
         uncommittedChanges += 1;
@@ -86,7 +86,7 @@ public class DatabaseTable implements Table {
         } else {
             deletedKeys.add(key);
         }
-        if (oldValue == null) {  // !=
+        if (oldValue != null) {
             size -= 1;
         }
         uncommittedChanges += 1;
