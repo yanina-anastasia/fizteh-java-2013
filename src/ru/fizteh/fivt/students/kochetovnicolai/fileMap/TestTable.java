@@ -92,6 +92,13 @@ public class TestTable extends FileManager {
     }
 
     @Test
+    public void commitPutAndRemoveShouldWork() {
+        Assert.assertTrue("put new key should be null", table.put("key", "value") == null);
+        Assert.assertEquals("remove should return value", table.remove("key"), "value");
+        Assert.assertEquals("commit should return 0", table.commit(), 0);
+    }
+
+    @Test
     public void tableShouldBeConsistent() {
         Assert.assertTrue("put new key should be null", table.put("key1", "value1") == null);
         Assert.assertTrue("put new key should be null", table.put("key2", "value2") == null);

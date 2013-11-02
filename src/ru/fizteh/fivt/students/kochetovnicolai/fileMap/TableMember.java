@@ -101,8 +101,7 @@ public class TableMember implements Table {
     public int commit() {
         checkExistence();
         merge();
-        table.commit();
-        int changed = changes.size();
+        int changed = table.commit();
         changes.clear();
         return changed;
     }
