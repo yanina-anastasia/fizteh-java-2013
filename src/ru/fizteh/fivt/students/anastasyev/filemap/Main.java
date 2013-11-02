@@ -6,7 +6,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        System.getProperties().setProperty("fizteh.db.dir", "C:\\Users\\qBic\\Documents\\GitHub\\fizteh-java-2013\\src\\ru\\fizteh\\fivt\\students\\anastasyev\\filemap\\db.dir");
+        //System.getProperties().setProperty("fizteh.db.dir", "C:\\Users\\qBic
+        // \\Documents\\GitHub\\fizteh-java-2013\\src\\ru\\fizteh\\fivt\\students\\anastasyev\\filemap\\db.dir");
         if (System.getProperty("fizteh.db.dir") == null) {
             System.err.println("Set home data base's directory");
             System.err.println("Use: -Dfizteh.db.dir=<directory>");
