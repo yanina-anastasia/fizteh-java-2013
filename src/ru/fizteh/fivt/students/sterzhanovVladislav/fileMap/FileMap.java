@@ -24,7 +24,7 @@ public class FileMap implements Table {
 
     @Override
     public String get(String key) {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.isEmpty() || key.contains("\n")) {
             throw new IllegalArgumentException();
         }
         return getDirtyValue(key);
@@ -32,7 +32,8 @@ public class FileMap implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || key.isEmpty() || value == null || value.isEmpty()) {
+        if (key == null || key.isEmpty() || key.contains("\n") || 
+                value == null || value.isEmpty() || value.contains("\n")) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
@@ -42,7 +43,7 @@ public class FileMap implements Table {
 
     @Override
     public String remove(String key) {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.isEmpty() || key.contains("\n")) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
