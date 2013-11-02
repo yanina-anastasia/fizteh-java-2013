@@ -1,15 +1,14 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
 
 import java.io.File;
 
 import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
 
 public class TableTest {
     private WrappedMindfulDataBaseMultiFileHashMap db;
