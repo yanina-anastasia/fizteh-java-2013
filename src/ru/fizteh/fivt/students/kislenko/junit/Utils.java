@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,9 +9,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class Utils {
-    final static private int MAX_TABLE_SIZE = 100 * 1024 * 1024;
-    final static private int MAX_FILE_SIZE = 50 * 1024 * 1024;
-
     static public void readTable(MyTable table) throws IOException {
         File tableDir = new File(table.getName());
         if (tableDir.listFiles() != null) {
@@ -83,7 +80,6 @@ public class Utils {
         }
         closeDescriptors(datafiles);
         deleteUnnecessaryFiles(dirs, files);
-        setUsings(table);
     }
 
     private static void deleteUnnecessaryFiles(File[] dirs, Map<Integer, File> files) throws IOException {
@@ -105,14 +101,6 @@ public class Utils {
     private static void closeDescriptors(Map<Integer, RandomAccessFile> datafiles) throws IOException {
         for (Integer i : datafiles.keySet()) {
             datafiles.get(i).close();
-        }
-    }
-
-    private static void setUsings(MyTable table) {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                table.setUsing(i, j, false);
-            }
         }
     }
 

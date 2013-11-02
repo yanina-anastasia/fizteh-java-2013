@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 public class TwoLayeredString {
     private String key;

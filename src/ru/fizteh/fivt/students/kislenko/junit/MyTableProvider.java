@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
@@ -39,9 +39,6 @@ public class MyTableProvider implements TableProvider {
             return null;
         }
         MyTable table = new MyTable(name);
-        //if (table.getSize() == -1) {
-        //    return null;
-        //}
         tables.put(name, table);
         return table;
     }

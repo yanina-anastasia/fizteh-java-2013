@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandSize implements Command<MultiFileHashMapState> {
+public class CommandCommit implements Command<MultiFileHashMapState> {
 
     @Override
     public String getName() {
-        return "size";
+        return "commit";
     }
 
     @Override
@@ -22,6 +22,6 @@ public class CommandSize implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        System.out.println(state.getCurrentTable().size());
+        System.out.println(state.getCurrentTable().commit());
     }
 }

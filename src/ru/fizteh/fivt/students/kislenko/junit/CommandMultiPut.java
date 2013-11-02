@@ -1,30 +1,30 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandMultiGet implements Command<MultiFileHashMapState> {
+public class CommandMultiPut implements Command<MultiFileHashMapState> {
     public String getName() {
-        return "get";
+        return "put";
     }
 
     public int getArgCount() {
-        return 1;
+        return 2;
     }
 
     public void run(MultiFileHashMapState state, String[] args) throws IOException {
         MyTable table = state.getCurrentTable();
-        if (table == null) {
+        if (state.getCurrentTable() == null) {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        String result = state.getCurrentTable().get(args[0]);
+        String result = table.put(args[0], args[1]);
 
-        if (state.getCurrentTable().get(args[0]) != null) {
-            System.out.println("found\n" + result);
+        if (result != null) {
+            System.out.println("overwrite\n" + result);
         } else {
-            System.out.println("not found");
+            System.out.println("new");
         }
     }
 }

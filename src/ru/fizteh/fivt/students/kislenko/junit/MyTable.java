@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import ru.fizteh.fivt.storage.strings.Table;
 
@@ -125,10 +125,6 @@ public class MyTable implements Table {
 
     public boolean isUsing(int nDirectory, int nFile) {
         return uses[nDirectory][nFile];
-    }
-
-    public void setUsing(int nDirectory, int nFile, boolean b) {
-        uses[nDirectory][nFile] = b;
     }
 
     public void clear() {

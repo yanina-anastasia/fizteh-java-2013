@@ -1,15 +1,12 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
-import ru.fizteh.fivt.students.kislenko.filemap.CommandPut;
-import ru.fizteh.fivt.students.kislenko.filemap.CommandRemove;
-import ru.fizteh.fivt.students.kislenko.filemap.FilemapState;
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandMultiRemove implements Command<MultiFileHashMapState> {
+public class CommandMultiGet implements Command<MultiFileHashMapState> {
     public String getName() {
-        return "remove";
+        return "get";
     }
 
     public int getArgCount() {
@@ -22,10 +19,10 @@ public class CommandMultiRemove implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");
         }
-        String result = table.remove(args[0]);
+        String result = state.getCurrentTable().get(args[0]);
 
-        if (result != null) {
-            System.out.println("removed");
+        if (state.getCurrentTable().get(args[0]) != null) {
+            System.out.println("found\n" + result);
         } else {
             System.out.println("not found");
         }
