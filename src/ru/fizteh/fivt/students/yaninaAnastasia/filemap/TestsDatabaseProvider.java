@@ -14,7 +14,6 @@ public class TestsDatabaseProvider {
         provider = factory.create("C:\\temp\\database_test");
     }
 
-    //testing for IllegalArgumentExceptions
     @Test(expected = IllegalArgumentException.class)
     public void testGetTableExceptions() {
         provider.getTable(null);
@@ -70,7 +69,6 @@ public class TestsDatabaseProvider {
         provider.createTable("");
     }
 
-    //main testing
     @Test
     public void testCreateRmTable() {
         Assert.assertNotNull(provider.createTable("test1"));

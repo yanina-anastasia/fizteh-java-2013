@@ -18,16 +18,6 @@ public class DatabaseTableProvider implements TableProvider {
         }
         File databaseDirectory = new File(directory);
         curDir = directory;
-        /*for (final File tableFile : databaseDirectory.listFiles()) {
-            if (tableFile.isFile()) {
-                continue;
-            }
-            if ((tableFile.getName() == null) || (tableFile.getName().isEmpty())) {
-                throw new IllegalArgumentException("Error with the property");
-            }
-            //DatabaseTable table = new DatabaseTable(tableFile.getName());
-            //tables.put(table.getName(), table);
-        }  */
         if (!open()) {
             throw new IllegalArgumentException("Wrong format");
         }

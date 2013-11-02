@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Shell;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class StartFileMap {
@@ -17,18 +16,11 @@ public class StartFileMap {
         }
         DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
         try {
-        curState.database = factory.create(path);
+            curState.database = factory.create(path);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-        /*try {
-            OpenFile opener = new OpenFile(curState);
-            opener.open(curState);
-        } catch (IOException e) {
-            System.err.println("Error in IO");
-            System.exit(1);
-        }  */
         ArrayList<Command> cmdList = new ArrayList<Command>();
         cmdList.add(new CommandPut());
         cmdList.add(new CommandGet());

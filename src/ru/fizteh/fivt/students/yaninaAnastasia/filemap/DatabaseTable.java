@@ -15,17 +15,26 @@ public class DatabaseTable implements Table {
     public HashMap<String, String> oldData;
     public HashMap<String, String> modifiedData;
     public HashSet<String> deletedKeys;
-
-    private String tableName;
     public int size;
     public int uncommittedChanges;
+    private String tableName;
 
-    public DatabaseTable(String tableName) {
-        this.tableName = tableName;
+    public DatabaseTable(String name) {
+        this.tableName = name;
         oldData = new HashMap<String, String>();
         modifiedData = new HashMap<String, String>();
         deletedKeys = new HashSet<String>();
         uncommittedChanges = 0;
+    }
+
+    public static int getDirectoryNum(String key) {
+        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+        return keyByte % 16;
+    }
+
+    public static int getFileNum(String key) {
+        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+        return (keyByte / 16) % 16;
     }
 
     public String getName() {
@@ -38,7 +47,7 @@ public class DatabaseTable implements Table {
 
     public String get(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("table's name cannot be null");
+            throw new IllegalArgumentException("Table name cannot be null");
         }
         if (modifiedData.containsKey(key)) {
             return modifiedData.get(key);
@@ -51,10 +60,10 @@ public class DatabaseTable implements Table {
 
     public String put(String key, String value) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("key's name cannot be null");
+            throw new IllegalArgumentException("Key cannot be null");
         }
         if (value == null || (value.isEmpty() || value.trim().isEmpty())) {
-            throw new IllegalArgumentException("value's name cannot be null");
+            throw new IllegalArgumentException("Value name cannot be null");
         }
         String oldValue = null;
         oldValue = modifiedData.get(key);
@@ -74,7 +83,7 @@ public class DatabaseTable implements Table {
 
     public String remove(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("key's name cannot be null");
+            throw new IllegalArgumentException("Key name cannot be null");
         }
         String oldValue = null;
         oldValue = modifiedData.get(key);
@@ -102,18 +111,11 @@ public class DatabaseTable implements Table {
 
     public int commit() {
         int recordsCommited = changesCount();
-        if (recordsCommited == 0) {
-            recordsCommited = deletedKeys.size();
-        }
         for (String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
         for (String keyToAdd : modifiedData.keySet()) {
-            if (modifiedData.get(keyToAdd) != null)   {
-                oldData.put(keyToAdd, modifiedData.get(keyToAdd));
-            } else {
-                oldData.remove(keyToAdd);
-            }
+            oldData.put(keyToAdd, modifiedData.get(keyToAdd));
         }
         deletedKeys.clear();
         modifiedData.clear();
@@ -178,12 +180,10 @@ public class DatabaseTable implements Table {
                         return false;
                     }
                 } catch (IOException e) {
-                    //System.err.println("IOException");
                     return false;
                 }
             }
             if (!path.mkdir()) {
-                //System.err.println("Unable to create a table");
                 return false;
             }
             for (int j = 0; j < 16; j++) {
@@ -191,7 +191,6 @@ public class DatabaseTable implements Table {
                 try {
                     saveTable(keys.get(j), filePath.toString());
                 } catch (IOException e) {
-                    //System.out.println("ERROR SAD");
                     return false;
                 }
             }
@@ -204,7 +203,6 @@ public class DatabaseTable implements Table {
             try {
                 Files.delete(Paths.get(path));
             } catch (IOException e) {
-                //System.err.println("IO exception");
                 return false;
             }
             return false;
@@ -229,20 +227,9 @@ public class DatabaseTable implements Table {
             }
             temp.close();
         } catch (IOException e) {
-            System.err.println("Error while writing file");
             return false;
         }
         return true;
-    }
-
-    public static int getDirectoryNum(String key) {
-        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
-        return keyByte % 16;
-    }
-
-    public static int getFileNum(String key) {
-        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
-        return (keyByte / 16) % 16;
     }
 
     private int changesCount() {

@@ -25,7 +25,6 @@ public class TestsDatabaseTable {
         provider.removeTable("testTable");
     }
 
-    //testing for IllegalArgumentExceptions
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullKey() {
         table.put(null, "value");
@@ -66,7 +65,6 @@ public class TestsDatabaseTable {
         table.remove("");
     }
 
-    //main testing
     @Test
     public void testPutGet() {
         Assert.assertNull(table.put("key", "value1"));
