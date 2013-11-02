@@ -118,7 +118,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         isBadName(name);
         FileMapTable deleteTable = allFileMapTablesHashtable.get(name);
         if (deleteTable == null) {
-            throw new IllegalStateException("TableName is null");
+            throw new IllegalStateException("TableName is not exists");
         }
         try {
             rmTable(multiFileHashMapDir.toPath().resolve(name));

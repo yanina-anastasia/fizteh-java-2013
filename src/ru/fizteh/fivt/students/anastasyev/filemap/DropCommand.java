@@ -12,9 +12,10 @@ public class DropCommand implements Command<FileMapTableProvider> {
         try {
             state.removeTable(command[1]);
         } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
             return false;
         } catch (IllegalStateException e) {
-            System.err.println(command[1] + " not exists");
+            System.out.println(command[1] + " not exists");
             return false;
         }
         System.out.println("dropped");
