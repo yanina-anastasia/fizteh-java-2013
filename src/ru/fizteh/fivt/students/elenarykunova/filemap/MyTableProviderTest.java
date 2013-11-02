@@ -154,6 +154,7 @@ public class MyTableProviderTest {
         prov.getTable("\\aa\\aa");
     }
 
+    @Test
     public void testGetTable() {
         MyTableProvider prov = new MyTableProvider();
         try {
@@ -164,14 +165,12 @@ public class MyTableProviderTest {
         } catch (Exception e1) {
             fail("null RootDir :expected RuntimeException");
         }
-        try {
-            prov = new MyTableProvider(existingDir.getParent());
-        } catch (Exception e1) {
-            fail("RootDir is correct, shouldn't fail");
-        }
+        prov = new MyTableProvider(existingDir.getParent());
         try {
             Table res = prov.getTable(notExistingFile.getName());
             assertNull(res);
+        } catch (IllegalArgumentException e1) {
+            fail("Everything is Ok!");
         } catch (RuntimeException e) {
             //ok, shit happens, fileMap could throw exception
         }

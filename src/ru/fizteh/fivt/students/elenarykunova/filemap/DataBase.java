@@ -60,6 +60,7 @@ public class DataBase {
                 dataFile = new RandomAccessFile(filePath, "r");
                 load(dataFile, map);
             } catch (Throwable e) {
+                filePath = null;
                 throw new RuntimeException(filePath + ": file not found", e);
             } finally {
                 try {
