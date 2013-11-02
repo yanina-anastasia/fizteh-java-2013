@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
-/**
- * Created with IntelliJ IDEA.
- * User: dubov94
- * Date: 02.11.13
- * Time: 5:56
- * To change this template use File | Settings | File Templates.
- */
+import java.util.regex.Pattern;
+
 public class IsKeyAllowable {
+    private static Pattern allowable = Pattern.compile("\\w");
+    public static boolean check(String key) {
+        return allowable.matcher(key).matches();
+    }
 }

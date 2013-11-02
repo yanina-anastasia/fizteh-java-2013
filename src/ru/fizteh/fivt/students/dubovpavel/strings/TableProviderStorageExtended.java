@@ -4,8 +4,6 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
-import java.util.regex.Pattern;
-
 public class TableProviderStorageExtended implements TableProvider{
     Storage<WrappedMindfulDataBaseMultiFileHashMap> storage;
 
@@ -21,7 +19,7 @@ public class TableProviderStorageExtended implements TableProvider{
     }
 
     public Table createTable(String name) {
-        if(name == null ||!IsKeyAllowable.check(name)) {
+        if(name == null || !IsKeyAllowable.check(name)) {
             throw new IllegalArgumentException();
         }
         return storage.create(name);
