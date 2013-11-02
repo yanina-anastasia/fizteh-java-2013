@@ -40,15 +40,16 @@ public class DbMain {
             try {
                 Parser.parser(arg, DbMain.class, commandsList);
             } catch (Exception e) {
-                System.err.println(e.toString());
+                System.err.println(e.getMessage());
             }
         } catch (RuntimeException e) {
-            System.err.println(e.toString());
+            System.err.println(e.getMessage());
             System.exit(1);
         } catch (Exception e) {
-            System.err.println(e.toString());
+            System.err.println(e.getMessage());
             System.exit(1);
         }
+        
     }
 
     public void create(String[] command) throws IllegalArgumentException {
