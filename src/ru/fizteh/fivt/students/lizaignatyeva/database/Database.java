@@ -92,11 +92,18 @@ public class Database {
     public void writeToFile() throws IOException {
         String fileName = path.getCanonicalPath();
         BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fileName));
-        for (String key: data.keySet()) {
-            String value = data.get(key);
-            writeEntry(key, value, outputStream);
+        try {
+            for (String key: data.keySet()) {
+                String value = data.get(key);
+                writeEntry(key, value, outputStream);
+            }
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
-        outputStream.close();
     }
 
     public void write() {
