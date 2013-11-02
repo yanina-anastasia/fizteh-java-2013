@@ -15,19 +15,19 @@ public class FileMapTable implements Table {
 
     private class Value {
         private String value;
-        private boolean onDisk;
+        private String onDiskValue;
 
-        public Value(String newValue, boolean newOnDisk) {
+        public Value(String newValue, String newOnDisk) {
             value = newValue;
-            onDisk = newOnDisk; //onDiskValue
+            onDiskValue = newOnDisk;
         }
 
         public String getValue() {
             return value;
         }
 
-        public boolean getOnDisk() {
-            return onDisk;
+        public String getOnDisk() {
+            return onDiskValue;
         }
     }
 
@@ -113,7 +113,8 @@ public class FileMapTable implements Table {
     private int changesCount() {
         int changesCount = 0;
         for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
-            if (entry.getValue().value != null || (entry.getValue().value == null && entry.getValue().getOnDisk())) {
+            if (entry.getValue().value != null && !entry.getValue().value.equals(entry.getValue().onDiskValue)
+                    || (entry.getValue().value == null && entry.getValue().getOnDisk() != null)) {
                 ++changesCount;
             }
         }
@@ -157,14 +158,14 @@ public class FileMapTable implements Table {
         if (str == null) {
             ++size;
             if (element == null) {
-                changedKeys.put(key, new Value(value, false));
+                changedKeys.put(key, new Value(value, null));
             } else {
                 changedKeys.put(key, new Value(value, element.getOnDisk()));
             }
             return null;
         } else {
             if (element == null) {
-                changedKeys.put(key, new Value(value, true));
+                changedKeys.put(key, new Value(value, str));
             } else {
                 changedKeys.put(key, new Value(value, element.getOnDisk()));
             }
@@ -190,7 +191,7 @@ public class FileMapTable implements Table {
             --size;
             Value element = changedKeys.get(key);
             if (element == null) {
-                changedKeys.put(key, new Value(null, true));
+                changedKeys.put(key, new Value(null, str));
             } else {
                 changedKeys.put(key, new Value(null, element.getOnDisk()));
             }
