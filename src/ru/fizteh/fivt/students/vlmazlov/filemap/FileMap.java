@@ -110,6 +110,8 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 			return overwritten.get(key);
 		} else if ((commited.get(key) != null) && (!deleted.contains(key))) {
 			return commited.get(key);
+		} else if (added.get(key) != null) {
+			return added.get(key);
 		}
 
 		return null;
