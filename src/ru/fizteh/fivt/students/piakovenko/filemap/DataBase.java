@@ -296,7 +296,7 @@ public class DataBase implements Table {
             ++changed;
             map.getChangedMap().put(key, value);
         } else {
-            if (!putValue.equals(value) && !map.getChangedMap().containsKey(key)) {
+            if (!map.getChangedMap().containsKey(key)) {
                 ++changed;
             }
         }
@@ -309,11 +309,11 @@ public class DataBase implements Table {
         }
         String removed = map.remove(key);
         if (removed != null) {
-            if (!map.getChangedMap().containsKey(key)) {
-                ++changed;
-            } else {
+            if (map.getChangedMap().containsKey(key)) {
                 map.getChangedMap().remove(key);
                 --changed;
+            } else {
+                ++changed;
             }
         }
         return removed;
