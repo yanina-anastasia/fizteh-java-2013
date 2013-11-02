@@ -56,4 +56,12 @@ public class DatabaseRowTests {
     public void putIncorrectType2ShouldFail() {
         storeable.setColumnAt(1, 2);
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void putIncorrectType3ShouldFail() {
+        storeable.setColumnAt(1, new SimpleClass());
+    }
+}
+
+class SimpleClass {
 }

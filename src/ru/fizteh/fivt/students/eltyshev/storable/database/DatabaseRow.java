@@ -123,10 +123,7 @@ public class DatabaseRow implements Storeable {
     }
 
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
-        if (classes.get(columnIndex) != value.getClass()) {
-            System.out.print("column index: " + columnIndex);
-            System.out.print("expected type: " + classes.get(columnIndex).getName());
-            System.out.print("actual type: " + value.getClass().getName());
+        if (!classes.get(columnIndex).isInstance(value)) {
             throw new ColumnFormatException();
         }
     }
