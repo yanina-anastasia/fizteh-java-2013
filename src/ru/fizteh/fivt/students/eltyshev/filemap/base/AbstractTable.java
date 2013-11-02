@@ -12,8 +12,7 @@ public abstract class AbstractTable implements Table {
     protected static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
     protected final HashMap<String, String> oldData;
-    protected final HashMap<String, String> modifiedData;
-    protected final HashSet<String> deletedKeys;
+    protected final HashMap<String, ValueDifference> modifiedData;
 
     final private String tableName;
     private int size;
@@ -30,8 +29,7 @@ public abstract class AbstractTable implements Table {
         this.directory = directory;
         this.tableName = tableName;
         oldData = new HashMap<String, String>();
-        modifiedData = new HashMap<String, String>();
-        deletedKeys = new HashSet<String>();
+        modifiedData = new HashMap<String, ValueDifference>();
         uncommittedChangesCount = 0;
         try {
             load();
@@ -56,10 +54,7 @@ public abstract class AbstractTable implements Table {
             throw new IllegalArgumentException("key cannot be null!");
         }
         if (modifiedData.containsKey(key)) {
-            return modifiedData.get(key);
-        }
-        if (deletedKeys.contains(key)) {
-            return null;
+            return modifiedData.get(key).newValue;
         }
 
         return oldData.get(key);
@@ -74,11 +69,13 @@ public abstract class AbstractTable implements Table {
             String message = key.equals("") ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be empty");
         }
+
         String oldValue = getOldValueFor(key);
-        modifiedData.put(key, value);
         if (oldValue == null) {
             size += 1;
         }
+
+        addChange(key, value);
         uncommittedChangesCount += 1;
         return oldValue;
     }
@@ -93,14 +90,7 @@ public abstract class AbstractTable implements Table {
         }
 
         String oldValue = getOldValueFor(key);
-        if (modifiedData.containsKey(key)) {
-            modifiedData.remove(key);
-            if (oldData.containsKey(key)) {
-                deletedKeys.add(key);
-            }
-        } else {
-            deletedKeys.add(key);
-        }
+        addChange(key, null);
         if (oldValue != null) {
             size -= 1;
         }
@@ -113,14 +103,14 @@ public abstract class AbstractTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = changesCount();
-        for (final String keyToDelete : deletedKeys) {
-            oldData.remove(keyToDelete);
+        int recordsCommited = 0;
+        for (final String key : modifiedData.keySet()) {
+            ValueDifference diff = modifiedData.get(key);
+            if (diff.oldValue != diff.newValue) {
+                oldData.put(key, diff.newValue);
+                recordsCommited += 1;
+            }
         }
-        for (final String keyToAdd : modifiedData.keySet()) {
-            oldData.put(keyToAdd, modifiedData.get(keyToAdd));
-        }
-        deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
         try {
@@ -135,8 +125,13 @@ public abstract class AbstractTable implements Table {
     }
 
     public int rollback() {
-        int recordsDeleted = changesCount();
-        deletedKeys.clear();
+        int recordsDeleted = 0;
+        for (final String key : modifiedData.keySet()) {
+            ValueDifference diff = modifiedData.get(key);
+            if (diff.oldValue != diff.newValue) {
+                recordsDeleted += 1;
+            }
+        }
         modifiedData.clear();
         size = oldData.size();
 
@@ -150,26 +145,28 @@ public abstract class AbstractTable implements Table {
         return directory;
     }
 
-    private String getOldValueFor(String key) {
-        String oldValue = null;
-        oldValue = modifiedData.get(key);
-        // Если новое значение не было изменено\добавлено и не было удалено
-        if (oldValue == null && !deletedKeys.contains(key)) {
-            oldValue = oldData.get(key);
+    private void addChange(String key, String value) {
+        if (modifiedData.containsKey(key)) {
+            modifiedData.get(key).newValue = value;
+        } else {
+            modifiedData.put(key, new ValueDifference(oldData.get(key), value));
         }
-        return oldValue;
     }
 
-    private int changesCount() {
-        HashSet<String> tempSet = new HashSet<>();
-        HashSet<String> toRemove = new HashSet<>();
-        tempSet.addAll(modifiedData.keySet());
-        tempSet.addAll(deletedKeys);
-        for (String key : tempSet) {
-            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key)) {
-                toRemove.add(key);
-            }
+    private String getOldValueFor(String key) {
+        if (modifiedData.containsKey(key)) {
+            return modifiedData.get(key).newValue;
         }
-        return tempSet.size() - toRemove.size();
+        return oldData.get(key);
+    }
+}
+
+class ValueDifference {
+    public String oldValue;
+    public String newValue;
+
+    ValueDifference(String oldValue, String newValue) {
+        this.oldValue = oldValue;
+        this.newValue = newValue;
     }
 }
