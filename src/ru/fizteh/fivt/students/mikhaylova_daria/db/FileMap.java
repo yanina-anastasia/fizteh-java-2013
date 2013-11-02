@@ -250,7 +250,6 @@ public class FileMap {
                 buf = dateBase.readByte();
             }
         } catch (EOFException e) {
-            dateBase.close();
             throw new DataFormatException(file.getName());
         }
         String key = null;
@@ -261,7 +260,6 @@ public class FileMap {
             }
             key = new String(keyInBytes, "UTF8");
         } catch (Exception e) {
-            dateBase.close();
             throw  new IOException(file.getName(), e);
         }
         return key;
@@ -323,4 +321,3 @@ public class FileMap {
     }
 
 }
-
