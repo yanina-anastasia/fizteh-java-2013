@@ -64,6 +64,7 @@ public class MultiFileTable implements ChangesCountingTable {
         if (value.trim().isEmpty()) {
             throw new IllegalArgumentException("empty value");
         }
+
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
             deletedKeys.add(key);
             String oldValue = dataBase.get(key);
@@ -85,6 +86,7 @@ public class MultiFileTable implements ChangesCountingTable {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("empty key");
         }
+
         if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
             deletedKeys.add(key);
             changesCounter++;
@@ -104,7 +106,8 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int commit() {
-        int counter = Math.abs(addedKeys.size() - deletedKeys.size());
+        countChanges();
+        int counter = changesCounter;
         for (String key : deletedKeys) {
             dataBase.remove(key);
         }
@@ -120,9 +123,19 @@ public class MultiFileTable implements ChangesCountingTable {
         return counter;
     }
 
+    private void countChanges() {
+        changesCounter = addedKeys.size() + deletedKeys.size();
+        for (String key : addedKeys.keySet()) {
+            if (deletedKeys.contains(key)) {
+                changesCounter--;
+            }
+        }
+    }
+
     @Override
     public int rollback() {
-        int counter = Math.abs(addedKeys.size() - deletedKeys.size());
+        countChanges();
+        int counter = changesCounter;
         deletedKeys.clear();
         addedKeys.clear();
         changesCounter = 0;
@@ -131,6 +144,7 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int getChangesCount() {
+        countChanges();
         return changesCounter;
     }
 }

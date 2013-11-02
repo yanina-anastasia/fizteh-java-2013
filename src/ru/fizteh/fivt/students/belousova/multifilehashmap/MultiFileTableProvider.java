@@ -23,6 +23,7 @@ public class MultiFileTableProvider implements ChangesCountingTableProvider {
             throw new IllegalArgumentException("'" + directory.getName() + "' is not a directory");
         }
 
+
         dataDitectory = directory;
         for (File tableFile : directory.listFiles()) {
             tableMap.put(tableFile.getName(), new MultiFileTable(tableFile));
