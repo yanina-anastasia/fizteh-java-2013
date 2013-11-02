@@ -1,14 +1,5 @@
-package ru.fizteh.fivt.students.mikhaylova_daria.db;
-
-
-import org.junit.*;
-import ru.fizteh.fivt.storage.strings.*;
-import ru.fizteh.fivt.students.mikhaylova_daria.shell.Shell;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNull;
-
 import java.io.File;
+import java.io.IOException;
 
 public class TesterOfTableProviderFactoryAndTableProvider {
 
@@ -18,11 +9,12 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     private static File workingDirFile;
 
     public static void removeFile(String name) {
-        String[] argShell = new String[] {
-                "rm",
-                name,
-        };
-        Shell.main(argShell);
+        try {
+            MyFileSystem.removing(name);
+        } catch (IOException e) {
+            System.err.println("Ошибка при удалении временного файла");
+            System.exit(1);
+        }
     }
 
     @BeforeClass
