@@ -7,7 +7,7 @@ public class DispatcherMultiFileHashMapBuilder extends DispatcherFileMapBuilder 
     private DataBaseBuilder builder;
     private boolean pathIsProperty = true;
 
-    public void setBuilder(DataBaseBuilder dataBaseBuilder) {
+    public void setDataBaseBuilder(DataBaseBuilder dataBaseBuilder) {
         builder = dataBaseBuilder;
     }
 

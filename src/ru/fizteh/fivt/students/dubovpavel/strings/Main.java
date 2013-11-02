@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
         DispatcherMultiFileHashMapBuilder dispatcherMultiFileHashMapBuilder = new DispatcherMultiFileHashMapBuilder();
         dispatcherMultiFileHashMapBuilder.setRepoPath("fizteh.db.dir");
-        dispatcherMultiFileHashMapBuilder.setBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        dispatcherMultiFileHashMapBuilder.setDataBaseBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerGet()));
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerPut()));
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerRemove()));
