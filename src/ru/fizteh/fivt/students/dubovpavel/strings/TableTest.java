@@ -70,6 +70,11 @@ public class TableTest {
         Assert.assertEquals(db.get("key"), "value");
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void testRemoveNull() {
+        db.remove(null);
+    }
+
     @Test
     public void testGetName() {
         Assert.assertEquals("strings", db.getName());
