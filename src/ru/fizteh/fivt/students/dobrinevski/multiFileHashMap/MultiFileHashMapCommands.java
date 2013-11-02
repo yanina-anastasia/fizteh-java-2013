@@ -69,7 +69,7 @@ public class MultiFileHashMapCommands {
     public static class Use extends MultiFileHashMapCommand {
         @Override
         public void innerExecute(String[] args) throws Exception {
-            Path dbsDir = Paths.get(parentShell.currentDir.toPath().resolve(args[1]).normalize();
+            Path dbsDir = parentShell.currentDir.toPath().resolve(args[1]).normalize();
             if (Files.notExists(dbsDir) || !Files.isDirectory(dbsDir)) {
                 System.out.println(args[1] + " not exists");
                 return;
