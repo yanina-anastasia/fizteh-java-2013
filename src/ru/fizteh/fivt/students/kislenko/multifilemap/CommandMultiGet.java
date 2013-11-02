@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.kislenko.multifilemap;
 
-import ru.fizteh.fivt.students.kislenko.filemap.CommandGet;
-import ru.fizteh.fivt.students.kislenko.filemap.FilemapState;
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
