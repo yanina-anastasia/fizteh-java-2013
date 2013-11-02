@@ -38,9 +38,16 @@ public class Filemap implements Table{
         return (val == null || (val.isEmpty() || val.trim().isEmpty()));
     }
     
+    public boolean isCorrectKey(String key) {
+        return (!key.contains(" "));
+    }
+    
     public String get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
+        }
+        if (!isCorrectKey(key)) {
+            throw new IllegalArgumentException("key has whitespaces");
         }
         String res = updatedMap.get(key);
         return res;
@@ -53,6 +60,9 @@ public class Filemap implements Table{
         if (isEmpty(value)) {
             throw new IllegalArgumentException("value is empty");
         }            
+        if (!isCorrectKey(key)) {
+            throw new IllegalArgumentException("key has whitespaces");
+        }
         String res = updatedMap.put(key, value);
         return res;
     }
@@ -60,6 +70,9 @@ public class Filemap implements Table{
     public String remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
+        }
+        if (!isCorrectKey(key)) {
+            throw new IllegalArgumentException("key has whitespaces");
         }
         String res = updatedMap.put(key, null);
         return res;
