@@ -118,7 +118,6 @@ public class MultiFileTable implements ChangesCountingTable {
         deletedKeys.clear();
         addedKeys.clear();
         changesCounter = 0;
-        //rollbackChangesCounter = 0;
         try {
             MultiFileUtils.write(dataDirectory, dataBase);
         } catch (IOException e) {
@@ -143,7 +142,6 @@ public class MultiFileTable implements ChangesCountingTable {
         deletedKeys.clear();
         addedKeys.clear();
         changesCounter = 0;
-        //rollbackChangesCounter = 0;
         return counter;
     }
 
