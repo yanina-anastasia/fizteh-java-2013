@@ -57,7 +57,7 @@ public class MyTableProvider implements TableProvider {
                 throw new IllegalArgumentException("Incorrect table name.");
             }
         }
-        if (tables.containsKey(name)) {
+        if (!tables.containsKey(name)) {
             throw new IllegalStateException("Have no table to remove.");
         }
         tables.remove(name);
