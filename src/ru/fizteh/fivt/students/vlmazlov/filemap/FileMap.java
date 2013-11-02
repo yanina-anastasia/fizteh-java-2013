@@ -141,7 +141,12 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		if ((oldValue != null) && (!deleted.contains(key))) {
 			deleted.add(key);
 			++diff;
-			returnValue = oldValue;
+
+			if (overwritten.get(key) == null) {
+				returnValue = oldValue;
+			} else {
+				returnValue = overwritten.get(key);
+			}
 
 		//removing a key that was added after the last commit
 		} else if (added.get(key) != null) {
