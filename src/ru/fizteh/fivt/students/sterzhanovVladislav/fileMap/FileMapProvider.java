@@ -18,7 +18,7 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || isValidFileName(name)) {
+        if (dbPath == null || !isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         try {
@@ -40,7 +40,7 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || isValidFileName(name)) {
+        if (dbPath == null || !isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         if (dbPath.toFile().exists()) {
@@ -58,7 +58,7 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || isValidFileName(name)) {
+        if (dbPath == null || !isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         try {
