@@ -433,7 +433,7 @@ public class Shell {
     }
 
     public Shell() {
-        new File(System.getProperty("user.dir"));
+        currPath = new File(System.getProperty("user.dir"));
     }
     
     public static void main(String[] args) {
