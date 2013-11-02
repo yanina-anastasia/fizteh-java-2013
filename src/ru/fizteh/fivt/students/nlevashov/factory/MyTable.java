@@ -184,7 +184,6 @@ public class MyTable implements Table {
     @Override
     public int commit() {
         int oldSize = oldMap.size();
-        System.out.println(tableName + " +" + oldSize + " | " + map.size());
         oldMap.clear();
         oldMap.putAll(map);
         try {
@@ -192,7 +191,6 @@ public class MyTable implements Table {
         } catch (Exception e) {
             throw new RuntimeException("Table.commit: writing on disk error with message \"" + e.getMessage() + "\"");
         }
-        System.out.println(tableName + " ++" + oldSize + " | " + map.size());
         return (map.size() - oldSize);
     }
 
