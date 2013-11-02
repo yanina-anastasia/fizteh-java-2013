@@ -17,6 +17,13 @@ import java.util.Map;
 public class MultiFileHashTable implements Table {
     public MultiFileHashTable(String workingDirectory, String tableName) throws DatabaseException,
                                                                                 FileNotFoundException {
+        if (workingDirectory == null) {
+            throw new IllegalArgumentException("Working directory path must be not null");
+        }
+        if (tableName == null) {
+            throw new IllegalArgumentException("Table name must be not null");
+        }
+
         this.tableName = tableName;
 
         try {
@@ -26,6 +33,7 @@ public class MultiFileHashTable implements Table {
         }
 
         table = new HashMap<String, String>();
+        oldValues = new HashMap<String, String>();
         readTable();
     }
 
@@ -35,18 +43,58 @@ public class MultiFileHashTable implements Table {
     }
 
     @Override
-    public String get(String key) {
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+
         return table.get(key);
     }
 
     @Override
-    public String put(String key, String value) {
-        return table.put(key, value);
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Value must be not null");
+        }
+        if (value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Value must be not empty");
+        }
+
+        String oldValue = table.put(key, value);
+        if (!oldValues.containsKey(key)) {
+            oldValues.put(key, oldValue);
+        } else if (oldValues.get(key) != null && oldValues.get(key).equals(value)) {
+            oldValues.remove(key);
+        }
+
+        return oldValue;
     }
 
     @Override
-    public String remove(String key) {
-        return table.remove(key);
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+
+        String oldValue = table.remove(key);
+        if (!oldValues.containsKey(key)) {
+            oldValues.put(key, oldValue);
+        } else if (oldValues.get(key) == null) {
+            oldValues.remove(key);
+        }
+        return oldValue;
     }
 
     public void removeTable() throws DatabaseException {
@@ -56,26 +104,40 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int size() {
-        return 0;
+        return table.size();
     }
 
     @Override
     public int commit() {
-        return 0;
+        int changes = oldValues.size();
+        oldValues.clear();
+        return changes;
     }
 
     @Override
     public int rollback() {
-        return 0;
+        for (Map.Entry<String, String> entry : oldValues.entrySet()) {
+            if (entry.getValue() == null) {
+                table.remove(entry.getKey());
+            } else {
+                table.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        int changes = oldValues.size();
+        oldValues.clear();
+        return changes;
     }
 
-    public void exit() {
+    public int uncommittedChanges() {
+        return oldValues.size();
+    }
+
+    public void exit() throws DatabaseException {
         try {
             writeTable();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-        } catch (DatabaseException e) {
-            System.err.println(e.getMessage());
+            throw new DatabaseException("Database io error", e);
         }
     }
 
@@ -116,7 +178,7 @@ public class MultiFileHashTable implements Table {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    throw new DatabaseException("Database io error", e);
                 }
             }
         }
@@ -171,7 +233,7 @@ public class MultiFileHashTable implements Table {
                 try {
                     input.close();
                 }  catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    throw new DatabaseException("Database file have incorrect format", e);
                 }
             }
         }
@@ -189,6 +251,7 @@ public class MultiFileHashTable implements Table {
     }
 
     private HashMap<String, String> table;
+    private HashMap<String, String> oldValues;
 
     private final String tableName;
     private final File tableDirectory;

@@ -4,5 +4,6 @@ public interface Database {
     String put(String key, String value);
     String get(String key);
     String remove(String key);
-    void exit();
+    int size();
+    void exit() throws DatabaseException;
 }
