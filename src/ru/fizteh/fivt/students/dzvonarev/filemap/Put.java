@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dzvonarev.filemap;
+package ru.fizteh.fivt.students.dzvonarev.multifilemap;
 
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
@@ -9,6 +9,9 @@ import java.util.Vector;
 public class Put implements CommandInterface {
 
     public void execute(Vector<String> args) throws IOException {
+        if (MultiFileMap.getWorkingTable().equals("noTable")) {
+            throw new IOException("no table");
+        }
         String str = args.elementAt(0);
         int spaceIndex = str.indexOf(' ', 0);
         while (str.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
@@ -24,7 +27,11 @@ public class Put implements CommandInterface {
             ++newSpaceIndex;
         }
         String value = str.substring(newSpaceIndex + 1, str.length());
-        HashMap<String, String> fileMap = DoCommand.getFileMap();
+        String currTable = MultiFileMap.getWorkingTable();
+        HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
+        if (fileMap == null) {
+            fileMap = new HashMap<>();
+        }
         if (fileMap.containsKey(key)) {
             System.out.println("overwrite");
             System.out.println(fileMap.get(key));
@@ -32,6 +39,7 @@ public class Put implements CommandInterface {
             System.out.println("new");
         }
         fileMap.put(key, value);
+        MultiFileMap.getMultiFileMap().put(currTable, fileMap);
     }
 
 }
