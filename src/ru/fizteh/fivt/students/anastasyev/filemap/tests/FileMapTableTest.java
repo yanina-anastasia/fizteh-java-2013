@@ -106,26 +106,32 @@ public class FileMapTableTest {
     @Test
     public void testCommit() throws Exception {
         int sizeBefore = currTable.size();
-        currTable.put("key1", "value");
-        currTable.put("key2", "value");
-        currTable.put("key3", "value");
-        currTable.remove("key1");
-        currTable.put("key2", "newValue");
-        currTable.commit();
+        assertNull(currTable.put("key1", "value"));
+        assertEquals(currTable.put("key1", "value"), "value");
+        assertNull(currTable.put("key2", "value"));
+        assertEquals(currTable.put("key2", "value"), "value");
+        assertNull(currTable.put("key3", "value"));
+        assertEquals(currTable.put("key3", "value"), "value");
+        assertEquals(currTable.remove("key1"), "value");
+        assertEquals(currTable.put("key2", "value1"), "value");
+        assertEquals(currTable.commit(), 2);
         int sizeAfter = currTable.size();
         assertEquals(2, sizeAfter - sizeBefore);
     }
 
     @Test
     public void testRollback() throws Exception {
-        currTable.put("key1", "value");
-        currTable.put("key2", "value");
-        currTable.put("key3", "value");
-        currTable.commit();
-        currTable.remove("key1");
-        currTable.put("key4", "value");
-        currTable.put("key2", "value");
-        currTable.remove("key4");
+        assertNull(currTable.put("key1", "value"));
+        assertEquals(currTable.put("key1", "value"), "value");
+        assertNull(currTable.put("key2", "value"));
+        assertEquals(currTable.put("key2", "value"), "value");
+        assertNull(currTable.put("key3", "value"));
+        assertEquals(currTable.put("key3", "value"), "value");
+        assertEquals(currTable.commit(), 3);
+        assertEquals(currTable.remove("key1"), "value");
+        assertNull(currTable.put("key4", "value"));
+        assertEquals(currTable.put("key2", "value1"), "value");
+        assertEquals(currTable.remove("key4"), "value");
         assertNull(currTable.get("key1"));
         assertEquals(currTable.rollback(), 2);
         assertNotNull(currTable.get("key1"));
@@ -133,14 +139,32 @@ public class FileMapTableTest {
 
     @Test
     public void testSize() throws Exception {
-        currTable.put("key1", "value");
-        currTable.put("key2", "value");
-        currTable.put("key3", "value");
-        currTable.commit();
-        currTable.remove("key1");
-        currTable.put("key4", "value");
-        currTable.put("key2", "value");
-        currTable.remove("key4");
+        assertNull(currTable.put("key1", "value"));
+        assertEquals(currTable.put("key1", "value"), "value");
+        assertNull(currTable.put("key2", "value"));
+        assertEquals(currTable.put("key2", "value"), "value");
+        assertNull(currTable.put("key3", "value"));
+        assertEquals(currTable.put("key3", "value"), "value");
+        assertEquals(currTable.commit(), 3);
+        assertEquals(currTable.remove("key1"), "value");
+        assertNull(currTable.put("key4", "value"));
+        assertEquals(currTable.put("key2", "value"), "value");
+        assertEquals(currTable.remove("key4"), "value");
         assertEquals(currTable.size(), 2);
+    }
+
+    @Test
+    public void testCommitRollback() {
+        Assert.assertNull(currTable.put("commit", "rollback"));
+        Assert.assertEquals(currTable.get("commit"), "rollback");
+        Assert.assertEquals(currTable.rollback(), 1);
+        Assert.assertNull(currTable.get("commit"));
+        Assert.assertNull(currTable.put("commit", "rollback"));
+        Assert.assertEquals(currTable.get("commit"), "rollback");
+        Assert.assertEquals(currTable.commit(), 1);
+        Assert.assertEquals(currTable.remove("commit"), "rollback");
+        Assert.assertNull(currTable.put("commit", "rollback1"));
+        Assert.assertEquals(currTable.commit(), 1);
+        Assert.assertEquals(currTable.get("commit"), "rollback1");
     }
 }
