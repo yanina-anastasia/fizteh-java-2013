@@ -7,10 +7,12 @@ import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
 import java.awt.geom.IllegalPathStateException;
 import java.io.File;
+import java.util.HashMap;
 
 public class MultiFileHashMap implements TableProvider {
-    File dir;
-    PathController curDir;
+    private File dir;
+    private PathController curDir;
+    private HashMap<String, FileHashMap> database;
 
     public MultiFileHashMap(String workingDir) {
         this.dir = new File(workingDir);
@@ -21,6 +23,7 @@ public class MultiFileHashMap implements TableProvider {
         for (String directory : content) {
             File temp = new File(dir.getAbsoluteFile() + "/" + directory);
             FileHashMap base = new FileHashMap(temp);
+            database.put(directory, null);
         }
         curDir = new PathController(dir.getAbsolutePath());
     }
@@ -29,9 +32,12 @@ public class MultiFileHashMap implements TableProvider {
         if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
             throw new IllegalArgumentException();
         }
-        File table = new File(dir.getAbsolutePath() + "/" + name);
-        if (table.exists()) {
-            return new FileHashMap(table);
+        if (database.containsKey(name)) {
+            File table = new File(dir.getAbsolutePath() + "/" + name);
+            if (database.get(name) == null) {
+                database.put(name, new FileHashMap(table));
+            }
+            return database.get(name);
         } else {
             return null;
         }
@@ -41,12 +47,13 @@ public class MultiFileHashMap implements TableProvider {
         if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
             throw new IllegalArgumentException();
         }
-        File newTable = new File(dir.getAbsolutePath() + "/" + name);
-        if (newTable.exists()) {
+        if (database.containsKey(name)) {
             return null;
         } else {
+            File newTable = new File(dir.getAbsolutePath() + "/" + name);
             newTable.mkdir();
-            return new FileHashMap(newTable);
+            database.put(name, new FileHashMap(newTable));
+            return database.get(name);
         }
     }
 
@@ -54,10 +61,22 @@ public class MultiFileHashMap implements TableProvider {
         if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
             throw new IllegalArgumentException();
         }
-        File table = new File(dir.getAbsolutePath() + "/" + name);
-        if (table.exists()) {
+        if (database.containsKey(name)) {
+            File table = new File(dir.getAbsolutePath() + "/" + name);
             String[] newArgs = {"rm", name};
             ShellCommands.rm(curDir, newArgs);
+            database.remove(name);
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void stopUsing(String name) {
+        if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
+            throw new IllegalArgumentException();
+        }
+        if (database.containsKey(name)) {
+            database.put(name, null);
         } else {
             throw new IllegalStateException();
         }

@@ -52,7 +52,9 @@ public class MFHMController {
                 System.err.println(currentdb.difference() + " unsaved changes");
                 return false;
             }
-            if ((currentdb = multiFileHashMap.getTable(name)) != null) {
+            if (multiFileHashMap.getTable(name) != null) {
+                multiFileHashMap.stopUsing(currentdb.getName());
+                currentdb = multiFileHashMap.getTable(name);
                 System.out.println("using " + name);
             } else {
                 System.out.println(name + " not exists");
