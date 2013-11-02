@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
+import java.lang.System;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -169,7 +170,8 @@ public class MultiFileHashMapCommands {
     public static class Exit extends MultiFileHashMapCommand {
         @Override
         public void innerExecute(String[] args) throws Exception {
-        parent.writeOut();
+            parent.writeOut();
+            System.exit(0);
         }
         Exit() {
             super(1);
