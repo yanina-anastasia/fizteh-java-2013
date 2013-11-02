@@ -103,7 +103,7 @@ public class DataTable implements Table {
         }
         String value;
         if ((value = dataStorage.get(key)) != null) {
-            ++commitSize;
+            --commitSize;
             removeKeys.add(key);
         }
         return value;
