@@ -69,7 +69,7 @@ public class MultiFileHashMapCommands {
     public static class Use extends MultiFileHashMapCommand {
         @Override
         public void innerExecute(String[] args) throws Exception {
-            Path dbsDir = Paths.get(System.getProperty("fizteh.db.dir")).resolve(args[1]).normalize();
+            Path dbsDir = Paths.get(System.getProperty(parentShell.currentDir)).resolve(args[1]).normalize();
             if (Files.notExists(dbsDir) || !Files.isDirectory(dbsDir)) {
                 System.out.println(args[1] + " not exists");
                 return;
@@ -77,7 +77,7 @@ public class MultiFileHashMapCommands {
             if (parent.curTable != null) {
                 parent.writeOut();
             }
-            parent.curTable = new File(System.getProperty("fizteh.db.dir") + File.separator + args[1]);
+            parent.curTable = new File(System.getProperty(parentShell.currentDir) + File.separator + args[1]);
             System.out.println("using " + args[1]);
         }
         Use() {

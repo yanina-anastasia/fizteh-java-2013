@@ -9,8 +9,8 @@ public class Shell {
     public File currentDir;
     public static HashMap<String, Command> cmdMap;
 
-    public Shell(HashMap<String, Command> ccmdMap) {
-        currentDir = new File(System.getProperty("fizteh.db.dir"));
+    public Shell(HashMap<String, Command> ccmdMap, dir) {
+        currentDir = new File(System.getProperty(dir));
         cmdMap = ccmdMap;
         for (Command cmd : cmdMap.values()) {
             cmd.parentShell = this;
@@ -102,10 +102,6 @@ public class Shell {
                 System.out.println(e);
             }
             try {
-                if (!Files.isDirectory(currentDir.toPath())) {
-                    System.err.println("Given directory does not exist: Return to default.");
-                    currentDir = new File(System.getProperty("fizteh.db.dir"));
-                }
                 greeting = currentDir.getCanonicalPath() + "$ ";
             } catch (Exception e) {
                 greeting = "$ ";

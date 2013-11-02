@@ -17,7 +17,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Shell sl = new Shell(cmdMap);
+        Shell sl = new Shell(cmdMap, "user.dir");
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {
