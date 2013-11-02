@@ -15,17 +15,20 @@ public class TableTest {
     private DispatcherMultiFileHashMap dispatcher;
     private File path;
 
-    private void cleanSandBox() {
-        if(path.exists()) {
-            path.delete();
+    private void cleanRecursively(File pointer) {
+        if(pointer.isDirectory()) {
+            for(File sub: pointer.listFiles()) {
+                cleanRecursively(sub);
+            }
         }
+        pointer.delete();
     }
 
     @Before
     public void setUp() {
         String homeDir = System.getProperty("user.home");
         path = new File(homeDir, "sandbox/strings");
-        cleanSandBox();
+        cleanRecursively(path);
         path.mkdirs();
         dispatcher = createNiceMock(DispatcherMultiFileHashMap.class);
         db = new WrappedMindfulDataBaseMultiFileHashMap(path, dispatcher);
@@ -33,7 +36,7 @@ public class TableTest {
 
     @After
     public void tearDown() {
-        cleanSandBox();
+        cleanRecursively(path);
     }
 
     @Test(expected=IllegalArgumentException.class)
