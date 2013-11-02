@@ -114,7 +114,9 @@ public class DatabaseTableProvider implements TableProvider {
         List<Object> values = new ArrayList<>(table.getColumnsCount());
         for (int index = 0; index < table.getColumnsCount(); ++index) {
             try {
-                Object columnValue = deserializer.getNext(table.getColumnType(index));
+                Class<?> expectedType = table.getColumnType(index);
+                Object columnValue = deserializer.getNext(expectedType);
+                checkValue(columnValue, expectedType);
                 values.add(columnValue);
             } catch (ColumnFormatException e) {
                 throw new ParseException("incompatible type: " + e.getMessage(), index);
@@ -214,6 +216,20 @@ public class DatabaseTableProvider implements TableProvider {
     private void checkTableName(String name) {
         if (!name.matches(CHECK_EXPRESSION)) {
             throw new IllegalArgumentException("Bad symbol!");
+        }
+    }
+
+    private void checkValue(Object value, Class<?> type) throws ParseException
+    {
+        switch (StoreableUtils.formatColumnType(type))
+        {
+            case "String":
+                String stringValue = (String) value;
+                if (stringValue.trim().isEmpty())
+                {
+                    throw new ParseException("value cannot be null", 0);
+                }
+                break;
         }
     }
 }
