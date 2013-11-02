@@ -221,11 +221,11 @@ public class DataBaseFile {
                 return null;
             } else {
                 int status = data.get(index).status;
-                String str = new String(data.get(index).value);
-                data.get(index).setValue(value);
-                if (status == DELETED_NODE) {
-                    return null;
+                String str = null;
+                if (status != DELETED_NODE) {
+                    str = new String(data.get(index).value);
                 }
+                data.get(index).setValue(value);
                 return str;
             }
         } catch (UnsupportedEncodingException e) {
