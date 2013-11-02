@@ -50,10 +50,15 @@ public class DataTable implements Table {
                     }
                 }
             } else {
-                putKeys.put(key, value);
+                if (!dataStorage.get(key).equals(value)) {
+                    putKeys.put(key, value);
+                } else {
+                    putKeys.remove(key);
+                }
+
             }
         } else {
-            if (!dataStorage.containsKey(key)) {
+            if (!dataStorage.get(key).equals(value)) {
                 putKeys.put(key, value);
             }
             removeKeys.remove(key);
