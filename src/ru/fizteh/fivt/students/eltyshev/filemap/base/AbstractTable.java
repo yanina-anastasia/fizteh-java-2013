@@ -107,7 +107,11 @@ public abstract class AbstractTable implements Table {
         for (final String key : modifiedData.keySet()) {
             ValueDifference diff = modifiedData.get(key);
             if (diff.oldValue != diff.newValue) {
-                oldData.put(key, diff.newValue);
+                if (diff.newValue == null) {
+                    oldData.remove(key);
+                } else {
+                    oldData.put(key, diff.newValue);
+                }
                 recordsCommited += 1;
             }
         }
