@@ -53,7 +53,9 @@ public class DataTable implements Table {
                 putKeys.put(key, value);
             }
         } else {
-            putKeys.put(key, value);
+            if (!dataStorage.containsKey(key)) {
+                putKeys.put(key, value);
+            }
             removeKeys.remove(key);
         }
         return oldValue;
