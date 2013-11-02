@@ -123,7 +123,7 @@ public class TableStorage implements Table {
     }
 
     private int setDefault() {
-        int result = CountingTools.correctCountingOfChanges(changes, removedKeys);
+        int result = CountingTools.correctCountingOfChanges(data, changes, removedKeys);
         changes.clear();
         removedKeys.clear();
         amountOfChanges = 0;
