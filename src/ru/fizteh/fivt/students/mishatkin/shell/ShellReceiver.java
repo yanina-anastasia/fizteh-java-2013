@@ -95,8 +95,18 @@ public class ShellReceiver implements CommandReceiver{
 	}
 
 	private void deleteFile(File fileToDelete) throws ShellException {
-		if (!fileToDelete.exists() || !fileToDelete.delete()) {
-			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
+		if (!fileToDelete.exists()) {
+			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory.");
+		}
+		File[] subFiles = fileToDelete.listFiles();
+		if (subFiles == null) {
+			if(fileToDelete.delete()) {
+				throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + ".");
+			}
+		}
+		assert subFiles != null;
+		for (File subFile : subFiles) {
+			deleteFile(subFile);
 		}
 	}
 
