@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileWriter;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 
 
@@ -10,48 +11,41 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MultiFileHashMapProvider implements TableProvider {
+    public static final int DIR_COUNT = 16;
+    public static final int FILE_COUNT = 16;
     public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
-    private File curTable = null;
-    private File nextTable;
     private File workingDirectory;
-    public DataTable dataStorage = new DataTable();
+    public DataTable curDataBaseStorage = null;
     private Map<String, DataTable> dataBaseTables = new HashMap<String, DataTable>();
 
 
-    public MultiFileHashMapProvider(File dir) {
+    public MultiFileHashMapProvider(File dir) throws IOException {
         workingDirectory = dir;
-        /*File[] tables = workingDirectory.listFiles();
-        for (File f: tables) {
-            if (f.isDirectory()) {
-                dataBaseTables.put(f.getName(), new DataTable(f.getName()));
+        File[] tables = workingDirectory.listFiles();
+        if (tables.length != 0) {
+            for (File f : tables) {
+                if (f.isDirectory()) {
+                    DataTable dataTable = new DataTable(f.getName(), workingDirectory);
+                    dataTable.load();
+                    dataBaseTables.put(f.getName(), dataTable);
+                }
             }
-        }*/
-    }
-
-    public void setCurTable(File newTable) {
-        if (nextTable == null) {
-            nextTable = curTable;
         }
-        curTable = newTable;
-        dataStorage = new DataTable(curTable.getName());
     }
 
-    public File getCurTable() {
-        return curTable;
-    }
 
-    public void setNextTable(File newTable) {
-        nextTable = newTable;
-    }
-
-    public File getNextTable() {
-        return nextTable;
-    }
-
-    public File getWorkingDirectory() {
-        return workingDirectory;
+    public DataTable setCurTable(String newTable) {
+        DataTable dataTable = null;
+        if (!dataBaseTables.isEmpty()) {
+            dataTable = dataBaseTables.get(newTable);
+            if (dataTable != null) {
+                curDataBaseStorage = dataTable;
+            }
+        }
+        return dataTable;
     }
 
     public Table getTable(String name) throws IllegalArgumentException {
@@ -62,20 +56,6 @@ public class MultiFileHashMapProvider implements TableProvider {
             throw new RuntimeException("Not correct file name");
         }
         return dataBaseTables.get(name);
-       /* File tableDir = new File(workingDirectory, name);
-        try {
-            tableDir = tableDir.getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Programme's mistake in getting canonical file");
-        }
-        if (!tableDir.exists()) {
-            return null;
-        } else {
-            if (!tableDir.isDirectory()) {
-                throw new IllegalArgumentException("The table should be a directory");
-            }
-            return new DataTable(name);
-        }*/
     }
 
     public Table createTable(String name) throws IllegalArgumentException {
@@ -95,20 +75,10 @@ public class MultiFileHashMapProvider implements TableProvider {
                 throw new IllegalArgumentException("Programme's mistake in getting canonical file");
             }
             newTableFile.mkdir();
-            DataTable newTable = new DataTable(name);
+            DataTable newTable = new DataTable(name, workingDirectory);
             dataBaseTables.put(name, newTable);
             return newTable;
         }
-        /*if (newTable.exists()) {
-            if (!newTable.isDirectory()) {
-                throw new IllegalArgumentException(name + " should be a directory");
-            }
-            return null;
-        } else {
-            newTable.mkdir();
-            dataBaseTables.put(name, new DataTable(name));
-            return new DataTable(name);
-        } */
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
@@ -135,15 +105,56 @@ public class MultiFileHashMapProvider implements TableProvider {
         } else {
             throw new IllegalStateException(name + "not exists");
         }
-
-       /* if (!table.exists()) {
-            throw new IllegalStateException(name + " not exists");
-        }
-        if (!table.isDirectory()) {
-            throw new IllegalArgumentException("table " + name + " should be a directory");
-        } */
-
     }
+
+    public void writeData() throws IOException {
+        if (!dataBaseTables.isEmpty()) {
+            Set<String> tablesNames = dataBaseTables.keySet();
+
+            for (String tableName : tablesNames) {
+                DataTable table = dataBaseTables.get(tableName);
+                Set<String> keys = table.getKeys();
+                if (!keys.isEmpty()) {
+                    for (int i = 0; i < DIR_COUNT; ++i) {
+                        File dir = new File(new File(table.getWorkingDirectory(), tableName), new String(i + ".dir"));
+                        for (int j = 0; j < FILE_COUNT; ++j) {
+                            DataTable keysToFile = new DataTable();
+                            File file = new File(dir, new String(j + ".dat"));
+                            for (String key : keys) {
+                                int hashByte = Math.abs(key.getBytes()[0]);
+                                int ndirectory = hashByte % DIR_COUNT;
+                                int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
+                                if ((ndirectory == i) && (nfile == j)) {
+                                    if (!dir.getCanonicalFile().exists()) {
+                                        dir.getCanonicalFile().mkdir();
+                                    }
+
+                                    if (!file.getCanonicalFile().exists()) {
+                                        file.getCanonicalFile().createNewFile();
+                                    }
+                                    keysToFile.put(key, table.get(key));
+                                    keysToFile.commit();
+                                }
+                            }
+
+                            if (!keysToFile.isEmpty()) {
+                                FileWriter fileWriter = new FileWriter();
+                                fileWriter.writeDataToFile(file.getCanonicalFile(), keysToFile);
+                            } else {
+                                if (file.getCanonicalFile().exists()) {
+                                    file.getCanonicalFile().delete();
+                                }
+                            }
+                        }
+                        if (dir.getCanonicalFile().listFiles() == null) {
+                            dir.delete();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 

@@ -17,7 +17,7 @@ public class RollbackCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.dataStorage.rollback());
+        System.out.println(curState.curDataBaseStorage.rollback());
     }
 
     public int getArgsCount() {

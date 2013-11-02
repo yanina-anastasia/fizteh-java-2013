@@ -18,12 +18,12 @@ public class UseCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         int commitSize;
-        if ((commitSize = curState.dataStorage.commitSize()) != 0) {
-            throw new IOException(commitSize + " unsaved changes");
+        if (curState.curDataBaseStorage != null) {
+            if ((commitSize = curState.curDataBaseStorage.commitSize()) != 0) {
+                throw new IOException(commitSize + " unsaved changes");
+            }
         }
-        File newTable = new File(curState.getWorkingDirectory(), args[1]);
-        if (newTable.getCanonicalFile().exists()) {
-            curState.setNextTable(newTable.getCanonicalFile());
+        if (curState.setCurTable(args[1]) != null) {
             System.out.println("using " + args[1]);
         } else {
             System.out.println(args[1] + " not exists");

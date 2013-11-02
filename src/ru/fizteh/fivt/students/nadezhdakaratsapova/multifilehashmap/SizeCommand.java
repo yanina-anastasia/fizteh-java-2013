@@ -17,7 +17,7 @@ public class SizeCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.dataStorage.size());
+        System.out.println(curState.curDataBaseStorage.size());
     }
 
     public int getArgsCount() {

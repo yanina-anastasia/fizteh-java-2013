@@ -17,16 +17,16 @@ public class GetCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        DataLoader dataLoader = new DataLoader();
-        dataLoader.load(curState);
-        if (curState.getCurTable() != null) {
-            String value = curState.dataStorage.get(args[1]);
+        if (curState.curDataBaseStorage != null) {
+            String value = curState.curDataBaseStorage.get(args[1]);
             if (value == null) {
                 System.out.println("not found");
             } else {
                 System.out.println("found");
                 System.out.println(value);
             }
+        } else {
+            System.out.println("no table");
         }
     }
 

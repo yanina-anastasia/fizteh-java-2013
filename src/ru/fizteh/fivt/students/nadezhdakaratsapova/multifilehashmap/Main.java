@@ -9,8 +9,8 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
-        DataWriter dataWriter = new DataWriter();
         try {
+            System.setProperty("fizteh.db.dir", "/home/hope/JavaTests");
             String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
             MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
@@ -31,12 +31,12 @@ public class Main {
                 String arguments = StringMethods.join(Arrays.asList(args), " ");
                 try {
                     multiFileHashMap.batchMode(arguments);
-                    if (state.getCurTable() != null) {
-                        dataWriter.writeData(state);
+                    if (state.curDataBaseStorage != null) {
+                        state.writeData();
                     }
                 } catch (IOException e) {
-                    if (state.getCurTable() != null) {
-                        dataWriter.writeData(state);
+                    if (state.curDataBaseStorage != null) {
+                        state.writeData();
                     }
                     System.err.println(e.getMessage());
                 }

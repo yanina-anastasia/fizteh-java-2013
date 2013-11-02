@@ -17,7 +17,7 @@ public class CommitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.dataStorage.commit());
+        System.out.println(curState.curDataBaseStorage.commit());
     }
 
     public int getArgsCount() {
