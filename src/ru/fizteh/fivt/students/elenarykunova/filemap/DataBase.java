@@ -65,8 +65,8 @@ public class DataBase {
             } finally {
                 try {
                     closeDataFile(dataFile);
-                } catch (RuntimeException e2) {
-                    throw e2;
+                } catch (Throwable e2) {
+                    //
                 }
             }
         }
@@ -244,9 +244,9 @@ public class DataBase {
         } finally {
             try {
                 closeDataFile(dataFile);
-            } catch (RuntimeException e3) {
-                throw e3;
-            }            
+            } catch (Throwable e4) {
+                //
+            }
         }
     }
 }
