@@ -18,6 +18,10 @@ public class MultiFileHashMapState {
         provider = (MultiFileHashMapTableProvider) factory.create(inFile.getPath());
     }
 
+    public void putToProvider(String inName, Table inTable) {
+        provider.putTable(inName, inTable);
+    }
+
     public void changeCurrentTable(Map<String, String> inMap, File inFile) {
 
         currentTable.setDataBase(inMap);
