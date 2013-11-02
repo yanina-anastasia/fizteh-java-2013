@@ -24,6 +24,9 @@ public class MyTableProvider implements TableProvider {
     public MyTableProvider(Path path) {
         tables = new HashMap<String, Table>();
         dbPath = path;
+        if (Files.exists(dbPath)) {
+            throw new IllegalArgumentException("TableProvider.constructor: object with said path already exists");
+        }
         try {
             checkDataBaseDirectory();
             DirectoryStream<Path> stream = Files.newDirectoryStream(path);
