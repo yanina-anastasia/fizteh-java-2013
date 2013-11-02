@@ -33,7 +33,7 @@ public class FileMap implements Table {
     @Override
     public String put(String key, String value) {
         if (key == null || key.isEmpty() || !isValidKey(key) || 
-                value == null || value.isEmpty() || !isValidKey(value)) {
+                value == null || value.isEmpty() || value.contains("\n")) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
@@ -68,6 +68,7 @@ public class FileMap implements Table {
                     break;
                 case REMOVE:
                     db.remove(key);
+                    break;
             }
         }
         diff.clear();
@@ -90,10 +91,12 @@ public class FileMap implements Table {
                     if (!db.containsKey(key)) {
                         ++diffSize;
                     }
+                    break;
                 case REMOVE:
                     if (db.containsKey(key)) {
                         --diffSize;
                     }
+                    break;
             }
         }
         return diffSize;
