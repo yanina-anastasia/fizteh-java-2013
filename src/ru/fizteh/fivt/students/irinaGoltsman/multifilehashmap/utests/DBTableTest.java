@@ -57,7 +57,7 @@ public class DBTableTest {
     }
 
     @Test
-    public void size() {
+    public void sizeWork() {
         Assert.assertEquals(0, table.size());
         table.put("1", "1");
         table.put("2", "2");
@@ -70,5 +70,26 @@ public class DBTableTest {
         Assert.assertEquals(0, table.size());
     }
 
+    @Test
+    public void commitWork() {
+        table.put("1", "1");
+        table.put("2", "2");
+        table.put("3", "3");
+        Assert.assertEquals(3, table.commit());
+        table.remove("1");
+        table.remove("2");
+        table.remove("3");
+        Assert.assertEquals(3, table.commit());
+    }
 
+    @Test
+    public void rollBackWork() {
+        table.put("new1", "1");
+        table.put("new2", "2");
+        table.put("new3", "3");
+        Assert.assertEquals(3, table.rollback());
+        Assert.assertEquals(0, table.rollback());
+        String oldValue = table.put("new1", "1");
+        Assert.assertNull(oldValue);
+    }
 }

@@ -100,7 +100,7 @@ public class DBTable implements Table {
         try {
             FileManager.writeTableOnDisk(tableDirectory, originalTable);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
         int countOfChangedKeys = Math.abs(tableOfChanges.size() - removedKeys.size());
         tableOfChanges.clear();
