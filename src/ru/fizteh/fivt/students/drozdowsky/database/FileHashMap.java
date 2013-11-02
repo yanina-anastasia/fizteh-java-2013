@@ -36,7 +36,7 @@ public class FileHashMap implements Table {
     }
 
     public String put(String key, String value) {
-        if (value == null) {
+        if (!Utils.isValid(value)) {
             throw new IllegalArgumentException();
         }
         int nDir = getDirNum(key);
@@ -89,6 +89,10 @@ public class FileHashMap implements Table {
         Set<String> tmp = new TreeSet<>(a.getKeys());
         tmp.removeAll(b.getKeys());
         result += tmp.size();
+        tmp = new TreeSet<>(b.getKeys());
+        tmp.removeAll(a.getKeys());
+        result += tmp.size();
+
 
         for (String x : a.getKeys()) {
             if (b.getKeys().contains(x)) {
