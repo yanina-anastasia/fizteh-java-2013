@@ -1,11 +1,14 @@
 package ru.fizteh.fivt.students.eltyshev.storable.xml;
 
+import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.ParseException;
 
 public class XmlSerializer implements Closeable {
     StringWriter stringWriter = new StringWriter();
@@ -21,7 +24,7 @@ public class XmlSerializer implements Closeable {
         }
     }
 
-    public void write(Object value) throws IOException {
+    public void write(Object value) throws IOException, ParseException {
         try {
             writer.writeStartElement("col");
             if (value == null)
@@ -31,6 +34,7 @@ public class XmlSerializer implements Closeable {
             }
             else
             {
+                StoreableUtils.checkValue(value, value.getClass());
                 writer.writeCharacters(value.toString());
             }
             writer.writeEndElement();

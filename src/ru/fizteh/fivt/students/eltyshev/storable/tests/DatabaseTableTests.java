@@ -6,6 +6,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseRow;
 import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseTableProviderFactory;
 
 import java.io.IOException;
@@ -55,6 +56,12 @@ public class DatabaseTableTests {
     public void putNlValueTest() throws ParseException
     {
         Storeable storeable = provider.deserialize(currentTable, getXml(1, "    "));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void putNlKeyShouldFail()
+    {
+        currentTable.put("  ", provider.createFor(currentTable));
     }
 
     private String getXml(int value1, String value2)

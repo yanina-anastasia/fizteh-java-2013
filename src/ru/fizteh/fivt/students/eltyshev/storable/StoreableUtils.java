@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.eltyshev.storable;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,5 +108,19 @@ public class StoreableUtils {
             formattedColumnTypes.add(formatColumnType(columnType));
         }
         return formattedColumnTypes;
+    }
+
+    public static void checkValue(Object value, Class<?> type) throws ParseException
+    {
+        switch (formatColumnType(type))
+        {
+            case "String":
+                String stringValue = (String) value;
+                if (stringValue.trim().isEmpty())
+                {
+                    throw new ParseException("value cannot be null", 0);
+                }
+                break;
+        }
     }
 }
