@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.dzvonarev.multifilemap;
+package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
