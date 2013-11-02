@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.abramova.filemap;
 
+import com.sun.corba.se.impl.orb.ParserTable;
+
 import java.io.*;
 import java.util.*;
 
@@ -51,7 +53,7 @@ public class FileMap implements Closeable {
                     value = new byte[valueLen];
                     reader.read(key, 0, keyLen);
                     reader.read(value, 0, valueLen);
-                    fileMap.put(new String(key), new String(value));
+                    fileMap.put(new String(key, "UTF8"), new String(value, "UTF8"));
                 } catch (EOFException e) { //Если конец файла не в том месте
                     throw new IOException("Bad file");
                 } catch (IOException e) {
@@ -85,8 +87,8 @@ public class FileMap implements Closeable {
         byte[] value;
         Set<String> keys = fileMap.keySet();
         for (String keyString : keys) {
-            key = keyString.getBytes();
-            value = fileMap.get(keyString).getBytes();
+            key = keyString.getBytes("UTF8");
+            value = fileMap.get(keyString).getBytes("UTF8");
             keyLen = key.length;
             valueLen = value.length;
             try {
