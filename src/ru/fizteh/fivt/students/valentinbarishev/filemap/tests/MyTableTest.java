@@ -152,4 +152,19 @@ public class MyTableTest {
         Assert.assertEquals(table.rollback(), 0);
         Assert.assertEquals(table.size(), 0);
     }
+
+    @Test
+    public void testCommitRollback() {
+        Assert.assertNull(table.put("commit", "rollback"));
+        Assert.assertEquals(table.get("commit"), "rollback");
+        Assert.assertEquals(table.rollback(), 1);
+        Assert.assertNull(table.get("commit"));
+        Assert.assertNull(table.put("commit", "rollback"));
+        Assert.assertEquals(table.get("commit"), "rollback");
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.remove("commit"), "rollback");
+        Assert.assertNull(table.put("commit", "rollback1"));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.get("commit"), "rollback1");
+    }
 }

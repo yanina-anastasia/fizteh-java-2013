@@ -65,9 +65,7 @@ public class DataBaseFile {
         }
 
         public void setValue(final byte[] newValue) {
-            if (status == OLD_NODE) {
-                status = MODIFIED_NODE;
-            }
+            status = MODIFIED_NODE;
             if ((oldValue != null) && (Arrays.equals(oldValue, newValue))) {
                 status = OLD_NODE;
             }
@@ -221,12 +219,12 @@ public class DataBaseFile {
                 return null;
             } else {
                 int status = data.get(index).status;
-                String str = null;
+                String result = null;
                 if (status != DELETED_NODE) {
-                    str = new String(data.get(index).value);
+                    result = new String(data.get(index).value);
                 }
                 data.get(index).setValue(value);
-                return str;
+                return result;
             }
         } catch (UnsupportedEncodingException e) {
             throw new DataBaseException(e.getMessage());
