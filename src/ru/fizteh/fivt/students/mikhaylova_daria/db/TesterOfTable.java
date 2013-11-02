@@ -3,12 +3,14 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import org.junit.*;
 import ru.fizteh.fivt.storage.strings.*;
-import ru.fizteh.fivt.students.mikhaylova_daria.shell.Shell;
+import ru.fizteh.fivt.students.mikhaylova_daria.shell.MyFileSystem;
+
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
+import java.io.IOException;
 
 public class TesterOfTable {
 
@@ -17,11 +19,12 @@ public class TesterOfTable {
     private static String workingTable;
 
     public static void removeFile(String name) {
-        String[] argShell = new String[] {
-                "rm",
-                name,
-        };
-        Shell.main(argShell);
+        try {
+            MyFileSystem.removing(name);
+        } catch (IOException e) {
+            System.err.println("Ошибка при удалении временного файла");
+            System.exit(1);
+        }
     }
 
     @BeforeClass
@@ -128,12 +131,13 @@ public class TesterOfTable {
         table.put("new1", "value");
         table.put("new2", "value");
         table.put("new3", "value");
-        table.get("new1");
-        table.remove("new1");
+        assertEquals("Не работает put или get", table.get("new1"), "value");
+        assertEquals("не работает remove", table.remove("new1"), "value");
         table.put("new2", "value");
-        table.commit();
+        int commitSize = table.commit();
         int nAfter = table.size();
-        assertEquals(2, nAfter - nBefore);
+        assertEquals("неправильный подсчёт элементов", 2, nAfter - nBefore);
+        assertNotEquals("неправильно работает commit", 0, commitSize);
     }
 
     @Test
@@ -156,11 +160,11 @@ public class TesterOfTable {
         table.put("new8", "a");
         table.commit();
         table.put("new5", "v");
-        table.put("new6", "new value"); //!
-        table.remove("new7"); //!
-        table.remove("new8");
-        table.put("new8", "b"); //!
-        table.remove("nonexistent");
+        table.put("new6", "new value");
+        assertEquals("неправильно работает remove или put", table.remove("new7"), "d");
+        assertEquals("неправильно работает remove или put", table.remove("new8"), "a");
+        table.put("new8", "b");
+        assertNull("неправильно работает remove", table.remove("nonexistent"));
         table.get("new8");
         assertEquals(table.commit(), 3);
     }
@@ -173,11 +177,11 @@ public class TesterOfTable {
         table.put("new8", "a");
         table.commit();
         table.put("new5", "v");
-        table.put("new6", "new value"); //-
-        table.remove("new7"); //-
-        table.remove("new8");
-        table.put("new8", "b"); //-
-        table.remove("nonexistent");
+        table.put("new6", "new value");
+        assertEquals("неправильно работает remove или put", table.remove("new7"), "d");
+        assertEquals("неправильно работает remove или put", table.remove("new8"), "a");
+        table.put("new8", "b");
+        assertNull("неправильно работает remove", table.remove("nonexistent"));
         table.get("new8");
         assertEquals(table.rollback(), 3);
     }
