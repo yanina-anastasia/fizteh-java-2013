@@ -16,8 +16,8 @@ public class DBTable implements Table {
     private HashMap<String, String> originalTable = new HashMap<>();
     private Set<String> removedKeys = new HashSet<>();
 
-    public DBTable(File dataDirectory) throws IOException {
-        tableDirectory = dataDirectory;
+    public DBTable(File inputTableDirectory) throws IOException {
+        tableDirectory = inputTableDirectory;
         Code returnCOde = FileManager.readDBFromDisk(tableDirectory, originalTable);
         if (returnCOde != Code.OK) {
             throw new IOException("Error while reading table: " + this.getName());
