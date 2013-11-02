@@ -32,11 +32,11 @@ public class Main {
                 try {
                     multiFileHashMap.batchMode(arguments);
                     if (state.curDataBaseStorage != null) {
-                        state.writeData();
+                        state.curDataBaseStorage.writeToDataBase();
                     }
                 } catch (IOException e) {
                     if (state.curDataBaseStorage != null) {
-                        state.writeData();
+                        state.curDataBaseStorage.writeToDataBase();
                     }
                     System.err.println(e.getMessage());
                 }
