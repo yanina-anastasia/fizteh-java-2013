@@ -139,14 +139,12 @@ public class DataBase implements Table {
                 }
             }
             dataFile = new RandomAccessFile(data, "rw");
-        } catch (FileNotFoundException e2) {
-            throw new RuntimeException("Cannot Load File4");
-        }
-        try {
             dataFile.seek(0);
             while (dataFile.getFilePointer() != dataFile.length()) {
                 loadKeyAndValue(dataFile, dirNum, fileNum);
             }
+        } catch (FileNotFoundException e2) {
+            throw new RuntimeException("Cannot Load File4");
         } catch (IOException e) {
             try {
                 dataFile.close();
