@@ -53,6 +53,9 @@ public class DataTable implements Table {
                 }
             } else {
                 putKeys.put(key, value);
+                if (dataStorage.containsKey(key)) {
+                    ++commitSize;
+                }
             }
         } else {
             putKeys.put(key, value);
