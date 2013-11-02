@@ -36,7 +36,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         try {
-            String way = System.getProperty("user.dir");
+            String way = System.getProperty("fizteh.db.dir");
             File dbsDir = new File(way);
             if (!dbsDir.isDirectory()) {
                 throw new Exception(dbsDir + " doesn't exist or is not a directory");
