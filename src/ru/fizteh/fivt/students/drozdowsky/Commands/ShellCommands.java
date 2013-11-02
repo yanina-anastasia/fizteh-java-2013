@@ -1,4 +1,6 @@
-package ru.fizteh.fivt.students.drozdowsky.pathController;
+package ru.fizteh.fivt.students.drozdowsky.Commands;
+
+import ru.fizteh.fivt.students.drozdowsky.PathController;
 
 import java.io.*;
 

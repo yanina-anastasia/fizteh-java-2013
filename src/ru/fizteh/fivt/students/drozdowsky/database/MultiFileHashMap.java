@@ -1,20 +1,20 @@
 package ru.fizteh.fivt.students.drozdowsky.database;
 
-import ru.fizteh.fivt.students.drozdowsky.pathController.PathController;
-import ru.fizteh.fivt.students.drozdowsky.pathController.ShellCommands;
+import ru.fizteh.fivt.students.drozdowsky.PathController;
+import ru.fizteh.fivt.students.drozdowsky.Commands.ShellCommands;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.File;
-import java.io.IOException;
 
-public class MultiFileHashMap {
-    FileHashMap currentDatabase;
+public class MultiFileHashMap implements TableProvider {
     File dir;
     PathController curDir;
 
-    public MultiFileHashMap(File dir) throws IOException {
-        this.dir = dir;
+    public MultiFileHashMap(String workingDir) {
+        this.dir = new File(workingDir);
         if (!(dir.exists())) {
-            fatalError("Database doesn't exist");
+            throw new IllegalPathStateException();
         }
         String[] content = dir.list();
         for (String directory : content) {
@@ -24,108 +24,41 @@ public class MultiFileHashMap {
         curDir = new PathController(dir.getAbsolutePath());
     }
 
-    public boolean create(String[] args) {
-        if (args.length != 2) {
-            error("usage: create name");
-            return false;
+    public FileHashMap getTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
         }
+        File table = new File(dir.getAbsolutePath() + "/" + name);
+        if (table.exists()) {
+            return new FileHashMap(table);
+        } else {
+            return null;
+        }
+    }
 
-        File newTable = new File(dir.getAbsolutePath() + "/" + args[1]);
+    public FileHashMap createTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
+        File newTable = new File(dir.getAbsolutePath() + "/" + name);
         if (newTable.exists()) {
-            System.out.println(args[1] + " exists");
-            return true;
+            return null;
         } else {
             newTable.mkdir();
-            System.out.println("created");
-            return true;
+            return new FileHashMap(newTable);
         }
     }
 
-    public boolean drop(String[] args) {
-        if (args.length != 2) {
-            error("usage: drop name");
-            return false;
+    public void removeTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
         }
-
-        File table = new File(dir.getAbsolutePath() + "/" + args[1]);
+        File table = new File(dir.getAbsolutePath() + "/" + name);
         if (table.exists()) {
-            if (table.getAbsolutePath().equals(currentDatabase.getPath())) {
-                currentDatabase.close();
-                currentDatabase = null;
-            }
-            String[] newArgs = {"rm", args[1]};
+            String[] newArgs = {"rm", name};
             ShellCommands.rm(curDir, newArgs);
-            System.out.println("dropped");
-            return true;
         } else {
-            System.out.println(args[1] + " not exists");
-            return true;
+            throw new IllegalStateException();
         }
-    }
-
-    public boolean use(String[] args) {
-        if (args.length != 2) {
-            error("usage: use name");
-            return false;
-        }
-
-        File table = new File(dir.getAbsolutePath() + "/" + args[1]);
-        if (table.exists()) {
-            if (currentDatabase != null) {
-                currentDatabase.close();
-            }
-            try {
-                currentDatabase = new FileHashMap(table);
-            } catch (IOException e) {
-                error(e.getMessage());
-                return false;
-            }
-            System.out.println("using " + args[1]);
-            return true;
-        } else {
-            System.out.println(args[1] + " not exists");
-            return true;
-        }
-
-    }
-
-    public boolean put(String[] args) {
-        if (currentDatabase == null) {
-            System.err.println("no table");
-            return false;
-        }
-        return currentDatabase.put(args);
-    }
-
-    public boolean get(String[] args) {
-        if (currentDatabase == null) {
-            System.err.println("no table");
-            return false;
-        }
-        return currentDatabase.get(args);
-    }
-
-    public boolean remove(String[] args) {
-        if (currentDatabase == null) {
-            System.err.println("no table");
-            return false;
-        }
-        return currentDatabase.remove(args);
-    }
-
-    public boolean exit(String[] args) {
-        if (currentDatabase == null) {
-            System.exit(0);
-            return true;
-        }
-        return currentDatabase.exit(args);
-    }
-
-    private void fatalError(String error) throws IOException {
-        throw new IOException(error);
-    }
-
-    private void error(String aError) {
-        System.err.println(aError);
     }
 }
