@@ -96,7 +96,8 @@ public class MyTable implements Table {
                             }
                         }
                     } catch (IOException e) {
-                        throw new RuntimeException("Table.constructor: reading error with message \"" + e.getMessage() + "\"");
+                        throw new RuntimeException("Table.constructor: reading error with message \""
+                                                    + e.getMessage() + "\"");
                     }
                 }
             }
@@ -183,25 +184,7 @@ public class MyTable implements Table {
      */
     @Override
     public int commit() {
-        //int oldSize = oldMap.size();
-        int difference = 0;
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (!oldMap.containsKey(entry.getKey())) {
-                difference++;
-                //System.out.println("1");
-            } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
-                difference++;
-                //System.out.println("2");
-            }
-
-        }
-        for (Map.Entry<String, String> entry : oldMap.entrySet()) {
-            if (!map.containsKey(entry.getKey())) {
-                difference++;
-                //System.out.println("3");
-            }
-        }
-
+        int difference = mapsDifference();
         oldMap.clear();
         oldMap.putAll(map);
         try {
@@ -210,7 +193,6 @@ public class MyTable implements Table {
             throw new RuntimeException("Table.commit: writing on disk error with message \"" + e.getMessage() + "\"");
         }
         return difference;
-        //return (map.size() - oldSize);
     }
 
     /**
@@ -220,32 +202,37 @@ public class MyTable implements Table {
      */
     @Override
     public int rollback() {
+        int difference = mapsDifference();
+        map.clear();
+        map.putAll(oldMap);
+        return difference;
+    }
+
+    /**
+     * Считает "разницу" map и oldMap. То есть минимальное количество опрераций встаки, переименования и удаления,
+     * с помощью которых одну коллекцию можно преобразовать к другой
+     */
+    int mapsDifference() {
         int difference = 0;
         for (Map.Entry<String, String> entry : map.entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {
                 difference++;
-                //System.out.println("1");
             } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
                 difference++;
-                //System.out.println("2");
             }
 
         }
         for (Map.Entry<String, String> entry : oldMap.entrySet()) {
             if (!map.containsKey(entry.getKey())) {
                 difference++;
-                //System.out.println("3");
             }
         }
-
-        map.clear();
-        map.putAll(oldMap);
-        //System.out.println(tableName + " --" + oldMap.size() + " | " + newSize);
         return difference;
     }
 
     /**
      * Записывает изменения в базу
+     * @throws Exception Сообщения об ошибках
      */
     void refreshDiskData() throws Exception {
         Vector<Vector<HashMap<String, String>>> parts = new Vector<Vector<HashMap<String, String>>>();

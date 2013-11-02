@@ -37,7 +37,8 @@ public class MyTableProvider implements TableProvider {
                 tables.put(f.getFileName().toString(), (new MyTable(f)));
             }
         } catch (IOException e) {
-            throw new RuntimeException("TableProvider.constructor: the structure of database is wrong. Specifically, " + e.getMessage());
+            throw new RuntimeException("TableProvider.constructor: the structure of database is wrong. Specifically, "
+                                        + e.getMessage());
         }
     }
 
@@ -85,7 +86,8 @@ public class MyTableProvider implements TableProvider {
                 Shell.cd(dbPath.toString());
                 Shell.mkdir(name);
             } catch (Exception e) {
-                throw new RuntimeException("TableProvider.createTable: directory making error with message \"" + e.getMessage() + "\"");
+                throw new RuntimeException("TableProvider.createTable: directory making error with message \""
+                                            + e.getMessage() + "\"");
             }
             Table newTable = new MyTable(dbPath.resolve(name));
             tables.put(name, newTable);
@@ -111,7 +113,8 @@ public class MyTableProvider implements TableProvider {
                 Shell.rm(name);
                 tables.remove(name);
             } catch (Exception e) {
-                throw new RuntimeException("TableProvider.removeTable: directory removing error with message \"" + e.getMessage() + "\"");
+                throw new RuntimeException("TableProvider.removeTable: directory removing error with message \""
+                                            + e.getMessage() + "\"");
             }
         } else {
             throw new IllegalStateException("TableProvider.removeTable: table doesn't exists");
