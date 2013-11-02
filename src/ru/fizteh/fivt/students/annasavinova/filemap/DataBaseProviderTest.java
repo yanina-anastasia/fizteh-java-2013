@@ -23,7 +23,6 @@ public class DataBaseProviderTest {
             rootDir = root.newFolder("rootFolder");
             root.newFolder("rootFolder" + File.separator + "testBase1");
             root.newFolder("rootFolder" + File.separator + "testBase2");
-
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

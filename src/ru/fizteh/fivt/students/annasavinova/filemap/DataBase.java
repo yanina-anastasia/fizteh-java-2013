@@ -149,8 +149,10 @@ public class DataBase implements Table {
             throw new RuntimeException("Cannot Load File6");
         } finally {
             try {
-                dataFile.close();
-            } catch (IOException e1) {
+                if (dataFile != null) {
+                    dataFile.close();
+                }
+            } catch (Throwable e1) {
                 throw new RuntimeException("Cannot Load File5");
             }
         }
