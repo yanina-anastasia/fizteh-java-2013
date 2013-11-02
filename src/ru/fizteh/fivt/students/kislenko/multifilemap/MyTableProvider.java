@@ -49,7 +49,7 @@ public class MyTableProvider implements TableProvider {
                 throw new IllegalArgumentException("Incorrect table name.");
             }
         }
-        if (!tables.containsKey(name)) {
+        if (tables.get(name) == null) {
             throw new IllegalStateException("Have no table to remove.");
         }
         tables.remove(name);
