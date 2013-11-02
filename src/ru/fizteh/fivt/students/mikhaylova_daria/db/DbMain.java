@@ -1,11 +1,3 @@
-package ru.fizteh.fivt.students.mikhaylova_daria.db;
-
-import java.io.*;
-import java.util.HashMap;
-
-
-import ru.fizteh.fivt.students.mikhaylova_daria.shell.Parser;
-
 public class DbMain {
 
     private static TableData currentTable = null;
@@ -13,6 +5,10 @@ public class DbMain {
 
     public static void main(String[] arg) {
         String workingDirectoryName = System.getProperty("fizteh.db.dir");
+        if (workingDirectoryName == null) {
+            System.err.println("Bad property");
+            System.exit(1);
+        }
         try {
            mainManager = new TableManager(workingDirectoryName);
         } catch (Exception e) {
