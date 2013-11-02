@@ -17,7 +17,6 @@ public class DataTable implements Table {
 
     private Map<String, String> putKeys = new HashMap<String, String>();
     private Set<String> removeKeys = new HashSet<String>();
-    int commitSize = 0;
 
     public DataTable() {
     }
@@ -45,11 +44,9 @@ public class DataTable implements Table {
                 oldValue = dataStorage.get(key);
                 if (oldValue == null) {
                     putKeys.put(key, value);
-                    ++commitSize;
                 } else {
                     if (!oldValue.equals(value)) {
                         putKeys.put(key, value);
-                        ++commitSize;
                     }
                 }
             } else {
@@ -91,8 +88,9 @@ public class DataTable implements Table {
         }
         if (!putKeys.isEmpty()) {
             if (putKeys.get(key) != null) {
-                removeKeys.add(key);
-                --commitSize;
+                if (dataStorage.get(key) != null) {
+                    removeKeys.add(key);
+                }
                 return putKeys.remove(key);
             }
         }
@@ -103,7 +101,6 @@ public class DataTable implements Table {
         }
         String value;
         if ((value = dataStorage.get(key)) != null) {
-            --commitSize;
             removeKeys.add(key);
         }
         return value;
@@ -114,30 +111,41 @@ public class DataTable implements Table {
     }
 
     public int size() {
-        return dataStorage.size() + commitSize;
+        int size = dataStorage.size();
+        Set<String> keysToCommit = putKeys.keySet();
+        for (String key : keysToCommit) {
+            if (!dataStorage.containsKey(key)) {
+                ++size;
+            }
+        }
+        size -= removeKeys.size();
+        return size;
     }
 
     public int commit() {
+        int commitSize = 0;
         if (!putKeys.isEmpty()) {
             Set<String> putKeysToCommit = putKeys.keySet();
             for (String key : putKeysToCommit) {
                 dataStorage.put(key, putKeys.get(key));
+                ++commitSize;
             }
             putKeys.clear();
         }
         if (!removeKeys.isEmpty()) {
             for (String key : removeKeys) {
                 dataStorage.remove(key);
+                ++commitSize;
             }
             removeKeys.clear();
         }
-        int returnSize = Math.abs(commitSize);
-        commitSize = 0;
-        return returnSize;
+        return commitSize;
     }
 
     public int rollback() {
+        int rollbackSize = 0;
         if (!putKeys.isEmpty()) {
+            rollbackSize += putKeys.size();
             Set<String> putKeysToRollback = putKeys.keySet();
             for (String key : putKeysToRollback) {
                 dataStorage.containsKey(key);
@@ -145,15 +153,14 @@ public class DataTable implements Table {
             putKeys.clear();
         }
         if (!removeKeys.isEmpty()) {
+            rollbackSize += removeKeys.size();
             removeKeys.clear();
         }
-        int returnSize = Math.abs(commitSize);
-        commitSize = 0;
-        return returnSize;
+        return rollbackSize;
     }
 
     public int commitSize() {
-        return commitSize;
+        return putKeys.size() + removeKeys.size();
     }
 
     public File getWorkingDirectory() {
