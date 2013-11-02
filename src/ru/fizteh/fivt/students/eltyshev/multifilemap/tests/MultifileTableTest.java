@@ -78,7 +78,7 @@ public class MultifileTableTest {
             currentTable.put(key, value);
         }
 
-        Assert.assertEquals(KEYS_COUNT, currentTable.commit());
+        Assert.assertEquals(2 * KEYS_COUNT, currentTable.commit());
 
         for (int index = 0; index < 2 * KEYS_COUNT; ++index) {
             String key = String.format("key%d", index);
