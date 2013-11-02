@@ -1,13 +1,9 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.Command;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.CommandParser;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.DefaultCommandParser;
-import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellUtility;
 
 public class FileMapCommands {
     public static class Put extends FileMapCommand {
@@ -129,11 +125,7 @@ public class FileMapCommands {
     public static class Create extends FileMapCommand {
         @Override
         public void innerExecute() throws Exception {
-            File dbDir = Paths.get(dbContext.getRootDir().normalize() + "/" + args[1]).toFile();
-            if (dbDir.exists()) {
-                throw new Exception(args[1] + " exists");
-            }
-            dbDir.mkdir();
+            dbContext.createTable(args[1]);
             parentShell.out.println("created");
         }
         
@@ -158,16 +150,8 @@ public class FileMapCommands {
     
     public static class Drop extends FileMapCommand {
         @Override
-        public void innerExecute() throws Exception {
-            Path dbPath = Paths.get(dbContext.getRootDir().normalize() + "/" + args[1]);
-            File dbDir = dbPath.toFile();
-            if (!dbDir.exists() || !dbDir.isDirectory()) {
-                throw new Exception(args[1] + " not exists");
-            }
-            if (dbPath.equals(dbContext.getActiveDir())) {
-                dbContext.closeActiveTable();
-            }
-            ShellUtility.removeDir(dbPath);
+        public void innerExecute() throws IllegalStateException {
+            dbContext.removeTable(args[1]);
             parentShell.out.println("dropped");
         }
         
@@ -215,4 +199,16 @@ public class FileMapCommands {
             super(args, 1);
         }
     }
+    
+    /*public static class Commit extends FileMapCommand {
+        
+    }
+    
+    public static class Rollback extends FileMapCommand { 
+        
+    }
+    
+    public static class Size extends FileMapCommand {
+        
+    }*/
 }

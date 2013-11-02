@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.Command;
@@ -17,8 +15,7 @@ public class Wrapper {
             System.out.println("fizteh.db.dir not set");
             System.exit(-1);
         }
-        Path dbPath = Paths.get(dbDir);
-        try (DatabaseContext context = new DatabaseContext(dbPath)) {
+        try (DatabaseContext context = new DatabaseContext(dbDir)) {
             cmdMap.put("put", new FileMapCommands.Put().setContext(context));
             cmdMap.put("get", new FileMapCommands.Get().setContext(context));
             cmdMap.put("remove", new FileMapCommands.Remove().setContext(context));
