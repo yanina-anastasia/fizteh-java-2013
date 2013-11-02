@@ -10,6 +10,7 @@ public class MindfulDataBaseMultiFileHashMap extends DataBaseMultiFileHashMap {
     private HashMap<String, String> oldDict;
     MindfulDataBaseMultiFileHashMap(File path) {
         super(path);
+        oldDict = new HashMap<String, String>();
     }
 
     @Override
