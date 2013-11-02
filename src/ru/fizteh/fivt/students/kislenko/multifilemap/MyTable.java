@@ -76,7 +76,7 @@ public class MyTable implements Table {
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        if (storage.get(key) != null) {
+        if (changes.get(key) != null && storage.get(key) != null) {
             --count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
