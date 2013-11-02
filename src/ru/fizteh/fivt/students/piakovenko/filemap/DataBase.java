@@ -295,7 +295,7 @@ public class DataBase implements Table {
         if (putValue == null) {
             ++changed;
         } else {
-            if (!map.getMap().get(key).equals(value)) {
+            if (!putValue.equals(value)) {
                 ++changed;
             }
         }
