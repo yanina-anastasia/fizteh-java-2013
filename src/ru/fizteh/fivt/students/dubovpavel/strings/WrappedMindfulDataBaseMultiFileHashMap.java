@@ -22,7 +22,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMulti
     }
     @Override
     public String put(String key, String value) {
-        if(key == null || value == null) {
+        if(key == null || value == null || key.equals("")) {
             throw new IllegalArgumentException();
         }
         return super.put(key, value);
