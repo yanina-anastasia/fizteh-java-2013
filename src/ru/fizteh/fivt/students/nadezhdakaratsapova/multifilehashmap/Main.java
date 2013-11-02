@@ -11,7 +11,6 @@ public class Main {
     public static void main(String[] args) {
         DataWriter dataWriter = new DataWriter();
         try {
-            System.setProperty("fizteh.db.dir", "/home/hope/");
             String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
             MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
