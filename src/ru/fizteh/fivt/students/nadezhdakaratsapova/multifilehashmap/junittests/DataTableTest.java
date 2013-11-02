@@ -101,4 +101,13 @@ public class DataTableTest {
         Assert.assertEquals(dataTable.rollback(), 1);
     }
 
+    @Test
+    public void badRollbackTest() {
+        dataTable.put("12", "13");
+        dataTable.put("13", "14");
+        Assert.assertEquals(dataTable.commit(), 2);
+        dataTable.put("12", "15");
+        dataTable.remove("13");
+        Assert.assertEquals(dataTable.rollback(), 2);
+    }
 }
