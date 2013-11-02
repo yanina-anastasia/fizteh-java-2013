@@ -43,6 +43,40 @@ public class Shell {
         }
     }
 
+    private void removeFile(String[] args) throws Exception {
+
+        checkLen(args[0], args.length - 1, 1);
+        Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
+        if (!Files.exists(pathToRemove)) {
+            throw new SException(args[0], "Cannot be removed: File does not exist");
+        }
+        if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
+            throw new SException(args[0], "\'" + args[1] +
+                    "\': Cannot be removed: First of all, leave this directory");
+        }
+
+        File fileToRemove = new File(pathAppend(args[1]));
+        File[] filesToRemove = fileToRemove.listFiles();
+        if (filesToRemove != null) {
+            for (File file : filesToRemove) {
+                try {
+                    String[] toRemove = new String[2];
+                    toRemove[0] = args[0];
+                    toRemove[1] = file.getPath();
+                    removeFile(toRemove);
+                } catch (Exception e) {
+                    throw new SException(args[0], "\'" + file.getCanonicalPath()
+                            + "\' : File cannot be removed: " + e.getMessage() + " ");
+                }
+            }
+        }
+
+        if (!Files.deleteIfExists(pathToRemove)) {
+            throw new SException(args[0], "\'" + fileToRemove.getCanonicalPath()
+                    + "\' : File cannot be removed ");
+        }
+    }
+
     public void iMode() {
         Scanner scan = new Scanner(System.in);
         String greeting;
