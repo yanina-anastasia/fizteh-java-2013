@@ -98,6 +98,7 @@ public class MyTableProvider implements TableProvider {
             try {
                 Shell.cd(dbPath.toString());
                 Shell.rm(name);
+                tables.remove(name);
             } catch (Exception e) {
                 throw new RuntimeException("TableProvider.removeTable: directory removing error with message \"" + e.getMessage() + "\"");
             }
