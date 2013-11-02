@@ -24,9 +24,9 @@ public class Copy implements Commands {
     }
 
 
-    public void perform(String[] array) throws MyException, IOException {
+    public void perform(String[] array) throws IOException {
         if (array.length != 3) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ cp <source> <destination>"));
+           throw new IOException("Wrong arguments! Usage ~ cp <source> <destination>");
         }
         File from, to;
         from = new File(array[1]);
@@ -38,7 +38,7 @@ public class Copy implements Commands {
             to = new File(currentStatus.getCurrentDirectory() , array[2]);
         }
         if (from.equals(to)) {
-            throw new MyException(new Exception("Trying to copy file to the same file"));
+            throw new IOException("Trying to copy file to the same file");
         }
         if (!to.exists()) {
             if (to.getName().indexOf('.') == -1) {
@@ -57,7 +57,7 @@ public class Copy implements Commands {
         } else if (from.isDirectory()) {
             CopyFiles.copyRecursively(from, to);
         } else {
-            throw new MyException(new Exception("Error! " + array[1] + " should be a directory!"));
+            throw new IOException("Error! " + array[1] + " should be a directory!");
         }
     }
 }

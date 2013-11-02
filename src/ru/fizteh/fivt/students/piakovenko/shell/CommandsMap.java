@@ -22,7 +22,7 @@ public class CommandsMap {
 
 
 
-    public void execute(String commandsString) throws MyException, IOException {
+    public void execute(String commandsString) throws IOException {
         String[] commandsArray = commandsString.trim().split("\\s*;\\s*");
         for (String command : commandsArray) {
             String[] args = command.split("\\s+");

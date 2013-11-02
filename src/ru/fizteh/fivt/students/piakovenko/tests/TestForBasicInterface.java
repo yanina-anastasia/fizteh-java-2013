@@ -82,9 +82,6 @@ public class TestForBasicInterface {
         } catch (IOException e) {
             System.err.println("IOException was thrown!");
             System.exit(1);
-        } catch (MyException e) {
-            System.err.println("MyException thrown!");
-            System.exit(1);
         }
         org.junit.Assert.assertEquals("should return Three", three, temp.get("three"));
         org.junit.Assert.assertEquals("should return One", one, temp.get("one"));
