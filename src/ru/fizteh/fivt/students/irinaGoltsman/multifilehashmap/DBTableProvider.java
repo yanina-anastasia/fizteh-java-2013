@@ -53,7 +53,7 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException("create table: table name is empty");
         }
         if (!tableName.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("create table: error table name");
+            throw new IllegalArgumentException("create table: error table name");
         }
         File tableFile = new File(rootDirectoryOfTables, tableName);
         if (tableFile.exists()) {
