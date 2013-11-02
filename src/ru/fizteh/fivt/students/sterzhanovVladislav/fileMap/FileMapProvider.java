@@ -14,8 +14,11 @@ public class FileMapProvider implements TableProvider {
 
     @Override
     public FileMap getTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || name.contains("/")) {
+        if (dbPath == null || isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         try {
@@ -33,11 +36,11 @@ public class FileMapProvider implements TableProvider {
 
     @Override
     public FileMap createTable(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || name.contains("/") || name.isEmpty()) {
+        if (dbPath == null || isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         if (dbPath.toFile().exists()) {
@@ -51,8 +54,11 @@ public class FileMapProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
-        if (dbPath == null || name.contains("/")) {
+        if (dbPath == null || isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
         try {
@@ -76,5 +82,13 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException("fizteh.db.dir did not resolve to a valid directory");
         }
         tables = new HashMap<String, FileMap>();
+    }
+    
+    private static boolean isValidFileName(String name) {
+        return !(name.contains("\\") || name.contains("/")
+                || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"")
+                || name.contains("<") || name.contains(">")
+                || name.contains("|"));
     }
 }
