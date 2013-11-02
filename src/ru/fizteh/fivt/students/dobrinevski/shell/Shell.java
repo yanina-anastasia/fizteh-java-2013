@@ -46,10 +46,10 @@ public class Shell {
     public void removeFile(String[] args) throws Exception {
         Path pathToRemove = currentDir.toPath().resolve(args[1]).normalize();
         if (!Files.exists(pathToRemove)) {
-            throw new Exception(args[0], "Cannot be removed: File does not exist");
+            throw new Exception("Cannot be removed: File does not exist");
         }
         if (currentDir.toPath().normalize().startsWith(pathToRemove)) {
-            throw new Exception(args[0], "\'" + args[1] +
+            throw new Exception("\'" + args[1] +
                     "\': Cannot be removed: First of all, leave this directory");
         }
 
@@ -66,14 +66,14 @@ public class Shell {
                     toRemove[1] = file.getPath();
                     removeFile(toRemove);
                 } catch (Exception e) {
-                    throw new Exception(args[0], "\'" + file.getCanonicalPath()
+                    throw new Exception("\'" + file.getCanonicalPath()
                             + "\' : File cannot be removed: " + e.getMessage() + " ");
                 }
             }
         }
 
         if (!Files.deleteIfExists(pathToRemove)) {
-            throw new Exception(args[0], "\'" + fileToRemove.getCanonicalPath()
+            throw new Exception("\'" + fileToRemove.getCanonicalPath()
                     + "\' : File cannot be removed ");
         }
     }
