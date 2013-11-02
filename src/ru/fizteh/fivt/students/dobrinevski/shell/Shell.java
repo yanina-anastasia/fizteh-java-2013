@@ -9,7 +9,7 @@ public class Shell {
     public File currentDir;
     public static HashMap<String, Command> cmdMap;
 
-    Shell(HashMap<String, Command> ccmdMap) {
+    public Shell(HashMap<String, Command> ccmdMap) {
         currentDir = new File(System.getProperty("user.dir"));
         cmdMap = ccmdMap;
         for (Command cmd : cmdMap.values()) {
