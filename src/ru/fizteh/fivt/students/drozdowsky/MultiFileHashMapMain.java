@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.drozdowsky;
 
 import ru.fizteh.fivt.students.drozdowsky.Commands.MFHMController;
+import ru.fizteh.fivt.students.drozdowsky.database.FileHashMap;
+import ru.fizteh.fivt.students.drozdowsky.database.MFHMProviderFactory;
 import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
 import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;
@@ -21,7 +23,6 @@ public class MultiFileHashMapMain {
             System.err.println(dbDirectory + ": not a directory");
             System.exit(1);
         }
-
         String[] commandNames = {"create", "drop", "use", "put", "get", "remove", "exit", "size", "commit", "rollback"};
         HashMap<String, Method> map = Utils.getMethods(commandNames, MFHMController.class);
         MFHMController db = new MFHMController(new MultiFileHashMap(dbDirectory));

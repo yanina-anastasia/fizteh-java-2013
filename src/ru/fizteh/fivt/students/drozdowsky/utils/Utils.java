@@ -74,4 +74,8 @@ public class Utils {
             }
         return map;
     }
+
+    public static boolean isValid(String name) {
+        return !(name == null || name.equals("") || name.contains("\n"));
+    }
 }

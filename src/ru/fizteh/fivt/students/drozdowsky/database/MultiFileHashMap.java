@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.drozdowsky.database;
 import ru.fizteh.fivt.students.drozdowsky.PathController;
 import ru.fizteh.fivt.students.drozdowsky.Commands.ShellCommands;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
 import java.awt.geom.IllegalPathStateException;
 import java.io.File;
@@ -25,7 +26,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap getTable(String name) {
-        if (name == null) {
+        if (!Utils.isValid(name)) {
             throw new IllegalArgumentException();
         }
         File table = new File(dir.getAbsolutePath() + "/" + name);
@@ -37,7 +38,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap createTable(String name) {
-        if (name == null) {
+        if (!Utils.isValid(name)) {
             throw new IllegalArgumentException();
         }
         File newTable = new File(dir.getAbsolutePath() + "/" + name);
@@ -50,7 +51,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public void removeTable(String name) {
-        if (name == null) {
+        if (!Utils.isValid(name)) {
             throw new IllegalArgumentException();
         }
         File table = new File(dir.getAbsolutePath() + "/" + name);
