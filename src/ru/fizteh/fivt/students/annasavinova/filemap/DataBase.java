@@ -146,11 +146,6 @@ public class DataBase implements Table {
         } catch (FileNotFoundException e2) {
             throw new RuntimeException("Cannot Load File4");
         } catch (IOException e) {
-            try {
-                dataFile.close();
-            } catch (IOException e1) {
-                throw new RuntimeException("Cannot Load File5");
-            }
             throw new RuntimeException("Cannot Load File6");
         } finally {
             try {

@@ -8,24 +8,28 @@ import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class DBaseProviderFactoryTest {
-    static File rootDir = new File(System.getProperty("user.dir") + File.separatorChar + "tmpRootDir");
-    static File file = new File(rootDir.getAbsolutePath() + "filename");
+    static File rootDir;
+    static File file;
+    static TemporaryFolder root = new TemporaryFolder();
 
     @BeforeClass
     public static void createDir() {
-        rootDir.mkdir();
         try {
-            file.createNewFile();
-        } catch (IOException e) {
-            // cannot create new file
+            root.create();
+            rootDir = root.newFolder("rootFolder");
+            file = root.newFile("rootFolder" + File.separator + "filename");
+        } catch (IOException e1) {
+            System.err.println(e1.getMessage());
+            e1.printStackTrace();
         }
     }
 
     @AfterClass
     public static void clean() {
-        DataBaseProvider.doDelete(rootDir);
+        root.delete();
     }
 
     @Test

@@ -3,21 +3,28 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class DataBaseTest {
     DataBase test;
-    static File rootDir = new File(System.getProperty("user.dir") + File.separatorChar + "tmpRootDir");
+    static File rootDir;
+    static TemporaryFolder root = new TemporaryFolder();
 
     @BeforeClass
     public static void createDir() {
-        File table = new File(rootDir.getAbsolutePath() + File.separator + "testBase");
-        rootDir.mkdir();
-        table.mkdir();
+        try {
+            root.create();
+            rootDir = root.newFolder("rootFolder");
+            root.newFolder("rootFolder" + File.separator + "testBase");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     @Before
@@ -30,12 +37,12 @@ public class DataBaseTest {
         test.put("we", "l");
         test.put("ключ_на_русском", "значение_на_русском");
     }
-
+    
     @AfterClass
-    public static void clean() {
-        DataBaseProvider.doDelete(rootDir);
+    public static void deleteDir() {
+        root.delete();
     }
-
+    
     @SuppressWarnings("unused")
     @Test
     public void testDataBase() {
