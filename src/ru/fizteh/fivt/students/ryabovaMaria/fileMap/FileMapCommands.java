@@ -56,7 +56,7 @@ public class FileMapCommands extends AbstractCommands {
             Method makeCommand = c.getMethod("countChanges", boolean.class);
             int counted = (int) makeCommand.invoke(myTable, false);
             if (counted != 0) {
-                System.out.println(counted + " unsave changes");
+                System.out.println(counted + " unsaved changes");
                 return;
             }
         }
@@ -179,7 +179,16 @@ public class FileMapCommands extends AbstractCommands {
         System.out.println(myTable.rollback());
     }
     
-    public void exit() {
+    public void exit() throws Exception {
+        if (myTable != null) {
+            Class c = myTable.getClass();
+            Method makeCommand = c.getMethod("countChanges", boolean.class);
+            int counted = (int) makeCommand.invoke(myTable, false);
+            if (counted != 0) {
+                System.out.println(counted + " unsaved changes");
+                return;
+            }
+        }
         System.exit(0);
     }
 }
