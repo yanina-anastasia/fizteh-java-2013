@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
-import java.io.IOException;
+import ru.fizteh.fivt.storage.strings.Table;
 
-public final class DataBase {
+public final class DataBase implements Table {
+
+    private String name;
     private String dataBaseDirectory;
     private DataBaseFile[] files;
 
@@ -35,7 +37,8 @@ public final class DataBase {
         }
     }
 
-    public DataBase(final String dbDirectory) throws IOException {
+    public DataBase(final String dbDirectory) {
+        name = new File(dbDirectory).getName();
         dataBaseDirectory = dbDirectory;
         isCorrect();
         files = new DataBaseFile[256];
@@ -89,15 +92,6 @@ public final class DataBase {
         }
     }
 
-    private void tryAddDirectory(final String name) {
-        File file = new File(dataBaseDirectory + File.separator + name);
-        if (!file.exists()) {
-            if (!file.mkdir()) {
-                throw new DataBaseException("Cannot create a directory!");
-            }
-        }
-    }
-
     private void tryDeleteDirectory(final String name) {
         File file = new File(dataBaseDirectory + File.separator + name);
         if (file.exists()) {
@@ -114,37 +108,19 @@ public final class DataBase {
     }
 
     public void loadFiles() {
-        try {
-            for (int i = 0; i < 16; ++i) {
-                tryAddDirectory(Integer.toString(i) + ".dir");
-                for (int j = 0; j < 16; ++j) {
-                    DirFile node = new DirFile(i + j * 16);
-                    DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
-                    files[node.getId()] =  file;
-                }
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                DirFile node = new DirFile(i, j);
+                DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
+                files[node.getId()] =  file;
             }
-        } catch (DataBaseWrongFileFormat e) {
-            save();
-            throw e;
         }
     }
 
-    public String put(final String keyStr, final String valueStr) {
-        DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getId()];
-        return file.put(keyStr, valueStr);
-    }
-
-    public String get(final String keyStr) {
-        DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getId()];
-        return file.get(keyStr);
-    }
-
-    public boolean remove(final String keyStr) {
-        DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getId()];
-        return file.remove(keyStr);
+    private void checkKey(final String key) {
+        if ((key == null) || (key.trim().length() == 0)) {
+            throw new IllegalArgumentException("Wrong key!");
+        }
     }
 
     public void drop() {
@@ -161,15 +137,70 @@ public final class DataBase {
         }
     }
 
-    public void save() {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (files[new DirFile(i, j).getId()] != null) {
-                    files[new DirFile(i, j).getId()].save();
-                }
-            }
-            tryDeleteDirectory(Integer.toString(i) + ".dir");
-        }
+    @Override
+    public String getName() {
+        return name;
     }
 
+    @Override
+    public String put(final String keyStr, final String valueStr) {
+        checkKey(keyStr);
+        checkKey(valueStr);
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getId()];
+        return file.put(keyStr, valueStr);
+    }
+
+    @Override
+    public String get(final String keyStr) {
+        checkKey(keyStr);
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getId()];
+        return file.get(keyStr);
+    }
+
+    @Override
+    public String remove(final String keyStr) {
+        checkKey(keyStr);
+        DirFile node = new DirFile(keyStr.getBytes()[0]);
+        DataBaseFile file = files[node.getId()];
+        return file.remove(keyStr);
+    }
+
+    @Override
+    public int commit() {
+        int allNew = 0;
+        for (int i = 0; i < 256; ++i) {
+            allNew += files[i].getNewKeys();
+            files[i].commit();
+        }
+        return allNew;
+    }
+
+    @Override
+    public int size() {
+        int allSize = 0;
+        for (int i = 0; i < 256; ++i) {
+                allSize += files[i].getSize();
+        }
+        return allSize;
+    }
+
+    @Override
+    public int rollback() {
+        int allCanceled = 0;
+        for (int i = 0; i < 256; ++i) {
+            allCanceled += files[i].getNewKeys();
+            files[i].rollback();
+        }
+        return allCanceled;
+    }
+
+    public int getNewKeys() {
+        int allNewSize = 0;
+        for (int i = 0; i < 256; ++i) {
+            allNewSize += files[i].getNewKeys();
+        }
+        return allNewSize;
+    }
 }
