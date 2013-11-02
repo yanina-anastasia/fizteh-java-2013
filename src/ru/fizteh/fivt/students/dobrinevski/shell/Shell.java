@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Shell {
     public File currentDir;
-    private static HashMap<String, Command> cmdMap;
+    public static HashMap<String, Command> cmdMap;
 
     Shell(HashMap<String, Command> ccmdMap) {
         currentDir = new File(System.getProperty("user.dir"));
