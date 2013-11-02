@@ -29,7 +29,6 @@ public class MultiFileHashMapProvider implements TableProvider {
             for (File f : tables) {
                 if (f.isDirectory()) {
                     DataTable dataTable = new DataTable(f.getName(), workingDirectory);
-                    dataTable.load();
                     dataBaseTables.put(f.getName(), dataTable);
                 }
             }
@@ -37,16 +36,18 @@ public class MultiFileHashMapProvider implements TableProvider {
     }
 
 
-    public DataTable setCurTable(String newTable) {
+    public DataTable setCurTable(String newTable) throws IOException {
         DataTable dataTable = null;
         if (!dataBaseTables.isEmpty()) {
             dataTable = dataBaseTables.get(newTable);
             if (dataTable != null) {
+                dataTable.load();
                 curDataBaseStorage = dataTable;
             }
         }
         return dataTable;
     }
+
 
     public Table getTable(String name) throws IllegalArgumentException {
         if ((name == null) || (name.isEmpty())) {
