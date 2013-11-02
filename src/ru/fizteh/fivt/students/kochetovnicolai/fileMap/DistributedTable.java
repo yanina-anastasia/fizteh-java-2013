@@ -105,7 +105,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int rollback() {
-        int canceled = changes.size();
+        int canceled = findDifference();
         recordNumber = oldRecordNumber;
         changes.clear();
         return canceled;
@@ -147,9 +147,21 @@ public class DistributedTable extends FileManager implements Table {
         return changes.put(key, value);
     }
 
+    protected int findDifference() {
+        int diff = 0;
+        for (String key : changes.keySet()) {
+            if (changes.get(key) == null && cache.containsKey(key) && cache.get(key) != null) {
+                diff++;
+            } else if (!cache.containsKey(key) || cache.get(key) == null) {
+                diff++;
+            }
+        }
+        return diff;
+    }
+
     @Override
     public int commit() {
-        int updated = changes.size();
+        int updated = findDifference();
         for (String key : changes.keySet()) {
             cache.put(key, changes.get(key));
         }
