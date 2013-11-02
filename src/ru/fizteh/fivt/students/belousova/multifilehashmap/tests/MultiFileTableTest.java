@@ -133,19 +133,51 @@ public class MultiFileTableTest {
     }
 
     @Test
-    public void testCommit() throws Exception {
-        multiFileTable.put("testCommitKey1", "testCommitValue1");
-        multiFileTable.put("testCommitKey2", "testCommitValue2");
-        multiFileTable.put("testCommitKey3", "testCommitValue3");
+    public void testPutRollback() throws Exception {
+        multiFileTable.put("testPutRollbackKey1", "testPutRollbackValue1");
+        multiFileTable.put("testPutRollbackKey2", "testPutRollbackValue2");
+        multiFileTable.put("testPutRollbackKey3", "testPutRollbackValue3");
+        Assert.assertEquals(multiFileTable.rollback(), 3);
+    }
+
+    @Test
+    public void testPutRemoveRollback() throws Exception {
+        multiFileTable.put("testPutRemoveRollbackKey", "testPutRemoveRollbackValue");
+        multiFileTable.remove("testPutRemoveRollbackKey");
+        Assert.assertEquals(multiFileTable.rollback(), 0);
+    }
+
+    @Test
+    public void testRemovePutRollback() throws Exception {
+        multiFileTable.put("testRemovePutRollbackKey", "testRemovePutRollbackValue");
+        multiFileTable.commit();
+        multiFileTable.remove("testPutRemoveRollbackKey");
+        multiFileTable.put("testRemovePutRollbackKey", "testRemovePutRollbackValue");
+        Assert.assertEquals(multiFileTable.rollback(), 0);
+    }
+
+    @Test
+    public void testPutCommit() throws Exception {
+        multiFileTable.put("testPutCommitKey1", "testPutCommitValue1");
+        multiFileTable.put("testPutCommitKey2", "testPutCommitValue2");
+        multiFileTable.put("testPutCommitKey3", "testPutCommitValue3");
         Assert.assertEquals(multiFileTable.commit(), 3);
     }
 
     @Test
-    public void testRollback() throws Exception {
-        multiFileTable.put("testRollbackKey1", "testRollbackValue1");
-        multiFileTable.put("testRollbackKey2", "testRollbackValue2");
-        multiFileTable.put("testRollbackKey3", "testRollbackValue3");
-        Assert.assertEquals(multiFileTable.rollback(), 3);
+    public void testPutRemoveCommit() throws Exception {
+        multiFileTable.put("testPutRemoveCommitKey", "testPutRemoveCommitValue");
+        multiFileTable.remove("testPutRemoveCommitKey");
+        Assert.assertEquals(multiFileTable.commit(), 0);
+    }
+
+    @Test
+    public void testRemovePutCommit() throws Exception {
+        multiFileTable.put("testRemovePutCommitKey", "testRemovePutCommitValue");
+        multiFileTable.commit();
+        multiFileTable.remove("testPutRemoveCommitKey");
+        multiFileTable.put("testRemovePutCommitKey", "testRemovePutCommitValue");
+        Assert.assertEquals(multiFileTable.commit(), 0);
     }
 }
 
