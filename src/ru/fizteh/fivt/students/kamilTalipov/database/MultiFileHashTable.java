@@ -44,7 +44,7 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Key must be not null");
         }
 
@@ -53,10 +53,10 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Key must be not null");
         }
-        if (value == null) {
+        if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("Value must be not null");
         }
 
@@ -70,13 +70,15 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Key must be not null");
         }
 
         String oldValue = table.remove(key);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
+        } else if (oldValues.get(key) == null) {
+            oldValues.remove(key);
         }
         return oldValue;
     }
