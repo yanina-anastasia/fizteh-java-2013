@@ -29,6 +29,9 @@ public class TableProviderStorageExtended implements TableProvider{
         if(name == null || name.equals("")) {
             throw new IllegalArgumentException();
         }
+        if(storage.drop(name) == null) {
+            throw new IllegalStateException();
+        }
         storage.drop(name);
     }
 }

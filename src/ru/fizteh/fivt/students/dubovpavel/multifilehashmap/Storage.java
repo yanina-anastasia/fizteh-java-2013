@@ -81,14 +81,15 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         }
     }
 
-    public void drop(String key) {
+    public DB drop(String key) {
         if(storage.containsKey(key)) {
-            if(storage.get(key).getPath().isDirectory()) {
+            DB value = storage.get(key);
+            if(value.getPath().isDirectory()) {
                 try {
                     new PerformerRemove().removeObject(storage.get(key).getPath());
                 } catch(PerformerRemove.PerformerRemoveException e) {
                     dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("Drop: Can not remove: %s", e.getMessage()));
-                    return;
+                    return null;
                 }
             }
             if(cursor != null && cursor.getPath().getName().equals(key)) {
@@ -96,8 +97,10 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             }
             storage.remove(key);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "dropped");
+            return value;
         } else {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("%s not exists", key));
+            return null;
         }
     }
 
