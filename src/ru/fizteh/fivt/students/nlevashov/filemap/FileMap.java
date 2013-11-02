@@ -113,15 +113,15 @@ public class FileMap {
     }
 
     public static void main(String[] args) {
-        String addr = System.getProperty("fizteh.db.dir");
-        if (addr == null) {
-            System.err.println("Property \"fizteh.db.dir\" wasn't set");
-            System.exit(1);
-        }
-        Path addrPath = Shell.makePath(addr).toPath();
-        TableProviderFactory factory = new MyTableProviderFactory(addrPath);
-        provider = factory.create(".");
         try {
+            String addr = System.getProperty("fizteh.db.dir");
+            if (addr == null) {
+                System.err.println("Property \"fizteh.db.dir\" wasn't set");
+                System.exit(1);
+            }
+            Path addrPath = Shell.makePath(addr).toPath();
+            TableProviderFactory factory = new MyTableProviderFactory(addrPath);
+            provider = factory.create(".");
             Mode.start(args, new Mode.Executor() {
                 public boolean execute(String cmd) throws IOException {
                     Vector<String> tokens = parse(cmd, " ");
