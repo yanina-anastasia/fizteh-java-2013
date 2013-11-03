@@ -15,11 +15,12 @@ public class MultiFileHashMapState {
 
         currentTable = null;
         MultiFileHashMapTableProviderFactory factory = new MultiFileHashMapTableProviderFactory();
-        provider = (MultiFileHashMapTableProvider) factory.create(inFile.getPath());
+        provider = factory.create(inFile.getPath());
     }
 
-    public void putToProvider(String inName, Table inTable) {
-        provider.putTable(inName, inTable);
+    public boolean checkChangesTable(String name) {
+
+        return currentTable.checkChangesBase(name);
     }
 
     public void changeCurrentTable(Map<String, String> inMap, File inFile) {
@@ -30,8 +31,7 @@ public class MultiFileHashMapState {
 
     public Table createTable(String name) throws IOException {
 
-        Table tmp = provider.createTable(name);
-        return tmp;
+        return provider.createTable(name);
     }
 
     public Table getTable(String name) throws IOException {
@@ -42,6 +42,26 @@ public class MultiFileHashMapState {
     public Table getCurrentTable() throws IOException {
 
         return currentTable;
+    }
+
+    public int getChangesBaseSize() {
+
+        return currentTable.getChangesBaseSize();
+    }
+
+    public String getFromChangesBase(String key) {
+
+        return currentTable.getFromChangesBase(key);
+    }
+
+    public void putToChangesBase(String key, String value) {
+
+        currentTable.putToChangesBase(key, value);
+    }
+
+    public void removeFromChangesBase(String key) {
+
+        currentTable.removeFromChangesBase(key);
     }
 
     public void setCurrentTable(String name) throws IOException {
@@ -55,18 +75,9 @@ public class MultiFileHashMapState {
         currentTable = null;
     }
 
-    public String putToCurrentTable(String key, String value) {
-
-        return currentTable.put(key, value);
-    }
-
     public String getFromCurrentTable(String key) {
 
         return currentTable.get(key);
     }
-
-    public String removeFromCurrentTable(String key) {
-
-        return currentTable.remove(key);
-    }
 }
+

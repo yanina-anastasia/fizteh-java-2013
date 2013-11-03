@@ -16,24 +16,24 @@ public class CmdUse implements Command<MultiFileHashMapState> {
 
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
-        /*
+
         if (inState.getCurrentTable() != null) {
             if (!inState.getCurrentTable().getName().equals(args[0])) {
+                /*
                 File fileForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataFile();
                 Map<String, String> mapForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataBase();
                 MultiFileHashMapUtils.write(fileForWrite, mapForWrite);
+                */
+                int size = inState.getChangesBaseSize();
+                if (size != 0) {
+                    System.out.println(size + " unsaved changes");
+                    return;
+                }
             } else {
                 return;
             }
         }
-        */
-        if (inState.getCurrentTable() != null) {
-            if (!inState.getCurrentTable().getName().equals(args[0])) {
-                inState.putToProvider(inState.getCurrentTable().getName(), inState.getCurrentTable());
-            } else {
-                return;
-            }
-        }
+
         if (inState.getTable(args[0]) == null) {
             System.out.println(args[0] + " not exists");
             return;
@@ -41,6 +41,7 @@ public class CmdUse implements Command<MultiFileHashMapState> {
 
         Map<String, String> tmpDataBase = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataBase();
         File tmpDataFile = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataFile();
+        MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
         inState.setCurrentTable(args[0]);
 
         inState.changeCurrentTable(tmpDataBase, tmpDataFile);

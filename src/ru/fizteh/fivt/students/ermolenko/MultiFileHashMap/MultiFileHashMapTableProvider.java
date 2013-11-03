@@ -72,8 +72,8 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         mapOfTables.remove(name);
     }
 
+    public void changeTable(MultiFileHashMapTable inTable) {
 
-    public void putTable(String inName, Table inTable) {
-        mapOfTables.put(inName, inTable);
+        mapOfTables.put(inTable.getName(), inTable);
     }
 }
