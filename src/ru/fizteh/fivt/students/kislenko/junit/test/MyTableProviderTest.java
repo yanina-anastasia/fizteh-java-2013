@@ -1,20 +1,18 @@
 package ru.fizteh.fivt.students.kislenko.junit.test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.Assert;
+import org.junit.*;
+import ru.fizteh.fivt.students.kislenko.junit.MyTable;
 import ru.fizteh.fivt.students.kislenko.junit.MyTableProvider;
 import ru.fizteh.fivt.students.kislenko.junit.MyTableProviderFactory;
 
 import java.io.File;
 
 public class MyTableProviderTest {
-    private MyTableProvider provider;
-    private File databaseDir;
+    private static MyTableProvider provider;
+    private static File databaseDir;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         databaseDir = new File("testingDatabase").getCanonicalFile();
         Cleaner.clean(databaseDir);
         databaseDir.mkdir();
@@ -70,11 +68,11 @@ public class MyTableProviderTest {
 
     @Test
     public void testGetExistingTable() throws Exception {
-        provider.createTable("CYMKUH");
-        Assert.assertNotNull(provider.getTable("CYMKUH"));
-        provider.createTable("java");
-        Assert.assertNotNull(provider.getTable("CYMKUH"));
-        Assert.assertNotNull(provider.getTable("java"));
+        MyTable table1 = provider.createTable("CYMKUH");
+        Assert.assertEquals(table1, provider.getTable("CYMKUH"));
+        MyTable table2 = provider.createTable("java");
+        Assert.assertEquals(table1, provider.getTable("CYMKUH"));
+        Assert.assertEquals(table2, provider.getTable("java"));
     }
 
     @Test(expected = IllegalArgumentException.class)
