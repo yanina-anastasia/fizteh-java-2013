@@ -183,10 +183,12 @@ public class DatabaseMap implements ChangesCountingTable {
 	public String remove(String key) {
 		String value = this.updates.remove(key);
 		if(value == null) {
-			value = this.originalDatabase.get(key);
-			if(value != null) {
-				this.removedFromOriginalDatabase.add(key);
-				this.changesCount++;
+			if(!this.removedFromOriginalDatabase.contains(key)) {
+				value = this.originalDatabase.get(key);
+				if(value != null ) {
+					this.removedFromOriginalDatabase.add(key);
+					this.changesCount++;
+				}
 			}
 		} else {
 			if(!this.removedFromOriginalDatabase.contains(key)) { 
