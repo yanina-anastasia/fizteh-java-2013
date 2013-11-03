@@ -1,11 +1,14 @@
-package ru.fizteh.fivt.students.demidov.multifilehashmap;
+package ru.fizteh.fivt.students.demidov.junit;
 
+import java.io.File;
 import java.io.IOException;
+
 import ru.fizteh.fivt.students.demidov.filemap.Get;
 import ru.fizteh.fivt.students.demidov.filemap.Put;
 import ru.fizteh.fivt.students.demidov.filemap.Remove;
-import ru.fizteh.fivt.students.demidov.junit.TableProviderFactoryImplementation;
-import ru.fizteh.fivt.students.demidov.junit.TableProviderImplementation;
+import ru.fizteh.fivt.students.demidov.multifilehashmap.Create;
+import ru.fizteh.fivt.students.demidov.multifilehashmap.Drop;
+import ru.fizteh.fivt.students.demidov.multifilehashmap.Use;
 import ru.fizteh.fivt.students.demidov.shell.Exit;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
@@ -14,13 +17,13 @@ public class Main {
 		TableProviderFactoryImplementation factory = new TableProviderFactoryImplementation();
 		TableProviderImplementation provider = null;
 		try {
-			provider = factory.create(System.getProperty("fizteh.db.dir"));
+			provider = factory.create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
 		} catch (Exception catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
 		}
 		
-		MultiFileHashMapState state = new MultiFileHashMapState(provider);
+		DataBaseState state = new DataBaseState(provider);
 		
 		Shell usedShell = new Shell(System.getProperty("user.dir"), System.in, System.out);
 		usedShell.curShell.loadCommand(new Get(state));
@@ -29,6 +32,9 @@ public class Main {
 		usedShell.curShell.loadCommand(new Create(state));
 		usedShell.curShell.loadCommand(new Drop(state));
 		usedShell.curShell.loadCommand(new Use(state));
+		usedShell.curShell.loadCommand(new Commit(state));
+		usedShell.curShell.loadCommand(new Size(state));
+		usedShell.curShell.loadCommand(new Rollback(state));
 		usedShell.curShell.loadCommand(new Exit());
 		
 		try {

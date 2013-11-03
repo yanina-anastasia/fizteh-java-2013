@@ -5,11 +5,11 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 
 public class Create extends BasicMultiFileHashMapCommand {
-	public Create(MultiFileMap usedMultiFileMap) {
-		super(usedMultiFileMap);
+	public Create(BasicDataBaseState dataBaseState) {
+		super(dataBaseState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		multiFileMap.addTable(arguments[0]);
+		dataBaseState.create(arguments[0]);
 		usedShell.curShell.getOutStream().println("created");
 	}	
 	public int getNumberOfArguments() {

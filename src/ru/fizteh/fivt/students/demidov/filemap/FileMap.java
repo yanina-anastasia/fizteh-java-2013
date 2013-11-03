@@ -6,21 +6,16 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileMap implements FileMapState {
-	public FileMap(String path) throws IOException {
-		if (path == null) {
-			throw new IOException("wrong path " + path);
-		}	
+import ru.fizteh.fivt.storage.strings.Table;
+
+public class FileMap implements Table, BasicState {
+	public FileMap(String path) {	
 		if ((new File(path)).isDirectory()) {
 			path += File.separator + "db.dat";
 		}
 		this.path = path;
 		
 		currentTable = new HashMap<String, String>();
-	}
-	
-	public FileMap getCurrentFileMap(String key) {
-		return this;
 	}
 	
 	public Map<String, String> getCurrentTable() {
@@ -134,6 +129,47 @@ public class FileMap implements FileMapState {
 		
 			dataBaseFile.close();
 		}
+	}
+	
+	public String getName() {
+		return "db";
+	}
+
+	public String get(String key) {
+		if (key == null) {
+			throw new IllegalArgumentException("null key");
+		}
+		return currentTable.get(key);
+	}
+
+	public String put(String key, String value) {
+		if ((key == null) || (value == null)) {
+			throw new IllegalArgumentException("null parameter");
+		}
+		return currentTable.put(key, value);
+	}
+	
+	public String remove(String key){
+		if (key == null) {
+			throw new IllegalArgumentException("null key");
+		}
+		return currentTable.remove(key);
+	}
+
+	public int size() {
+		return 0;
+	}
+	
+	public int commit() {
+		return 0;
+	}
+	
+	public int rollback() {
+		return 0;
+	}
+	
+	public Table getUsedTable() {
+		return this;
 	}
 	
 	private Map<String, String> currentTable;

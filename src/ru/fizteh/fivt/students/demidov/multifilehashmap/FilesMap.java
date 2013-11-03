@@ -8,17 +8,18 @@ import ru.fizteh.fivt.students.demidov.filemap.FileMap;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FilesMap {	
-	public FilesMap(String newDirectoryPath) throws IOException { 
+	public FilesMap(String directoryPath) throws IOException { 
 		baseFileMaps = new HashMap<String, FileMap>();
+		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps);
 		
-		if (new File(newDirectoryPath).isDirectory()) {
-			directoryPath = newDirectoryPath;
+		if (new File(directoryPath).isDirectory()) {
+			this.directoryPath = directoryPath;
 		} else {
 			throw new IOException("wrong directory");
 		}
 	}
 		
-	public FileMap getFileMapForKey(String key) throws IOException {
+	public FileMap getFileMapForKey(String key) {
 		Integer ndirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());
 		String baseFileKey = MultiFileMapUtils.makeKey(ndirectory, nfile);
@@ -30,10 +31,26 @@ public class FilesMap {
 		return baseFileMaps.get(baseFileKey);
 	}
 	
+	public int getSize() {
+		int result = 0;	
+		for (String key: baseFileMaps.keySet()) {
+			result += baseFileMaps.get(key).getCurrentTable().size();
+		}
+		return result;
+	}
+	
 	public void clearFilesMapDirectory() throws IOException {
 		for (String subdirectory: (new File(directoryPath)).list()) {
 			Utils.deleteFileOrDirectory(new File(directoryPath, subdirectory));
 		}	
+	}
+	
+	public void commitChanges() {
+		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps); 
+	}
+	
+	public void rollbackChanges() {
+		baseFileMaps = new HashMap<String, FileMap>(previousBaseFileMaps);
 	}
 	
 	public void readData() throws IOException {	
@@ -58,6 +75,7 @@ public class FilesMap {
 				}
 			}
 		}
+		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps);
 	}
 
 	public void writeData() throws IOException {	
@@ -93,5 +111,6 @@ public class FilesMap {
 	}
 
 	private Map<String, FileMap> baseFileMaps;
+	private Map<String, FileMap> previousBaseFileMaps;
 	private String directoryPath;
 }
