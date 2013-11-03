@@ -9,4 +9,16 @@ public class MultiFileHashMapException extends ShellException {
 	public MultiFileHashMapException(String s) {
 		super(s);
 	}
+
+	public MultiFileHashMapException() {
+		super();
+	}
+
+	public MultiFileHashMapException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public MultiFileHashMapException(Throwable cause) {
+		super(cause);
+	}
 }
