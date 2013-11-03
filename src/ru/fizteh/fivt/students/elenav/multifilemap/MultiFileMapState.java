@@ -126,7 +126,6 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 					setNumberOfChanges(getNumberOfChanges() - 1);
 				}
 			}
-			return startMap.get(key);
 		} else {
 			if (!value.equals(currentValue)) {
 				if (oldValue != null && oldValue.equals(currentValue)) {
@@ -155,9 +154,8 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 					setNumberOfChanges(getNumberOfChanges() + 1);
 				}
 			}
-			return value;
 		}
-		return oldValue;
+		return value;
 	}
 
 	@Override
