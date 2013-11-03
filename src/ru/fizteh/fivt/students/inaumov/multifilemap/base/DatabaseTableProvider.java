@@ -36,11 +36,12 @@ public class DatabaseTableProvider implements TableProvider {
                 throw new IllegalStateException(exception.getMessage());
             }
 
+            System.out.println("FOUND " + table.getName());
             tables.put(table.getName(), table);
         }
     }
 
-    public Table getTable(String name) throws IllegalArgumentException, IllegalStateException {
+    public Table getTable(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("tablename can't be null or empty");
         }
@@ -49,7 +50,7 @@ public class DatabaseTableProvider implements TableProvider {
 
         MultiFileTable table = tables.get(name);
         if (table == null) {
-            return null;
+            return table;
         }
 
         if (currentTable != null && currentTable.getUnsavedChangesNumber() > 0) {
@@ -61,7 +62,7 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
-    public Table createTable(String name) throws IllegalArgumentException, IllegalStateException {
+    public Table createTable(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("table name can't be null or empty");
         }
@@ -85,7 +86,7 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
-    public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+    public void removeTable(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("table name can't be null or empty");
         }
@@ -95,6 +96,8 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         tables.remove(name);
+
+        currentTable = null;
 
         File tableFile = new File(dataBaseDirectoryPath, name);
         MultiFileMapUtils.deleteFile(tableFile);

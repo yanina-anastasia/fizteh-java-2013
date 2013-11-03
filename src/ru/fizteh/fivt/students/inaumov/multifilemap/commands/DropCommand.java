@@ -11,9 +11,10 @@ public class DropCommand extends AbstractCommand<MultiFileMapShellState> {
     public void execute(String[] args, MultiFileMapShellState shellState) {
         try {
             shellState.tableProvider.removeTable(args[1]);
+            shellState.table = null;
             System.out.println("dropped");
-        } catch (IllegalStateException exception) {
-            System.err.println(exception.getMessage());
+        } catch (IllegalStateException e) {
+            System.err.println(e.getMessage());
         }
     }
 }

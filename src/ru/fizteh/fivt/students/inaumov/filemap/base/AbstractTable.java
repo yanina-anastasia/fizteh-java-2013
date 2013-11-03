@@ -16,10 +16,19 @@ public abstract class AbstractTable implements Table {
     public static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	protected HashMap<String, String> tableHash = new HashMap<String, String>();
-	protected HashMap<String, String> modifiedTableHash = new HashMap<String, String>();
-	protected HashSet<String> deleted = new HashSet<String>();
-	
-	private String tableName;
+	protected HashMap<String, OldAndNewValue> modifiedTableHash = new HashMap<String,  OldAndNewValue>();
+
+    private class OldAndNewValue {
+        public String oldValue;
+        public String newValue;
+
+        OldAndNewValue(String oldValue, String newValue) {
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+        }
+    }
+
+	final private String tableName;
 	private String dir;
 	
 	private int tableSize = 0;
@@ -60,32 +69,29 @@ public abstract class AbstractTable implements Table {
 		}
 		
 		if (modifiedTableHash.containsKey(key)) {
-			return modifiedTableHash.get(key);
-		}
-		if (tableHash.containsKey(key) && !deleted.contains(key)) {
-			return tableHash.get(key);
+			return modifiedTableHash.get(key).newValue;
 		}
 
-		return null;
+		return tableHash.get(key);
 	}
 
 	public String put(String key, String value) throws IllegalArgumentException {
-		if (key == null || key.isEmpty()) {
+		if (key == null || key.isEmpty() || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("key can't be null or empty");
 		}
-		if (value == null || key.isEmpty()) {
+		if (value == null || value.isEmpty() || value.trim().isEmpty()) {
 			throw new IllegalArgumentException("value can't be null or empty");
 		}
 		
-		if (!modifiedTableHash.containsKey(key) && !tableHash.containsKey(key)
-			|| tableHash.containsKey(key) && deleted.contains(key)) {
-			tableSize += 1;
-		}
-
 		String oldValue = getOldValue(key);
-        modifiedTableHash.put(key, value);
-		unsavedChangesNumber += 1;
-		
+        if (oldValue == null) {
+            tableSize += 1;
+        }
+
+        makeChange(key, value);
+
+        unsavedChangesNumber += 1;
+
 		return oldValue;
 	}
 
@@ -94,24 +100,19 @@ public abstract class AbstractTable implements Table {
 			throw new IllegalArgumentException("key can't be null or empty");
 		}
 		
-		String oldValue = null;
-		if (modifiedTableHash.containsKey(key)) {
-			oldValue = modifiedTableHash.get(key);
-			modifiedTableHash.remove(key);
-			unsavedChangesNumber += 1;
-			tableSize -= 1;
-			
-			return oldValue;
-		}
-		if (tableHash.containsKey(key) && !deleted.contains(key)) {
-			oldValue = tableHash.get(key);
-			deleted.add(key);
-			unsavedChangesNumber += 1;
-			tableSize -= 1;
-			
-			return oldValue;
-		}
-		
+		if (get(key) == null) {
+            return null;
+        }
+
+        String oldValue = getOldValue(key);
+        makeChange(key, null);
+
+        if (oldValue != null) {
+            tableSize -= 1;
+        }
+
+        unsavedChangesNumber += 1;
+
 		return oldValue;
 	}
 
@@ -123,48 +124,70 @@ public abstract class AbstractTable implements Table {
 		return unsavedChangesNumber;
 	}
 
+    private void makeChange(String key, String value) {
+        if (modifiedTableHash.containsKey(key)) {
+            modifiedTableHash.get(key).newValue = value;
+        } else {
+            modifiedTableHash.put(key, new OldAndNewValue(tableHash.get(key), value));
+        }
+    }
+
     private String getOldValue(String key) {
-        String oldValue = modifiedTableHash.get(key);
-        if (oldValue == null && !deleted.contains(key)) {
-            oldValue =  tableHash.get(key);
+        if (modifiedTableHash.containsKey(key)) {
+            return modifiedTableHash.get(key).newValue;
         }
 
-        return oldValue;
+        return tableHash.get(key);
     }
 
 	public int commit() {
-		for (Map.Entry<String, String> nextEntry: modifiedTableHash.entrySet()) {
-			tableHash.put(nextEntry.getKey(), nextEntry.getValue());
-		}
-		for (String nextEntry: deleted) {
-			tableHash.remove(nextEntry);
-		}
+        int savedChangesNumber = 0;
 
-		modifiedTableHash.clear();
-		deleted.clear();
-		
-		try {
-			saveTable();
-		} catch (IOException exception) {
-			System.err.println(exception.getMessage());
+        for (final String key: modifiedTableHash.keySet()) {
+            OldAndNewValue oldAndNewValue = modifiedTableHash.get(key);
+            if (oldAndNewValue.oldValue != oldAndNewValue.newValue) {
+                if (oldAndNewValue.newValue == null) {
+                    tableHash.remove(key);
+                } else {
+                    tableHash.put(key, oldAndNewValue.newValue);
+                }
 
-			return 0;
-		}
-		
-		int savedChangesNumber = unsavedChangesNumber;
-		unsavedChangesNumber = 0;
-		
+                savedChangesNumber += 1;
+            }
+        }
+
+        modifiedTableHash.clear();
+
+        tableSize = tableHash.size();
+
+        try {
+            saveTable();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return 0;
+        }
+
+        unsavedChangesNumber = 0;
+
 		return savedChangesNumber;
 	}
 
 	public int rollback() {
+        int rollbackChangesNumber = 0;
+
+        for (final String key: modifiedTableHash.keySet()) {
+            OldAndNewValue oldAndNewValue = modifiedTableHash.get(key);
+            if (oldAndNewValue.oldValue != oldAndNewValue.newValue) {
+                rollbackChangesNumber += 1;
+            }
+        }
+
 		modifiedTableHash.clear();
-		tableSize += deleted.size();
-		deleted.clear();
-		
-		int rollbackedChangesNumber = unsavedChangesNumber;
+
+        tableSize = tableHash.size();
+
 		unsavedChangesNumber = 0;
 		
-		return rollbackedChangesNumber;
+		return rollbackChangesNumber;
 	}
 }
