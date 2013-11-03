@@ -13,7 +13,7 @@ import javax.xml.stream.XMLStreamWriter;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.MyStoreable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 
 public class XMLSerializer {
     

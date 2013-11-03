@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.storable;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,8 +15,8 @@ import java.util.Set;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.GenericTable;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendTable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 
 public class MyTable extends GenericTable<Storeable> implements ExtendTable {
@@ -62,6 +62,9 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         
+	if (value == null || key == null) {
+            throw new IllegalArgumentException("null argument in put");
+        }
         int size = columnType.size();
         for (int i = 0; i < size; ++i) {
             try {

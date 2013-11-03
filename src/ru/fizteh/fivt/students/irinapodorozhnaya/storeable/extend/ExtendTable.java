@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend;
 
 
 import java.io.IOException;

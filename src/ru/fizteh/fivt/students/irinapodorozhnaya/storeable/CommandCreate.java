@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.storable;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
 import java.io.IOException;
 import java.util.ArrayList;

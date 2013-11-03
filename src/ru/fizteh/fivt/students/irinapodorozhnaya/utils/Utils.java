@@ -29,10 +29,19 @@ public class Utils {
             return "String";
         } else if  (className.equals("Integer")) {
             return "int";
+        } else if  (className.equals("Boolean")) {
+            return "boolean";
+        } else if  (className.equals("Long")) {
+            return "long";
+        } else if  (className.equals("Double")) {
+            return "double";
+        } else if  (className.equals("Byte")) {
+            return "byte";
+        } else if  (className.equals("Float")) {
+            return "float";
         } else {
-            return className.toLowerCase();
-        }
-        
+            throw new IllegalArgumentException("wrong column type");
+        }      
     }
     
     public static int getNumberOfFile(String key) {

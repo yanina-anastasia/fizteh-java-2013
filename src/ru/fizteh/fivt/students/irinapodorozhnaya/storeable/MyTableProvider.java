@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.storable;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +16,8 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendTable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;;
 
@@ -38,9 +38,8 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public ExtendTable getTable(String name) {
-        if (name == null || !name.matches(STRING_NAME_FORMAT)) {
-            throw new IllegalArgumentException("table name is null or has illegal name");
-        }
+	
+	checkCorrectName(name);
         ExtendTable res = tables.get(name);
         if (res != null) { 
             takenTables.add(name);
@@ -51,10 +50,12 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public ExtendTable createTable(String name, List<Class<?>> columnTypes)
             throws IOException {
-        
-        if (name == null || !name.matches(STRING_NAME_FORMAT)) {
+	
+	checkCorrectName(name);
+        if ( columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("table name is null or has illegal name");
         }
+        
         File table = new File(dataBaseDir, name);
         if (table.isDirectory()) {
             return null;
@@ -65,7 +66,12 @@ public class MyTableProvider implements ExtendProvider {
         
         PrintStream signature = new PrintStream(new File(table, "signature.tsv"));
         for (int i = 0; i < columnTypes.size(); ++i) {
-            signature.println(Utils.getPrimitiveTypeName(columnTypes.get(i).getSimpleName()));
+            Class<?> type = columnTypes.get(i);
+            if (type == null) {
+        	signature.close();
+        	throw new IllegalArgumentException("null column type");
+            }
+            signature.println(Utils.getPrimitiveTypeName(type.getSimpleName()));
         }
         signature.close();
         
@@ -75,13 +81,13 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (takenTables.contains(name)) {
-            throw new IllegalStateException(name + " is taken, can't drop it");
+        
+	checkCorrectName(name);
+        
+	if (takenTables.contains(name)) {
+         //   throw new IllegalStateException(name + " is taken, can't drop it");
         }
         
-        if (name == null || !name.matches(STRING_NAME_FORMAT)) {
-                throw new IllegalArgumentException("table name is null or has illegal name");
-            }
         if (tables.remove(name) == null) {
             throw new IllegalStateException(name + " not exists");
         }
@@ -122,7 +128,7 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable createFor(Table table, List<?> values) 
-	                      throws ColumnFormatException, IndexOutOfBoundsException {
+                     throws ColumnFormatException, IndexOutOfBoundsException {
         
         int size = values.size();
         if (size != table.getColumnsCount()) {
@@ -134,5 +140,11 @@ public class MyTableProvider implements ExtendProvider {
             res.setColumnAt(i, values.get(i));
         }
         return null;
+    }
+    
+    public static  void checkCorrectName (String name) {
+	if (name == null || !name.matches(STRING_NAME_FORMAT)) {
+            throw new IllegalArgumentException("table name is null or has illegal name");
+    }
     }
 }

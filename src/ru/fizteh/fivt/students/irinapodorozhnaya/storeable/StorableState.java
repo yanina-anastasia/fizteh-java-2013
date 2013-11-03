@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.storable;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +19,8 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandUs
 
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MultiDbState;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendTable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 
 public class StorableState extends State implements MultiDbState {
     private ExtendTable workingTable;
