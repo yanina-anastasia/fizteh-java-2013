@@ -8,11 +8,9 @@ import java.util.Set;
 public class State {
     private HashMap<String, String> hashMap;
     String tableName;
-    private File dbDirectory;
 
     public State(File directory, String newTableName) {
         hashMap = new HashMap<String, String>();
-        dbDirectory = directory;
         tableName = newTableName;
     }
     public String put(String key, String value) {
@@ -27,10 +25,6 @@ public class State {
 
     public String getTableName() {
         return tableName;
-    }
-
-    public File getDbDirectory() {
-        return dbDirectory;
     }
 
     public Set<Map.Entry<String, String>> getEntrySet() {

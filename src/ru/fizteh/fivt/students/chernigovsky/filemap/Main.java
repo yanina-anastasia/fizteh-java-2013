@@ -19,7 +19,7 @@ public class Main {
             }
         }
 
-        StateProvider stateProvider = new StateProvider();
+        StateProvider stateProvider = new StateProvider(dbName);
         stateProvider.changeCurrentState(new State(dbName, "db.dat"));
 
         try {

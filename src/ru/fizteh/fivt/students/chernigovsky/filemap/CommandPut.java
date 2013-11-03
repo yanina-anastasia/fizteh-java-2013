@@ -11,7 +11,7 @@ public class CommandPut implements Command {
         return 2;
     }
     public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
-        if (new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()) == null) {
+        if (stateProvider.getCurrentState() == null) {
             System.out.println("no table");
             return;
         }
