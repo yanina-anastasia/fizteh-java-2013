@@ -16,8 +16,8 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	
 	private void getDatabase(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dat";
-		File DatabasePath = new File(this.directoryPath, name);
-		if(DatabasePath.exists()) {
+		File databasePath = new File(this.directoryPath, name);
+		if(databasePath.exists()) {
 			DatabaseMap newDatabase = new DatabaseMap(this.directoryPath, name);
 			if(!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
 				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
