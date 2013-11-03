@@ -95,6 +95,9 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String remove(String key) throws IllegalArgumentException {
+		if(key == null) {
+			throw new IllegalArgumentException();
+		}
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
 		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
