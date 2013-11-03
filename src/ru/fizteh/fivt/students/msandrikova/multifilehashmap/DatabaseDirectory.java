@@ -107,8 +107,15 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	@Override
 	public int commit() {
 		int answer = 0;
+		if(this.directoryPath.exists()) {
+			this.delete();
+		}
+		this.directoryPath.mkdir();
 		for(DatabaseMap database : this.mapOfDatabases.values()) {
 			answer += database.commit();
+		}
+		if(this.size() == 0) {
+			this.delete();
 		}
 		return answer;
 	}
