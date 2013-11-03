@@ -30,6 +30,10 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 		delegate = null;
 	}
 
+	public String getName() {
+		return tableName;
+	}
+
 	public boolean isSet() {
 		return !tableName.equals("");
 	}
@@ -98,13 +102,21 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 		tableForKey(key).removeCommand(key);
 	}
 
-	public void writeFilesOnDrive() {
+	public void writeFilesOnDrive() throws MultiFileHashMapException {
 		for (FileMapReceiver everyFile : tableFiles) {
 			try {
 				if (everyFile != null) {
 					everyFile.exitCommand();
 				}
 			} catch (TimeToExitException LoLJustKidding) {
+			}
+		}
+		for (int directoryIndex = 0; directoryIndex < MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT; ++directoryIndex) {
+			String directoryName = String.valueOf(directoryIndex) + ".dir";
+			File directoryFile = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
+			File subFiles[] = directoryFile.listFiles();
+			if (directoryFile.exists() && (subFiles == null || subFiles.length == 0)) {
+				getDelegate().removeTableSubDirectoryWithIndex(directoryIndex);
 			}
 		}
 	}

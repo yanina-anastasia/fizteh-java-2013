@@ -119,7 +119,11 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	@Override
 	public void exitCommand() throws TimeToExitException {
-		table.writeFilesOnDrive();
+		try {
+			table.writeFilesOnDrive();
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
 		super.exitCommand();
 	}
 //	Delegate methods
@@ -131,5 +135,16 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 	@Override
 	public PrintStream getOut() {
 		return out;
+	}
+
+	public void removeTableSubDirectoryWithIndex(int directoryIndex) throws MultiFileHashMapException {
+		String directoryRelativeName = table.getName() + File.separator + String.valueOf(directoryIndex) + ".dir";
+		try {
+			changeDirectoryCommand(dbDirectory);
+			rmCommand(dbDirectory + File.separator + directoryRelativeName);
+		} catch (ShellException e) {
+			throw new MultiFileHashMapException("Internal error: cannot remove directory: " + directoryRelativeName, e);
+		}
+
 	}
 }
