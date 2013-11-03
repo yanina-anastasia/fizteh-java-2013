@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.filemap.GetCommand;
 import ru.fizteh.fivt.students.msandrikova.filemap.PutCommand;
 import ru.fizteh.fivt.students.msandrikova.filemap.RemoveCommand;
@@ -25,16 +24,7 @@ public class Launcher {
 		if(currentDirectory == null) {
 			Utils.generateAnError("Incorrect work getProperty().", "Launcher", false);
 		}
-		State myState = new State();
-		MyTableProviderFactory myTableProviderFactory = new MyTableProviderFactory();
-		TableProvider currentTableProvider = null;
-		try {
-			currentTableProvider = myTableProviderFactory.create(currentDirectory);
-		} catch (IllegalArgumentException e) {
-			Utils.generateAnError(e.getMessage(), "Launcher", false);
-		}
-		myState.setTableProvider(currentTableProvider);
-		myState.setIsMultiFileHashMap(true);
+		State myState = new State(true, currentDirectory);	
 		Shell myShell = new Shell(commands, currentDirectory);
 		myShell.setState(myState);
 		myShell.execute(args);
