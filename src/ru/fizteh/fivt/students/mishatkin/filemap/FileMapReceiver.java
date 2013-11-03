@@ -13,6 +13,7 @@ import java.util.Set;
 public class FileMapReceiver extends ShellReceiver implements FileMapReceiverProtocol {
 
 	private File dbFile;
+	private File dbFileOwningDirectory;
 	private HashMap<String, String> dictionary = new HashMap<>();
 
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -31,6 +32,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 				dbFile.createNewFile();
 			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
+			dbFileOwningDirectory = new File(dbDirectory);
 		} catch (IOException e) {
 			throw new FileMapDatabaseException("Some internal error.");
 		}
@@ -117,6 +119,14 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	}
 
 	private void writeChangesToFile() throws ShellException {
+		if (dictionary.isEmpty()) {
+			try {
+				changeDirectoryCommand(dbFileOwningDirectory.getAbsolutePath());
+				rmCommand(dbFile.getAbsolutePath());
+			} catch (ShellException probablyNoFileThere) {
+			}
+			return;
+		}
 		DataOutputStream dos = null;
 		try {
 			dos = new DataOutputStream(new FileOutputStream(dbFile));
