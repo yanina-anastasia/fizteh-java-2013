@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.asaitgalin.filemap;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class TableEntryReader {
     private RandomAccessFile fileStream;
@@ -11,10 +10,6 @@ public class TableEntryReader {
 
     private String nextKey;
     private long nextValueOffset;
-
-    public String getNextKey() {
-        return nextKey;
-    }
 
     public TableEntryReader(File input) throws IOException {
         isStreamValid = true;
@@ -64,7 +59,7 @@ public class TableEntryReader {
         }
     }
 
-    public void readNextEntry(Map<String, String> container) throws IOException {
+    public TableEntry readNextEntry() throws IOException {
         try {
             long offset = nextValueOffset;
             String key = nextKey;
@@ -73,17 +68,18 @@ public class TableEntryReader {
             fileStream.seek(offset);
             byte[] valueData;
             if (key != null && !isStreamValid) {
-                valueData = new byte[(int)(fileStream.length() - offset)];
+                valueData = new byte[(int) (fileStream.length() - offset)];
             } else {
-                valueData = new byte[(int)(nextValueOffset - offset)];
+                valueData = new byte[(int) (nextValueOffset - offset)];
             }
             fileStream.read(valueData);
             String value = new String(valueData, StandardCharsets.UTF_8.toString());
             fileStream.seek(savedPos);
-            container.put(key, value);
+            return new TableEntry(key, value);
         } catch (EOFException eofe) {
             isStreamValid = false;
         }
+        return null;
     }
 
 }

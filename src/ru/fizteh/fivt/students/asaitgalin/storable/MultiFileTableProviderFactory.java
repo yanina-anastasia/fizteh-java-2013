@@ -1,11 +1,16 @@
 package ru.fizteh.fivt.students.asaitgalin.storable;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andrey
- * Date: 11/4/13
- * Time: 1:35 AM
- * To change this template use File | Settings | File Templates.
- */
-public class MultiFileTableProviderFactory {
+import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTableProviderFactory;
+
+import java.io.File;
+
+public class MultiFileTableProviderFactory implements ExtendedTableProviderFactory {
+    @Override
+    public ExtendedTableProvider create(String dir) {
+        if (dir == null || dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("factory: directory name is invalid");
+        }
+        return new MultiFileTableProvider(new File(dir));
+    }
 }

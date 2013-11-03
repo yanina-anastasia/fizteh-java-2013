@@ -1,11 +1,19 @@
 package ru.fizteh.fivt.students.asaitgalin.filemap;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andrey
- * Date: 11/4/13
- * Time: 2:54 AM
- * To change this template use File | Settings | File Templates.
- */
 public class TableEntry {
+    private String key;
+    private String value;
+
+    public TableEntry(String value, String key) {
+        this.value = value;
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
