@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.regex.*;
 
 public class DatabaseTableProvider implements TableProvider {
-    private static final String CORRECT_SYMBOLS = "[0-9a-zA-Zа-яА-Я]";
+    private static final String CORRECT_SYMBOLS = "[^0-9a-zA-Zа-яА-Я]";
 
     HashMap<String, MultiFileTable> tables = new HashMap<String, MultiFileTable>();
     private String dataBaseDirectoryPath;
