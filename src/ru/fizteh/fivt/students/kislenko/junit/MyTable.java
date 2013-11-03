@@ -40,14 +40,14 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        key = key.trim();
-        if (key.isEmpty()) {
+        String newKey = key.trim();
+        if (newKey.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        if (changes.containsKey(key)) {
-            return changes.get(key);
+        if (changes.containsKey(newKey)) {
+            return changes.get(newKey);
         }
-        return storage.get(key);
+        return storage.get(newKey);
     }
 
     @Override
@@ -55,20 +55,21 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        key = key.trim();
-        value = value.trim();
-        if (key.isEmpty() || value.isEmpty()) {
+        String newKey = key.trim();
+        String newValue = value.trim();
+        if (newKey.isEmpty() || newValue.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if ((!changes.containsKey(key) && !storage.containsKey(key)) || (changes.containsKey(key) && changes.get(key) == null)) {
+        if ((!changes.containsKey(newKey) && !storage.containsKey(newKey)) ||
+                (changes.containsKey(newKey) && changes.get(newKey) == null)) {
             ++count;
         }
-        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+        TwoLayeredString twoLayeredKey = new TwoLayeredString(newKey);
         uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
-        String s = get(key);
-        changes.put(key, value);
-        if (value.equals(storage.get(key))) {
-            changes.remove(key);
+        String s = get(newKey);
+        changes.put(newKey, newValue);
+        if (value.equals(storage.get(newKey))) {
+            changes.remove(newKey);
         }
         return s;
     }
@@ -78,19 +79,19 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        key = key.trim();
-        if (key.isEmpty()) {
+        String newKey = key.trim();
+        if (newKey.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
+        if (changes.get(newKey) != null || (!changes.containsKey(newKey) && storage.get(newKey) != null)) {
             --count;
         }
-        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+        TwoLayeredString twoLayeredKey = new TwoLayeredString(newKey);
         uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
-        String s = get(key);
-        changes.put(key, null);
-        if (storage.get(key) == null) {
-            changes.remove(key);
+        String s = get(newKey);
+        changes.put(newKey, null);
+        if (storage.get(newKey) == null) {
+            changes.remove(newKey);
         }
         return s;
     }
