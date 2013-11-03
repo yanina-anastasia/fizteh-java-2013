@@ -22,14 +22,20 @@ public class MultiFileMapProvider implements TableProvider {
 		if (!db.isDirectory()) {
 			throw new IllegalArgumentException("can't create provider: name is file or name doesn't exist");
 		}
+		for (File f : db.listFiles()) {
+			if (f.isDirectory()) {
+				tables.put(f.getName(), new MultiFileMapState(f.getName(), f, getStream()));
+			}
+		}
 		setWorkingDirectory(db);
 		setStream(s);
 	}
 
 	private boolean chechIsNameInvalid(String name) {
+		name = name.trim();
 		return name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
                 || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                || name.startsWith(".") || name.endsWith(".");
+                || name.startsWith(".") || name.endsWith(".") || name.contains(" ");
 	}
 	
 	@Override

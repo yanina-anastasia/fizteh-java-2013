@@ -6,6 +6,7 @@ import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
 public class UseCommand extends AbstractCommand {
 
@@ -15,26 +16,27 @@ public class UseCommand extends AbstractCommand {
 
 	public void execute(String[] args, PrintStream s) throws IOException {
 		MultiFileMapState multi = (MultiFileMapState) getState();
-		if (multi.getWorkingTable() != null) {
+		String name = args[1];
+		if (multi.getWorkingDirectory() != null) {
 			int numberOfChanges = multi.getNumberOfChanges();
 			if (numberOfChanges != 0) {
 				s.println(numberOfChanges + " unsaved changes");
 			} else {
-				useTable(args[1]);
+				useTable(name);
 			}
 		} else {
-			useTable(args[1]);
+			useTable(name);
 		}
 	}
 	
 	private void useTable(String name) throws IOException {
-		File f = new File(getState().getWorkingDirectory(), name);
+		File f = new File(((MonoMultiAbstractState) getState()).provider.getWorkingDirectory(), name);
 		if (!f.exists()) {
 			getState().getStream().println(name + " not exists");
 		} else {
-			if (!name.equals(getState().getWorkingDirectory().getName())) {
+			if (getState().getWorkingDirectory() == null || getState().getName() != null && !name.equals(getState().getName())) {
 				MultiFileMapState multi = (MultiFileMapState) getState();
-				multi.setWorkingTable(new MultiFileMapState(name, f, getState().getStream()));
+				multi.setWorkingDirectory(f);
 				multi.read();
 				getState().getStream().println("using " + name);
 			}

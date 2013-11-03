@@ -29,7 +29,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 
 	public void read() throws IOException {
 		map.clear();
-		File[] dirs = getWorkingTable().getWorkingDirectory().listFiles();
+		File[] dirs = getWorkingDirectory().listFiles();
 		if (dirs != null) {
 			for (File file : dirs) {
 				File[] files = file.listFiles();
@@ -48,7 +48,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 	}
 	
 	public void write() throws IOException {
-		if (getWorkingTable() != null) {
+		if (getWorkingDirectory() != null) {
 			for (int i = 0; i < DIR_COUNT; ++i) {
 				for (int j = 0; j < FILES_PER_DIR; ++j) {
 					Map<String, String> toWriteInCurFile = new HashMap<>();
@@ -60,7 +60,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 					}
 					
 					if (toWriteInCurFile.size() > 0) {
-						File dir = new File(getWorkingTable().getWorkingDirectory(), i + ".dir"); 
+						File dir = new File(getWorkingDirectory(), i + ".dir"); 
 						File out = new File(dir, j + ".dat");
 						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 						Set<Entry<String, String>> set = toWriteInCurFile.entrySet();
@@ -77,10 +77,10 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 	private int getDir(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
 		int ndirectory = hashcode % 16;
-		if (!getWorkingTable().getWorkingDirectory().exists()) {
-			getWorkingTable().getWorkingDirectory().mkdir();
+		if (!getWorkingDirectory().exists()) {
+			getWorkingDirectory().mkdir();
 		}
-		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
+		File dir = new File(getWorkingDirectory(), ndirectory+".dir");
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
 				throw new IOException("can't create dir");
@@ -93,7 +93,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 		int hashcode = Math.abs(key.hashCode());
 		int ndirectory = hashcode % 16;
 		int nfile = hashcode / 16 % 16;
-		File dir = new File(getWorkingTable().getWorkingDirectory(), ndirectory+".dir");
+		File dir = new File(getWorkingDirectory(), ndirectory+".dir");
 		File file = new File(dir.getCanonicalPath(), nfile + ".dat");
 		if (!file.exists()) {
 			if (!file.createNewFile()) {

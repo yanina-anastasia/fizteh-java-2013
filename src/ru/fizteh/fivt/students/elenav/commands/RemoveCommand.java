@@ -12,7 +12,7 @@ public class RemoveCommand extends AbstractCommand {
 
 	public void execute(String[] args, PrintStream s) {
 		MonoMultiAbstractState currentState = (MonoMultiAbstractState) getState();
-		if (currentState.getWorkingTable() == null) {
+		if (currentState.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
 			String result = currentState.remove(args[1]);

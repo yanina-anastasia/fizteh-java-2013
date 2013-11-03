@@ -15,7 +15,7 @@ public class CommitCommand extends AbstractCommand {
 	@Override
 	public void execute(String[] args, PrintStream s) throws IOException {
 		MultiFileMapState multi = (MultiFileMapState) getState();
-		if (multi.getWorkingTable() == null) {
+		if (multi.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
 			getState().getStream().println(multi.commit());

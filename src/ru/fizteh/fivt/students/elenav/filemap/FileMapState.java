@@ -18,7 +18,6 @@ public class FileMapState extends MonoMultiAbstractState {
 	
 	public FileMapState(String n, File wd, PrintStream s) {
 		super(n, wd, s);
-		setWorkingTable(this);
 	}
 	
 	public void writeFile(File out) throws IOException {

@@ -15,7 +15,7 @@ public class SizeCommand extends AbstractCommand {
 	@Override
 	public void execute(String[] args, PrintStream s) throws IOException {
 		MultiFileMapState multi = (MultiFileMapState) getState();
-		if (multi.getWorkingTable() != null) {
+		if (multi.getWorkingDirectory() != null) {
 			s.println(multi.size());
 		}
 		

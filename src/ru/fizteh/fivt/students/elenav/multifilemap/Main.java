@@ -31,7 +31,7 @@ public class Main {
 			MultiFileMapProviderFactory factory = new MultiFileMapProviderFactory();
 			final MultiFileMapProvider provider = (MultiFileMapProvider) factory.create(property);
 
-			MultiFileMapState multi = new MultiFileMapState("MyFirstMultiFileMap", f, System.out);
+			MultiFileMapState multi = new MultiFileMapState(null, null, System.out);
 			
 			multi.addCommand(new GetCommand(multi));
 			multi.addCommand(new PutCommand(multi));

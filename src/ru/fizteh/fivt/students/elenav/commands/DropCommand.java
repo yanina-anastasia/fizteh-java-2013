@@ -12,15 +12,16 @@ public class DropCommand extends AbstractCommand {
 	}
 
 	public void execute(String[] args, PrintStream s) {
-		try {
-			MonoMultiAbstractState multi = (MonoMultiAbstractState) getState();
-			multi.provider.removeTable(args[1]);
-			if (multi.getWorkingTable() != null && multi.getWorkingTable().getName().equals(args[1])) {
-				multi.setWorkingTable(null);
+		String name = args[1];
+		MonoMultiAbstractState multi = (MonoMultiAbstractState) getState();
+		if (multi.provider.getTable(name) != null) {
+			multi.provider.removeTable(name);
+			if (multi.getWorkingDirectory() != null && multi.getWorkingDirectory().getName().equals(name)) {
+				multi.setWorkingDirectory(null);
 			}
 			getState().getStream().println("dropped");
-		} catch (IllegalStateException e) {
-			getState().getStream().println(args[1] + "not exists");
+		} else {
+			getState().getStream().println(name + " not exists");
 		}
 	}
 

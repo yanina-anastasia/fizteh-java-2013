@@ -13,7 +13,7 @@ public class PutCommand extends AbstractCommand {
 
 	public void execute(String[] args, PrintStream s) {
 		MonoMultiAbstractState fileMap = (MonoMultiAbstractState) getState();
-		if (fileMap.getWorkingTable() == null) {
+		if (fileMap.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
 			String result = fileMap.put(args[1], args[2]);
