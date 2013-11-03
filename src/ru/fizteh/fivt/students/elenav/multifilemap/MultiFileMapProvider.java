@@ -10,8 +10,6 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class MultiFileMapProvider implements TableProvider {
-
-	private final String NAME_FORMAT = "[a-zA-Zà-ÿÀ-ß0-9]+";
 	
 	private File workingDirectory = null;
 	private PrintStream stream;
@@ -28,13 +26,18 @@ public class MultiFileMapProvider implements TableProvider {
 		setStream(s);
 	}
 
-
+	private boolean chechIsNameInvalid(String name) {
+		return name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".");
+	}
+	
 	@Override
 	public Table getTable(String name) {
 		if (name == null || name.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get table with null name");
 		}
-		if (!name.matches(NAME_FORMAT)) {
+		if (chechIsNameInvalid(name)) {
 			throw new RuntimeException("can't get table with invalid name");
 		}
 		return tables.get(name);
@@ -45,7 +48,7 @@ public class MultiFileMapProvider implements TableProvider {
 		if (name == null || name.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't create table with null name");
 		}
-		if (!name.matches(NAME_FORMAT)) {
+		if (chechIsNameInvalid(name)) {
 			throw new RuntimeException("can't create table with invalid name");
 		}
 		File f = new File(getWorkingDirectory(), name);
@@ -66,7 +69,7 @@ public class MultiFileMapProvider implements TableProvider {
 		if (tables.get(name) == null) {
 			throw new IllegalArgumentException("can't remove table: table not exist");
 		}
-		if (!name.matches(NAME_FORMAT)) {
+		if (chechIsNameInvalid(name)) {
 			throw new RuntimeException("can't remove table with invalid name");
 		}
 		try {
