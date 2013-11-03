@@ -7,16 +7,16 @@ import java.util.List;
 
 /**
  * User: Alexander
- * Date: 21.10.13
- * Time: 0:27
+ * Date: 28.10.13
+ * Time: 16:13
  */
-public class CmdExit implements Cmd {
-    private final String name = "exit";
+public class CmdCommit implements Cmd {
+    private final String name = "commit";
     private final int amArgs = 0;
     private FileMapState workState;
 
-    public CmdExit(FileMapState stateTable) {
-        workState = stateTable;
+    public CmdCommit(FileMapState dataBaseState) {
+        workState = dataBaseState;
     }
 
     @Override
@@ -31,12 +31,10 @@ public class CmdExit implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        boolean autoCommitOnExit = false;
-        if (autoCommitOnExit) {
-            if (workState.currentTable != null) {
-                workState.commit();
-            }
+        if (workState.currentTable != null) {
+            System.out.println(workState.currentTable.commit());
+        } else {
+            System.out.println("no table");
         }
-        System.exit(0);
     }
 }

@@ -14,10 +14,10 @@ public class GenericCmdList {
     private static Map<String, Cmd> cmdlist = new HashMap<String, Cmd>();
 
     public GenericCmdList() {
-        /*
-            add static commands here
-            (commands that you need in every shell)
-        */
+        /**
+         *  add static commands here
+         *  (commands that you need in every shell)
+         */
     }
 
     public Map<String, Cmd> getCmdList() {

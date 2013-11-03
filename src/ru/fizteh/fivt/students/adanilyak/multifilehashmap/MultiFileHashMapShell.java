@@ -15,8 +15,14 @@ import java.io.File;
  */
 public class MultiFileHashMapShell extends GenericShell {
     public MultiFileHashMapShell(String[] args) {
+        String workingDirectory = System.getProperty("fizteh.db.dir");
+        if (workingDirectory == null) {
+            System.err.println("Data Base directory is not set");
+            System.exit(3);
+        }
         try {
-            TableProvider tableManager = new TableManager(new File(System.getProperty("fizteh.db.dir")));
+            TableManagerCreator tableManagerCreator = new TableManagerCreator();
+            TableProvider tableManager = tableManagerCreator.create(workingDirectory);
             DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
             runMFHMShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
@@ -33,15 +39,18 @@ public class MultiFileHashMapShell extends GenericShell {
         }
     }
 
-    private GenericCmdList makeUpCmdList(DataBaseGlobalState fmState) {
+    private GenericCmdList makeUpCmdList(DataBaseGlobalState state) {
         GenericCmdList stockShellCmdList = new GenericCmdList();
-        stockShellCmdList.addCommand(new CmdPut(fmState));
-        stockShellCmdList.addCommand(new CmdGet(fmState));
-        stockShellCmdList.addCommand(new CmdRemove(fmState));
-        stockShellCmdList.addCommand(new CmdUse(fmState));
-        stockShellCmdList.addCommand(new CmdCreate(fmState));
-        stockShellCmdList.addCommand(new CmdDrop(fmState));
-        stockShellCmdList.addCommand(new CmdExit(fmState));
+        stockShellCmdList.addCommand(new CmdPut(state));
+        stockShellCmdList.addCommand(new CmdGet(state));
+        stockShellCmdList.addCommand(new CmdRemove(state));
+        stockShellCmdList.addCommand(new CmdUse(state));
+        stockShellCmdList.addCommand(new CmdCreate(state));
+        stockShellCmdList.addCommand(new CmdDrop(state));
+        stockShellCmdList.addCommand(new CmdExit(state));
+        stockShellCmdList.addCommand(new CmdCommit(state));
+        stockShellCmdList.addCommand(new CmdRollback(state));
+        stockShellCmdList.addCommand(new CmdSize(state));
         return stockShellCmdList;
     }
 }

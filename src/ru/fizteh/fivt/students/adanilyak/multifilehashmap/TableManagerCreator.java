@@ -12,25 +12,15 @@ import java.io.IOException;
  * Time: 13:27
  */
 public class TableManagerCreator implements TableProviderFactory {
-
-    public TableManagerCreator() {
-
-    }
-
     @Override
     public TableProvider create(String directoryWithTables) {
-        if (directoryWithTables == null) {
-            throw new IllegalArgumentException("directory name: can not be null");
+        if (directoryWithTables == null || directoryWithTables.trim().isEmpty()) {
+            throw new IllegalArgumentException("Directory not set or set incorrectly");
         }
 
         TableProvider tableManager = null;
-        try {
-            File file = new File(directoryWithTables);
-            tableManager = new TableManager(file);
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(2);
-        }
+        File file = new File(directoryWithTables);
+        tableManager = new TableManager(file);
         return tableManager;
 
     }

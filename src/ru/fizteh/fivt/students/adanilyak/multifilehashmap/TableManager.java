@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
 import java.io.File;
@@ -18,15 +19,18 @@ public class TableManager implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
-    public TableManager(File atDirectory) throws IOException {
-        if (!atDirectory.exists()) {
-            throw new IOException(atDirectory.getName() + ": not exist");
-        }
-        if (!atDirectory.isDirectory()) {
-            throw new IOException(atDirectory.getName() + ": not a directory");
+    public TableManager(File atDirectory) {
+        if (atDirectory == null) {
+            throw new IllegalArgumentException("Directory is not set");
         }
 
+        if (!atDirectory.exists()) {
+            atDirectory.mkdir();
+        } else if (!atDirectory.isDirectory()) {
+            throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
+        }
         allTablesDirectory = atDirectory;
+
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new TableStorage(tableFile);
             allTablesMap.put(tableFile.getName(), table);
@@ -35,21 +39,16 @@ public class TableManager implements TableProvider {
 
     @Override
     public Table getTable(String tableName) {
-        if (tableName == null) {
-            throw new IllegalArgumentException("table name: can not be null");
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new IllegalArgumentException("get table: name is bad");
         }
-        //try {
-            return allTablesMap.get(tableName);
-        //} catch (IOException exc) {
-          //  System.err.println(exc.getMessage());
-          //  return null;
-        //}
+        return allTablesMap.get(tableName);
     }
 
     @Override
     public Table createTable(String tableName) {
-        if (tableName == null) {
-            throw new IllegalArgumentException("table name: can not be null");
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new IllegalArgumentException("create table: name is bad");
         }
 
         File tableFile = new File(allTablesDirectory, tableName);
@@ -57,18 +56,21 @@ public class TableManager implements TableProvider {
             return null;
         }
 
-        try {
-            Table newTable = new TableStorage(tableFile);
-            allTablesMap.put(tableName, newTable);
-            return newTable;
-        } catch (IOException exc) {
-            System.err.println(exc.getMessage());
-            return null;
-        }
+        Table newTable = new TableStorage(tableFile);
+        allTablesMap.put(tableName, newTable);
+        return newTable;
     }
 
     @Override
     public void removeTable(String tableName) {
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new IllegalArgumentException("Bad table name");
+        }
+
+        if (allTablesMap.get(tableName) == null) {
+            throw new IllegalStateException(tableName + " not exists");
+        }
+
         File tableFile = new File(allTablesDirectory, tableName);
         try {
             DeleteDirectory.rm(tableFile);
