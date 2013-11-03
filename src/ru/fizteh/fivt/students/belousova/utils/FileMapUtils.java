@@ -1,16 +1,13 @@
-package ru.fizteh.fivt.students.belousova.filemap;
-
-import ru.fizteh.fivt.students.belousova.utils.FileUtils;
+package ru.fizteh.fivt.students.belousova.utils;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class FileMapUtils {
-    public static void read(File file, Map<String, String> map) throws IOException {
+    public static void read(File file, Map<String, String> map, Predicate<String> validator) throws IOException {
         if (file.length() == 0) return;
         try {
             InputStream is = new FileInputStream(file);
@@ -21,14 +18,14 @@ public class FileMapUtils {
 
             try {
                 int position = 0;
-                String key1 = readKey(dis);
+                String key1 = readKey(dis, validator);
                 position += key1.getBytes(StandardCharsets.UTF_8).length;
                 int offset1 = dis.readInt();
                 int firstOffset = offset1;
                 position += 5;
 
                 while (position != firstOffset) {
-                    String key2 = readKey(dis);
+                    String key2 = readKey(dis, validator);
                     position += key2.getBytes(StandardCharsets.UTF_8).length;
                     int offset2 = dis.readInt();
                     position += 5;
@@ -48,7 +45,7 @@ public class FileMapUtils {
         }
     }
 
-    private static String readKey(DataInputStream dis) throws IOException {
+    private static String readKey(DataInputStream dis, Predicate<String> predicate) throws IOException {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte b = dis.readByte();
@@ -65,11 +62,16 @@ public class FileMapUtils {
             throw new IOException("wrong data format");
         }
 
-        return bos.toString(StandardCharsets.UTF_8.toString());
+        String key = bos.toString(StandardCharsets.UTF_8.toString());
+        if (!predicate.apply(key)) {
+            throw new IOException("wrong data format");
+        }
+
+        return key;
     }
 
     private static String readValue(DataInputStream dis, int offset1,
-                                    int offset2, int position, int length) throws IOException {
+            int offset2, int position, int length) throws IOException {
         dis.mark(length);
         dis.skip(offset1 - position);
         byte[] buffer = new byte[offset2 - offset1];
