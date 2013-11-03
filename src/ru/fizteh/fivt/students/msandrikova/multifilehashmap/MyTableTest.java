@@ -39,13 +39,9 @@ public class MyTableTest {
 	}
 
 	@Test
-	public void testGet() {
-		
-	}
-
-	@Test
-	public void testPut() {
-		
+	public void testPutGet() {
+		table.put("key", "value");
+		assertEquals(table.get("key"), "value");
 	}
 
 	@Test
