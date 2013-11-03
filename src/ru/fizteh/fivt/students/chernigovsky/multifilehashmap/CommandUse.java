@@ -15,15 +15,15 @@ public class CommandUse implements Command {
         return 1;
     }
     public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
-        File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
+        File table = new File(stateProvider.getDbDirectory(), args[1]);
         if (!table.exists()) {
             System.out.println(args[1] + " not exists");
         } else {
             if (stateProvider.getCurrentState() != null) {
-                MultiFileHashMapUtils.writeTable(new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
+                MultiFileHashMapUtils.writeTable(new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             }
-            stateProvider.changeCurrentState(new State(stateProvider.getCurrentState().getDbDirectory(), args[1]));
-            MultiFileHashMapUtils.readTable(new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
+            stateProvider.changeCurrentState(new State(stateProvider.getDbDirectory(), args[1]));
+            MultiFileHashMapUtils.readTable(new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             System.out.println("using " + args[1]);
         }
     }

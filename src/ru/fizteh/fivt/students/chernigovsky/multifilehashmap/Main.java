@@ -22,7 +22,7 @@ public class Main {
             System.exit(1);
         }
 
-        StateProvider stateProvider = new StateProvider();
+        StateProvider stateProvider = new StateProvider(dbDirectory);
         stateProvider.changeCurrentState(null);
 
         commandMap.put("put", new CommandPut());
@@ -64,7 +64,7 @@ public class Main {
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
-                File currentTable = new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName());
+                File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
                 if (currentTable != null) {
                     try {
                         MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
@@ -85,7 +85,7 @@ public class Main {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
-            File currentTable = new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName());
+            File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
             if (currentTable.exists()) {
                 try {
                     MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());

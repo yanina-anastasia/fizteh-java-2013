@@ -16,8 +16,8 @@ public class CommandCreate implements Command {
         return 1;
     }
     public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
-        State newState = new State(stateProvider.getCurrentState().getDbDirectory(), args[1]);
-        File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
+        State newState = new State(stateProvider.getDbDirectory(), args[1]);
+        File table = new File(stateProvider.getDbDirectory(), args[1]);
         if (table.exists()) {
             System.out.println(args[1] + " exists");
         } else {
