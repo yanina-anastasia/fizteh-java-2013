@@ -20,9 +20,11 @@ public class MultiFileHashMapExecutor extends Executor<MultiFileHashMapState> {
         Command use = new CmdUse();
         mapOfCmd.put(use.getName(), use);
         Command commit = new CmdCommit();
+        mapOfCmd.put(commit.getName(), commit);
         Command rollback = new CmdRollback();
         mapOfCmd.put(rollback.getName(), rollback);
-        mapOfCmd.put(commit.getName(), commit);
+        Command size = new CmdSize();
+        mapOfCmd.put(size.getName(), size);
         Command exit = new MultiFileHashMapExit();
         mapOfCmd.put(exit.getName(), exit);
         Command get = new MultiFileHashMapGet();
