@@ -50,7 +50,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
             return null;
         }
 
-        return new MultiFileHashMapTable(new File(currentDir, name));
+        return mapOfTables.get(name);
     }
 
     @Override
