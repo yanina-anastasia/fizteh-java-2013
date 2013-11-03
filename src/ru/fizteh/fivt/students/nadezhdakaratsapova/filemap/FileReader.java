@@ -96,6 +96,7 @@ public class FileReader {
             }
             dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
         }
+        dataTable.commit();
     }
 
 

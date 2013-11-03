@@ -16,15 +16,15 @@ public class RemoveCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        DataLoader dataLoader = new DataLoader();
-        dataLoader.load(curState);
-        if (curState.getCurTable() != null) {
-            String value = curState.dataStorage.remove(args[1]);
+        if (curState.curDataBaseStorage != null) {
+            String value = curState.curDataBaseStorage.remove(args[1]);
             if (value == null) {
                 System.out.println("not found");
             } else {
                 System.out.println("removed");
             }
+        } else {
+            System.out.println("no table");
         }
     }
 

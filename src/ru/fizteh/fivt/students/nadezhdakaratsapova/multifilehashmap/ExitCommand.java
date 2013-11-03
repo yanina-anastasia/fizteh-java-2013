@@ -6,7 +6,6 @@ import java.io.IOException;
 
 public class ExitCommand implements Command {
     MultiFileHashMapProvider curState;
-    DataWriter dataWriter = new DataWriter();
 
     public ExitCommand(MultiFileHashMapProvider state) {
         curState = state;
@@ -17,8 +16,8 @@ public class ExitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        if (curState.getCurTable() != null) {
-            dataWriter.writeData(curState);
+        if (curState.curDataBaseStorage != null) {
+            curState.curDataBaseStorage.writeToDataBase();
         }
         System.exit(0);
     }

@@ -3,31 +3,24 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
-
 import java.io.IOException;
 
-public class DropCommand implements Command {
+public class SizeCommand implements Command {
     MultiFileHashMapProvider curState;
 
-    public DropCommand(MultiFileHashMapProvider state) {
+    public SizeCommand(MultiFileHashMapProvider state) {
         curState = state;
     }
 
     public String getName() {
-        return "drop";
+        return "size";
     }
 
     public void execute(String[] args) throws IOException {
-        curState.removeTable(args[1]);
-        if (curState.curDataBaseStorage != null && args[1].equals(curState.curDataBaseStorage.getName())) {
-            curState.setCurTable(null);
-        }
-        System.out.println("dropped");
+        System.out.println(curState.curDataBaseStorage.size());
     }
 
     public int getArgsCount() {
-        return 1;
+        return 0;
     }
-
-
 }
