@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class Diff<ValueType> {
 
     private ValueType commitedValue;
@@ -18,6 +21,7 @@ public class Diff<ValueType> {
     public ValueType getValue () {
         return value;
     }
+
 
     public void setValue (ValueType value) {
         this.value = value;

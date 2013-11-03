@@ -1,13 +1,10 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
-
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import ru.fizteh.fivt.storage.strings.Table;
 
 import java.util.HashMap;
 
