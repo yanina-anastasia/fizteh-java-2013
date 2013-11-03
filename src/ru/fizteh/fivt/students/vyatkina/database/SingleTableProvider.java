@@ -1,9 +1,6 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseUtils;
-import ru.fizteh.fivt.students.vyatkina.database.tables.SingleTable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Set;
 
 public class SingleTableProvider extends AbstractTableProvider {
 
@@ -39,25 +35,6 @@ public class SingleTableProvider extends AbstractTableProvider {
         return table;
     }
 
-    @Override
-    public void writeDatabaseOnDisk () throws IOException, IllegalArgumentException {
-
-        Files.deleteIfExists (fileName);
-        Files.createFile (fileName);
-
-        try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
-                (new FileOutputStream (fileName.toFile ())))) {
-
-            Set<String> keys = table.getKeys ();
-            for (String key : keys) {
-                String value = table.get (key);
-                DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
-            }
-        }
-        catch (IOException e) {
-            throw new IOException ("Unable to write to file: " + e.getMessage ());
-        }
-    }
 
     @Override
     public void getDatabaseFromDisk () throws IOException {
@@ -77,6 +54,25 @@ public class SingleTableProvider extends AbstractTableProvider {
 
         catch (IllegalArgumentException | IOException e) {
             throw new IOException ("Unable to read from file: " + e.getMessage ());
+        }
+    }
+
+    public void writeDatabaseOnDisk () throws IOException {
+        Files.deleteIfExists (fileName);
+
+        Files.createFile (fileName);
+
+        try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
+                (new FileOutputStream (fileName.toFile (), true)))) {
+
+            for (String key : table.getKeys ()) {
+
+                String value = table.get (key);
+                DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
+            }
+        }
+        catch (IOException e) {
+            throw new IOException ("Unable to write to file: " + e.getMessage ());
         }
     }
 

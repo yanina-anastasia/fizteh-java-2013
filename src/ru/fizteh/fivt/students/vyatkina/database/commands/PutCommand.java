@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vyatkina.database.tableCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
@@ -16,7 +16,7 @@ public class PutCommand extends DatabaseCommand {
         String key = args[0];
         String value = args[1];
         if (state.getTable () == null) {
-            state.getIoStreams ().out.println("no table");
+            state.getIoStreams ().out.println ("no table");
             return;
         }
         String result = state.getTable ().put (key, value);

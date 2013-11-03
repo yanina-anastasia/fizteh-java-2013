@@ -1,11 +1,10 @@
-package ru.fizteh.fivt.students.vyatkina.database.providerCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
 import java.util.concurrent.ExecutionException;
 
-public class DropCommand extends DatabaseCommand {
+public class DropCommand extends DatabaseGlobalCommand {
 
     public DropCommand (DatabaseState state) {
         super (state);
@@ -16,8 +15,10 @@ public class DropCommand extends DatabaseCommand {
     @Override
     public void execute (String[] args) throws ExecutionException {
         String tableName = args[0];
+        if (previousTableUnsavedChanges () != 0) {
+            return;
+        }
         try {
-
             state.getTableProvider ().removeTable (tableName);
         }
         catch (IllegalArgumentException e) {
@@ -26,7 +27,9 @@ public class DropCommand extends DatabaseCommand {
         }
         catch (IllegalStateException e) {
             state.getIoStreams ().out.println (tableName + " not exists");
+            return;
         }
+
         state.getIoStreams ().out.println ("dropped");
     }
 

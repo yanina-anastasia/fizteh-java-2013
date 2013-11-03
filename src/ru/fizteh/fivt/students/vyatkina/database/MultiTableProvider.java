@@ -1,11 +1,6 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.State;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseUtils;
-import ru.fizteh.fivt.students.vyatkina.database.tables.MultiTable;
-import ru.fizteh.fivt.students.vyatkina.database.tables.SingleTable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,25 +22,17 @@ import java.util.regex.Pattern;
 
 public class MultiTableProvider extends AbstractTableProvider {
 
-    protected Map<String, Table> tables = new HashMap<> ();
-    protected Set <String> droppedTables = new HashSet <> ();
+    protected Map<String, MultiTable> tables = new HashMap<> ();
 
     private final int NUMBER_OF_FILES = 16;
     private final int NUMBER_OF_DIRECTORIES = 16;
     private final String DOT_DIR = ".dir";
     private final String DOT_DAT = ".dat";
-    public static final int MAX_SUPPORTED_NAME_LENGTH = 1024;
 
     public MultiTableProvider (DatabaseState state) throws IOException {
         super (state);
         state.setTableProvider (this);
         getDatabaseFromDisk ();
-    }
-
-    protected void validTableNameCheck (String tableName) throws IllegalArgumentException {
-        if ((tableName == null) || (tableName.length () > MAX_SUPPORTED_NAME_LENGTH)) {
-            throw new IllegalArgumentException ("Unsupported table name");
-        }
     }
 
     private boolean isValidDatabaseFileName (String name) {
@@ -56,12 +43,13 @@ public class MultiTableProvider extends AbstractTableProvider {
         return Pattern.matches ("([0-9]|(1[0-5]))\\.dir", name);
     }
 
-    private Path createFileForKey (String key, Path currentPath) throws IOException {
+
+    private Path createFileForKeyIfNotExists (String key, Path tablePath) throws IOException {
         byte keyByte = (byte) Math.abs (key.getBytes (StandardCharsets.UTF_8)[0]);
         int ndirectory = keyByte % NUMBER_OF_DIRECTORIES;
         int nfile = (keyByte / NUMBER_OF_DIRECTORIES) % NUMBER_OF_FILES;
 
-        Path directory = currentPath.resolve (Paths.get (ndirectory + DOT_DIR));
+        Path directory = tablePath.resolve (Paths.get (ndirectory + DOT_DIR));
         if (Files.notExists (directory)) {
             Files.createDirectory (directory);
         }
@@ -73,78 +61,98 @@ public class MultiTableProvider extends AbstractTableProvider {
 
     }
 
-    protected Table createNewTable (String tableName) {
-        return new MultiTable (tableName, new HashMap<String, String> (), this);
+    private Path deleteFileForKey (String key, Path tablePath) throws IOException {
+        byte keyByte = (byte) Math.abs (key.getBytes (StandardCharsets.UTF_8)[0]);
+        int ndirectory = keyByte % NUMBER_OF_DIRECTORIES;
+        int nfile = (keyByte / NUMBER_OF_DIRECTORIES) % NUMBER_OF_FILES;
+
+        Path directory = tablePath.resolve (Paths.get (ndirectory + DOT_DIR));
+        Path file = directory.resolve (Paths.get (nfile + DOT_DAT));
+        Files.deleteIfExists (file);
+        return file;
+    }
+
+    protected MultiTable createNewTable (String tableName) {
+        return new MultiTable (tableName, new HashMap<String, Diff<String>> (), this);
     }
 
     @Override
-    public Table createTable (String tableName) throws IllegalArgumentException, IllegalStateException {
+    public Table createTable (String tableName) {
         validTableNameCheck (tableName);
         if (tables.containsKey (tableName)) {
             return null;
         } else {
-            Table newTable = createNewTable (tableName);
+            Path tablePath = state.getFileManager ().getCurrentDirectory ().resolve (tableName);
+            try {
+                state.getFileManager ().makeDirectory (tablePath);
+            }
+            catch (IOException e) {
+                throw new IllegalArgumentException (e.getMessage ());
+            }
+            MultiTable newTable = createNewTable (tableName);
             tables.put (newTable.getName (), newTable);
             return newTable;
         }
     }
 
     @Override
-    public void removeTable (String tableName) throws IllegalArgumentException, IllegalStateException {
+    public void removeTable (String tableName) {
         validTableNameCheck (tableName);
         Table table = tables.remove (tableName);
         if (table != null) {
-            droppedTables.add (table.getName ());
+            Path tablePath = state.getFileManager ().getCurrentDirectory ().resolve (tableName);
+            if (Files.exists (tablePath)) {
+                try {
+                    state.getFileManager ().deleteFile (tablePath);
+                }
+                catch (IOException e) {
+                    throw new IllegalArgumentException (e.getMessage ());
+                }
+            }
         }
         if (table == null) {
-            throw new IllegalStateException ("Try to delete unknown table");
+            throw new IllegalStateException (TABLE_NOT_EXIST);
         }
     }
 
     @Override
-    public Table getTable (String tableName) throws IllegalArgumentException {
+    public Table getTable (String tableName) {
         validTableNameCheck (tableName);
         return tables.get (tableName);
     }
 
-    @Override
-    public void writeDatabaseOnDisk () throws IOException, IllegalArgumentException {
-        Set<String> tableNames = tables.keySet ();
-
-        for (String oldtableName : tableNames) {
-            Path oldDirectory = state.getFileManager ().getCurrentDirectory ().resolve (oldtableName);
-            if (Files.exists (oldDirectory)) {
-                state.getFileManager ().deleteFile (oldDirectory);
-            }
+    private Set<Path> deleteFilesThatChanged (MultiTable table) throws IOException {
+        Set<Path> paths = new HashSet<> ();
+        Path tablePath = state.getFileManager ().getCurrentDirectory ().resolve (table.getName ());
+        if (Files.notExists (tablePath)) {
+            Files.createDirectory (tablePath);
+        }
+        for (String key : table.getKeysThatValuesHaveChanged ()) {
+            paths.add (deleteFileForKey (key, tablePath));
         }
 
-        for (String dpopped: droppedTables) {
-            Path tableToDrop = Paths.get (dpopped);
-            Path oldDirectory = state.getFileManager ().getCurrentDirectory ().resolve (tableToDrop);
-            if (Files.exists (oldDirectory)) {
-                state.getFileManager ().deleteFile (oldDirectory);
-            }
+        return paths;
+    }
+
+
+    private void rewriteFilesThatChanged (MultiTable table, Set<Path> filesChanged) throws IOException {
+        Path tablePath = state.getFileManager ().getCurrentDirectory ().resolve (table.getName ());
+        if (Files.notExists (tablePath)) {
+            Files.createDirectory (tablePath);
         }
 
-        droppedTables.clear ();
+        for (String key : table.getKeys ()) {
 
-        for (String tableName : tableNames) {
-            Path tableDirectory = state.getFileManager ().getCurrentDirectory ().resolve (tableName);
-
-            state.getFileManager ().makeDirectory (tableDirectory);
-
-            MultiTable currentTable = (MultiTable) tables.get (tableName);
-            Set<String> keys = currentTable.getKeys ();
-
-            for (String key : keys) {
-
-                Path file = createFileForKey (key, tableDirectory);
+            Path file = createFileForKeyIfNotExists (key, tablePath);
+            if (filesChanged.contains (file)) {
 
                 try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
-                        (new FileOutputStream (file.toFile (),true)))) {
+                        (new FileOutputStream (file.toFile (), true)))) {
 
-                    String value = currentTable.get (key);
-                    DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
+                    String value = table.get (key);
+                    if (value != null) {
+                        DatabaseUtils.writeKeyValue (new DatabaseUtils.KeyValue (key, value), out);
+                    }
                 }
                 catch (IOException e) {
                     throw new IOException ("Unable to write to file: " + e.getMessage ());
@@ -153,8 +161,16 @@ public class MultiTableProvider extends AbstractTableProvider {
         }
     }
 
+
+    public void writeTableOnDisk (MultiTable table) throws IOException, IllegalArgumentException {
+
+        Set<Path> filesThatChanged = deleteFilesThatChanged (table);
+        rewriteFilesThatChanged (table, filesThatChanged);
+
+    }
+
     @Override
-    protected void getDatabaseFromDisk () throws IOException, IllegalArgumentException {
+    protected void getDatabaseFromDisk () throws IOException {
         File[] tableDirectories = state.getFileManager ().getCurrentDirectoryFiles ();
 
         for (File tableDirectory : tableDirectories) {
@@ -162,8 +178,12 @@ public class MultiTableProvider extends AbstractTableProvider {
                 continue;
             }
 
-            Table table = createNewTable (tableDirectory.getName ());
+            MultiTable table = createNewTable (tableDirectory.getName ());
             File[] directories = tableDirectory.listFiles ();
+
+            if (directories == null) {
+                return;
+            }
 
             for (File directory : directories) {
 
@@ -171,6 +191,10 @@ public class MultiTableProvider extends AbstractTableProvider {
                     continue;
                 }
                 File[] files = directory.listFiles ();
+
+                if (files == null) {
+                    continue;
+                }
 
                 for (File file : files) {
                     isFileCheck (file.toPath ());
@@ -183,7 +207,7 @@ public class MultiTableProvider extends AbstractTableProvider {
                             (new FileInputStream (file)))) {
                         while (in.available () != 0) {
                             DatabaseUtils.KeyValue pair = DatabaseUtils.readKeyValue (in);
-                            table.put (pair.key, pair.value);
+                            table.putValueFromDisk (pair.key, pair.value);
                         }
                     }
                     catch (IOException e) {

@@ -1,15 +1,16 @@
 package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.students.vyatkina.Command;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.CreateCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.DropCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProviderFactory;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.ExitDatabaseCommand;
-import ru.fizteh.fivt.students.vyatkina.database.providerCommands.UseCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.GetCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.PutCommand;
-import ru.fizteh.fivt.students.vyatkina.database.tableCommands.RemoveCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.CreateCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.DropCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.CommitCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.ExitDatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.UseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.GetCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.PutCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.RemoveCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.RollbackCommand;
+import ru.fizteh.fivt.students.vyatkina.database.commands.SizeCommand;
 import ru.fizteh.fivt.students.vyatkina.shell.Shell;
 
 import java.nio.file.Path;
@@ -28,6 +29,10 @@ public class MultiHashFileMap {
         commands.add (new CreateCommand (state));
         commands.add (new DropCommand (state));
         commands.add (new UseCommand (state));
+        commands.add (new CommitCommand (state));
+        commands.add (new SizeCommand (state));
+        commands.add (new RollbackCommand (state));
+
         return commands;
     }
 
@@ -37,12 +42,13 @@ public class MultiHashFileMap {
         if (input != null) {
             databasePath = Paths.get (input);
         } else {
-            System.err.println ("This is MultiDatabase. To run program, give it empty directory -Dfizteh.db.dir=<directory>");
-            return;
+            databasePath = null;
+            System.exit (-1);
         }
 
         MultiTableProviderFactory multiTableProviderFactory = new MultiTableProviderFactory ();
         try {
+
             MultiTableProvider tableProvider = (MultiTableProvider) multiTableProviderFactory.create (databasePath.toString ());
             Set<Command> commands = getMultiHashFileMapCommands (tableProvider.state);
 

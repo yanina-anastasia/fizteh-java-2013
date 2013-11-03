@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vyatkina.database.tableCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
@@ -18,7 +18,7 @@ public class ExitDatabaseCommand extends DatabaseCommand {
     public void execute (String[] args) throws ExecutionException {
         try {
             if (state.getTable () == null) {
-                throw new IllegalArgumentException ("No exit command without using current table");
+                System.exit (0);
             } else {
                 state.getTable ().commit ();
             }

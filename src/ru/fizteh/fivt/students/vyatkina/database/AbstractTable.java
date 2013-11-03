@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.vyatkina.database.tables;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.Table;
 

@@ -202,6 +202,13 @@ public class FileManager {
         }
     }
 
+    public void deleteAllFilesInCurrentDirectory () throws IOException {
+       File [] currentDirectoryFiles = getCurrentDirectoryFiles ();
+       for (File file: currentDirectoryFiles) {
+           deleteFile (file.toPath ());
+       }
+    }
+
     public void deleteFile (Path file) throws IOException {
         if (!file.isAbsolute ()) {
             file = currentDirectory.resolve (file);

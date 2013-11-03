@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.vyatkina;
 
 import java.util.concurrent.ExecutionException;
 
-abstract public class AbstractCommand<State> implements Command {
+abstract public class AbstractCommand <State> implements Command {
 
     protected String name;
     protected int argsCount;

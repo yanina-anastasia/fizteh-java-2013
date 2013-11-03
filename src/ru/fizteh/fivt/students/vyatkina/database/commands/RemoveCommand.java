@@ -1,13 +1,13 @@
-package ru.fizteh.fivt.students.vyatkina.database.tableCommands;
+package ru.fizteh.fivt.students.vyatkina.database.commands;
 
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-public class GetCommand extends DatabaseCommand {
+public class RemoveCommand extends DatabaseCommand {
 
-    public GetCommand (DatabaseState state) {
+    public RemoveCommand (DatabaseState state) {
         super (state);
-        this.name = "get";
+        this.name = "remove";
         this.argsCount = 1;
     }
 
@@ -15,15 +15,14 @@ public class GetCommand extends DatabaseCommand {
     public void execute (String[] args) {
         String key = args[0];
         if (state.getTable () == null) {
-            state.getIoStreams ().out.println("no table");
+            state.getIoStreams ().out.println ("no table");
             return;
         }
-        String result = state.getTable ().get (key);
+        String result = state.getTable ().remove (key);
         if (result == null) {
             state.getIoStreams ().out.println ("not found");
         } else {
-            state.getIoStreams ().out.println ("found");
-            state.getIoStreams ().out.println (result);
+            state.getIoStreams ().out.println ("removed");
         }
     }
 

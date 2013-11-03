@@ -1,9 +1,8 @@
-package ru.fizteh.fivt.students.vyatkina.database.providers;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.vyatkina.FileManager;
-import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
 import java.io.IOException;
 import java.nio.file.Files;

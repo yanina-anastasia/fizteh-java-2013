@@ -1,25 +1,20 @@
-package ru.fizteh.fivt.students.vyatkina.database.tables;
-
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.database.providers.MultiTableProvider;
+package ru.fizteh.fivt.students.vyatkina.database;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class MultiTable extends AbstractTable {
+public class SingleTable extends AbstractTable {
 
-    MultiTableProvider tableProvider;
-    protected String name;
+    public SingleTableProvider tableProvider;
 
-    public MultiTable (String name, Map<String, String> values, MultiTableProvider tableProvider) {
-        this.name = name;
+    public SingleTable (Map<String, String> values, SingleTableProvider tableProvider) {
         this.values = values;
         this.tableProvider = tableProvider;
     }
 
     @Override
     public String getName () {
-        return name;
+        throw new UnsupportedOperationException ("Get name operation is not supported");
     }
 
     @Override
