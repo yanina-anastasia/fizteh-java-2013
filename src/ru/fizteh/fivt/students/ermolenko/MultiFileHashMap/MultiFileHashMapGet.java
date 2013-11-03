@@ -26,8 +26,12 @@ public class MultiFileHashMapGet implements Command<MultiFileHashMapState> {
 
         if (inState.getFromCurrentTable(args[0]) == null) {
             if (inState.checkChangesTable(args[0])) {
-                System.out.println("found");
-                System.out.println(inState.getFromChangesBase(args[0]));
+                if (inState.getFromChangesBase(args[0]) == null) {
+                    System.out.println("not found");
+                } else {
+                    System.out.println("found");
+                    System.out.println(inState.getFromChangesBase(args[0]));
+                }
             } else {
                 System.out.println("not found");
             }
