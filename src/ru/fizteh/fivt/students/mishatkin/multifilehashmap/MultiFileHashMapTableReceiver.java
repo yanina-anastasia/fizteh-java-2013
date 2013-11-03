@@ -39,6 +39,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	}
 
 	public void reset() {
+		tableName = "";
 		tableFiles =  new ArrayList<>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
 	}
 

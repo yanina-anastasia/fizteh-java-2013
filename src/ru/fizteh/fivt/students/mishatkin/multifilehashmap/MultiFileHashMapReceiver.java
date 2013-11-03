@@ -56,6 +56,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 					throw new MultiFileHashMapException(e.getMessage());
 				}
 				out.println("dropped");
+				table.reset();
 			} else {
 				throw new MultiFileHashMapException("It\'s a trap! Trying to drop \'" + tableName +
 						"\' table, but it is not even a directory!");
