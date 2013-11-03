@@ -24,7 +24,7 @@ public class MultiFileHashMapTable implements Table {
     private int number;
     private int prevNumber;
 
-    public MultiFileHashMapTable(String tableName) throws IOException {
+    public MultiFileHashMapTable(String tableName) {
         this.tableName = tableName;
         tableSize = 0;
 

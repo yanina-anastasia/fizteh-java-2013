@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class MultiFileHashMapTableProviderFactory implements TableProviderFactory {
     @Override
-    public MultiFileHashMapTableProvider create(String dirName) throws IOException {
+    public MultiFileHashMapTableProvider create(String dirName) {
         if (dirName == null || dirName.equals("")) {
             throw new IllegalArgumentException("CREATE ERROR: incorrect directory name");
         }

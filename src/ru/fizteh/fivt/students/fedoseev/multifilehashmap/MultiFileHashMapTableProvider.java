@@ -22,7 +22,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     }
 
     @Override
-    public MultiFileHashMapTable createTable(String tableName) throws IOException {
+    public MultiFileHashMapTable createTable(String tableName) {
         if (databaseTables.containsKey(tableName)) {
             return null;
         }
