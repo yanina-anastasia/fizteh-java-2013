@@ -20,7 +20,6 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
         }
 
         MultiFileHashMapTable curTable = state.getCurTable();
-
         File newDir = state.getCurDir().toPath().resolve(tableName).toFile();
 
         if (newDir.exists()) {

@@ -14,9 +14,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
     @Override
     public MultiFileHashMapTable getTable(String tableName) {
-        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
-            throw new IllegalArgumentException("GETTABLE ERROR: incorrect table name");
-        }
+        checkTableName(tableName);
 
         return databaseTables.get(tableName);
     }
@@ -26,9 +24,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         if (databaseTables.containsKey(tableName)) {
             return null;
         }
-        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
-            throw new IllegalArgumentException("CREATETABLE ERROR: incorrect table name");
-        }
+        checkTableName(tableName);
 
         MultiFileHashMapTable table = new MultiFileHashMapTable(tableName);
 
@@ -39,13 +35,18 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) {
-        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
-            throw new IllegalArgumentException("REMOVETABLE ERROR: incorrect table name");
-        }
+        checkTableName(tableName);
+
         if (!databaseTables.containsKey(tableName)) {
-            throw new IllegalStateException("REMOVETABLE ERROR: not existing table");
+            throw new IllegalStateException("REMOVE TABLE ERROR: not existing table");
         }
 
         databaseTables.remove(tableName);
+    }
+
+    private void checkTableName(String tableName) throws IllegalArgumentException {
+        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
+            throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: incorrect table name");
+        }
     }
 }
