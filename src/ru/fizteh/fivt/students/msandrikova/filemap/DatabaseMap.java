@@ -61,14 +61,17 @@ public class DatabaseMap implements ChangesCountingTable{
 	}
 	
 	public DatabaseMap(File currentDirectory, String name) throws IOException {
-		this.name  = name;
+		this.name = name;
 		this.currentFile = new File(currentDirectory, name);
-		if(!this.currentFile.exists()) {
-			this.currentFile.createNewFile();
-		} else if(this.currentFile.isDirectory()) {
-			Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DBMap", false);
+		if(this.currentFile.exists()) {
+			if(this.currentFile.isDirectory()) {
+				Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DatabaseMap", false);
+			}
+			this.readFile();
+			if(this.size() == 0) {
+				this.delete();
+			}
 		}
-		this.readFile();
 	}
 	
 	public boolean checkHash(int dirNumber, int DBNumber) {
@@ -98,12 +101,12 @@ public class DatabaseMap implements ChangesCountingTable{
 					break;
 				}
 					if(keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
-						Utils.generateAnError("Incorrect length of key.", "DBMap", false);
+						Utils.generateAnError("Incorrect length of key.", "DatabaseMap", false);
 					}
 					
 					valueLength = reader.readInt();
 					if(valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
-						Utils.generateAnError("Incorrect length of value.", "DBMap", false);
+						Utils.generateAnError("Incorrect length of value.", "DatabaseMap", false);
 					}
 					
 					byte[] keyByteArray = new byte[keyLength];

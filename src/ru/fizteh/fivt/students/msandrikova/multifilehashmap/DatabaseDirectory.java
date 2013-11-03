@@ -1,139 +1,119 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+import ru.fizteh.fivt.students.msandrikova.filemap.DatabaseMap;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class DBDirectory {
+public class DatabaseDirectory implements ChangesCountingTable {
 	private String name;
 	private File directoryPath;
-	private Map<Integer, DBMap> mapOfDB = new HashMap<Integer, DBMap>();
-	private int MAX_DB_AMOUNT = 16;
+	private Map<Integer, DatabaseMap> mapOfDatabases = new HashMap<Integer, DatabaseMap>();
+	private int MAX_DATABASE_AMOUNT = 16;
 	
-	private void getDB(int nameNumber) throws IOException, FileNotFoundException {
+	private void getDatabase(int nameNumber) throws IOException {
 		String name = Integer.toString(nameNumber) + ".dat";
-		File DBPath = new File(this.directoryPath, name);
-		if(DBPath.exists()) {
-			if(DBPath.isDirectory()){
-				Utils.generateAnError("File \"" + name + "\" in directory \"" 
-						+ this.name + "\" can not be a directory.", "DBDirectory", false);
-			}
-			DBMap newDB = new DBMap(this.directoryPath, name);
-			if(!newDB.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
+		File DatabasePath = new File(this.directoryPath, name);
+		if(DatabasePath.exists()) {
+			DatabaseMap newDatabase = new DatabaseMap(this.directoryPath, name);
+			if(!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
 				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
 			}
-			if(newDB.getSize() == 0) {
-				newDB.delete();
-			} else {
-				this.mapOfDB.put(nameNumber, newDB);
-			}
+			this.mapOfDatabases.put(nameNumber, newDatabase);
 		}
 	}
 
-	public DBDirectory (File tableDirectory, String name) {
+	public DatabaseDirectory (File tableDirectory, String name) {
 		this.name = name;
 		this.directoryPath = new File(tableDirectory, name);
-		if(!this.directoryPath.exists()) {
-			this.directoryPath.mkdir();
-		} else {
+		if(this.directoryPath.exists()) {
 			if(!this.directoryPath.isDirectory()) {
-				Utils.generateAnError("File \"" + this.name + "\" should be directory.", "DBDirectory", false);
+				Utils.generateAnError("File \"" + this.name + "\" should be directory.", "DatabaseDirectory", false);
 			}
-			for(int i = 0; i < this.MAX_DB_AMOUNT; i++) {
+			for(int i = 0; i < this.MAX_DATABASE_AMOUNT; i++) {
 				try {
-					this.getDB(i);
+					this.getDatabase(i);
 				} catch (IOException e) {
 					Utils.generateAnError("Can not open or use required data base in directory \"" 
-							+ this.name + "\".", "DBDirectory", false);
+							+ this.name + "\".", "DatabaseDirectory", false);
 				}
+			}
+			if(this.size() == 0) {
+				this.delete();
 			}
 		}
 	}
 	
-	private DBMap createDB(int nameNumber) throws IOException, FileNotFoundException {
-		DBMap newDB = null;
-		String name = Integer.toString(nameNumber) + ".dat";
-		newDB = new DBMap(this.directoryPath, name);
-		this.mapOfDB.put(nameNumber, newDB);
-		return newDB;
+	@Override
+	public int size() {
+		int answer = 0;
+		for(DatabaseMap database : this.mapOfDatabases.values()) {
+			answer += database.size();
+		}
+		return answer;
 	}
-
+	
+	private DatabaseMap createDatabase(int nameNumber) throws IOException {
+		DatabaseMap newDatabase = null;
+		String name = Integer.toString(nameNumber) + ".dat";
+		newDatabase = new DatabaseMap(this.directoryPath, name);
+		this.mapOfDatabases.put(nameNumber, newDatabase);
+		return newDatabase;
+	}
+	
+	@Override
 	public String getName() {
 		return this.name;
 	}
 
+	@Override
 	public String get(String key) throws IllegalArgumentException {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
-		DBMap currentDB = this.mapOfDB.get(nfile);
-		if(currentDB != null) {
-			answer = currentDB.get(key);
+		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
+		if(currentDatabase != null) {
+			answer = currentDatabase.get(key);
 		}
 		return answer;
 	}
-
+	
+	@Override
 	public String put(String key, String value) throws IllegalArgumentException {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
-		DBMap currentDB = this.mapOfDB.get(nfile);
-		if(currentDB == null) {
+		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
+		if(currentDatabase == null) {
 			try {
-				currentDB = this.createDB(nfile);
+				currentDatabase = this.createDatabase(nfile);
 			} catch (IOException e) {
 				Utils.generateAnError("Can not open or use required data base.", "put", false);
 			}
 		}
-		answer = currentDB.put(key, value);
+		answer = currentDatabase.put(key, value);
 		return answer;
 	}
 
+	@Override
 	public String remove(String key) throws IllegalArgumentException {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
-		DBMap currentDB = this.mapOfDB.get(nfile);
-		if(currentDB != null) {
-			answer = currentDB.remove(key);
-			if(currentDB.getSize() == 0) {
-				this.mapOfDB.remove(nfile);
-				currentDB.delete();
-			}
+		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
+		if(currentDatabase != null) {
+			answer = currentDatabase.remove(key);
 		}
 		return answer;
 	}
 	
-	public int getSize() {
-		int result = 0;
-		Set<Integer> keySet = this.mapOfDB.keySet();
-		DBMap curDB = null;
-		for(Integer key : keySet) {
-			curDB = this.mapOfDB.get(key);
-			result += curDB.getSize();
+	@Override
+	public int commit() {
+		int answer = 0;
+		for(DatabaseMap database : this.mapOfDatabases.values()) {
+			answer += database.commit();
 		}
-		return result;
-	}
-	
-	public int getDBCount() {
-		return this.mapOfDB.size();
-	}
-	
-	public void commit() {
-		Set<Integer> keySet = this.mapOfDB.keySet();
-		DBMap currentDB = null;
-		for(Integer key : keySet) {
-			currentDB = this.mapOfDB.get(key);
-			try {
-				currentDB.writeFile();
-			} catch (FileNotFoundException e) {
-				Utils.generateAnError("Fatal error during writing", "commit", false);
-			} catch (IOException e) {
-				Utils.generateAnError("Fatal error during writing", "commit", false);
-			}
-		}
+		return answer;
 	}
 	
 	public void delete() {
@@ -142,5 +122,23 @@ public class DBDirectory {
 		} catch (IOException e) {
 			Utils.generateAnError("Fatal error during deleting", "remove", false);
 		}
+	}
+
+	@Override
+	public int rollback() {
+		int answer = 0;
+		for(DatabaseMap database : this.mapOfDatabases.values()) {
+			answer += database.rollback();
+		}
+		return answer;
+	}
+
+	@Override
+	public int unsavedChangesCount() {
+		int answer = 0;
+		for(DatabaseMap database : this.mapOfDatabases.values()) {
+			answer += database.unsavedChangesCount();
+		}
+		return answer;
 	}
 }
