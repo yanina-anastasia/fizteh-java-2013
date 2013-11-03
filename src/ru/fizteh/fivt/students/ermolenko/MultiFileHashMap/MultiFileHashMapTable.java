@@ -78,7 +78,11 @@ public class MultiFileHashMapTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get");
         }
-        return dataBase.get(key);
+        String newKey = key.trim();
+        if (newKey.isEmpty()) {
+            throw new IllegalArgumentException("Incorrect key to get");
+        }
+        return dataBase.get(newKey);
     }
 
     @Override
@@ -87,7 +91,12 @@ public class MultiFileHashMapTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key or value to put");
         }
-        return changesBase.put(key, value);
+        String newKey = key.trim();
+        String newValue = value.trim();
+        if (newKey.isEmpty() || newValue.isEmpty()) {
+            throw new IllegalArgumentException("Incorrect key or value to put");
+        }
+        return changesBase.put(newKey, newValue);
     }
 
     @Override
@@ -96,7 +105,11 @@ public class MultiFileHashMapTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
-        return dataBase.remove(key);
+        String newKey = key.trim();
+        if (newKey.isEmpty()) {
+            throw new IllegalArgumentException("Incorrect key to remove");
+        }
+        return dataBase.remove(newKey);
     }
 
     @Override

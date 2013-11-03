@@ -37,10 +37,10 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     public Table getTable(String name) {
 
         if (name == null) {
-            throw new IllegalArgumentException("null name");
+            throw new IllegalArgumentException("null name to get");
         }
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("empty name");
+        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+            throw new IllegalArgumentException("incorrect name to get");
         }
 
         if (!mapOfTables.containsKey(name)) {
@@ -54,10 +54,10 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     public Table createTable(String name) {
 
         if (name == null) {
-            throw new IllegalArgumentException("null name");
+            throw new IllegalArgumentException("null name to create");
         }
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("empty name");
+        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+            throw new IllegalArgumentException("incorrect name to create");
         }
         File dirOfTable = new File(currentDir, name);
         if (!dirOfTable.mkdir()) {
@@ -72,6 +72,13 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
+
+        if (name == null || !name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+            throw new IllegalArgumentException("incorrect table name to remove");
+        }
+        if (!mapOfTables.containsKey(name)) {
+            throw new IllegalStateException("table doesn't exist");
+        }
 
         File dirOfTable = new File(currentDir, name);
         try {
