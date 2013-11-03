@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.junit;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 import ru.fizteh.fivt.students.kislenko.shell.Shell;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String dbAddress = System.getProperty("fizteh.db.dir");
         if (dbAddress == null) {
             System.err.println("Set database directory before start.");
@@ -32,7 +32,8 @@ public class Main {
             Path db = dbDir.toPath();
             MultiFileHashMapState state = new MultiFileHashMapState(db);
             Command[] commandList = new Command[]{new CommandMultiRemove(), new CommandMultiPut(), new CommandCreate(),
-                    new CommandDrop(), new CommandMultiGet(), new CommandUse()};
+                    new CommandDrop(), new CommandMultiGet(), new CommandUse(), new CommandSize(),
+                    new CommandCommit(), new CommandRollback()};
             MultiFilemapBuilder builder = new MultiFilemapBuilder();
             builder.build(state);
             Shell<MultiFileHashMapState> shell = new Shell<MultiFileHashMapState>(state, commandList);
