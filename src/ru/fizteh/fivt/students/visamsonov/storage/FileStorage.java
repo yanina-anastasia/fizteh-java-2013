@@ -10,9 +10,9 @@ import java.nio.charset.StandardCharsets;
 public class FileStorage implements TableInterface {
 
 	private final File dbFilePath;
-	private final TreeMap<String, String> memoryStore;
-	private final TreeMap<String, String> diffRemoved;
-	private final TreeMap<String, String> diffAdded;
+	private final Map<String, String> memoryStore;
+	private final Map<String, String> diffRemoved;
+	private final Map<String, String> diffAdded;
 	private final int MAX_KEY_LENGTH = 1024*1024;
 	private final int MAX_VAL_LENGTH = 1024*1024;
 	private final int MAX_TOTAL_LENGTH = 500*1024*1024;

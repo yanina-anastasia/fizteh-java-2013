@@ -16,8 +16,12 @@ public class TableProviderTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNull () throws Exception {
+	public void testCreateTableNull () throws Exception {
 		testedProvider.createTable(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testGetTableNull () throws Exception {
 		testedProvider.getTable(null);
 	}
 

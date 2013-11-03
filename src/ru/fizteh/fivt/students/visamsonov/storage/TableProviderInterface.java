@@ -7,6 +7,4 @@ public interface TableProviderInterface extends TableProvider {
 	TableInterface getTable (String name);
 
 	TableInterface createTable (String name);
-
-	void removeTable (String name);
 }

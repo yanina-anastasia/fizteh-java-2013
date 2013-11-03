@@ -61,6 +61,7 @@ public class TableTest {
 		testedTable.remove("abc1");
 		testedTable.put("abc1", "2");
 		Assert.assertEquals(testedTable.rollback(), 1);
+		Assert.assertNull(testedTable.get("abc1"));
 	}
 
 	@Test
@@ -68,8 +69,10 @@ public class TableTest {
 		testedTable.put("abcd1", "1");
 		testedTable.put("abcd2", "2");
 		Assert.assertEquals(testedTable.commit(), 2);
+		Assert.assertEquals(testedTable.get("abcd1"), "1");
 		testedTable.remove("abcd1");
 		testedTable.remove("abcd2");
 		Assert.assertEquals(testedTable.commit(), 2);
+		Assert.assertNull(testedTable.get("abcd2"));
 	}
 }
