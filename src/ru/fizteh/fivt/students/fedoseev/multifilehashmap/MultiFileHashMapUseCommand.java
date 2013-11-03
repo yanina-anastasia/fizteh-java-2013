@@ -12,28 +12,30 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        if (state.getCurDir().getName().toString().equals(input[0])) {
+        String tableName = input[0];
+
+        if (state.getCurDir().getName().equals(tableName)) {
+            System.out.println("using " + tableName);
             return;
         }
 
-        MultiFileHashMapTable table = state.getCurTable();
-        File newDir = state.getCurDir().toPath().resolve(input[0]).toFile();
+        MultiFileHashMapTable curTable = state.getCurTable();
+
+        File newDir = state.getCurDir().toPath().resolve(tableName).toFile();
 
         if (newDir.exists()) {
-            AbstractMultiFileHashMap.commitTable(table);
+            AbstractMultiFileHashMap.saveTable(curTable);
 
-            if (!state.getCurTableName().equals("")) {
-                if (table != null) {
-                    table.clearContent();
-                }
+            if (curTable != null) {
+                curTable.clearContentAndDiff();
             }
 
-            state.setDbDir(input[0]);
             state.setCurTable(input[0]);
+            AbstractMultiFileHashMap.readTableOff(state.getCurTable());
 
-            System.out.println("using " + input[0]);
+            System.out.println("using " + tableName);
         } else {
-            System.out.println(input[0] + " not exists");
+            System.out.println(tableName + " not exists");
         }
     }
 }

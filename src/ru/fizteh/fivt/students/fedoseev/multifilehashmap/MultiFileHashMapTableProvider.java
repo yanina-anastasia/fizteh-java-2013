@@ -8,44 +8,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultiFileHashMapTableProvider implements TableProvider {
-    private File curDir;
-    private Map<String, MultiFileHashMapTable> tables = new HashMap<String, MultiFileHashMapTable>();
+    private final String NAME_FORMAT = "[а-яА-яa-zA-Z0-9]+";
 
-    public MultiFileHashMapTableProvider(String dir) {
-        curDir = new File(dir);
-    }
+    private Map<String, MultiFileHashMapTable> databaseTables = new HashMap<String, MultiFileHashMapTable>();
 
     @Override
     public MultiFileHashMapTable getTable(String tableName) {
-        if (tableName == null) {
+        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
             throw new IllegalArgumentException("GETTABLE ERROR: incorrect table name");
         }
 
-        return tables.get(tableName);
+        return databaseTables.get(tableName);
     }
 
     @Override
-    public MultiFileHashMapTable createTable(String tableName) {
-        if (tables.containsKey(tableName)) {
+    public MultiFileHashMapTable createTable(String tableName) throws IOException {
+        if (databaseTables.containsKey(tableName)) {
             return null;
+        }
+        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
+            throw new IllegalArgumentException("CREATETABLE ERROR: incorrect table name");
         }
 
         MultiFileHashMapTable table = new MultiFileHashMapTable(tableName);
 
-        tables.put(tableName, table);
+        databaseTables.put(tableName, table);
 
         return table;
     }
 
     @Override
     public void removeTable(String tableName) {
-        if (tableName == null) {
+        if (tableName == null || !new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
             throw new IllegalArgumentException("REMOVETABLE ERROR: incorrect table name");
         }
-        if (!tables.containsKey(curDir.toPath().resolve(tableName).toString())) {
+        if (!databaseTables.containsKey(tableName)) {
             throw new IllegalStateException("REMOVETABLE ERROR: not existing table");
         }
 
-        tables.remove(curDir.toPath().resolve(tableName).toString());
+        databaseTables.remove(tableName);
     }
 }

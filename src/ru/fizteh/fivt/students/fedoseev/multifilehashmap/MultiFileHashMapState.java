@@ -5,13 +5,11 @@ import java.io.IOException;
 
 public class MultiFileHashMapState {
     private File dbDir;
-    private String curTableName;
     private MultiFileHashMapTable curTable;
     private MultiFileHashMapTableProvider tables;
 
-    public MultiFileHashMapState(File dir) {
+    public MultiFileHashMapState(File dir) throws IOException {
         dbDir = dir;
-        curTableName = "";
 
         MultiFileHashMapTableProviderFactory tpf = new MultiFileHashMapTableProviderFactory();
 
@@ -22,28 +20,20 @@ public class MultiFileHashMapState {
         return dbDir;
     }
 
-    public void createTable(String curTableName) {
+    public void createTable(String curTableName) throws IOException {
         tables.createTable(dbDir.toPath().resolve(curTableName).toString());
     }
 
-    public String getCurTableName() {
-        return curTableName;
-    }
-
     public MultiFileHashMapTable getCurTable() {
-        if (curTableName.equals("")) {
-            return null;
-        }
-
         return curTable;
     }
 
-    public void setDbDir(String curTableName) {
-        this.curTableName = curTableName;
-    }
-
     public void setCurTable(String curTableName) {
-        this.curTable = tables.getTable(dbDir.toPath().resolve(curTableName).toString());
+        if (curTableName == null) {
+            curTable = null;
+        } else {
+            this.curTable = tables.getTable(dbDir.toPath().resolve(curTableName).toString());
+        }
     }
 
     public void removeTable(String curTableName) throws IOException {
