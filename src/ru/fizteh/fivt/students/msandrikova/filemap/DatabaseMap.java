@@ -16,7 +16,7 @@ import java.util.Set;
 import ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTable;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class DatabaseMap implements ChangesCountingTable{
+public class DatabaseMap implements ChangesCountingTable {
 	private File currentFile;
 	private Map<String, String> originalDatabase = new HashMap<String, String>();
 	private Map<String, String> updates = new HashMap<String, String>();
@@ -157,10 +157,7 @@ public class DatabaseMap implements ChangesCountingTable{
 	}
 	
 	@Override
-	public String put(String key, String value) throws IllegalArgumentException {
-		if(key == null || value == null) {
-			throw new IllegalArgumentException("Key and name can not be null");
-		}
+	public String put(String key, String value) {
 		String oldValue = null;
 		oldValue = this.updates.put(key, value);
 		if(oldValue == null) {
@@ -174,10 +171,7 @@ public class DatabaseMap implements ChangesCountingTable{
 	}
 	
 	@Override
-	public String get(String key) throws IllegalArgumentException {
-		if(key == null) {
-			throw new IllegalArgumentException("Key can not be null");
-		}
+	public String get(String key) {
 		String answer = this.updates.get(key);
 		if(answer == null) {
 			answer = this.originalDatabase.get(key);
@@ -186,10 +180,7 @@ public class DatabaseMap implements ChangesCountingTable{
 	}
 	
 	@Override
-	public String remove(String key) throws IllegalArgumentException {
-		if(key == null) {
-			throw new IllegalArgumentException("Key can not be null");
-		}
+	public String remove(String key) {
 		String value = this.updates.remove(key);
 		if(value == null) {
 			value = this.originalDatabase.get(key);

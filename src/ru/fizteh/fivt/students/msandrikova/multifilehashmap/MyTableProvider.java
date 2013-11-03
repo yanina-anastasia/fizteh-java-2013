@@ -23,8 +23,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
-		if(name == null) {
-			throw new IllegalArgumentException("Table name can not be null");
+		if(name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Table name can not be null or empty");
 		}
 		if(this.mapOfTables.get(name) == null) {
 			File tablePath = new File(this.currentDirectory, name);
