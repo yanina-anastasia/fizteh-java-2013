@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dsalnikov.multifilemap;
 
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dsalnikov.filemap.FileMap;
 import ru.fizteh.fivt.students.dsalnikov.filemap.FileMapState;
 
@@ -8,13 +9,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Table {
+public class FileTable {
     private String state;
-
+    int size = 0;
 
     public HashMap<String, HashMap<String, FileMap>> directories = new HashMap<String, HashMap<String, FileMap>>();
 
-    public Table(String directory) throws IOException {
+    public FileTable() {
+    }
+
+    public FileTable(String directory) throws IOException {
         state = directory;
         File f = new File(state);
         String[] dirs = f.list();
@@ -39,6 +43,12 @@ public class Table {
     }
 
     public void flush() throws IOException {
+        for (String s : directories.keySet()) {
+            File f = new File(state, s);
+            if (!f.exists()) {
+                f.mkdir();
+            }
+        }
         for (HashMap<String, FileMap> s : directories.values()) {
             for (FileMap fi : s.values()) {
                 fi.deletefile();
@@ -80,5 +90,13 @@ public class Table {
 
     public String getState() {
         return state;
+    }
+
+    public String getFileMapDirectory(String s) {
+        return String.valueOf(Math.abs(s.hashCode()) % 16) + ".dir";
+    }
+
+    public String getFileMapFile(String s) {
+        return String.valueOf(Math.abs(s.hashCode()) / 16 % 16) + ".dat";
     }
 }

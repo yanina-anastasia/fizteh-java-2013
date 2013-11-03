@@ -10,7 +10,8 @@ public class MultiFileMapState {
     public String workingdirectory;
     boolean usingtable;
 
-    private Table currusingtable;
+
+    private FileTable currusingtable;
 
     public MultiFileMapState(String workingdir) throws IOException {
         usingtable = false;
@@ -25,7 +26,7 @@ public class MultiFileMapState {
         return usingtable;
     }
 
-    public void usingTable(Table t) {
+    public void usingTable(FileTable t) {
         usingtable = true;
         currusingtable = t;
     }
@@ -35,8 +36,15 @@ public class MultiFileMapState {
         currusingtable = null;
     }
 
+    public String getWorkingDirectory() {
+        return workingdirectory;
+    }
 
-    public Table getTable() {
+    public String setWorkingDirectory(String newdirectory) {
+        return workingdirectory = newdirectory;
+    }
+
+    public FileTable getTable() {
         return currusingtable;
     }
 

@@ -1,9 +1,9 @@
 package ru.fizteh.fivt.students.dsalnikov.multifilemap;
 
 
-import ru.fizteh.fivt.students.dsalnikov.shell.Command;
 import ru.fizteh.fivt.students.dsalnikov.filemap.FileMap;
 import ru.fizteh.fivt.students.dsalnikov.filemap.RemoveCommand;
+import ru.fizteh.fivt.students.dsalnikov.shell.Command;
 
 import java.io.IOException;
 
@@ -22,9 +22,9 @@ public class MultiRemove implements Command {
                 int ndirectory = Math.abs(hashcode) % 16;
                 int nfile = Math.abs(hashcode) / 16 % 16;
                 MultiFileMapState mfms = (MultiFileMapState) state;
-                Table temp = mfms.getTable();
-                FileMap temptable = temp.getFileMap(String.valueOf(ndirectory)+ ".dir", String.valueOf(nfile) + ".dat");
-                if(temptable == null) {
+                FileTable temp = mfms.getTable();
+                FileMap temptable = temp.getFileMap(String.valueOf(ndirectory) + ".dir", String.valueOf(nfile) + ".dat");
+                if (temptable == null) {
                     System.out.println("not found");
                     return;
                 }

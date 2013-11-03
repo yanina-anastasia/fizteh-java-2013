@@ -20,8 +20,8 @@ public class DropCommand implements Command {
                 System.out.println("table " + args[1] + " not exists");
                 return;
             } else {
-                if(args[1].equals(deletefile.getName())) {
-                   mfhm.notUsingTable();
+                if (args[1].equals(deletefile.getName())) {
+                    mfhm.notUsingTable();
                 }
                 RmCommand rm = new RmCommand();
                 ShellState ss = new ShellState(deletefile.getAbsolutePath());

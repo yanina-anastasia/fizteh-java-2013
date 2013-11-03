@@ -1,9 +1,9 @@
 package ru.fizteh.fivt.students.dsalnikov.multifilemap;
 
 
-import ru.fizteh.fivt.students.dsalnikov.shell.Command;
 import ru.fizteh.fivt.students.dsalnikov.filemap.FileMap;
 import ru.fizteh.fivt.students.dsalnikov.filemap.GetCommand;
+import ru.fizteh.fivt.students.dsalnikov.shell.Command;
 
 import java.io.IOException;
 
@@ -21,8 +21,8 @@ public class MultiGet implements Command {
                 int hash = args[1].hashCode();
                 int ndirectory = Math.abs(hash) % 16;
                 int nfile = Math.abs(hash) / 16 % 16;
-                Table temp = mfms.getTable();
-                FileMap temptable = temp.getFileMap(String.valueOf(ndirectory)+ ".dir", String.valueOf(nfile) + ".dat");
+                FileTable temp = mfms.getTable();
+                FileMap temptable = temp.getFileMap(String.valueOf(ndirectory) + ".dir", String.valueOf(nfile) + ".dat");
                 if (temptable == null) {
                     System.out.println("not found " + args[1]);
                 } else {

@@ -19,20 +19,20 @@ public class UseCommand implements Command {
             System.out.println("table " + args[1] + " not exists");
         } else {
             if (!mfms.getFlag()) {
-                Table temp = new Table(f.getAbsolutePath());
+                FileTable temp = new FileTable(f.getAbsolutePath());
                 mfms.usingTable(temp);
                 System.out.println("using " + f.getName());
             } else {
-                //if (f.getCanonicalPath() == args[1]) {
-                   // System.out.println("This table is already loaded");
-                  //  return;
-                //} else {
-                    Table ttable = mfms.getTable();
+                if (f.getCanonicalPath() == args[1]) {
+                    System.out.println("This table is already loaded");
+                    return;
+                } else {
+                    FileTable ttable = mfms.getTable();
                     ttable.flush();
-                    Table newtable = new Table(f.getAbsolutePath());
+                    FileTable newtable = new FileTable(f.getAbsolutePath());
                     mfms.usingTable(newtable);
                     System.out.println("using " + f.getName());
-                //}
+                }
             }
         }
     }
