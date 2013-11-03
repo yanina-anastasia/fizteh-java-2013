@@ -24,7 +24,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	private List<FileMapReceiver> tableFiles =
 			new ArrayList<>(TABLE_OWNING_FILES_COUNT);
 
-	public MultiFileHashMapTableReceiver(String tableName) {
+	public MultiFileHashMapTableReceiver(String tableName) {	//	Set delegate after this!
 		tableFiles = new ArrayList<>(Collections.<FileMapReceiver>nCopies(TABLE_OWNING_FILES_COUNT, null));
 		this.tableName = tableName;
 		delegate = null;
