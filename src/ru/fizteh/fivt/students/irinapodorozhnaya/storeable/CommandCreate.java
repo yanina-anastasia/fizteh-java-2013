@@ -9,9 +9,9 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 
 public class CommandCreate extends AbstractCommand {
     
-    private StorableState state;
+    private StoraebleState state;
     
-    public CommandCreate(StorableState state) {
+    public CommandCreate(StoraebleState state) {
         super(-1);
         this.state = state;
     }

@@ -10,12 +10,15 @@ public class MyTableProviderFactory implements TableProviderFactory {
     
     @Override
     public ExtendProvider create(String dataBaseDir) throws IOException {
-        if (dataBaseDir == null) {
+        if (dataBaseDir == null || dataBaseDir.trim().isEmpty()) {
            throw new IllegalArgumentException("dir not defined");
         }
         File directory = new File(dataBaseDir);
+        if (directory.isFile()) {
+            throw new IllegalArgumentException(dataBaseDir + " is a file");
+        }
         if (!directory.isDirectory()) {
-            throw new IOException (dataBaseDir + " is not a directory name");
+            throw new IOException(dataBaseDir + " is not a directory name");
         }
         return new MyTableProvider(directory);
     }

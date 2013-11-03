@@ -19,11 +19,11 @@ public class XMLSerializer {
     
     public static String serialize(Table table, Storeable s) throws XMLStreamException {
       
-	if (s == null) {
-	    return null;
-	}
-	
-	StringWriter result = new StringWriter();
+        if (s == null) {
+            return null;
+        }
+        
+        StringWriter result = new StringWriter();
         XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(result);
        
         writer.writeStartElement("row");
@@ -48,11 +48,11 @@ public class XMLSerializer {
     }
     
     public static Storeable deserialize(Table table, String s) throws XMLStreamException, ParseException {
-	
-	if (s == null) {
-	    return null;
-	}
-	
+        
+        if (s == null) {
+            return null;
+        }
+        
         XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(s));
         Storeable storeable = new MyStoreable(table);
         int i = 0;

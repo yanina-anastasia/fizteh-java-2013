@@ -62,7 +62,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         
-	if (value == null || key == null) {
+        if (value == null || key == null) {
             throw new IllegalArgumentException("null argument in put");
         }
         int size = columnType.size();

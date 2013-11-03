@@ -38,8 +38,7 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public ExtendTable getTable(String name) {
-	
-	checkCorrectName(name);
+        checkCorrectName(name);
         ExtendTable res = tables.get(name);
         if (res != null) { 
             takenTables.add(name);
@@ -50,9 +49,9 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public ExtendTable createTable(String name, List<Class<?>> columnTypes)
             throws IOException {
-	
-	checkCorrectName(name);
-        if ( columnTypes == null || columnTypes.isEmpty()) {
+        
+        checkCorrectName(name);
+        if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("table name is null or has illegal name");
         }
         
@@ -68,8 +67,8 @@ public class MyTableProvider implements ExtendProvider {
         for (int i = 0; i < columnTypes.size(); ++i) {
             Class<?> type = columnTypes.get(i);
             if (type == null) {
-        	signature.close();
-        	throw new IllegalArgumentException("null column type");
+                signature.close();
+                throw new IllegalArgumentException("null column type");
             }
             signature.println(Utils.getPrimitiveTypeName(type.getSimpleName()));
         }
@@ -82,9 +81,9 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public void removeTable(String name) throws IOException {
         
-	checkCorrectName(name);
+        checkCorrectName(name);
         
-	if (takenTables.contains(name)) {
+        if (takenTables.contains(name)) {
          //   throw new IllegalStateException(name + " is taken, can't drop it");
         }
         
@@ -142,9 +141,9 @@ public class MyTableProvider implements ExtendProvider {
         return null;
     }
     
-    public static  void checkCorrectName (String name) {
-	if (name == null || !name.matches(STRING_NAME_FORMAT)) {
+    public static  void checkCorrectName(String name) {
+        if (name == null || !name.matches(STRING_NAME_FORMAT)) {
             throw new IllegalArgumentException("table name is null or has illegal name");
-    }
+        }
     }
 }
