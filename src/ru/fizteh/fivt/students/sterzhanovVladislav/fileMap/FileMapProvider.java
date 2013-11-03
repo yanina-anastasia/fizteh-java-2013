@@ -69,6 +69,12 @@ public class FileMapProvider implements TableProvider {
         }
     }
     
+    public void removeAllTables() {
+        for (String tableName : tables.keySet()) {
+            removeTable(tableName);
+        }
+    }
+    
     public String getRootDir() {
         return new String(rootDir.toString());
     }
