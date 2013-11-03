@@ -37,7 +37,7 @@ dropped
 
 Если такой таблицы не существует:
 ```
-tablename does not exist
+tablename not exists
 ```
 
 ### use
