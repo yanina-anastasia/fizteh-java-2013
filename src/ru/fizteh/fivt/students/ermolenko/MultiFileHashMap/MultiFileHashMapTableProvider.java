@@ -19,6 +19,9 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         if (inDir == null) {
             throw new IllegalArgumentException("null directory");
         }
+        if (!inDir.isDirectory()) {
+            throw new IllegalArgumentException("not a directory");
+        }
         mapOfTables = new HashMap<String, Table>();
         currentDir = inDir;
         File[] fileMas = currentDir.listFiles();
@@ -59,6 +62,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
             throw new IllegalArgumentException("incorrect name to create");
         }
+
         File dirOfTable = new File(currentDir, name);
         if (!dirOfTable.mkdir()) {
             return null;
