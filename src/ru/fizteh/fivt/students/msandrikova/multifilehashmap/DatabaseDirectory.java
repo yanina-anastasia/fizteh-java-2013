@@ -14,7 +14,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	private Map<Integer, DatabaseMap> mapOfDatabases = new HashMap<Integer, DatabaseMap>();
 	private int MAX_DATABASE_AMOUNT = 16;
 	
-	private void getDatabase(int nameNumber) throws IOException {
+	private void getDatabase(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dat";
 		File DatabasePath = new File(this.directoryPath, name);
 		if(DatabasePath.exists()) {
@@ -36,12 +36,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 				Utils.generateAnError("File \"" + this.name + "\" should be directory.", "DatabaseDirectory", false);
 			}
 			for(int i = 0; i < this.MAX_DATABASE_AMOUNT; i++) {
-				try {
-					this.getDatabase(i);
-				} catch (IOException e) {
-					Utils.generateAnError("Can not open or use required data base in directory \"" 
-							+ this.name + "\".", "DatabaseDirectory", false);
-				}
+				this.getDatabase(i);
 			}
 			if(this.size() == 0) {
 				this.delete();

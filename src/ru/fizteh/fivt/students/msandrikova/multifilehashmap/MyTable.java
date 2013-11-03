@@ -15,7 +15,7 @@ public class MyTable implements ChangesCountingTable {
 	private int MAX_DIRECTORIES_AMOUNT = 16;
 	private int MAX_TABLE_SIZE = 1000*1000*100;
 	
-	private void getDirectory(int nameNumber) throws IOException {
+	private void getDirectory(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dir";
 		File dirPath = new File(this.tablePath, name);
 		if(dirPath.exists()) {
@@ -40,12 +40,7 @@ public class MyTable implements ChangesCountingTable {
 				Utils.generateAnError("Table with name \"" + this.name + "\"should be directory.", "create", false);
 			}
 			for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; i++) {
-				try {
-					this.getDirectory(i);
-				} catch (IOException e) {
-					Utils.generateAnError("Can not open or use required data base directory\"" + i 
-							+ ".dir\" in table \"" + this.name + ".", "create", false);
-				}
+				this.getDirectory(i);
 			}
 		}
 		if(this.size() > this.MAX_TABLE_SIZE) {

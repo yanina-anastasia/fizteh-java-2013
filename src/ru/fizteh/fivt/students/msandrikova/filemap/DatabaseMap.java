@@ -60,14 +60,18 @@ public class DatabaseMap implements ChangesCountingTable{
 				this.removedFromOriginalDatabase.size();
 	}
 	
-	public DatabaseMap(File currentDirectory, String name) throws IOException {
+	public DatabaseMap(File currentDirectory, String name) {
 		this.name = name;
 		this.currentFile = new File(currentDirectory, name);
 		if(this.currentFile.exists()) {
 			if(this.currentFile.isDirectory()) {
 				Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DatabaseMap", false);
 			}
-			this.readFile();
+			try {
+				this.readFile();
+			} catch (IOException e) {
+				Utils.generateAnError("Fatal error during reading", "use", false);
+			}
 			if(this.size() == 0) {
 				this.delete();
 			}

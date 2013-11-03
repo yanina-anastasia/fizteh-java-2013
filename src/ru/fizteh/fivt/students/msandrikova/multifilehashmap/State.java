@@ -12,11 +12,12 @@ public class State {
 	public State(boolean isMultiHashFileMap, String dir) {
 		this.isMultiFileHashMap = isMultiHashFileMap;
 		if(isMultiFileHashMap) {
-			currentTable = null;
-			ChangesCountingTableProviderFactory factory = new MyTableProvider(dir);
+			this.currentTable = null;
+			ChangesCountingTableProviderFactory factory = new MyTableProviderFactory();
+			this.tableProvider = factory.create(dir);
 		} else {
-			currentTable = new DatabaseMap(new File(dir), "db.dat");
-			tableProvider = null;
+			this.currentTable = new DatabaseMap(new File(dir), "db.dat");
+			this.tableProvider = null;
 		}
 	}
 	
