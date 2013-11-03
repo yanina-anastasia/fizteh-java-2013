@@ -108,13 +108,7 @@ public class MultiFileMapState extends MonoMultiAbstractState implements Table {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get null key");
 		}
-		String value = map.get(key);
-		if (value == null) {
-			return startMap.get(key);
-		} else {
-			return value;
-		}
-		
+		return map.get(key);
 	} 
 
 	@Override

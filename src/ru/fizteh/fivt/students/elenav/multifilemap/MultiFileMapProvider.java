@@ -67,7 +67,7 @@ public class MultiFileMapProvider implements TableProvider {
             throw new IllegalArgumentException("can't remove table: invalid name");
         }
 		if (tables.get(name) == null) {
-			throw new IllegalArgumentException("can't remove table: table not exist");
+			throw new IllegalStateException("can't remove table: table not exist");
 		}
 		if (chechIsNameInvalid(name)) {
 			throw new RuntimeException("can't remove table with invalid name");

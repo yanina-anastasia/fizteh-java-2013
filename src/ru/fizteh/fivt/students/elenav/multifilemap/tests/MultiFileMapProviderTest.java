@@ -51,7 +51,7 @@ public class MultiFileMapProviderTest {
 		provider.removeTable("First");
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalStateException.class)
 	public void testRemoveTableThatNotExists() {
 		provider.removeTable("First");
 	}
