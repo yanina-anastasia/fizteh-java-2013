@@ -22,11 +22,13 @@ public class DatabaseDirectory implements ChangesCountingTable {
 			if(!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
 				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
 			}
-			this.mapOfDatabases.put(nameNumber, newDatabase);
+			if(newDatabase.size() == 0) {
+				this.mapOfDatabases.put(nameNumber, newDatabase);
+			}
 		}
 	}
 
-	public DatabaseDirectory (File tableDirectory, String name) {
+	public DatabaseDirectory(File tableDirectory, String name) {
 		this.name = name;
 		this.directoryPath = new File(tableDirectory, name);
 		if(this.directoryPath.exists()) {

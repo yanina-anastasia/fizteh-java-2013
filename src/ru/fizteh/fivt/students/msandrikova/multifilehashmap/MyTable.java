@@ -5,30 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class MyTable implements Table {
-	private int size;
+public class MyTable implements ChangesCountingTable {
 	private String name;
 	private File tablePath;
-	private Map<Integer, DBDirectory> mapOfDirectories = new HashMap<Integer, DBDirectory>();
+	private Map<Integer, DatabaseDirectory> mapOfDirectories = new HashMap<Integer, DatabaseDirectory>();
 	private int MAX_DIRECTORIES_AMOUNT = 16;
 	private int MAX_TABLE_SIZE = 1000*1000*100;
 	
-	private void setSize() {
-		this.size = 0;
-		Set<Integer> keySet = this.mapOfDirectories.keySet();
-		DBDirectory curDirectory = null;
-		for(Integer key : keySet) {
-			curDirectory = this.mapOfDirectories.get(key);
-			this.size += curDirectory.getSize();
-		}
-	}
-	
-	private void getDirectory(int nameNumber) throws IOException, FileNotFoundException {
+	private void getDirectory(int nameNumber) throws IOException {
 		String name = Integer.toString(nameNumber) + ".dir";
 		File dirPath = new File(this.tablePath, name);
 		if(dirPath.exists()) {
@@ -36,15 +23,13 @@ public class MyTable implements Table {
 				Utils.generateAnError("File \"" + name + "\"should be directory in table \"" 
 						+ this.name + ".", "create", false);
 			}
-			DBDirectory newDirectory = new DBDirectory(this.tablePath, name);
-			if(newDirectory.getDBCount() == 0){
-				newDirectory.delete();
-			} else {
+			DatabaseDirectory newDirectory = new DatabaseDirectory(this.tablePath, name);
+			if(newDirectory.size() != 0) {
 				this.mapOfDirectories.put(nameNumber, newDirectory);
 			}
 		}
 	}
-
+	
 	public MyTable(File parentDirectory, String name) {
 		this.name = name;
 		this.tablePath = new File(parentDirectory, name);
@@ -63,16 +48,15 @@ public class MyTable implements Table {
 				}
 			}
 		}
-		this.setSize();
-		if(this.size > this.MAX_TABLE_SIZE) {
+		if(this.size() > this.MAX_TABLE_SIZE) {
 			Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
 		}
 	}
 	
-	private DBDirectory createDirectory(int nameNumber) throws IOException, FileNotFoundException {
-		DBDirectory newDirectory = null;
+	private DatabaseDirectory createDirectory(int nameNumber) throws IOException, FileNotFoundException {
+		DatabaseDirectory newDirectory = null;
 		String name = Integer.toString(nameNumber) + ".dir";
-		newDirectory = new DBDirectory(this.tablePath, name);
+		newDirectory = new DatabaseDirectory(this.tablePath, name);
 		this.mapOfDirectories.put(nameNumber, newDirectory);
 		return newDirectory;
 	}
@@ -86,7 +70,7 @@ public class MyTable implements Table {
 	public String get(String key) throws IllegalArgumentException {
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
-		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
+		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory != null) {
 			answer = currentDirectory.get(key);
 		}
@@ -97,7 +81,7 @@ public class MyTable implements Table {
 	public String put(String key, String value) throws IllegalArgumentException {
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
-		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
+		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory == null) {
 			try {
 				currentDirectory = this.createDirectory(ndirectory);
@@ -107,8 +91,7 @@ public class MyTable implements Table {
 		}
 		answer = currentDirectory.put(key, value);
 		if(answer == null) {
-			this.size++;
-			if(this.size > this.MAX_TABLE_SIZE) {
+			if(this.size() > this.MAX_TABLE_SIZE) {
 				Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
 			}
 		}
@@ -119,16 +102,9 @@ public class MyTable implements Table {
 	public String remove(String key) throws IllegalArgumentException {
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
-		DBDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
+		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
 		if(currentDirectory != null) {
 			answer = currentDirectory.remove(key);
-		}
-		if(answer != null) {
-			if(currentDirectory.getDBCount() == 0){
-				this.mapOfDirectories.remove(ndirectory);
-				currentDirectory.delete();
-			}
-			this.size--;
 		}
 		return answer;
 	}
@@ -136,24 +112,38 @@ public class MyTable implements Table {
 
 	@Override
 	public int size() {
-		return this.size;
+		int answer = 0;
+		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+			answer += databaseDirectory.size();
+		}
+		return answer;
 	}
 
 	@Override
 	public int commit() {
-		Set<Integer> keySet = this.mapOfDirectories.keySet();
-		DBDirectory currentDirectory = null;
-		for(Integer key : keySet) {
-			currentDirectory = this.mapOfDirectories.get(key);
-			currentDirectory.commit();
+		int answer = 0;
+		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+			answer += databaseDirectory.commit();
 		}
-		return this.size();
+		return answer;
 	}
 
 	@Override
 	public int rollback() {
-		// TODO Auto-generated method stub
-		return 0;
+		int answer = 0;
+		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+			answer += databaseDirectory.rollback();
+		}
+		return answer;
+	}
+
+	@Override
+	public int unsavedChangesCount() {
+		int answer = 0;
+		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+			answer += databaseDirectory.unsavedChangesCount();
+		}
+		return answer;
 	}
 
 }
