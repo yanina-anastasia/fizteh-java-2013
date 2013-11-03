@@ -36,7 +36,6 @@ public class DatabaseTableProvider implements TableProvider {
                 throw new IllegalStateException(exception.getMessage());
             }
 
-            System.out.println("FOUND " + table.getName());
             tables.put(table.getName(), table);
         }
     }

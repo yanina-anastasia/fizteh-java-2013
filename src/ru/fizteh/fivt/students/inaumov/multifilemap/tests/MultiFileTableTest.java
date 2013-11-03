@@ -17,8 +17,8 @@ public class MultiFileTableTest {
 
     public void prepare() {
         for (int i = 0; i < KEYS_COUNT; ++i) {
-            String key = "key";
-            String value = "value";
+            String key = "key" + i;
+            String value = "value" + i;
             currentTable.put(key, value);
         }
     }
@@ -144,10 +144,15 @@ public class MultiFileTableTest {
         currentTable.remove("non-ex1");
 
         currentTable.remove("key1");
+
         currentTable.put("key1", "value1");
 
         Assert.assertEquals(1, currentTable.rollback());
 
+        currentTable.put("key1", "value1");
+        currentTable.commit();
+
+        currentTable.remove("key1");
         currentTable.put("key1", "value1");
         Assert.assertEquals(0, currentTable.rollback());
     }
