@@ -124,7 +124,8 @@ public class DatabaseRow implements Storeable {
 
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
         if (!value.getClass().isAssignableFrom(classes.get(columnIndex))) {
-            throw new ColumnFormatException();
+            throw new ColumnFormatException(String.format("incorrect type: expected type: %s actual type: %s",
+                    classes.get(columnIndex).getName(), value.getClass().getName()));
         }
     }
 
