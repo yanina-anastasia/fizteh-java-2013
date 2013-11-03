@@ -72,8 +72,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-		if(name == null) {
-			throw new IllegalArgumentException("Table name can not be null");
+		if(name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Table name can not be null or empty");
 		}
 		File tablePath = new File(this.currentDirectory, name);
 		if(this.mapOfTables.get(name) == null){
