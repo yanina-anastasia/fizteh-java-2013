@@ -3,18 +3,21 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
-import java.io.IOException;
 
 public class MultiFileHashMapTableProviderFactory implements TableProviderFactory {
 
     @Override
     public MultiFileHashMapTableProvider create(String dir) {
 
-        try {
-            return new MultiFileHashMapTableProvider(new File(dir));
-        } catch (IOException e) {
-            System.err.println(e);
+        if (dir == null) {
+            throw new IllegalArgumentException("null directory");
         }
-        return null;
+        if (dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty directory");
+        }
+
+        File file = new File(dir);
+
+        return new MultiFileHashMapTableProvider(file);
     }
 }

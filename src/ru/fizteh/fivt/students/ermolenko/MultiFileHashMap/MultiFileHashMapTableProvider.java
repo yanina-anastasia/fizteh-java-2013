@@ -14,15 +14,20 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     private Map<String, Table> mapOfTables;
     private File currentDir;
 
-    public MultiFileHashMapTableProvider(File inDir) throws IOException {
+    public MultiFileHashMapTableProvider(File inDir) {
 
+        if (inDir == null) {
+            throw new IllegalArgumentException("null directory");
+        }
         mapOfTables = new HashMap<String, Table>();
         currentDir = inDir;
         File[] fileMas = currentDir.listFiles();
-        if (fileMas.length != 0) {
-            for (int i = 0; i < fileMas.length; ++i) {
-                if (fileMas[i].isDirectory()) {
-                    mapOfTables.put(fileMas[i].getName(), new MultiFileHashMapTable(fileMas[i]));
+        if (fileMas != null) {
+            if (fileMas.length != 0) {
+                for (File fileMa : fileMas) {
+                    if (fileMa.isDirectory()) {
+                        mapOfTables.put(fileMa.getName(), new MultiFileHashMapTable(fileMa));
+                    }
                 }
             }
         }
@@ -31,30 +36,36 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     @Override
     public Table getTable(String name) {
 
+        if (name == null) {
+            throw new IllegalArgumentException("null name");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("empty name");
+        }
+
         if (!mapOfTables.containsKey(name)) {
             return null;
         }
-        try {
-            return new MultiFileHashMapTable(new File(currentDir, name));
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        return null;
+
+        return new MultiFileHashMapTable(new File(currentDir, name));
     }
 
     @Override
     public Table createTable(String name) {
 
+        if (name == null) {
+            throw new IllegalArgumentException("null name");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("empty name");
+        }
         File dirOfTable = new File(currentDir, name);
         if (!dirOfTable.mkdir()) {
             return null;
         }
-        Table table = null;
-        try {
-            table = new MultiFileHashMapTable(dirOfTable);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
+
+        MultiFileHashMapTable table = new MultiFileHashMapTable(dirOfTable);
+
         mapOfTables.put(name, table);
         return table;
     }
@@ -70,10 +81,5 @@ public class MultiFileHashMapTableProvider implements TableProvider {
         }
 
         mapOfTables.remove(name);
-    }
-
-    public void changeTable(MultiFileHashMapTable inTable) {
-
-        mapOfTables.put(inTable.getName(), inTable);
     }
 }
