@@ -6,26 +6,19 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 
 import java.io.File;
 import java.io.IOException;
 
 public class DataTableTest {
-    private static final String TESTED_DIRECTORY = "/home/hope/JavaTests";
     private static final String TESTED_TABLE = "MyFavouriteTable";
-    private TableProvider tableProvider;
     private Table dataTable;
 
     @Before
     public void setUp() throws Exception {
-        tableProvider = new MultiFileHashMapProvider(new File(TESTED_DIRECTORY));
-        dataTable = tableProvider.createTable(TESTED_TABLE);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        tableProvider.removeTable(TESTED_TABLE);
+        dataTable = new DataTable(TESTED_TABLE);
     }
 
     @Test
