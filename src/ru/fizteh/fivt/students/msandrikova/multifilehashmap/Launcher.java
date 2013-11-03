@@ -16,7 +16,10 @@ public class Launcher {
 		new CreateCommand(),
 		new DropCommand(),
 		new UseCommand(),
-		new ExitCommand()
+		new ExitCommand(),
+		new SizeCommand(),
+		new RollbackCommand(),
+		new CommitCommand()
 	};
 
 	public static void main(String[] args) {
