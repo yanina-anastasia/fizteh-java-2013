@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.visamsonov.shell;
+package ru.fizteh.fivt.students.visamsonov;
 
-import java.io.*;
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
-public class CommandTalkToMe extends CommandAbstract {
+public class CommandTalkToMe extends CommandAbstract<ShellState> {
 
 	public CommandTalkToMe () {
 		super("talk-to-me");

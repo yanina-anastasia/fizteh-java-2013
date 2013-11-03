@@ -1,6 +1,8 @@
-package ru.fizteh.fivt.students.visamsonov.shell;
+package ru.fizteh.fivt.students.visamsonov;
 
-public class CommandGet extends CommandAbstract {
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+
+public class CommandGet extends CommandAbstract<ShellState> {
 
 	public CommandGet () {
 		super("get");

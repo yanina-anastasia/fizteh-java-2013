@@ -1,8 +1,10 @@
-package ru.fizteh.fivt.students.visamsonov.shell;
+package ru.fizteh.fivt.students.visamsonov;
 
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+import ru.fizteh.fivt.students.visamsonov.storage.*;
 import ru.fizteh.fivt.storage.strings.Table;
 
-public class CommandUse extends CommandAbstract {
+public class CommandUse extends CommandAbstract<ShellState> {
 
 	public CommandUse () {
 		super("use");
@@ -13,13 +15,14 @@ public class CommandUse extends CommandAbstract {
 			return false;
 		}
 		try {
-			Table switchTable = state.tableProvider.getTable(args);
+			TableInterface switchTable = state.tableProvider.getTable(args);
 			if (switchTable == null) {
 				getErrStream().println(args + " not exists");
 				return false;
 			}
-			if (state.database != null) {
-				state.database.commit();
+			if (state.database != null && state.database.unsavedChanges() > 0) {
+				getErrStream().println(state.database.unsavedChanges() + " unsaved changes");
+				return false;
 			}
 			state.database = switchTable;
 		}

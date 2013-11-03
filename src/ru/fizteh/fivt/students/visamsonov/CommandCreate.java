@@ -1,6 +1,8 @@
-package ru.fizteh.fivt.students.visamsonov.shell;
+package ru.fizteh.fivt.students.visamsonov;
 
-public class CommandCreate extends CommandAbstract {
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+
+public class CommandCreate extends CommandAbstract<ShellState> {
 
 	public CommandCreate () {
 		super("create");

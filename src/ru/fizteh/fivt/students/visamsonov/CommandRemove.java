@@ -1,6 +1,8 @@
-package ru.fizteh.fivt.students.visamsonov.shell;
+package ru.fizteh.fivt.students.visamsonov;
 
-public class CommandRemove extends CommandAbstract {
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+
+public class CommandRemove extends CommandAbstract<ShellState> {
 
 	public CommandRemove () {
 		super("remove");
@@ -19,7 +21,7 @@ public class CommandRemove extends CommandAbstract {
 			getOutStream().printf("removed\n");
 		}
 		else {
-			getOutStream().println("not found");
+			getErrStream().println("not found");
 		}
 		return true;
 	}
