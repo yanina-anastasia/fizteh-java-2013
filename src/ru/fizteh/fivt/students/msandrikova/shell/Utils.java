@@ -165,4 +165,8 @@ public class Utils {
 		return word.getBytes(StandardCharsets.UTF_8).length <= 10*10*10*10*10*10;
 	}
 	
+	public static boolean testBadSymbols(String name) {
+		return !name.contains("/") && !name.contains("\\");
+	}
+	
 }

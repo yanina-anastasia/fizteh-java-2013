@@ -23,8 +23,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
-		if(name == null || name.isEmpty()) {
-			throw new IllegalArgumentException("Table name can not be null or empty");
+		if(name == null || name.isEmpty() || !Utils.testBadSymbols(name)) {
+			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
 		if(this.mapOfTables.get(name) == null) {
 			File tablePath = new File(this.currentDirectory, name);
@@ -42,8 +42,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable createTable(String name) throws IllegalArgumentException {
-		if(name == null) {
-			throw new IllegalArgumentException("Table name can not be null");
+		if(name == null || name.isEmpty() || !Utils.testBadSymbols(name)) {
+			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
 		if(this.mapOfTables.get(name) != null){
 			return null;
