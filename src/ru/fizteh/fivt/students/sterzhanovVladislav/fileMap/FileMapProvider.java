@@ -27,9 +27,8 @@ public class FileMapProvider implements TableProvider {
                 table = IOUtility.parseDatabase(dbPath);
                 tables.put(name, table);
             }
-            return table;
-        } 
-        catch (IOException e) {
+            return table; 
+        } catch (IOException e) {
             return null;
         }
     }

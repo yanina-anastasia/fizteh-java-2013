@@ -32,8 +32,8 @@ public class FileMap implements Table {
 
     @Override
     public String put(String key, String value) {
-        if (key == null || key.isEmpty() || !isValidKey(key) || 
-                value == null || value.isEmpty() || value.contains("\n")) {
+        if (key == null || key.isEmpty() || !isValidKey(key) 
+                || value == null || value.isEmpty() || value.contains("\n")) {
             throw new IllegalArgumentException();
         }
         String result = getDirtyValue(key);
@@ -62,13 +62,11 @@ public class FileMap implements Table {
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue().value;
-            switch (entry.getValue().type) {
-                case ADD:
-                    db.put(key, value);
-                    break;
-                case REMOVE:
-                    db.remove(key);
-                    break;
+            DiffType type = entry.getValue().type;
+            if (type == DiffType.ADD) {
+                db.put(key, value);
+            } else if (type == DiffType.REMOVE) {
+                db.remove(key);
             }
         }
         diff.clear();
@@ -86,17 +84,15 @@ public class FileMap implements Table {
         int diffSize = 0;
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
-            switch (entry.getValue().type) {
-                case ADD:
-                    if (!db.containsKey(key)) {
-                        ++diffSize;
-                    }
-                    break;
-                case REMOVE:
-                    if (db.containsKey(key)) {
-                        --diffSize;
-                    }
-                    break;
+            DiffType type = entry.getValue().type;
+            if (type == DiffType.ADD) {
+                if (!db.containsKey(key)) {
+                    ++diffSize;
+                }
+            } else if (type == DiffType.REMOVE) {
+                if (db.containsKey(key)) {
+                    --diffSize;
+                }
             }
         }
         return diffSize;
@@ -106,17 +102,15 @@ public class FileMap implements Table {
         int diffSize = 0;
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
-            switch (entry.getValue().type) {
-                case ADD:
-                    if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
-                        ++diffSize;
-                    }
-                    break;
-                case REMOVE:
-                    if (db.containsKey(key)) {
-                        ++diffSize;
-                    }
-                    break;
+            DiffType type = entry.getValue().type;
+            if (type == DiffType.ADD) {
+                if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
+                    ++diffSize;
+                }
+            } else if (type == DiffType.REMOVE) {
+                if (db.containsKey(key)) {
+                    ++diffSize;
+                }
             }
         }
         return diffSize;
