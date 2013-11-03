@@ -16,12 +16,7 @@ public class Main {
 	public static void main(String[] arguments) {
 		TableProviderFactoryImplementation factory = new TableProviderFactoryImplementation();
 		TableProviderImplementation provider = null;
-		try {
-			provider = factory.create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
-		} catch (Exception catchedException) {
-			System.err.println(catchedException.getMessage());
-			System.exit(1);
-		}
+		provider = factory.create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
 		
 		DataBaseState state = new DataBaseState(provider);
 		

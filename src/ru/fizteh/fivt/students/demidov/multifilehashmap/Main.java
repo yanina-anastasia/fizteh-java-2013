@@ -13,12 +13,7 @@ public class Main {
 	public static void main(String[] arguments) {
 		TableProviderFactoryImplementation factory = new TableProviderFactoryImplementation();
 		TableProviderImplementation provider = null;
-		try {
-			provider = factory.create(System.getProperty("fizteh.db.dir"));
-		} catch (Exception catchedException) {
-			System.err.println(catchedException.getMessage());
-			System.exit(1);
-		}
+		provider = factory.create(System.getProperty("fizteh.db.dir"));
 		
 		MultiFileHashMapState state = new MultiFileHashMapState(provider);
 		
