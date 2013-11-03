@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class Utils {
@@ -158,6 +159,10 @@ public class Utils {
 	public static int getNFile(String key) {
 		int result = key.hashCode() / 16 % 16;
 		return Math.abs(result);
+	}
+	
+	public static boolean testUTFSize(String word) {
+		return word.getBytes(StandardCharsets.UTF_8).length <= 10*10*10*10*10*10;
 	}
 	
 }

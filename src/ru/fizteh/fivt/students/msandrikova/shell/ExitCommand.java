@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.msandrikova.filemap.DBMap;
 
 public class ExitCommand extends Command {
 
