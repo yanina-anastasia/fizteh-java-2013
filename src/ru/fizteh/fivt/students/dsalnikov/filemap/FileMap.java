@@ -13,18 +13,30 @@ public class FileMap {
         state.build(state.getState());
     }
 
+    public FileMap() {
+        state = null;
+    }
+
+    public FileMapState setState(FileMapState s) {
+        return state = s;
+    }
+
     public FileMapState getState() {
         return state;
     }
 
     public void deleteiIfEmpty() {
-        if(state.isEmpty()) {
-           File f = new File(state.getState());
-           f.delete();
+        if (state.isEmpty()) {
+            File f = new File(state.getState());
+            f.delete();
         }
     }
 
     public void deletefile() throws IOException {
+        File f = new File(state.getState());
+        if (!f.exists()) {
+            f.createNewFile();
+        }
         state.put(state.getState());
     }
 

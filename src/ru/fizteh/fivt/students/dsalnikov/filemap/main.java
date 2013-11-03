@@ -4,6 +4,7 @@ package ru.fizteh.fivt.students.dsalnikov.filemap;
 import ru.fizteh.fivt.students.dsalnikov.shell.Command;
 import ru.fizteh.fivt.students.dsalnikov.shell.Shell;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -15,7 +16,17 @@ public class main {
 
     public static void main(String[] args) throws IOException {
 
-        FileMapState f = new FileMapState(System.getProperty("fizteh.db.dir"));
+        String s = System.getProperty("fizteh.db.dir");
+        if (s == null) {
+            System.exit(-1);
+        } else {
+            File f = new File(s);
+            if (!f.isDirectory()) {
+                System.exit(-1);
+            }
+        }
+
+        FileMapState f = new FileMapState(s);
         FileMap main = new FileMap(f);
         Shell shell = new Shell(f);
 
@@ -40,9 +51,9 @@ public class main {
         shell.setCommands(Commands);
 
         if (args.length == 0) {
-          shell.batchMode();
+            shell.batchMode();
         } else {
-          shell.commandMode(args);
+            shell.commandMode(args);
         }
     }
 }

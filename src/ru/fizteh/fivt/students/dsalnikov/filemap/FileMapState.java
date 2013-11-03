@@ -17,7 +17,7 @@ public class FileMapState {
         return state;
     }
 
-    public FileMapState(String buildstate) throws IOException {
+    public FileMapState(String buildstate) {
         state = buildstate;
     }
 
