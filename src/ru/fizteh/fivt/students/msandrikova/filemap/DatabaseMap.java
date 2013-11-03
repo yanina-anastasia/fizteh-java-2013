@@ -158,44 +158,68 @@ public class DatabaseMap implements ChangesCountingTable {
 	
 	@Override
 	public String put(String key, String value) {
-		String oldValue = null;
-		oldValue = this.updates.put(key, value);
-		if(oldValue == null) {
-			oldValue = this.originalDatabase.get(key);
-			if(oldValue != null) {
-				this.removedFromOriginalDatabase.add(key);
+		String originalValue = this.originalDatabase.get(key);
+		String currentValue = this.updates.get(key);
+		boolean isRemoved = this.removedFromOriginalDatabase.contains(key);
+		this.updates.put(key, value);
+		if(originalValue == null) {
+			if(currentValue == null) {
+				this.changesCount++;
 			}
-			this.changesCount++;
+		} else {
+			if(currentValue == null) {
+				if(!isRemoved) {
+					this.changesCount++;
+					this.removedFromOriginalDatabase.add(key);
+				}
+			}
 		}
-		return oldValue;
+		if(originalValue != null && originalValue.equals(value)) {
+			this.updates.remove(key);
+			this.removedFromOriginalDatabase.remove(key);
+			this.changesCount--;
+		}
+		if(currentValue == null) {
+			return originalValue;
+		} else {
+			return currentValue;
+		}
 	}
 	
 	@Override
 	public String get(String key) {
-		String answer = this.updates.get(key);
-		if(answer == null) {
-			answer = this.originalDatabase.get(key);
+		String answer = null;
+		if(!this.removedFromOriginalDatabase.contains(key)) {
+			answer = this.updates.get(key);
+			if(answer == null) {
+				answer = this.originalDatabase.get(key);
+			}
 		}
 		return answer;
 	}
 	
 	@Override
 	public String remove(String key) {
-		String value = this.updates.remove(key);
-		if(value == null) {
-			if(!this.removedFromOriginalDatabase.contains(key)) {
-				value = this.originalDatabase.get(key);
-				if(value != null ) {
+		String originalValue = this.originalDatabase.get(key);
+		String currentValue = this.updates.get(key);
+		boolean isRemoved = this.removedFromOriginalDatabase.contains(key);
+		if(originalValue == null) {
+			if(currentValue != null) {
+				this.updates.remove(key);
+				this.changesCount--;
+			}
+		} else {
+			if(currentValue != null) {
+				this.updates.remove(key);
+			} else {
+				if(!isRemoved) {
+					currentValue = originalValue;
 					this.removedFromOriginalDatabase.add(key);
 					this.changesCount++;
 				}
 			}
-		} else {
-			if(!this.removedFromOriginalDatabase.contains(key)) { 
-				this.changesCount--;
-			}
 		}
-		return value;
+		return currentValue;
 	}
 	
 	@Override
