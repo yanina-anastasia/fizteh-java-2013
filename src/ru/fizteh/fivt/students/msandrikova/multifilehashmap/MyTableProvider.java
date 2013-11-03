@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class MyTableProvider implements TableProvider {
+public class MyTableProvider implements ChangesCountingTableProvider {
 	private File currentDirectory;
-	private Map<String, Table> mapOfTables = new HashMap<String, Table>();
+	private Map<String, ChangesCountingTable> mapOfTables = new HashMap<String, ChangesCountingTable>();
 	
 
 	public MyTableProvider(File dir) throws IllegalArgumentException {
@@ -24,7 +22,7 @@ public class MyTableProvider implements TableProvider {
 	}
 
 	@Override
-	public Table getTable(String name) throws IllegalArgumentException {
+	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
 		if(name == null) {
 			throw new IllegalArgumentException("Table name can not be null");
 		}
@@ -32,7 +30,7 @@ public class MyTableProvider implements TableProvider {
 			File tablePath = new File(this.currentDirectory, name);
 			if(tablePath.exists()) {
 				if(tablePath.isDirectory()) {
-					Table newTable = new MyTable(this.currentDirectory, name);
+					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
 					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "getTable", false);
@@ -43,7 +41,7 @@ public class MyTableProvider implements TableProvider {
 	}
 
 	@Override
-	public Table createTable(String name) throws IllegalArgumentException {
+	public ChangesCountingTable createTable(String name) throws IllegalArgumentException {
 		if(name == null) {
 			throw new IllegalArgumentException("Table name can not be null");
 		}
@@ -60,14 +58,14 @@ public class MyTableProvider implements TableProvider {
 		}
 		if(tablePath.exists()) {
 			if(tablePath.isDirectory()) {
-				Table newTable = new MyTable(this.currentDirectory, name);
+				ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 				this.mapOfTables.put(name, newTable);
 				return null;
 			} else {
 				Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "create", false);
 			}
 		}
-		Table newTable = new MyTable(this.currentDirectory, name);
+		ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 		this.mapOfTables.put(name, newTable);
 		return newTable;
 	}
@@ -81,7 +79,7 @@ public class MyTableProvider implements TableProvider {
 		if(this.mapOfTables.get(name) == null){
 			if(tablePath.exists()) {
 				if(tablePath.isDirectory()) {
-					Table newTable = new MyTable(this.currentDirectory, name);
+					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
 					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "drop", false);
