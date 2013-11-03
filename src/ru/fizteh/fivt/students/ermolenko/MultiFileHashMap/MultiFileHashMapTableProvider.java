@@ -70,10 +70,11 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
         MultiFileHashMapTable table = new MultiFileHashMapTable(dirOfTable);
 
-        Table tmp = mapOfTables.put(name, table);
+        Table tmp = mapOfTables.get(name);
         if (tmp != null) {
             return null;
         }
+        mapOfTables.put(name, table);
         return table;
     }
 
