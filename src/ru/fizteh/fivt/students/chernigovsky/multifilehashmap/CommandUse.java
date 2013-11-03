@@ -5,6 +5,7 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
 
 public class CommandUse implements Command {
     public String getName() {
@@ -13,14 +14,14 @@ public class CommandUse implements Command {
     public int getArgumentsCount() {
         return 1;
     }
-    public void execute(State state, String[] args) throws IOException, ExitException {
-        File table = new File(state.getDbDirectory(), args[1]);
+    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
+        File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
         if (!table.exists()) {
             System.out.println(args[1] + " not exists");
         } else {
-            MultiFileHashMapUtils.writeTable(state.getCurrentTable(), state);
-            state.changeCurrentTable(table);
-            MultiFileHashMapUtils.readTable(state.getCurrentTable(), state);
+            MultiFileHashMapUtils.writeTable(new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
+            stateProvider.changeCurrentState(new State(stateProvider.getCurrentState().getDbDirectory(), args[1]));
+            MultiFileHashMapUtils.readTable(new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             System.out.println("using " + args[1]);
         }
     }

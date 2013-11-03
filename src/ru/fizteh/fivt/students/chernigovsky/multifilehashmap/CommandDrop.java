@@ -5,6 +5,7 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
 
 
 public class CommandDrop implements Command {
@@ -15,11 +16,12 @@ public class CommandDrop implements Command {
         return 1;
     }
 
-    public void execute(State state, String[] args) throws IOException, ExitException {
-        File table = new File(state.getDbDirectory(), args[1]);
+    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
+        File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
         if (table.exists()) {
-            if (table.equals(state.getCurrentTable())) {
-                state.changeCurrentTable(null);
+            File currentTable = new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName());
+            if (table.equals(currentTable)) {
+                stateProvider.changeCurrentState(new State(stateProvider.getCurrentState().getDbDirectory(), null));
             }
             delete(table);
             System.out.println("dropped");

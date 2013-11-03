@@ -19,11 +19,11 @@ public class Main {
             }
         }
 
-        State state = new State(dbName);
-        state.changeCurrentTable(dbName);
+        StateProvider stateProvider = new StateProvider();
+        stateProvider.changeCurrentState(new State(dbName, "db.dat"));
 
         try {
-            FileMapUtils.readTable(dbName, state);
+            FileMapUtils.readTable(dbName, stateProvider.getCurrentState());
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -37,7 +37,7 @@ public class Main {
         commandMap.put("exit", new CommandExit());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, state, dbName);
+            interactiveMode(commandMap, stateProvider, dbName);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -45,11 +45,11 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, state, dbName);
+            batchMode(commands, commandMap, stateProvider, dbName);
         }
 
         try {
-            FileMapUtils.writeTable(dbName, state);
+            FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -57,18 +57,18 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, State state, File dbName) {
+    private static void interactiveMode(Map<String, Command> commandMap, StateProvider stateProvider, File dbName) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
             String string = scanner.nextLine();
             try {
-                parseCommands(string, commandMap, state);
+                parseCommands(string, commandMap, stateProvider);
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
                 try {
-                    FileMapUtils.writeTable(dbName, state);
+                    FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);
@@ -79,14 +79,14 @@ public class Main {
         }
     }
 
-    private static void batchMode(String commands, Map<String, Command> commandMap, State state, File dbName) {
+    private static void batchMode(String commands, Map<String, Command> commandMap, StateProvider stateProvider, File dbName) {
         try {
-            parseCommands(commands, commandMap, state);
+            parseCommands(commands, commandMap, stateProvider);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
             try {
-                FileMapUtils.writeTable(dbName, state);
+                FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
                 System.exit(1);
@@ -95,7 +95,7 @@ public class Main {
         }
     }
 
-    private static void parseCommands(String commands, Map<String, Command> commandMap, State state) throws IOException, ExitException {
+    private static void parseCommands(String commands, Map<String, Command> commandMap, StateProvider stateProvider) throws IOException, ExitException {
         String[] listOfCommand = commands.trim().split("\\s*;\\s*");
         for (String string : listOfCommand) {
             String[] commandArguments = string.split("\\s+");
@@ -106,7 +106,7 @@ public class Main {
             if (commandArguments.length != command.getArgumentsCount() + 1) {
                 throw new IOException("Wrong argument count");
             } else {
-                command.execute(state, commandArguments);
+                command.execute(stateProvider, commandArguments);
             }
         }
 

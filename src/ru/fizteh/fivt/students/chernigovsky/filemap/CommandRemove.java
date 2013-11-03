@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import java.io.File;
 import java.io.IOException;
 
 public class CommandRemove implements Command {
@@ -9,12 +10,12 @@ public class CommandRemove implements Command {
     public int getArgumentsCount() {
         return 1;
     }
-    public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.getCurrentTable() == null) {
+    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
+        if (new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()) == null) {
             System.out.println("no table");
             return;
         }
-        String oldValue = state.remove(args[1]);
+        String oldValue = stateProvider.getCurrentState().remove(args[1]);
         if (oldValue == null) {
             System.out.println("not found");
         } else {

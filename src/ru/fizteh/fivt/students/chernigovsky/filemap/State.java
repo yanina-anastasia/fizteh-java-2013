@@ -7,12 +7,13 @@ import java.util.Set;
 
 public class State {
     private HashMap<String, String> hashMap;
-    private File currentTable;
+    String tableName;
     private File dbDirectory;
 
-    public State(File directory) {
+    public State(File directory, String newTableName) {
         hashMap = new HashMap<String, String>();
         dbDirectory = directory;
+        tableName = newTableName;
     }
     public String put(String key, String value) {
         return hashMap.put(key, value);
@@ -24,12 +25,8 @@ public class State {
         return hashMap.remove(key);
     }
 
-    public File getCurrentTable() {
-        return currentTable;
-    }
-
-    public void changeCurrentTable(File table) {
-        currentTable = table;
+    public String getTableName() {
+        return tableName;
     }
 
     public File getDbDirectory() {

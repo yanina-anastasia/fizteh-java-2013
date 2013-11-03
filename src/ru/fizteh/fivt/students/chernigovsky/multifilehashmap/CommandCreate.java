@@ -5,6 +5,7 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
 
 
 public class CommandCreate implements Command {
@@ -14,8 +15,8 @@ public class CommandCreate implements Command {
     public int getArgumentsCount() {
         return 1;
     }
-    public void execute(State state, String[] args) throws IOException, ExitException {
-        File table = new File(state.getDbDirectory(), args[1]);
+    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
+        File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
         if (table.exists()) {
             System.out.println(args[1] + " exists");
         } else {
