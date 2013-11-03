@@ -7,7 +7,6 @@ public class RollbackCommand extends Command {
 
 	public RollbackCommand() {
 		super("rollback", 0);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
