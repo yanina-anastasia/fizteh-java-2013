@@ -23,7 +23,7 @@ public class Main {
         }
 
         StateProvider stateProvider = new StateProvider();
-        stateProvider.changeCurrentState(new State(dbDirectory, null));
+        stateProvider.changeCurrentState(null);
 
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());

@@ -19,9 +19,11 @@ public class CommandDrop implements Command {
     public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
         File table = new File(stateProvider.getCurrentState().getDbDirectory(), args[1]);
         if (table.exists()) {
-            File currentTable = new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName());
-            if (table.equals(currentTable)) {
-                stateProvider.changeCurrentState(new State(stateProvider.getCurrentState().getDbDirectory(), null));
+            if (stateProvider.getCurrentState() != null) {
+                File currentTable = new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName());
+                if (table.equals(currentTable)) {
+                    stateProvider.changeCurrentState(null);
+                }
             }
             delete(table);
             System.out.println("dropped");

@@ -19,7 +19,7 @@ public class CommandUse implements Command {
         if (!table.exists()) {
             System.out.println(args[1] + " not exists");
         } else {
-            if (stateProvider.getCurrentState().getTableName() != null) {
+            if (stateProvider.getCurrentState() != null) {
                 MultiFileHashMapUtils.writeTable(new File(stateProvider.getCurrentState().getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             }
             stateProvider.changeCurrentState(new State(stateProvider.getCurrentState().getDbDirectory(), args[1]));
