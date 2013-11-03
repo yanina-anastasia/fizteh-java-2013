@@ -29,14 +29,15 @@ public abstract class AbstractTable implements Table {
 	public ReadHandler readHandler;
 
 	public abstract void loadTable() throws IOException;
+
 	public abstract void saveTable() throws IOException;
 	
 	public AbstractTable(String dir, String tableName) throws IOException, IllegalArgumentException {
-		if (dir == null) {
-			throw new IllegalArgumentException("directory can't be null");
+		if (dir == null || dir.isEmpty()) {
+			throw new IllegalArgumentException("directory can't be null or empty");
 		}
-		if (tableName == null) {
-			throw new IllegalArgumentException("table name can't be null");
+		if (tableName == null || tableName.isEmpty()) {
+			throw new IllegalArgumentException("table name can't be null or empty");
 		}
 		
 		this.tableName = tableName;
@@ -54,8 +55,8 @@ public abstract class AbstractTable implements Table {
 	}
 	
 	public String get(String key) throws IllegalArgumentException {
-		if (key == null) {
-			throw new IllegalArgumentException("key can't be null");
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException("key can't be null or empty");
 		}
 		
 		if (modifiedTableHash.containsKey(key)) {
@@ -69,11 +70,11 @@ public abstract class AbstractTable implements Table {
 	}
 
 	public String put(String key, String value) throws IllegalArgumentException {
-		if (key == null) {
-			throw new IllegalArgumentException("key can't be null");
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException("key can't be null or empty");
 		}
-		if (value == null) {
-			throw new IllegalArgumentException("value can't be null");
+		if (value == null || key.isEmpty()) {
+			throw new IllegalArgumentException("value can't be null or empty");
 		}
 		
 		if (!modifiedTableHash.containsKey(key) && !tableHash.containsKey(key)
@@ -89,8 +90,8 @@ public abstract class AbstractTable implements Table {
 	}
 
 	public String remove(String key) throws IllegalArgumentException {
-		if (key == null) {
-			throw new IllegalArgumentException("key can't be null");
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException("key can't be null or empty");
 		}
 		
 		String oldValue = null;
