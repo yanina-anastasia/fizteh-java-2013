@@ -1,31 +1,32 @@
-package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap;
+package ru.fizteh.fivt.students.irinapodorozhnaya.storable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.text.ParseException;
 import java.util.List;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandGet;
 import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandPut;
 import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandExit;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandCommit;
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandCreate;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandDrop;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandRollBack;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandSize;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.commands.CommandUse;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.extend.ExtendProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
+import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MultiDbState;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storable.extend.ExtendTable;
 
-public class MultiFileMapState extends State implements MultiDbState {
-    
+public class StorableState extends State implements MultiDbState {
     private ExtendTable workingTable;
     private final ExtendProvider provider;
     
-    MultiFileMapState(InputStream in, PrintStream out) throws IOException {
+    StorableState(InputStream in, PrintStream out) throws IOException {
         super(in, out);
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
@@ -33,16 +34,16 @@ public class MultiFileMapState extends State implements MultiDbState {
         }
         provider = new MyTableProviderFactory().create(path);
         
-        add(new CommandExit(this));
-        add(new CommandPut(this));
-        add(new CommandRemove(this));
-        add(new CommandGet(this));
         add(new CommandUse(this));
         add(new CommandCreate(this));
         add(new CommandDrop(this));
         add(new CommandCommit(this));
         add(new CommandSize(this));
         add(new CommandRollBack(this));
+        add(new CommandExit(this));
+        add(new CommandPut(this));
+        add(new CommandRemove(this));
+        add(new CommandGet(this));
     }
 
     @Override
@@ -50,7 +51,11 @@ public class MultiFileMapState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        return workingTable.get(key);
+        Storeable oldVal = workingTable.get(key);
+        if (oldVal == null) {
+            return null;
+        }
+        return provider.serialize(workingTable, oldVal);
     }
 
     @Override
@@ -58,7 +63,11 @@ public class MultiFileMapState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        return workingTable.remove(key);
+        Storeable oldVal = workingTable.remove(key);
+        if (oldVal == null) {
+            return null;
+        }
+        return provider.serialize(workingTable, oldVal);    
     }
 
     @Override
@@ -66,7 +75,17 @@ public class MultiFileMapState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        return workingTable.put(key, value);
+        Storeable val;
+        try {
+            val = provider.deserialize(workingTable, value);
+        } catch (ParseException e) {
+            throw new IOException("\'" + value + "\' is not xml string");
+        }
+        Storeable oldVal = workingTable.put(key, val);
+        if (oldVal == null) {
+            return null;
+        }
+        return provider.serialize(workingTable, oldVal);
     }
     
     @Override
@@ -76,7 +95,7 @@ public class MultiFileMapState extends State implements MultiDbState {
         }
         return 0;
     }
-    
+
     @Override
     public int getCurrentTableSize() {
         return workingTable.size();
@@ -93,11 +112,11 @@ public class MultiFileMapState extends State implements MultiDbState {
     }
 
     @Override
-    public void create(String name, List<Class<?>> types) throws IOException {
-        ExtendTable table = provider.createTable(name);
+    public void create(String name, List<Class<?>> columnType) throws IOException {
+        ExtendTable table = provider.createTable(name, columnType);
         if (table == null) {
             throw new IOException(name + " exists");
-        } 
+        }
     }
     
     @Override
