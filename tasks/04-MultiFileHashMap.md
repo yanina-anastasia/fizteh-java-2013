@@ -49,7 +49,7 @@ use tablename
 
 Если таблицы не существует:
 ```
-tablename does not exist
+tablename not exists
 ```
 
 Если переключение прошло успешно:
