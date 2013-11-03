@@ -188,12 +188,9 @@ public class DatabaseMap implements ChangesCountingTable {
 	
 	@Override
 	public String get(String key) {
-		String answer = null;
-		if(!this.removedFromOriginalDatabase.contains(key)) {
-			answer = this.updates.get(key);
-			if(answer == null) {
-				answer = this.originalDatabase.get(key);
-			}
+		String answer = this.updates.get(key);
+		if(answer == null && !this.removedFromOriginalDatabase.contains(key)) {
+			answer = this.originalDatabase.get(key);
 		}
 		return answer;
 	}
