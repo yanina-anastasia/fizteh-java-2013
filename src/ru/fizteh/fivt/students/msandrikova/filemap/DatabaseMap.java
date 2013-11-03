@@ -179,7 +179,7 @@ public class DatabaseMap implements ChangesCountingTable {
 			this.removedFromOriginalDatabase.remove(key);
 			this.changesCount--;
 		}
-		if(currentValue == null) {
+		if(currentValue == null && !isRemoved) {
 			return originalValue;
 		} else {
 			return currentValue;
