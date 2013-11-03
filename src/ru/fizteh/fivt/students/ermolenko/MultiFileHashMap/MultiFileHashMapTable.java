@@ -115,25 +115,36 @@ public class MultiFileHashMapTable implements Table {
     @Override
     public int size() {
 
-        return 0;
+        int size = dataBase.size();
+
+        Set<Map.Entry<String, String>> set = changesBase.entrySet();
+        for (Map.Entry<String, String> pair : set) {
+            pair.getKey();
+            if (pair.getValue() == null) {
+                --size;
+            } else {
+                ++size;
+            }
+        }
+        return size;
     }
 
     @Override
     public int commit() {
 
-        int size = this.changesBase.size();
+        int size = changesBase.size();
         try {
             if (size != 0) {
-                Set<Map.Entry<String, String>> set = this.changesBase.entrySet();
+                Set<Map.Entry<String, String>> set = changesBase.entrySet();
                 for (Map.Entry<String, String> pair : set) {
                     pair.getKey();
                     if (pair.getValue() == null) {
-                        this.dataBase.remove(pair.getKey());
+                        dataBase.remove(pair.getKey());
                     } else {
-                        this.dataBase.put(pair.getKey(), pair.getValue());
+                        dataBase.put(pair.getKey(), pair.getValue());
                     }
                 }
-                MultiFileHashMapUtils.write(this.dataFile, this.dataBase);
+                MultiFileHashMapUtils.write(dataFile, dataBase);
             }
         } catch (IOException e) {
             System.err.println(e);
