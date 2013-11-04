@@ -71,7 +71,7 @@ public class TableMultiFile implements Closeable {
         File currentDir;
         File currentFile;
         for (int i = 0; i < 16; i++) {
-            currentDir = new File(tableName, i + ".dir");
+            currentDir = new File(tableDir.toString(), i + ".dir");
             if (files[i] != null) {   //Если директория должна быть не путса
                 for (int j = 0; j < 16; j++) {
                     if (files[i][j] != null && !files[i][j].getMap().isEmpty()) {  //Если в этот файл что-то записано, то сохраняем на диск
@@ -88,7 +88,7 @@ public class TableMultiFile implements Closeable {
                         }
                         files[i][j].close();
                     } else {    //Иначе удаляем его, если он существовал
-                        Files.deleteIfExists(new File(tableName, new File(i + ".dir", j + ".dat").toString()).toPath());
+                        Files.deleteIfExists(new File(tableDir.toString(), new File(i + ".dir", j + ".dat").toString()).toPath());
                     }
                 }
             } else if (currentDir.exists()) { //Иначе удаляем директорию, если она существовала с помощью команды remove из шелла
