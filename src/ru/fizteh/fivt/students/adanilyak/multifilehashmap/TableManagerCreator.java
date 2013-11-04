@@ -4,7 +4,6 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * User: Alexander

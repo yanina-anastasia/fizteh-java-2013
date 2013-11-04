@@ -4,7 +4,6 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDatFiles;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

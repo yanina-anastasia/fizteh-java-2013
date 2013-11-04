@@ -6,8 +6,9 @@ package ru.fizteh.fivt.students.adanilyak.filemap;
  * Time: 19:32
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.Vector;
 
 public class Main {
     public static Vector<String> intoCommandsAndArgs(String cmd, String delimetr) {

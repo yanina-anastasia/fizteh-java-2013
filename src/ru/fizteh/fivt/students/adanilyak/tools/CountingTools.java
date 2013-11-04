@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.util.Map;
 import java.util.Set;

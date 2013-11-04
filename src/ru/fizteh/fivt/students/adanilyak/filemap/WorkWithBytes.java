@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.filemap;
 
-import java.io.*;
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.Map;
 
 /**

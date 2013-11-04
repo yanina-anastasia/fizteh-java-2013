@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.TableStorage;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 

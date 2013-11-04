@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.tools.StoreableCmdParseAndExecute;
 

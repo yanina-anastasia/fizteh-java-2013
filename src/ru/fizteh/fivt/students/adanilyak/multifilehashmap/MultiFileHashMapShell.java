@@ -1,12 +1,9 @@
 package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.commands.*;
 import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericCmdList;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
-
-import java.io.File;
 
 /**
  * User: Alexander

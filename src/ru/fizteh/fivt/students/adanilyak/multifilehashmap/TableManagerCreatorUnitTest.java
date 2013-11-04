@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * User: Alexander

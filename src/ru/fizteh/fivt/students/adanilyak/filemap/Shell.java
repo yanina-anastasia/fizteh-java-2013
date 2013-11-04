@@ -6,9 +6,9 @@ package ru.fizteh.fivt.students.adanilyak.filemap;
  * Time: 19:34
  */
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.*;
 
 public class Shell {
     private Map<String, String> state;

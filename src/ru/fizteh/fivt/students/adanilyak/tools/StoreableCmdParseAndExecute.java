@@ -1,10 +1,10 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
 import org.json.JSONObject;
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.commands.*;
+import ru.fizteh.fivt.students.adanilyak.commands.Cmd;
 
 import java.io.IOException;
 import java.util.*;
