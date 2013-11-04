@@ -10,11 +10,15 @@ public class MultiFileHashMapTableProviderFactory implements TableProviderFactor
     @Override
     public MultiFileHashMapTableProvider create(String dir) {
 
-        try {
-            return new MultiFileHashMapTableProvider(new File(dir));
-        } catch (IOException e) {
-            System.err.println(e);
+        if (dir == null) {
+            throw new IllegalArgumentException("null directory");
         }
-        return null;
+        if (dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty directory");
+        }
+
+        File file = new File(dir);
+
+        return new MultiFileHashMapTableProvider(file);
     }
 }

@@ -14,7 +14,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     private Map<String, MultiFileHashMapTable> mapOfTables;
     private File currentDir;
 
-    public MultiFileHashMapTableProvider(File inDir) throws IOException {
+    public MultiFileHashMapTableProvider(File inDir) {
 
         mapOfTables = new HashMap<String, MultiFileHashMapTable>();
         currentDir = inDir;
