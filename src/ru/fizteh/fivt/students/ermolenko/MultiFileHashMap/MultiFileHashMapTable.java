@@ -44,16 +44,6 @@ public class MultiFileHashMapTable implements Table {
         sizeTable = dataBase.size();
     }
 
-    public void setDataBase(Map<String, String> inDataBase) {
-
-        dataBase = inDataBase;
-    }
-
-    public void setDataFile(File inDataFile) {
-
-        dataFile = inDataFile;
-    }
-
     @Override
     public String getName() {
 

@@ -11,12 +11,12 @@ import java.util.Map;
 
 public class MultiFileHashMapTableProvider implements TableProvider {
 
-    private Map<String, Table> mapOfTables;
+    private Map<String, MultiFileHashMapTable> mapOfTables;
     private File currentDir;
 
     public MultiFileHashMapTableProvider(File inDir) throws IOException {
 
-        mapOfTables = new HashMap<String, Table>();
+        mapOfTables = new HashMap<String, MultiFileHashMapTable>();
         currentDir = inDir;
         File[] fileMas = currentDir.listFiles();
         if (fileMas.length != 0) {
@@ -29,7 +29,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String name) {
+    public MultiFileHashMapTable getTable(String name) {
 
         if (name == null) {
             throw new IllegalArgumentException("null name to get");
