@@ -147,9 +147,15 @@ public class MultiFileHashMapTable implements Table {
             if (changesBase.get(key) == null) {
                 returnValue = null;
             } else {
-                returnValue = changesBase.get(key);
-                --sizeTable;
-                changesBase.remove(key);
+                if (dataBase.containsKey(key)) {
+                    returnValue = dataBase.get(key);
+                    changesBase.put(key, null);
+                    --sizeTable;
+                } else {
+                    returnValue = changesBase.get(key);
+                    --sizeTable;
+                    changesBase.remove(key);
+                }
             }
         } else {
             if (dataBase.containsKey(key)) {
