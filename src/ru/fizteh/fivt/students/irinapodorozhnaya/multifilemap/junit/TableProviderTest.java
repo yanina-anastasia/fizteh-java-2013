@@ -83,4 +83,6 @@ public class TableProviderTest {
     public void testRemoveNotExistingTable() throws Exception {
         provider.removeTable("notExistingTable");
     }
+    
+    
 }

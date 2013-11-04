@@ -5,17 +5,16 @@ import java.util.List;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
 
 public class MyStoreable implements Storeable {
 
-    List<Object> values;
-    Table table;
+    private final List<Object> values;    
+    private final List<Class<?>> columnTypes = new ArrayList<>();
     
-    public MyStoreable(Table table) {
-        this.table = table;
-        values = new ArrayList<>(table.getColumnsCount());
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
+    public MyStoreable(List<Class<?>> columnTypes) {
+        this.columnTypes.addAll(columnTypes);
+        values = new ArrayList<>(columnTypes.size());
+        for (int i = 0; i < columnTypes.size(); ++i) {
             values.add(null);
         }
     }
@@ -23,11 +22,11 @@ public class MyStoreable implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
-	
-        if (value != null && !value.getClass().equals(table.getColumnType(columnIndex))) {
+
+        if (value != null && !value.getClass().equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException(columnIndex + " column has incorrect format");
         }
-        values.add(columnIndex, value);
+        values.set(columnIndex, value);
     }
 
     @Override
@@ -35,7 +34,7 @@ public class MyStoreable implements Storeable {
         if (values.isEmpty()) {
             return null;
         }
-	return values.get(columnIndex);
+        return values.get(columnIndex);
     }
 
     @Override

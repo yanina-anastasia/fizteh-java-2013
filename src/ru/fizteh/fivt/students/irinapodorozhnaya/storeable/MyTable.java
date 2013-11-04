@@ -37,7 +37,6 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     }
 
     private List<Class<?>> readSignature() throws IOException {
-        String s = null;
         Scanner  sc;
         try {
             sc = new Scanner(new File(tableDirectory, "signature.tsv"));                
@@ -49,11 +48,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         List<Class<?>> columns = new ArrayList<>();
         
         while (sc.hasNextLine()) {
-            s = sc.nextLine();
-            String[] types = s.split("\\s+");
-            for (String type: types) {
-                columns.add(Utils.detectClass(type));
-            }
+            columns.add(Utils.detectClass(sc.nextLine()));
         }
         sc.close();
         if (columns.isEmpty()) {
@@ -68,19 +63,20 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         if (value == null || key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument in put");
         }
-        
+        /*     
         int sizeColumn = columnType.size();
-        
-        for (int i = 0; i < sizeColumn; ++i) {/*
+         
+        for (int i = 0; i < sizeColumn; ++i) {
             try {
-                    Object valueI = value.getColumnAt(i);
-                    if (valueI != null && !valueI.getClass().equals(columnType.get(i))) {
-                            throw new ColumnFormatException(i + " column has incorrect format");
-                    }
+                Object valueI = value.getColumnAt(i);                    
+                if (valueI != null && !valueI.getClass().isAssignableFrom(columnType.get(i))) {
+                        throw new ColumnFormatException(i + " column has incorrect format");
+                }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException(e);
-            }*/
+            }
         }
+        */
         return super.put(key, value);
      }
 

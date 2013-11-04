@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +26,7 @@ public class MyTableProvider implements ExtendProvider {
 
     private final File dataBaseDir;
     private final Map<String, ExtendTable> tables = new HashMap<>();
-    private static final String STRING_NAME_FORMAT = "[a-zA-Z0-9А-Яа-я]+";
+    private static final String STRING_NAME_FORMAT = "[^:*?\"<>|/\\\\]+";
     private final Set<String> takenTables = new HashSet<>();
     
     public MyTableProvider(File dataBaseDir) throws IOException {
@@ -99,7 +100,11 @@ public class MyTableProvider implements ExtendProvider {
         
         Storeable res;
         try {
-            res = XMLSerializer.deserialize(table, value);
+            List<Class<?>> colunmTypes = new ArrayList<>();
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
+                colunmTypes.add(table.getColumnType(i));
+            }
+            res = XMLSerializer.deserialize(colunmTypes, value);
         } catch (XMLStreamException e) {
 
             throw new ParseException(e.getMessage(), 0);
@@ -113,7 +118,11 @@ public class MyTableProvider implements ExtendProvider {
         String res;
         
         try {
-            res = XMLSerializer.serialize(table, value);
+            List<Class<?>> colunmTypes = new ArrayList<>();
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
+                colunmTypes.add(table.getColumnType(i));
+            }
+            res = XMLSerializer.serialize(colunmTypes, value);
         } catch (XMLStreamException e) {
             throw new ColumnFormatException(e);
         }
@@ -122,7 +131,11 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable createFor(Table table) {
-        return new MyStoreable(table);
+        List<Class<?>> list = new ArrayList<>();
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            list.add(table.getColumnType(i));
+        }
+        return new MyStoreable(list);
     }
 
     @Override
@@ -134,14 +147,14 @@ public class MyTableProvider implements ExtendProvider {
             throw new IndexOutOfBoundsException();
         }
         
-        Storeable res = new MyStoreable(table);
+        Storeable res = createFor(table);
         for (int i = 0; i < size; ++i) {
             res.setColumnAt(i, values.get(i));
         }
-        return null;
+        return res;
     }
     
-    public static  void checkCorrectName(String name) {
+    public static void checkCorrectName(String name) {
         if (name == null || !name.matches(STRING_NAME_FORMAT)) {
             throw new IllegalArgumentException("table name is null or has illegal name");
         }
