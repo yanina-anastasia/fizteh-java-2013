@@ -56,12 +56,9 @@ public class CheckOnCorrect {
         if (givenStoreable == null) {
             return false;
         }
-        Integer NlTestCount = 0;
         for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
             try {
-                if (givenStoreable.getColumnAt(i) == null) {
-                    ++NlTestCount;
-                } else {
+                if (givenStoreable.getColumnAt(i) != null) {
                     if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
                         return false;
                     }
@@ -70,7 +67,7 @@ public class CheckOnCorrect {
                 return false;
             }
         }
-        return  (NlTestCount != givenTable.getColumnsCount());
+        return true;
     }
 }
 
