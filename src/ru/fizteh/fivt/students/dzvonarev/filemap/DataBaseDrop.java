@@ -14,7 +14,7 @@ public class DataBaseDrop implements CommandInterface {
 
     private MyTableProvider tableProvider;
 
-    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
+    public void execute(Vector<String> args) throws IOException, IllegalArgumentException, IllegalStateException {
         String str = args.elementAt(0);
         int spaceIndex = str.indexOf(' ', 0);
         if (spaceIndex == -1) {

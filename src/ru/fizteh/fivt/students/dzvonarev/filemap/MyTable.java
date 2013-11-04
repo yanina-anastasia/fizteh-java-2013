@@ -250,7 +250,7 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {
@@ -262,7 +262,7 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null) {
+        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
         if (changesMap.containsKey(key)) {
@@ -285,7 +285,7 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         if (changesMap.containsKey(key)) {
