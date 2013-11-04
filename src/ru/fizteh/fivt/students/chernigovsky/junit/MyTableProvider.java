@@ -2,22 +2,31 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MyTableProvider implements TableProvider {
+public class MyTableProvider implements ExtendedTableProvider {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
-    private HashMap<String, MyTable> tableHashMap;
+    private HashMap<String, ExtendedTable> tableHashMap;
     private File dbDirectory;
 
     public MyTableProvider(File newDbDirectory) {
         dbDirectory = newDbDirectory;
-        tableHashMap = new HashMap<String, MyTable>();
-        for (String string : dbDirectory.list()) {
-            tableHashMap.put(string, new MyTable(string));
+        tableHashMap = new HashMap<String, ExtendedTable>();
+        if (dbDirectory != null) {
+            for (String string : dbDirectory.list()) {
+                ExtendedTable newTable = new MyTable(string);
+                tableHashMap.put(string, newTable);
+                try {
+                    MultiFileHashMapUtils.readTable(new File(dbDirectory, string), newTable);
+                } catch (IOException ex) {
+                    throw new RuntimeException();
+                }
+            }
         }
     }
 
@@ -32,7 +41,7 @@ public class MyTableProvider implements TableProvider {
      * @return Объект, представляющий таблицу. Если таблицы с указанным именем не существует, возвращает null.
      * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
      */
-    public Table getTable(String name) {
+    public ExtendedTable getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("name is null");
         }
@@ -50,7 +59,7 @@ public class MyTableProvider implements TableProvider {
      * @return Объект, представляющий таблицу. Если таблица уже существует, возвращает null.
      * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
      */
-    public Table createTable(String name) {
+    public ExtendedTable createTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("name is null");
         }

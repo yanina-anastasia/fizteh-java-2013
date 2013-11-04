@@ -7,16 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class MyTable implements Table {
+public class MyTable implements ExtendedTable {
     private HashMap<String, String> hashMap;
     private HashMap<String, String> newEntries;
     private HashMap<String, String> changedEntries;
     private HashMap<String, String> removedEntries;
     String tableName;
-
-    public String getTableName() {
-        return tableName;
-    }
 
     public Set<Map.Entry<String, String>> getEntrySet() {
         return hashMap.entrySet();

@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
 import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
 import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
@@ -12,18 +14,14 @@ public class Main {
     public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
-        File dbName = new File(System.getProperty("fizteh.db.dir"), "db.dat");
-        if (!dbName.exists()) {
-            try {
-                dbName.createNewFile();
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-                System.exit(1);
-            }
+        File tableDirectory = new File(System.getProperty("fizteh.db.dir"));
+        if (!tableDirectory.exists() || !tableDirectory.isDirectory()) {
+            System.err.println("DB directory not exists");
+            System.exit(1);
         }
 
-        MyTableProvider myTableProvider = new MyTableProvider(dbName);
-        MyTable myTable = new MyTable("db.dat");
+        ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory);
+        ExtendedTable myTable = new MyTable("db.dat");
         State state = new State(myTable, myTableProvider);
 
         try {

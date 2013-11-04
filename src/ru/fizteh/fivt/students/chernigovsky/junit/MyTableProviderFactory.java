@@ -13,7 +13,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
      * @return Объект для работы с базой данных.
      * @throws IllegalArgumentException Если значение директории null или имеет недопустимое значение.
      */
-    public TableProvider create(String dir) {
+    public ExtendedTableProvider create(String dir) {
         if (dir == null) {
             throw new IllegalArgumentException("dir is null");
         }

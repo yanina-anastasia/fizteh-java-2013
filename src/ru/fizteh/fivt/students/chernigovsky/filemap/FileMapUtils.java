@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class FileMapUtils {
     public static void readTable(State state) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(((MyTableProvider)state.getCurrentTableProvider()).getDbDirectory());
+        FileInputStream fileInputStream = new FileInputStream(new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName()));
         BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
         DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
         try {
@@ -45,12 +45,12 @@ public class FileMapUtils {
     }
 
     public static void writeTable(State state) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(((MyTableProvider)state.getCurrentTableProvider()).getDbDirectory());
+        FileOutputStream fileOutputStream = new FileOutputStream(new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName()));
         fileOutputStream.getChannel().truncate(0); // Clear file
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
         try {
-            for (Map.Entry<String, String> entry : ((MyTable)state.getCurrentTable()).getEntrySet()) {
+            for (Map.Entry<String, String> entry : state.getCurrentTable().getEntrySet()) {
                 dataOutputStream.writeInt(entry.getKey().getBytes("UTF-8").length);
                 dataOutputStream.writeInt(entry.getValue().getBytes("UTF-8").length);
                 dataOutputStream.write(entry.getKey().getBytes("UTF-8"));
