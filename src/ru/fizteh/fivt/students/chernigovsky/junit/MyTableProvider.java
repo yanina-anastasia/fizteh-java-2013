@@ -7,12 +7,18 @@ import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUti
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class MyTableProvider extends StateProvider implements TableProvider {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
+    private HashMap<String, MyTable> tableHashMap;
 
     public MyTableProvider(File dbDirectory) {
         super(dbDirectory);
+        tableHashMap = new HashMap<String, MyTable>();
+        for (String string : dbDirectory.list()) {
+            tableHashMap.put(string, new MyTable(string));
+        }
     }
 
     /**
@@ -30,11 +36,7 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("wrong table name");
         }
 
-        File tableDirectory = new File(getDbDirectory(), name);
-        if (tableDirectory.exists() && tableDirectory.isDirectory()) {
-            return new MyTable(name);
-        }
-        return null;
+        return tableHashMap.get(name);
     }
 
     /**
@@ -52,14 +54,19 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("wrong table name");
         }
 
-        File tableDirectory = new File(getDbDirectory(), name);
-        if (tableDirectory.exists() && tableDirectory.isDirectory()) {
+        if (tableHashMap.get(name) != null) {
             return null;
         }
+
+        File tableDirectory = new File(getDbDirectory(), name);
         if (!tableDirectory.mkdir()) {
             throw new IllegalArgumentException("directory making error");
         }
-        return new MyTable(name);
+
+        MyTable newTable = new MyTable(name);
+
+        tableHashMap.put(name, newTable);
+        return newTable;
     }
 
     /**
@@ -77,10 +84,12 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("wrong table name");
         }
 
-        File tableDirectory = new File(getDbDirectory(), name);
-        if (!tableDirectory.exists() || !tableDirectory.isDirectory()) {
+        if (tableHashMap.get(name) == null) {
             throw new IllegalStateException("no such table");
         }
+
+        tableHashMap.remove(name);
+        File tableDirectory = new File(getDbDirectory(), name);
 
         try {
             MultiFileHashMapUtils.delete(tableDirectory);
