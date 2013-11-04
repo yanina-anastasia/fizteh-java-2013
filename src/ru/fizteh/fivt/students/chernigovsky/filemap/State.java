@@ -9,7 +9,7 @@ public class State {
     private HashMap<String, String> hashMap;
     String tableName;
 
-    public State(File directory, String newTableName) {
+    public State(String newTableName) {
         hashMap = new HashMap<String, String>();
         tableName = newTableName;
     }

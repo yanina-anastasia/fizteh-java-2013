@@ -22,7 +22,7 @@ public class CommandUse implements Command {
             if (stateProvider.getCurrentState() != null) {
                 MultiFileHashMapUtils.writeTable(new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             }
-            stateProvider.changeCurrentState(new State(stateProvider.getDbDirectory(), args[1]));
+            stateProvider.changeCurrentState(new State(args[1]));
             MultiFileHashMapUtils.readTable(new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
             System.out.println("using " + args[1]);
         }
