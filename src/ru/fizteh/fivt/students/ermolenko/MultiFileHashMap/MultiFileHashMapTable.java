@@ -92,6 +92,25 @@ public class MultiFileHashMapTable implements Table {
         }
 
         String returnValue;
+        /*
+        if (changesBase.containsKey(key)) {
+            if (changesBase.get(key) == null) {
+                ++sizeTable;
+                changesBase.remove(key);
+                returnValue = null;
+            } else {
+                returnValue = changesBase.get(key);
+                changesBase.put(key, value);
+            }
+        } else {
+            if (dataBase.containsKey(key)) {
+                if (dataBase.get(key).equals(value)) {
+                    returnValue = dat
+                }
+            }
+        }
+        */
+
         if (changesBase.containsKey(key)) {
             if (changesBase.get(key) == null) {
                 ++sizeTable;
@@ -99,7 +118,7 @@ public class MultiFileHashMapTable implements Table {
                 changesBase.remove(key);
             } else {
                 if (changesBase.get(key).equals(value)) {
-                    returnValue = value;
+                    returnValue = changesBase.get(key);
                 } else {
                     changesBase.put(key, value);
                     returnValue = changesBase.get(key);
@@ -108,7 +127,7 @@ public class MultiFileHashMapTable implements Table {
         } else {
             if (dataBase.containsKey(key)) {
                 if (dataBase.get(key).equals(value)) {
-                    returnValue = value;
+                    returnValue = changesBase.get(key);
                 } else {
                     changesBase.put(key, value);
                     returnValue = dataBase.get(key);
