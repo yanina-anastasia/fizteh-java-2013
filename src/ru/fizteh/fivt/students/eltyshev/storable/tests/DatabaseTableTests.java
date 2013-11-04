@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.storable.tests;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -46,6 +47,14 @@ public class DatabaseTableTests {
         } catch (IOException e) {
             // SAD
         }
+    }
+
+    @Test
+    public void putRemoveShouldNotFail() throws Exception {
+        currentTable.commit();
+        currentTable.put("key1", provider.deserialize(currentTable, getXml(1, "2")));
+        currentTable.remove("key1");
+        Assert.assertEquals(0, currentTable.commit());
     }
 
     @Test(expected = ParseException.class)
