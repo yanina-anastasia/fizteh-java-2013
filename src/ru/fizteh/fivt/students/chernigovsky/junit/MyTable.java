@@ -4,13 +4,14 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MyTable extends State implements Table {
     private HashMap<String, String> newEntries;
     private HashMap<String, String> changedEntries;
     private HashMap<String, String> removedEntries;
 
-    MyTable(File directory, String name) {
+    MyTable(String name) {
         super(name);
         newEntries = new HashMap<String, String>();
         changedEntries = new HashMap<String, String>();
@@ -31,7 +32,7 @@ public class MyTable extends State implements Table {
      */
     public String get(String key) {
         if (key == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("key is null");
         }
         if (removedEntries.get(key) != null) {
             return null;
@@ -56,13 +57,19 @@ public class MyTable extends State implements Table {
      * @throws IllegalArgumentException Если значение параметров key или value является null.
      */
     public String put(String key, String value) {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException();
+        if (key == null) {
+            throw new IllegalArgumentException("key is null");
         }
+        if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
+
         if (super.get(key) == null) {
             return newEntries.put(key, value);
         } else {
-            if (super.get(key) == value) {
+            if (super.get(key).equals(value)) {
+                changedEntries.remove(key);
+                removedEntries.remove(key);
                 return value;
             }
             if (removedEntries.get(key) != null) {
@@ -87,7 +94,7 @@ public class MyTable extends State implements Table {
      */
     public String remove(String key) {
         if (key == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("key is null");
         }
         if (removedEntries.get(key) != null) {
             return null;
@@ -121,7 +128,24 @@ public class MyTable extends State implements Table {
      * @return Количество сохранённых ключей.
      */
     public int commit() {
-        return newEntries.size() + changedEntries.size() + removedEntries.size();
+        int changed = newEntries.size() + changedEntries.size() + removedEntries.size();
+
+        for (Map.Entry<String, String> entry : newEntries.entrySet()) {
+            super.put(entry.getKey(), entry.getValue());
+        }
+        newEntries.clear();
+
+        for (Map.Entry<String, String> entry : changedEntries.entrySet()) {
+            super.put(entry.getKey(), entry.getValue());
+        }
+        changedEntries.clear();
+
+        for (Map.Entry<String, String> entry : removedEntries.entrySet()) {
+            super.remove(entry.getKey());
+        }
+        removedEntries.clear();
+
+        return changed;
     }
 
     /**
@@ -130,6 +154,12 @@ public class MyTable extends State implements Table {
      * @return Количество отменённых ключей.
      */
     public int rollback() {
-        return 0;
+        int changed = newEntries.size() + changedEntries.size() + removedEntries.size();
+
+        newEntries.clear();
+        changedEntries.clear();
+        removedEntries.clear();
+
+        return changed;
     }
 }

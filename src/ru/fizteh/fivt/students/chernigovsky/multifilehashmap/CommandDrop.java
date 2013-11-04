@@ -25,7 +25,7 @@ public class CommandDrop implements Command {
                     stateProvider.changeCurrentState(null);
                 }
             }
-            delete(table);
+            MultiFileHashMapUtils.delete(table);
             System.out.println("dropped");
 
         } else {
@@ -33,22 +33,4 @@ public class CommandDrop implements Command {
         }
     }
 
-    private void delete(File file) throws IOException {
-        if (!file.exists()) {
-            return;
-        }
-        if (file.isFile()) {
-            if (file.delete()) {
-                return;
-            } else {
-                throw new IOException("Delete error");
-            }
-        }
-        for (File f : file.listFiles()) {
-            delete(f);
-        }
-        if (!file.delete()) {
-            throw new IOException("Delete error");
-        }
-    }
 }

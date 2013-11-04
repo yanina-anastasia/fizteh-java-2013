@@ -7,6 +7,25 @@ import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 
 public class MultiFileHashMapUtils {
 
+    public static void delete(File file) throws IOException {
+        if (!file.exists()) {
+            return;
+        }
+        if (file.isFile()) {
+            if (file.delete()) {
+                return;
+            } else {
+                throw new IOException("Delete error");
+            }
+        }
+        for (File f : file.listFiles()) {
+            delete(f);
+        }
+        if (!file.delete()) {
+            throw new IOException("Delete error");
+        }
+    }
+
     public static void readTable(File tableFolder, State state) throws IOException {
 
         if (state == null) {
