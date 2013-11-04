@@ -7,8 +7,13 @@ public class Get extends BasicFileMapCommand {
 	public Get(BasicState currentState) {
 		super(currentState);
 	}	
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = currentState.getUsedTable().get(arguments[0]);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException { 
+		String value = null;
+		try {
+			value = currentState.getUsedTable().get(arguments[0]);
+		} catch (IllegalArgumentException catchedException) {
+			throw new IOException(catchedException); 
+		}
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {

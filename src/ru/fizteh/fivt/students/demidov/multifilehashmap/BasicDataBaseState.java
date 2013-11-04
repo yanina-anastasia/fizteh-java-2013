@@ -19,15 +19,28 @@ public abstract class BasicDataBaseState implements BasicState {
 		return usedTable;
 	}
 	
-	public void drop(String tableName) {
-		if (usedTable.getName().equals(tableName)) {
+	public void drop(String tableName) throws IOException {
+		if ((usedTable != null) && (usedTable.getName().equals(tableName))) {
 			usedTable = null;
 		}
-		provider.removeTable(tableName);
+		try {
+			provider.removeTable(tableName);
+		} catch(IllegalArgumentException catchedException) {
+			throw new IOException(catchedException);
+		} catch(IllegalStateException catchedException) {
+			throw new IOException(catchedException);
+		}
 	}
 	
 	public void create(String tableName) throws IOException {
-		TableImplementation createdTable = provider.createTable(tableName);
+		TableImplementation createdTable = null;
+		try {
+			createdTable = provider.createTable(tableName);		
+		} catch(IllegalArgumentException catchedException) {
+			throw new IOException(catchedException);
+		} catch(IllegalStateException catchedException) {
+			throw new IOException(catchedException);
+		}
 		if (createdTable == null) {
 			throw new IOException(tableName + " exists");
 		}

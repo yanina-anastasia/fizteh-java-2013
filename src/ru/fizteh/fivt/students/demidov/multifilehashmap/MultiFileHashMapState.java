@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.demidov.multifilehashmap;
 
 import java.io.IOException;
+
 import ru.fizteh.fivt.students.demidov.junit.TableImplementation;
 import ru.fizteh.fivt.students.demidov.junit.TableProviderImplementation;
 
@@ -10,7 +11,12 @@ public class MultiFileHashMapState extends BasicDataBaseState {
 	}
 	
 	public void use(String tableName) throws IOException {
-		TableImplementation gotTable = provider.getTable(tableName);
+		TableImplementation gotTable = null;
+		try {
+			gotTable = provider.getTable(tableName);
+		} catch(IllegalArgumentException catchedException) {
+			throw new IOException(catchedException);
+		}
 		if (gotTable == null) {
 			throw new IOException(tableName + " doesn't exist");
 		}

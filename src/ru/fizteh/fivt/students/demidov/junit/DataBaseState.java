@@ -16,7 +16,12 @@ public class DataBaseState extends BasicDataBaseState {
 				throw new IOException(changesNumber + " unsaved changes");
 			}
 		}
-		TableImplementation gotTable = provider.getTable(tableName);
+		TableImplementation gotTable = null;
+		try {
+			gotTable = provider.getTable(tableName);
+		} catch(IllegalArgumentException catchedException) {
+			throw new IOException(catchedException);
+		}
 		if (gotTable == null) {
 			throw new IOException(tableName + " doesn't exist");
 		}

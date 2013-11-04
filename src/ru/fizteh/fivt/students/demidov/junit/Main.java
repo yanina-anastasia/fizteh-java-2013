@@ -14,9 +14,13 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Main {
 	public static void main(String[] arguments) {
-		TableProviderFactoryImplementation factory = new TableProviderFactoryImplementation();
 		TableProviderImplementation provider = null;
-		provider = factory.create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
+		try {
+			provider = (new TableProviderFactoryImplementation()).create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
+		} catch(IllegalArgumentException catchedException) {
+			System.err.println(catchedException.getMessage());
+			System.exit(1);
+		}
 		
 		DataBaseState state = new DataBaseState(provider);
 		

@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.demidov.filemap;
 
 
 import java.io.IOException;
+
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Put extends BasicFileMapCommand {
@@ -9,7 +10,12 @@ public class Put extends BasicFileMapCommand {
 		super(currentState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = currentState.getUsedTable().put(arguments[0], arguments[1]);
+		String value = null;
+		try {
+			value = currentState.getUsedTable().put(arguments[0], arguments[1]);
+		} catch (IllegalArgumentException catchedException) {
+			throw new IOException(catchedException); 
+		}
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("new");
 		} else {

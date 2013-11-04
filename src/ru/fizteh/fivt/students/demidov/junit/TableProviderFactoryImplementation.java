@@ -7,7 +7,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
 	
 	public TableProviderImplementation create(String dir) {
 		if (dir == null) {
-			throw new IllegalArgumentException("wrong basic directory: " + dir);
+			throw new IllegalArgumentException("null basic directory");
 		}		
 		return new TableProviderImplementation(dir);
 	}

@@ -11,9 +11,13 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Main {
 	public static void main(String[] arguments) {
-		TableProviderFactoryImplementation factory = new TableProviderFactoryImplementation();
 		TableProviderImplementation provider = null;
-		provider = factory.create(System.getProperty("fizteh.db.dir"));
+		try {
+			provider = (new TableProviderFactoryImplementation()).create(System.getProperty("fizteh.db.dir"));
+		} catch(IllegalArgumentException catchedException) {
+			System.err.println(catchedException.getMessage());
+			System.exit(1);
+		}
 		
 		MultiFileHashMapState state = new MultiFileHashMapState(provider);
 		

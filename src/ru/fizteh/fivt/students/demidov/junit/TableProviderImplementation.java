@@ -13,7 +13,7 @@ public class TableProviderImplementation implements TableProvider {
 		tables = new HashMap<String, TableImplementation>();		
 
 		this.root = root;		
-		if (!(new File(root).isDirectory())) {
+		if (!((new File(root)).isDirectory())) {
 			throw new IllegalArgumentException("wrong directory: " + root);
 		}
 	}

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.demidov.filemap;
 
 import java.io.IOException;
+
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Remove extends BasicFileMapCommand {
@@ -8,7 +9,12 @@ public class Remove extends BasicFileMapCommand {
 		super(currentState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = currentState.getUsedTable().remove(arguments[0]);
+		String value = null;
+		try {
+			value = currentState.getUsedTable().remove(arguments[0]);
+		} catch (IllegalArgumentException catchedException) {
+			throw new IOException(catchedException); 
+		}
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {
