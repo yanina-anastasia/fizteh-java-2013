@@ -168,6 +168,9 @@ public abstract class AbstractStorage<Key, Value> {
         if (key1 == null && key2 == null) {
             return true;
         }
+        if (key1 == null || key2 == null) {
+            return false;
+        }
         return key1.equals(key2);
     }
 
