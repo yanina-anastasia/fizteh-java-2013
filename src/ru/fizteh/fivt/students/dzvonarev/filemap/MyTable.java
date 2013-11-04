@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
-
 import ru.fizteh.fivt.storage.strings.Table;
 
 import java.io.File;
@@ -15,34 +14,69 @@ import java.util.Set;
 
 public class MyTable implements Table {
 
+    public class ValueNode {
+        String oldValue;
+        String newValue;
+    }
+
     public MyTable(String newTableName) {
         tableName = newTableName;
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
-        countOfChanges = 0;
     }
 
     private String tableName; // current table
     private HashMap<String, String> fileMap;
-    private HashMap<String, String> changesMap;
-    private int countOfChanges;
+    private HashMap<String, ValueNode> changesMap;
+
+
+    public void modifyFileMap() {
+        if (changesMap == null || changesMap.isEmpty()) {
+            return;
+        }
+        Set fileSet = changesMap.entrySet();
+        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, ValueNode> currItem = i.next();
+            ValueNode value = currItem.getValue();
+            if (!Equals(value.newValue, value.oldValue)) {
+                if (value.oldValue == null) {
+                    fileMap.put(currItem.getKey(), value.newValue);
+                }
+                if (value.newValue == null) {
+                    fileMap.remove(currItem.getKey());
+                }
+                if (value.newValue != null && value.oldValue != null) {
+                    fileMap.put(currItem.getKey(), value.newValue);
+                }
+            }
+        }
+    }
 
     public int getCountOfChanges() {
-        return countOfChanges;
-    }
-    /*
-    public void writeIT() {
-        if (fileMap.isEmpty() || fileMap == null) {
-            System.out.println("empty");
+        if (changesMap == null || changesMap.isEmpty()) {
+            return 0;
         }
-        Set fileSet = fileMap.entrySet();
-        Iterator<Map.Entry<String, String>> i = fileSet.iterator();
+        Set fileSet = changesMap.entrySet();
+        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        int counter = 0;
         while (i.hasNext()) {
-            Map.Entry<String, String> currItem = i.next();
-            System.out.println(currItem.getKey() + " " + currItem.getValue());
+            Map.Entry<String, ValueNode> currItem = i.next();
+            ValueNode value = currItem.getValue();
+            if (!Equals(value.newValue, value.oldValue)) {
+                ++counter;
+            }
+        }
+        return counter;
+    }
+
+    public boolean Equals(String st1, String st2) {
+        if (st1 == null) {
+            return true;
+        } else {
+            return st1.equals(st2);
         }
     }
-          */
 
     public void readFileMap() throws RuntimeException, IOException {
         String[] dbDirs = (new File(tableName)).list();
@@ -98,7 +132,6 @@ public class MyTable implements Table {
                 throw new RuntimeException("file " + file + " in " + dir + " is not valid");
             }
             fileMap.put(key, value);
-            changesMap.put(key, value);
             currFilePosition = fileReader.getFilePointer();
             endOfFile = fileReader.length();
         }
@@ -253,10 +286,14 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("get: wrong key");
         }
-        if (changesMap.containsKey(key)) {
-            return changesMap.get(key);
+        if (changesMap.containsKey(key)) {            // если он был изменен
+            return changesMap.get(key).newValue;
         } else {
-            return null;
+            if (fileMap.containsKey(key)) {
+                return fileMap.get(key);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -266,20 +303,23 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("put: wrong key and value");
         }
         if (changesMap.containsKey(key)) {
-            String oldValue = changesMap.get(key);
-            changesMap.put(key, value);
-            if (!oldValue.equals(value)) {
-                ++countOfChanges;
-            }
+            String oldValue = changesMap.get(key).newValue;
+            changesMap.get(key).newValue = value;
             return oldValue;
         } else {
-            if (!(fileMap.containsKey(key) && fileMap.get(key).equals(value))) {
-                ++countOfChanges;
+            if (fileMap.containsKey(key)) {
+                ValueNode newValue = new ValueNode();
+                newValue.oldValue = fileMap.get(key);
+                newValue.newValue = value;
+                changesMap.put(key, newValue);
+                return fileMap.get(key);
             } else {
-                --countOfChanges;
+                ValueNode newValue = new ValueNode();
+                newValue.oldValue = null;
+                newValue.newValue = value;
+                changesMap.put(key, newValue);
+                return null;
             }
-            changesMap.put(key, value);
-            return null;
         }
     }
 
@@ -289,18 +329,20 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("remove: wrong key");
         }
         if (changesMap.containsKey(key)) {
-            String value = changesMap.get(key);
-            changesMap.remove(key);
-            if (!(fileMap.containsKey(key) && fileMap.get(key).equals(value))) {
-                --countOfChanges;
-            } else {
-                ++countOfChanges;
-            }
-            return value;
+            String oldValue = changesMap.get(key).newValue;
+            changesMap.get(key).newValue = null;
+            return oldValue;
         } else {
-            return null;
+            if (fileMap.containsKey(key)) {
+                ValueNode newValue = new ValueNode();
+                newValue.oldValue = fileMap.get(key);
+                newValue.newValue = null;
+                changesMap.put(key, newValue);
+                return fileMap.get(key);
+            } else {
+                return null;
+            }
         }
-
     }
 
     @Override
@@ -310,17 +352,16 @@ public class MyTable implements Table {
 
     @Override
     public int commit() {
-        fileMap = changesMap;
-        int count = countOfChanges;
-        countOfChanges = 0;
+        modifyFileMap();
+        int count = getCountOfChanges();
+        changesMap.clear();
         return count;
     }
 
     @Override
     public int rollback() {
-        changesMap = fileMap;
-        int count = countOfChanges;
-        countOfChanges = 0;
+        int count = getCountOfChanges();
+        changesMap.clear();
         return count;
     }
 
