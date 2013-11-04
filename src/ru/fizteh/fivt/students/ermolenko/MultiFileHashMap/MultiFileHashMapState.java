@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -23,15 +21,9 @@ public class MultiFileHashMapState {
         return currentTable.getChangesBaseSize();
     }
 
-    public void changeCurrentTable(Map<String, String> inMap, File inFile) {
+    public MultiFileHashMapTable createTable(String name) throws IOException {
 
-        currentTable.setDataBase(inMap);
-        currentTable.setDataFile(inFile);
-    }
-
-    public Table createTable(String name) throws IOException {
-
-        Table tmp = provider.createTable(name);
+        MultiFileHashMapTable tmp = provider.createTable(name);
         return tmp;
     }
 
@@ -40,7 +32,7 @@ public class MultiFileHashMapState {
         return provider.getTable(name);
     }
 
-    public Table getCurrentTable() throws IOException {
+    public MultiFileHashMapTable getCurrentTable() throws IOException {
 
         return currentTable;
     }
