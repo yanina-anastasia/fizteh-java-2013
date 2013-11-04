@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class MultiFileHashMapTableProviderFactoryTest {
     private MultiFileHashMapTableProviderFactory tpf;
-    File db;
+    private File db;
 
     public MultiFileHashMapTableProviderFactoryTest() throws IOException {
         tpf = new MultiFileHashMapTableProviderFactory();
