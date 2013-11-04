@@ -59,12 +59,12 @@ public class Table {
 
     private int getDirNumber(String key) {
         byte[] bytes = key.getBytes();
-        return (bytes[0] % 16);
+        return Math.abs(bytes[0]) % 16;
     }
 
     private int getFileNumber(String key) {
         byte[] bytes = key.getBytes();
-        return (bytes[0] / 16 % 16);
+        return Math.abs(bytes[0]) / 16 % 16;
     }
 
     private String getDirName(String key) {
