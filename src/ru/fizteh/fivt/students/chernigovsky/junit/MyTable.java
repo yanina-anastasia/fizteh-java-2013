@@ -31,7 +31,7 @@ public class MyTable extends State implements Table {
      * @throws IllegalArgumentException Если значение параметра key является null.
      */
     public String get(String key) {
-        if (key == null) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("key is null");
         }
         if (removedEntries.get(key) != null) {
@@ -74,6 +74,12 @@ public class MyTable extends State implements Table {
             }
             if (removedEntries.get(key) != null) {
                 removedEntries.remove(key);
+                if (changedEntries.get(key) == null) {
+                    changedEntries.put(key, value);
+                } else {
+                    changedEntries.put(key, value);
+                }
+                return null;
             }
             if (changedEntries.get(key) == null) {
                 changedEntries.put(key, value);
