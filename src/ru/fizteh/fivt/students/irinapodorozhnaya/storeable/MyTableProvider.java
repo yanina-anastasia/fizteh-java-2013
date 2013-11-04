@@ -129,9 +129,9 @@ public class MyTableProvider implements ExtendProvider {
     public Storeable createFor(Table table, List<?> values) 
                      throws ColumnFormatException, IndexOutOfBoundsException {
         
-        int size = values.size();
-        if (size != table.getColumnsCount()) {
-            throw new IndexOutOfBoundsException();
+        int size = table.getColumnsCount();
+        if (size != values.size()) {
+         //   throw new IndexOutOfBoundsException();
         }
         
         Storeable res = new MyStoreable(table);
