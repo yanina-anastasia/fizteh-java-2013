@@ -15,8 +15,7 @@ public abstract class AbstractStorage<Key, Value> {
     protected final HashMap<Key, Value> oldData;
     protected final ThreadLocal<HashMap<Key, ValueDifference<Value>>> modifiedData = new ThreadLocal<HashMap<Key, ValueDifference<Value>>>() {
         @Override
-        protected HashMap<Key, ValueDifference<Value>> initialValue()
-        {
+        protected HashMap<Key, ValueDifference<Value>> initialValue() {
             return new HashMap<Key, ValueDifference<Value>>();
         }
     };
@@ -107,7 +106,7 @@ public abstract class AbstractStorage<Key, Value> {
         int recordsCommitted = 0;
         for (final Key key : getModifiedTable().keySet()) {
             ValueDifference diff = getModifiedTable().get(key);
-            if (!diff.oldValue.equals(diff.newValue)) {
+            if (compareKeys(diff.oldValue, diff.newValue)) {
                 if (diff.newValue == null) {
                     oldData.remove(key);
                 } else {
@@ -133,7 +132,7 @@ public abstract class AbstractStorage<Key, Value> {
         int recordsDeleted = 0;
         for (final Key key : getModifiedTable().keySet()) {
             ValueDifference diff = getModifiedTable().get(key);
-            if (!diff.oldValue.equals(diff.newValue)) {
+            if (compareKeys(diff.oldValue, diff.newValue)) {
                 recordsDeleted += 1;
             }
         }
@@ -165,8 +164,14 @@ public abstract class AbstractStorage<Key, Value> {
         }
     }
 
-    private HashMap<Key, ValueDifference<Value>> getModifiedTable()
-    {
+    private boolean compareKeys(Object key1, Object key2) {
+        if (key1 == null && key2 == null) {
+            return true;
+        }
+        return key1.equals(key2);
+    }
+
+    private HashMap<Key, ValueDifference<Value>> getModifiedTable() {
         return modifiedData.get();
     }
 
