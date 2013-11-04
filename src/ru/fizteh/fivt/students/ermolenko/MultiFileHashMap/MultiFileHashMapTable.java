@@ -15,7 +15,7 @@ public class MultiFileHashMapTable implements Table {
     private File dataFile;
     private int sizeTable;
 
-    public MultiFileHashMapTable(File currentFile) throws IOException {
+    public MultiFileHashMapTable(File currentFile) {
 
         dataBase = new HashMap<String, String>();
         changesBase = new HashMap<String, String>();

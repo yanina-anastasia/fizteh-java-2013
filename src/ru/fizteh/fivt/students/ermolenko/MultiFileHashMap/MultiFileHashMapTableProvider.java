@@ -46,7 +46,7 @@ public class MultiFileHashMapTableProvider implements TableProvider {
     }
 
     @Override
-    public Table createTable(String name) throws IOException {
+    public Table createTable(String name) {
 
         if (name == null) {
             throw new IllegalArgumentException("null name to create");
