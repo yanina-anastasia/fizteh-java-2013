@@ -19,6 +19,8 @@ public class CreateCommand extends Command {
             return;
         }
         Table table = new Table(DbMain.directory, tableName);
+
         DbMain.addTable(table);
+        System.out.println("created");
     }
 }

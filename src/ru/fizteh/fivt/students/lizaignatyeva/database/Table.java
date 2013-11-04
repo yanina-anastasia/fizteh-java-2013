@@ -20,6 +20,7 @@ public class Table {
     HashMap<String, String> data;
     String name;
     public Table(Path globalDirectory, String tableName) {
+        name = tableName;
         path = globalDirectory.resolve(tableName).toFile();
         try {
             FileUtils.mkDir(path.getAbsolutePath());

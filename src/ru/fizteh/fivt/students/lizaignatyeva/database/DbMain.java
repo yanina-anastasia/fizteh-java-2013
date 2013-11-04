@@ -37,7 +37,9 @@ public class DbMain {
     }
 
     public static void addTable(Table table) throws Exception {
+
         tables.put(table.name, table);
+       // System.out.println("HERE1");
     }
 
     public static String concatenateWithDelimiter(String[] strings, String delimiter) {
@@ -64,6 +66,7 @@ public class DbMain {
 
     public static void main(String[] args) {
         //TODO: remove that for MULTI
+        tables = new Hashtable<String, Table>();
         try {
             String dir = System.getProperty("fizteh.db.dir");
             if (dir == null) {
