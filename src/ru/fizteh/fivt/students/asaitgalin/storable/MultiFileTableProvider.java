@@ -78,7 +78,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         if (tableDir.exists()) {
             return null;
         }
-        tableDir.mkdir();
+        if (!tableDir.mkdir()) {
+            throw new IOException("provider, create: failed to create table directory");
+        }
         ExtendedTable table = new MultiFileTable(tableDir, name, this, columnTypes);
         tableMap.put(table.getName(), table);
         return table;
@@ -94,11 +96,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             throw new IllegalStateException("provider, remove: table does not exist");
         }
         tableMap.remove(name);
-        try {
-            FileUtils.deleteRecursively(tableDir);
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
+        FileUtils.deleteRecursively(tableDir);
     }
 
     @Override
