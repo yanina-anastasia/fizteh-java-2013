@@ -8,8 +8,6 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHa
 
 import java.io.File;
 
-import static org.easymock.EasyMock.createNiceMock;
-
 public class TableTest {
     private WrappedMindfulDataBaseMultiFileHashMap db;
     private DispatcherMultiFileHashMap dispatcher;
@@ -30,8 +28,10 @@ public class TableTest {
         path = new File(homeDir, "sandbox/strings");
         cleanRecursively(path);
         path.mkdirs();
-        dispatcher = createNiceMock(DispatcherMultiFileHashMap.class);
-        db = new WrappedMindfulDataBaseMultiFileHashMap(path, dispatcher);
+        dispatcher = new DispatcherMultiFileHashMap(false, false, path.getPath(), null);
+        File tablePath = new File(path, "tableName");
+        tablePath.mkdir();
+        db = new WrappedMindfulDataBaseMultiFileHashMap(tablePath, dispatcher);
     }
 
     @After
@@ -79,7 +79,7 @@ public class TableTest {
 
     @Test
     public void testGetName() {
-        Assert.assertEquals("strings", db.getName());
+        Assert.assertEquals("tableName", db.getName());
     }
 
     @Test
