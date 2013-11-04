@@ -12,12 +12,13 @@ public class Main {
     private static Shell shell;
 
 
-    private static void checkDirectory() {
+    private static boolean checkDirectory() {
         String path = System.getProperty("fizteh.db.dir");
         if ((path == null) || (!(new File(path)).isDirectory())) {
             System.err.println("Choose a directory!");
-            System.exit(1);
+            return false;
         }
+        return true;
     }
 
     private static void makeShell() {
@@ -43,7 +44,9 @@ public class Main {
 
 
         try {
-            checkDirectory();
+            if (!checkDirectory()) {
+            	return ;
+            }
             makeShell();
 
             if (args.length > 0) {
