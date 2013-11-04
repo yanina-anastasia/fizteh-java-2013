@@ -8,7 +8,7 @@ public class Size extends BasicMultiFileHashMapCommand {
 	public Size(DataBaseState dataBaseState) {
 		super(dataBaseState);
 	}	
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {
 		usedShell.curShell.getOutStream().println(dataBaseState.getUsedTable().size());
 	}	
 	public int getNumberOfArguments() {

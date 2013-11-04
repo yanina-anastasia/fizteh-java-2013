@@ -10,7 +10,6 @@ import ru.fizteh.fivt.students.demidov.shell.Utils;
 public class FilesMap {	
 	public FilesMap(String directoryPath) throws IOException { 
 		baseFileMaps = new HashMap<String, FileMap>();
-		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps);
 		
 		if (new File(directoryPath).isDirectory()) {
 			this.directoryPath = directoryPath;
@@ -45,14 +44,6 @@ public class FilesMap {
 		}	
 	}
 	
-	public void commitChanges() {
-		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps); 
-	}
-	
-	public void rollbackChanges() {
-		baseFileMaps = new HashMap<String, FileMap>(previousBaseFileMaps);
-	}
-	
 	public void readData() throws IOException {	
 		for (String subdirectoryName : (new File(directoryPath)).list()) {
 			File subdirectory = new File(directoryPath, subdirectoryName);
@@ -75,7 +66,6 @@ public class FilesMap {
 				}
 			}
 		}
-		previousBaseFileMaps = new HashMap<String, FileMap>(baseFileMaps);
 	}
 
 	public void writeData() throws IOException {	
@@ -111,6 +101,5 @@ public class FilesMap {
 	}
 
 	private Map<String, FileMap> baseFileMaps;
-	private Map<String, FileMap> previousBaseFileMaps;
 	private String directoryPath;
 }

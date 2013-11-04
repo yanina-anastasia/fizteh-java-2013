@@ -18,19 +18,19 @@ public class TableProviderImplementation implements TableProvider {
 		}
 	}
 	
-    public TableImplementation getTable(String name) {
-    	if ((name == null) || (!(name.matches("\\w+")))) {    	
-    		throw new IllegalArgumentException("wrong table name: " + name);    	
-    	}    
-    	return tables.get(name);
-    }
+	public TableImplementation getTable(String name) {
+		if ((name == null) || (!(name.matches("\\w+")))) {    	
+			throw new IllegalArgumentException("wrong table name: " + name);    	
+		}	
+		return tables.get(name);
+	}
 
-    public TableImplementation createTable(String name) {
-    	if ((name == null) || (!(name.matches("\\w+")))) {    	
-    		throw new IllegalArgumentException("wrong table name: " + name);    	
-    	}    
-    	
-    	if (tables.containsKey(name)) {
+	public TableImplementation createTable(String name) {
+		if ((name == null) || (!(name.matches("\\w+")))) {    	
+			throw new IllegalArgumentException("wrong table name: " + name);    	
+		}	
+		
+		if (tables.containsKey(name)) {
 			return null;
 		} else {
 			if (!(new File(root, name)).mkdir()) {
@@ -42,21 +42,21 @@ public class TableProviderImplementation implements TableProvider {
 				throw new IllegalStateException(catchedException);
 			}
 		}
-    	return tables.get(name);
-    }
+		return tables.get(name);
+	}
 
-    public void removeTable(String name) {
-    	if ((name == null) || (!(name.matches("\\w+")))) {    	
-    		throw new IllegalArgumentException("wrong table name: " + name);    	
-    	}        	
-    	if (!(tables.containsKey(name))) {
-    		throw new IllegalStateException(name + " not exists");
+	public void removeTable(String name) {
+		if ((name == null) || (!(name.matches("\\w+")))) {    	
+			throw new IllegalArgumentException("wrong table name: " + name);    	
+		}
+		if (!(tables.containsKey(name))) {
+			throw new IllegalStateException(name + " not exists");
 		}		
-    	Utils.deleteFileOrDirectory(new File(root, name));
+		Utils.deleteFileOrDirectory(new File(root, name));
 		tables.remove(name);
-    }
-    
-    public void readFilesMaps() throws IOException {
+	}
+
+	public void readFilesMaps() throws IOException {
 		for (String subdirectory : (new File(root)).list()) {
 			if (!((new File(root, subdirectory)).isDirectory())) {
 				throw new IOException("wrong directory " + subdirectory);
@@ -72,7 +72,7 @@ public class TableProviderImplementation implements TableProvider {
 			tables.get(key).getFilesMap().writeData();
 		}		
 	}
-    
-    private Map<String, TableImplementation> tables;
-    private String root;
+	
+	private Map<String, TableImplementation> tables;
+	private String root;
 }

@@ -16,7 +16,7 @@ public class Main {
 	public static void main(String[] arguments) {
 		TableProviderImplementation provider = null;
 		try {
-			provider = (new TableProviderFactoryImplementation()).create(System.getProperty("user.dir") + File.separator + "go"/*System.getProperty("fizteh.db.dir")*/);
+			provider = (new TableProviderFactoryImplementation()).create(/*System.getProperty("user.dir") + File.separator + "go"*/System.getProperty("fizteh.db.dir"));
 		} catch(IllegalArgumentException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
