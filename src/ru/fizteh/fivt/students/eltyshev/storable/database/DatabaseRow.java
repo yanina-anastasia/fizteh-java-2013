@@ -27,7 +27,7 @@ public class DatabaseRow implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         if (value != null) {
-            checkColumnType(columnIndex, value.getClass());
+            checkColumnType(columnIndex, value);
             try {
                 StoreableUtils.checkValue(value, value.getClass());
             } catch (ParseException e) {

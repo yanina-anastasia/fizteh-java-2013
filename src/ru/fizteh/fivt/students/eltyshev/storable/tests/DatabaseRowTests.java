@@ -57,9 +57,14 @@ public class DatabaseRowTests {
         storeable.setColumnAt(1, 2);
     }
 
-    @Test
+    @Test(expected = ColumnFormatException.class)
     public void putIncorrectType3ShouldFail() {
         storeable.setColumnAt(1, new SimpleClass());
+    }
+
+    @Test
+    public void putCorrectValueShouldPass() throws Exception {
+        storeable.setColumnAt(1, "String");
     }
 }
 
