@@ -28,9 +28,10 @@ public class StoreableTableProvider implements TableProvider {
         if (atDirectory == null) {
             throw new IllegalArgumentException("Directory is not set");
         }
-
         if (!atDirectory.exists()) {
-            atDirectory.mkdir();
+            if (!atDirectory.mkdir()) {
+                throw new IOException("storeable table factory create: table provider unavailable");
+            }
         } else if (!atDirectory.isDirectory()) {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
