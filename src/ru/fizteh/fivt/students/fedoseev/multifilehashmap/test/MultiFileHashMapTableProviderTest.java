@@ -53,6 +53,17 @@ public class MultiFileHashMapTableProviderTest {
         Assert.assertNotNull(tp.getTable("life is pain"));
     }
 
+    @Test
+    public void testGetGetTable() throws Exception {
+        MultiFileHashMapTable table = tp.createTable("bananas");
+        MultiFileHashMapTable gotTable1 = tp.getTable("bananas");
+        MultiFileHashMapTable gotTable2 = tp.getTable("bananas");
+
+
+        Assert.assertEquals(table, gotTable1);
+        Assert.assertEquals(gotTable1, gotTable2);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testGetNullTable() throws Exception {
         tp.getTable(null);
