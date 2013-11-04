@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
@@ -9,16 +10,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MyTableProvider extends StateProvider implements TableProvider {
+public class MyTableProvider implements TableProvider {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
     private HashMap<String, MyTable> tableHashMap;
+    private File dbDirectory;
 
-    public MyTableProvider(File dbDirectory) {
-        super(dbDirectory);
+    public MyTableProvider(File newDbDirectory) {
+        dbDirectory = newDbDirectory;
         tableHashMap = new HashMap<String, MyTable>();
         for (String string : dbDirectory.list()) {
             tableHashMap.put(string, new MyTable(string));
         }
+    }
+
+    public File getDbDirectory() {
+        return dbDirectory;
     }
 
     /**

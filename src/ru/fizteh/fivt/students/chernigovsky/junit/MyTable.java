@@ -5,21 +5,33 @@ import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class MyTable extends State implements Table {
+public class MyTable implements Table {
+    private HashMap<String, String> hashMap;
     private HashMap<String, String> newEntries;
     private HashMap<String, String> changedEntries;
     private HashMap<String, String> removedEntries;
+    String tableName;
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public Set<Map.Entry<String, String>> getEntrySet() {
+        return hashMap.entrySet();
+    }
 
     MyTable(String name) {
-        super(name);
+        tableName = name;
+        hashMap = new HashMap<String, String>();
         newEntries = new HashMap<String, String>();
         changedEntries = new HashMap<String, String>();
         removedEntries = new HashMap<String, String>();
     }
 
     public String getName(){
-        return super.getTableName();
+        return tableName;
     }
 
     /**
@@ -43,7 +55,7 @@ public class MyTable extends State implements Table {
         if (changedEntries.get(key) != null) {
             return changedEntries.get(key);
         }
-        return super.get(key);
+        return hashMap.get(key);
     }
 
     /**
@@ -64,10 +76,10 @@ public class MyTable extends State implements Table {
             throw new IllegalArgumentException("value is null");
         }
 
-        if (super.get(key) == null) {
+        if (hashMap.get(key) == null) {
             return newEntries.put(key, value);
         } else {
-            if (super.get(key).equals(value)) {
+            if (hashMap.get(key).equals(value)) {
                 if (changedEntries.get(key) != null) {
                     return changedEntries.remove(key);
                 }
@@ -84,7 +96,7 @@ public class MyTable extends State implements Table {
             }
             if (changedEntries.get(key) == null) {
                 changedEntries.put(key, value);
-                return super.get(key);
+                return hashMap.get(key);
             } else {
                 return changedEntries.put(key, value);
             }
@@ -110,12 +122,12 @@ public class MyTable extends State implements Table {
             return newEntries.remove(key);
         }
         if (changedEntries.get(key) != null) {
-            removedEntries.put(key, super.get(key));
+            removedEntries.put(key, hashMap.get(key));
             return changedEntries.remove(key);
         }
-        if (super.get(key) != null) {
-            removedEntries.put(key, super.get(key));
-            return super.get(key);
+        if (hashMap.get(key) != null) {
+            removedEntries.put(key, hashMap.get(key));
+            return hashMap.get(key);
         }
         return null;
     }
@@ -126,7 +138,7 @@ public class MyTable extends State implements Table {
      * @return Количество ключей в таблице.
      */
     public int size() {
-        return super.getEntrySet().size() - removedEntries.size() + newEntries.size();
+        return hashMap.size() - removedEntries.size() + newEntries.size();
     }
 
     /**
@@ -138,17 +150,17 @@ public class MyTable extends State implements Table {
         int changed = newEntries.size() + changedEntries.size() + removedEntries.size();
 
         for (Map.Entry<String, String> entry : newEntries.entrySet()) {
-            super.put(entry.getKey(), entry.getValue());
+            hashMap.put(entry.getKey(), entry.getValue());
         }
         newEntries.clear();
 
         for (Map.Entry<String, String> entry : changedEntries.entrySet()) {
-            super.put(entry.getKey(), entry.getValue());
+            hashMap.put(entry.getKey(), entry.getValue());
         }
         changedEntries.clear();
 
         for (Map.Entry<String, String> entry : removedEntries.entrySet()) {
-            super.remove(entry.getKey());
+            hashMap.remove(entry.getKey());
         }
         removedEntries.clear();
 
