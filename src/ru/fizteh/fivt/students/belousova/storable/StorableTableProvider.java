@@ -28,7 +28,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         dataDitectory = directory;
 
         if (!directory.canRead()) {
-            throw new IllegalArgumentException("directory is unavailable");
+            throw new IOException("directory is unavailable");
         }
         for (File tableFile : directory.listFiles()) {
             tableMap.put(tableFile.getName(), new StorableTable(tableFile, this));
