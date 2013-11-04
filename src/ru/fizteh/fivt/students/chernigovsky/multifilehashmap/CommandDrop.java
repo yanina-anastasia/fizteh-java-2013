@@ -15,15 +15,16 @@ public class CommandDrop implements Command {
     }
 
     public void execute(State state, String[] args) throws IOException, ExitException {
+        if (state.getCurrentTableProvider().getTable(args[1]) == state.getCurrentTable()) {
+            state.changeCurrentTable(null);
+        }
         try {
             state.getCurrentTableProvider().removeTable(args[1]);
         } catch (IllegalStateException ex) {
             System.out.println(args[1] + " not exists");
             return;
         }
-        if (state.getCurrentTableProvider().getTable(args[1]) == state.getCurrentTable()) {
-            state.changeCurrentTable(null);
-        }
+
         System.out.println("dropped");
     }
 
