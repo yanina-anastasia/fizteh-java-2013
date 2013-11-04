@@ -107,7 +107,7 @@ public abstract class AbstractStorage<Key, Value> {
         int recordsCommitted = 0;
         for (final Key key : getModifiedTable().keySet()) {
             ValueDifference diff = getModifiedTable().get(key);
-            if (diff.oldValue != diff.newValue) {
+            if (!diff.oldValue.equals(diff.newValue)) {
                 if (diff.newValue == null) {
                     oldData.remove(key);
                 } else {
@@ -133,7 +133,7 @@ public abstract class AbstractStorage<Key, Value> {
         int recordsDeleted = 0;
         for (final Key key : getModifiedTable().keySet()) {
             ValueDifference diff = getModifiedTable().get(key);
-            if (diff.oldValue != diff.newValue) {
+            if (!diff.oldValue.equals(diff.newValue)) {
                 recordsDeleted += 1;
             }
         }
