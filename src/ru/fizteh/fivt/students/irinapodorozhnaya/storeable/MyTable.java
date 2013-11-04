@@ -74,8 +74,8 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         for (int i = 0; i < sizeColumn; ++i) {
             try {
                     Object valueI = value.getColumnAt(i);
-                    if (valueI != null && valueI.getClass() != columnType.get(i)) {
-                        throw new ColumnFormatException(i + "column has incorrect format");
+                    if (valueI != null && !valueI.getClass().equals(columnType.get(i))) {
+                            throw new ColumnFormatException(i + " column has incorrect format");
                     }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException(e);
