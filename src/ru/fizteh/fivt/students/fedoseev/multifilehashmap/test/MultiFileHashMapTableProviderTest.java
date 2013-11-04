@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap.test;
 
 import junit.framework.Assert;
+import org.junit.After;
 import org.junit.Test;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTable;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTableProvider;
@@ -11,9 +12,10 @@ import java.io.IOException;
 
 public class MultiFileHashMapTableProviderTest {
     private static MultiFileHashMapTableProvider tp;
+    private File dbDir;
 
     public MultiFileHashMapTableProviderTest() throws IOException {
-        File dbDir = new File("test");
+        dbDir = new File("test");
 
         dbDir.mkdirs();
 
@@ -133,5 +135,10 @@ public class MultiFileHashMapTableProviderTest {
     @Test(expected = IllegalStateException.class)
     public void testRemoveNotExistingNameTable() throws Exception {
         tp.removeTable("doNotWorry");
+    }
+
+    @After
+    public void tearDown() {
+        dbDir.delete();
     }
 }
