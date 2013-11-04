@@ -42,6 +42,8 @@ public class MultiFileTable implements ExtendedTable {
         this.columnTypes = columnTypes;
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
+        MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
+        worker.writeColumnTypes(columnTypes);
     }
 
     @Override
@@ -70,7 +72,10 @@ public class MultiFileTable implements ExtendedTable {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("put: key or value is empty");
         }
-        // throw ColumnFormatException
+        for (int i = 0; i < getColumnsCount(); ++i) {
+
+        }
+        // check for valid storable value, ColumnFormatException
         return container.containerPutValue(key, value);
     }
 

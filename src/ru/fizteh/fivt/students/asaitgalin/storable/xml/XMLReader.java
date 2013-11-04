@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.asaitgalin.storable.xml;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableUtils;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -77,7 +78,7 @@ public class XMLReader {
     private Object getValue(String s, Class<?> type) throws ColumnFormatException {
         Object value;
         try {
-            switch (type.getSimpleName()) {
+            switch (MultiFileTableUtils.getColumnTypeString(type)) {
                 case "int":
                     value = Integer.parseInt(s);
                     break;

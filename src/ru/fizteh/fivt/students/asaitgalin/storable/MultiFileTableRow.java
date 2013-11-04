@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.asaitgalin.storable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.asaitgalin.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,11 @@ public class MultiFileTableRow implements Storeable {
             throw new ColumnFormatException(String.format("storable: invalid type %s for column %d, expected type %s",
                     cl.getName(), index, columnTypes.get(index).getName()));
         }
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.join(columnData, " ");
     }
 
 }

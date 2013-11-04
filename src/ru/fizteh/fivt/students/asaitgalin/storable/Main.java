@@ -14,21 +14,29 @@ public class Main {
         MultiFileTableState state = new MultiFileTableState();
 
         try {
-            factory.create(System.getProperty("fizteh.db.dir"));
+            state.provider = factory.create(System.getProperty("fizteh.db.dir"));
         } catch (IllegalArgumentException iea) {
             System.out.println("no dir provided");
             System.exit(-1);
         }
 
         // Commands
-        cmdTable.appendCommand(new CreateCommand());
+        cmdTable.appendCommand(new PutCommand(state));
+        cmdTable.appendCommand(new GetCommand(state));
+        cmdTable.appendCommand(new RemoveCommand(state));
+        cmdTable.appendCommand(new CreateCommand(state));
+        cmdTable.appendCommand(new DropCommand(state));
+        cmdTable.appendCommand(new UseCommand(state));
+        cmdTable.appendCommand(new SizeCommand(state));
+        cmdTable.appendCommand(new CommitCommand(state));
+        cmdTable.appendCommand(new RollbackCommand(state));
         cmdTable.appendCommand(new ExitCommand());
 
         ShellUtils utils = new ShellUtils(cmdTable);
         if (args.length == 0) {
             utils.interactiveMode(System.in, System.out, System.err);
         } else {
-            utils.batchMode(args,  System.err);
+            utils.batchMode(args, System.err);
         }
     }
 }
