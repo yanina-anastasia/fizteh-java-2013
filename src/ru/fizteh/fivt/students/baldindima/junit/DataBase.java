@@ -142,6 +142,7 @@ public class DataBase implements Table{
     }
 
     public String get(String keyString) {
+    	checkString(keyString);
     	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
@@ -149,13 +150,16 @@ public class DataBase implements Table{
     }
 
     public String put(String keyString, String valueString) {
-        int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        checkString(keyString);
+        checkString(valueString);
+    	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.put(keyString, valueString);
     }
 
     public String remove(String keyString) {
+    	checkString(keyString);
     	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
@@ -203,6 +207,12 @@ public class DataBase implements Table{
 	public String getName() {
 		return new File(dataBaseDirectory).getName();
 	}
+	 private void checkString(String str) {
+	        if ((str == null) || (str.trim().length() == 0)) {
+	            throw new IllegalArgumentException("Wrong key!");
+	        }
+	    }
+
 
 
 }

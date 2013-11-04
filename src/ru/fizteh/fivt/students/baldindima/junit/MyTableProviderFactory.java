@@ -25,7 +25,7 @@ public class MyTableProviderFactory implements TableProviderFactory{
 		if (!directoryFile.isDirectory()){
 			throw new IllegalArgumentException("Wrong directory");
 		}
-		return new MyTableProvider(directory);
+		return new DataBaseTable(directory);
 	}
 
 	
