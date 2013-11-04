@@ -17,7 +17,7 @@ public class Main {
             System.exit(1);
         }
         File dbDirectory = new File(dbPath);
-        if (!dbDirectory.exists()) {
+        if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
             System.err.println("DB directory not exists");
             System.exit(1);
         }
