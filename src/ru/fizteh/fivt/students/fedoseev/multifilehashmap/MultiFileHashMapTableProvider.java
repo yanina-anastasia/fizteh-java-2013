@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
