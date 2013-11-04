@@ -25,6 +25,9 @@ public class DbMain {
         return currentTable;
     }
 
+    public static void resetCurrentTable() {
+        currentTable = null;
+    }
     public static Table getTable(String name) throws Exception {
         return tables.get(name);
     }
