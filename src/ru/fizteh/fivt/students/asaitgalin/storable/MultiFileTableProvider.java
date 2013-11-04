@@ -64,6 +64,14 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("provider, create: invalid name");
         }
+        if (columnTypes == null || columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("provider, create: columnTypes are null or empty");
+        }
+        for (Class<?> cl : columnTypes) {
+            if (cl == null) {
+                throw new IllegalArgumentException("provider, create: column type can not be null");
+            }
+        }
         if (!name.matches(TABLE_NAME_FORMAT)) {
             throw new RuntimeException("provider, create: incorrect table name");
         }

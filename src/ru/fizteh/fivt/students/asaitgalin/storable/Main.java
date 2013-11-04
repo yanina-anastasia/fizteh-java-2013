@@ -6,6 +6,8 @@ import ru.fizteh.fivt.students.asaitgalin.shell.CommandTable;
 import ru.fizteh.fivt.students.asaitgalin.shell.ShellUtils;
 import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTableProviderFactory;
 
+import java.io.IOException;
+
 public class Main {
     public static void main(String[] args) {
         CommandTable cmdTable = new CommandTable();
@@ -15,6 +17,9 @@ public class Main {
 
         try {
             state.provider = factory.create(System.getProperty("fizteh.db.dir"));
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+            System.exit(-1);
         } catch (IllegalArgumentException iea) {
             System.out.println("no dir provided");
             System.exit(-1);
