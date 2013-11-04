@@ -25,7 +25,7 @@ public class DbMain {
         return currentTable;
     }
 
-    public static void resetCurrentTable() {
+    public static void resetCurrentTable() throws Exception {
         currentTable = null;
     }
     public static Table getTable(String name) throws Exception {
@@ -38,6 +38,10 @@ public class DbMain {
 
     public static void setCurrentTable(String name) throws Exception {
         currentTable = tables.get(name);
+    }
+
+    public static void removeTable(String name) throws  Exception {
+        tables.remove(name);
     }
 
     public static void addTable(Table table) throws Exception {
