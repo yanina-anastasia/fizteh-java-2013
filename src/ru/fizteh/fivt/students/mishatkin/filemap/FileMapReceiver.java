@@ -19,8 +19,6 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	private Map<String, String> originalDictionaryPart = new HashMap<>();
 	private Map<String, String> unstagedDictionaryPart = new HashMap<>();
 
-	private int completelyNewKeysCount;
-
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 	private boolean isValidStringLength(int size) {
@@ -34,7 +32,6 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, ShellPrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
-		this.completelyNewKeysCount = 0;
 		FileInputStream in = null;
 		try {
 			assert dbDirectory != null;
@@ -94,13 +91,16 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 			if (value.equals(originalDictionaryPart.get(key))) {
 				originalDictionaryPart.remove(key);
 			} else {
-				originalDictionaryPart.put(key, oldValue);
+				if (unstagedDictionaryPart.get(key) == null) {
+					originalDictionaryPart.put(key, oldValue);
+				} else {
+					unstagedDictionaryPart.put(key, value);
+				}
 			}
 			println("overwrite");
 			println(oldValue);
 		} else {
 			unstagedDictionaryPart.put(key, value);
-			++completelyNewKeysCount;
 			println("new");
 		}
 		dictionary.put(key, value);
@@ -113,12 +113,12 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		String retValue = dictionary.remove(key);
 		if (retValue != null) {
 			if (originalDictionaryPart.get(key) == null) {
-				if (unstagedDictionaryPart.remove(key) != null) {
-					--completelyNewKeysCount;
-				}
+				unstagedDictionaryPart.remove(key);
 				if (oldValue != null) {
 					originalDictionaryPart.put(key, oldValue);
 				}
+			} else {
+				originalDictionaryPart.remove(key);
 			}
 			println("removed");
 		} else {
@@ -204,7 +204,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 				++match;
 			}
 		}
-		return originalDictionaryPart.size() + completelyNewKeysCount - match;
+		return originalDictionaryPart.size() + unstagedDictionaryPart.size() - match;
 	}
 
 	public int size() {

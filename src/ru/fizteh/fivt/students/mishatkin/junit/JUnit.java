@@ -14,7 +14,7 @@ public class JUnit extends MultiFileHashMap {
 		CommandSource source = (args.length > 0) ? new BatchCommandSource(args)
 				: new StandardInputCommandSource(new Scanner(System.in));
 		source.initCommands(getAllCommandsIncludingInheritanceDependencies());
-		MultiFileHashMapRunner runner = new MultiFileHashMapRunner(source);
+		ShellRunner runner = new MultiFileHashMapRunner(source);
 		String dbDirectory = System.getProperty("fizteh.db.dir");
 		if (dbDirectory == null) {
 			System.err.println("set \"fizteh.db.dir\" property before launch.");
@@ -26,7 +26,7 @@ public class JUnit extends MultiFileHashMap {
 				System.exit(1);
 			}
 		}
-		JUnitReceiver receiver = new JUnitReceiver(System.out, (args.length == 0), dbDirectory);
+		ShellReceiver receiver = new JUnitReceiver(System.out, (args.length == 0), dbDirectory);
 		runner.run(receiver);
 	}
 
