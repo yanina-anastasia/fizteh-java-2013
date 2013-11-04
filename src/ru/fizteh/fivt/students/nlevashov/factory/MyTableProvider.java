@@ -115,8 +115,12 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public void removeTable(String name) {
-        if ((name == null) || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("TableProvider.removeTable: name is null");
+        if ((name == null) || name.trim().isEmpty()
+                || name.contains("/") || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"") || name.contains("\\")
+                || name.contains(">") || name.contains("<") || name.contains("|")
+                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+            throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
         if (tables.containsKey(name)) {
             try {
