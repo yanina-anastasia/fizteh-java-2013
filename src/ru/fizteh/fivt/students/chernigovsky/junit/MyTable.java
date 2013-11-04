@@ -57,7 +57,7 @@ public class MyTable extends State implements Table {
      * @throws IllegalArgumentException Если значение параметров key или value является null.
      */
     public String put(String key, String value) {
-        if (key == null) {
+        if (key == null || key.length() == 0) {
             throw new IllegalArgumentException("key is null");
         }
         if (value == null) {
