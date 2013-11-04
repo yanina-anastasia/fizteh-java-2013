@@ -46,7 +46,7 @@ public class Main {
         }
 
         try {
-             MultiFileHashMapUtils.writeTable(dbDirectory, stateProvider.getCurrentState());
+             MultiFileHashMapUtils.writeTable(new File(dbDirectory, stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
