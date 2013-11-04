@@ -11,12 +11,10 @@ public class Main {
         int exitValue = 0;
         MultiFileMap multiMap = null;
         String property = System.getProperty("fizteh.db.dir");
-        System.out.println(property);
         File root = null;
         if (property != null) {
             root = new File(property);
         }
-//        if (property != null && (!root.exists() || !root.isDirectory())) {
         if (property == null || !root.exists() || !root.isDirectory()) {
             System.err.println("No such directory");
             System.exit(-1);
