@@ -62,6 +62,10 @@ public class DataBaseFile {
     		}
     		value = nValue;
     	}
+    	public void remove(){
+    		value = null;
+    		type = DELETED;
+    	}
     	
     	
     }
@@ -160,16 +164,19 @@ public class DataBaseFile {
     public String put(String keyString, String valueString) {
         checkString(keyString);
         checkString(valueString);
+        String result;
     	Node search = getCurrentTable().get(keyString);
+    	
         if (search == null){
         	getCurrentTable().put(keyString, new Node(valueString, NEW));
         	return null;
         } else {
+        	result = search.value;
         	getCurrentTable().get(keyString).putValue(valueString);
         	if (search.type == DELETED) {
         		return null;
         	}
-        	return getCurrentTable().get(keyString).value;
+        	return result;
         }
     	
     	
@@ -196,12 +203,14 @@ public class DataBaseFile {
 
     public String remove(String keyString) {
         checkString(keyString);
+        String result;
     	Node search = getCurrentTable().get(keyString);
         if (search == null){
         	return null;
         } else {
-        	getCurrentTable().put(keyString, new Node(DELETED));
-        	return search.value;
+        	result = search.value;
+        	getCurrentTable().get(keyString).remove();
+        	return result;
         }
     }
     
