@@ -68,17 +68,18 @@ public class MyTable extends State implements Table {
             return newEntries.put(key, value);
         } else {
             if (super.get(key).equals(value)) {
-                changedEntries.remove(key);
-                removedEntries.remove(key);
+                if (changedEntries.get(key) != null) {
+                    return changedEntries.remove(key);
+                }
+                if (removedEntries.get(key) != null) {
+                    removedEntries.remove(key);
+                    return null;
+                }
                 return value;
             }
             if (removedEntries.get(key) != null) {
                 removedEntries.remove(key);
-                if (changedEntries.get(key) == null) {
-                    changedEntries.put(key, value);
-                } else {
-                    changedEntries.put(key, value);
-                }
+                changedEntries.put(key, value);
                 return null;
             }
             if (changedEntries.get(key) == null) {
