@@ -56,6 +56,9 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
             }
         }
         sc.close();
+        if (columns.isEmpty()) {
+            throw new IOException("empty signature");
+        }
         return columns;        
     }
     
@@ -66,13 +69,9 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
             throw new IllegalArgumentException("null argument in put");
         }
         
-        int size = columnType.size();
+        int sizeColumn = columnType.size();
         
-        if (columnType.isEmpty()) {
-            return null;
-        }
-        
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < sizeColumn; ++i) {
             try {
                     Object valueI = value.getColumnAt(i);
                     if (valueI != null && valueI.getClass() != columnType.get(i)) {

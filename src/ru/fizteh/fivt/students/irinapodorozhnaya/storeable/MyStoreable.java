@@ -15,24 +15,16 @@ public class MyStoreable implements Storeable {
     public MyStoreable(Table table) {
         this.table = table;
         values = new ArrayList<>(table.getColumnsCount());
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            values.add(null);
+        }
     }
     
     @Override
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
 	
-	if (columnIndex >= values.size() || columnIndex < 0) {
-	    return;
-	}
-	
-	if (value == null) {
-	    if (columnIndex < values.size()) {
-		values.add(columnIndex, value);
-		return;
-	    }
-	}
-	
-        if (!value.getClass().equals(table.getColumnType(columnIndex))) {
+        if (value != null && !value.getClass().equals(table.getColumnType(columnIndex))) {
             throw new ColumnFormatException();
         }
         values.add(columnIndex, value);
@@ -40,7 +32,10 @@ public class MyStoreable implements Storeable {
 
     @Override
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
-        return values.get(columnIndex);
+        if (values.isEmpty()) {
+            return null;
+        }
+	return values.get(columnIndex);
     }
 
     @Override
