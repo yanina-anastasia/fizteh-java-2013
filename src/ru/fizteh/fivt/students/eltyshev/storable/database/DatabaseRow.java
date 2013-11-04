@@ -102,6 +102,7 @@ public class DatabaseRow implements Storeable {
 
     public void addColumn(Class<?> columnType) {
         classes.add(columnType);
+        columns.add(null);
     }
 
     public void setColumns(List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
