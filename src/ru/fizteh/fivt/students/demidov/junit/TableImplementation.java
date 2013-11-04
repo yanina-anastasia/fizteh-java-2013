@@ -38,10 +38,15 @@ public class TableImplementation implements Table {
 		if ((key == null) || (key.trim().isEmpty()) || (value == null) || (value.trim().isEmpty())) {
 			throw new IllegalArgumentException("null or empty parameter");
 		}
-		String overwritten = get(key);
-		putDiff.put(key, value);
+		String overwrite = get(key);
+		String previousValue = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
+		if (value.equals(previousValue)) {
+			putDiff.remove(key);
+		} else {
+			putDiff.put(key, value);
+		}
 		removeDiff.remove(key);
-		return overwritten;
+		return overwrite;
 	}
 
 	public String remove(String key) {
@@ -104,7 +109,7 @@ public class TableImplementation implements Table {
 	public int getChangesNumber() {
 		int removed = 0;
 		Iterator<String> removeDiffIterator = removeDiff.iterator();
-	    while(removeDiffIterator.hasNext()){
+	    while(removeDiffIterator.hasNext()) {
 	        String key = removeDiffIterator.next();
 	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
 	        	++removed;
