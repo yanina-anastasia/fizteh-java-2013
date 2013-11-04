@@ -1,13 +1,14 @@
-package ru.fizteh.fivt.students.belousova.multifilehashmap;
+package ru.fizteh.fivt.students.belousova.storable;
+
 
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
 public class CommandRollback implements Command {
-    private MultiFileShellState state;
+    private StorableShellState state;
 
-    public CommandRollback(MultiFileShellState state) {
+    public CommandRollback(StorableShellState state) {
         this.state = state;
     }
 

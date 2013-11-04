@@ -1,19 +1,16 @@
-package ru.fizteh.fivt.students.belousova.multifilehashmap;
+package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.students.belousova.filemap.CommandExit;
-import ru.fizteh.fivt.students.belousova.filemap.CommandGet;
-import ru.fizteh.fivt.students.belousova.filemap.CommandPut;
-import ru.fizteh.fivt.students.belousova.filemap.CommandRemove;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 import ru.fizteh.fivt.students.belousova.utils.ShellUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MultiFileShell {
-    private Map<String, Command> commandList = new HashMap<String, Command>();
+public class StorableShell {
+    private Map<String, Command> commandList = new HashMap<>();
 
-    public void run(String[] args, MultiFileShellState state) {
+    public void run(String[] args, StorableShellState state) {
         makeCommandList(state);
         if (args.length == 0) {
             ShellUtils.interactiveMode(System.in, commandList);
@@ -22,7 +19,7 @@ public class MultiFileShell {
         }
     }
 
-    private void makeCommandList(MultiFileShellState state) {
+    private void makeCommandList(StorableShellState state) {
         addCommand(new CommandCreate(state));
         addCommand(new CommandDrop(state));
         addCommand(new CommandUse(state));

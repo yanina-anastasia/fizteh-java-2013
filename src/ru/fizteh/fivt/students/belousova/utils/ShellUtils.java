@@ -54,7 +54,7 @@ public class ShellUtils {
         String[] commands = s.trim().split("\\s*;\\s*");
 
         for (String com : commands) {
-            String[] tokens = com.split("\\s+");
+            String[] tokens = com.split("\\s+", 3);
             try {
                 String commandName = tokens[0];
                 if (!commandList.containsKey(commandName)) {

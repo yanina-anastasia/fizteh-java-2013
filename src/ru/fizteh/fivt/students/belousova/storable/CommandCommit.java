@@ -1,19 +1,19 @@
-package ru.fizteh.fivt.students.belousova.multifilehashmap;
+package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
-public class CommandRollback implements Command {
-    private MultiFileShellState state;
+public class CommandCommit implements Command {
+    private StorableShellState state;
 
-    public CommandRollback(MultiFileShellState state) {
+    public CommandCommit(StorableShellState state) {
         this.state = state;
     }
 
     @Override
     public String getName() {
-        return "rollback";
+        return "commit";
     }
 
     @Override
@@ -21,7 +21,7 @@ public class CommandRollback implements Command {
         if (state.getCurrentTable() == null) {
             System.out.println("no table");
         } else {
-            System.out.println(state.rollbackCurrentTable());
+            System.out.println(state.commitCurrentTable());
         }
     }
 

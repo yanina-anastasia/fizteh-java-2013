@@ -1,14 +1,15 @@
-package ru.fizteh.fivt.students.belousova.filemap;
+package ru.fizteh.fivt.students.belousova.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
 public class CommandRemove implements Command {
     private static final String name = "remove";
-    private TableState state;
+    private StorableShellState state;
 
-    public CommandRemove(TableState state) {
+    public CommandRemove(StorableShellState state) {
         this.state = state;
     }
 
@@ -28,7 +29,7 @@ public class CommandRemove implements Command {
             System.out.println("no table");
         } else {
             String key = args[1];
-            String value = state.removeFromCurrentTable(key);
+            Storeable value = state.removeFromCurrentTable(key);
             if (value == null) {
                 System.out.println("not found");
             } else {

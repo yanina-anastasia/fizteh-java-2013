@@ -1,13 +1,13 @@
-package ru.fizteh.fivt.students.belousova.multifilehashmap;
+package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
 public class CommandUse implements Command {
-    MultiFileShellState state = null;
+    StorableShellState state = null;
 
-    public CommandUse(MultiFileShellState state) {
+    public CommandUse(StorableShellState state) {
         this.state = state;
     }
 
