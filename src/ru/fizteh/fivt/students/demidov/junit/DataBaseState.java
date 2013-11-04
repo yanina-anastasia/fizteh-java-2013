@@ -23,7 +23,7 @@ public class DataBaseState extends BasicDataBaseState {
 			throw new IOException(catchedException);
 		}
 		if (gotTable == null) {
-			throw new IOException(tableName + " doesn't exist");
+			throw new IOException(tableName + " not exists");
 		}
 		usedTable = gotTable;	
 	}
