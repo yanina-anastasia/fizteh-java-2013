@@ -60,8 +60,8 @@ public class MultiFileHashMapTableProviderTest {
         MultiFileHashMapTable gotTable2 = tp.getTable("bananas");
 
 
-        Assert.assertEquals(table, gotTable1);
-        Assert.assertEquals(gotTable1, gotTable2);
+        Assert.assertSame(table, gotTable1);
+        Assert.assertSame(gotTable1, gotTable2);
     }
 
     @Test(expected = IllegalArgumentException.class)
