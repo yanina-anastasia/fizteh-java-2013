@@ -57,7 +57,20 @@ public class TableImplementation implements Table {
 	}
 
 	public int size() {
-		return filesMap.getSize();
+		int previousSize = filesMap.getSize();
+		for (String key: putDiff.keySet()) {
+			if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) == null) {
+				++previousSize;
+			}
+		}	
+		Iterator<String> removeDiffIterator = removeDiff.iterator();
+	    while(removeDiffIterator.hasNext()){
+	        String key = removeDiffIterator.next();
+	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
+	        	--previousSize;
+	        }
+	    }
+		return previousSize;
 	}
 
 	public int commit() {	
