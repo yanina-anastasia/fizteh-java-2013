@@ -18,10 +18,12 @@ public class StoreableRow implements Storeable {
 
     public StoreableRow(Table givenTable) {
         types = new ArrayList<>();
+        row = new ArrayList<>();
         for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
             types.add(givenTable.getColumnType(i));
+            row.add(null);
         }
-        row = new ArrayList<>(givenTable.getColumnsCount());
+        //row = new ArrayList<>(givenTable.getColumnsCount());
     }
 
     public StoreableRow(Table givenTable, List<?> givenValues)
