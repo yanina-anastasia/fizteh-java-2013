@@ -25,7 +25,7 @@ public class DatabaseTableProviderTest {
         Assert.assertNotNull(provider.getTable("table2"));
 
         Table table1 = provider.getTable("table1");
-        Assert.assertEquals(table1, provider.getTable("table1"));
+        Assert.assertSame(table1, provider.getTable("table1"));
     }
 
     @Test

@@ -10,6 +10,7 @@ import java.util.regex.*;
 
 public class DatabaseTableProvider implements TableProvider {
     private static final String CORRECT_SYMBOLS = "[^0-9a-zA-Zа-яА-Я]";
+    private static final Pattern PATTERN = Pattern.compile(CORRECT_SYMBOLS);
 
     HashMap<String, MultiFileTable> tables = new HashMap<String, MultiFileTable>();
     private String dataBaseDirectoryPath;
@@ -103,8 +104,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     private void checkNameValidity(String name) {
-        Pattern pattern = Pattern.compile(CORRECT_SYMBOLS);
-        Matcher matcher = pattern.matcher(name);
+        Matcher matcher = PATTERN.matcher(name);
 
         if (matcher.find()) {
             throw new IllegalArgumentException("incorrect table name");

@@ -81,7 +81,7 @@ public class MultiFileTableTest {
             currentTable.put(key, value);
         }
 
-        Assert.assertEquals(2 * KEYS_COUNT, currentTable.commit());
+        Assert.assertEquals(KEYS_COUNT, currentTable.commit());
 
         for (int i = 0; i < 2 * KEYS_COUNT; ++i) {
             String key = "key" + i;
@@ -125,7 +125,7 @@ public class MultiFileTableTest {
             currentTable.put(key, value);
         }
 
-        currentTable.commit();
+        Assert.assertEquals(20, currentTable.commit());
 
         for (int i = 0; i < KEYS_COUNT; ++i) {
             String key = "key" + i;
@@ -138,7 +138,7 @@ public class MultiFileTableTest {
             currentTable.put(key, value);
         }
 
-        Assert.assertEquals(KEYS_COUNT, currentTable.rollback());
+        Assert.assertEquals(0, currentTable.rollback());
 
         currentTable.remove("non-ex0");
         currentTable.remove("non-ex1");
@@ -147,7 +147,7 @@ public class MultiFileTableTest {
 
         currentTable.put("key1", "value1");
 
-        Assert.assertEquals(1, currentTable.rollback());
+        Assert.assertEquals(0, currentTable.rollback());
 
         currentTable.put("key1", "value1");
         currentTable.commit();

@@ -145,7 +145,7 @@ public abstract class AbstractTable implements Table {
 
         for (final String key: modifiedTableHash.keySet()) {
             OldAndNewValue oldAndNewValue = modifiedTableHash.get(key);
-            if (oldAndNewValue.oldValue != oldAndNewValue.newValue) {
+            if (!isEqual(oldAndNewValue.newValue, oldAndNewValue.oldValue)) {
                 if (oldAndNewValue.newValue == null) {
                     tableHash.remove(key);
                 } else {
@@ -177,7 +177,7 @@ public abstract class AbstractTable implements Table {
 
         for (final String key: modifiedTableHash.keySet()) {
             OldAndNewValue oldAndNewValue = modifiedTableHash.get(key);
-            if (oldAndNewValue.oldValue != oldAndNewValue.newValue) {
+            if (!isEqual(oldAndNewValue.newValue, oldAndNewValue.oldValue)) {
                 rollbackChangesNumber += 1;
             }
         }
@@ -190,4 +190,8 @@ public abstract class AbstractTable implements Table {
 		
 		return rollbackChangesNumber;
 	}
+
+    private boolean isEqual(Object o1, Object o2) {
+        return o1 == o2 || (o1 != null && o1.equals(o2));
+    }
 }
