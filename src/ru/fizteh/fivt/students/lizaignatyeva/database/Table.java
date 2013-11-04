@@ -171,6 +171,7 @@ public class Table {
     }
 
     private void writeEntry(String key, String value, BufferedOutputStream outputStream) throws IOException {
+        //write();
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
         outputStream.write(intToBytes(keyBytes.length));
@@ -188,6 +189,7 @@ public class Table {
             File file = FileUtils.mkFile(directory, getFileName(key));
             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath()));
             try {
+                System.out.println("writing " + key);
                 writeEntry(key, value, outputStream);
             } finally {
                 try {
@@ -201,7 +203,7 @@ public class Table {
 
     public void write() {
         //it's a nice debugging tool i'd like to keep here
-        System.out.println("we are off now");
+        System.out.println("we are off now: " + name);
         for (String str : data.keySet()) {
             System.out.println(str + " " + data.get(str));
         }
