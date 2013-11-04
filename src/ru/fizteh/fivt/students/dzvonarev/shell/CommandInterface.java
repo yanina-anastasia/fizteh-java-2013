@@ -5,6 +5,6 @@ import java.util.Vector;
 
 public interface CommandInterface {
 
-    public abstract void execute(Vector<String> args) throws IOException;
+    public abstract void execute(Vector<String> args) throws IOException, IllegalArgumentException, IllegalStateException;
 
 }

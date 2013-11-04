@@ -65,7 +65,7 @@ public class Shell {
                 }
                 try {
                     Shell.run(value);
-                } catch (IOException e) {
+                } catch (IOException | IllegalArgumentException | IllegalStateException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -78,7 +78,7 @@ public class Shell {
         }
         try {     // exit our programm
             Shell.run(input);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException | IllegalStateException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -92,7 +92,7 @@ public class Shell {
             }
             try {
                 Shell.run(value);
-            } catch (IOException e) {
+            } catch (IOException | IllegalArgumentException | IllegalStateException e) {
                 System.out.println(e.getMessage());
                 System.exit(1);
             }
