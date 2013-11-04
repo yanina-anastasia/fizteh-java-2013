@@ -60,7 +60,7 @@ public class MyTable extends State implements Table {
         if (key == null || key.length() == 0) {
             throw new IllegalArgumentException("key is null");
         }
-        if (value == null) {
+        if (value == null || value.length() == 0) {
             throw new IllegalArgumentException("value is null");
         }
 
