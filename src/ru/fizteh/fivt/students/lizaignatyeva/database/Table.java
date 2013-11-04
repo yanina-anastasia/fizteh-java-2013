@@ -59,11 +59,14 @@ public class Table {
 
     private int getDirNumber(String key) {
         byte[] bytes = key.getBytes();
+
+        //System.out.println(String.format(key + " with first byte %d lies in directory %d ", bytes[0], Math.abs(bytes[0]) % 16));
         return Math.abs(bytes[0]) % 16;
     }
 
     private int getFileNumber(String key) {
         byte[] bytes = key.getBytes();
+        //System.out.println(String.format(key + "lies in file %d ", Math.abs(bytes[0]) / 16 % 16));
         return Math.abs(bytes[0]) / 16 % 16;
     }
 
