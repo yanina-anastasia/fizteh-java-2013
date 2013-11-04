@@ -39,7 +39,7 @@ public class CmdUse implements Cmd {
             System.err.println(useTableName + " not exists");
         } else {
             if (workState.getCurrentTable() != null) {
-                int amChanges = ((StoreableTable)workState.currentTable).getAmountOfChanges();
+                int amChanges = ((StoreableTable) workState.currentTable).getAmountOfChanges();
                 if (amChanges != 0) {
                     System.err.println(amChanges + " unsaved changes");
                     return;

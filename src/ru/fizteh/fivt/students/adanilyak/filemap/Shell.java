@@ -53,7 +53,7 @@ public class Shell {
         System.out.println(state);
     }
 
-    public void exit() throws Exception{
+    public void exit() throws Exception {
         WorkWithBytes.writeIntoFile(dataBaseFileName, state);
     }
 }

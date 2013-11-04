@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.adanilyak.tools;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableRow;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class CheckOnCorrect {
     }
 
     public static boolean goodColumnTypes(List<Class<?>> givenTypes) {
-        if (givenTypes == null) {
+        if (givenTypes == null || givenTypes.size() == 0) {
             return false;
         }
         for (Class<?> type : givenTypes) {
@@ -57,12 +56,17 @@ public class CheckOnCorrect {
         if (givenStoreable == null) {
             return false;
         }
+        Integer NlTestCount = 0;
         for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
-            if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
-                return false;
+            if (givenStoreable.getColumnAt(i) == null) {
+                ++NlTestCount;
+            } else {
+                if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
+                    return false;
+                }
             }
         }
-        return true;
+        return  (NlTestCount != givenTable.getColumnsCount());
     }
 }
 

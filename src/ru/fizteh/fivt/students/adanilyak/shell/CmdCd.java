@@ -14,7 +14,7 @@ public class CmdCd {
         return amArgs;
     }
 
-    public void work(String arg, Shell shell) throws  IOException {
+    public void work(String arg, Shell shell) throws IOException {
         File newFile = new File(arg);
         if (newFile.isFile()) {
             throw new IOException("It's not directory");

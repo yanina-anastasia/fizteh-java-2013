@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.adanilyak.storeable;
 
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableShell;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 
 /**

@@ -70,7 +70,7 @@ public class StoreableTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (!CheckOnCorrect.goodArg(key) || value == null) {
+        if (!CheckOnCorrect.goodArg(key) || !CheckOnCorrect.goodStoreableRow(this, value)) {
             throw new IllegalArgumentException("put: key or value is bad");
         }
         if (!CheckOnCorrect.goodStoreableRow(this, value)) {
@@ -123,8 +123,7 @@ public class StoreableTable implements Table {
 
     @Override
     public int commit() {
-        int result = 0;
-        CountingTools.correctCountingOfChangesInStoreable(data, changes, removedKeys);
+        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes, removedKeys);
         for (String key : removedKeys) {
             data.remove(key);
         }
@@ -140,8 +139,7 @@ public class StoreableTable implements Table {
 
     @Override
     public int rollback() {
-        int result = 0;
-        CountingTools.correctCountingOfChangesInStoreable(data, changes, removedKeys);
+        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes, removedKeys);
         setDefault();
         return result;
     }

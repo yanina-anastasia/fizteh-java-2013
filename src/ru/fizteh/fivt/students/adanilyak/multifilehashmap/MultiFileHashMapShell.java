@@ -14,7 +14,8 @@ import java.io.File;
  * Time: 16:40
  */
 public class MultiFileHashMapShell extends GenericShell {
-    public MultiFileHashMapShell(){}
+    public MultiFileHashMapShell() {
+    }
 
     public MultiFileHashMapShell(String[] args) {
         String workingDirectory = System.getProperty("fizteh.db.dir");

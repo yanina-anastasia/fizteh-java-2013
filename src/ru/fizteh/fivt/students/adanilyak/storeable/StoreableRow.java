@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.adanilyak.storeable;
 
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +15,6 @@ import java.util.List;
 public class StoreableRow implements Storeable {
     private List<Class<?>> types;
     private List<Object> row;
-
-    public StoreableRow(List<Class<?>> givenTypes) {
-        types = givenTypes;
-        row = new ArrayList<>(types.size());
-    }
 
     public StoreableRow(Table givenTable) {
         types = new ArrayList<>();
@@ -81,40 +76,36 @@ public class StoreableRow implements Storeable {
 
     @Override
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Integer)getSomethingAt(columnIndex, Integer.class);
+        return (Integer) getSomethingAt(columnIndex, Integer.class);
     }
 
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Long)getSomethingAt(columnIndex, Long.class);
+        return (Long) getSomethingAt(columnIndex, Long.class);
     }
 
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Byte)getSomethingAt(columnIndex, Byte.class);
+        return (Byte) getSomethingAt(columnIndex, Byte.class);
     }
 
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Float)getSomethingAt(columnIndex, Float.class);
+        return (Float) getSomethingAt(columnIndex, Float.class);
     }
 
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Double)getSomethingAt(columnIndex, Double.class);
+        return (Double) getSomethingAt(columnIndex, Double.class);
     }
 
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Boolean)getSomethingAt(columnIndex, Boolean.class);
+        return (Boolean) getSomethingAt(columnIndex, Boolean.class);
     }
 
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (String)getSomethingAt(columnIndex, String.class);
-    }
-
-    public List<Class<?>> getListOfTypes() {
-        return types;
+        return (String) getSomethingAt(columnIndex, String.class);
     }
 }
