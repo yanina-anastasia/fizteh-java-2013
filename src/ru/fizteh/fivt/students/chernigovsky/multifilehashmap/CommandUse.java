@@ -17,7 +17,14 @@ public class CommandUse implements Command {
         if (state.getCurrentTableProvider().getTable(args[1]) == null) {
             System.out.println(args[1] + " not exists");
             return;
+        } else {
+            if (state.getCurrentTable() != null) {
+                MultiFileHashMapUtils.writeTable(state);
+            }
+
+            state.changeCurrentTable(state.getCurrentTableProvider().getTable(args[1]));
+            MultiFileHashMapUtils.readTable(state);
+            System.out.println("using " + args[1]);
         }
-        state.changeCurrentTable(state.getCurrentTableProvider().getTable(args[1]));
     }
 }

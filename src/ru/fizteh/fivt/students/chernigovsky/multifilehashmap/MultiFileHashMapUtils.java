@@ -29,9 +29,10 @@ public class MultiFileHashMapUtils {
         }
     }
 
-    public static void readTable(File tableFolder, ExtendedTable table) throws IOException {
+    public static void readTable(State state) throws IOException {
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
+            File tableFolder = new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName());
             File directory = new File(tableFolder, directoryNumber.toString() + ".dir");
             if (!directory.exists()) {
                 continue;
@@ -82,7 +83,7 @@ public class MultiFileHashMapUtils {
 
                         String key = new String(keyBytes, "UTF-8");
                         String value = new String(valueBytes, "UTF-8");
-                        table.put(key, value);
+                        state.getCurrentTable().put(key, value);
                     }
                 } finally {
                     dataInputStream.close();
@@ -93,17 +94,20 @@ public class MultiFileHashMapUtils {
         }
     }
 
-    public static void writeTable(File tableFolder, ExtendedTable table) throws IOException {
+    public static void writeTable(State state) throws IOException {
+
+        state.getCurrentTable().commit();
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
                 HashMap<String, String> currentMap = new HashMap<String, String>();
-                for (Map.Entry<String, String> entry : table.getEntrySet()) {
+                for (Map.Entry<String, String> entry : state.getCurrentTable().getEntrySet()) {
                     if (Math.abs(entry.getKey().getBytes("UTF-8")[0]) % 16 == directoryNumber && Math.abs(entry.getKey().getBytes("UTF-8")[0]) / 16 % 16 == fileNumber) {
                         currentMap.put(entry.getKey(), entry.getValue());
                     }
                 }
 
+                File tableFolder = new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName());
                 File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
                 File file = new File(dir, fileNumber.toString() + ".dat");
 

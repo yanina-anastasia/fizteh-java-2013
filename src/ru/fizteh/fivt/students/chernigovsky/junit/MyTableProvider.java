@@ -22,7 +22,7 @@ public class MyTableProvider implements ExtendedTableProvider {
                 ExtendedTable newTable = new MyTable(string);
                 tableHashMap.put(string, newTable);
                 try {
-                    MultiFileHashMapUtils.readTable(new File(dbDirectory, string), newTable);
+                    MultiFileHashMapUtils.readTable(new State(newTable, this));
                 } catch (IOException ex) {
                     throw new RuntimeException();
                 }

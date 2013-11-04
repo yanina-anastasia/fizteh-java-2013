@@ -6,9 +6,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 import ru.fizteh.fivt.students.chernigovsky.filemap.*;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class Main {
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
         String dbPath = System.getProperty("fizteh.db.dir");
@@ -22,8 +25,8 @@ public class Main {
             System.exit(1);
         }
 
-        StateProvider stateProvider = new StateProvider(dbDirectory);
-        stateProvider.changeCurrentState(null);
+        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory);
+        State state = new State(null, tableProvider);
 
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());
@@ -34,7 +37,7 @@ public class Main {
         commandMap.put("use", new CommandUse());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, stateProvider);
+            interactiveMode(commandMap, state);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -42,11 +45,11 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, stateProvider);
+            batchMode(commands, commandMap, state);
         }
 
         try {
-             MultiFileHashMapUtils.writeTable(new File(dbDirectory, stateProvider.getCurrentState().getTableName()), stateProvider.getCurrentState());
+             MultiFileHashMapUtils.writeTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -54,25 +57,22 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, StateProvider stateProvider) {
+    private static void interactiveMode(Map<String, Command> commandMap, State state) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
             String string = scanner.nextLine();
             try {
-                parseCommands(string, commandMap, stateProvider);
+                parseCommands(string, commandMap, state);
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
-                if (stateProvider.getCurrentState() != null) {
-                    File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
-                    if (currentTable != null) {
-                        try {
-                            MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
-                        } catch (IOException exc) {
-                            System.err.println(exc.getMessage());
-                            System.exit(1);
-                        }
+                if (state.getCurrentTable() != null) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(state);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
                     }
                 }
                 System.exit(0);
@@ -81,28 +81,25 @@ public class Main {
         }
     }
 
-    private static void batchMode(String commands, Map<String, Command> commandMap, StateProvider stateProvider) {
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state) {
         try {
-            parseCommands(commands, commandMap, stateProvider);
+            parseCommands(commands, commandMap, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
-            if (stateProvider.getCurrentState() != null) {
-                File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
-                if (currentTable.exists()) {
-                    try {
-                        MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
-                    } catch (IOException exc) {
-                        System.err.println(exc.getMessage());
-                        System.exit(1);
-                    }
+            if (state.getCurrentTable() != null) {
+                try {
+                    MultiFileHashMapUtils.writeTable(state);
+                } catch (IOException exc) {
+                    System.err.println(exc.getMessage());
+                    System.exit(1);
                 }
             }
             System.exit(0);
         }
     }
 
-    private static void parseCommands(String commands, Map<String, Command> commandMap, StateProvider stateProvider) throws IOException, ExitException {
+    private static void parseCommands(String commands, Map<String, Command> commandMap, State state) throws IOException, ExitException {
         String[] listOfCommand = commands.trim().split("\\s*;\\s*");
         for (String string : listOfCommand) {
             String[] commandArguments = string.split("\\s+");
@@ -113,10 +110,9 @@ public class Main {
             if (commandArguments.length != command.getArgumentsCount() + 1) {
                 throw new IOException("Wrong argument count");
             } else {
-                command.execute(stateProvider, commandArguments);
+                command.execute(state, commandArguments);
             }
         }
 
     }
-    */
 }
