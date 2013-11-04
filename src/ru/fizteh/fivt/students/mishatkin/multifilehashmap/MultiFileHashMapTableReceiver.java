@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapDatabaseException;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiver;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiverProtocol;
+import ru.fizteh.fivt.students.mishatkin.shell.ShellException;
 import ru.fizteh.fivt.students.mishatkin.shell.TimeToExitException;
 
 import java.io.File;
@@ -174,6 +175,11 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 
 	@Override
 	public int size() {
+		try {
+			forceInitDataFiles();
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
 		int retValue = 0;
 		for (FileMapReceiver possibleTableFile : tableFiles) {
 			if (possibleTableFile != null) {
@@ -183,13 +189,29 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 		return retValue;
 	}
 
+	private void forceInitDataFiles() throws MultiFileHashMapException {
+		int mod = MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
+		for (int directoryIndex = 0; directoryIndex < mod; ++directoryIndex) {
+			for (int fileIndex = 0; fileIndex < mod; ++ fileIndex) {
+				FileMapReceiver initializedDataFile = tableForDirectoryAndFileIndexes(directoryIndex, fileIndex, mod);
+				int indexInFilesList = directoryIndex * mod + fileIndex;
+				tableFiles.set(indexInFilesList, initializedDataFile);
+			}
+		}
+	}
+
 	@Override
 	public int commit() {
 		int retValue = 0;
-		for (FileMapReceiver possibleTableFile : tableFiles) {
-			if (possibleTableFile != null) {
-				retValue += possibleTableFile.commit();
+		try {
+			for (FileMapReceiver possibleTableFile : tableFiles) {
+				if (possibleTableFile != null) {
+					retValue += possibleTableFile.commit();
+				}
 			}
+		} catch (ShellException e) {
+			System.err.println(e.getMessage());
+			return 0;
 		}
 		return retValue;
 	}
@@ -205,4 +227,13 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 		return retValue;
 	}
 
+	public int getUnstagedChangesCount() {
+		int retValue = 0;
+		for (FileMapReceiver possibleTableFile : tableFiles) {
+			if (possibleTableFile != null) {
+				retValue += possibleTableFile.getUnstagedChangesCount();
+			}
+		}
+		return retValue;
+	}
 }

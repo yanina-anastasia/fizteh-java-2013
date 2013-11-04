@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.mishatkin.shell.*;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,7 +14,12 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	private File dbFile;
 	private File dbFileOwningDirectory;
-	private HashMap<String, String> dictionary = new HashMap<>();
+	private Map<String, String> dictionary = new HashMap<>();
+
+	private Map<String, String> originalDictionaryPart = new HashMap<>();
+	private Map<String, String> unstagedDictionaryPart = new HashMap<>();
+
+	private int completelyNewKeysCount;
 
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
@@ -28,6 +34,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, ShellPrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
+		this.completelyNewKeysCount = 0;
 		FileInputStream in = null;
 		try {
 			assert dbDirectory != null;
@@ -84,9 +91,16 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	public String putCommand(String key, String value) {
 		String oldValue = dictionary.get(key);
 		if (oldValue != null) {
+			if (value.equals(originalDictionaryPart.get(key))) {
+				originalDictionaryPart.remove(key);
+			} else {
+				originalDictionaryPart.put(key, oldValue);
+			}
 			println("overwrite");
 			println(oldValue);
 		} else {
+			unstagedDictionaryPart.put(key, value);
+			++completelyNewKeysCount;
 			println("new");
 		}
 		dictionary.put(key, value);
@@ -95,8 +109,17 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	@Override
 	public String removeCommand(String key) {
+		String oldValue = dictionary.get(key);
 		String retValue = dictionary.remove(key);
-		if (retValue != null){
+		if (retValue != null) {
+			if (originalDictionaryPart.get(key) == null) {
+				if (unstagedDictionaryPart.remove(key) != null) {
+					--completelyNewKeysCount;
+				}
+				if (oldValue != null) {
+					originalDictionaryPart.put(key, oldValue);
+				}
+			}
 			println("removed");
 		} else {
 			println("not found");
@@ -110,7 +133,6 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		if (value != null) {
 			println("found");
 			println(value);
-
 		} else {
 			println("not found");
 		}
@@ -151,6 +173,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 				}
 			}
 		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
 			throw new ShellException("OK, now someone just took the file out of me, so I cannot even rewrite it.");
 		} finally {
 			try {
@@ -174,18 +197,40 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		return doConform;
 	}
 
+	public int getUnstagedChangesCount() {
+		int match = 0;
+		for (String key : originalDictionaryPart.keySet()) {
+			if (dictionary.get(key) != null && dictionary.get(key).equals(originalDictionaryPart.get(key))) {
+				++match;
+			}
+		}
+		return originalDictionaryPart.size() + completelyNewKeysCount - match;
+	}
+
 	public int size() {
 		//TODO: modify this as new owning maps appear according to their states
+		//or mby not
 		return dictionary.size();
 	}
 
-	public int commit() {
-		//TODO: implement this stub
-		return 0;
+	public int commit() throws ShellException {
+		int retValue = getUnstagedChangesCount();
+		writeChangesToFile();
+		originalDictionaryPart.clear();
+		unstagedDictionaryPart.clear();
+		return retValue;
 	}
 
 	public int rollback() {
-		//TODO: implement this stub
-		return 0;
+		int retValue = getUnstagedChangesCount();
+		for (String key : unstagedDictionaryPart.keySet()) {
+			dictionary.remove(key);
+		}
+		for (String key : originalDictionaryPart.keySet()) {
+			dictionary.put(key, originalDictionaryPart.get(key));
+		}
+		originalDictionaryPart.clear();
+		unstagedDictionaryPart.clear();
+		return retValue;
 	}
 }

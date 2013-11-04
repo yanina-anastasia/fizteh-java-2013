@@ -23,7 +23,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	Map<String, MultiFileHashMapTableReceiver> allTables = new HashMap<>();
 
-	private MultiFileHashMapTableReceiver table;	//	the one that is in use
+	protected MultiFileHashMapTableReceiver table;	//	the one that is in use
 
 	public MultiFileHashMapReceiver(PrintStream out, boolean interactiveMode, String dbDirectory) {
 		super(out, interactiveMode);
@@ -42,10 +42,12 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 			for (File subFile :subFiles) {
 				if (subFile.isDirectory()) {
 					String existingTableName = subFile.getName();
-					MultiFileHashMapTableReceiver existingTable = new MultiFileHashMapTableReceiver(existingTableName);
-					existingTable.setDelegate(this);
-					existingTable.setTableName(existingTableName);
-					allTables.put(existingTableName, existingTable);
+					if (existingTableName != null) {
+						MultiFileHashMapTableReceiver existingTable = new MultiFileHashMapTableReceiver(existingTableName);
+						existingTable.setDelegate(this);
+						existingTable.setTableName(existingTableName);
+						allTables.put(existingTableName, existingTable);
+					}
 				}
 			}
 		}
@@ -132,7 +134,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	@Override
 	public String getCommand(String key) throws MultiFileHashMapException {
-		if (table.isSet()) {
+		if (table != null && table.isSet()) {
 			return table.getCommand(key);
 		} else {
 			println("no table");
@@ -142,7 +144,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	@Override
 	public String removeCommand(String key) throws MultiFileHashMapException {
-		if (table.isSet()) {
+		if (table != null  && table.isSet()) {
 			return table.removeCommand(key);
 		} else {
 			println("no table");
