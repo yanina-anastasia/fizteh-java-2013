@@ -35,10 +35,14 @@ public class JSONserializer {
             if (table.getColumnType(i) != currentType) {
                 throw new ColumnFormatException("JSONserializer: serialize: value not suitable for this table");
             }
-            if (currentType != String.class) {
-                result.append("\"" + i.toString() + "\":" + value.getColumnAt(i).toString());
+            if (value.getColumnAt(i) != null) {
+                if (currentType != String.class) {
+                    result.append("\"" + i.toString() + "\":" + value.getColumnAt(i).toString());
+                } else {
+                    result.append("\"" + i.toString() + "\":" + value.getStringAt(i));
+                }
             } else {
-                result.append("\"" + i.toString() + "\":" + value.getStringAt(i));
+                result.append("\"" + i.toString() + "\":" + "null");
             }
             if (i != columnsCountOfGivenTable - 1) {
                 result.append(", ");
