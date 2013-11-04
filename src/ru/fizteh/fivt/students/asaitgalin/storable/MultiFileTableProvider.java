@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.asaitgalin.storable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 
 import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTable;
 import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTableProvider;
@@ -68,7 +67,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             throw new IllegalArgumentException("provider, create: columnTypes are null or empty");
         }
         for (Class<?> cl : columnTypes) {
-            if (cl == null) {
+            if (cl == null || !isValidColumn(cl)) {
                 throw new IllegalArgumentException("provider, create: column type can not be null");
             }
         }
@@ -154,4 +153,25 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         row.setAllColumns(values);
         return row;
     }
+
+    private boolean isValidColumn(Class<?> cl) {
+        switch (MultiFileTableUtils.getColumnTypeString(cl)) {
+            case "int":
+                return true;
+            case "long":
+                return true;
+            case "byte":
+                return true;
+            case "float":
+                return true;
+            case "double":
+                return true;
+            case "boolean":
+                return true;
+            case "String":
+                return true;
+        }
+        return false;
+    }
+
 }
