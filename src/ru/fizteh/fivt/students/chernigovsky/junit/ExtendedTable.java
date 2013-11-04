@@ -7,4 +7,5 @@ import java.util.Set;
 
 public interface ExtendedTable extends Table {
     Set<Map.Entry<String, String>> getEntrySet();
+    int getDiffCount();
 }

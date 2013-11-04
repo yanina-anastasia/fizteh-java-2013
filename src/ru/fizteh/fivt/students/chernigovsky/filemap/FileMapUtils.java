@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
-
 import java.io.*;
 import java.util.Map;
 

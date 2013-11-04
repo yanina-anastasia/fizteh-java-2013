@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.chernigovsky.junit;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.chernigovsky.filemap.State;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,14 +9,16 @@ public class MyTable implements ExtendedTable {
     private HashMap<String, String> newEntries;
     private HashMap<String, String> changedEntries;
     private HashMap<String, String> removedEntries;
+    boolean autoCommit;
     String tableName;
 
     public Set<Map.Entry<String, String>> getEntrySet() {
         return hashMap.entrySet();
     }
 
-    public MyTable(String name) {
+    public MyTable(String name, boolean flag) {
         tableName = name;
+        autoCommit = flag;
         hashMap = new HashMap<String, String>();
         newEntries = new HashMap<String, String>();
         changedEntries = new HashMap<String, String>();
@@ -28,6 +27,10 @@ public class MyTable implements ExtendedTable {
 
     public String getName(){
         return tableName;
+    }
+
+    public int getDiffCount() {
+        return newEntries.size() + changedEntries.size() + removedEntries.size();
     }
 
     /**
@@ -64,14 +67,8 @@ public class MyTable implements ExtendedTable {
      *
      * @throws IllegalArgumentException Если значение параметров key или value является null.
      */
-    public String put(String key, String value) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("key is null");
-        }
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("value is null");
-        }
 
+    private String putting(String key, String value) {
         if (hashMap.get(key) == null) {
             return newEntries.put(key, value);
         } else {
@@ -97,6 +94,23 @@ public class MyTable implements ExtendedTable {
                 return changedEntries.put(key, value);
             }
         }
+
+    }
+
+    public String put(String key, String value) {
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("key is null");
+        }
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("value is null");
+        }
+
+        String ans = putting(key, value);
+        if (autoCommit) {
+            commit();
+        }
+        return ans;
+
     }
 
     /**
@@ -107,10 +121,8 @@ public class MyTable implements ExtendedTable {
      *
      * @throws IllegalArgumentException Если значение параметра key является null.
      */
-    public String remove(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
-        }
+
+    private String removing(String key) {
         if (removedEntries.get(key) != null) {
             return null;
         }
@@ -128,6 +140,19 @@ public class MyTable implements ExtendedTable {
         return null;
     }
 
+    public String remove(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key is null");
+        }
+
+        String ans = removing(key);
+        if (autoCommit) {
+            commit();
+        }
+        return ans;
+
+    }
+
     /**
      * Возвращает количество ключей в таблице.
      *
@@ -143,7 +168,7 @@ public class MyTable implements ExtendedTable {
      * @return Количество сохранённых ключей.
      */
     public int commit() {
-        int changed = newEntries.size() + changedEntries.size() + removedEntries.size();
+        int changed = getDiffCount();
 
         for (Map.Entry<String, String> entry : newEntries.entrySet()) {
             hashMap.put(entry.getKey(), entry.getValue());
@@ -169,7 +194,7 @@ public class MyTable implements ExtendedTable {
      * @return Количество отменённых ключей.
      */
     public int rollback() {
-        int changed = newEntries.size() + changedEntries.size() + removedEntries.size();
+        int changed = getDiffCount();
 
         newEntries.clear();
         changedEntries.clear();

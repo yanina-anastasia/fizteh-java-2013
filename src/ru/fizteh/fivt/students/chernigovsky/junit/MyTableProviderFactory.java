@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.chernigovsky.junit;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
@@ -23,6 +22,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("no such directory");
         }
 
-        return new MyTableProvider(dbDirectory);
+        return new MyTableProvider(dbDirectory, false);
     }
 }

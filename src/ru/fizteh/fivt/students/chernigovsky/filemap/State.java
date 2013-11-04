@@ -1,11 +1,7 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
 import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class State {
     private ExtendedTable currentTable;

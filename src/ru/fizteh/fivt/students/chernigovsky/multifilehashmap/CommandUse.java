@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
 
-import java.io.File;
 import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
@@ -14,6 +13,11 @@ public class CommandUse implements Command {
         return 1;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
+        if (state.getCurrentTable().getDiffCount() != 0) {
+            System.out.print(state.getCurrentTable().getDiffCount());
+            System.out.println(" unsaved changes");
+            return;
+        }
         if (state.getCurrentTableProvider().getTable(args[1]) == null) {
             System.out.println(args[1] + " not exists");
             return;

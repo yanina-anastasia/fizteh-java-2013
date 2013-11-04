@@ -25,7 +25,7 @@ public class Main {
             System.exit(1);
         }
 
-        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory);
+        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory, false);
         State state = new State(null, tableProvider);
 
         commandMap.put("put", new CommandPut());

@@ -30,8 +30,8 @@ public class Main {
             }
         }
 
-        ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory);
-        ExtendedTable myTable = new MyTable("db.dat");
+        ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory, true);
+        ExtendedTable myTable = new MyTable("db.dat", true);
         State state = new State(myTable, myTableProvider);
 
         try {
