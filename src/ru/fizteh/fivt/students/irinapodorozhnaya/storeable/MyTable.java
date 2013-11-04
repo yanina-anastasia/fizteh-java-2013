@@ -66,7 +66,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
             throw new IllegalArgumentException("null argument in put");
         }
         int size = columnType.size();
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < size; ++i) {/*
             try {
                     Object valueI = value.getColumnAt(i);
                     if (valueI != null && valueI.getClass() != columnType.get(i)) {
@@ -74,7 +74,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
                     }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException(e);
-            }
+            }*/
         }
         return super.put(key, value);
      }
