@@ -3,13 +3,19 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Vector;
 
-public class Put implements CommandInterface {
+public class DataBasePut implements CommandInterface {
 
-    public void execute(Vector<String> args) throws IOException {
-        if (MultiFileMap.getWorkingTable().equals("noTable")) {
+    public DataBasePut(MyTableProvider newTableProvider) {
+        tableProvider = newTableProvider;
+    }
+
+    private MyTableProvider tableProvider;
+
+    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
+        String tableName = tableProvider.getCurrentTable();
+        if (tableName == null) {
             throw new IOException("no table");
         }
         String str = args.elementAt(0);
@@ -27,19 +33,14 @@ public class Put implements CommandInterface {
             ++newSpaceIndex;
         }
         String value = str.substring(newSpaceIndex + 1, str.length());
-        String currTable = MultiFileMap.getWorkingTable();
-        HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
-        if (fileMap == null) {
-            fileMap = new HashMap<>();
-        }
-        if (fileMap.containsKey(key)) {
+        MyTable currTable = tableProvider.getTable(tableName);
+        String result = currTable.put(key, value);
+        if (result != null) {
             System.out.println("overwrite");
-            System.out.println(fileMap.get(key));
+            System.out.println(result);
         } else {
             System.out.println("new");
         }
-        fileMap.put(key, value);
-        MultiFileMap.getMultiFileMap().put(currTable, fileMap);
     }
 
 }

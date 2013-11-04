@@ -1,14 +1,20 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
+
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-public class Use implements CommandInterface {
+public class DataBaseUse implements CommandInterface {
 
-    public void execute(Vector<String> args) throws IOException {
+    public DataBaseUse(MyTableProvider newTableProvider) {
+        tableProvider = newTableProvider;
+    }
+
+    private MyTableProvider tableProvider;
+
+    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
         String str = args.elementAt(0);
         int spaceIndex = str.indexOf(' ', 0);
         if (spaceIndex == -1) {
@@ -21,15 +27,15 @@ public class Use implements CommandInterface {
             throw new IOException("use: wrong parameters");
         }
         String tableName = str.substring(spaceIndex + 1, str.length());
-        String path = System.getProperty("fizteh.db.dir") + File.separator + tableName;
-        if ((new File(path)).exists() && (new File(path)).isDirectory()) {
-            System.out.println("using " + tableName);
-            MultiFileMap.changeWorkingTable(tableName);
-        } else {
+        if (tableProvider.getCurrentTable() != null) {
+            MyTable currTable = tableProvider.getTable(tableProvider.getCurrentTable());
+            System.out.println(currTable.getCountOfChanges() + " unsaved changes");
+        }
+        if (tableProvider.changeCurrentTable(tableName) == -1) {
             throw new IOException(tableName + " not exists");
+        } else {
+            System.out.println("using " + tableName);
         }
     }
 
 }
-
-

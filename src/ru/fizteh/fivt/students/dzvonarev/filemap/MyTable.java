@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
+
+import ru.fizteh.fivt.storage.strings.Table;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,74 +13,59 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class MultiFileMap {
+public class MyTable implements Table {
 
-    private static HashMap<String, HashMap<String, String>> multiFileMap;
-
-    private static String workingTable;   // "noTable" means we are not in table
-
-    public static String getWorkingTable() {
-        return workingTable;
+    public MyTable(String newTableName) {
+        tableName = newTableName;
+        fileMap = new HashMap<>();
+        changesMap = new HashMap<>();
+        countOfChanges = 0;
     }
 
-    public static void changeWorkingTable(String newWorkingTable) {
-        workingTable = newWorkingTable;
-    }
+    private String tableName; // current table
+    private HashMap<String, String> fileMap;
+    private HashMap<String, String> changesMap;
+    private int countOfChanges;
 
-    public static HashMap<String, HashMap<String, String>> getMultiFileMap() {
-        return multiFileMap;
+    public int getCountOfChanges() {
+        return countOfChanges;
     }
+    /*
+    public void writeIT() {
+        if (fileMap.isEmpty() || fileMap == null) {
+            System.out.println("empty");
+        }
+        Set fileSet = fileMap.entrySet();
+        Iterator<Map.Entry<String, String>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> currItem = i.next();
+            System.out.println(currItem.getKey() + " " + currItem.getValue());
+        }
+    }
+          */
 
-    public static void readMultiFileMap(String workingDir) throws IOException, RuntimeException {
-        changeWorkingTable("noTable");
-        multiFileMap = new HashMap<>();
-        File currDir = new File(workingDir);
-        if (currDir.exists() && currDir.isDirectory()) {
-            String[] tables = currDir.list();
-            if (tables != null && tables.length != 0) {
-                for (String table : tables) {
-                    File dirTable = new File(workingDir + File.separator + table);
-                    if (dirTable.isFile()) {
-                        continue;
-                    }
-                    String[] dbDirs = dirTable.list();
-                    if (dbDirs != null && dbDirs.length != 0) {
-                        HashMap<String, String> tempMap;
-                        tempMap = new HashMap<>();
-                        for (String dbDir : dbDirs) {
-                            if (!isValidDir(dbDir)) {
-                                throw new RuntimeException("directory " + dbDir + " is not valid");
-                            }
-                            File dbDirTable = new File(workingDir + File.separator + table + File.separator + dbDir);
-                            String[] dbDats = dbDirTable.list();
-                            if (dbDats == null || dbDats.length == 0) {
-                                throw new RuntimeException("reading directory: " + table + " is not valid");
-                            }
-                            for (String dbDat : dbDats) {
-                                String str = workingDir + File.separator + table + File.separator + dbDir + File.separator + dbDat;
-                                readFileMap(tempMap, str, dbDir, dbDat); // table -> all |"key"|"value"|
-                            }
-                        }
-                        multiFileMap.put(table, tempMap);
-                    }
+    public void readFileMap() throws RuntimeException, IOException {
+        String[] dbDirs = (new File(tableName)).list();
+        if (dbDirs != null && dbDirs.length != 0) {
+            for (String dbDir : dbDirs) {
+                if (!isValidDir(dbDir)) {
+                    throw new RuntimeException("directory " + dbDir + " is not valid");
                 }
-                for (String table : tables) {
-                    if (new File(workingDir + File.separator + table).isFile()) {
-                        continue;
-                    }
-                    ShellRemove.execute(table);
-                    if (!(new File(workingDir + File.separator + table)).mkdir()) {
-                        throw new IOException("exit: can't make " + table + " directory");
-                    }
+                File dbDirTable = new File(tableName + File.separator + dbDir);
+                String[] dbDats = dbDirTable.list();
+                if (dbDats == null || dbDats.length == 0) {
+                    throw new RuntimeException("reading directory: " + tableName + " is not valid");
+                }
+                for (String dbDat : dbDats) {
+                    String str = tableName + File.separator + dbDir + File.separator + dbDat;
+                    readMyFileMap(str, dbDir, dbDat);
                 }
             }
-        } else {
-            throw new RuntimeException("working directory is not valid");
         }
     }
 
-
-    public static void readFileMap(HashMap<String, String> fileMap, String fileName, String dir, String file) throws IOException, RuntimeException {
+    /* READING FILEMAP */
+    public void readMyFileMap(String fileName, String dir, String file) throws IOException, RuntimeException {
         RandomAccessFile fileReader = openFileForRead(fileName);
         long endOfFile = fileReader.length();
         long currFilePosition = fileReader.getFilePointer();
@@ -110,13 +98,23 @@ public class MultiFileMap {
                 throw new RuntimeException("file " + file + " in " + dir + " is not valid");
             }
             fileMap.put(key, value);
+            changesMap.put(key, value);
             currFilePosition = fileReader.getFilePointer();
             endOfFile = fileReader.length();
         }
         closeFile(fileReader);
     }
 
-    public static boolean isFilesInDirValid(String dirName) {
+    public boolean keyIsValid(String key, String dir, String file) {
+        int b = key.getBytes()[0];
+        int nDirectory = Math.abs(b) % 16;
+        int nFile = Math.abs(b) / 16 % 16;
+        String rightDir = Integer.toString(nDirectory) + ".dir";
+        String rightFile = Integer.toString(nFile) + ".dat";
+        return (dir.equals(rightDir) && file.equals(rightFile));
+    }
+
+    public boolean isFilesInDirValid(String dirName) {
         File dir = new File(dirName);
         String[] file = dir.list();
         if (file == null || file.length == 0) {
@@ -136,7 +134,7 @@ public class MultiFileMap {
         return true;
     }
 
-    public static boolean isValidDir(String path) {
+    public boolean isValidDir(String path) {
         File dir = new File(path);
         String[] file = dir.list();
         if (file == null || file.length == 0) {
@@ -157,17 +155,7 @@ public class MultiFileMap {
         return true;
     }
 
-    public static boolean keyIsValid(String key, String dir, String file) {
-        int b = key.getBytes()[0];
-        int nDirectory = Math.abs(b) % 16;
-        int nFile = Math.abs(b) / 16 % 16;
-        String rightDir = Integer.toString(nDirectory) + ".dir";
-        String rightFile = Integer.toString(nFile) + ".dat";
-        return (dir.equals(rightDir) && file.equals(rightFile));
-    }
-
-    public static void writeMap(HashMap<String, HashMap<String, String>> map, String table) throws IOException {
-        HashMap<String, String> fileMap = map.get(table);
+    public void writeInTable() throws IOException {
         if (fileMap == null) {
             return;
         } else {
@@ -186,9 +174,9 @@ public class MultiFileMap {
             int nFile = Math.abs(b) / 16 % 16;
             String rightDir = Integer.toString(nDirectory) + ".dir";
             String rightFile = Integer.toString(nFile) + ".dat";
-            String path = System.getProperty("fizteh.db.dir") + File.separator + table +
+            String path = tableName +
                     File.separator + rightDir + File.separator + rightFile;
-            String dir = System.getProperty("fizteh.db.dir") + File.separator + table +
+            String dir = tableName +
                     File.separator + rightDir;
             File file = new File(path);
             File fileDir = new File(dir);
@@ -206,12 +194,12 @@ public class MultiFileMap {
         }
     }
 
-    public static void writeInFile(String path, String key, String value) throws IOException {
-        RandomAccessFile fileWriter = MultiFileMap.openFileForWrite(path);
+    public void writeInFile(String path, String key, String value) throws IOException {
+        RandomAccessFile fileWriter = openFileForWrite(path);
         fileWriter.skipBytes((int) fileWriter.length());
         try {
             if (key == null || value == null) {
-                MultiFileMap.closeFile(fileWriter);
+                closeFile(fileWriter);
                 throw new IOException("updating file: error in writing");
             }
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
@@ -223,12 +211,11 @@ public class MultiFileMap {
         } catch (IOException e) {
             throw new IOException("updating file: error in writing");
         } finally {
-            MultiFileMap.closeFile(fileWriter);
+            closeFile(fileWriter);
         }
     }
 
-
-    public static RandomAccessFile openFileForRead(String fileName) throws IOException {
+    public RandomAccessFile openFileForRead(String fileName) throws IOException {
         RandomAccessFile newFile;
         try {
             newFile = new RandomAccessFile(fileName, "rw");
@@ -238,7 +225,7 @@ public class MultiFileMap {
         return newFile;
     }
 
-    public static RandomAccessFile openFileForWrite(String fileName) throws IOException {
+    public RandomAccessFile openFileForWrite(String fileName) throws IOException {
         RandomAccessFile newFile;
         try {
             newFile = new RandomAccessFile(fileName, "rw");
@@ -248,12 +235,93 @@ public class MultiFileMap {
         return newFile;
     }
 
-    public static void closeFile(RandomAccessFile file) throws IOException {
+    public void closeFile(RandomAccessFile file) throws IOException {
         try {
             file.close();
         } catch (IOException e) {
             throw new IOException("error in closing file");
         }
+    }
+
+    @Override
+    public String getName() {
+        return tableName;
+    }
+
+    @Override
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("get: wrong key");
+        }
+        if (changesMap.containsKey(key)) {
+            return changesMap.get(key);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("put: wrong key and value");
+        }
+        if (changesMap.containsKey(key)) {
+            String oldValue = changesMap.get(key);
+            changesMap.put(key, value);
+            if (!oldValue.equals(value)) {
+                ++countOfChanges;
+            }
+            return oldValue;
+        } else {
+            if (!(fileMap.containsKey(key) && fileMap.get(key).equals(value))) {
+                ++countOfChanges;
+            } else {
+                --countOfChanges;
+            }
+            changesMap.put(key, value);
+            return null;
+        }
+    }
+
+    @Override
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("remove: wrong key");
+        }
+        if (changesMap.containsKey(key)) {
+            String value = changesMap.get(key);
+            changesMap.remove(key);
+            if (!(fileMap.containsKey(key) && fileMap.get(key).equals(value))) {
+                --countOfChanges;
+            } else {
+                ++countOfChanges;
+            }
+            return value;
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
+    public int size() {
+        return fileMap.size();
+    }
+
+    @Override
+    public int commit() {
+        fileMap = changesMap;
+        int count = countOfChanges;
+        countOfChanges = 0;
+        return count;
+    }
+
+    @Override
+    public int rollback() {
+        changesMap = fileMap;
+        int count = countOfChanges;
+        countOfChanges = 0;
+        return count;
     }
 
 }
