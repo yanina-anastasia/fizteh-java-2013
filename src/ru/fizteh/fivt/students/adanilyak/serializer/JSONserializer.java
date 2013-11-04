@@ -31,11 +31,11 @@ public class JSONserializer {
         StringBuilder result = new StringBuilder("{");
         Integer columnsCountOfGivenTable = table.getColumnsCount();
         for (Integer i = 0; i < columnsCountOfGivenTable; ++i) {
-            Class<?> currentType = value.getColumnAt(i).getClass();
-            if (table.getColumnType(i) != currentType) {
-                throw new ColumnFormatException("JSONserializer: serialize: value not suitable for this table");
-            }
             if (value.getColumnAt(i) != null) {
+                Class<?> currentType = value.getColumnAt(i).getClass();
+                if (table.getColumnType(i) != currentType) {
+                    throw new ColumnFormatException("JSONserializer: serialize: value not suitable for this table");
+                }
                 if (currentType != String.class) {
                     result.append("\"" + i.toString() + "\":" + value.getColumnAt(i).toString());
                 } else {
