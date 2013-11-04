@@ -5,8 +5,6 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
-import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
-
 
 public class CommandCreate implements Command {
     public String getName() {
@@ -15,16 +13,10 @@ public class CommandCreate implements Command {
     public int getArgumentsCount() {
         return 1;
     }
-    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
-        State newState = new State(args[1]);
-        File table = new File(stateProvider.getDbDirectory(), args[1]);
-        if (table.exists()) {
+    public void execute(State state, String[] args) throws IOException, ExitException {
+        if (state.getCurrentTableProvider().createTable(args[1]) == null) {
             System.out.println(args[1] + " exists");
         } else {
-            table.mkdir();
-            if (!table.exists()) {
-                throw new IOException("Can't create directory");
-            }
             System.out.println("created");
         }
     }

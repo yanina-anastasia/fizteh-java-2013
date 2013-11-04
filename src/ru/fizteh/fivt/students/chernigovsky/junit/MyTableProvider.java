@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.chernigovsky.filemap.State;
-import ru.fizteh.fivt.students.chernigovsky.filemap.StateProvider;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;

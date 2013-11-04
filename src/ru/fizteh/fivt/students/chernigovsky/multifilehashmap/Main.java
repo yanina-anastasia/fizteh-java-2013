@@ -8,7 +8,7 @@ import java.util.Scanner;
 import ru.fizteh.fivt.students.chernigovsky.filemap.*;
 
 public class Main {
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
         String dbPath = System.getProperty("fizteh.db.dir");
@@ -118,5 +118,5 @@ public class Main {
         }
 
     }
-
+    */
 }

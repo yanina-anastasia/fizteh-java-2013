@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class MultiFileHashMapUtils {
 
@@ -26,14 +28,14 @@ public class MultiFileHashMapUtils {
         }
     }
 
-    public static void readTable(File tableFolder, State state) throws IOException {
+    public static void readTable(State state) throws IOException {
 
         if (state == null) {
             return;
         }
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
-            File directory = new File(tableFolder, directoryNumber.toString() + ".dir");
+            File directory = new File(((MyTableProvider)state.getCurrentTableProvider()).getDbDirectory(), directoryNumber.toString() + ".dir");
             if (!directory.exists()) {
                 continue;
             }
@@ -83,7 +85,7 @@ public class MultiFileHashMapUtils {
 
                         String key = new String(keyBytes, "UTF-8");
                         String value = new String(valueBytes, "UTF-8");
-                        state.put(key, value);
+                        state.getCurrentTable().put(key, value);
                     }
                 } finally {
                     dataInputStream.close();
@@ -94,17 +96,17 @@ public class MultiFileHashMapUtils {
         }
     }
 
-    public static void writeTable(File tableFolder, State state) throws IOException {
+    public static void writeTable(State state) throws IOException {
 
         if (state == null) {
             return;
         }
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
-            File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
+            File dir = new File(((MyTableProvider)state.getCurrentTableProvider()).getDbDirectory(), directoryNumber.toString() + ".dir");
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
                 HashMap<String, String> currentMap = new HashMap<String, String>();
-                for (Map.Entry<String, String> entry : state.getEntrySet()) {
+                for (Map.Entry<String, String> entry : ((MyTable)state.getCurrentTable()).getEntrySet()) {
                     if (Math.abs(entry.getKey().getBytes("UTF-8")[0]) % 16 == directoryNumber && Math.abs(entry.getKey().getBytes("UTF-8")[0]) / 16 % 16 == fileNumber) {
                         currentMap.put(entry.getKey(), entry.getValue());
                     }

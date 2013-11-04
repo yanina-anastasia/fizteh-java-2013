@@ -1,22 +1,28 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
 import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class State {
-    private MyTable currentTable;
-    private MyTableProvider currentTableProvider;
+    private Table currentTable;
+    private TableProvider currentTableProvider;
 
-    public State(MyTable newTable, MyTableProvider newTableProvider) {
+    public State(Table newTable, TableProvider newTableProvider) {
         currentTable = newTable;
         currentTableProvider = newTableProvider;
     }
 
-    public MyTable getCurrentTable() {
+    public Table getCurrentTable() {
         return currentTable;
     }
 
-    public MyTableProvider getCurrentTableProvider() {
+    public void changeCurrentTable(Table newCurrentTable) {
+        currentTable = newCurrentTable;
+    }
+
+    public TableProvider getCurrentTableProvider() {
         return currentTableProvider;
     }
 }
