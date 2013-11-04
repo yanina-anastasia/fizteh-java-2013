@@ -95,9 +95,15 @@ public class MultiFileHashMapTable implements Table {
 
         if (changesBase.containsKey(key)) {
             if (changesBase.get(key) == null) {
-                ++sizeTable;
-                changesBase.remove(key);
-                returnValue = null;
+                if (dataBase.get(key).equals(value)) {
+                    changesBase.remove(key);
+                    ++sizeTable;
+                    returnValue = null;
+                } else {
+                    changesBase.put(key, value);
+                    returnValue = null;
+                    ++sizeTable;
+                }
             } else {
                 if (changesBase.get(key).equals(value)) {
                     returnValue = changesBase.get(key);
@@ -107,48 +113,20 @@ public class MultiFileHashMapTable implements Table {
                 }
             }
         } else {
-            if (dataBase.containsKey(key)) {
+            if (dataBase.get(key) == null) {
+                ++sizeTable;
+                returnValue = null;
+                changesBase.put(key, value);
+            } else {
                 if (dataBase.get(key).equals(value)) {
                     returnValue = dataBase.get(key);
                 } else {
                     returnValue = dataBase.get(key);
                     changesBase.put(key, value);
                 }
-            } else {
-                ++sizeTable;
-                returnValue = null;
-                changesBase.put(key, value);
             }
         }
-        /*
-        if (changesBase.containsKey(key)) {
-            if (changesBase.get(key) == null) {
-                ++sizeTable;
-                returnValue = null;
-                changesBase.remove(key);
-            } else {
-                if (changesBase.get(key).equals(value)) {
-                    returnValue = changesBase.get(key);
-                } else {
-                    changesBase.put(key, value);
-                    returnValue = changesBase.get(key);
-                }
-            }
-        } else {
-            if (dataBase.containsKey(key)) {
-                if (dataBase.get(key).equals(value)) {
-                    returnValue = changesBase.get(key);
-                } else {
-                    changesBase.put(key, value);
-                    returnValue = dataBase.get(key);
-                }
-            } else {
-                ++sizeTable;
-                changesBase.put(key, value);
-                returnValue = null;
-            }
-        }
-        */
+
         return returnValue;
     }
 
