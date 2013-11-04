@@ -9,6 +9,10 @@ public class MultiFileHashMapUtils {
 
     public static void readTable(File tableFolder, State state) throws IOException {
 
+        if (state == null) {
+            return;
+        }
+
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
             File directory = new File(tableFolder, directoryNumber.toString() + ".dir");
             if (!directory.exists()) {
