@@ -99,6 +99,9 @@ public class MultiFileHashMapUtils {
         state.getCurrentTable().commit();
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
+            File tableFolder = new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName());
+            File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
+
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
                 HashMap<String, String> currentMap = new HashMap<String, String>();
                 for (Map.Entry<String, String> entry : state.getCurrentTable().getEntrySet()) {
@@ -107,8 +110,6 @@ public class MultiFileHashMapUtils {
                     }
                 }
 
-                File tableFolder = new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName());
-                File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
                 File file = new File(dir, fileNumber.toString() + ".dat");
 
                 if (currentMap.size() == 0) {
@@ -141,6 +142,12 @@ public class MultiFileHashMapUtils {
                     dataOutputStream.close();
                 }
 
+            }
+
+            if (dir.exists() && dir.list().length == 0) {
+                if (!dir.delete()) {
+                    throw new IOException("Delete");
+                }
             }
         }
     }
