@@ -49,8 +49,14 @@ public class FileMap {
         if (newCurrentTable == null) {
             throw new IOException(tableName + " not exists");
         } else {
-            currentTable = newCurrentTable;
-            System.out.println("using " + tableName);
+            Table currentTableCopy = currentTable;
+            int difference = currentTableCopy.commit();
+            if (difference > 0) {
+                System.out.println(difference + " unsaved changes");
+            } else {
+                currentTable = newCurrentTable;
+                System.out.println("using " + tableName);
+            }
         }
     }
 
