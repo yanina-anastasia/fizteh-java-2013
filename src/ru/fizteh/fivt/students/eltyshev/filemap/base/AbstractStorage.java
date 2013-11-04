@@ -1,29 +1,115 @@
 package ru.fizteh.fivt.students.eltyshev.filemap.base;
 
-import ru.fizteh.fivt.storage.strings.Table;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractStorage<Key, Value> {
+    class TransactionChanges {
+        HashMap<Key, ValueDifference<Value>> modifiedData;
+        int size;
+        int uncommittedChanges;
+
+        TransactionChanges() {
+            this.modifiedData = new HashMap<Key, ValueDifference<Value>>();
+            this.size = 0;
+            this.uncommittedChanges = 0;
+        }
+
+        public void addChange(Key key, Value value) {
+            if (modifiedData.containsKey(key)) {
+                modifiedData.get(key).newValue = value;
+            } else {
+                modifiedData.put(key, new ValueDifference(oldData.get(key), value));
+            }
+        }
+
+        public int applyChanges()
+        {
+            int recordsChanged = 0;
+            for (final Key key : modifiedData.keySet()) {
+                ValueDifference diff = modifiedData.get(key);
+                if (!compareKeys(diff.oldValue, diff.newValue)) {
+                    if (diff.newValue == null) {
+                        oldData.remove(key);
+                    } else {
+                        oldData.put(key, (Value) diff.newValue);
+                    }
+                    recordsChanged += 1;
+                }
+            }
+            return recordsChanged;
+        }
+
+        public int countChanges()
+        {
+            int recordsChanged = 0;
+            for (final Key key : modifiedData.keySet()) {
+                ValueDifference diff = modifiedData.get(key);
+                if (!compareKeys(diff.oldValue, diff.newValue)) {
+                    recordsChanged += 1;
+                }
+            }
+            return recordsChanged;
+        }
+
+        public Value getValue(Key key) {
+            if (modifiedData.containsKey(key)) {
+                return modifiedData.get(key).newValue;
+            }
+            return oldData.get(key);
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public void decreaseSize() {
+            size -= 1;
+        }
+
+        public void increaseSize() {
+            size += 1;
+        }
+
+        public void increaseUncommittedChanges() {
+            uncommittedChanges += 1;
+        }
+
+        public int getUncommittedChanges() {
+            return uncommittedChanges;
+        }
+
+        public void clear() {
+            modifiedData.clear();
+            size = 0;
+            uncommittedChanges = 0;
+        }
+
+        private boolean compareKeys(Object key1, Object key2) {
+            if (key1 == null && key2 == null) {
+                return true;
+            }
+            if (key1 == null || key2 == null) {
+                return false;
+            }
+            return key1.equals(key2);
+        }
+    }
+
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
     protected final HashMap<Key, Value> oldData;
-    protected final ThreadLocal<HashMap<Key, ValueDifference<Value>>> modifiedData = new ThreadLocal<HashMap<Key, ValueDifference<Value>>>() {
+    protected final ThreadLocal<TransactionChanges> transactionChanges = new ThreadLocal<TransactionChanges>() {
         @Override
-        protected HashMap<Key, ValueDifference<Value>> initialValue() {
-            return new HashMap<Key, ValueDifference<Value>>();
+        protected TransactionChanges initialValue() {
+            return new TransactionChanges();
         }
     };
 
     final private String tableName;
-    private int size;
     private String directory;
-    private int uncommittedChangesCount;
 
     // Strategy
     protected abstract void load() throws IOException;
@@ -35,8 +121,6 @@ public abstract class AbstractStorage<Key, Value> {
         this.directory = directory;
         this.tableName = tableName;
         oldData = new HashMap<Key, Value>();
-        //modifiedData = new HashMap<Key, ValueDifference<Value>>();
-        uncommittedChangesCount = 0;
         try {
             load();
         } catch (IOException e) {
@@ -45,7 +129,7 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public int getUncommittedChangesCount() {
-        return uncommittedChangesCount;
+        return transactionChanges.get().getUncommittedChanges();
     }
 
     // Table implementation
@@ -57,11 +141,7 @@ public abstract class AbstractStorage<Key, Value> {
         if (key == null) {
             throw new IllegalArgumentException("key cannot be null!");
         }
-        if (getModifiedTable().containsKey(key)) {
-            return getModifiedTable().get(key).newValue;
-        }
-
-        return oldData.get(key);
+        return transactionChanges.get().getValue(key);
     }
 
     public Value storagePut(Key key, Value value) throws IllegalArgumentException {
@@ -69,13 +149,12 @@ public abstract class AbstractStorage<Key, Value> {
             String message = key == null ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be null");
         }
-        Value oldValue = getOldValueFor(key);
+        Value oldValue = transactionChanges.get().getValue(key);
         if (oldValue == null) {
-            size += 1;
+            transactionChanges.get().increaseSize();
         }
 
-        addChange(key, value);
-        uncommittedChangesCount += 1;
+        transactionChanges.get().addChange(key, value);
         return oldValue;
     }
 
@@ -87,93 +166,41 @@ public abstract class AbstractStorage<Key, Value> {
             return null;
         }
 
-        Value oldValue = getOldValueFor(key);
-        addChange(key, null);
+        Value oldValue = transactionChanges.get().getValue(key);
+        transactionChanges.get().addChange(key, null);
         if (oldValue != null) {
-            size -= 1;
+            transactionChanges.get().decreaseSize();
         }
-        uncommittedChangesCount += 1;
+        transactionChanges.get().increaseUncommittedChanges();
         return oldValue;
     }
 
     public int storageSize() {
-        return size;
+        return transactionChanges.get().getSize();
     }
 
     public int storageCommit() {
-        int recordsCommitted = 0;
-        for (final Key key : getModifiedTable().keySet()) {
-            ValueDifference diff = getModifiedTable().get(key);
-            if (!compareKeys(diff.oldValue, diff.newValue)) {
-                if (diff.newValue == null) {
-                    oldData.remove(key);
-                } else {
-                    oldData.put(key, (Value) diff.newValue);
-                }
-                recordsCommitted += 1;
-            }
-        }
-        getModifiedTable().clear();
-        size = oldData.size();
+        int recordsCommitted = transactionChanges.get().applyChanges();
+        transactionChanges.get().clear();
+
         try {
             save();
         } catch (IOException e) {
             System.err.println("storageCommit: " + e.getMessage());
             return 0;
         }
-        uncommittedChangesCount = 0;
 
         return recordsCommitted;
     }
 
     public int storageRollback() {
-        int recordsDeleted = 0;
-        for (final Key key : getModifiedTable().keySet()) {
-            ValueDifference diff = getModifiedTable().get(key);
-            if (!compareKeys(diff.oldValue, diff.newValue)) {
-                recordsDeleted += 1;
-            }
-        }
-        getModifiedTable().clear();
-        size = oldData.size();
-
-        uncommittedChangesCount = 0;
-
+        int recordsDeleted = transactionChanges.get().countChanges();
+        transactionChanges.get().clear();
         return recordsDeleted;
     }
 
     public String getDirectory() {
         return directory;
-    }
-
-    // internal methods
-    private Value getOldValueFor(Key key) {
-        if (getModifiedTable().containsKey(key)) {
-            return getModifiedTable().get(key).newValue;
-        }
-        return oldData.get(key);
-    }
-
-    private void addChange(Key key, Value value) {
-        if (getModifiedTable().containsKey(key)) {
-            getModifiedTable().get(key).newValue = value;
-        } else {
-            getModifiedTable().put(key, new ValueDifference(oldData.get(key), value));
-        }
-    }
-
-    private boolean compareKeys(Object key1, Object key2) {
-        if (key1 == null && key2 == null) {
-            return true;
-        }
-        if (key1 == null || key2 == null) {
-            return false;
-        }
-        return key1.equals(key2);
-    }
-
-    private HashMap<Key, ValueDifference<Value>> getModifiedTable() {
-        return modifiedData.get();
     }
 
     void rawPut(Key key, Value value) {
@@ -194,3 +221,5 @@ class ValueDifference<Value> {
         this.newValue = newValue;
     }
 }
+
+

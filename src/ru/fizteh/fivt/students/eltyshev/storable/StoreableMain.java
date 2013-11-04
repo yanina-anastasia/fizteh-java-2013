@@ -44,7 +44,7 @@ public class StoreableMain {
             StoreableShellState shellState = new StoreableShellState(factory.create(databaseDirectory));
             shell.setShellState(shellState);
         } catch (IOException e) {
-            System.err.println("some error occured during loading");
+            System.err.println("some error occurred during loading");
             System.exit(1);
         } catch (IllegalArgumentException e) {
             System.err.println("error while loading: " + e.getMessage());
