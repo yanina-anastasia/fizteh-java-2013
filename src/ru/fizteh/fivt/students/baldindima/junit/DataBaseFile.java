@@ -17,57 +17,64 @@ public class DataBaseFile {
     static final byte NEW = 1;
     static final byte DELETED = 2;
     static final byte MODIFIED = 3;
-    public final class Node{
-    	private byte type;
-    	private String value;
-    	private String oldValue;
-    	private boolean wasInBase;
-    	public Node(String newValue, String newOldValue, byte newType){
-    		type = newType;
-    		value = newValue;
-    		oldValue = newOldValue;
-    		wasInBase = false;
-    	}
-    	public Node(byte nType){
-    		if (nType == DELETED){
-    			value = null;
-    			type = nType;
-    		}
-    		
-    		
-    	}
-    	public Node(String nValue, byte nType){
-    		type = nType;
-    		if (nType == OLD){
-           		value = nValue;
-        		oldValue = value;
-        		wasInBase = true;
-       		} else {
-       			if (nType == NEW){
-       				value = nValue;
-       				oldValue = null;
-       				wasInBase = false;
-       				
-       			} 
-       		} 
-    		
-    		
-    	}
-    	public void putValue(String nValue){
-    		type = MODIFIED;
-    		
-    		if ((oldValue != null)&&(oldValue.equals(nValue))){
-    			type = OLD;
-    		}
-    		value = nValue;
-    	}
-    	public void remove(){
-    		value = null;
-    		type = DELETED;
-    	}
-    	
-    	
+
+    public final class Node {
+        private byte type;
+        private String value;
+        private String oldValue;
+        private boolean wasInBase;
+
+        public Node(String newValue, String newOldValue, byte newType) {
+            type = newType;
+            value = newValue;
+            oldValue = newOldValue;
+            wasInBase = false;
+        }
+
+        public Node(byte nType) {
+            if (nType == DELETED) {
+                value = null;
+                type = nType;
+            }
+
+
+        }
+
+        public Node(String nValue, byte nType) {
+            type = nType;
+            if (nType == OLD) {
+                value = nValue;
+                oldValue = value;
+                wasInBase = true;
+            } else {
+                if (nType == NEW) {
+                    value = nValue;
+                    oldValue = null;
+                    wasInBase = false;
+
+                }
+            }
+
+
+        }
+
+        public void putValue(String nValue) {
+            type = MODIFIED;
+
+            if ((oldValue != null) && (oldValue.equals(nValue))) {
+                type = OLD;
+            }
+            value = nValue;
+        }
+
+        public void remove() {
+            value = null;
+            type = DELETED;
+        }
+
+
     }
+
     public DataBaseFile(String fullName, int newDirectoryNumber, int newFileNumber) throws IOException {
         fileName = fullName;
 
@@ -144,13 +151,13 @@ public class DataBaseFile {
         RandomAccessFile randomDataBaseFile = new RandomAccessFile(fileName, "rw");
         randomDataBaseFile.getChannel().truncate(0);
         for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
-            if (curPair.getValue().type != DELETED){
-            	randomDataBaseFile.writeInt(curPair.getKey().getBytes("UTF-8").length);
-            	randomDataBaseFile.writeInt(curPair.getValue().value.getBytes("UTF-8").length);
+            if (curPair.getValue().type != DELETED) {
+                randomDataBaseFile.writeInt(curPair.getKey().getBytes("UTF-8").length);
+                randomDataBaseFile.writeInt(curPair.getValue().value.getBytes("UTF-8").length);
                 randomDataBaseFile.write(curPair.getKey().getBytes("UTF-8"));
                 randomDataBaseFile.write(curPair.getValue().value.getBytes("UTF-8"));
             }
-            
+
         }
         randomDataBaseFile.close();
     }
@@ -160,88 +167,90 @@ public class DataBaseFile {
             throw new IllegalArgumentException("Wrong key or value");
         }
     }
+
     public String put(String keyString, String valueString) {
         checkString(keyString);
         checkString(valueString);
-       
-    	Node search = getCurrentTable().get(keyString);
-    	
-        if (search == null){
-        	getCurrentTable().put(keyString, new Node(valueString, NEW));
-        	return null;
+
+        Node search = getCurrentTable().get(keyString);
+
+        if (search == null) {
+            getCurrentTable().put(keyString, new Node(valueString, NEW));
+            return null;
         } else {
-        	String result = null;
-        	int typeNode = search.type;
-        	
-        	if (typeNode != DELETED) {
-        		result = search.value;
-        	}
-        	getCurrentTable().get(keyString).putValue(valueString);
-        	return result;
+            String result = null;
+            int typeNode = search.type;
+
+            if (typeNode != DELETED) {
+                result = search.value;
+            }
+            getCurrentTable().get(keyString).putValue(valueString);
+            return result;
         }
-    	
-    	
+
 
     }
 
-    
 
-	public String get(String keyString) {
+    public String get(String keyString) {
         checkString(keyString);
-		Node search = getCurrentTable().get(keyString);
-        if (search !=null){
-        	if (search.type == DELETED){
-        		return null;
-        	} else {
-        		return search.value;
-        	}
-        	
+        Node search = getCurrentTable().get(keyString);
+        if (search != null) {
+            if (search.type == DELETED) {
+                return null;
+            } else {
+                return search.value;
+            }
+
         } else {
-    		return null;
-    	}
-		
+            return null;
+        }
+
     }
 
     public String remove(String keyString) {
         checkString(keyString);
         String result;
-    	Node search = getCurrentTable().get(keyString);
-        if (search == null){
-        	return null;
+        Node search = getCurrentTable().get(keyString);
+        if (search == null) {
+            return null;
         } else {
-        	result = search.value;
-        	getCurrentTable().get(keyString).remove();
-        	return result;
+            result = search.value;
+            getCurrentTable().get(keyString).remove();
+            return result;
         }
     }
-    
-    public int countCommits(){
-    	int count = 0;
-    	for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
-    		if ((curPair.getValue().type == NEW) || (curPair.getValue().type == MODIFIED)
-    				|| ((curPair.getValue().type == DELETED) && (curPair.getValue().wasInBase))){
-    			++count;
-    		}
-    	}
-    	return count;
+
+    public int countCommits() {
+        int count = 0;
+        for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
+            if ((curPair.getValue().type == NEW) || (curPair.getValue().type == MODIFIED)
+                    || ((curPair.getValue().type == DELETED) && (curPair.getValue().wasInBase))) {
+                ++count;
+            }
+        }
+        return count;
     }
-    public void commit() throws IOException{
-    	write();
-    	getCurrentTable().clear();
-    	read();
+
+    public void commit() throws IOException {
+        write();
+        getCurrentTable().clear();
+        read();
     }
-    public void rollback() throws IOException{
-    	getCurrentTable().clear();
-    	read();
+
+    public void rollback() throws IOException {
+        getCurrentTable().clear();
+        read();
     }
-    public int countSize(){
-    	int count = 0;
-    	for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
-    		if (curPair.getValue().type != DELETED){
-    			++count;
-    		}
-    	}
-    	return count;
+
+    public int countSize() {
+        int count = 0;
+        for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
+            if (curPair.getValue().type != DELETED) {
+                ++count;
+            }
+        }
+        return count;
     }
 
 
