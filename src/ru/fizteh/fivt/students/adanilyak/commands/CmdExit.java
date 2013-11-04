@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapGlobalState;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
@@ -13,10 +15,15 @@ import java.util.List;
 public class CmdExit implements Cmd {
     private final String name = "exit";
     private final int amArgs = 0;
-    private StoreableDataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState storeableWorkState = null;
+    private FileMapGlobalState multifileWorkState = null;
 
     public CmdExit(StoreableDataBaseGlobalState stateTable) {
-        workState = stateTable;
+        storeableWorkState = stateTable;
+    }
+
+    public CmdExit(FileMapGlobalState stateTable) {
+        multifileWorkState = stateTable;
     }
 
     @Override
@@ -31,12 +38,20 @@ public class CmdExit implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        boolean autoCommitOnExit = false;
-        if (autoCommitOnExit) {
-            if (workState.currentTable != null) {
-                workState.currentTable.commit();
+        if (multifileWorkState == null) {
+            if (storeableWorkState.autoCommitOnExit) {
+                if (storeableWorkState.currentTable != null) {
+                    storeableWorkState.currentTable.commit();
+                }
             }
+            System.exit(0);
+        } else {
+            if (multifileWorkState.autoCommitOnExit) {
+                if (multifileWorkState.currentTable != null) {
+                    multifileWorkState.currentTable.commit();
+                }
+            }
+            System.exit(0);
         }
-        System.exit(0);
     }
 }

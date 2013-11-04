@@ -2,18 +2,20 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapGlobalState;
 
 /**
  * User: Alexander
  * Date: 21.10.13
  * Time: 14:24
  */
-public class DataBaseGlobalState extends FileMapState {
+public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
     private TableProvider currentTableManager = null;
+    public boolean autoCommitOnExit;
 
-    public DataBaseGlobalState(TableProvider tableManager) {
+    public MultiFileDataBaseGlobalState(TableProvider tableManager) {
         currentTableManager = tableManager;
+        autoCommitOnExit = false;
     }
 
     /**

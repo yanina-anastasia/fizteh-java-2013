@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapGlobalState;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.tools.StoreableCmdParseAndExecute;
 
@@ -15,10 +17,15 @@ import java.util.List;
 public class CmdGet implements Cmd {
     private final String name = "get";
     private final int amArgs = 1;
-    private StoreableDataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState storeableWorkState = null;
+    private FileMapGlobalState multifileWorkState = null;
 
     public CmdGet(StoreableDataBaseGlobalState dataBaseState) {
-        workState = dataBaseState;
+        storeableWorkState = dataBaseState;
+    }
+
+    public CmdGet(FileMapGlobalState dataBaseState) {
+        multifileWorkState = dataBaseState;
     }
 
     @Override
@@ -33,17 +40,32 @@ public class CmdGet implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            String key = args.get(1);
-            Storeable result = workState.currentTable.get(key);
-            if (result == null) {
-                System.out.println("not found");
+        if (multifileWorkState == null) {
+            if (storeableWorkState.currentTable != null) {
+                String key = args.get(1);
+                Storeable result = storeableWorkState.currentTable.get(key);
+                if (result == null) {
+                    System.out.println("not found");
+                } else {
+                    System.out.println("found");
+                    System.out.println(StoreableCmdParseAndExecute.outPutToUser(result, storeableWorkState.currentTable, storeableWorkState.currentTableManager));
+                }
             } else {
-                System.out.println("found");
-                System.out.println(StoreableCmdParseAndExecute.outPutToUser(result, workState.currentTable, workState.currentTableManager));
+                System.out.println("no table");
             }
         } else {
-            System.out.println("no table");
+            if (multifileWorkState.currentTable != null) {
+                String key = args.get(1);
+                String result = multifileWorkState.get(key);
+                if (result == null) {
+                    System.out.println("not found");
+                } else {
+                    System.out.println("found");
+                    System.out.println(result);
+                }
+            } else {
+                System.out.println("no table");
+            }
         }
     }
 }

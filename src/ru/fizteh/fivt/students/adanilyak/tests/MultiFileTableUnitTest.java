@@ -1,10 +1,11 @@
-package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
+package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileTableProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,14 +15,14 @@ import java.io.IOException;
  * Date: 26.10.13
  * Time: 18:32
  */
-public class TableStorageUnitTest {
-    TableManager testManager;
+public class MultiFileTableUnitTest {
+    MultiFileTableProvider testManager;
     Table testTableEng;
     Table testTableRus;
 
     @Before
     public void setUpTestObject() throws IOException {
-        testManager = new TableManager(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
+        testManager = new MultiFileTableProvider(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
         testTableEng = testManager.createTable("testTable9");
         testTableRus = testManager.createTable("тестоваяТаблица10");
     }

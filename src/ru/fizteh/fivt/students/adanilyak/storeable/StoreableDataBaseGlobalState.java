@@ -15,9 +15,11 @@ import java.util.List;
 public class StoreableDataBaseGlobalState {
     public Table currentTable = null;
     public TableProvider currentTableManager = null;
+    public boolean autoCommitOnExit;
 
     public StoreableDataBaseGlobalState(TableProvider tableManager) {
         currentTableManager = tableManager;
+        autoCommitOnExit = false;
     }
 
     /**

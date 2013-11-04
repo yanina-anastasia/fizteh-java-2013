@@ -17,14 +17,14 @@ import java.util.Set;
  * Date: 21.10.13
  * Time: 13:26
  */
-public class TableStorage implements Table {
+public class MultiFileTable implements Table {
     private File tableStorageDirectory;
     private Map<String, String> data = new HashMap<String, String>();
     private Map<String, String> changes = new HashMap<String, String>();
     private Set<String> removedKeys = new HashSet<String>();
     private int amountOfChanges = 0;
 
-    public TableStorage(File dataDirectory) {
+    public MultiFileTable(File dataDirectory) {
         tableStorageDirectory = dataDirectory;
         try {
             WorkWithDirs.readIntoDataBase(tableStorageDirectory, data);

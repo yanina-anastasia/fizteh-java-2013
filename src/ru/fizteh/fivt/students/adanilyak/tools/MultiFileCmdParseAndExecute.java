@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
  * Date: 20.10.13
  * Time: 22:38
  */
-public class CmdParseAndExecute {
+public class MultiFileCmdParseAndExecute {
     public static List<String> intoCommandsAndArgs(String cmd, String delimetr) {
         cmd.trim();
         String[] tokens = cmd.split(delimetr);

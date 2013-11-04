@@ -15,11 +15,11 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 13:27
  */
-public class TableManager implements TableProvider {
+public class MultiFileTableProvider implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<String, Table>();
     private File allTablesDirectory;
 
-    public TableManager(File atDirectory) {
+    public MultiFileTableProvider(File atDirectory) {
         if (atDirectory == null) {
             throw new IllegalArgumentException("Directory is not set");
         }
@@ -32,7 +32,7 @@ public class TableManager implements TableProvider {
         allTablesDirectory = atDirectory;
 
         for (File tableFile : allTablesDirectory.listFiles()) {
-            Table table = new TableStorage(tableFile);
+            Table table = new MultiFileTable(tableFile);
             allTablesMap.put(tableFile.getName(), table);
         }
     }
@@ -56,7 +56,7 @@ public class TableManager implements TableProvider {
             return null;
         }
 
-        Table newTable = new TableStorage(tableFile);
+        Table newTable = new MultiFileTable(tableFile);
         allTablesMap.put(tableName, newTable);
         return newTable;
     }

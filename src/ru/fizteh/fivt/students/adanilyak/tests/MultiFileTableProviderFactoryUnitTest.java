@@ -1,19 +1,20 @@
-package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
+package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.Before;
 import org.junit.Test;
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileTableProviderFactory;
 
 /**
  * User: Alexander
  * Date: 28.10.13
  * Time: 0:11
  */
-public class TableManagerCreatorUnitTest {
-    TableManagerCreator testManagerCreator;
+public class MultiFileTableProviderFactoryUnitTest {
+    MultiFileTableProviderFactory testManagerCreator;
 
     @Before
     public void setUpTestObject() {
-        testManagerCreator = new TableManagerCreator();
+        testManagerCreator = new MultiFileTableProviderFactory();
     }
 
     /**

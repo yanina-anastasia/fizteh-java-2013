@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 
@@ -14,10 +15,15 @@ import java.util.List;
 public class CmdDrop implements Cmd {
     private final String name = "drop";
     private final int amArgs = 1;
-    private StoreableDataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState storeableWorkState = null;
+    private MultiFileDataBaseGlobalState multifileWorkState = null;
 
     public CmdDrop(StoreableDataBaseGlobalState dataBaseState) {
-        workState = dataBaseState;
+        storeableWorkState = dataBaseState;
+    }
+
+    public CmdDrop(MultiFileDataBaseGlobalState dataBaseState) {
+        multifileWorkState = dataBaseState;
     }
 
     @Override
@@ -32,16 +38,30 @@ public class CmdDrop implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        String useTableName = args.get(1);
-        if (!CheckOnCorrect.goodArg(useTableName)) {
-            throw new IllegalArgumentException("Bad table name");
-        }
-        if (workState.getTable(useTableName) == null) {
-            System.err.println(useTableName + " not exists");
-            throw new IllegalStateException(useTableName + " not exists");
+        if (multifileWorkState == null) {
+            String useTableName = args.get(1);
+            if (!CheckOnCorrect.goodArg(useTableName)) {
+                throw new IllegalArgumentException("Bad table name");
+            }
+            if (storeableWorkState.getTable(useTableName) == null) {
+                System.err.println(useTableName + " not exists");
+                throw new IllegalStateException(useTableName + " not exists");
+            } else {
+                storeableWorkState.removeTable(useTableName);
+                System.out.println("dropped");
+            }
         } else {
-            workState.removeTable(useTableName);
-            System.out.println("dropped");
+            String useTableName = args.get(1);
+            if (!CheckOnCorrect.goodArg(useTableName)) {
+                throw new IllegalArgumentException("Bad table name");
+            }
+            if (multifileWorkState.getTable(useTableName) == null) {
+                System.err.println(useTableName + " not exists");
+                throw new IllegalStateException(useTableName + " not exists");
+            } else {
+                multifileWorkState.removeTable(useTableName);
+                System.out.println("dropped");
+            }
         }
     }
 }

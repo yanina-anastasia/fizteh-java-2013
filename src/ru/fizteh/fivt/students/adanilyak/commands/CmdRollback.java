@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
+import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
@@ -13,10 +14,15 @@ import java.util.List;
 public class CmdRollback implements Cmd {
     private final String name = "rollback";
     private final int amArgs = 0;
-    private StoreableDataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState storeableWorkState = null;
+    private MultiFileDataBaseGlobalState multifileWorkState = null;
 
     public CmdRollback(StoreableDataBaseGlobalState dataBaseState) {
-        workState = dataBaseState;
+        storeableWorkState = dataBaseState;
+    }
+
+    public CmdRollback(MultiFileDataBaseGlobalState dataBaseState) {
+        multifileWorkState = dataBaseState;
     }
 
     @Override
@@ -31,10 +37,18 @@ public class CmdRollback implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            System.out.println(workState.currentTable.rollback());
+        if (multifileWorkState == null) {
+            if (storeableWorkState.currentTable != null) {
+                System.out.println(storeableWorkState.currentTable.rollback());
+            } else {
+                System.out.println("no table");
+            }
         } else {
-            System.out.println("no table");
+            if (multifileWorkState.currentTable != null) {
+                System.out.println(multifileWorkState.currentTable.rollback());
+            } else {
+                System.out.println("no table");
+            }
         }
     }
 }

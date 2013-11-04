@@ -7,15 +7,16 @@ import ru.fizteh.fivt.storage.strings.Table;
  * Date: 25.10.13
  * Time: 14:12
  */
-public class FileMapState {
+public class FileMapGlobalState {
     public Table currentTable = null;
+    public boolean autoCommitOnExit;
 
-    public FileMapState() {
-
+    public FileMapGlobalState() {
     }
 
-    public FileMapState(Table table) {
+    public FileMapGlobalState(Table table) {
         currentTable = table;
+        autoCommitOnExit = true;
     }
 
     public String put(String key, String value) {
