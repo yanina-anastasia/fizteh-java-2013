@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
-import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class TableStorage implements Table {
     public TableStorage(File dataDirectory) {
         tableStorageDirectory = dataDirectory;
         try {
-            WorkWithMFHM.readIntoDataBase(tableStorageDirectory, data);
+            WorkWithDirs.readIntoDataBase(tableStorageDirectory, data);
         } catch (IOException exc) {
             throw new IllegalArgumentException("Read from file failed", exc);
         }
@@ -111,7 +111,7 @@ public class TableStorage implements Table {
         }
         data.putAll(changes);
         try {
-            WorkWithMFHM.writeIntoFiles(tableStorageDirectory, data);
+            WorkWithDirs.writeIntoFiles(tableStorageDirectory, data);
         } catch (Exception exc) {
             System.err.println("commit: " + exc.getMessage());
         }

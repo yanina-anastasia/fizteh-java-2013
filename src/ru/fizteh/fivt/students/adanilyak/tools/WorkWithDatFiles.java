@@ -1,10 +1,15 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -35,6 +40,32 @@ public class WorkWithDatFiles {
             String value = new String(buffer, StandardCharsets.UTF_8);
 
             map.put(key, value);
+        }
+        dataBaseFileReader.close();
+    }
+
+    public static void readIntoStoreableMap(File dataBaseFile, Map<String, Storeable> map, Table table, TableProvider provider) throws IOException, ParseException {
+        RandomAccessFile dataBaseFileReader = new RandomAccessFile(dataBaseFile, "rw");
+        long lenght = dataBaseFile.length();
+        byte[] buffer;
+
+        while (lenght > 0) {
+            int keyLenght = dataBaseFileReader.readInt();
+            lenght -= 4;
+            int valueLenght = dataBaseFileReader.readInt();
+            lenght -= 4;
+
+            buffer = new byte[keyLenght];
+            dataBaseFileReader.readFully(buffer);
+            lenght -= buffer.length;
+            String key = new String(buffer, StandardCharsets.UTF_8);
+
+            buffer = new byte[valueLenght];
+            dataBaseFileReader.readFully(buffer);
+            lenght -= buffer.length;
+            String value = new String(buffer, StandardCharsets.UTF_8);
+
+            map.put(key, provider.deserialize(table, value));
         }
         dataBaseFileReader.close();
     }

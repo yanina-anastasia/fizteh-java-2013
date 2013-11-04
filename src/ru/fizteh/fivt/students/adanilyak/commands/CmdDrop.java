@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.util.List;
 public class CmdDrop implements Cmd {
     private final String name = "drop";
     private final int amArgs = 1;
-    private DataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdDrop(DataBaseGlobalState dataBaseState) {
+    public CmdDrop(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.List;
 public class CmdRollback implements Cmd {
     private final String name = "rollback";
     private final int amArgs = 0;
-    private FileMapState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdRollback(FileMapState dataBaseState) {
+    public CmdRollback(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 

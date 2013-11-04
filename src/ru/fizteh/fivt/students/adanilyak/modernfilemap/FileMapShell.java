@@ -37,10 +37,12 @@ public class FileMapShell extends GenericShell {
 
     private GenericCmdList makeUpCmdList(FileMapState state) {
         GenericCmdList stockFileMapShellCmdList = new GenericCmdList();
+        /*
         stockFileMapShellCmdList.addCommand(new CmdPut(state));
         stockFileMapShellCmdList.addCommand(new CmdGet(state));
         stockFileMapShellCmdList.addCommand(new CmdRemove(state));
         stockFileMapShellCmdList.addCommand(new CmdExit(state));
+        */
         return stockFileMapShellCmdList;
     }
 }

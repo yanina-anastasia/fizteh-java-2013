@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.TableStorage;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,9 +16,9 @@ import java.util.List;
 public class CmdUse implements Cmd {
     private final String name = "use";
     private final int amArgs = 1;
-    private DataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdUse(DataBaseGlobalState dataBaseState) {
+    public CmdUse(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -37,7 +39,7 @@ public class CmdUse implements Cmd {
             System.err.println(useTableName + " not exists");
         } else {
             if (workState.getCurrentTable() != null) {
-                int amChanges = ((TableStorage)workState.currentTable).getAmountOfChanges();
+                int amChanges = ((StoreableTable)workState.currentTable).getAmountOfChanges();
                 if (amChanges != 0) {
                     System.err.println(amChanges + " unsaved changes");
                     return;

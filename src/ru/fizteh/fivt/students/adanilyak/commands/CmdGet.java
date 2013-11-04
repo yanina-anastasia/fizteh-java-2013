@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +15,9 @@ import java.util.List;
 public class CmdGet implements Cmd {
     private final String name = "get";
     private final int amArgs = 1;
-    private FileMapState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdGet(FileMapState dataBaseState) {
+    public CmdGet(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -33,7 +35,7 @@ public class CmdGet implements Cmd {
     public void work(List<String> args) throws IOException {
         if (workState.currentTable != null) {
             String key = args.get(1);
-            String result = workState.get(key);
+            String result = workState.currentTableManager.serialize(workState.currentTable, workState.currentTable.get(key));
             if (result == null) {
                 System.out.println("not found");
             } else {

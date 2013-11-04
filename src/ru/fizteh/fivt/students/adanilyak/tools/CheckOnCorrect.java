@@ -1,5 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableRow;
+
+import java.util.List;
+
 /**
  * User: Alexander
  * Date: 01.11.13
@@ -26,4 +32,37 @@ public class CheckOnCorrect {
         }
         return true;
     }
+
+    public static boolean goodColumnTypes(List<Class<?>> givenTypes) {
+        if (givenTypes == null) {
+            return false;
+        }
+        for (Class<?> type : givenTypes) {
+            if (type == Integer.class ||
+                    type == Long.class ||
+                    type == Byte.class ||
+                    type == Float.class ||
+                    type == Double.class ||
+                    type == Boolean.class ||
+                    type == String.class) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean goodStoreableRow(Table givenTable, Storeable givenStoreable) {
+        if (givenStoreable == null) {
+            return false;
+        }
+        for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
+            if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
+

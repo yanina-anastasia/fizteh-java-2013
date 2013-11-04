@@ -1,31 +1,29 @@
-package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
+package ru.fizteh.fivt.students.adanilyak.storeable;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.adanilyak.commands.*;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericCmdList;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 
-import java.io.File;
-
 /**
  * User: Alexander
- * Date: 21.10.13
- * Time: 16:40
+ * Date: 03.11.13
+ * Time: 20:19
  */
-public class MultiFileHashMapShell extends GenericShell {
-    public MultiFileHashMapShell(){}
-
-    public MultiFileHashMapShell(String[] args) {
+public class StoreableShell extends GenericShell {
+    public StoreableShell(String args[]) {
         String workingDirectory = System.getProperty("fizteh.db.dir");
         if (workingDirectory == null) {
             System.err.println("Data Base directory is not set");
             System.exit(3);
         }
         try {
-            TableManagerCreator tableManagerCreator = new TableManagerCreator();
-            TableProvider tableManager = tableManagerCreator.create(workingDirectory);
-            DataBaseGlobalState state = new DataBaseGlobalState(tableManager);
+            StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+            TableProvider tableProvider = tableProviderFactory.create(workingDirectory);
+            StoreableDataBaseGlobalState state = new StoreableDataBaseGlobalState(tableProvider);
             runShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
@@ -41,9 +39,8 @@ public class MultiFileHashMapShell extends GenericShell {
         }
     }
 
-    public GenericCmdList makeUpCmdList(DataBaseGlobalState state) {
+    public GenericCmdList makeUpCmdList(StoreableDataBaseGlobalState state) {
         GenericCmdList stockShellCmdList = new GenericCmdList();
-        /*
         stockShellCmdList.addCommand(new CmdPut(state));
         stockShellCmdList.addCommand(new CmdGet(state));
         stockShellCmdList.addCommand(new CmdRemove(state));
@@ -54,7 +51,6 @@ public class MultiFileHashMapShell extends GenericShell {
         stockShellCmdList.addCommand(new CmdCommit(state));
         stockShellCmdList.addCommand(new CmdRollback(state));
         stockShellCmdList.addCommand(new CmdSize(state));
-        */
         return stockShellCmdList;
     }
 }

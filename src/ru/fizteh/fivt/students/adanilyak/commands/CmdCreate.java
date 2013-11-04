@@ -1,8 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.DataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,9 +16,9 @@ import java.util.List;
 public class CmdCreate implements Cmd {
     private final String name = "create";
     private final int amArgs = 1;
-    private DataBaseGlobalState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdCreate(DataBaseGlobalState dataBaseState) {
+    public CmdCreate(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -35,7 +38,14 @@ public class CmdCreate implements Cmd {
         if (workState.getTable(useTableName) != null) {
             System.err.println(useTableName + " exists");
         } else {
-            workState.createTable(useTableName);
+            List<Class<?>> types;
+            if (args.size() == 2) {
+                types = new ArrayList<>();
+                types.add(String.class);
+            } else {
+                types = WorkWithStoreableDataBase.createListOfTypes(args);
+            }
+            workState.createTable(useTableName, types);
             System.out.println("created");
         }
     }

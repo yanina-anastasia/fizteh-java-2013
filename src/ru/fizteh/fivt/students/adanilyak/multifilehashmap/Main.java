@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 
+import java.io.File;
+
 /**
  * User: Alexander
  * Date: 21.10.13

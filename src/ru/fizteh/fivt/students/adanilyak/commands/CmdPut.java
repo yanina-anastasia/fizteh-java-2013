@@ -1,8 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -13,9 +16,9 @@ import java.util.List;
 public class CmdPut implements Cmd {
     private final String name = "put";
     private final int amArgs = 2;
-    private FileMapState workState;
+    private StoreableDataBaseGlobalState workState;
 
-    public CmdPut(FileMapState dataBaseState) {
+    public CmdPut(StoreableDataBaseGlobalState dataBaseState) {
         workState = dataBaseState;
     }
 
@@ -34,12 +37,16 @@ public class CmdPut implements Cmd {
         if (workState.currentTable != null) {
             String key = args.get(1);
             String value = args.get(2);
-            String result = workState.put(key, value);
-            if (result == null) {
-                System.out.println("new");
-            } else {
-                System.out.println("overwrite");
-                System.out.println(result);
+            try {
+                Storeable result = workState.currentTable.put(key, workState.currentTableManager.deserialize(workState.currentTable, value));
+                if (result == null) {
+                    System.out.println("new");
+                } else {
+                    System.out.println("overwrite");
+                    System.out.println(result);
+                }
+            } catch (ParseException exc) {
+                throw new IOException(exc);
             }
         } else {
             System.out.println("no table");
