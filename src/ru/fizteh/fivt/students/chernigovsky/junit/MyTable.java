@@ -22,7 +22,7 @@ public class MyTable implements Table {
         return hashMap.entrySet();
     }
 
-    MyTable(String name) {
+    public MyTable(String name) {
         tableName = name;
         hashMap = new HashMap<String, String>();
         newEntries = new HashMap<String, String>();

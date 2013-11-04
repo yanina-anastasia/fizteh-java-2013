@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +22,12 @@ public class Main {
             }
         }
 
-        StateProvider stateProvider = new StateProvider(dbName);
-        stateProvider.changeCurrentState(new State("db.dat"));
+        MyTableProvider myTableProvider = new MyTableProvider(dbName);
+        MyTable myTable = new MyTable("db.dat");
+        State state = new State(myTable, myTableProvider);
 
         try {
-            FileMapUtils.readTable(dbName, stateProvider.getCurrentState());
+            FileMapUtils.readTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -37,7 +41,7 @@ public class Main {
         commandMap.put("exit", new CommandExit());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, stateProvider, dbName);
+            interactiveMode(commandMap, state);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -45,11 +49,11 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, stateProvider, dbName);
+            batchMode(commands, commandMap, state);
         }
 
         try {
-            FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
+            FileMapUtils.writeTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -57,18 +61,18 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, StateProvider stateProvider, File dbName) {
+    private static void interactiveMode(Map<String, Command> commandMap, State state) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
             String string = scanner.nextLine();
             try {
-                parseCommands(string, commandMap, stateProvider);
+                parseCommands(string, commandMap, state);
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
                 try {
-                    FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
+                    FileMapUtils.writeTable(state);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);
@@ -79,14 +83,14 @@ public class Main {
         }
     }
 
-    private static void batchMode(String commands, Map<String, Command> commandMap, StateProvider stateProvider, File dbName) {
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state) {
         try {
-            parseCommands(commands, commandMap, stateProvider);
+            parseCommands(commands, commandMap, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
             try {
-                FileMapUtils.writeTable(dbName, stateProvider.getCurrentState());
+                FileMapUtils.writeTable(state);
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
                 System.exit(1);
@@ -95,7 +99,7 @@ public class Main {
         }
     }
 
-    private static void parseCommands(String commands, Map<String, Command> commandMap, StateProvider stateProvider) throws IOException, ExitException {
+    private static void parseCommands(String commands, Map<String, Command> commandMap, State state) throws IOException, ExitException {
         String[] listOfCommand = commands.trim().split("\\s*;\\s*");
         for (String string : listOfCommand) {
             String[] commandArguments = string.split("\\s+");
@@ -106,7 +110,7 @@ public class Main {
             if (commandArguments.length != command.getArgumentsCount() + 1) {
                 throw new IOException("Wrong argument count");
             } else {
-                command.execute(stateProvider, commandArguments);
+                command.execute(state, commandArguments);
             }
         }
 

@@ -5,5 +5,5 @@ import java.io.IOException;
 public interface Command {
     public String getName();
     public int getArgumentsCount();
-    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException;
+    public void execute(State state, String[] args) throws IOException, ExitException;
 }

@@ -9,7 +9,7 @@ public class CommandExit implements Command {
     public int getArgumentsCount() {
         return 0;
     }
-    public void execute(StateProvider stateProvider, String[] args) throws IOException, ExitException {
+    public void execute(State state, String[] args) throws IOException, ExitException {
         System.out.println("exit");
         throw new ExitException();
     }

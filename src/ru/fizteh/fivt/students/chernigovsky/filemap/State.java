@@ -1,34 +1,22 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class State {
-    private HashMap<String, String> hashMap;
-    String tableName;
+    private MyTable currentTable;
+    private MyTableProvider currentTableProvider;
 
-    public State(String newTableName) {
-        hashMap = new HashMap<String, String>();
-        tableName = newTableName;
-    }
-    public String put(String key, String value) {
-        return hashMap.put(key, value);
-    }
-    public String get(String key) {
-        return hashMap.get(key);
-    }
-    public String remove(String key) {
-        return hashMap.remove(key);
+    public State(MyTable newTable, MyTableProvider newTableProvider) {
+        currentTable = newTable;
+        currentTableProvider = newTableProvider;
     }
 
-    public String getTableName() {
-        return tableName;
+    public MyTable getCurrentTable() {
+        return currentTable;
     }
 
-    public Set<Map.Entry<String, String>> getEntrySet() {
-        return hashMap.entrySet();
+    public MyTableProvider getCurrentTableProvider() {
+        return currentTableProvider;
     }
-
 }
