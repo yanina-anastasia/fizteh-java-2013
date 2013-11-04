@@ -218,7 +218,7 @@ public class DataBaseFile {
     	int count = 0;
     	for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
     		if ((curPair.getValue().type == NEW) || (curPair.getValue().type == MODIFIED)
-    				|| (curPair.getValue().type == DELETED) || (!curPair.getValue().wasInBase)){
+    				|| ((curPair.getValue().type == DELETED) && (curPair.getValue().wasInBase))){
     			++count;
     		}
     	}
