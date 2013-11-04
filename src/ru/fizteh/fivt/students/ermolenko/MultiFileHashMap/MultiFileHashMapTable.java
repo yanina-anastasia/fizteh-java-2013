@@ -94,16 +94,16 @@ public class MultiFileHashMapTable implements Table {
         String returnValue;
         if (changesBase.containsKey(key)) {
             if (changesBase.get(key) == null) {
+                ++sizeTable;
                 returnValue = null;
             } else {
-                ++sizeTable;
                 returnValue = changesBase.get(key);
             }
         } else {
             if (dataBase.containsKey(key)) {
-                ++sizeTable;
                 returnValue = dataBase.get(key);
             } else {
+                ++sizeTable;
                 returnValue = null;
             }
         }
