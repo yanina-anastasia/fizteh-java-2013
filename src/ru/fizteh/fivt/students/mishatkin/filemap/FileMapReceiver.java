@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
-import ru.fizteh.fivt.students.mishatkin.multifilehashmap.MultiFileHashMap;
 import ru.fizteh.fivt.students.mishatkin.shell.*;
 
 import java.io.*;
@@ -23,6 +22,11 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	}
 
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws FileMapDatabaseException {
+		this(dbDirectory, dbFileName, interactiveMode, new ShellPrintStream(out));
+
+	}
+
+	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, ShellPrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
 		FileInputStream in = null;
 		try {
@@ -70,43 +74,47 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 			}
 		}
 	}
-
 	public void showPrompt() {
 		if (isInteractiveMode()) {
-			out.print("$ ");
+			print("$ ");
 		}
 	}
 
 	@Override
-	public void putCommand(String key, String value) {
+	public String putCommand(String key, String value) {
 		String oldValue = dictionary.get(key);
 		if (oldValue != null) {
-			out.println("overwrite");
-			out.println(oldValue);
+			println("overwrite");
+			println(oldValue);
 		} else {
-			out.println("new");
+			println("new");
 		}
 		dictionary.put(key, value);
+		return oldValue;
 	}
 
 	@Override
-	public void removeCommand(String key) {
-		if (dictionary.remove(key) != null){
-			out.println("removed");
+	public String removeCommand(String key) {
+		String retValue = dictionary.remove(key);
+		if (retValue != null){
+			println("removed");
 		} else {
-			out.println("not found");
+			println("not found");
 		}
+		return retValue;
 	}
 
 	@Override
-	public void getCommand(String key) {
+	public String getCommand(String key) {
 		String value = dictionary.get(key);
 		if (value != null) {
-			out.println("found");
-			out.println(dictionary.get(key));
+			println("found");
+			println(value);
+
 		} else {
-			out.println("not found");
+			println("not found");
 		}
+		return value;
 	}
 
 	public void exitCommand() throws TimeToExitException {
@@ -164,5 +172,20 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 			}
 		}
 		return doConform;
+	}
+
+	public int size() {
+		//TODO: modify this as new owning maps appear according to their states
+		return dictionary.size();
+	}
+
+	public int commit() {
+		//TODO: implement this stub
+		return 0;
+	}
+
+	public int rollback() {
+		//TODO: implement this stub
+		return 0;
 	}
 }

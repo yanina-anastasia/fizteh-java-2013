@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.mishatkin.multifilehashmap;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapDatabaseException;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiver;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiverProtocol;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by Vladimir Mishatkin on 10/26/13
  */
-public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
+public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, Table {
 	private static final int TABLE_OWNING_FILES_COUNT = MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT * MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
 
 	private WeakReference<MultiFileHashMapReceiver> delegate;
@@ -60,6 +61,14 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 		int mod = MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT;
 		int directoryIndex = Math.abs(hashCode % mod);
 		int fileIndex = Math.abs((hashCode / mod) % mod);
+		try {
+			return tableForDirectoryAndFileIndexes(directoryIndex, fileIndex, mod);
+		} catch (MultiFileHashMapException e) {
+			throw new MultiFileHashMapException(e.getMessage() + " key: " + key, e);
+		}
+	}
+
+	private FileMapReceiver tableForDirectoryAndFileIndexes(int directoryIndex, int fileIndex, int mod) throws MultiFileHashMapException {
 		int indexInFilesList = mod * directoryIndex + fileIndex;
 		if (tableFiles.get(indexInFilesList) == null) {
 			String directoryName = String.valueOf(directoryIndex) + ".dir";
@@ -77,7 +86,8 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 				freshDictionaryFile = new FileMapReceiver(delegate.getDbDirectoryName(), pseudoFileName,
 						delegate.isInteractiveMode(), delegate.getOut());
 			} catch (FileMapDatabaseException e) {
-				throw new MultiFileHashMapException("Cannot create access or create file for key: " + key);
+				throw new MultiFileHashMapException("Cannot access or create file for " + directoryIndex + ".dir"
+						+ File.separator + fileIndex + ".dat");
 			}
 			if (!freshDictionaryFile.doHashCodesConformHash(directoryIndex, fileIndex, MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT)) {
 				throw new MultiFileHashMapException("Keys in " + directoryIndex + " directory and " + fileIndex +
@@ -89,18 +99,18 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 	}
 
 	@Override
-	public void putCommand(String key, String value) throws MultiFileHashMapException {
-		tableForKey(key).putCommand(key, value);
+	public String putCommand(String key, String value) throws MultiFileHashMapException {
+		return tableForKey(key).putCommand(key, value);
 	}
 
 	@Override
-	public void getCommand(String key) throws MultiFileHashMapException {
-		tableForKey(key).getCommand(key);
+	public String getCommand(String key) throws MultiFileHashMapException {
+		return tableForKey(key).getCommand(key);
 	}
 
 	@Override
-	public void removeCommand(String key) throws MultiFileHashMapException {
-		tableForKey(key).removeCommand(key);
+	public String removeCommand(String key) throws MultiFileHashMapException {
+		return tableForKey(key).removeCommand(key);
 	}
 
 	public void writeFilesOnDrive() throws MultiFileHashMapException {
@@ -120,6 +130,79 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol {
 				getDelegate().removeTableSubDirectoryWithIndex(directoryIndex);
 			}
 		}
+	}
+
+	//	Table methods
+	@Override
+	public String get(String key) {
+		if (key == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			return getCommand(key);
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+
+	@Override
+	public String put(String key, String value) {
+		if (key == null || value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			return putCommand(key, value);
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+
+	@Override
+	public String remove(String key) {
+		if (key == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			return removeCommand(key);
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+
+	@Override
+	public int size() {
+		int retValue = 0;
+		for (FileMapReceiver possibleTableFile : tableFiles) {
+			if (possibleTableFile != null) {
+				retValue += possibleTableFile.size();
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public int commit() {
+		int retValue = 0;
+		for (FileMapReceiver possibleTableFile : tableFiles) {
+			if (possibleTableFile != null) {
+				retValue += possibleTableFile.commit();
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public int rollback() {
+		int retValue = 0;
+		for (FileMapReceiver possibleTableFile : tableFiles) {
+			if (possibleTableFile != null) {
+				retValue += possibleTableFile.rollback();
+			}
+		}
+		return retValue;
 	}
 
 }

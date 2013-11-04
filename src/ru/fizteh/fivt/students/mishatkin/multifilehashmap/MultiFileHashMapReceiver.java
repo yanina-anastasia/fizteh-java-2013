@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.mishatkin.multifilehashmap;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.mishatkin.filemap.FileMapReceiverProtocol;
 import ru.fizteh.fivt.students.mishatkin.shell.ShellException;
+import ru.fizteh.fivt.students.mishatkin.shell.ShellPrintStream;
 import ru.fizteh.fivt.students.mishatkin.shell.ShellReceiver;
 import ru.fizteh.fivt.students.mishatkin.shell.TimeToExitException;
 
@@ -14,7 +17,7 @@ import java.util.Map;
  * Created by Vladimir Mishatkin on 10/26/13
  */
 public class MultiFileHashMapReceiver extends ShellReceiver
-		implements FileMapReceiverProtocol, MultiFileHashMapReceiverProtocol, MultiFileHashMapTableReceiverDelegate {
+		implements FileMapReceiverProtocol, MultiFileHashMapReceiverProtocol, MultiFileHashMapTableReceiverDelegate, TableProvider {
 
 	private String dbDirectory;
 
@@ -27,6 +30,10 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 		this.dbDirectory = dbDirectory;
 		this.table = null;
 		initAllTables();
+	}
+
+	public MultiFileHashMapReceiver(String dbDirectory) {
+		this(null, false, dbDirectory);
 	}
 
 	void initAllTables() {
@@ -49,7 +56,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 		File tableFile = new File(new File(dbDirectory), tableName);
 		if (tableFile.exists()) {
 			if (tableFile.isDirectory()) {
-				out.println(tableName + " exists");
+				println(tableName + " exists");
 			} else {
 				throw new MultiFileHashMapException("It\'s a trap! Trying to create \'" + tableName +
 						"\' table, but it is already a file and not a directory!");
@@ -60,7 +67,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 			newTable.setDelegate(this);
 			newTable.setTableName(tableName);
 			allTables.put(tableName, newTable);
-			out.println("created");
+			println("created");
 		}
 	}
 
@@ -75,7 +82,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 				} catch (ShellException e) {
 					throw new MultiFileHashMapException(e.getMessage());
 				}
-				out.println("dropped");
+				println("dropped");
 				allTables.remove(tableName);
 				if (table != null && tableName.equals(table.getName())) {
 					// it is in use
@@ -88,7 +95,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 			}
 		} else {
 			//	conforming the protocol here
-			out.println(tableName + " not exists");	//	I is more stronger than dart vapour
+			println(tableName + " not exists");	//	I is more stronger than dart vapour
 		}
 	}
 
@@ -103,42 +110,44 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 				}
 				//Use the force, Harry! (c) Handalf
 				table = allTables.get(tableName);
-				out.println("using " + tableName);
+				println("using " + tableName);
 			} else {
 				throw new MultiFileHashMapException("It\'s a trap! Trying to use \'" + tableName +
 						"\' table, which is clearly not a directory!");
 			}
 		} else {
-			out.println(tableName + " not exists");
+			println(tableName + " not exists");
 		}
 	}
 
 	@Override
-	public void putCommand(String key, String value) throws MultiFileHashMapException {
+	public String putCommand(String key, String value) throws MultiFileHashMapException {
 		if (table != null) {
-			table.putCommand(key, value);
+			return table.putCommand(key, value);
 		} else {
-			out.println("no table");
+			println("no table");
 		}
+		return null;
 	}
 
 	@Override
-	public void getCommand(String key) throws MultiFileHashMapException {
+	public String getCommand(String key) throws MultiFileHashMapException {
 		if (table.isSet()) {
-			table.getCommand(key);
+			return table.getCommand(key);
 		} else {
-			out.println("no table");
+			println("no table");
 		}
-
+		return null;
 	}
 
 	@Override
-	public void removeCommand(String key) throws MultiFileHashMapException {
+	public String removeCommand(String key) throws MultiFileHashMapException {
 		if (table.isSet()) {
-			table.removeCommand(key);
+			return table.removeCommand(key);
 		} else {
-			out.println("no table");
+			println("no table");
 		}
+		return null;
 	}
 
 	@Override
@@ -157,8 +166,8 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 	}
 
 	@Override
-	public PrintStream getOut() {
-		return out;
+	public ShellPrintStream getOut() {
+		return super.getOut();
 	}
 
 	public void removeTableSubDirectoryWithIndex(int directoryIndex) throws MultiFileHashMapException {
@@ -169,5 +178,30 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 			throw new MultiFileHashMapException("Internal error: cannot remove directory: " + directoryRelativeName, e);
 		}
 
+	}
+
+//	TableProvider methods
+	@Override
+	public Table getTable(String name) {
+		return allTables.get(name);
+	}
+
+	@Override
+	public Table createTable(String name) {
+		try {
+			createCommand(name);
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e.getMessage());
+		}
+		return getTable(name);
+	}
+
+	@Override
+	public void removeTable(String name) {
+		try {
+			dropCommand(name);
+		} catch (MultiFileHashMapException e) {
+			System.err.println(e);
+		}
 	}
 }
