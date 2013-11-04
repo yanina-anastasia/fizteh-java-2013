@@ -30,7 +30,8 @@ public class MultiFileTableUtils {
                     columnsList.add(String.class);
                     break;
                 default:
-                    return null;
+                    columnsList.add(null);
+                    break;
             }
         }
         return columnsList;

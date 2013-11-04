@@ -67,8 +67,8 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             throw new IllegalArgumentException("provider, create: columnTypes are null or empty");
         }
         for (Class<?> cl : columnTypes) {
-            if (cl == null || !isValidColumn(cl)) {
-                throw new IllegalArgumentException("provider, create: column type can not be null");
+            if (cl == null) {
+                throw new IllegalArgumentException("provider, create: invalid column type");
             }
         }
         if (!name.matches(TABLE_NAME_FORMAT)) {
@@ -153,25 +153,4 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         row.setAllColumns(values);
         return row;
     }
-
-    private boolean isValidColumn(Class<?> cl) {
-        switch (MultiFileTableUtils.getColumnTypeString(cl)) {
-            case "int":
-                return true;
-            case "long":
-                return true;
-            case "byte":
-                return true;
-            case "float":
-                return true;
-            case "double":
-                return true;
-            case "boolean":
-                return true;
-            case "String":
-                return true;
-        }
-        return false;
-    }
-
 }
