@@ -82,6 +82,7 @@ public class ThreadSafeTableProviderTest {
 
     private void createTable() {
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
         try {
             newTable = provider.createTable("randomName", columnTypes);
         } catch (IOException e) {
