@@ -10,11 +10,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class MultiFileHashMapTableProviderTest {
-    private static File dbDir;
     private static MultiFileHashMapTableProvider tp;
 
     public MultiFileHashMapTableProviderTest() throws IOException {
-        dbDir = new File("test");
+        File dbDir = new File("test");
 
         dbDir.mkdirs();
 
@@ -23,25 +22,30 @@ public class MultiFileHashMapTableProviderTest {
 
     @Test
     public void testGetTable() throws Exception {
-        MultiFileHashMapTable table1 = tp.createTable("true stories");
-        Assert.assertEquals(table1, tp.getTable("true stories"));
+        MultiFileHashMapTable table1 = tp.createTable("trueStories");
+        Assert.assertEquals(table1, tp.getTable("trueStories"));
 
-        MultiFileHashMapTable table2 = tp.createTable("great expectations");
-        Assert.assertEquals(table2, tp.getTable("great expectations"));
+        MultiFileHashMapTable table2 = tp.createTable("greatExpectations");
+        Assert.assertEquals(table2, tp.getTable("greatExpectations"));
 
-        Assert.assertEquals(table1, tp.getTable("true stories"));
-        Assert.assertEquals(table2, tp.getTable("great expectations"));
+        Assert.assertEquals(table1, tp.getTable("trueStories"));
+        Assert.assertEquals(table2, tp.getTable("greatExpectations"));
+
+        tp.removeTable("trueStories");
+        tp.removeTable("greatExpectations");
     }
 
     @Test
     public void testCreateTable() throws Exception {
         Assert.assertNotNull(tp.createTable("lower"));
+
+        tp.removeTable("lower");
     }
 
     @Test
     public void testRemoveTable() throws Exception {
         tp.createTable("madmen");
-        tp.createTable("life is pain");
+        tp.createTable("lifeIsPain");
         tp.createTable("loony");
 
         tp.removeTable("madmen");
@@ -50,11 +54,13 @@ public class MultiFileHashMapTableProviderTest {
         tp.removeTable("loony");
         Assert.assertNull(tp.getTable("loony"));
 
-        Assert.assertNotNull(tp.getTable("life is pain"));
+        Assert.assertNotNull(tp.getTable("lifeIsPain"));
+
+        tp.removeTable("lifeIsPain");
     }
 
     @Test
-    public void testGetGetTable() throws Exception {
+    public void testCreateGetGetTable() throws Exception {
         MultiFileHashMapTable table = tp.createTable("bananas");
         MultiFileHashMapTable gotTable1 = tp.getTable("bananas");
         MultiFileHashMapTable gotTable2 = tp.getTable("bananas");
@@ -62,6 +68,8 @@ public class MultiFileHashMapTableProviderTest {
 
         Assert.assertSame(table, gotTable1);
         Assert.assertSame(gotTable1, gotTable2);
+
+        tp.removeTable("bananas");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -81,28 +89,30 @@ public class MultiFileHashMapTableProviderTest {
 
     @Test
     public void testGetNotExistingNameTable() throws Exception {
-        Assert.assertNull(tp.getTable("be happy"));
+        Assert.assertNull(tp.getTable("beHappy"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNullTable() throws Exception {
-        tp.getTable(null);
+        tp.createTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateEmptyNameTable() throws Exception {
-        tp.getTable("   \t   \n");
+        tp.createTable("   \t   \n");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateIncorrectNameTable() throws Exception {
-        tp.getTable("!@#$%^%&iesocremoval of the brainImq0114    qcxF!#EDЖД.бБЖДФБ");
+        tp.createTable("!@#$%^%&iesocremoval of the brainImq0114    qcxF!#EDЖД.бБЖДФБ");
     }
 
     @Test
     public void testCreateExistingNameTable() throws Exception {
-        tp.createTable("shake it out");
-        Assert.assertNull(tp.createTable("shake it out"));
+        tp.createTable("shakeItOut");
+        Assert.assertNull(tp.createTable("shakeItOut"));
+
+        tp.removeTable("shakeItOut");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -122,6 +132,6 @@ public class MultiFileHashMapTableProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void testRemoveNotExistingNameTable() throws Exception {
-        tp.getTable("do not worry");
+        tp.removeTable("doNotWorry");
     }
 }

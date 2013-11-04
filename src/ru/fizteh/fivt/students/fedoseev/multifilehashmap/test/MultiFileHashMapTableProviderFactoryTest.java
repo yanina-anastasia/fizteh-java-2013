@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap.test;
 
 import junit.framework.Assert;
+import org.junit.After;
 import org.junit.Test;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTableProvider;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTableProviderFactory;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 public class MultiFileHashMapTableProviderFactoryTest {
     private MultiFileHashMapTableProviderFactory tpf;
-    private File db;
+    File db;
 
     public MultiFileHashMapTableProviderFactoryTest() throws IOException {
         tpf = new MultiFileHashMapTableProviderFactory();
@@ -38,5 +39,10 @@ public class MultiFileHashMapTableProviderFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNotExistingDatabase() throws Exception {
         tpf.create("despair");
+    }
+
+    @After
+    public void tearDown() {
+        db.delete();
     }
 }

@@ -1,14 +1,18 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap.test;
 
 import junit.framework.Assert;
+import org.junit.After;
 import org.junit.Test;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTable;
+import ru.fizteh.fivt.students.fedoseev.multifilehashmap.MultiFileHashMapTableProvider;
 
 public class MultiFileHashMapTableTest {
+    private static MultiFileHashMapTableProvider tp;
     private MultiFileHashMapTable table;
 
     public MultiFileHashMapTableTest() {
-        table = new MultiFileHashMapTable("test");
+        tp = new MultiFileHashMapTableProvider();
+        table = tp.createTable("test");
     }
 
     @Test
@@ -18,11 +22,11 @@ public class MultiFileHashMapTableTest {
 
     @Test
     public void testGet() throws Exception {
-        table.put("England", "for English");
-        Assert.assertEquals("for English", table.get("England"));
+        table.put("England", "forEnglish");
+        Assert.assertEquals("forEnglish", table.get("England"));
 
-        table.put("Россия", "для русских");
-        Assert.assertEquals("для русских", table.get("Россия"));
+        table.put("Россия", "дляРусских");
+        Assert.assertEquals("дляРусских", table.get("Россия"));
 
         table.put("日本", "日本人のための");
         Assert.assertEquals("日本人のための", table.get("日本"));
@@ -46,7 +50,7 @@ public class MultiFileHashMapTableTest {
 
     @Test
     public void testPutSize() throws Exception {
-        table.put("damn", "it all");
+        table.put("damn", "itAll");
         Assert.assertEquals(1, table.size());
     }
 
@@ -57,7 +61,7 @@ public class MultiFileHashMapTableTest {
 
     @Test
     public void testPutCommit() throws Exception {
-        table.put("cymkih, merge me completely", "please");
+        table.put("cymkih,mergeMeCompletely", "please");
         Assert.assertEquals(1, table.commit());
     }
 
@@ -89,9 +93,9 @@ public class MultiFileHashMapTableTest {
 
     @Test
     public void testPutOverwriteGet() throws Exception {
-        table.put("Hey! What`s up, dawg?", "Bog off!");
-        table.put("Hey! What`s up, dawg?", "Cool, bro!");
-        Assert.assertEquals("Cool, bro!", table.get("Hey! What`s up, dawg?"));
+        table.put("Hey!What`sUp,dawg?", "BogOff!");
+        table.put("Hey!What`sUp,dawg?", "Cool,Bro!");
+        Assert.assertEquals("Cool,Bro!", table.get("Hey!What`sUp,dawg?"));
     }
 
     @Test
@@ -145,22 +149,22 @@ public class MultiFileHashMapTableTest {
 
     @Test
     public void testPutOverwrite() throws Exception {
-        table.put("Dolphins", "are stupid");
-        Assert.assertEquals("are stupid", table.put("Dolphins", "are smart"));
+        table.put("Dolphins", "areStupid");
+        Assert.assertEquals("areStupid", table.put("Dolphins", "areSmart"));
     }
 
     @Test
     public void testPutCommitGet() throws Exception {
-        table.put("qué guay", "fenomenal");
+        table.put("quéGuay", "fenomenal");
         Assert.assertEquals(1, table.commit());
-        Assert.assertEquals("fenomenal", table.get("qué guay"));
+        Assert.assertEquals("fenomenal", table.get("quéGuay"));
     }
 
     @Test
     public void testPutRollbackGet() throws Exception {
-        table.put("qué guay", "fenomenal");
+        table.put("quéGuay", "fenomenal");
         Assert.assertEquals(1, table.rollback());
-        Assert.assertNull(table.get("qué guay"));
+        Assert.assertNull(table.get("quéGuay"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -237,5 +241,10 @@ public class MultiFileHashMapTableTest {
         Assert.assertEquals(2, table.rollback());
         Assert.assertEquals(0, table.commit());
         Assert.assertEquals(2, table.size());
+    }
+
+    @After
+    public void tearDown() {
+        tp.removeTable("test");
     }
 }
