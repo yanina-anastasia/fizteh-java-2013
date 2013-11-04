@@ -52,7 +52,7 @@ public class StoreableRow implements Storeable {
                 throw new ColumnFormatException("set column at: bad type");
             }
         }
-        row.add(columnIndex, value);
+        row.set(columnIndex, value);
     }
 
     @Override
