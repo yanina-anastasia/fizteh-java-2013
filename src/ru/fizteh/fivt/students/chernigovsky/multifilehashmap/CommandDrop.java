@@ -21,7 +21,9 @@ public class CommandDrop implements Command {
             System.out.println(args[1] + " not exists");
             return;
         }
-
+        if (state.getCurrentTableProvider().getTable(args[1]) == state.getCurrentTable()) {
+            state.changeCurrentTable(null);
+        }
         System.out.println("dropped");
     }
 
