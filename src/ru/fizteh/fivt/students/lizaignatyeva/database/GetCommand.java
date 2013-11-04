@@ -13,9 +13,9 @@ public class GetCommand extends Command {
         if (!checkArguments(args)) {
             throw new IllegalArgumentException("invalid usage");
         }
-        Database database = DbMain.getCurrentDatabase();
+        Table table = DbMain.getCurrentTable();
         String key = args[0];
-        String value = database.data.get(key);
+        String value = table.data.get(key);
         if (value == null) {
             System.out.println("not found");
         } else {

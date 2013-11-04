@@ -13,10 +13,10 @@ public class RemoveCommand extends Command{
         if (!checkArguments(args)) {
             throw new IllegalArgumentException("invalid usage");
         }
-        Database database = DbMain.getCurrentDatabase();
+        Table table = DbMain.getCurrentTable();
         String key = args[0];
-        if (database.data.containsKey(key)) {
-            database.data.remove(key);
+        if (table.data.containsKey(key)) {
+            table.data.remove(key);
             System.out.println("removed");
         } else {
             System.out.println("not found");

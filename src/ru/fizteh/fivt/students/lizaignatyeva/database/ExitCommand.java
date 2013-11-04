@@ -15,7 +15,7 @@ public class ExitCommand extends Command {
         }
         //DbMain.getCurrentDatabase().write();
         try {
-            DbMain.getCurrentDatabase().writeToFile();
+            DbMain.getCurrentTable().writeToFile();
         } catch (Exception e) {
             System.err.println("Ooops! Error: " + e.getMessage());
         }
