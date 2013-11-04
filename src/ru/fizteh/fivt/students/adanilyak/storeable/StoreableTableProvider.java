@@ -24,7 +24,7 @@ public class StoreableTableProvider implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<>();
     private File allTablesDirectory;
 
-    public StoreableTableProvider(File atDirectory) {
+    public StoreableTableProvider(File atDirectory) throws IOException {
         if (atDirectory == null) {
             throw new IllegalArgumentException("Directory is not set");
         }
