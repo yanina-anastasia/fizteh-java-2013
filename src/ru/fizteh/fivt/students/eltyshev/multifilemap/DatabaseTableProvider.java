@@ -17,9 +17,6 @@ public class DatabaseTableProvider implements TableProvider {
 
     public DatabaseTableProvider(String databaseDirectoryPath) {
         this.databaseDirectoryPath = databaseDirectoryPath;
-        if (databaseDirectoryPath == null || databaseDirectoryPath.isEmpty()) {
-            throw new IllegalArgumentException("database directory cannot be null");
-        }
         File databaseDirectory = new File(databaseDirectoryPath);
         for (final File tableFile : databaseDirectory.listFiles()) {
             if (tableFile.isFile()) {
