@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import org.junit.*;
+import ru.fizteh.fivt.storage.strings.Table;
 
 public class FileMapProviderTest {
 	private FileMapProvider provider;
@@ -42,8 +43,12 @@ public class FileMapProviderTest {
 
 	@Test
 	public void gettingCreatedTable() {
-		provider.createTable("testGet");
+		Table created = provider.createTable("testGet");
+		Table firstGet = provider.getTable("testGet");
+		Table secondGet = provider.getTable("testGet");
 		Assert.assertEquals("should be testGet", "testGet", provider.getTable("testGet").getName());
+		Assert.assertSame("getting should returns the same table as create", created, firstGet);
+		Assert.assertSame("getting the same table twice should return the same", firstGet, secondGet);
 		provider.removeTable("testGet");
 	}
 

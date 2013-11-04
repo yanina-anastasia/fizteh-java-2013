@@ -172,8 +172,6 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 		return name;
 	}
 
-	//Unsupported functionality
-
 	@Override
 	public int commit() {
 		for (Map.Entry<String, String> entry: added.entrySet()) {
@@ -197,8 +195,6 @@ public class FileMap implements Iterable<Map.Entry<String, String>>, DiffCountin
 
 		return diffNum;
 	}
-
-	//Unsupported functionality
 
 	@Override
     public int rollback() {
