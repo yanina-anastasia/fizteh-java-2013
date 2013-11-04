@@ -107,7 +107,6 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         Storeable row = createFor(table);
         XMLReader reader = new XMLReader(value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            // check for valid type
             row.setColumnAt(i, reader.readValue(table.getColumnType(i)));
         }
         reader.close();
@@ -122,7 +121,6 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         XMLWriter writer = new XMLWriter();
         try {
             for (int i = 0; i < table.getColumnsCount(); ++i) {
-                // check for value type
                 writer.writeValue(value.getColumnAt(i));
             }
         } catch (IndexOutOfBoundsException e) {

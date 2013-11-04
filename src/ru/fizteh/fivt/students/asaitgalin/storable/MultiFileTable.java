@@ -75,7 +75,6 @@ public class MultiFileTable implements ExtendedTable {
         for (int i = 0; i < getColumnsCount(); ++i) {
 
         }
-        // check for valid storable value, ColumnFormatException
         return container.containerPutValue(key, value);
     }
 
