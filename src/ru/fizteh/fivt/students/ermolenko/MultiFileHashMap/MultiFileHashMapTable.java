@@ -116,7 +116,6 @@ public class MultiFileHashMapTable implements Table {
                 changesBase.put(key, value);
             }
         }
-
         /*
         if (changesBase.containsKey(key)) {
             if (changesBase.get(key) == null) {
