@@ -181,15 +181,21 @@ public class Table {
     }
 
     public void writeToFile() throws IOException {
+        try {
+            this.delete();
+        } catch (Exception e) {
+            //
+        }
+        FileUtils.mkDir(path.getAbsolutePath());
         String fileName = path.getCanonicalPath();
         for (String key: data.keySet()) {
             String value = data.get(key);
             File directory = FileUtils.mkDir(path.getAbsolutePath()
                                         + File.separator + getDirName(key));
             File file = FileUtils.mkFile(directory, getFileName(key));
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath()));
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
             try {
-                System.out.println("writing " + key);
+                //System.out.println("writing " + key);
                 writeEntry(key, value, outputStream);
             } finally {
                 try {
