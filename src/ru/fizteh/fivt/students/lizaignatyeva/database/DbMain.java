@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.lizaignatyeva.shell.Command;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandFactory;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandRunner;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +18,7 @@ public class DbMain {
     private static Hashtable<String, Table> tables;
     private static Hashtable<String, Command> commandsMap;
 
-    static Table currentTable;
+    static Table currentTable = null;
 
     public static Table getCurrentTable() throws Exception {
         //return databases.get(currentDatabaseName); MULTI ONLY
@@ -64,6 +65,32 @@ public class DbMain {
         commandsMap.put("drop", new DropCommand());
     }
 
+    private static void scan() {
+        for (File subDir : directory.toFile().listFiles()) {
+            try {
+                Table currTable = new Table(subDir);
+                addTable(currTable);
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
+        }
+    }
+
+    public static void saveCurrentTable() {
+        if (currentTable == null) {
+            return;
+        }
+        try {
+            currentTable.writeToFile();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         //TODO: remove that for MULTI
         tables = new Hashtable<String, Table>();
@@ -85,6 +112,7 @@ public class DbMain {
 
         currentTable = new Database(path.toString()); // SIMPLE ONLY*/
         addCommands();
+        scan();
         CommandRunner runner = new CommandRunner(directory.toFile(), commandsMap);
         runner.run(args);
 

@@ -13,6 +13,7 @@ public class UseCommand extends Command {
         if (!checkArguments(args)) {
             throw new IllegalArgumentException("invalid usage");
         }
+        DbMain.saveCurrentTable();
         String tableName = args[0];
         if (!DbMain.tableExists(tableName)) {
             System.out.println(tableName + " not exists");

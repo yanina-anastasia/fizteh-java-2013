@@ -20,5 +20,6 @@ public class DropCommand extends Command {
         }
         Table table = DbMain.getTable(tableName);
         table.delete();
+        System.out.println("dropped");
     }
 }

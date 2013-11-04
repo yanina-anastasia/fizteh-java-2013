@@ -17,7 +17,7 @@ import java.util.zip.DataFormatException;
 public class Table {
     final File path;
     final int base = 16;
-    HashMap<String, String> data;
+    HashMap<String, String> data = new HashMap<String, String>();
     String name;
     public Table(Path globalDirectory, String tableName) {
         name = tableName;
@@ -39,6 +39,17 @@ public class Table {
         } catch (Exception e) {
             System.err.println("Error creating table: " + e.getMessage());
             System.exit(1);
+        }
+    }
+
+    public Table(File directory) throws IllegalArgumentException {
+        path = directory;
+        name = path.getName();
+        //System.out.println("found table " + name);
+        try {
+            readTable();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Directory contains invalid subdirectories/files: " + e.getMessage());
         }
     }
 
@@ -65,7 +76,7 @@ public class Table {
     }
 
     private boolean isValid(String key, String dirName, String fileName) {
-        return !(getDirName(key).equals(dirName) && getFileName(key).equals(fileName));
+        return (getDirName(key).equals(dirName) && getFileName(key).equals(fileName));
     }
 
     private void readEntry(ByteBuffer buffer, String dirName, String fileName) throws BufferUnderflowException,
@@ -84,7 +95,9 @@ public class Table {
         buffer.get(valueBytes);
         String key = new String(keyBytes, StandardCharsets.UTF_8);
         if (!isValid(key, dirName, fileName)) {
-            throw new DataFormatException("entry in a wrong file, key: " + key);
+            throw new DataFormatException("entry in a wrong file, key: " + key + ", file: "
+                    + fileName + ", expected file: " + getFileName(key) + ", directory: " + dirName
+                    + ", expected directory: " + getDirName(key));
         }
         String value = new String(valueBytes, StandardCharsets.UTF_8);
         if (data.containsKey(key)) {
@@ -104,7 +117,8 @@ public class Table {
 
     private boolean isValidFileName(String name) {
         for (int i = 0; i < base; ++i) {
-            if (name.equals(Integer.toString(i) + ".db")) {
+            //System.out.print(i);
+            if (name.equals(Integer.toString(i) + ".dat")) {
                 return true;
             }
         }
@@ -112,9 +126,15 @@ public class Table {
     }
 
     public void readTable() throws IOException, DataFormatException {
+        if (path.listFiles() == null) {
+            return;
+        }
         for (File dir : path.listFiles()) {
+            if (dir.getName().equals(".DS_Store")) {
+                continue;
+            }
             if (!dir.isDirectory() || !isValidDirectoryName(dir.getName())) {
-                throw new DataFormatException("Table '" + name + "' contains strange file(s)");
+                throw new DataFormatException("Table '" + name + "' contains strange file(s): '" + dir.getName() + "'");
             }
             readData(dir);
         }
@@ -122,8 +142,11 @@ public class Table {
 
     public void readData(File directory) throws IOException, DataFormatException {
         for (File file : directory.listFiles()) {
+            if (file.getName().equals(".DS_Store")) {
+                continue;
+            }
             if (!isValidFileName(file.getName())) {
-                throw new DataFormatException("Table '" + name + "' contains strange file(s)");
+                throw new DataFormatException("Table '" + name + "' contains strange file(s): '" + file.getName() + "'");
             }
             readFromFile(file.getCanonicalPath(), directory.getName(), file.getName());
         }
