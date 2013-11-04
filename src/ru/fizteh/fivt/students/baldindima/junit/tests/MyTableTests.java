@@ -58,15 +58,7 @@ public class MyTableTests {
 
    
 
-    @Test
-    public void testPutGetRemoveRussian() {
-        Assert.assertNull(table.put("йцук", "енгш"));
-        Assert.assertEquals(table.get("йцук"), "енгш");
-        Assert.assertNull(table.get("енгш"));
-        Assert.assertEquals(table.put("йцук", "щзхъ"), "енгш");
-        Assert.assertEquals(table.remove("йцук"), "щзхъ");
-    }
-
+   
     
 
     @Test
@@ -133,16 +125,16 @@ public class MyTableTests {
 
     @Test
     public void testCommitRollback() {
-        Assert.assertNull(table.put("лала", "арара"));
-        Assert.assertEquals(table.get("лала"), "арара");
+        Assert.assertNull(table.put("a", "b"));
+        Assert.assertEquals(table.get("a"), "b");
         Assert.assertEquals(table.rollback(), 1);
-        Assert.assertNull(table.get("лала"));
-        Assert.assertNull(table.put("лала", "арара"));
-        Assert.assertEquals(table.get("лала"), "арара");
+        Assert.assertNull(table.get("a"));
+        Assert.assertNull(table.put("a", "b"));
+        Assert.assertEquals(table.get("a"), "b");
         Assert.assertEquals(table.commit(), 1);
-        Assert.assertEquals(table.remove("лала"), "арара");
-        Assert.assertNull(table.put("лала", "арараара"));
+        Assert.assertEquals(table.remove("a"), "b");
+        Assert.assertNull(table.put("a", "bb"));
         Assert.assertEquals(table.commit(), 1);
-        Assert.assertEquals(table.get("лала"), "арараара");
+        Assert.assertEquals(table.get("a"), "bb");
     }
 }

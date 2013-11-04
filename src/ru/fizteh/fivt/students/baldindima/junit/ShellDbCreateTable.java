@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.baldindima.junit;
 
-import java.io.File;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
