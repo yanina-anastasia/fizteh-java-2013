@@ -102,7 +102,15 @@ public class TableImplementation implements Table {
 	}
 
 	public int getChangesNumber() {
-		return putDiff.size() + removeDiff.size();
+		int removed = 0;
+		Iterator<String> removeDiffIterator = removeDiff.iterator();
+	    while(removeDiffIterator.hasNext()){
+	        String key = removeDiffIterator.next();
+	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
+	        	++removed;
+	        }
+	    }
+		return putDiff.size() + removed;
 	}
 	
 	public FilesMap getFilesMap() {
