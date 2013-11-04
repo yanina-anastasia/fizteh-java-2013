@@ -15,23 +15,23 @@ public class TableImplementation implements Table {
     }
 
     public String get(String key) {
-    	if (key == null) {
-    		throw new IllegalArgumentException("null key");
+    	if ((key == null) || (key.trim().isEmpty())) {
+    		throw new IllegalArgumentException("null or empty key");
     	}
     	return filesMap.getFileMapForKey(key).getCurrentTable().get(key);
     }
 
     public String put(String key, String value) {
-    	if ((key == null) || (value == null)) {
-    		throw new IllegalArgumentException("null parameter");
+    	if ((key == null) || (key.trim().isEmpty()) || (value == null) || (value.trim().isEmpty())) {
+    		throw new IllegalArgumentException("null or empty parameter");
     	}
     	++changesNumber;
    		return filesMap.getFileMapForKey(key).getCurrentTable().put(key, value);
     }
 
     public String remove(String key) {
-    	if (key == null) {
-    		throw new IllegalArgumentException("null key");
+    	if ((key == null) || (key.trim().isEmpty())) {
+    		throw new IllegalArgumentException("null or empty key");
     	}
     	String removed = filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
     	if (removed != null) {
