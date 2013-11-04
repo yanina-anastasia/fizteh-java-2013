@@ -172,6 +172,7 @@ public class MultiFileHashMapTable implements Table {
         }
 
         this.changesBase.clear();
+        sizeTable = dataBase.size();
         return size;
     }
 
@@ -180,6 +181,7 @@ public class MultiFileHashMapTable implements Table {
 
         int size = changesBase.size();
         changesBase.clear();
+        sizeTable = dataBase.size();
         return size;
     }
 }

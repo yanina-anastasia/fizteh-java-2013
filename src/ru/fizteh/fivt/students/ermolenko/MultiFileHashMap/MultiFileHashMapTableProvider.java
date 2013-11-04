@@ -16,6 +16,12 @@ public class MultiFileHashMapTableProvider implements TableProvider {
 
     public MultiFileHashMapTableProvider(File inDir) {
 
+        if (inDir == null) {
+            throw new IllegalArgumentException("null directory");
+        }
+        if (!inDir.isDirectory()) {
+            throw new IllegalArgumentException("not a directory");
+        }
         mapOfTables = new HashMap<String, MultiFileHashMapTable>();
         currentDir = inDir;
         File[] fileMas = currentDir.listFiles();
