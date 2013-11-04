@@ -21,6 +21,13 @@ public class MyStoreable implements Storeable {
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
         
+	if (value == null) {
+	    if (columnIndex < values.size()) {
+		values.add(columnIndex, value);
+		return;
+	    }
+	}
+	
         if (!value.getClass().equals(table.getColumnType(columnIndex))) {
             throw new ColumnFormatException();
         }

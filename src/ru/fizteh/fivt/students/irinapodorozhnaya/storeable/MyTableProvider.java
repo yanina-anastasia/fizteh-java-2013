@@ -131,7 +131,7 @@ public class MyTableProvider implements ExtendProvider {
         
         int size = table.getColumnsCount();
         if (size != values.size()) {
-         //   throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException();
         }
         
         Storeable res = new MyStoreable(table);
