@@ -82,6 +82,7 @@ public class MultiFileHashMapUtils {
         }
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
+            File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
                 HashMap<String, String> currentMap = new HashMap<String, String>();
                 for (Map.Entry<String, String> entry : state.getEntrySet()) {
@@ -90,7 +91,6 @@ public class MultiFileHashMapUtils {
                     }
                 }
 
-                File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
                 File file = new File(dir, fileNumber.toString() + ".dat");
 
                 if (currentMap.size() == 0) {
@@ -124,6 +124,15 @@ public class MultiFileHashMapUtils {
                 }
 
             }
+
+            if (dir.exists()) {
+                if (dir.list().length == 0) {
+                    if (!dir.delete()) {
+                        throw new IOException("Delete error");
+                    }
+                }
+            }
+
         }
 
     }
