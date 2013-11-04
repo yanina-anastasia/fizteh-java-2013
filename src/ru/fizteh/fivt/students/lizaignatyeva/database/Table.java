@@ -154,7 +154,8 @@ public class Table {
                 continue;
             }
             if (!isValidFileName(file.getName())) {
-                throw new DataFormatException("Table '" + name + "' contains strange file(s): '" + file.getName() + "'");
+                throw new DataFormatException("Table '" + name + "' contains strange file(s): '"
+                        + file.getName() + "'");
             }
             readFromFile(file.getCanonicalPath(), directory.getName(), file.getName());
         }
@@ -201,7 +202,8 @@ public class Table {
             File directory = FileUtils.mkDir(path.getAbsolutePath()
                                         + File.separator + getDirName(key));
             File file = FileUtils.mkFile(directory, getFileName(key));
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
+            BufferedOutputStream outputStream =
+                    new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
             try {
                 //System.out.println("writing " + key);
                 writeEntry(key, value, outputStream);
