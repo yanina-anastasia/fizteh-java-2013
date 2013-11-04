@@ -7,11 +7,10 @@ import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Alexander
@@ -82,9 +81,12 @@ public class WorkWithStoreableDataBase {
     private static List<Class<?>> getListOfTypes(File dataBaseDirectory) throws ParseException {
         final File signature = new File(dataBaseDirectory, "signature.tsv");
         try {
-            RandomAccessFile signatureReader = new RandomAccessFile(signature, "rw");
-            String stringOfTypes = signatureReader.readLine();
-            String[] types = stringOfTypes.trim().split("\\s");
+            Scanner scanner = new Scanner(new FileInputStream(signature));
+            if (!scanner.hasNextLine()) {
+                throw new IOException("signature.tsv file is empty");
+            }
+            String[] types = scanner.nextLine().split("\\s");
+
             List<Class<?>> result = new ArrayList<>();
             for (Integer i = 0; i < types.length; ++i) {
                 switch (types[i]) {
@@ -113,7 +115,7 @@ public class WorkWithStoreableDataBase {
                         throw new IOException("signature.tsv has a bad symbols");
                 }
             }
-            signatureReader.close();
+            scanner.close();
             return result;
         } catch (IOException exc) {
             throw new ParseException("read signature failed", 11);
@@ -155,13 +157,56 @@ public class WorkWithStoreableDataBase {
 
     public static void createSignatureFile(File tableStorageDirectory, Table table) {
         try {
+            File signatureFile = new File(tableStorageDirectory, "signature.tsv");
+
+            if (!signatureFile.exists()) {
+                signatureFile.createNewFile();
+            }
+            BufferedWriter signatureWriter = new BufferedWriter(new FileWriter(signatureFile));
+            Integer countOfColumns = table.getColumnsCount();
+            for (Integer i = 0; i < countOfColumns; ++i) {
+                Class<?> type = table.getColumnType(i);
+                switch (type.getCanonicalName()) {
+                    case "java.lang.Integer":
+                        signatureWriter.write("int");
+                        break;
+                    case "java.lang.Long":
+                        signatureWriter.write("long");
+                        break;
+                    case "java.lang.Byte":
+                        signatureWriter.write("byte");
+                        break;
+                    case "java.lang.Float":
+                        signatureWriter.write("float");
+                        break;
+                    case "java.lang.Double":
+                        signatureWriter.write("double");
+                        break;
+                    case "java.lang.Boolean":
+                        signatureWriter.write("boolean");
+                        break;
+                    case "java.lang.String":
+                        signatureWriter.write("String");
+                        break;
+                    default:
+                        throw new IOException("signature.tsv creation: something went wrong");
+                }
+                signatureWriter.write(" ");
+            }
+            signatureWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        /*
+        try {
             RandomAccessFile signatureWriter = new RandomAccessFile(new File(tableStorageDirectory, "signature.tsv"), "rw");
             Integer countOfColumns = table.getColumnsCount();
             for (Integer i = 0; i < countOfColumns; ++i) {
                 Class<?> type = table.getColumnType(i);
                 switch (type.getCanonicalName()) {
                     case "java.lang.Integer":
-                        signatureWriter.writeUTF("int");
+                        signatureWriter.write(("int").getBytes());
                         break;
                     case "java.lang.Long":
                         signatureWriter.writeUTF("long");
@@ -190,12 +235,14 @@ public class WorkWithStoreableDataBase {
         } catch (IOException exc) {
             System.err.println(exc.getMessage());
         }
+        */
     }
 
     public static List<Class<?>> createListOfTypes(List<String> args) throws IOException {
         List<Class<?>> result = new ArrayList<>();
-        for (Integer i = 2; i < args.size(); ++i) {
-            switch (args.get(i)) {
+        List<String> types = StoreableCmdParseAndExecute.intoCommandsAndArgs(args.get(2), " ");
+        for (String type : types) {
+            switch (type) {
                 case "int":
                     result.add(Integer.class);
                     break;

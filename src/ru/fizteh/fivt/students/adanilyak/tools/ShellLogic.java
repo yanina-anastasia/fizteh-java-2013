@@ -20,10 +20,10 @@ public class ShellLogic {
             packOfCommands.append(cmdOrArg).append(" ");
         }
         String inputLine = packOfCommands.toString();
-        List<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+        List<String> commandWithArgs = StoreableCmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
         try {
             for (String command : commandWithArgs) {
-                CmdParseAndExecute.execute(command, cmdList);
+                StoreableCmdParseAndExecute.execute(command, cmdList);
             }
         } catch (Exception exc) {
             err.println(exc.getMessage());
@@ -42,10 +42,10 @@ public class ShellLogic {
 
             out.print("$ ");
             String inputLine = inputStream.nextLine();
-            List<String> commandWithArgs = CmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
+            List<String> commandWithArgs = StoreableCmdParseAndExecute.intoCommandsAndArgs(inputLine, ";");
             try {
                 for (String command : commandWithArgs) {
-                    CmdParseAndExecute.execute(command, cmdList);
+                    StoreableCmdParseAndExecute.execute(command, cmdList);
                 }
             } catch (Exception exc) {
                 err.println(exc.getMessage());

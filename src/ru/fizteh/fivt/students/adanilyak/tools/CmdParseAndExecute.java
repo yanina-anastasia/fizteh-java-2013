@@ -32,14 +32,8 @@ public class CmdParseAndExecute {
             }
 
             Cmd command = cmdList.get(commandName);
-            if (!commandName.equals("create") && !commandName.equals("put")) {
-                if (cmdAndArgs.size() != command.getAmArgs() + 1) {
-                    throw new IOException("Wrong amount of arguments");
-                }
-            } else {
-                if (cmdAndArgs.size() < command.getAmArgs() + 1) {
-                    throw new IOException("Wrong amount of arguments");
-                }
+            if (cmdAndArgs.size() != command.getAmArgs() + 1) {
+                throw new IOException("Wrong amount of arguments");
             }
 
             command.work(cmdAndArgs);

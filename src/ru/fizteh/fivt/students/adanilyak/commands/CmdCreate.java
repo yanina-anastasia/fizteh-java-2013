@@ -38,13 +38,7 @@ public class CmdCreate implements Cmd {
         if (workState.getTable(useTableName) != null) {
             System.err.println(useTableName + " exists");
         } else {
-            List<Class<?>> types;
-            if (args.size() == 2) {
-                types = new ArrayList<>();
-                types.add(String.class);
-            } else {
-                types = WorkWithStoreableDataBase.createListOfTypes(args);
-            }
+            List<Class<?>> types = WorkWithStoreableDataBase.createListOfTypes(args);
             workState.createTable(useTableName, types);
             System.out.println("created");
         }

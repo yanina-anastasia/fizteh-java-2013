@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.tools.StoreableCmdParseAndExecute;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -37,16 +37,13 @@ public class CmdPut implements Cmd {
         if (workState.currentTable != null) {
             String key = args.get(1);
             String value = args.get(2);
-            try {
-                Storeable result = workState.currentTable.put(key, workState.currentTableManager.deserialize(workState.currentTable, value));
-                if (result == null) {
-                    System.out.println("new");
-                } else {
-                    System.out.println("overwrite");
-                    System.out.println(result);
-                }
-            } catch (ParseException exc) {
-                throw new IOException(exc);
+            Storeable toPut = StoreableCmdParseAndExecute.putStringIntoStoreable(value, workState.currentTable, workState.currentTableManager);
+            Storeable result = workState.currentTable.put(key, toPut);
+            if (result == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(StoreableCmdParseAndExecute.outPutToUser(result, workState.currentTable, workState.currentTableManager));
             }
         } else {
             System.out.println("no table");
