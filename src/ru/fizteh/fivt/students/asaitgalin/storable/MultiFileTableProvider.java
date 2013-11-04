@@ -22,7 +22,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
     private File dbDirectory;
-    private Map<String, ExtendedTable> tableMap = new HashMap<String, ExtendedTable>();
+    private Map<String, ExtendedTable> tableMap = new HashMap<>();
 
     public MultiFileTableProvider(File dbDirectory) {
         if (dbDirectory == null) {
@@ -63,16 +63,16 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("provider, create: invalid name");
         }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new RuntimeException("provider, create: incorrect table name");
+        }
         if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("provider, create: columnTypes are null or empty");
         }
         for (Class<?> cl : columnTypes) {
-            if (cl == null) {
+            if (cl == null || MultiFileTableUtils.getColumnTypeString(cl) == null) {
                 throw new IllegalArgumentException("provider, create: invalid column type");
             }
-        }
-        if (!name.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("provider, create: incorrect table name");
         }
         File tableDir = new File(dbDirectory, name);
         if (tableDir.exists()) {
