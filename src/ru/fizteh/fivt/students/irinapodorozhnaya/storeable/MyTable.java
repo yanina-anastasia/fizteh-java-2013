@@ -67,6 +67,11 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         }
         
         int size = columnType.size();
+        
+        if (columnType.isEmpty()) {
+            return null;
+        }
+        
         for (int i = 0; i < size; ++i) {
             try {
                     Object valueI = value.getColumnAt(i);

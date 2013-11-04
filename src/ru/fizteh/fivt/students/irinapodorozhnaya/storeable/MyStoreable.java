@@ -20,11 +20,11 @@ public class MyStoreable implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
-        
 	
 	if (columnIndex >= values.size() || columnIndex < 0) {
 	    return;
 	}
+	
 	if (value == null) {
 	    if (columnIndex < values.size()) {
 		values.add(columnIndex, value);
