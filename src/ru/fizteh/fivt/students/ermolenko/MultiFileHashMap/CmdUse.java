@@ -19,11 +19,6 @@ public class CmdUse implements Command<MultiFileHashMapState> {
 
         if (inState.getCurrentTable() != null) {
             if (!inState.getCurrentTable().getName().equals(args[0])) {
-                /*
-                File fileForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataFile();
-                Map<String, String> mapForWrite = ((MultiFileHashMapTable) inState.getCurrentTable()).getDataBase();
-                MultiFileHashMapUtils.write(fileForWrite, mapForWrite);
-                */
                 int size = inState.getChangesBaseSize();
                 if (size != 0) {
                     System.out.println(size + " unsaved changes");
@@ -39,12 +34,10 @@ public class CmdUse implements Command<MultiFileHashMapState> {
             return;
         }
 
-        Map<String, String> tmpDataBase = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataBase();
-        File tmpDataFile = ((MultiFileHashMapTable) inState.getTable(args[0])).getDataFile();
+        Map<String, String> tmpDataBase = inState.getTable(args[0]).getDataBase();
+        File tmpDataFile = inState.getTable(args[0]).getDataFile();
         MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
-        inState.setCurrentTable(args[0]);
-
-        inState.changeCurrentTable(tmpDataBase, tmpDataFile);
+        inState.setCurrentTable(args[0], tmpDataBase, tmpDataFile);
 
         System.out.println("using " + args[0]);
     }

@@ -23,33 +23,6 @@ public class MultiFileHashMapGet implements Command<MultiFileHashMapState> {
             System.out.println("no table");
             return;
         }
-
-        if (inState.getFromCurrentTable(args[0]) == null) {
-            if (inState.checkChangesTable(args[0])) {
-                if (inState.getFromChangesBase(args[0]) == null) {
-                    System.out.println("not found");
-                } else {
-                    System.out.println("found");
-                    System.out.println(inState.getFromChangesBase(args[0]));
-                }
-            } else {
-                System.out.println("not found");
-            }
-        } else {
-            if (inState.checkChangesTable(args[0])) {
-                if (inState.getFromChangesBase(args[0]) == null) {
-                    System.out.println("not found");
-                } else {
-                    System.out.println("found");
-                    System.out.println(inState.getFromChangesBase(args[0]));
-                }
-            } else {
-                System.out.println("found");
-                System.out.println(inState.getFromCurrentTable(args[0]));
-            }
-        }
-
-        /*
         String value = inState.getFromCurrentTable(args[0]);
         if (null == value) {
             System.out.println("not found");
@@ -57,6 +30,5 @@ public class MultiFileHashMapGet implements Command<MultiFileHashMapState> {
             System.out.println("found");
             System.out.println(value);
         }
-        */
     }
 }

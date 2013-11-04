@@ -15,6 +15,11 @@ public class CmdSize implements Command<MultiFileHashMapState> {
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
 
+        if (inState.getCurrentTable() == null) {
+            System.out.println("no table");
+            return;
+        }
 
+        System.out.println(inState.getCurrentTable().size());
     }
 }

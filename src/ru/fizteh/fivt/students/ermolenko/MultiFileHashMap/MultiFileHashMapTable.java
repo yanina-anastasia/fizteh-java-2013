@@ -12,18 +12,14 @@ public class MultiFileHashMapTable implements Table {
 
     private Map<String, String> dataBase;
     private Map<String, String> changesBase;
-    public File dataFile;
+    private File dataFile;
+    private int sizeTable;
 
-    public MultiFileHashMapTable(File currentFile) {
+    public MultiFileHashMapTable(File currentFile) throws IOException {
 
         dataBase = new HashMap<String, String>();
         changesBase = new HashMap<String, String>();
         dataFile = currentFile;
-    }
-
-    public Map<String, String> getDataBase() {
-
-        return dataBase;
     }
 
     public int getChangesBaseSize() {
@@ -31,29 +27,21 @@ public class MultiFileHashMapTable implements Table {
         return changesBase.size();
     }
 
-    public Boolean checkChangesBase(String name) {
+    public Map<String, String> getDataBase() {
 
-        return changesBase.containsKey(name);
-    }
-
-    public String getFromChangesBase(String key) {
-
-        return changesBase.get(key);
-    }
-
-    public void putToChangesBase(String key, String value) {
-
-        changesBase.put(key, value);
-    }
-
-    public void removeFromChangesBase(String key) {
-
-        changesBase.remove(key);
+        return dataBase;
     }
 
     public File getDataFile() {
 
         return dataFile;
+    }
+
+    public void changeCurrentTable(Map<String, String> inMap, File inFile) {
+
+        dataBase = inMap;
+        dataFile = inFile;
+        sizeTable = dataBase.size();
     }
 
     public void setDataBase(Map<String, String> inDataBase) {
@@ -76,57 +64,85 @@ public class MultiFileHashMapTable implements Table {
     public String get(String key) {
 
         if (key == null) {
-            throw new IllegalArgumentException("Incorrect key to get");
+            throw new IllegalArgumentException("Incorrect key to get.");
         }
-        String newKey = key.trim();
-        if (newKey.isEmpty()) {
-            throw new IllegalArgumentException("Incorrect key to get");
+        String returnValue;
+        if (changesBase.containsKey(key)) {
+            if (changesBase.get(key) == null) {
+                returnValue = null;
+            } else {
+                returnValue = changesBase.get(key);
+            }
+        } else {
+            if (dataBase.containsKey(key)) {
+                returnValue = dataBase.get(key);
+            } else {
+                returnValue = null;
+            }
         }
-        return dataBase.get(newKey);
+
+        return returnValue;
     }
 
     @Override
     public String put(String key, String value) {
 
         if (key == null || value == null) {
-            throw new IllegalArgumentException("Incorrect key or value to put");
+            throw new IllegalArgumentException("Incorrect key or value to put.");
         }
-        String newKey = key.trim();
-        String newValue = value.trim();
-        if (newKey.isEmpty() || newValue.isEmpty()) {
-            throw new IllegalArgumentException("Incorrect key or value to put");
+
+        String returnValue;
+        if (changesBase.containsKey(key)) {
+            if (changesBase.get(key) == null) {
+                returnValue = null;
+            } else {
+                returnValue = changesBase.get(key);
+            }
+        } else {
+            if (dataBase.containsKey(key)) {
+                returnValue = dataBase.get(key);
+            } else {
+                returnValue = null;
+            }
         }
-        return changesBase.put(newKey, newValue);
+
+        changesBase.put(key, value);
+        ++sizeTable;
+        return returnValue;
     }
 
     @Override
     public String remove(String key) {
 
         if (key == null) {
-            throw new IllegalArgumentException("Incorrect key to remove");
+            throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        String newKey = key.trim();
-        if (newKey.isEmpty()) {
-            throw new IllegalArgumentException("Incorrect key to remove");
+
+        String returnValue;
+        if (changesBase.containsKey(key)) {
+            if (changesBase.get(key) == null) {
+                returnValue = null;
+            } else {
+                returnValue = changesBase.get(key);
+                --sizeTable;
+                changesBase.put(key, null);
+            }
+        } else {
+            if (dataBase.containsKey(key)) {
+                returnValue = dataBase.get(key);
+                --sizeTable;
+                changesBase.put(key, null);
+            } else {
+                returnValue = null;
+            }
         }
-        return dataBase.remove(newKey);
+        return returnValue;
     }
 
     @Override
     public int size() {
 
-        int size = dataBase.size();
-
-        Set<Map.Entry<String, String>> set = changesBase.entrySet();
-        for (Map.Entry<String, String> pair : set) {
-            pair.getKey();
-            if (pair.getValue() == null) {
-                --size;
-            } else {
-                ++size;
-            }
-        }
-        return size;
+        return sizeTable;
     }
 
     @Override

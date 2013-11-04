@@ -18,9 +18,9 @@ public class MultiFileHashMapState {
         provider = factory.create(inFile.getPath());
     }
 
-    public boolean checkChangesTable(String name) {
+    public int getChangesBaseSize() {
 
-        return currentTable.checkChangesBase(name);
+        return currentTable.getChangesBaseSize();
     }
 
     public void changeCurrentTable(Map<String, String> inMap, File inFile) {
@@ -31,10 +31,11 @@ public class MultiFileHashMapState {
 
     public Table createTable(String name) throws IOException {
 
-        return provider.createTable(name);
+        Table tmp = provider.createTable(name);
+        return tmp;
     }
 
-    public Table getTable(String name) throws IOException {
+    public MultiFileHashMapTable getTable(String name) throws IOException {
 
         return provider.getTable(name);
     }
@@ -44,29 +45,10 @@ public class MultiFileHashMapState {
         return currentTable;
     }
 
-    public int getChangesBaseSize() {
+    public void setCurrentTable(String name, Map<String, String> inMap, File inFile) throws IOException {
 
-        return currentTable.getChangesBaseSize();
-    }
-
-    public String getFromChangesBase(String key) {
-
-        return currentTable.getFromChangesBase(key);
-    }
-
-    public void putToChangesBase(String key, String value) {
-
-        currentTable.putToChangesBase(key, value);
-    }
-
-    public void removeFromChangesBase(String key) {
-
-        currentTable.removeFromChangesBase(key);
-    }
-
-    public void setCurrentTable(String name) throws IOException {
-
-        currentTable = (MultiFileHashMapTable) provider.getTable(name);
+        currentTable = provider.getTable(name);
+        currentTable.changeCurrentTable(inMap, inFile);
     }
 
     public void deleteTable(String name) throws IOException {
@@ -75,9 +57,18 @@ public class MultiFileHashMapState {
         currentTable = null;
     }
 
+    public String putToCurrentTable(String key, String value) {
+
+        return currentTable.put(key, value);
+    }
+
     public String getFromCurrentTable(String key) {
 
         return currentTable.get(key);
     }
-}
 
+    public String removeFromCurrentTable(String key) {
+
+        return currentTable.remove(key);
+    }
+}
