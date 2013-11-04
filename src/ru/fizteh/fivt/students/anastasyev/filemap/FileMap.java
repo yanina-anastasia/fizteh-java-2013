@@ -21,11 +21,11 @@ public class FileMap {
         try {
             openFileMapWithCheck();
         } catch (FileNotFoundException e) {
-            throw new IOException("File " + nfile + ".dat not found");
+            throw new IOException("File " + nfile + ".dat not found", e);
         } catch (IOException e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e.getMessage(), e);
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e.getMessage(), e);
         }
         if (elementHashMap.isEmpty()) {
             delete();
@@ -36,9 +36,7 @@ public class FileMap {
         if (!fileMap.exists()) {
             return;
         }
-        RandomAccessFile input = null;
-        try {
-            input = new RandomAccessFile(fileMap.toString(), "r");
+        try (RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "r")) {
             if (input.length() == 0) {
                 return;
             }
@@ -48,17 +46,9 @@ public class FileMap {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException(nfile + ".dat - File not found");
         } catch (IOException e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e.getMessage(), e);
         } catch (Exception e) {
-            throw new Exception("In " + nfile + ".dat something goes very-very wrong");
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    System.err.println("Can't close file " + nfile + ".dat");
-                }
-            }
+            throw new Exception("In " + nfile + ".dat something goes very-very wrong", e);
         }
     }
 
@@ -69,7 +59,7 @@ public class FileMap {
             keyLength = input.readInt();
             valueLength = input.readInt();
         } catch (IOException e) {
-            throw new IOException("Error in key/value reading");
+            throw new IOException("Error in key/value reading", e);
         }
         if (keyLength <= 0 || valueLength <= 0) {
             throw new IOException(nfile + ".dat has incorrect format");
@@ -90,7 +80,7 @@ public class FileMap {
             String value = new String(valueBytes);
             elementHashMap.put(key, value);
         } catch (OutOfMemoryError e) {
-            throw new IOException(nfile + ".dat has incorrect format");
+            throw new IOException(nfile + ".dat has incorrect format", e);
         }
     }
 
@@ -112,26 +102,16 @@ public class FileMap {
                 throw new IOException("Can't create " + nfile + ".dat");
             }
         }
-        RandomAccessFile output = null;
-        try {
-            output = new RandomAccessFile(fileMap.toString(), "rw");
+        try (RandomAccessFile output = new RandomAccessFile(fileMap.toString(), "rw")) {
             output.setLength(0);
             Set<Map.Entry<String, String>> hashMapSet = elementHashMap.entrySet();
             for (Map.Entry<String, String> element : hashMapSet) {
                 write(output, element.getKey(), element.getValue());
             }
         } catch (FileNotFoundException e) {
-            throw new IOException("Can't find file to commit");
+            throw new IOException("Can't find file to commit", e);
         } catch (Exception e) {
-            throw new IOException("Can't commit FileMap");
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    System.err.println("Can't close file " + nfile + ".dat");
-                }
-            }
+            throw new IOException("Can't commit FileMap", e);
         }
     }
 
