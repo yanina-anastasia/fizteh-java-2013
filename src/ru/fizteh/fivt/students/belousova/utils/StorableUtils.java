@@ -105,6 +105,9 @@ public class StorableUtils {
         DataOutputStream dos = new DataOutputStream(bos);
         try {
             for (Class<?> type : columnTypes) {
+                if (type == null) {
+                    throw new IllegalArgumentException("wrong column type");
+                }
                 String typeString = convertClassToString(type);
                 dos.write(typeString.getBytes(StandardCharsets.UTF_8));
                 dos.write(' ');

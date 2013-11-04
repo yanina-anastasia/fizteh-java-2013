@@ -26,9 +26,14 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         }
 
         dataDitectory = directory;
+
+        if (!directory.canRead()) {
+            throw new IllegalArgumentException("directory is unavailable");
+        }
         for (File tableFile : directory.listFiles()) {
             tableMap.put(tableFile.getName(), new StorableTable(tableFile, this));
         }
+
     }
 
     @Override
@@ -46,9 +51,19 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         if (tableMap.containsKey(name)) {
             return null;
         }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("ColumnTypes list is not set");
+        }
+        if (columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("ColumnTypes list is empty");
+        }
         File tableFile = new File(dataDitectory, name);
         tableFile.mkdir();
-        StorableUtils.writeSignature(tableFile, columnTypes);
+        try {
+            StorableUtils.writeSignature(tableFile, columnTypes);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("wrong column type table");
+        }
         ChangesCountingTable table = new StorableTable(tableFile, this);
         tableMap.put(name, table);
         return table;

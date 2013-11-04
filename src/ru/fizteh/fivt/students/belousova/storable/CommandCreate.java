@@ -34,7 +34,11 @@ public class CommandCreate implements Command {
             for (String type : types) {
                 columnTypes.add(StorableUtils.convertStringToClass(type));
             }
-            state.createTable(args[1], columnTypes);
+            try {
+                state.createTable(args[1], columnTypes);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("creation error");
+            }
             System.out.println("created");
         }
     }
