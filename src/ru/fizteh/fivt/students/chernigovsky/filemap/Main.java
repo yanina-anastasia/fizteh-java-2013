@@ -20,6 +20,16 @@ public class Main {
             System.exit(1);
         }
 
+        File table = new File(tableDirectory, "db.dat");
+        if (!table.exists()) {
+            try {
+                table.createNewFile();
+            } catch (IOException ex) {
+                System.err.println("Can't create db.dat");
+                System.exit(1);
+            }
+        }
+
         ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory);
         ExtendedTable myTable = new MyTable("db.dat");
         State state = new State(myTable, myTableProvider);

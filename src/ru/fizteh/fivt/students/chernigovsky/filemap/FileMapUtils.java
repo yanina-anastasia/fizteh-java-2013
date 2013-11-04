@@ -45,6 +45,8 @@ public class FileMapUtils {
     }
 
     public static void writeTable(State state) throws IOException {
+        state.getCurrentTable().commit();
+
         FileOutputStream fileOutputStream = new FileOutputStream(new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName()));
         fileOutputStream.getChannel().truncate(0); // Clear file
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
