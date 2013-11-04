@@ -103,8 +103,12 @@ public class MultiFileHashMapTable implements Table {
             }
         } else {
             if (dataBase.containsKey(key)) {
-                changesBase.put(key, value);
-                returnValue = dataBase.get(key);
+                if (dataBase.get(key).equals(value)) {
+                    return value;
+                } else {
+                    changesBase.put(key, value);
+                    returnValue = dataBase.get(key);
+                }
             } else {
                 ++sizeTable;
                 changesBase.put(key, value);
