@@ -5,16 +5,17 @@ import java.util.List;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 public class MyStoreable implements Storeable {
 
     private final List<Object> values;    
-    private final List<Class<?>> columnTypes = new ArrayList<>();
+    private final Table table;
     
-    public MyStoreable(List<Class<?>> columnTypes) {
-        this.columnTypes.addAll(columnTypes);
-        values = new ArrayList<>(columnTypes.size());
-        for (int i = 0; i < columnTypes.size(); ++i) {
+    public MyStoreable(Table table) {
+        this.table = table;
+        values = new ArrayList<>(table.getColumnsCount());
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
             values.add(null);
         }
     }
@@ -23,7 +24,7 @@ public class MyStoreable implements Storeable {
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
 
-        if (value != null && !value.getClass().equals(columnTypes.get(columnIndex))) {
+        if (value != null && !value.getClass().equals(table.getColumnType(columnIndex))) {
             throw new ColumnFormatException(columnIndex + " column has incorrect format");
         }
         values.set(columnIndex, value);

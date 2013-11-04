@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.ParseException;
-import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -13,11 +12,12 @@ import javax.xml.stream.XMLStreamWriter;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 
 public class XMLSerializer {
     
-    public static String serialize(List<Class<?>> columnTypes, Storeable s) throws XMLStreamException {
+    public static String serialize(Table table, Storeable s) throws XMLStreamException {
       
         if (s == null) {
             return null;
@@ -27,7 +27,7 @@ public class XMLSerializer {
         XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(result);
         try {
             writer.writeStartElement("row");
-            for (int i = 0; i < columnTypes.size(); ++i) {
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
                 writer.writeStartElement("col");
                 Object element = s.getColumnAt(i);
                 if (element == null) {
@@ -35,9 +35,9 @@ public class XMLSerializer {
                     writer.writeEndElement();
             
                 } else {
-                    if (element.getClass() != columnTypes.get(i)) {
+                    if (element.getClass() != table.getColumnType(i)) {
                         throw new ColumnFormatException("col " + i + " has " + element.getClass()
-                                                + " instead of " + columnTypes.get(i));
+                                                + " instead of " + table.getColumnType(i));
                     }
                     writer.writeCharacters(element.toString());
                 }
@@ -51,7 +51,7 @@ public class XMLSerializer {
         return result.toString();            
     }
     
-    public static Storeable deserialize(List<Class<?>> columnTypes, String s) 
+    public static Storeable deserialize(Table table, String s) 
                   throws XMLStreamException, ParseException {
         
         if (s == null) {
@@ -59,7 +59,7 @@ public class XMLSerializer {
         }
         
         XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(s));
-        Storeable storeable = new MyStoreable(columnTypes);
+        Storeable storeable = new MyStoreable(table);
         int i = 0;
         
         reader.next();
@@ -67,7 +67,7 @@ public class XMLSerializer {
             throw new ParseException("", 0);
         }
         
-        while (i < columnTypes.size()) {
+        while (i < table.getColumnsCount()) {
             
             reader.next();
             if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("col")) {
@@ -87,7 +87,7 @@ public class XMLSerializer {
                 }
             } else if (reader.isCharacters()) {
                 String object = reader.getText();
-                storeable.setColumnAt(i, getObject(object, columnTypes.get(i++).getSimpleName()));
+                storeable.setColumnAt(i, getObject(object, table.getColumnType(i++).getSimpleName()));
             } else {
                 throw new ParseException("", 0);
             }

@@ -1,22 +1,28 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.storeable.junit;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 
 public class StoreableTest {
 
     private Storeable s;
+    public static final String DATA_BASE = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
+    private TableProvider provider;
     
     @Before 
-    public void setUp() {
+    public void setUp() throws Exception {
         List<Class<?>> columnTypes = new ArrayList<>();
         columnTypes.add(Integer.class);
         columnTypes.add(Boolean.class);
@@ -26,7 +32,9 @@ public class StoreableTest {
         columnTypes.add(Byte.class);
         columnTypes.add(Long.class);
         
-        s = new MyStoreable(columnTypes);               
+        provider = new MyTableProvider(new File(DATA_BASE));    
+        
+        s = new MyStoreable(provider.createTable("table", columnTypes));               
         s.setColumnAt(0, 1);
         s.setColumnAt(1, false);
         s.setColumnAt(2, "Hello");
@@ -35,6 +43,11 @@ public class StoreableTest {
         Byte f = 5;
         s.setColumnAt(5, f);
         s.setColumnAt(6, 6L);
+    }
+    
+    @After 
+    public void tearDown() throws Exception {
+        provider.removeTable("table");
     }
     
     @Test

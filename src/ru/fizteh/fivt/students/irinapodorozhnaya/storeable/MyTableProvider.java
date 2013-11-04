@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,11 +99,7 @@ public class MyTableProvider implements ExtendProvider {
         
         Storeable res;
         try {
-            List<Class<?>> colunmTypes = new ArrayList<>();
-            for (int i = 0; i < table.getColumnsCount(); ++i) {
-                colunmTypes.add(table.getColumnType(i));
-            }
-            res = XMLSerializer.deserialize(colunmTypes, value);
+            res = XMLSerializer.deserialize(table, value);
         } catch (XMLStreamException e) {
 
             throw new ParseException(e.getMessage(), 0);
@@ -117,12 +112,8 @@ public class MyTableProvider implements ExtendProvider {
         
         String res;
         
-        try {
-            List<Class<?>> colunmTypes = new ArrayList<>();
-            for (int i = 0; i < table.getColumnsCount(); ++i) {
-                colunmTypes.add(table.getColumnType(i));
-            }
-            res = XMLSerializer.serialize(colunmTypes, value);
+        try {            
+            res = XMLSerializer.serialize(table, value);
         } catch (XMLStreamException e) {
             throw new ColumnFormatException(e);
         }
@@ -131,11 +122,7 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable createFor(Table table) {
-        List<Class<?>> list = new ArrayList<>();
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            list.add(table.getColumnType(i));
-        }
-        return new MyStoreable(list);
+        return new MyStoreable(table);
     }
 
     @Override
