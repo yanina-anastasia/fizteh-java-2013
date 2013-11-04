@@ -63,18 +63,22 @@ public class TableImplementation implements Table {
 	public int commit() {	
 		int changesNumber = getChangesNumber();
 		if (changesNumber != 0) {
-			for (String key: putDiff.keySet()) {
-				filesMap.getFileMapForKey(key).getCurrentTable().put(key, putDiff.get(key));
-			}		
-			Iterator<String> removeDiffIterator = removeDiff.iterator();
-		    while(removeDiffIterator.hasNext()){
-		        String key = removeDiffIterator.next();
-		        filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
-		    }
+			autoCommit();
 		}
 		putDiff = new HashMap<String, String>();
 		removeDiff = new HashSet<String>();
 		return changesNumber;	
+	}
+	
+	public void autoCommit() {
+		for (String key: putDiff.keySet()) {
+			filesMap.getFileMapForKey(key).getCurrentTable().put(key, putDiff.get(key));
+		}		
+		Iterator<String> removeDiffIterator = removeDiff.iterator();
+	    while(removeDiffIterator.hasNext()){
+	        String key = removeDiffIterator.next();
+	        filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
+	    }
 	}
 
 	public int rollback() {

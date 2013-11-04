@@ -69,7 +69,9 @@ public class TableProviderImplementation implements TableProvider {
 	
 	public void writeFilesMaps() throws IOException {
 		for (String key: tables.keySet()) {
-			tables.get(key).getFilesMap().writeData();
+			TableImplementation table = tables.get(key);
+			table.autoCommit();
+			table.getFilesMap().writeData();
 		}		
 	}
 	
