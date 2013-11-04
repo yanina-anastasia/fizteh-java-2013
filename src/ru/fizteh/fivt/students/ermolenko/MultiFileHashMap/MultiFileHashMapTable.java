@@ -96,6 +96,7 @@ public class MultiFileHashMapTable implements Table {
             if (changesBase.get(key) == null) {
                 ++sizeTable;
                 returnValue = null;
+                changesBase.remove(key);
             } else {
                 returnValue = changesBase.get(key);
             }
@@ -131,7 +132,7 @@ public class MultiFileHashMapTable implements Table {
             } else {
                 returnValue = changesBase.get(key);
                 --sizeTable;
-                changesBase.put(key, null);
+                changesBase.remove(key);
             }
         } else {
             if (dataBase.containsKey(key)) {
