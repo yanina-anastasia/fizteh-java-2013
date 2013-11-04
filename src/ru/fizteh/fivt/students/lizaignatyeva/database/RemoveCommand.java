@@ -14,6 +14,10 @@ public class RemoveCommand extends Command{
             throw new IllegalArgumentException("invalid usage");
         }
         Table table = DbMain.getCurrentTable();
+        if (table == null) {
+            System.out.println("no table");
+            return;
+        }
         String key = args[0];
         if (table.data.containsKey(key)) {
             table.data.remove(key);

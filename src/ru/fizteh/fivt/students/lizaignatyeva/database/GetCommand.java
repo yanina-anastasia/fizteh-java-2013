@@ -14,6 +14,10 @@ public class GetCommand extends Command {
             throw new IllegalArgumentException("invalid usage");
         }
         Table table = DbMain.getCurrentTable();
+        if (table == null) {
+            System.out.println("no table");
+            return;
+        }
         String key = args[0];
         String value = table.data.get(key);
         if (value == null) {

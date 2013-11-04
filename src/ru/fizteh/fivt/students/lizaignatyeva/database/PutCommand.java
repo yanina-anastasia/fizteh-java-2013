@@ -15,6 +15,10 @@ public class PutCommand extends Command {
         }
 
         Table table = DbMain.getCurrentTable();
+        if (table == null) {
+            System.out.println("no table");
+            return;
+        }
         //System.err.println("HERE");
         String key = args[0];
         String value = args[1];

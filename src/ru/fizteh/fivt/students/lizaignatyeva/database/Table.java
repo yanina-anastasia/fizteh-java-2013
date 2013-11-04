@@ -62,7 +62,7 @@ public class Table {
         if (number < 0) {
             number *= -1;
         }
-        //System.out.println(String.format(key + " with first byte %d lies in directory %d ", number, Math.abs(bytes[0]) % 16));
+        //System.out.println(String.format(key + " with first byte %d lies in directory %d ", number, number % 16));
         return number % 16;
     }
 
