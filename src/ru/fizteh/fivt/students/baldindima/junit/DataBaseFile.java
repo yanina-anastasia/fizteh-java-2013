@@ -54,9 +54,8 @@ public class DataBaseFile {
     		
     	}
     	public void putValue(String nValue){
-    		if (type == OLD){
-    			type = MODIFIED;
-    		}
+    		type = MODIFIED;
+    		
     		if ((oldValue != null)&&(oldValue.equals(nValue))){
     			type = OLD;
     		}
@@ -164,18 +163,20 @@ public class DataBaseFile {
     public String put(String keyString, String valueString) {
         checkString(keyString);
         checkString(valueString);
-        String result;
+       
     	Node search = getCurrentTable().get(keyString);
     	
         if (search == null){
         	getCurrentTable().put(keyString, new Node(valueString, NEW));
         	return null;
         } else {
-        	result = search.value;
-        	getCurrentTable().get(keyString).putValue(valueString);
-        	if (search.type == DELETED) {
-        		return null;
+        	String result = null;
+        	int typeNode = search.type;
+        	
+        	if (typeNode != DELETED) {
+        		result = search.value;
         	}
+        	getCurrentTable().get(keyString).putValue(valueString);
         	return result;
         }
     	
