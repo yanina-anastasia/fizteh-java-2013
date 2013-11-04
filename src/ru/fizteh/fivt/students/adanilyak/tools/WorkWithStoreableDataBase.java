@@ -4,11 +4,8 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
@@ -32,7 +29,7 @@ public class WorkWithStoreableDataBase {
         }
     }
 
-    private static void cleanEmpryDirs(File fileDir) {
+    private static void cleanEmptyDirs(File fileDir) {
         if (fileDir.exists()) {
             if (fileDir.listFiles().length == 0) {
                 try {
@@ -74,7 +71,7 @@ public class WorkWithStoreableDataBase {
                 }
                 WorkWithDatFiles.writeIntoFile(fileDat, mapReadyForWrite[indexDir][indexDat]);
             }
-            cleanEmpryDirs(fileDir);
+            cleanEmptyDirs(fileDir);
         }
     }
 
@@ -197,45 +194,6 @@ public class WorkWithStoreableDataBase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        /*
-        try {
-            RandomAccessFile signatureWriter = new RandomAccessFile(new File(tableStorageDirectory, "signature.tsv"), "rw");
-            Integer countOfColumns = table.getColumnsCount();
-            for (Integer i = 0; i < countOfColumns; ++i) {
-                Class<?> type = table.getColumnType(i);
-                switch (type.getCanonicalName()) {
-                    case "java.lang.Integer":
-                        signatureWriter.write(("int").getBytes());
-                        break;
-                    case "java.lang.Long":
-                        signatureWriter.writeUTF("long");
-                        break;
-                    case "java.lang.Byte":
-                        signatureWriter.writeUTF("byte");
-                        break;
-                    case "java.lang.Float":
-                        signatureWriter.writeUTF("float");
-                        break;
-                    case "java.lang.Double":
-                        signatureWriter.writeUTF("double");
-                        break;
-                    case "java.lang.Boolean":
-                        signatureWriter.writeUTF("boolean");
-                        break;
-                    case "java.lang.String":
-                        signatureWriter.writeUTF("String");
-                        break;
-                    default:
-                        throw new IOException("signature.tsv creation: something went wrong");
-                }
-                signatureWriter.writeUTF(" ");
-            }
-            signatureWriter.close();
-        } catch (IOException exc) {
-            System.err.println(exc.getMessage());
-        }
-        */
     }
 
     public static List<Class<?>> createListOfTypes(List<String> args) throws IOException {

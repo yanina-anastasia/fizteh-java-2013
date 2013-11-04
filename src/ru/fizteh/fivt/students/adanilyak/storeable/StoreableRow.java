@@ -47,8 +47,10 @@ public class StoreableRow implements Storeable {
         if (columnIndex < 0 || columnIndex > columnsCount - 1) {
             throw new IndexOutOfBoundsException("set column at: bad index");
         }
-        if (value.getClass() != types.get(columnIndex)) {                    /** VALUE MAY BE NULL*/
-            throw new ColumnFormatException("set column at: bad type");
+        if (value != null) {
+            if (value.getClass() != types.get(columnIndex)) {
+                throw new ColumnFormatException("set column at: bad type");
+            }
         }
         row.add(columnIndex, value);
     }
