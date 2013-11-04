@@ -71,7 +71,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         
         int sizeColumn = columnType.size();
         
-        for (int i = 0; i < sizeColumn; ++i) {
+        for (int i = 0; i < sizeColumn; ++i) {/*
             try {
                     Object valueI = value.getColumnAt(i);
                     if (valueI != null && !valueI.getClass().equals(columnType.get(i))) {
@@ -79,7 +79,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
                     }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException(e);
-            }
+            }*/
         }
         return super.put(key, value);
      }

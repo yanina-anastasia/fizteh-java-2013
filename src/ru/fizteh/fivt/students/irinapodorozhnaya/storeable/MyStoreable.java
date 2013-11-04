@@ -25,7 +25,7 @@ public class MyStoreable implements Storeable {
             throws ColumnFormatException, IndexOutOfBoundsException {
 	
         if (value != null && !value.getClass().equals(table.getColumnType(columnIndex))) {
-            throw new ColumnFormatException();
+            throw new ColumnFormatException(columnIndex + " column has incorrect format");
         }
         values.add(columnIndex, value);
     }
