@@ -64,13 +64,15 @@ public class Main {
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
-                File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
-                if (currentTable != null) {
-                    try {
-                        MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
-                    } catch (IOException exc) {
-                        System.err.println(exc.getMessage());
-                        System.exit(1);
+                if (stateProvider.getCurrentState() != null) {
+                    File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
+                    if (currentTable != null) {
+                        try {
+                            MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
+                        } catch (IOException exc) {
+                            System.err.println(exc.getMessage());
+                            System.exit(1);
+                        }
                     }
                 }
                 System.exit(0);
@@ -85,13 +87,15 @@ public class Main {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
-            File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
-            if (currentTable.exists()) {
-                try {
-                    MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
-                } catch (IOException exc) {
-                    System.err.println(exc.getMessage());
-                    System.exit(1);
+            if (stateProvider.getCurrentState() != null) {
+                File currentTable = new File(stateProvider.getDbDirectory(), stateProvider.getCurrentState().getTableName());
+                if (currentTable.exists()) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(currentTable, stateProvider.getCurrentState());
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
                 }
             }
             System.exit(0);
