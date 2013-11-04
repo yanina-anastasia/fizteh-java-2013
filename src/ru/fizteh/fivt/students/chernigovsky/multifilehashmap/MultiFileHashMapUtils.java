@@ -77,6 +77,10 @@ public class MultiFileHashMapUtils {
 
     public static void writeTable(File tableFolder, State state) throws IOException {
 
+        if (state == null) {
+            return;
+        }
+
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
                 HashMap<String, String> currentMap = new HashMap<String, String>();
