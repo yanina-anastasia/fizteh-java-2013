@@ -208,8 +208,6 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	}
 
 	public int size() {
-		//TODO: modify this as new owning maps appear according to their states
-		//or mby not
 		return dictionary.size();
 	}
 

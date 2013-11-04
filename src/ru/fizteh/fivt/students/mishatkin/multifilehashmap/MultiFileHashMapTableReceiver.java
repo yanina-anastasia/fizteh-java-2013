@@ -8,6 +8,7 @@ import ru.fizteh.fivt.students.mishatkin.shell.ShellException;
 import ru.fizteh.fivt.students.mishatkin.shell.TimeToExitException;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +77,12 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 			String fileName = String.valueOf(fileIndex) + ".dat";
 			File directory = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
 			if (!directory.exists()) {
-				directory.mkdir();
+				if (!directory.mkdir()) {
+					try {
+						throw new MultiFileHashMapException("Cannot create directory: " + directory.getCanonicalPath());
+					} catch (IOException e) {
+					}
+				}
 			} else if (!directory.isDirectory()) {
 				throw new MultiFileHashMapException(directoryName + ".dir file already exists and it is most certainly not a directory. OK bye.");
 			}
@@ -88,7 +94,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 						delegate.isInteractiveMode(), delegate.getOut());
 			} catch (FileMapDatabaseException e) {
 				throw new MultiFileHashMapException("Cannot access or create file for " + directoryIndex + ".dir"
-						+ File.separator + fileIndex + ".dat");
+						+ File.separator + fileIndex + ".dat", e);
 			}
 			if (!freshDictionaryFile.doHashCodesConformHash(directoryIndex, fileIndex, MultiFileHashMap.TABLE_OWNING_DIRECTORIES_COUNT)) {
 				throw new MultiFileHashMapException("Keys in " + directoryIndex + " directory and " + fileIndex +

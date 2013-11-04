@@ -27,6 +27,9 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	public MultiFileHashMapReceiver(PrintStream out, boolean interactiveMode, String dbDirectory) {
 		super(out, interactiveMode);
+		if (dbDirectory == null || !new File(dbDirectory).exists()) {
+			throw new IllegalArgumentException();
+		}
 		this.dbDirectory = dbDirectory;
 		this.table = null;
 		initAllTables();
@@ -45,7 +48,6 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 					if (existingTableName != null) {
 						MultiFileHashMapTableReceiver existingTable = new MultiFileHashMapTableReceiver(existingTableName);
 						existingTable.setDelegate(this);
-						existingTable.setTableName(existingTableName);
 						allTables.put(existingTableName, existingTable);
 					}
 				}
@@ -56,6 +58,9 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 	@Override
 	public void createCommand(String tableName) throws MultiFileHashMapException {
 		File tableFile = new File(new File(dbDirectory), tableName);
+		if (!tableFile.getName().equals(tableName)) {
+			throw new IllegalArgumentException();
+		}
 		if (tableFile.exists()) {
 			if (tableFile.isDirectory()) {
 				println(tableName + " exists");
@@ -64,19 +69,23 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 						"\' table, but it is already a file and not a directory!");
 			}
 		} else {
-			tableFile.mkdir();
+			if (!tableFile.mkdir()) {
+				throw new IllegalArgumentException();
+			}
 			MultiFileHashMapTableReceiver newTable = new MultiFileHashMapTableReceiver(tableName);
 			newTable.setDelegate(this);
-			newTable.setTableName(tableName);
 			allTables.put(tableName, newTable);
 			println("created");
 		}
 	}
 
 	@Override
-	public void dropCommand(String tableName) throws MultiFileHashMapException {
+	public boolean dropCommand(String tableName) throws MultiFileHashMapException {
 		File dbDirectoryFile = new File(dbDirectory);
 		File tableFile = new File(dbDirectoryFile, tableName);
+		if (!tableFile.getName().equals(tableName)) {
+			throw new IllegalArgumentException();
+		}
 		if (tableFile.exists()) {
 			if (tableFile.isDirectory()) {
 				try {
@@ -98,7 +107,9 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 		} else {
 			//	conforming the protocol here
 			println(tableName + " not exists");	//	I is more stronger than dart vapour
+			return false;
 		}
+		return true;
 	}
 
 	@Override
@@ -155,7 +166,9 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 	@Override
 	public void exitCommand() throws TimeToExitException {
 		try {
-			table.writeFilesOnDrive();
+			if (table != null && table.isSet()) {
+				table.writeFilesOnDrive();
+			}
 		} catch (MultiFileHashMapException e) {
 			System.err.println(e.getMessage());
 		}
@@ -185,25 +198,50 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 //	TableProvider methods
 	@Override
 	public Table getTable(String name) {
+		if (name == null) {
+			throw new IllegalArgumentException();
+		}
+		File possibleFile = new File(name);
+		if (!possibleFile.exists()) {
+			if (!possibleFile.mkdir()) {
+				throw new IllegalArgumentException();
+			} else {
+				if (!possibleFile.delete()) {
+					System.err.println("So now you have one more folder.");
+				}
+			}
+		}
 		return allTables.get(name);
 	}
 
 	@Override
 	public Table createTable(String name) {
+		if (name == null) {
+			throw new IllegalArgumentException();
+		}
+		if (getTable(name) != null) {
+			return null;
+		}
 		try {
 			createCommand(name);
 		} catch (MultiFileHashMapException e) {
-			System.err.println(e.getMessage());
+			throw new IllegalArgumentException();
+//			System.err.println(e.getMessage());
 		}
 		return getTable(name);
 	}
 
 	@Override
 	public void removeTable(String name) {
+		if (name == null) {
+			throw new IllegalArgumentException();
+		}
 		try {
-			dropCommand(name);
+			if (!dropCommand(name)) {
+				throw new IllegalStateException();
+			}
 		} catch (MultiFileHashMapException e) {
-			System.err.println(e);
+			System.err.println(e.getMessage());
 		}
 	}
 }

@@ -32,7 +32,6 @@ public class JUnit extends MultiFileHashMap {
 
 	protected static <Receiver extends CommandReceiver> Collection<Command<Receiver>> getMultiFileHashMapCommands() {
 		List<Command<Receiver>> validCommands = new ArrayList<>();
-		//TODO: add commands
 		validCommands.add((Command<Receiver>) new SizeCommand<JUnitReceiver>(null));
 		validCommands.add((Command<Receiver>) new CommitCommand<JUnitReceiver>(null));
 		validCommands.add((Command<Receiver>) new RollbackCommand<JUnitReceiver>(null));
