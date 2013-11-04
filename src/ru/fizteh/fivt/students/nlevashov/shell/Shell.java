@@ -28,8 +28,10 @@ public class Shell {
         return tokensWithoutEmptyStrings;
     }
 
+    static String currentDirectory = System.getProperty("user.dir");
+
     public static File makePath(String newPath) {
-        File path = new File(System.getProperty("user.dir"));
+        File path = new File(currentDirectory);
         return path.toPath().resolve(newPath).normalize().toFile();
     }
 
@@ -37,7 +39,7 @@ public class Shell {
         File dir = makePath(path);
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                System.setProperty("user.dir", dir.toString());
+                currentDirectory = dir.toString();
             } else {
                 throw new IOException("cd: Path \"" + path + "\" isn't a directory");
             }
@@ -54,7 +56,7 @@ public class Shell {
     }
 
     public static void pwd() {
-        System.out.println(System.getProperty("user.dir"));
+        System.out.println(currentDirectory);
     }
 
     public static void rm(String path) throws IOException {
@@ -189,7 +191,7 @@ public class Shell {
     }
 
     public static void dir() throws IOException {
-        File state = new File(System.getProperty("user.dir"));
+        File state = new File(currentDirectory);
         DirectoryStream<Path> stream = Files.newDirectoryStream(state.toPath());
         for (Path f : stream) {
             System.out.println(f.getFileName().toString());

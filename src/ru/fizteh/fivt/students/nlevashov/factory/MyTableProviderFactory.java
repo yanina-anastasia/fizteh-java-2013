@@ -19,6 +19,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if ((dir == null) || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("TableProviderFactory.create: dir is null");
         }
-        return (new MyTableProvider(Paths.get(dir).normalize()));
+        return (new MyTableProvider(Paths.get(System.getProperty("user.dir")).resolve(dir).normalize()));
     }
 }

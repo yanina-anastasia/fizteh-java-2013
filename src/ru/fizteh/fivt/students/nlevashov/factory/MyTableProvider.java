@@ -24,10 +24,23 @@ public class MyTableProvider implements TableProvider {
     public MyTableProvider(Path path) {
         tables = new HashMap<String, Table>();
         dbPath = path;
-        if (!Files.exists(dbPath)) {
-            throw new IllegalArgumentException("TableProvider.constructor: object with said path doesn't exists");
+        String name = path.getFileName().toString();
+        if ((name == null) || name.trim().isEmpty()
+                || name.contains("/") || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"") || name.contains("\\")
+                || name.contains(">") || name.contains("<") || name.contains("|")
+                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+            throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
-        if (!Files.isDirectory(dbPath)) {
+        if (!Files.exists(dbPath)) {
+            try {
+                if (!path.toFile().getCanonicalFile().mkdir()) {
+                    throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("TableProvider: " + e.getMessage());
+            }
+        } else if (!Files.isDirectory(dbPath)) {
             throw new IllegalArgumentException("TableProvider.constructor: object with said path isn't a directory");
         }
         try {
@@ -51,13 +64,12 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table getTable(String name) {
-        if ((name == null) || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("TableProvider.getTable: name is null");
-        }
-        if (name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains("\"") || name.contains("\\")
-                || name.contains(">") || name.contains("<") || name.contains("|")) {
-            throw new RuntimeException("bad table name : \"" + name + "\"");
+        if ((name == null) || name.trim().isEmpty()
+            || name.contains("/") || name.contains(":") || name.contains("*")
+            || name.contains("?") || name.contains("\"") || name.contains("\\")
+            || name.contains(">") || name.contains("<") || name.contains("|")
+            || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+            throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
         return tables.get(name);
     }
@@ -71,17 +83,16 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table createTable(String name) {
-        if ((name == null) || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("TableProvider.createTable: name is null");
+        if ((name == null) || name.trim().isEmpty()
+                || name.contains("/") || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"") || name.contains("\\")
+                || name.contains(">") || name.contains("<") || name.contains("|")
+                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+            throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
         if (tables.containsKey(name)) {
             return null;
         } else {
-            if (name.contains("/") || name.contains(":") || name.contains("*")
-                    || name.contains("?") || name.contains("\"") || name.contains("\\")
-                    || name.contains(">") || name.contains("<") || name.contains("|")) {
-                throw new RuntimeException("bad table name : \"" + name + "\"");
-            }
             try {
                 Shell.cd(dbPath.toString());
                 Shell.mkdir(name);
@@ -128,7 +139,6 @@ public class MyTableProvider implements TableProvider {
         if (!Files.isDirectory(dbPath)) {
             throw new IOException("\"" + dbPath.toString() + "\" isn't a directory");
         }
-
         Pattern levelPattern = Pattern.compile("([0-9]|1[0-5])\\.dir");
         Pattern partPattern = Pattern.compile("([0-9]|1[0-5])\\.dat");
 
