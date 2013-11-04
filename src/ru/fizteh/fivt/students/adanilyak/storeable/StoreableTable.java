@@ -27,7 +27,10 @@ public class StoreableTable implements Table {
     private Set<String> removedKeys = new HashSet<>();
     private int amountOfChanges = 0;
 
-    public StoreableTable(File dataDirectory, TableProvider givenProvider) {
+    public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
+        if (givenProvider == null) {
+            throw new IOException("storeable table: create failed, provider is not set");
+        }
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         try {
@@ -41,7 +44,10 @@ public class StoreableTable implements Table {
         columnTypes = givenColumnTypes;
     }
 
-    public StoreableTable(File dataDirectory, List<Class<?>> givenTypes, TableProvider givenProvider) {
+    public StoreableTable(File dataDirectory, List<Class<?>> givenTypes, TableProvider givenProvider) throws IOException {
+        if (givenProvider == null) {
+            throw new IOException("storeable table: create failed, provider is not set");
+        }
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         columnTypes = givenTypes;
