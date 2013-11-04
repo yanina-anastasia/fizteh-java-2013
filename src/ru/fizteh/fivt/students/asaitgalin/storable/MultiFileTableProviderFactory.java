@@ -14,7 +14,7 @@ public class MultiFileTableProviderFactory implements ExtendedTableProviderFacto
         }
         File dbDir = new File(dir);
         if (!dbDir.isDirectory()) {
-            throw new IOException("factory, create: provided name is not directory");
+            throw new IllegalArgumentException("factory, create: provided name is not directory");
         }
         if (!dbDir.exists()) {
             if (!dbDir.mkdir()) {
