@@ -13,7 +13,7 @@ public class CommandUse implements Command {
         return 1;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.getCurrentTable().getDiffCount() != 0) {
+        if (state.getCurrentTable() != null && state.getCurrentTable().getDiffCount() != 0) {
             System.out.print(state.getCurrentTable().getDiffCount());
             System.out.println(" unsaved changes");
             return;
