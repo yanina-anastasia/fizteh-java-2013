@@ -30,7 +30,7 @@ public class JUnit extends MultiFileHashMap {
 		runner.run(receiver);
 	}
 
-	protected static <Receiver extends CommandReceiver> Collection<Command<Receiver>> getMultiFileHashMapCommands() {
+	protected static <Receiver extends CommandReceiver> Collection<Command<Receiver>> getJUnitCommands() {
 		List<Command<Receiver>> validCommands = new ArrayList<>();
 		validCommands.add((Command<Receiver>) new SizeCommand<JUnitReceiver>(null));
 		validCommands.add((Command<Receiver>) new CommitCommand<JUnitReceiver>(null));
@@ -39,7 +39,7 @@ public class JUnit extends MultiFileHashMap {
 	}
 
 	protected static <Receiver extends CommandReceiver> Collection<Command<Receiver>> getAllCommandsIncludingInheritanceDependencies() {
-		List<Command<Receiver>> validCommands = (List<Command<Receiver>>) JUnit.<Receiver>getMultiFileHashMapCommands();
+		List<Command<Receiver>> validCommands = (List<Command<Receiver>>) JUnit.<Receiver>getJUnitCommands();
 		Collection<Command<Receiver>> superValidCommands = MultiFileHashMap.getAllCommandsIncludingInheritanceDependencies();
 		validCommands.addAll(superValidCommands);
 		return validCommands;
