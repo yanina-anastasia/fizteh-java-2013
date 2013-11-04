@@ -10,12 +10,7 @@ public class Put extends BasicFileMapCommand {
 		super(currentState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = null;
-		try {
-			value = currentState.getUsedTable().put(arguments[0], arguments[1]);
-		} catch (IllegalArgumentException catchedException) {
-			throw new IOException(catchedException); 
-		}
+		String value = currentState.getUsedTable().put(arguments[0], arguments[1]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("new");
 		} else {

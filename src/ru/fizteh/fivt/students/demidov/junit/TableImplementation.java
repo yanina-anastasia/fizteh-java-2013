@@ -33,8 +33,11 @@ public class TableImplementation implements Table {
     	if (key == null) {
     		throw new IllegalArgumentException("null key");
     	}
-    	++changesNumber;
-   		return filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
+    	String removed = filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
+    	if (removed != null) {
+    		++changesNumber;
+    	}
+   		return removed;
     }
 
     public int size() {

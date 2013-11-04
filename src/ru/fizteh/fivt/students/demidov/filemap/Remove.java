@@ -9,12 +9,7 @@ public class Remove extends BasicFileMapCommand {
 		super(currentState);
 	}
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = null;
-		try {
-			value = currentState.getUsedTable().remove(arguments[0]);
-		} catch (IllegalArgumentException catchedException) {
-			throw new IOException(catchedException); 
-		}
+		String value = currentState.getUsedTable().remove(arguments[0]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {
