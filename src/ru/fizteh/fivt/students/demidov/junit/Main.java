@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.demidov.junit;
 
-import java.io.File;
 import java.io.IOException;
-
 import ru.fizteh.fivt.students.demidov.filemap.Get;
 import ru.fizteh.fivt.students.demidov.filemap.Put;
 import ru.fizteh.fivt.students.demidov.filemap.Remove;
@@ -16,7 +14,7 @@ public class Main {
 	public static void main(String[] arguments) {
 		TableProviderImplementation provider = null;
 		try {
-			provider = (new TableProviderFactoryImplementation()).create(System.getProperty("fizteh.db.dir") + File.separator + "go"/*System.getProperty("fizteh.db.dir")*/);
+			provider = (new TableProviderFactoryImplementation()).create(System.getProperty("fizteh.db.dir"));
 		} catch(IllegalArgumentException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
