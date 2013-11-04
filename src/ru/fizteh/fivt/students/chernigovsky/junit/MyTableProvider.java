@@ -27,7 +27,7 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("name is null");
         }
         if (!name.matches(TABLE_NAME_FORMAT)) {
-        //    throw new IllegalArgumentException("wrong table name");
+            throw new IllegalArgumentException("wrong table name");
         }
 
         File tableDirectory = new File(getDbDirectory(), name);
@@ -49,7 +49,7 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("name is null");
         }
         if (!name.matches(TABLE_NAME_FORMAT)) {
-        //    throw new IllegalArgumentException("wrong table name");
+            throw new IllegalArgumentException("wrong table name");
         }
 
         File tableDirectory = new File(getDbDirectory(), name);
@@ -74,7 +74,7 @@ public class MyTableProvider extends StateProvider implements TableProvider {
             throw new IllegalArgumentException("name is null");
         }
         if (!name.matches(TABLE_NAME_FORMAT)) {
-        //    throw new IllegalArgumentException("wrong table name");
+            throw new IllegalArgumentException("wrong table name");
         }
 
         File tableDirectory = new File(getDbDirectory(), name);

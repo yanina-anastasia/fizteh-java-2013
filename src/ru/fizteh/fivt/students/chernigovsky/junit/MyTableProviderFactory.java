@@ -17,9 +17,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if (dir == null) {
             throw new IllegalArgumentException("dir is null");
         }
-        if (!dir.matches("[A-Za-zА-Яа-я0-9]+")) {
-            throw new IllegalArgumentException("wrong dir name");
-        }
 
         File dbDirectory = new File(dir);
         if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
