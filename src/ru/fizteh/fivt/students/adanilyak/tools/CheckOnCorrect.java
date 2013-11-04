@@ -58,12 +58,16 @@ public class CheckOnCorrect {
         }
         Integer NlTestCount = 0;
         for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
-            if (givenStoreable.getColumnAt(i) == null) {
-                ++NlTestCount;
-            } else {
-                if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
-                    return false;
+            try {
+                if (givenStoreable.getColumnAt(i) == null) {
+                    ++NlTestCount;
+                } else {
+                    if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
+                        return false;
+                    }
                 }
+            } catch (IndexOutOfBoundsException exc) {
+                return false;
             }
         }
         return  (NlTestCount != givenTable.getColumnsCount());
