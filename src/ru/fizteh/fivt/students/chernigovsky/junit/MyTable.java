@@ -57,10 +57,10 @@ public class MyTable extends State implements Table {
      * @throws IllegalArgumentException Если значение параметров key или value является null.
      */
     public String put(String key, String value) {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("key is null");
         }
-        if (value == null) {
+        if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("value is null");
         }
 
