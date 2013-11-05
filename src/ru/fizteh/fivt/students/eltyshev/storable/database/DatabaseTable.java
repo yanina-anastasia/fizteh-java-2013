@@ -47,7 +47,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
-            if (key.trim().isEmpty()) {
+            if (StoreableUtils.checkStringEmpty(key)) {
                 throw new IllegalArgumentException("key cannot be empty");
             }
         }
@@ -57,7 +57,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         }
 
         if (!checkAlienStoreable(value)) {
-            throw new IllegalArgumentException("alien storeable");
+            throw new ColumnFormatException("alien storeable");
         }
         checkCorrectStoreable(value);
 
