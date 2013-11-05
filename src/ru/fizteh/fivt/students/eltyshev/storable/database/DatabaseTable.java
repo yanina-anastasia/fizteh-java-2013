@@ -34,7 +34,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             checkTableDirectory();
             load();
         } catch (IOException e) {
-            System.err.println("error loading table: " + e.getMessage());
+            throw new IllegalArgumentException("invalid file format");
         }
     }
 
