@@ -13,6 +13,10 @@ public class DataBaseMain {
     public static void main(String[] args) {
         NewTableProviderFactory factory = new NewTableProviderFactory();
         String workingDirectory = System.getProperty("fizteh.db.dir");
+        if (workingDirectory  == null) {
+            System.err.println("No directory");
+            System.exit(1);
+        }
         NewTableProvider provider = null;
         try {
            provider = (NewTableProvider) factory.create(workingDirectory);
