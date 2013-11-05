@@ -3,24 +3,27 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
-import java.io.File;
+import java.io.IOException;
 
 public class MyTableTests {
 
     private Table table;
     private TableProvider provider;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
-    public void test() {
+    public void test() throws IOException {
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        File file = new File(".");
-        String path = file.getAbsolutePath();
-        provider = factory.create(path);
-        table = provider.createTable("my");
+        provider = factory.create(folder.newFolder().getCanonicalPath());
+        table = provider.createTable("testTable");
     }
 
     @Test
@@ -36,7 +39,6 @@ public class MyTableTests {
         Assert.assertNull(table.put("commit", "rollback1"));
         Assert.assertEquals(table.commit(), 1);
         Assert.assertEquals(table.get("commit"), "rollback1");
-        provider.removeTable("my");
     }
 
     @Test
@@ -49,7 +51,6 @@ public class MyTableTests {
         Assert.assertEquals(table.put("key", "value_new"), "value");
         Assert.assertEquals(table.put("key", "value"), "value_new");
         Assert.assertEquals(table.commit(), 0);
-        provider.removeTable("my");
     }
 
     @Test
@@ -58,7 +59,6 @@ public class MyTableTests {
         table.remove("key");
         table.put("newKey", "value");
         Assert.assertEquals("Incorrect size", 1, table.size());
-        provider.removeTable("my");
     }
 
     @Test
@@ -67,7 +67,6 @@ public class MyTableTests {
         table.put("Kolya", "value");
         table.remove("Dmitry");
         Assert.assertNotNull("expected value", table.get("Kolya"));
-        provider.removeTable("my");
     }
 
     @Test
@@ -75,7 +74,6 @@ public class MyTableTests {
         table.put("Pasha", "value");
         table.remove("Pasha");
         Assert.assertNull("expected null when get removed value", table.get("Pasha"));
-        provider.removeTable("my");
     }
 
 }

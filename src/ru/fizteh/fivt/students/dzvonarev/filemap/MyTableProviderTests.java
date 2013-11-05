@@ -2,21 +2,24 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
-import java.io.File;
+import java.io.IOException;
 
 public class MyTableProviderTests {
 
     private TableProvider provider;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
-    public void test() {
+    public void test() throws IOException {
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        File file = new File(".");
-        String path = file.getAbsolutePath();
-        provider = factory.create(path);
+        provider = factory.create(folder.newFolder().getCanonicalPath());
     }
 
     @Test
