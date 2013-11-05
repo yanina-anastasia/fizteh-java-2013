@@ -8,9 +8,9 @@ public class StoreableMain {
 
 
     public static void main(String[] args) {
-    StoraebleState st = null;
+    StoreableState st = null;
         try {
-            st = new StoraebleState(System.in, System.out);
+            st = new StoreableState(System.in, System.out);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
