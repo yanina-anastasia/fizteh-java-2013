@@ -75,39 +75,42 @@ public class MyFileSystem {
         if (command[0].charAt(0) == '.') {
             command[0] = command[0].substring(2);
         }
-        File name = new File(command[0]);
-        if (!name.toPath().isAbsolute()) {
-            name = currentDirectory.toPath().resolve(name.toPath()).normalize().toFile();
-        }
-        if (name.isFile()) {
-            Files.delete(name.toPath());
-        } else {
-            Path start = name.toPath();
-            Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+        removing(command[0]);
+    }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                        throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                        throws IOException {
-                    if (e == null) {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    } else {
-                        throw e;
-                    }
-                }
-            });
-            if (!currentDirectory.toPath().normalize().toAbsolutePath().toFile().exists()) {
-                currentDirectory = currentDirectory.toPath().getRoot().toFile();
+    public static void removing(String fileName)throws IOException {
+            File name = new File(fileName);
+            if (!name.toPath().isAbsolute()) {
+                name = currentDirectory.toPath().resolve(name.toPath()).normalize().toFile();
             }
+            if (name.isFile()) {
+                Files.delete(name.toPath());
+            } else {
+                Path start = name.toPath();
+                Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
 
-        }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException e)
+                            throws IOException {
+                        if (e == null) {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        } else {
+                            throw e;
+                        }
+                    }
+                });
+                if (!currentDirectory.toPath().normalize().toAbsolutePath().toFile().exists()) {
+                    currentDirectory = currentDirectory.toPath().getRoot().toFile();
+                }
+            }
     }
 
     public static void copy(String[] argFirst) throws Exception {
