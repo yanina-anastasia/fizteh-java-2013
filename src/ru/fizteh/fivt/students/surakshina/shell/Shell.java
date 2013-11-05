@@ -127,7 +127,7 @@ public class Shell {
     }
 
     protected void doInteractiveMode() {
-        System.out.print("$ ");
+        System.out.print(" $ ");
         parseString();
     }
 
