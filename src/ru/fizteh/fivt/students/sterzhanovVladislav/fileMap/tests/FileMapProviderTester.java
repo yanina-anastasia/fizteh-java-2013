@@ -11,7 +11,7 @@ public class FileMapProviderTester {
     
     @Before
     public void init() {
-        provider = new FileMapProvider(System.getProperty("fizteh.db.dir"));
+        provider = new FileMapProvider(System.getProperty("user.dir"));
     }
     
     @Test(expected = IllegalArgumentException.class)

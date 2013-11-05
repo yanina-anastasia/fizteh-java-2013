@@ -15,7 +15,7 @@ public class FileMapProviderFactoryTester {
     
     @Test
     public void legalCreateTest() {
-        TableProvider provider = factory.create(System.getProperty("fizteh.db.dir"));
+        TableProvider provider = factory.create(System.getProperty("user.dir"));
     }
     
     @Test(expected = IllegalArgumentException.class)
