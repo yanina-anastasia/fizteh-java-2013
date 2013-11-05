@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,9 @@ public class FileMap {
     final int maxLength;
 
     public FileMap(File location) {
+        if (location == null) {
+            throw new IllegalArgumentException("Null location");
+        }
         this.location = location;
         map = new HashMap<String, String>();
         maxLength = 1 << 24;
@@ -34,6 +38,10 @@ public class FileMap {
 
     public File getFile() {
         return location;
+    }
+
+    public int size() {
+        return map.size();
     }
 
     public String[] getKeysList() {
@@ -57,31 +65,23 @@ public class FileMap {
         return len;
     }
 
-    public boolean loadFromDisk() {
+    /**
+     * @throws RuntimeException on fail
+     */
+    public void loadFromDisk() {
         map.clear();
         if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
-            System.err.println("Unable to create a file, directory doesn't exist");
-            return false;
+            throw new RuntimeException("Unable to create a file, directory doesn't exist");
         }
         if (!location.exists()) {
-            System.err.println("Database file wasn't found");
-            return true;
+            return;
         }
         if (location.exists() && !location.isFile()) {
-            System.err.printf("%s is not a file", location.getName());
-            return false;
+            throw new RuntimeException(String.format("%s is not a file", location.getName()));
         }
-        DataInputStream inputStream;
-        try {
-            inputStream = new DataInputStream(new FileInputStream(location));
-        } catch (FileNotFoundException e) {
-            System.err.println(e);
-            return false;
-        }
-        byte[] buffer;
-        ByteBuffer cast;
-        boolean error = false;
-        try {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(location))) {
+            byte[] buffer;
+            ByteBuffer cast;
             while (true) {
                 buffer = new byte[4];
                 int bytesRead = readBytes(inputStream, 4, buffer);
@@ -89,94 +89,72 @@ public class FileMap {
                     break;
                 }
                 if (bytesRead != 4) {
-                    System.err.println("Database loading failed: Wrong key length format");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Wrong key length format");
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int keyLength = cast.getInt();
                 bytesRead = readBytes(inputStream, 4, buffer);
                 if (bytesRead != 4) {
-                    System.err.println("Database loading failed: Wrong value length format");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Wrong value length format");
                 }
                 cast = ByteBuffer.wrap(buffer);
                 int valueLength = cast.getInt();
                 if (keyLength > maxLength || valueLength > maxLength) {
-                    System.err.println("Database loading failed: Field length too big");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Field length too big");
                 }
                 if (keyLength <= 0 || valueLength <= 0) {
-                    System.err.println("Database loading failed: Field length should be positive");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Field length should be positive");
                 }
                 buffer = new byte[keyLength];
                 bytesRead = readBytes(inputStream, keyLength, buffer);
                 if (bytesRead != keyLength) {
-                    System.err.println("Database loading failed: Wrong key length");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Wrong key length");
                 }
-                String key = new String(buffer, "UTF-8");
+                String key = new String(buffer, StandardCharsets.UTF_8);
                 buffer = new byte[valueLength];
                 bytesRead = readBytes(inputStream, valueLength, buffer);
                 if (bytesRead != valueLength) {
-                    System.err.println("Database loading failed: Wrong value length");
-                    error = true;
-                    break;
+                    throw new IOException("Database loading failed: Wrong value length");
                 }
-                String value = new String(buffer, "UTF-8");
+                String value = new String(buffer, StandardCharsets.UTF_8);
                 map.put(key, value);
             }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            System.err.println(e);
-            error = true;
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                System.err.println(e);
-            }
+            throw new RuntimeException(e);
         }
-        return (!error);
     }
 
-    public boolean writeToDisk() throws Exception {
+    /**
+     * @throws RuntimeException on fail
+     */
+    public void writeToDisk() {
         if (location.exists() && location.isDirectory()) {
-            System.err.println("Database can't be written to the specified location");
-            return false;
+            throw new RuntimeException("Database can't be written to the specified location");
         }
-        if (!location.exists()) {
-            if (!location.createNewFile()) {
-                System.err.println("Database can't be written to the specified location");
-                return false;
-            }
-        }
-        FileOutputStream outputStream = new FileOutputStream(location);
-        boolean error = false;
         try {
+            if (!location.exists()) {
+                if (!location.createNewFile()) {
+                    throw new RuntimeException("Database can't be written to the specified location");
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating the file", e);
+        }
+        try (FileOutputStream outputStream = new FileOutputStream(location)) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                byte[] key = entry.getKey().getBytes("UTF-8");
-                byte[] value = entry.getValue().getBytes("UTF-8");
+                byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+                byte[] value = entry.getValue().getBytes(StandardCharsets.UTF_8);
                 outputStream.write(ByteBuffer.allocate(4).putInt(key.length).array());
                 outputStream.write(ByteBuffer.allocate(4).putInt(value.length).array());
                 outputStream.write(key);
                 outputStream.write(value);
             }
-        } catch (Exception e) {
-            System.err.println(e);
-            error = true;
-        } finally {
-            try {
-                outputStream.close();
-            } catch (Exception e) {
-                System.err.println(e);
-                error = true;
-            }
-            return (!error);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("File was not found", e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -188,8 +166,8 @@ public class FileMap {
         return map.get(key);
     }
 
-    public boolean remove(String key) {
-        return (map.remove(key) != null);
+    public String remove(String key) {
+        return map.remove(key);
     }
 
     ArrayList<String> parseArguments(int argCount, String argString) {
@@ -270,7 +248,7 @@ public class FileMap {
                         System.err.println("remove: Too few arguments");
                         return -1;
                     }
-                    if (remove(args.get(0))) {
+                    if (remove(args.get(0)) != null) {
                         System.out.println("removed");
                     } else {
                         System.out.println("not found");

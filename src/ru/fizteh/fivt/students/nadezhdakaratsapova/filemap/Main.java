@@ -23,17 +23,21 @@ public class Main {
             fileMap.addCommand(new PutCommand(state));
             fileMap.addCommand(new RemoveCommand(state));
             fileMap.addCommand(new ExitCommand(state));
-            FileReader fileReader = new FileReader();
-            fileReader.loadDataFromFile(state);
+            FileReader fileReader = new FileReader(dataFile, state.dataStorage);
+            while (fileReader.checkingLoadingConditions()) {
+                fileReader.getNextKey();
+            }
+            fileReader.putKeysToTable();
+            fileReader.closeResources();
             if (args.length == 0) {
                 fileMap.interactiveMode();
             } else {
                 String arguments = StringMethods.join(Arrays.asList(args), " ");
                 try {
                     fileMap.batchMode(arguments);
-                    fileWriter.writeDataToFile(state);
+                    fileWriter.writeDataToFile(state.getDataFile(), state.dataStorage);
                 } catch (IOException e) {
-                    fileWriter.writeDataToFile(state);
+                    fileWriter.writeDataToFile(state.getDataFile(), state.dataStorage);
                     System.err.println(e.getMessage());
                 }
             }

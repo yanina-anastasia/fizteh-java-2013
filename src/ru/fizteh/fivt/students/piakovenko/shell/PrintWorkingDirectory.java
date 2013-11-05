@@ -17,6 +17,10 @@ public class PrintWorkingDirectory implements Commands {
         currentStatus = cs;
     }
 
+    public void changeCurrentStatus (Object obj){
+        currentStatus = (CurrentStatus)obj;
+    }
+
     public String getName() {
         return name;
     }

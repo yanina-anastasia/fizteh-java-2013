@@ -4,7 +4,18 @@ import java.io.IOException;
 
 class Main {
     public static void main(String[] args) throws IOException {
-        Shell shell = new Shell();
+        ExternalCommand[] possibleCommands = new ExternalCommand[] {
+                new CopyCommand(),
+                new MakeDirCommand(),
+                new MoveCommand(),
+                new RemoveCommand(),
+                new ExitCommand(),
+                new DirCommand(),
+                new ChangeDirCommand(),
+                new PrintDirCommand()
+        };
+
+        Shell shell = new Shell(possibleCommands);
 
         if (args.length == 0) {
             shell.startInteractive();

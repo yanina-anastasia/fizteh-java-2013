@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.eltyshev.multifilemap.commands;
 
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.AbstractCommand;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.CommandParser;
 
@@ -19,11 +20,11 @@ public class CreateCommand extends AbstractCommand<MultifileMapShellState> {
             throw new IllegalArgumentException("argument missing");
         }
 
-        try {
-            shellState.tableProvider.createTable(parameters.get(0));
+        Table newTable = shellState.tableProvider.createTable(parameters.get(0));
+        if (newTable == null) {
+            System.out.println(String.format("%s exists", parameters.get(0)));
+        } else {
             System.out.println("created");
-        } catch (IllegalStateException e) {
-            System.err.println(e.getMessage());
         }
     }
 }

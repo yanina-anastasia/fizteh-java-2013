@@ -1,15 +1,15 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.MultiFileShellState;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
 public class CommandGet implements Command {
     private static final String name = "get";
-    private Table state;
+    private TableState state;
 
-    public CommandGet(Table state) {
+    public CommandGet(TableState state) {
         this.state = state;
     }
 
@@ -25,13 +25,17 @@ public class CommandGet implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        String key = args[1];
-        String value = state.get(key);
-        if (value == null) {
-            System.out.println("not found");
+        if (state.getCurrentTable() == null) {
+            System.out.println("no table");
         } else {
-            System.out.println("found");
-            System.out.println(value);
+            String key = args[1];
+            String value = state.getFromCurrentTable(key);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("found");
+                System.out.println(value);
+            }
         }
     }
 

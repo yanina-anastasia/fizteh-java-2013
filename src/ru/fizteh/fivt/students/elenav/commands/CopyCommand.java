@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class CopyCommand extends AbstractCommand {
 	public CopyCommand(FilesystemState s) { 
@@ -34,6 +34,8 @@ public class CopyCommand extends AbstractCommand {
 				} catch (IOException e) {
 					throw new IOException("Can't read or write");
 				}
+				inputStream.close();
+				outputStream.close();
 			}
 		} else {
 			throw new IOException("cp: cannot copy: Files are same");

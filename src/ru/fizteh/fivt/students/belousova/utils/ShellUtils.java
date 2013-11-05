@@ -17,7 +17,7 @@ public class ShellUtils {
             stringHandle("exit", commandList);
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            System.exit(1);
+            System.exit(2);
         }
     }
 

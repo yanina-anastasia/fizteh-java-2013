@@ -3,18 +3,8 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandGet implements Executable {
+public class TableCommandGet extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "get";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
-    }
 
     @Override
     public boolean execute(String[] args) {
@@ -34,6 +24,7 @@ public class TableCommandGet implements Executable {
     }
 
     public TableCommandGet(TableManager tableManager) {
+        super("get", 2);
         manager = tableManager;
     }
 }

@@ -1,9 +1,10 @@
 package ru.fizteh.fivt.students.nlevashov.shell;
 
+import ru.fizteh.fivt.students.nlevashov.mode.Mode;
+
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.EnumSet;
-import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,39 +28,41 @@ public class Shell {
         return tokensWithoutEmptyStrings;
     }
 
+    static String currentDirectory = System.getProperty("user.dir");
+
     public static File makePath(String newPath) {
-        File path = new File(System.getProperty("user.dir"));
+        File path = new File(currentDirectory);
         return path.toPath().resolve(newPath).normalize().toFile();
     }
 
-    public static void cd(String path) throws Exception {
+    public static void cd(String path) throws IOException {
         File dir = makePath(path);
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                System.setProperty("user.dir", dir.toString());
+                currentDirectory = dir.toString();
             } else {
-                throw new Exception("cd: Path \"" + path + "\" isn't a directory");
+                throw new IOException("cd: Path \"" + path + "\" isn't a directory");
             }
         } else {
-            throw new Exception("cd: Path \"" + path + "\" doesn't exist");
+            throw new IOException("cd: Path \"" + path + "\" doesn't exist");
         }
     }
 
-    public static void mkdir(String name) throws Exception {
+    public static void mkdir(String name) throws IOException {
         File dir = makePath(name);
         if (!dir.getCanonicalFile().mkdir()) {
-            throw new Exception("mkdir: Directory \"" + name + "\" wasn't created");
+            throw new IOException("mkdir: Directory \"" + name + "\" wasn't created");
         }
     }
 
     public static void pwd() {
-        System.out.println(System.getProperty("user.dir"));
+        System.out.println(currentDirectory);
     }
 
-    public static void rm(String path) throws Exception {
+    public static void rm(String path) throws IOException {
         File obj = makePath(path);
         if (!obj.exists()) {
-            throw new Exception("rm: Object \"" + path + "\" doesn't exist");
+            throw new IOException("rm: Object \"" + path + "\" doesn't exist");
         }
         Files.walkFileTree(obj.toPath(), new SimpleFileVisitor<Path>() {
             @Override
@@ -80,10 +83,10 @@ public class Shell {
         });
     }
 
-    public static void cp(String from, String to) throws Exception {
+    public static void cp(String from, String to) throws IOException {
         File path = makePath(from);
         if (!path.exists()) {
-            throw new Exception("cp: Object \"" + from + "\" doesn't exist");
+            throw new IOException("cp: Object \"" + from + "\" doesn't exist");
         }
         File destination = makePath(to);
         if (destination.exists()) {
@@ -91,7 +94,7 @@ public class Shell {
                 final Path source = path.toPath();
                 final Path target = destination.toPath().resolve(path.getName());
                 if (Pattern.compile("^[\\.\\/]+").matcher(target.relativize(source).toString()).matches()) {
-                    throw new Exception("cp: Can not copy folder to itself");
+                    throw new IOException("cp: Can not copy folder to itself");
                 }
                 try {
                     Files.copy(source, target);
@@ -127,28 +130,28 @@ public class Shell {
                     });
                 }
             } else {
-                throw new Exception("cp: Path \"" + to + "\" isn't a directory");
+                throw new IOException("cp: Path \"" + to + "\" isn't a directory");
             }
         } else {
             if (path.isDirectory()) {
-                throw new Exception("cp: Path \"" + to + "\" doesn't exist");  
+                throw new IOException("cp: Path \"" + to + "\" doesn't exist");
             } else if (destination.getParentFile().exists()) {
                 Files.copy(path.toPath(), destination.toPath());
             } else {
-                throw new Exception("cp: Directory \"" + destination.getParentFile().toString() + "\" doesn't exist");
+                throw new IOException("cp: Directory \"" + destination.getParentFile().toString() + "\" doesn't exist");
             }
         }
     }
 
-    public static void mv(String from, String to) throws Exception {
+    public static void mv(String from, String to) throws IOException {
         File path = makePath(from);
         if (!path.exists()) {
-            throw new Exception("mv: Object \"" + from + "\" doesn't exist");
+            throw new IOException("mv: Object \"" + from + "\" doesn't exist");
         }
         File destination = makePath(to);
         if (Pattern.compile("^[\\.\\/]+").
                 matcher(destination.toPath().relativize(path.toPath()).toString()).matches()) {
-            throw new Exception("mv: Can not move folder to itself");
+            throw new IOException("mv: Can not move folder to itself");
         }
         if (path.isDirectory()) {
             if (destination.exists()) {
@@ -156,13 +159,13 @@ public class Shell {
                     try {
                         path.renameTo(destination.toPath().resolve(path.getName()).toFile());
                     } catch (SecurityException e) {
-                        throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                        throw new IOException("mv: Object \"" + from + "\" wasn't moved (access denied)");
                     }
                 } else {
-                    throw new Exception("mv: Path \"" + to + "\" isn't a directory");
+                    throw new IOException("mv: Path \"" + to + "\" isn't a directory");
                 }
             } else {
-                throw new Exception("mv: Path \"" + to + "\" doesn't exist");
+                throw new IOException("mv: Path \"" + to + "\" doesn't exist");
             }
         } else {
             if (destination.exists()) {
@@ -170,123 +173,93 @@ public class Shell {
                     try {
                         path.renameTo(destination.toPath().resolve(path.getName()).toFile());
                     } catch (SecurityException e) {
-                        throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                        throw new IOException("mv: Object \"" + from + "\" wasn't moved (access denied)");
                     }
                 } else {
-                    throw new Exception("mv: Object \"" + to + "\" already exists");
+                    throw new IOException("mv: Object \"" + to + "\" already exists");
                 }
             } else if (destination.getParentFile().exists()) {
                 try {
                     path.renameTo(destination);
                 } catch (SecurityException e) {
-                    throw new Exception("mv: Object \"" + from + "\" wasn't moved (access denied)");
+                    throw new IOException("mv: Object \"" + from + "\" wasn't moved (access denied)");
                 }
             } else {
-                throw new Exception("mv: Directory \"" + destination.getParent() + "\" doesn't exist");
+                throw new IOException("mv: Directory \"" + destination.getParent() + "\" doesn't exist");
             }
         }
     }
 
-    public static void dir() throws Exception {
-        File state = new File(System.getProperty("user.dir"));
+    public static void dir() throws IOException {
+        File state = new File(currentDirectory);
         DirectoryStream<Path> stream = Files.newDirectoryStream(state.toPath());
         for (Path f : stream) {
             System.out.println(f.getFileName().toString());
         }
     }
 
-    public static boolean execute(String cmd) throws Exception {
-        Vector<String> tokens = parse(cmd, " ");
-        if (tokens.size() != 0) {
-            switch (tokens.get(0)) {
-                case "cd":
-                    if (tokens.size() != 2) {
-                        throw new Exception("cd: wrong arguments number");
-                    }
-                    cd(tokens.get(1));
-                    break;
-                case "mkdir":
-                    if (tokens.size() != 2) {
-                        throw new Exception("mkdir: wrong arguments number");
-                    }
-                    mkdir(tokens.get(1));
-                    break;
-                case "pwd":
-                    if (tokens.size() != 1) {
-                        throw new Exception("pwd: wrong arguments number");
-                    }
-                    pwd();
-                    break;
-                case "rm":
-                    if (tokens.size() != 2) {
-                        throw new Exception("rm: wrong arguments number");
-                    }
-                    rm(tokens.get(1));
-                    break;
-                case "cp":
-                    if (tokens.size() != 3) {
-                        throw new Exception("cp: wrong arguments number");
-                    }
-                    cp(tokens.get(1), tokens.get(2));
-                    break;
-                case "mv":
-                    if (tokens.size() != 3) {
-                        throw new Exception("mv: wrong arguments number");
-                    }
-                    mv(tokens.get(1), tokens.get(2));
-                    break;
-                case "dir":
-                    if (tokens.size() != 1) {
-                        throw new Exception("dir: wrong arguments number");
-                    }
-                    dir();
-                    break;
-                case "exit": {
-                    return false;
-                }
-                default:
-                    throw new Exception("Wrong command: " + cmd);
-            }
-        }
-        return true;
-    }
-
     public static void main(String[] args) {
-        if (args.length == 0) {
-            Scanner sc = new Scanner(System.in);
-            boolean flag = true;
-            do {
-                try {
-                    System.out.print("$ ");
-                    String cmdline = sc.nextLine();
-                    Vector<String> commands = parse(cmdline, ";");
-                    for (String s : commands) {
-                        if (!execute(s)) {
-                            flag = false;
-                            break;
+        try {
+            Mode.start(args, new Mode.Executor() {
+                public boolean execute(String cmd) throws IOException {
+                    Vector<String> tokens = parse(cmd, " ");
+                    if (tokens.size() != 0) {
+                        switch (tokens.get(0)) {
+                            case "cd":
+                                if (tokens.size() != 2) {
+                                    throw new IOException("cd: wrong arguments number");
+                                }
+                                cd(tokens.get(1));
+                                break;
+                            case "mkdir":
+                                if (tokens.size() != 2) {
+                                    throw new IOException("mkdir: wrong arguments number");
+                                }
+                                mkdir(tokens.get(1));
+                                break;
+                            case "pwd":
+                                if (tokens.size() != 1) {
+                                    throw new IOException("pwd: wrong arguments number");
+                                }
+                                pwd();
+                                break;
+                            case "rm":
+                                if (tokens.size() != 2) {
+                                    throw new IOException("rm: wrong arguments number");
+                                }
+                                rm(tokens.get(1));
+                                break;
+                            case "cp":
+                                if (tokens.size() != 3) {
+                                    throw new IOException("cp: wrong arguments number");
+                                }
+                                cp(tokens.get(1), tokens.get(2));
+                                break;
+                            case "mv":
+                                if (tokens.size() != 3) {
+                                    throw new IOException("mv: wrong arguments number");
+                                }
+                                mv(tokens.get(1), tokens.get(2));
+                                break;
+                            case "dir":
+                                if (tokens.size() != 1) {
+                                    throw new IOException("dir: wrong arguments number");
+                                }
+                                dir();
+                                break;
+                            case "exit": {
+                                return false;
+                            }
+                            default:
+                                throw new IOException("Wrong command: " + cmd);
                         }
                     }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    return true;
                 }
-            } while (flag);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (String s : args) {
-                sb.append(s).append(' ');
-            }
-            String cmdline = sb.toString();
-            Vector<String> commands = parse(cmdline, ";");
-            try {
-                for (String s : commands) {
-                    if (!execute(s)) {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+            });
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }

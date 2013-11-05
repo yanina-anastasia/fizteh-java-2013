@@ -4,7 +4,6 @@ import ru.fizteh.fivt.students.kochetovnicolai.shell.Launcher;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.StringParser;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -21,20 +20,22 @@ public class FileMap {
         commands.put("create", new TableCommandCreate(manager));
         commands.put("drop", new TableCommandDrop(manager));
         commands.put("use", new TableCommandUse(manager));
+        commands.put("size", new TableCommandSize(manager));
+        commands.put("commit", new TableCommandCommit(manager));
+        commands.put("rollback", new TableCommandRollback(manager));
     }
 
     public static void main(String[] args) {
-        File tableDirectory;
         String property = System.getProperty("fizteh.db.dir");
         if (property == null) {
             System.err.println("property fizteh.db.dir not found");
             System.exit(1);
         }
-        tableDirectory = new File(property);
         TableManager manager = null;
         try {
-            manager = new TableManager(tableDirectory);
-        } catch (IOException e) {
+            DistributedTableProviderFactory factory = new DistributedTableProviderFactory();
+            manager = new TableManager(factory.create(property));
+        } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }

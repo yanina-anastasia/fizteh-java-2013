@@ -3,11 +3,11 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
 import java.io.IOException;
 import java.util.Scanner;
 
-import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
+import ru.fizteh.fivt.students.irinapodorozhnaya.shell.StateInterface;
 
 public class Mode {
 	 private Mode() {}
-	 public static void batchMode(String[] args, State st) throws IOException {
+	 public static void batchMode(String[] args, StateInterface st) throws IOException {
 		parseAndExecute(joinString(args), st); 
 	 }
 
@@ -20,7 +20,7 @@ public class Mode {
 		 return sb.toString();
 	 }
 
-	 private static void parseAndExecute(String arg, State st) throws IOException {
+	 private static void parseAndExecute(String arg, StateInterface st) throws IOException {
 	 	String[] com = arg.trim().split("\\s*;\\s*");
 	 	for (String s: com) {
 	 		String[] args = s.split("\\s+");
@@ -28,7 +28,7 @@ public class Mode {
 	 	}
 	 }
 
-	 public static void interactiveMode(State st) {
+	 public static void interactiveMode(StateInterface st) {
 		 Scanner sc = new Scanner(st.getInputStream());
 		 do {
 			 try {

@@ -1,15 +1,15 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.filemap.TableState;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 
 import java.io.IOException;
 
 public class CommandRemove implements Command {
     private static final String name = "remove";
-    private Table state;
+    private TableState state;
 
-    public CommandRemove(Table state) {
+    public CommandRemove(TableState state) {
         this.state = state;
     }
 
@@ -25,12 +25,16 @@ public class CommandRemove implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        String key = args[1];
-        String value = state.remove(key);
-        if (value == null) {
-            System.out.println("not found");
+        if (state.getCurrentTable() == null) {
+            System.out.println("no table");
         } else {
-            System.out.println("removed");
+            String key = args[1];
+            String value = state.removeFromCurrentTable(key);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("removed");
+            }
         }
     }
 }
