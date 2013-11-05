@@ -183,6 +183,10 @@ public class VorotilovTable implements Table {
         return numberOfRolledChanges;
     }
 
+    public int uncommittedChanges() {
+        return numberOfUncommittedChanges;
+    }
+
     public void close() throws Exception {
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {

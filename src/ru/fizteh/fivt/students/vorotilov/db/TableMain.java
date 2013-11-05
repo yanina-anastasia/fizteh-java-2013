@@ -48,16 +48,23 @@ public class TableMain {
                                 if (currentTable.getName().equals(newTable.getName())) {
                                     System.out.println(parsedCommand[1] + " is already used");
                                 } else {
-                                    currentTable.commit();
-                                    try {
-                                        currentTable.close();
-                                    } catch (Exception e) {
-                                        throw new IllegalStateException("Can't close table");
+                                    if (currentTable.uncommittedChanges() == 0) {
+                                        try {
+                                            currentTable.close();
+                                        } catch (Exception e) {
+                                            throw new IllegalStateException("Can't close table", e);
+                                        }
+                                        currentTable = newTable;
+                                        System.out.println("using " + parsedCommand[1]);
+                                    } else {
+                                        System.out.println(Integer.toString(currentTable.uncommittedChanges())
+                                                + " unsaved changes");
                                     }
                                 }
+                            } else {
+                                currentTable = newTable;
+                                System.out.println("using " + parsedCommand[1]);
                             }
-                            currentTable = newTable;
-                            System.out.println("using " + parsedCommand[1]);
                         }
                     }
                     break;
@@ -109,6 +116,39 @@ public class TableMain {
                         } else {
                             System.out.println("not found");
                         }
+                    }
+                    break;
+                case "size":
+                    if (parsedCommand.length != 1) {
+                        System.out.println("size: must not get parameter");
+                        throw new WrongCommand();
+                    } else if (currentTable == null) {
+                        System.out.println("no table");
+                        throw new WrongCommand();
+                    } else {
+                        System.out.println(currentTable.size());
+                    }
+                    break;
+                case "commit":
+                    if (parsedCommand.length != 1) {
+                        System.out.println("commit: must not get parameter");
+                        throw new WrongCommand();
+                    } else if (currentTable == null) {
+                        System.out.println("no table");
+                        throw new WrongCommand();
+                    } else {
+                        System.out.println(currentTable.commit());
+                    }
+                    break;
+                case "rollback":
+                    if (parsedCommand.length != 1) {
+                        System.out.println("rollback: must not get parameter");
+                        throw new WrongCommand();
+                    } else if (currentTable == null) {
+                        System.out.println("no table");
+                        throw new WrongCommand();
+                    } else {
+                        System.out.println(currentTable.rollback());
                     }
                     break;
                 case "remove":
