@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.belousova.storable.tests;
 
 import org.junit.*;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.belousova.storable.ChangesCountingTable;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProvider;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProviderFactory;
@@ -90,6 +91,11 @@ public class StorableTableTest {
         table.get("    ");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetKeyWithWhitespaces() throws Exception {
+        table.get("one two three");
+    }
+
     @Test
     public void testPutNew() throws Exception {
         Assert.assertNull(table.put("testPutNewKey", testStorable));
@@ -119,8 +125,22 @@ public class StorableTableTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testPutKeyWithWhitespaces() throws Exception {
+        table.put("one two three", testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testPutNullValue() throws Exception {
         table.put("testPutNullValueKey", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutAlienValue() throws Exception {
+        List<Class<?>> list = new ArrayList<>();
+        list.add(String.class);
+        Table table1 = tableProvider.createTable("table1", list);
+        Storeable storeable = tableProvider.deserialize(table1, "<row><col>jtfh</col></row>");
+        table.put("testPutNullValueKey", storeable);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -131,6 +151,11 @@ public class StorableTableTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRemoveEmpty() throws Exception {
         table.remove("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveKeyWithWhitespaces() throws Exception {
+        table.get("one two three");
     }
 
     @Test

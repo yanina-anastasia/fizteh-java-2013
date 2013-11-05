@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.belousova.utils.StorableUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,53 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
         File signatureFile = new File(directory, "signature.tsv");
         StorableUtils.readSignature(signatureFile, columnTypes);
         StorableUtils.readTable(directory, this, dataBase, tableProvider);
+    }
+
+    @Override
+    public Storeable put(String key, Storeable value) {
+        if (key == null) {
+            throw new IllegalArgumentException("null key");
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException("null value");
+        }
+
+        int columnIndex = 0;
+        for (Class<?> columnType : columnTypes) {
+            if (!columnType.equals(value.getColumnAt(columnIndex).getClass())) {
+                throw new IllegalArgumentException("alien storeable");
+            }
+            columnIndex++;
+        }
+
+        if (key.matches(".*\\s+.*")) {
+            throw new IllegalArgumentException("key with whitespaces");
+        }
+
+        return super.put(key, value);
+    }
+
+    @Override
+    public Storeable remove(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("null key");
+        }
+        if (key.matches(".*\\s+.*")) {
+            throw new IllegalArgumentException("key with whitespaces");
+        }
+        return super.remove(key);
+    }
+
+    @Override
+    public Storeable get(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("null key");
+        }
+        if (key.matches(".*\\s+.*")) {
+            throw new IllegalArgumentException("key with whitespaces");
+        }
+        return super.get(key);
     }
 
     @Override
