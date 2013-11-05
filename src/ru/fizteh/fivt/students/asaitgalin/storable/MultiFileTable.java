@@ -65,7 +65,7 @@ public class MultiFileTable implements ExtendedTable {
         if (key == null || value == null) {
             throw new IllegalArgumentException("put: key or value is null");
         }
-        if (!isValidKey(key)) {
+        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
             throw new IllegalArgumentException("put: key or value is empty");
         }
         checkValue(value);
@@ -110,10 +110,6 @@ public class MultiFileTable implements ExtendedTable {
 
     public void load() throws IOException {
         container.containerLoad();
-    }
-
-    private boolean isValidKey(String key) {
-        return !key.isEmpty() && !(key.indexOf(' ') >= 0) && !(key.indexOf('\t') >= 0);
     }
 
     private void checkValue(Storeable st) {

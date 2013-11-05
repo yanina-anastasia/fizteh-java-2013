@@ -73,7 +73,7 @@ public class MultiFileTableTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutKeyWithSpaces()  throws Exception {
-        testTable.put("key with spaces", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
+        testTable.put("key    with spaces", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
     }
 
     @Test(expected = IllegalArgumentException.class)
