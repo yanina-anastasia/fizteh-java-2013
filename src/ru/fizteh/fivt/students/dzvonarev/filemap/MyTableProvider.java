@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
-
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
 import java.io.File;
@@ -110,17 +109,15 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("Invalid table name " + tableName);
         }
         File newTable = new File(workingDirectory + File.separator + tableName);
-        if (newTable.exists()) {
+        if (multiFileMap.containsKey(tableName)) {
             return null;
         }
         if (!newTable.mkdir()) {
             throw new IllegalArgumentException("Can't create table " + tableName);
         }
-        return new MyTable(workingDirectory + File.separator + tableName);
-    }
-
-    public void addTable(MyTable newTable, String newName) {
-        multiFileMap.put(newName, newTable);
+        MyTable table = new MyTable(workingDirectory + File.separator + tableName);
+        multiFileMap.put(tableName, table);
+        return table;
     }
 
     @Override

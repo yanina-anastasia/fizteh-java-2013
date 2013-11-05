@@ -31,7 +31,6 @@ public class DataBaseCreate implements CommandInterface {
         if (newTable == null) {
             System.out.println(newName + " exists");
         } else {
-            tableProvider.addTable(newTable, newName);
             System.out.println("created");
         }
     }
