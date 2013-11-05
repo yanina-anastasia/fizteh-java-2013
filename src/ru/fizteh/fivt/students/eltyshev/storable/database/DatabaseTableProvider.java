@@ -177,6 +177,9 @@ public class DatabaseTableProvider implements TableProvider {
         File tableDirectory = new File(databaseDirectoryPath, tableName);
         File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
         String signature = null;
+        if (!signatureFile.exists()) {
+            return null;
+        }
         try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
             signature = reader.readLine();
         } catch (IOException e) {
