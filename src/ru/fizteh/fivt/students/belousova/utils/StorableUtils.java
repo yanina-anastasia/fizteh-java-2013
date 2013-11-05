@@ -261,4 +261,22 @@ public class StorableUtils {
         }
         MultiFileUtils.write(file, stringMap);
     }
+
+    public static boolean isStorableValid(Storeable value, List<Class<?>> columnTypes) {
+        int columnIndex = 0;
+        try {
+            for (Class<?> columnType : columnTypes) {
+                if (value.getColumnAt(columnIndex) == null) {
+                    continue;
+                }
+                if (!columnType.equals(value.getColumnAt(columnIndex).getClass())) {
+                    return false;
+                }
+                columnIndex++;
+            }
+            return true;
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+    }
 }

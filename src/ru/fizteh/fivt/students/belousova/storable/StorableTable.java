@@ -37,15 +37,8 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
             throw new IllegalArgumentException("empty value");
         }
 
-        int columnIndex = 0;
-        for (Class<?> columnType : columnTypes) {
-            if (value.getColumnAt(columnIndex) == null) {
-                continue;
-            }
-            if (!columnType.equals(value.getColumnAt(columnIndex).getClass())) {
-                throw new IllegalArgumentException("alien storeable");
-            }
-            columnIndex++;
+        if (!StorableUtils.isStorableValid(value, columnTypes)) {
+            throw new IllegalArgumentException("alien storeable");
         }
 
         if (key.matches(".*\\s+.*")) {
