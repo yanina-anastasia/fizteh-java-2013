@@ -14,15 +14,18 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadSafeTableTest {
-    private static final int THREAD_COUNT = 5;
-    private static final int KEYS_COUNT = 20;
+    private static final int THREAD_COUNT = 2;
+    private static final int KEYS_COUNT = 5;
     private static String DATABASE_DIRECTORY = "C:\\temp\\storeable_test";
     private static String TABLE_NAME = "ThreadSafeTable";
 
     private TableProvider provider;
     private Table currentTable;
+
+    private AtomicInteger correctCounter = new AtomicInteger(0);
 
     @Before
     public void setUp() throws Exception {
@@ -40,14 +43,24 @@ public class ThreadSafeTableTest {
 
     @Test
     public void testCurrentOnlyThreadDiff() {
+        List<Thread> threads = new ArrayList<>();
         for (int index = 0; index < THREAD_COUNT; ++index) {
-            Thread thread = new Thread(new Runnable() {
+            threads.add(new Thread(new Runnable() {
                 @Override
                 public void run() {
                     checkThreadOnlyDiff();
                 }
-            });
+            }));
+            threads.get(index).start();
         }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+        Assert.assertEquals(THREAD_COUNT * KEYS_COUNT, correctCounter.get());
     }
 
     private void checkThreadOnlyDiff() {
@@ -56,15 +69,18 @@ public class ThreadSafeTableTest {
             currentTable.put(key, makeStoreable(index));
         }
 
-        try {
-            currentTable.commit();
-        } catch (IOException e) {
-            //
-        }
-
         for (int index = 0; index < KEYS_COUNT; ++index) {
             String key = String.format("key%d", index);
-            Assert.assertEquals(makeStoreable(index), currentTable.get(key));
+            Storeable value1 = makeStoreable(index);
+            Storeable value2 = currentTable.get(key);
+            //System.out.println(String.format("expected: %s, actual: %s thread: %d", value1.toString(), value2.toString(), Thread.currentThread().getId()));
+            if (value1 == null || value2 == null)
+            {
+                System.out.println("BOOOM");
+            }
+            if (value1.equals(value2)) {
+                correctCounter.getAndIncrement();
+            }
         }
     }
 

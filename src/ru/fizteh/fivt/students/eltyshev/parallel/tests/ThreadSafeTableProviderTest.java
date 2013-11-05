@@ -75,6 +75,7 @@ public class ThreadSafeTableProviderTest {
                     Assert.assertEquals(newTable, provider.getTable("randomName"));
                 }
             });
+            thread1.start();
 
             Assert.assertEquals(newTable, provider.getTable("randomName"));
         }

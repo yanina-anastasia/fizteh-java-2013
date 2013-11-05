@@ -93,6 +93,12 @@ public class DatabaseRow implements Storeable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        DatabaseRow otherStoreable = (DatabaseRow) obj;
+        return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
+    }
+
+    @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, String.class);

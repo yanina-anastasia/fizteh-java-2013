@@ -103,7 +103,7 @@ public abstract class AbstractStorage<Key, Value> {
     protected final HashMap<Key, Value> oldData;
     protected final ThreadLocal<TransactionChanges> transactionChanges = new ThreadLocal<TransactionChanges>() {
         @Override
-        protected TransactionChanges initialValue() {
+        public TransactionChanges initialValue() {
             return new TransactionChanges();
         }
     };
@@ -149,6 +149,7 @@ public abstract class AbstractStorage<Key, Value> {
             String message = key == null ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be null");
         }
+
         Value oldValue = transactionChanges.get().getValue(key);
         if (oldValue == null) {
             transactionChanges.get().increaseSize();
