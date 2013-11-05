@@ -37,18 +37,6 @@ public class StoreableMain {
             System.exit(1);
         }
 
-        if (databaseDirectory.equals("/home/student/tmp/storeableBroken")) {
-            File file = new File(databaseDirectory);
-            File[] files = file.listFiles();
-            if (files == null || files.length == 0) {
-                System.out.println("empty directory");
-            } else {
-                for (File subfile : files) {
-                    System.out.println(String.format("name: %s, directory: %s", subfile.getName(), subfile.isFile() ? "no" : "yes"));
-                }
-            }
-        }
-
         try {
             DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
             StoreableShellState shellState = new StoreableShellState(factory.create(databaseDirectory));

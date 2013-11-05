@@ -39,7 +39,14 @@ public class DatabaseTableProvider implements TableProvider {
             if (tableFile.isFile()) {
                 continue;
             }
-            DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, tableFile.getName(), readTableSignature(tableFile.getName()));
+
+            List<Class<?>> columnTypes = readTableSignature(tableFile.getName());
+
+            if (columnTypes == null) {
+                throw new IllegalArgumentException("table directory is empty");
+            }
+
+            DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, tableFile.getName(), columnTypes);
             tables.put(table.getName(), table);
         }
     }
