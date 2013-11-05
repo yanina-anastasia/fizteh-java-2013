@@ -56,6 +56,8 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             throw new IllegalArgumentException("value cannot be null");
         }
 
+        System.out.println(String.format("putting key : '%s'", key));
+
         if (!checkAlienStoreable(value)) {
             throw new ColumnFormatException("alien storeable");
         }
