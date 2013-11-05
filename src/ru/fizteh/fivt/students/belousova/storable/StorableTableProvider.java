@@ -102,6 +102,9 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (values.size() > table.getColumnsCount()) {
+            throw new IndexOutOfBoundsException("too many values");
+        }
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
@@ -110,6 +113,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         int columnIndex = 0;
         for (Object value : values) {
             storeable.setColumnAt(columnIndex, value);
+            columnIndex++;
         }
         return storeable;
     }

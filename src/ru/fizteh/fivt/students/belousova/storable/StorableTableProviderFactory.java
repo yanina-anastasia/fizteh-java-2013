@@ -1,11 +1,9 @@
 package ru.fizteh.fivt.students.belousova.storable;
 
-import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-
 import java.io.File;
 import java.io.IOException;
 
-public class StorableTableProviderFactory implements TableProviderFactory {
+public class StorableTableProviderFactory implements ChangesCountingTableProviderFactory {
     @Override
     public StorableTableProvider create(String path) throws IOException {
         if (path == null) {
