@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.container;
 
+import com.sun.corba.se.spi.ior.ObjectKey;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntry;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryReader;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
@@ -97,7 +98,8 @@ public class TableContainer<ValueType> {
     public int containerRollback() {
         int count = 0;
         for (String key : currentTable.keySet()) {
-            if (diffHasChanges(currentTable.get(key))) {
+            Diff diff = currentTable.get(key);
+            if (diffHasChanges(diff.oldValue, diff.newValue)) {
                 ++count;
             }
         }
@@ -111,7 +113,7 @@ public class TableContainer<ValueType> {
         int count = 0;
         for (String key : currentTable.keySet()) {
             Diff diff = currentTable.get(key);
-            if (diffHasChanges(diff)) {
+            if (diffHasChanges(diff.oldValue, diff.newValue)) {
                 if (diff.newValue == null) {
                     originalTable.remove(key);
                 } else {
@@ -188,16 +190,6 @@ public class TableContainer<ValueType> {
         actualSize = originalTable.size();
     }
 
-    private boolean diffHasChanges(Diff diff) {
-        if (diff.oldValue == null && diff.newValue == null) {
-            return false;
-        }
-        if (diff.oldValue == null || diff.newValue == null) {
-            return true;
-        }
-        return !diff.newValue.equals(diff.oldValue);
-    }
-
     public int containerGetSize() {
         return actualSize;
     }
@@ -212,6 +204,17 @@ public class TableContainer<ValueType> {
 
     private int getKeyFile(String key) {
         return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
+    }
+
+
+    private boolean diffHasChanges(Object oldValue, Object newValue) {
+        if (oldValue == null && newValue == null) {
+            return false;
+        }
+        if (oldValue == null || newValue == null) {
+            return true;
+        }
+        return !newValue.equals(oldValue);
     }
 
 }
