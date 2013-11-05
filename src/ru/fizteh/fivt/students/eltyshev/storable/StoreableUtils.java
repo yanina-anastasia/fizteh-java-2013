@@ -118,15 +118,15 @@ public class StoreableUtils {
         switch (formatColumnType(type)) {
             case "String":
                 String stringValue = (String) value;
-                if (checkStringEmpty(stringValue)) {
+                if (checkStringCorrect(stringValue)) {
                     throw new ParseException("value cannot be null", 0);
                 }
                 break;
         }
     }
 
-    public static boolean checkStringEmpty(String string)
+    public static boolean checkStringCorrect(String string)
     {
-        return string.matches("\\s*");
+        return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 }

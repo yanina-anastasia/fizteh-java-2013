@@ -10,11 +10,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +44,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
             System.out.println(String.format("putting key : '%s'", key));
-            if (StoreableUtils.checkStringEmpty(key)) {
+            if (StoreableUtils.checkStringCorrect(key)) {
                 throw new IllegalArgumentException("key cannot be empty");
             }
         }
