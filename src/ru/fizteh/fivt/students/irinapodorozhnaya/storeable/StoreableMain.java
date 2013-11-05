@@ -11,7 +11,7 @@ public class StoreableMain {
     StoreableState st = null;
         try {
             st = new StoreableState(System.in, System.out);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
