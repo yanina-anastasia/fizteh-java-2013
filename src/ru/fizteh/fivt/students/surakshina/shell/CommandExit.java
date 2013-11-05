@@ -11,6 +11,5 @@ public class CommandExit extends AbstractCommand {
     @Override
     public void executeProcess(String[] input) {
         System.exit(0);
-
     }
 }

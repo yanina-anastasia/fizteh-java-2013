@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ru.fizteh.fivt.students.surakshina.shell.Command;
-import ru.fizteh.fivt.students.surakshina.shell.CommandExit;
 import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
 
@@ -38,7 +37,7 @@ public class DataBaseMain {
         tableCommands.add(new CommandGet(state));
         tableCommands.add(new CommandPut(state));
         tableCommands.add(new CommandRemove(state));
-        tableCommands.add(new CommandExit(state));
+        tableCommands.add(new CommandExitSave(state));
         tableCommands.add(new CommandUse(state));
         tableCommands.add(new CommandCreate(state));
         tableCommands.add(new CommandDrop(state));

@@ -96,7 +96,7 @@ public class Shell {
     }
 
     private String rewriteInput(String current) {
-        return current.replaceAll("[ ]+", " ").replaceAll("[ ]+$", "");
+        return current.trim();
     }
 
     private void parseString() {
@@ -110,15 +110,9 @@ public class Shell {
             while (scanner1.hasNext()) {
                 String current = scanner1.next();
                 current = rewriteInput(current);
-                if (current.equals("exit")) {
-                    scanner.close();
-                    scanner1.close();
-                    return;
-                } else {
-                    if (!current.isEmpty()) {
-                        doCommand(extractArgumentsFromInputString(current));
-                    }
-                }
+                if (!current.isEmpty()) {
+                    doCommand(extractArgumentsFromInputString(current));
+                 }
             }
             System.out.print("$ ");
             scanner1.close();
