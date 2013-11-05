@@ -41,8 +41,6 @@ public abstract class AbstractStorage<Key, Value> {
             load();
         } catch (IOException e) {
             throw new IllegalArgumentException("invalid file format");
-        } catch (IllegalArgumentException e) {
-            System.err.println("error loading table: " + e.getMessage());
         }
     }
 
