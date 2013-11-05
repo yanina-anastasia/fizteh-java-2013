@@ -54,11 +54,21 @@ public class MyTableTest {
     @Test
     public void commitDiffCountTest() {
         table.put("key1", "val1");
+        table.commit();
         table.put("key1", "val2");
+        table.put("key1", "val1");
+
+        Assert.assertEquals("there is not diff", 0, table.commit());
+    }
+
+    @Test
+    public void putRemoveTest() {
+        table.put("key1", "val1");
+        table.commit();
         table.remove("key1");
         table.put("key1", "val1");
 
-        Assert.assertEquals("there is not diff", 1, table.commit());
+        Assert.assertEquals("there is not diff", 0, table.commit());
     }
 
     @Test
@@ -127,7 +137,8 @@ public class MyTableTest {
         table.put("key2", "val2");
         table.put("key3", "val3");
         table.put("key4", "val4");
-        Assert.assertEquals("Incorrect size", 4, table.size());
+        table.put("key5", "val5");
+        Assert.assertEquals("Incorrect size", 5, table.size());
     }
 
 

@@ -43,7 +43,6 @@ public class MyTableProviderTest {
         ExtendedTable created = tableProvider.createTable("testGet");
         ExtendedTable firstGet = tableProvider.getTable("testGet");
         ExtendedTable secondGet = tableProvider.getTable("testGet");
-        Assert.assertEquals("should be testGet", "testGet", tableProvider.getTable("testGet").getName());
         Assert.assertSame("getting should returns the same table as create", created, firstGet);
         Assert.assertSame("getting the same table twice should return the same", firstGet, secondGet);
         tableProvider.removeTable("testGet");
