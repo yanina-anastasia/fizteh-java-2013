@@ -7,18 +7,13 @@ import java.io.File;
 public class MyTableTest {
     private ExtendedTable table;
     private ExtendedTableProvider tableProvider;
-    private final String dbPath = System.getProperty("fizteh.db.dir");
 
     @Before
     public void setUp() {
-        if (dbPath == null) {
-            System.err.print("DB directory not exists");
-            System.exit(1);
-        }
-        File dbDirectory = new File(dbPath);
+        File dbDirectory = new File("/home/chernigovsky/database");
         if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
-            System.err.println("DB directory not exists");
-            System.exit(1);
+            dbDirectory.delete();
+            dbDirectory.mkdir();
         }
         tableProvider = new MyTableProvider(dbDirectory, false);
         table = tableProvider.createTable("testTable");
