@@ -56,7 +56,9 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             throw new IllegalArgumentException("value cannot be null");
         }
 
-        checkAlienStoreable(value);
+        if (!checkAlienStoreable(value)) {
+            return null;
+        }
         checkCorrectStoreable(value);
 
         return storagePut(key, value);
@@ -132,16 +134,17 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         writer.close();
     }
 
-    public void checkAlienStoreable(Storeable storeable) {
+    public boolean checkAlienStoreable(Storeable storeable) {
         DatabaseRow row = null;
         try {
             row = (DatabaseRow) storeable;
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("alien storeable");
+            return false;
         }
         if (!row.classes.equals(columnTypes)) {
-            throw new IllegalArgumentException("alien storeable");
+            return false;
         }
+        return true;
     }
 
     public void checkCorrectStoreable(Storeable storeable) {
