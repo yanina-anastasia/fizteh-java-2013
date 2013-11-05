@@ -63,7 +63,14 @@ public class NewTable implements Table {
     @Override
     public String remove(String key) {
         checkName(key);
-        return dataBaseMap.remove(key).getValue();
+        ValueState<String> value = null;
+        if (dataBaseMap.containsKey(key)) {
+        ValueState<String> newValue = new ValueState<String>(null, dataBaseMap.get(key).getValue());
+        value = dataBaseMap.get(key);
+        dataBaseMap.remove(key);
+        dataBaseMap.put(key, newValue);
+        }
+        return value.getValue();
     }
     @Override
     public int size() {

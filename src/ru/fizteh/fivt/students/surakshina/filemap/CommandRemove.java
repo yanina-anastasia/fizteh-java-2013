@@ -9,13 +9,16 @@ public class CommandRemove extends DataBaseCommand {
 
     @Override
     public void executeProcess(String[] input) {
-        if (state.getTableProvider() != null) {
+        if (state.getTable() != null) {
             String key = input[1];
-            if (state.getTable().remove(key) != null) {
+            String result = state.getTable().remove(key);
+            if (result != null) {
                 System.out.println("removed");
             } else {
                 System.out.println("not found");
             }
+        } else {
+            System.out.println("no table");
         }
         
     }
