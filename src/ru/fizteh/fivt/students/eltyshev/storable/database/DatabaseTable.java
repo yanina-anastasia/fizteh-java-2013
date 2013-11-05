@@ -47,6 +47,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
+            System.out.println(String.format("putting key : '%s'", key));
             if (StoreableUtils.checkStringEmpty(key)) {
                 throw new IllegalArgumentException("key cannot be empty");
             }
@@ -56,7 +57,6 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             throw new IllegalArgumentException("value cannot be null");
         }
 
-        System.out.println(String.format("putting key : '%s'", key));
 
         if (!checkAlienStoreable(value)) {
             throw new ColumnFormatException("alien storeable");
