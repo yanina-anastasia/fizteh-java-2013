@@ -21,7 +21,7 @@ public class MultifileMapUtils {
 
     public static int parseCurrentBucketNumber(File bucket) {
         String name = bucket.getName();
-        Pattern pattern = Pattern.compile("(~\\.)\\.dir");
+        Pattern pattern = Pattern.compile("([^\\.]+).dir");
         Matcher matcher = pattern.matcher(name);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(1));
@@ -32,7 +32,7 @@ public class MultifileMapUtils {
     public static int parseCurrentFileNumber(File file)
     {
         String name = file.getName();
-        Pattern pattern = Pattern.compile("(~\\.)\\.dat");
+        Pattern pattern = Pattern.compile("([^\\.]+).dat");
         Matcher matcher = pattern.matcher(name);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(1));
