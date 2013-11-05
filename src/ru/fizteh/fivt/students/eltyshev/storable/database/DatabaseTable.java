@@ -54,21 +54,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
 
         if (!checkAlienStoreable(value)) {
-            for(int i = 0; i < getColumnsCount(); ++i)
-            {
-                System.out.println(getColumnType(i).getName());
-            }
-            try {
-                for(int index = 0; index < 10; ++index)
-                {
-                    System.out.println(value.getColumnAt(index));
-                }
-            } catch (IndexOutOfBoundsException e) {
-                return value;
-            }
-
-            return value;
-            //throw new ColumnFormatException("alien storeable");
+            throw new ColumnFormatException("alien storeable");
         }
         checkCorrectStoreable(value);
 
