@@ -72,6 +72,20 @@ public class DatabaseTableTests {
         currentTable.put("  ", provider.createFor(currentTable));
     }
 
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutValueWithWhiteSpaces()
+    {
+        Storeable newValue = provider.createFor(currentTable);
+        DatabaseRow row = (DatabaseRow) newValue;
+        List<Object> values = new ArrayList<Object>() {{
+            add(1);
+            add("    ");
+        }};
+        row.setColumns(values);
+        currentTable.put("keysasdasda", row);
+    }
+
     private String getXml(int value1, String value2) {
         return String.format("<row><col>%d</col><col>%s</col></row>", value1, value2);
     }

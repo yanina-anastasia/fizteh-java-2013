@@ -52,6 +52,10 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             }
         }
 
+        if (value == null) {
+            throw new IllegalArgumentException("value cannot be null");
+        }
+
         checkAlienStoreable(value);
         checkCorrectStoreable(value);
 
@@ -140,10 +144,8 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         }
     }
 
-    public void checkCorrectStoreable(Storeable storeable)
-    {
-        for(int index = 0; index < getColumnsCount(); ++index)
-        {
+    public void checkCorrectStoreable(Storeable storeable) {
+        for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 StoreableUtils.checkValue(storeable.getColumnAt(index), columnTypes.get(index));
             } catch (ParseException e) {
