@@ -28,20 +28,19 @@ public class XMLSerializer {
         try {
             writer.writeStartElement("row");
             for (int i = 0; i < table.getColumnsCount(); ++i) {
-                writer.writeStartElement("col");
+
                 Object element = s.getColumnAt(i);
                 if (element == null) {
-                    writer.writeStartElement("null");
-                    writer.writeEndElement();
-            
+                    writer.writeEmptyElement("null");
                 } else {
+                    writer.writeStartElement("col");
                     if (element.getClass() != table.getColumnType(i)) {
                         throw new ColumnFormatException("col " + i + " has " + element.getClass()
                                                 + " instead of " + table.getColumnType(i));
                     }
                     writer.writeCharacters(element.toString());
+                    writer.writeEndElement();
                 }
-                writer.writeEndElement();
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("different row size");
@@ -51,7 +50,7 @@ public class XMLSerializer {
         return result.toString();            
     }
     
-    public static Storeable deserialize(Table table, String s) 
+    public static Storeable deserialize(Table table, String s)
                   throws XMLStreamException, ParseException {
         
         if (s == null) {

@@ -17,6 +17,8 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
 public class XMLSerializerTest {
@@ -26,12 +28,14 @@ public class XMLSerializerTest {
     private List<Class<?>> columnTypes;
     private String desirialized = "<row><col>Hello</col><col>5</col></row>";
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
-    private TableProvider provider; 
-    private Table table;
+    private ExtendProvider provider;
+    private ExtendTable table;
     
     @Before
     public void setUp() throws Exception {
-        provider = new MyTableProvider(new File(DATA_BASE_DIR));
+        File f = new File(DATA_BASE_DIR);
+        f.mkdirs();
+        provider = new MyTableProvider(f);
         columnTypes = new ArrayList<>();
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
@@ -77,5 +81,17 @@ public class XMLSerializerTest {
         s.setColumnAt(1, 5);
         columnTypes.add(Byte.class);
         XMLSerializer.serialize(table, s);
-    }    
+    }
+
+    @Test
+    public void serializeWithNull() {
+        Storeable s = provider.createFor(table);
+        Assert.assertEquals(provider.serialize(table, s), "<row><null/><null/></row>");
+    }
+
+    @Test
+    public void deserializeWithNull() throws Exception {
+        Storeable s = provider.createFor(table);
+        Assert.assertEquals(provider.deserialize(table, "<row><null/><null/></row>"), s);
+    }
 }
