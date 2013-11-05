@@ -6,11 +6,11 @@ import java.io.File;
 
 public class MyTableProviderTest {
     private ExtendedTableProvider tableProvider;
-    private final String dbPath = System.getProperty("fizteh.db.dir");
+    File dbDirectory = new File("./myCoolDatabase");
 
     @Before
     public void setUp() {
-        tableProvider = new MyTableProvider(new File(dbPath), false);
+        tableProvider = new MyTableProvider(dbDirectory, false);
     }
 
     @Test(expected = IllegalArgumentException.class)
