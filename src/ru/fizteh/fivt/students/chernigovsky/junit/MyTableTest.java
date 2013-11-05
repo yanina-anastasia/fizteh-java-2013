@@ -9,7 +9,7 @@ import java.io.IOException;
 public class MyTableTest {
     private ExtendedTable table;
     private ExtendedTableProvider tableProvider;
-    File dbDirectory = new File("/home/chernigovsky/database");
+    File dbDirectory = new File("C:/temp/chernigovsky/database");
 
     @Before
     public void setUp() {
@@ -23,7 +23,6 @@ public class MyTableTest {
         dbDirectory.mkdir();
 
         tableProvider = new MyTableProvider(dbDirectory, false);
-        tableProvider.removeTable("testTable");
         table = tableProvider.createTable("testTable");
     }
 
@@ -59,7 +58,7 @@ public class MyTableTest {
         table.remove("key1");
         table.put("key1", "val1");
 
-        Assert.assertEquals("there is not diff", 0, table.commit());
+        Assert.assertEquals("there is not diff", 1, table.commit());
     }
 
     @Test
