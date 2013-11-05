@@ -138,8 +138,17 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         } catch (ClassCastException e) {
             return false;
         }
-        if (!row.classes.equals(columnTypes)) {
-            return false;
+
+        for(int index = 0; index < getColumnsCount(); ++index)
+        {
+            try {
+                if (!row.getColumnAt(index).getClass().equals(getColumnType(index)))
+                {
+                    return false;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                return false;
+            }
         }
         return true;
     }
