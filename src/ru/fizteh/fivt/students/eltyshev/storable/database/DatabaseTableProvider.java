@@ -195,7 +195,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         if (signature == null) {
-            return null;
+            throw new IllegalArgumentException("incorrect signature file");
         }
 
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
