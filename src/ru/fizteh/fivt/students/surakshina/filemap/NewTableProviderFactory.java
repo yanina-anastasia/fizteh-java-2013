@@ -14,14 +14,10 @@ public class NewTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("No directory");
         }
         File directory = new File(dir);
-        if (!directory.isDirectory()) {
+        if (!directory.exists() || !directory.isDirectory()) {
             throw new IllegalArgumentException("Not a directory");
         }
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                throw new IllegalArgumentException("Can't create a directory!");
-            }
-        }
+        
         return new NewTableProvider(directory);
     }
 

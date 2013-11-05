@@ -22,6 +22,7 @@ public class DataBaseMain {
            provider = (NewTableProvider) factory.create(workingDirectory);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         }
         TableState state = new TableState(new File(workingDirectory), provider);
         Set<Command> commands = tableCommands(state);
