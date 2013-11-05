@@ -15,6 +15,9 @@ public class VorotilovTableProviderFactory implements TableProviderFactory {
         if (dir == null) {
             throw new IllegalArgumentException("Dir with tables is null");
         }
+        if (dir.equals("")) {
+            throw new IllegalArgumentException("Dir is empty string");
+        }
         File rootDir;
         try {
             rootDir = (new File(dir)).getCanonicalFile();

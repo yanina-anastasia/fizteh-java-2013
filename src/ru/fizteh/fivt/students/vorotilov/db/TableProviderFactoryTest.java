@@ -10,4 +10,9 @@ public class TableProviderFactoryTest {
         test.create(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void createWithEmptyRootDir() {
+        VorotilovTableProviderFactory test = new VorotilovTableProviderFactory();
+        test.create("");
+    }
 }
