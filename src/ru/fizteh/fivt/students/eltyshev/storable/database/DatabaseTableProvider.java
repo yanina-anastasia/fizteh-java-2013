@@ -39,9 +39,6 @@ public class DatabaseTableProvider implements TableProvider {
             if (tableFile.isFile()) {
                 continue;
             }
-            if (!checkCorrectTable(tableFile)) {
-                throw new IllegalArgumentException("table folder is empty!");
-            }
             DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, tableFile.getName(), readTableSignature(tableFile.getName()));
             tables.put(table.getName(), table);
         }

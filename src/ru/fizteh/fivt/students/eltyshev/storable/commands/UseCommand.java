@@ -35,7 +35,7 @@ public class UseCommand extends AbstractCommand<StoreableShellState> {
         }
 
         if (newTable == null) {
-            System.out.println(String.format("%s not exists", parameters.get(0)));
+            System.err.println(String.format("%s not exists", parameters.get(0)));
             return;
         }
 
