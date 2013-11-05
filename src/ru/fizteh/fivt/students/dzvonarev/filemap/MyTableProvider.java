@@ -43,10 +43,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public boolean tableNameIsValid(String name) {
-        if (name == null || name.contains(File.separator)
-                || name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains(" ") || name.contains("<")
-                || name.contains(">") || name.contains("|")) {
+        if (name == null || !(name.matches("\\w+"))) {
             return false;
         } else {
             return true;
