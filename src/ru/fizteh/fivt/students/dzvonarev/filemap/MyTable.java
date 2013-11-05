@@ -63,6 +63,9 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
+            if (value.newValue == null && value.oldValue == null) {
+                continue;
+            }
             if (!Equals(value.newValue, value.oldValue)) {
                 ++counter;
             }
@@ -72,7 +75,7 @@ public class MyTable implements Table {
 
     public boolean Equals(String st1, String st2) {
         if (st1 == null) {
-            return true;
+            return false;
         } else {
             return st1.equals(st2);
         }
