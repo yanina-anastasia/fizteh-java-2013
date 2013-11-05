@@ -69,8 +69,10 @@ public class NewTable implements Table {
         value = dataBaseMap.get(key);
         dataBaseMap.remove(key);
         dataBaseMap.put(key, newValue);
-        }
         return value.getValue();
+        } else {
+            return null;
+        }
     }
     @Override
     public int size() {
