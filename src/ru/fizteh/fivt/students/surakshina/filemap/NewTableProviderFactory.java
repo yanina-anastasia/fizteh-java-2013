@@ -17,7 +17,6 @@ public class NewTableProviderFactory implements TableProviderFactory {
         if (!directory.exists() || !directory.isDirectory()) {
             throw new IllegalArgumentException("Not a directory");
         }
-        
         return new NewTableProvider(directory);
     }
 

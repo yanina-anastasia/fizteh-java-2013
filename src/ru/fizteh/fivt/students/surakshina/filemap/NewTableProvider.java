@@ -54,7 +54,7 @@ public class NewTableProvider implements TableProvider {
         File tableFile = new File(workingDirectory, name);
         try {
             if (table != null) {
-            table.loadCommittedValues(load(tableFile));
+                table.loadCommittedValues(load(tableFile));
             }
         } catch (IOException e) {
             throw new WrappedIOException(e);
@@ -79,7 +79,7 @@ public class NewTableProvider implements TableProvider {
     }
 
     private void checkTableName(String name) {
-        if ((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-ЯА-Я]+"))) {
+        if ((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-яА-Я]+"))) {
             throw new IllegalArgumentException("Incorrect table name");
         }
     }
@@ -104,9 +104,9 @@ public class NewTableProvider implements TableProvider {
         for (File file : files.keySet()) {
             WriteInDataBase.saveFile(file, files.get(file));
         }
-        
+
     }
-    
+
     private HashMap<File, HashMap<String, String>> makeFiles(File tableFile) {
         HashMap<File, HashMap<String, String>> files = new HashMap<File, HashMap<String, String>>();
         NewTable table = tables.get(tableFile.getName());
@@ -114,12 +114,13 @@ public class NewTableProvider implements TableProvider {
         for (String key : map.keySet()) {
             File file = getFile(key);
             if (!files.containsKey(file)) {
-            files.put(file, new HashMap<String, String>());
+                files.put(file, new HashMap<String, String>());
             }
             files.get(file).put(key, files.get(file).get(key));
         }
         return files;
     }
+
     @Override
     public void removeTable(String name) {
         checkTableName(name);
