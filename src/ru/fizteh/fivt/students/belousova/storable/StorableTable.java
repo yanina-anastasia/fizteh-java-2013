@@ -28,9 +28,14 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
-
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty key");
+        }
         if (value == null) {
             throw new IllegalArgumentException("null value");
+        }
+        if (value.toString().trim().isEmpty()) {
+            throw new IllegalArgumentException("empty value");
         }
 
         int columnIndex = 0;
@@ -53,6 +58,9 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty key");
+        }
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("key with whitespaces");
         }
@@ -63,6 +71,9 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
     public Storeable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("null key");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty key");
         }
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("key with whitespaces");
