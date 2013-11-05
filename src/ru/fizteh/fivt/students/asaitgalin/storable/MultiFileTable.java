@@ -26,11 +26,7 @@ public class MultiFileTable implements ExtendedTable {
         this.tableDir = tableDir;
         this.provider = provider;
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
-        try {
-            columnTypes = worker.readColumnTypes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        columnTypes = worker.readColumnTypes();
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
     }

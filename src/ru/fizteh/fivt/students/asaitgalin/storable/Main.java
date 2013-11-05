@@ -18,10 +18,13 @@ public class Main {
         try {
             state.provider = factory.create(System.getProperty("fizteh.db.dir"));
         } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
+            System.err.println(ioe.getMessage());
             System.exit(-1);
         } catch (IllegalArgumentException iea) {
-            System.out.println("no dir provided");
+            System.err.println("no dir provided");
+            System.exit(-1);
+        } catch (BadSignatureFileException bsfe) {
+            System.err.println(bsfe.getMessage());
             System.exit(-1);
         }
 

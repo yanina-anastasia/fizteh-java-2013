@@ -15,10 +15,15 @@ public class MultiFileTableSignatureWorker {
         signatureFile = new File(tableDirectory, TABLE_SIGNATURE_FILE);
     }
 
-    public List<Class<?>> readColumnTypes() throws IOException {
-        Scanner scanner = new Scanner(new FileInputStream(signatureFile));
+    public List<Class<?>> readColumnTypes() {
+        Scanner scanner;
+        try {
+            scanner = new Scanner(new FileInputStream(signatureFile));
+        } catch (FileNotFoundException fnfe) {
+            throw new BadSignatureFileException("bad signature.tsv");
+        }
         if (!scanner.hasNextLine()) {
-            throw new IOException("signature file is empty");
+            throw new BadSignatureFileException("bad signature.tsv");
         }
         String[] types = scanner.nextLine().split("\\s");
         return MultiFileTableUtils.getColumnTypes(types);
