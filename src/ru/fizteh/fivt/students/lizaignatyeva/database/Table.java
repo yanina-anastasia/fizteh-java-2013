@@ -193,8 +193,9 @@ public class Table {
             File directory = FileUtils.mkDir(path.getAbsolutePath()
                                         + File.separator + getDirName(key));
             File file = FileUtils.mkFile(directory, getFileName(key));
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));;
+            BufferedOutputStream outputStream = null;
             try {
+                outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
                 //System.out.println("writing " + key);
                 writeEntry(key, value, outputStream);
             } finally {
