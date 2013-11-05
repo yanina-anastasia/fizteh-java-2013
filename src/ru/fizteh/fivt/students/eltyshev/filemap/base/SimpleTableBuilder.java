@@ -29,4 +29,8 @@ public class SimpleTableBuilder implements TableBuilder {
     public File getTableDirectory() {
         return new File(table.getDirectory(), table.getName());
     }
+
+    @Override
+    public void setCurrentFile(File currentFile) {
+    }
 }

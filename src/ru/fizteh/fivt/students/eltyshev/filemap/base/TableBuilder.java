@@ -11,4 +11,6 @@ public interface TableBuilder {
     public Set<String> getKeys();
 
     public File getTableDirectory();
+
+    public void setCurrentFile(File currentFile);
 }

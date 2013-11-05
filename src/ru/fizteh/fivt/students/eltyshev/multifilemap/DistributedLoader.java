@@ -18,9 +18,14 @@ public class DistributedLoader {
             if (bucket.isFile()) {
                 continue;
             }
+
+            System.out.println(String.format("bucket: %s; parsed bucket: %d", bucket.getName(), MultifileMapUtils.parseCurrentBucketNumber(bucket)));
+
             if (bucket.listFiles().length == 0) {
                 throw new IllegalArgumentException("empty bucket");
             }
+
+
             for (final File file : bucket.listFiles()) {
                 FilemapReader.loadFromFile(file.getAbsolutePath(), builder);
             }

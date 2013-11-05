@@ -11,8 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DistributedSaver {
-    private static final int BUCKET_COUNT = 16;
-    private static final int FILES_PER_DIR = 16;
+    static final int BUCKET_COUNT = 16;
+    static final int FILES_PER_DIR = 16;
 
     public static void save(TableBuilder builder) throws IOException {
         File tableDirectory = builder.getTableDirectory();
@@ -27,8 +27,8 @@ public class DistributedSaver {
             isBucketEmpty = true;
 
             for (final String key : builder.getKeys()) {
-                if (getDirNumber(key) == bucketNumber) {
-                    int fileNumber = getFileNumber(key);
+                if (MultifileMapUtils.getDirNumber(key) == bucketNumber) {
+                    int fileNumber = MultifileMapUtils.getFileNumber(key);
                     keysToSave.get(fileNumber).add(key);
                     isBucketEmpty = false;
                 }
@@ -54,17 +54,5 @@ public class DistributedSaver {
                 FilemapWriter.saveToFile(file.getAbsolutePath(), keysToSave.get(fileNumber), builder);
             }
         }
-    }
-
-    private static int getDirNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
-        int firstSymbol = Math.abs(bytes[0]);
-        return firstSymbol % BUCKET_COUNT;
-    }
-
-    private static int getFileNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
-        int firstSymbol = Math.abs(bytes[0]);
-        return firstSymbol / BUCKET_COUNT % FILES_PER_DIR;
     }
 }
