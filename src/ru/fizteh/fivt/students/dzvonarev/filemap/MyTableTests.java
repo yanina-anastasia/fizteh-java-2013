@@ -18,7 +18,7 @@ public class MyTableTests {
         try {
             provider = factory.create(System.getProperty("fizteh.db.dir"));
             table = provider.createTable("my");
-        } catch (IllegalArgumentException | NullPointerException  e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             System.out.println(e.getMessage());
         }
     }

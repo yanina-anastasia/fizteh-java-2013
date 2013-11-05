@@ -302,30 +302,26 @@ public class MyTable implements Table {
         }
     }
 
+
+    public void addChanges(String key, String value) {
+        if (changesMap.containsKey(key)) {
+            changesMap.get(key).newValue = value;
+        } else {
+            ValueNode valueNode = new ValueNode();
+            valueNode.oldValue = fileMap.get(key);
+            valueNode.newValue = value;
+            changesMap.put(key, valueNode);
+        }
+    }
+
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
         if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
-        if (changesMap.containsKey(key)) {
-            String oldValue = changesMap.get(key).newValue;
-            changesMap.get(key).newValue = value;
-            return oldValue;
-        } else {
-            if (fileMap.containsKey(key)) {
-                ValueNode newValue = new ValueNode();
-                newValue.oldValue = fileMap.get(key);
-                newValue.newValue = value;
-                changesMap.put(key, newValue);
-                return fileMap.get(key);
-            } else {
-                ValueNode newValue = new ValueNode();
-                newValue.oldValue = null;
-                newValue.newValue = value;
-                changesMap.put(key, newValue);
-                return null;
-            }
-        }
+        String oldValue = get(key);
+        addChanges(key, value);
+        return oldValue;
     }
 
     @Override
@@ -333,21 +329,11 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
-        if (changesMap.containsKey(key)) {
-            String oldValue = changesMap.get(key).newValue;
-            changesMap.get(key).newValue = null;
-            return oldValue;
-        } else {
-            if (fileMap.containsKey(key)) {
-                ValueNode newValue = new ValueNode();
-                newValue.oldValue = fileMap.get(key);
-                newValue.newValue = null;
-                changesMap.put(key, newValue);
-                return fileMap.get(key);
-            } else {
-                return null;
-            }
+        String oldValue = get(key);
+        if (oldValue != null) {
+            addChanges(key, null);
         }
+        return oldValue;
     }
 
     @Override
