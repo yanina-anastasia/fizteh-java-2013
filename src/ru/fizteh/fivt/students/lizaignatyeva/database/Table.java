@@ -145,9 +145,9 @@ public class Table {
 
     public void readData(File directory) throws Exception {
         for (File file : directory.listFiles()) {
-            if (file.getName().equals(".DS_Store")) {
+            /*if (file.getName().equals(".DS_Store")) {
                 continue;
-            }
+            }  */
             if (!isValidFileName(file.getName())) {
                 throw new DataFormatException("Table '" + name + "' contains strange file(s): '"
                         + file.getName() + "'");
