@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 
+import java.io.File;
+
 public class MyTableProviderTests {
 
     private TableProvider provider;
@@ -12,7 +14,9 @@ public class MyTableProviderTests {
     @Before
     public void test() {
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        provider = factory.create(System.getProperty("fizteh.db.dir"));
+        File file = new File(".");
+        String path = file.getAbsolutePath();
+        provider = factory.create(path);
     }
 
     @Test
