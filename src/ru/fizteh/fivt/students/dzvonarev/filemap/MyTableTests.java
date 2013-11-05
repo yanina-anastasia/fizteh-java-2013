@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 

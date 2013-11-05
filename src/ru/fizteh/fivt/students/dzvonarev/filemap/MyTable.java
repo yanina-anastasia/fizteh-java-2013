@@ -51,6 +51,27 @@ public class MyTable implements Table {
         }
     }
 
+    public int countSize() {
+        if (changesMap == null || changesMap.isEmpty()) {
+            return 0;
+        }
+        size = 0;
+        Set fileSet = changesMap.entrySet();
+        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, ValueNode> currItem = i.next();
+            ValueNode value = currItem.getValue();
+            if (!Equals(value.newValue, value.oldValue)) {
+                if (value.newValue == null) {
+                    --size;
+                } else {
+                    ++size;
+                }
+            }
+        }
+        return size;
+    }
+
     public int getCountOfChanges() {
         if (changesMap == null || changesMap.isEmpty()) {
             return 0;
@@ -96,7 +117,6 @@ public class MyTable implements Table {
                 }
             }
         }
-        size = fileMap.size();
     }
 
     /* READING FILEMAP */
@@ -315,9 +335,6 @@ public class MyTable implements Table {
         if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
-        if(!fileMap.containsKey(key)) {
-            ++size;
-        }
         String oldValue = get(key);
         addChanges(key, value);
         return oldValue;
@@ -328,9 +345,6 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
-        if (fileMap.containsKey(key)) {
-            --size;
-        }
         String oldValue = get(key);
         if (oldValue != null) {
             addChanges(key, null);
@@ -340,7 +354,7 @@ public class MyTable implements Table {
 
     @Override
     public int size() {
-        return size;
+        return countSize() + fileMap.size();
     }
 
     @Override
@@ -348,7 +362,6 @@ public class MyTable implements Table {
         modifyFileMap();
         int count = getCountOfChanges();
         changesMap.clear();
-        size = fileMap.size();
         return count;
     }
 
@@ -356,7 +369,6 @@ public class MyTable implements Table {
     public int rollback() {
         int count = getCountOfChanges();
         changesMap.clear();
-        size = fileMap.size();
         return count;
     }
 
