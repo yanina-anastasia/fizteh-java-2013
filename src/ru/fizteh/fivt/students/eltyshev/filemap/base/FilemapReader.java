@@ -14,6 +14,11 @@ public class FilemapReader implements Closeable {
             valuesOffset = 0;
             return;
         }
+
+        if (file.length() == 0) {
+            throw new IllegalArgumentException("empty file: " + filePath);
+        }
+
         // initializing beginning of value section
         skipKey();
         valuesOffset = readOffset();
