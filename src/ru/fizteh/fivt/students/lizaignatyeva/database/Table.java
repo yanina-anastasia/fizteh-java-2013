@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.zip.DataFormatException;
 
-
 public class Table {
     final File path;
     final int base = 16;
@@ -25,7 +24,7 @@ public class Table {
         try {
             FileUtils.mkDir(path.getAbsolutePath());
         } catch (Exception e) {
-            //throw new Exception("Can't open table " + tableName);
+            System.err.println("Can't open table " + tableName + ": " + e.getMessage());
         }
         try {
             data = new HashMap<String, String>();
@@ -59,18 +58,14 @@ public class Table {
 
     private int getDirNumber(String key) {
         int number = key.getBytes()[0];
-        if (number < 0) {
-            number *= -1;
-        }
+        number = Math.abs(number);
         //System.out.println(String.format(key + " with first byte %d lies in directory %d ", number, number % 16));
         return number % 16;
     }
 
     private int getFileNumber(String key) {
         int number = key.getBytes()[0];
-        if (number < 0) {
-            number *= -1;
-        }
+        number = Math.abs(number);
         //System.out.println(String.format(key + "lies in file %d ", Math.abs(bytes[0]) / 16 % 16));
         return number / 16 % 16;
     }
@@ -133,7 +128,7 @@ public class Table {
         return false;
     }
 
-    public void readTable() throws IOException, DataFormatException {
+    public void readTable() throws Exception {
         if (path.listFiles() == null) {
             return;
         }
@@ -148,7 +143,7 @@ public class Table {
         }
     }
 
-    public void readData(File directory) throws IOException, DataFormatException {
+    public void readData(File directory) throws Exception {
         for (File file : directory.listFiles()) {
             if (file.getName().equals(".DS_Store")) {
                 continue;
@@ -163,15 +158,11 @@ public class Table {
     }
 
 
-    public void readFromFile(String filePath, String dirName, String fileName) throws IOException, DataFormatException {
+    public void readFromFile(String filePath, String dirName, String fileName) throws Exception {
         byte[] data = Files.readAllBytes(Paths.get(filePath));
         ByteBuffer buffer = ByteBuffer.wrap(data);
-        try {
-            while (buffer.hasRemaining()) {
-                readEntry(buffer, dirName, fileName);
-            }
-        } catch (BufferUnderflowException e) {
-            throw new DataFormatException("invalid file format");
+        while (buffer.hasRemaining()) {
+            readEntry(buffer, dirName, fileName);
         }
     }
 
@@ -202,8 +193,7 @@ public class Table {
             File directory = FileUtils.mkDir(path.getAbsolutePath()
                                         + File.separator + getDirName(key));
             File file = FileUtils.mkFile(directory, getFileName(key));
-            BufferedOutputStream outputStream =
-                    new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));;
             try {
                 //System.out.println("writing " + key);
                 writeEntry(key, value, outputStream);
