@@ -74,11 +74,13 @@ public class MyTable implements Table {
     }
 
     public boolean Equals(String st1, String st2) {
+        if (st1 == null && st2 == null) {
+            return true;
+        }
         if (st1 == null) {
             return false;
-        } else {
-            return st1.equals(st2);
         }
+        return st1.equals(st2);
     }
 
     public void readFileMap() throws RuntimeException, IOException {
