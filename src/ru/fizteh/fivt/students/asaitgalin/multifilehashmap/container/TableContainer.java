@@ -21,8 +21,8 @@ public class TableContainer<ValueType> {
         ValueType newValue;
 
         public Diff(ValueType oldValue, ValueType newValue) {
-            this.newValue = newValue;
             this.oldValue = oldValue;
+            this.newValue = newValue;
         }
     }
 
@@ -76,6 +76,9 @@ public class TableContainer<ValueType> {
 
     public ValueType containerRemoveValue(String key) {
         ValueType oldValue = null;
+        if (containerGetValue(key) == null) {
+            return null;
+        }
         if (currentTable.containsKey(key)) {
             Diff diff = currentTable.get(key);
             if (diff.oldValue == null) {
@@ -205,7 +208,6 @@ public class TableContainer<ValueType> {
     private int getKeyFile(String key) {
         return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
     }
-
 
     private boolean diffHasChanges(Object oldValue, Object newValue) {
         if (oldValue == null && newValue == null) {
