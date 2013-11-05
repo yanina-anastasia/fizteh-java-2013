@@ -10,6 +10,7 @@ import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandCreate;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandDrop;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandUse;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,7 +27,7 @@ public class Main {
             System.exit(1);
         }
 
-        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory, true);
+        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory, false);
         State state = new State(null, tableProvider);
 
         commandMap.put("put", new CommandPut());
@@ -36,6 +37,9 @@ public class Main {
         commandMap.put("create", new CommandCreate());
         commandMap.put("drop", new CommandDrop());
         commandMap.put("use", new CommandUse());
+        commandMap.put("size", new CommandSize());
+        commandMap.put("commit", new CommandCommit());
+        commandMap.put("rollback", new CommandRollback());
 
         if (args.length == 0) { // Interactive mode
             interactiveMode(commandMap, state);
@@ -50,7 +54,7 @@ public class Main {
         }
 
         try {
-            JUnitUtils.writeTable(state);
+            MultiFileHashMapUtils.writeTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -70,7 +74,7 @@ public class Main {
             } catch (ExitException ex) {
                 if (state.getCurrentTable() != null) {
                     try {
-                        JUnitUtils.writeTable(state);
+                        MultiFileHashMapUtils.writeTable(state);
                     } catch (IOException exc) {
                         System.err.println(exc.getMessage());
                         System.exit(1);
@@ -90,7 +94,7 @@ public class Main {
         } catch (ExitException ex) {
             if (state.getCurrentTable() != null) {
                 try {
-                    JUnitUtils.writeTable(state);
+                    MultiFileHashMapUtils.writeTable(state);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);

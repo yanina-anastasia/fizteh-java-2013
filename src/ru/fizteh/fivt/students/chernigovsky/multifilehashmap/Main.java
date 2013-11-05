@@ -7,8 +7,7 @@ import java.util.Scanner;
 
 import ru.fizteh.fivt.students.chernigovsky.filemap.*;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.*;
 
 public class Main {
     public static void main(String[] args) {

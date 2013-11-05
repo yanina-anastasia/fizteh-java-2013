@@ -96,8 +96,6 @@ public class MultiFileHashMapUtils {
 
     public static void writeTable(State state) throws IOException {
 
-        state.getCurrentTable().commit();
-
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
             File tableFolder = new File(state.getCurrentTableProvider().getDbDirectory(), state.getCurrentTable().getName());
             File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
