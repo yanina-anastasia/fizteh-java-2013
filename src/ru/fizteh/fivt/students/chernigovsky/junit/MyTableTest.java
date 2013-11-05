@@ -11,10 +11,11 @@ public class MyTableTest {
     @Before
     public void setUp() {
         File dbDirectory = new File("/home/chernigovsky/database");
-        if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
+        /*if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
             dbDirectory.delete();
             dbDirectory.mkdir();
-        }
+        }*/
+        dbDirectory.mkdir();
         tableProvider = new MyTableProvider(dbDirectory, false);
         table = tableProvider.createTable("testTable");
     }
