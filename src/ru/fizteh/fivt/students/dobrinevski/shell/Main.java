@@ -10,9 +10,9 @@ public class Main {
         cmdMap.put("cd", new ShellCommands.Cd());
         cmdMap.put("mkdir", new ShellCommands.Mkdir());
         cmdMap.put("pwd", new ShellCommands.Pwd());
-        cmdMap.put("remove", new ShellCommands.Remove());
-        cmdMap.put("copy", new ShellCommands.Copy());
-        cmdMap.put("move", new ShellCommands.Move());
+        cmdMap.put("rm", new ShellCommands.Remove());
+        cmdMap.put("cp", new ShellCommands.Copy());
+        cmdMap.put("mv", new ShellCommands.Move());
         cmdMap.put("dir", new ShellCommands.Dir());
         cmdMap.put("exit", new ShellCommands.Exit());
     }
