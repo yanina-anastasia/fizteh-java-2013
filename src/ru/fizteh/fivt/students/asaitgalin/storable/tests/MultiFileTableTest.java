@@ -107,11 +107,11 @@ public class MultiFileTableTest {
         for (int i = 0; i < 7; ++i) {
             testTable.put("sizeKey" + i, provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
         }
-        Assert.assertEquals(testTable.size(), 7);
+        Assert.assertEquals(7, testTable.size());
         testTable.remove("sizeKey5");
-        Assert.assertEquals(testTable.size(), 6);
+        Assert.assertEquals(6, testTable.size());
         testTable.rollback();
-        Assert.assertEquals(testTable.size(), 0);
+        Assert.assertEquals(0, testTable.size());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MultiFileTableTest {
         testTable.put("1", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
         testTable.put("3", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
         testTable.put("5", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
-        Assert.assertEquals(testTable.commit(), 3);
+        Assert.assertEquals(3, testTable.commit());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class MultiFileTableTest {
         testTable.commit();
         testTable.put("rollbackKey4", provider.deserialize(testTable, "<row><col>5</col><col>value222</col></row>"));
         testTable.put("newKey", provider.deserialize(testTable, "<row><col>6</col><col>value</col></row>"));
-        Assert.assertEquals(testTable.rollback(), 1);
+        Assert.assertEquals(2, testTable.rollback());
         Assert.assertNull(testTable.get("newKey"));
         Assert.assertEquals(testTable.get("rollbackKey4").toString(),
                 provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>").toString());

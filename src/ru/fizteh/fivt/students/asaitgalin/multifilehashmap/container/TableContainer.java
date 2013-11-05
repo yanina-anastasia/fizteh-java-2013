@@ -15,10 +15,20 @@ public class TableContainer<ValueType> {
     private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
 
-    private Map<String, ValueType> currentTable;
+    private class Diff {
+        ValueType oldValue;
+        ValueType newValue;
+
+        public Diff(ValueType oldValue, ValueType newValue) {
+            this.newValue = newValue;
+            this.oldValue = oldValue;
+        }
+    }
+
+    private Map<String, Diff> currentTable;
     private Map<String, ValueType> originalTable;
-    private Set<String> removedKeys;
     private int changesCount;
+    private int actualSize;
 
     private TableValuePacker<ValueType> packer;
     private TableValueUnpacker<ValueType> unpacker;
@@ -28,74 +38,89 @@ public class TableContainer<ValueType> {
     public TableContainer(File tableDirectory, TableValuePacker<ValueType> packer, TableValueUnpacker<ValueType> unpacker) {
         this.currentTable = new HashMap<>();
         this.originalTable = new HashMap<>();
-        this.removedKeys = new HashSet<>();
         this.tableDirectory = tableDirectory;
         this.packer = packer;
         this.unpacker = unpacker;
         this.changesCount = 0;
+        this.actualSize = 0;
     }
 
     public ValueType containerGetValue(String key) {
-        ValueType value = currentTable.get(key);
-        if (value == null) {
-            if (removedKeys.contains(key)) {
-                return null;
-            }
-            value = originalTable.get(key);
+        Diff value = currentTable.get(key);
+        if (value != null) {
+            return value.newValue;
         }
-        return value;
+        return originalTable.get(key);
     }
 
     public ValueType containerPutValue(String key, ValueType value) {
-        ValueType oldValue = originalTable.get(key);
-        ValueType currentValue = currentTable.put(key, value);
-        if (currentValue == null) {
+        ValueType oldValue = null;
+        if (currentTable.containsKey(key)) {
+            oldValue = currentTable.get(key).newValue;
+        }
+        if (oldValue == null) {
             ++changesCount;
-            currentValue = oldValue;
+            oldValue = originalTable.get(key);
         }
-        if (oldValue != null) {
-            removedKeys.add(key);
+        if (oldValue == null) {
+            ++actualSize;
         }
-        return currentValue;
+        if (currentTable.containsKey(key)) {
+            currentTable.get(key).newValue = value;
+        } else {
+            currentTable.put(key, new Diff(originalTable.get(key), value));
+        }
+        return oldValue;
     }
 
     public ValueType containerRemoveValue(String key) {
-        ValueType oldValue = currentTable.get(key);
-        if (oldValue == null && !removedKeys.contains(key)) {
-            oldValue = originalTable.get(key);
-        }
+        ValueType oldValue = null;
         if (currentTable.containsKey(key)) {
-            --changesCount;
-            currentTable.remove(key);
-            if (originalTable.containsKey(key)) {
-                removedKeys.add(key);
-            }
-        } else {
-            if (originalTable.containsKey(key) && !removedKeys.contains(key)) {
-                removedKeys.add(key);
+            Diff diff = currentTable.get(key);
+            if (diff.oldValue == null) {
+                --changesCount;
+            } else {
                 ++changesCount;
             }
+            oldValue = diff.newValue;
+            diff.newValue = null;
+        } else {
+            oldValue = originalTable.get(key);
+            currentTable.put(key, new Diff(oldValue, null));
+        }
+        if (oldValue != null) {
+            --actualSize;
         }
         return oldValue;
     }
 
     public int containerRollback() {
-        int count = Math.abs(containerGetSize() - originalTable.size());
+        int count = 0;
+        for (String key : currentTable.keySet()) {
+            if (diffHasChanges(currentTable.get(key))) {
+                ++count;
+            }
+        }
         currentTable.clear();
-        removedKeys.clear();
         changesCount = 0;
+        actualSize = originalTable.size();
         return count;
     }
 
     public int containerCommit() {
-        int count = Math.abs(containerGetSize() - originalTable.size());
-        for (String key : removedKeys) {
-            originalTable.remove(key);
+        int count = 0;
+        for (String key : currentTable.keySet()) {
+            Diff diff = currentTable.get(key);
+            if (diff.newValue == null) {
+                originalTable.remove(key);
+            } else {
+                originalTable.put(key, diff.newValue);
+            }
+            ++count;
         }
-        originalTable.putAll(currentTable);
         currentTable.clear();
-        removedKeys.clear();
         changesCount = 0;
+        actualSize = originalTable.size();
         try {
             containerSave();
         } catch (IOException e) {
@@ -158,10 +183,21 @@ public class TableContainer<ValueType> {
                 }
             }
         }
+        actualSize = originalTable.size();
+    }
+
+    private boolean diffHasChanges(Diff diff) {
+        if (diff.oldValue == null && diff.newValue == null) {
+            return false;
+        }
+        if (diff.oldValue == null || diff.newValue == null) {
+            return true;
+        }
+        return !diff.newValue.equals(diff.oldValue);
     }
 
     public int containerGetSize() {
-        return currentTable.size() + originalTable.size() - removedKeys.size();
+        return actualSize;
     }
 
     public int containerGetChangesCount() {
