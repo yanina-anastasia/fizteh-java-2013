@@ -63,20 +63,20 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         if (value == null || key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument in put");
         }
-        /*     
+
         int sizeColumn = columnType.size();
-         
-        for (int i = 0; i < sizeColumn; ++i) {
-            try {
-                Object valueI = value.getColumnAt(i);                    
+
+        try {
+            for (int i = 0; i < sizeColumn; ++i) {
+                Object valueI = value.getColumnAt(i);
                 if (valueI != null && !valueI.getClass().isAssignableFrom(columnType.get(i))) {
                         throw new ColumnFormatException(i + " column has incorrect format");
                 }
-            } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException(e);
             }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("alien Storeable");
         }
-        */
+
         return super.put(key, value);
      }
 

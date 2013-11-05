@@ -66,8 +66,8 @@ public abstract class GenericTable<ValueType> {
     }
 
     public ValueType put(String key, ValueType value) {
-        if (key == null || value == null || key.trim().isEmpty()) {
-             throw new IllegalArgumentException("null argument");
+        if (key == null || value == null || key.trim().isEmpty() || key.split("\\s+").length != 1) {
+             throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }
 
         int nfile = Utils.getNumberOfFile(key);
