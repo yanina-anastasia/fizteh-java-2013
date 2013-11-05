@@ -187,6 +187,10 @@ public class DatabaseTableProvider implements TableProvider {
             return null;
         }
 
+        if (signature == null) {
+            return null;
+        }
+
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         for (final String columnType : signature.split("\\s")) {
             Class<?> type = StoreableUtils.parseColumnType(columnType);
