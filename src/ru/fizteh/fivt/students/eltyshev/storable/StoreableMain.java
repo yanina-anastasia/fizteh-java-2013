@@ -40,6 +40,10 @@ public class StoreableMain {
         } catch (IOException e) {
             System.err.println("some error occured during loading");
             System.exit(1);
+        } catch (IllegalArgumentException e)
+        {
+            System.err.println("error while loading: " + e.getMessage());
+            System.exit(1);
         }
         shell.start();
     }
