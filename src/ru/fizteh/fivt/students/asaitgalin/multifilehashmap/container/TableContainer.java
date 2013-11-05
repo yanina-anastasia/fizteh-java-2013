@@ -111,14 +111,15 @@ public class TableContainer<ValueType> {
         int count = 0;
         for (String key : currentTable.keySet()) {
             Diff diff = currentTable.get(key);
-            if (diffHasChanges(diff)) {
-                if (diff.newValue == null) {
-                    originalTable.remove(key);
-                } else {
-                    originalTable.put(key, diff.newValue);
-                }
-                ++count;
+            if (diff.newValue == null && diff.oldValue == null) {
+                continue;
             }
+            if (diff.newValue == null) {
+                originalTable.remove(key);
+            } else {
+                originalTable.put(key, diff.newValue);
+            }
+            ++count;
         }
         currentTable.clear();
         changesCount = 0;
