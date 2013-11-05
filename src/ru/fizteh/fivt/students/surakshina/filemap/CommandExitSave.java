@@ -12,7 +12,6 @@ public class CommandExitSave extends DataBaseCommand {
             if (state.getTable() != null) {
                 int count = state.getTable().unsavedChanges();
                 if (count != 0) {
-                    System.out.println(count + " unsaved changes");
                     return;
                 } else {
                     System.exit(0);
