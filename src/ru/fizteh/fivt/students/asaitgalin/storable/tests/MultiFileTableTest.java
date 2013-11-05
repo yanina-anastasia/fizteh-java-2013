@@ -7,9 +7,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTable;
 import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableProvider;
-import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableRow;
 
 import java.io.File;
 import java.util.ArrayList;
