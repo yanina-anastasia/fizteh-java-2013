@@ -68,7 +68,7 @@ public class NewTable implements Table {
         ValueState<String> newValue = new ValueState<String>(null, dataBaseMap.get(key).getValue());
         value = dataBaseMap.get(key);
         dataBaseMap.remove(key);
-        dataBaseMap.put(key, newValue);
+        dataBaseMap.put(null, newValue);
         return value.getValue();
         } else {
             return null;
