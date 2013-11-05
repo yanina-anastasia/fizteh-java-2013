@@ -139,11 +139,13 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             return false;
         }
 
-        for(int index = 0; index < getColumnsCount(); ++index)
-        {
+        for (int index = 0; index < getColumnsCount(); ++index) {
             try {
-                if (!row.getColumnAt(index).getClass().equals(getColumnType(index)))
-                {
+                Object o = row.getColumnAt(index);
+                if (o == null) {
+                    continue;
+                }
+                if (!o.getClass().equals(getColumnType(index))) {
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {
