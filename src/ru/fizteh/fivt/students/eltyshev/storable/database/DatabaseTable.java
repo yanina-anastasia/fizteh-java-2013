@@ -57,7 +57,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         }
 
         if (!checkAlienStoreable(value)) {
-            return storageGet(key);
+            throw new IllegalArgumentException("alien storeable");
         }
         checkCorrectStoreable(value);
 
