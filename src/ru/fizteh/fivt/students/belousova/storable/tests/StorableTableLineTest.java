@@ -4,7 +4,6 @@ import org.junit.*;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.belousova.storable.ChangesCountingTable;
-import ru.fizteh.fivt.students.belousova.storable.StorableTableLine;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProvider;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProviderFactory;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
@@ -108,7 +107,7 @@ public class StorableTableLineTest {
 
     @Test
     public void testGetByteAt() throws Exception {
-        Assert.assertEquals(Byte.valueOf("0"),testStorable.getByteAt(1));
+        Assert.assertEquals(Byte.valueOf("0"), testStorable.getByteAt(1));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
@@ -138,7 +137,7 @@ public class StorableTableLineTest {
 
     @Test
     public void testGetFloatAt() throws Exception {
-        float f =(float)5.5;
+        float f = (float) 5.5;
         Assert.assertEquals(Float.valueOf(f), testStorable.getFloatAt(3));
     }
 
@@ -154,7 +153,7 @@ public class StorableTableLineTest {
 
     @Test
     public void testGetDoubleAt() throws Exception {
-        Assert.assertEquals((Double)767.576, testStorable.getDoubleAt(4));
+        Assert.assertEquals((Double) 767.576, testStorable.getDoubleAt(4));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)

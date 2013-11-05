@@ -7,7 +7,6 @@ import ru.fizteh.fivt.students.belousova.utils.StorableUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,9 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
 
         int columnIndex = 0;
         for (Class<?> columnType : columnTypes) {
+            if (value.getColumnAt(columnIndex) == null) {
+                continue;
+            }
             if (!columnType.equals(value.getColumnAt(columnIndex).getClass())) {
                 throw new IllegalArgumentException("alien storeable");
             }

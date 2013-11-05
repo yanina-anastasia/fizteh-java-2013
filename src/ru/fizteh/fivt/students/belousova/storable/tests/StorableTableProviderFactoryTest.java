@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.belousova.storable.tests;
 
 import junit.framework.Assert;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProviderFactory;

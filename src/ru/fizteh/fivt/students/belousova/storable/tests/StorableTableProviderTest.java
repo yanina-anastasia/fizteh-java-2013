@@ -124,7 +124,7 @@ public class StorableTableProviderTest {
         values.add(5);
         values.add(Byte.valueOf((byte) 0));
         values.add(Long.valueOf(47456));
-        values.add(Float.valueOf((float)5.5));
+        values.add(Float.valueOf((float) 5.5));
         values.add(5.5);
         values.add("jhfkflg");
         values.add(true);
