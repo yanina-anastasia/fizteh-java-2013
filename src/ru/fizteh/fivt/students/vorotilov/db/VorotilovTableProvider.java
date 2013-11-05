@@ -72,6 +72,9 @@ public class VorotilovTableProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("Table name is null");
         }
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Table name is empty");
+        }
     }
 
     public File getRoot() {
