@@ -7,7 +7,9 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTable;
 import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableRow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,6 +61,19 @@ public class MultiFileTableTest {
     @Test(expected = IllegalArgumentException.class)
     public void testPutWithNullValue() throws Exception {
         testTable.put("key", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutAlienStorable() throws Exception {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Table otherTable = provider.createTable("otherTable", types);
+        testTable.put("alienstorable", provider.deserialize(otherTable, "<row><col>5</col></row>"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutKeyWithSpaces()  throws Exception {
+        testTable.put("key with spaces", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
     }
 
     @Test(expected = IllegalArgumentException.class)

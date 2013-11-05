@@ -65,12 +65,10 @@ public class MultiFileTable implements ExtendedTable {
         if (key == null || value == null) {
             throw new IllegalArgumentException("put: key or value is null");
         }
-        if (key.trim().isEmpty()) {
+        if (!isValidKey(key)) {
             throw new IllegalArgumentException("put: key or value is empty");
         }
-        for (int i = 0; i < getColumnsCount(); ++i) {
-
-        }
+        checkValue(value);
         return container.containerPutValue(key, value);
     }
 
@@ -112,5 +110,28 @@ public class MultiFileTable implements ExtendedTable {
 
     public void load() throws IOException {
         container.containerLoad();
+    }
+
+    private boolean isValidKey(String key) {
+        return !key.isEmpty() && !(key.indexOf(' ') >= 0) && !(key.indexOf('\t') >= 0);
+    }
+
+    private void checkValue(Storeable st) {
+        int counter = 0;
+        try {
+            for (; counter < columnTypes.size(); ++counter) {
+                Object o = st.getColumnAt(counter);
+                if (o != null) {
+                    if (!columnTypes.get(counter).equals(o.getClass())) {
+                        throw new IllegalArgumentException("table, put: alien storable");
+                    }
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            //
+        }
+        if (counter != columnTypes.size()) {
+            throw new IllegalArgumentException("table, put: alien storable");
+        }
     }
 }
