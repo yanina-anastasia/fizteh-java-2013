@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.List;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandGet;
 import ru.fizteh.fivt.students.irinapodorozhnaya.db.CommandPut;
@@ -22,15 +24,20 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MultiDbState;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 
-public class StoraebleState extends State implements MultiDbState {
+public class StoreableState extends State implements MultiDbState {
     private ExtendTable workingTable;
     private final ExtendProvider provider;
     
-    StoraebleState(InputStream in, PrintStream out) throws IOException {
+    public StoreableState(InputStream in, PrintStream out) throws IOException {
         super(in, out);
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
             throw new IOException("can't get property");
+        }
+        File file = new File(path);
+
+        if (!file.exists()) {
+            file.mkdir();
         }
         provider = new MyTableProviderFactory().create(path);
         
@@ -79,11 +86,16 @@ public class StoraebleState extends State implements MultiDbState {
         try {
             val = provider.deserialize(workingTable, value);
         } catch (ParseException e) {
-            throw new IOException("\'" + value + "\' is not xml string");
+            throw new IOException("wrong type \'" + value + "\' is not xml string");
         }
-        Storeable oldVal = workingTable.put(key, val);
-        if (oldVal == null) {
-            return null;
+        Storeable oldVal;
+        try {
+            oldVal = workingTable.put(key, val);
+            if (oldVal == null) {
+                return null;
+            }
+        } catch (ColumnFormatException e) {
+          throw new IOException("wrong type " + e.getMessage());
         }
         return provider.serialize(workingTable, oldVal);
     }
@@ -113,24 +125,31 @@ public class StoraebleState extends State implements MultiDbState {
 
     @Override
     public void create(String name, List<Class<?>> columnType) throws IOException {
-        ExtendTable table = provider.createTable(name, columnType);
-        if (table == null) {
-            throw new IOException(name + " exists");
+        try{
+            if (provider.createTable(name, columnType) == null) {
+                throw new IOException(name + " exists");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IOException("wrong type" + e.getMessage());
         }
     }
     
     @Override
     public void use(String name) throws IOException {
-        ExtendTable table = provider.getTable(name);
-        if (table == null) {
-            throw new IOException(name + " not exists");
-        }
-        if (workingTable != null) {
-            int n = workingTable.getChangedValuesNumber();
-            if (n != 0) {
-                throw new IOException(n + " unsaved changed");
+        try{
+            ExtendTable table = provider.getTable(name);
+            if (table == null) {
+                throw new IOException(name + " not exists");
             }
+            if (workingTable != null) {
+                int n = workingTable.getChangedValuesNumber();
+                if (n != 0) {
+                    throw new IOException(n + " unsaved changed");
+                }
+            }
+            this.workingTable = table;
+        } catch (IllegalArgumentException e) {
+            throw new IOException("empty dir");
         }
-        this.workingTable = table;
     }
 }
