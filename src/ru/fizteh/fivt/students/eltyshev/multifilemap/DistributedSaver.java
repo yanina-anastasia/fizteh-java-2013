@@ -55,16 +55,4 @@ public class DistributedSaver {
             }
         }
     }
-
-    private static int getDirNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
-        int firstSymbol = Math.abs(bytes[0]);
-        return firstSymbol % BUCKET_COUNT;
-    }
-
-    private static int getFileNumber(String key) {
-        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
-        int firstSymbol = Math.abs(bytes[0]);
-        return firstSymbol / BUCKET_COUNT % FILES_PER_DIR;
-    }
 }
