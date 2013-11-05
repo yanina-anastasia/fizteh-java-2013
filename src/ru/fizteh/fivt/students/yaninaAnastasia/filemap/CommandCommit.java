@@ -4,19 +4,24 @@ import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
 import java.io.IOException;
 
-public class CommandExit extends Command {
+public class CommandCommit extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
         if (myState.table == null) {
-            return true;
+            throw new IllegalArgumentException("Wrong table for commit");
         }
         if (args.length != 0) {
             throw new IllegalArgumentException("Illegal arguments");
         }
+        for (String step: myState.table.oldData.keySet()) {
+            myState.database.tables.get(myState.table.getName()).put(step, myState.table.get(step));
+        }
+        myState.table = myState.database.tables.get(myState.table.getName());
+        System.out.println(myState.table.commit());
         return true;
     }
 
     public String getCmd() {
-        return "exit";
+        return "commit";
     }
 }

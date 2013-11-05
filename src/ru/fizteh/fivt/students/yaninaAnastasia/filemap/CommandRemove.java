@@ -6,17 +6,14 @@ import java.io.IOException;
 
 public class CommandRemove extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
-        DBState myState = DBState.class.cast(curState);
-        if (myState.table == null) {
-            System.out.println("no table");
-            return false;
+        MultiDBState myState = MultiDBState.class.cast(curState);
+        if (myState.database.curTable == null) {
+            throw new IllegalArgumentException("no table");
         }
         if (args.length != 1) {
-            System.err.println("Invalid arguments");
-            return false;
+            throw new IllegalArgumentException("Illegal arguments");
         }
-        if (myState.table.containsKey(args[0])) {
-            myState.table.remove(args[0]);
+        if (myState.database.curTable.remove(args[0]) != null) {
             System.out.println("removed");
         } else {
             System.out.println("not found");
