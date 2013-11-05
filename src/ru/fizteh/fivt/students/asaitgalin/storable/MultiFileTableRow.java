@@ -106,4 +106,9 @@ public class MultiFileTableRow implements Storeable {
         return StringUtils.join(columnData, " ");
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        MultiFileTableRow row = (MultiFileTableRow)obj;
+        return row.columnTypes.equals(columnTypes) && row.columnData.equals(columnData);
+    }
 }
