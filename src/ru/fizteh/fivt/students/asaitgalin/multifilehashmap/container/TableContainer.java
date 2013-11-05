@@ -133,7 +133,9 @@ public class TableContainer<ValueType> {
     public void containerLoad() throws IOException {
         for (File subDir : tableDirectory.listFiles()) {
             if (subDir.isDirectory()) {
+                boolean hasFiles = false;
                 for (File f : subDir.listFiles()) {
+                    hasFiles = true;
                     if (f.exists()) {
                         TableEntryReader reader = new TableEntryReader(f);
                         while (reader.hasNextEntry()) {
@@ -150,6 +152,9 @@ public class TableContainer<ValueType> {
                             }
                         }
                     }
+                }
+                if (!hasFiles) {
+                    throw new IOException("empty dir");
                 }
             }
         }
