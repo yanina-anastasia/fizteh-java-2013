@@ -57,4 +57,9 @@ public class MultiFileTableUtils {
                 return null;
         }
     }
+
+    public static boolean isValidType(String type) {
+        return type.equals("int") || type.equals("long") || type.equals("byte") || type.equals("float") ||
+                type.equals("double") || type.equals("boolean") || type.equals("String");
+    }
 }

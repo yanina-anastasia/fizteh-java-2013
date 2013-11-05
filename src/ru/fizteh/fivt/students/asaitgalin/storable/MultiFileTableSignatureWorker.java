@@ -26,6 +26,11 @@ public class MultiFileTableSignatureWorker {
             throw new BadSignatureFileException("bad signature.tsv");
         }
         String[] types = scanner.nextLine().split("\\s");
+        for (String s : types) {
+            if (!MultiFileTableUtils.isValidType(s)) {
+                throw new BadSignatureFileException("bad signature.tsv");
+            }
+        }
         return MultiFileTableUtils.getColumnTypes(types);
     }
 
