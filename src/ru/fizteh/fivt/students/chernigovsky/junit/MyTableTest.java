@@ -9,7 +9,7 @@ import java.io.IOException;
 public class MyTableTest {
     private ExtendedTable table;
     private ExtendedTableProvider tableProvider;
-    File dbDirectory = new File("C:/temp/chernigovsky/database");
+    File dbDirectory = new File("C:/temp/myCoolDatabase");
 
     @Before
     public void setUp() {
