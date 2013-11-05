@@ -11,7 +11,12 @@ public class MyTableTest {
 
     @Before
     public void setUp() {
-        tableProvider = new MyTableProvider(new File(dbPath), false);
+        File dbDirectory = new File(dbPath);
+        if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
+            System.err.println("DB directory not exists");
+            System.exit(1);
+        }
+        tableProvider = new MyTableProvider(dbDirectory, false);
         table = tableProvider.createTable("testTable");
     }
 
