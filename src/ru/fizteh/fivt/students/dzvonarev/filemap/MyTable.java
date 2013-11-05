@@ -61,12 +61,13 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (!Equals(value.newValue, value.oldValue)) {
-                if (value.newValue == null) {
-                    --size;
-                } else {
-                    ++size;
-                }
+            if (value.oldValue == null && value.newValue != null) {
+                ++size;
+                continue;
+            }
+            if (value.oldValue != null && value.newValue == null) {
+                --size;
+                continue;
             }
         }
         return size;
