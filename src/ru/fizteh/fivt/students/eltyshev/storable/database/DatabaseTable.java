@@ -54,7 +54,8 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
 
         if (!checkAlienStoreable(value)) {
-            return storageGet(key);//throw new ColumnFormatException("alien storeable");
+            value = createCompatibleStoreable(value);
+            //return value; //storageGet(key);//throw new ColumnFormatException("alien storeable");
         }
         checkCorrectStoreable(value);
 
@@ -161,6 +162,23 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
                 throw new IllegalArgumentException(e);
             }
         }
+    }
+
+    private Storeable createCompatibleStoreable(Storeable storeable)
+    {
+        DatabaseRow row = new DatabaseRow();
+        try {
+            for(int index = 0; index < 10; ++index)
+            {
+                row.addColumn(storeable.getColumnAt(index).getClass());
+                row.setColumnAt(index, storeable.getColumnAt(index));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            return row;
+        } catch (ColumnFormatException e) {
+            return row;
+        }
+        return row;
     }
 
     Set<String> rawGetKeys() {
