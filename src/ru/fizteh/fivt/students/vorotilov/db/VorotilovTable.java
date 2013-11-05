@@ -87,6 +87,9 @@ public class VorotilovTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Key is empty");
+        }
         return tableIndexedData.get(key);
     }
 
@@ -97,6 +100,9 @@ public class VorotilovTable implements Table {
         }
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
+        }
+        if (key.equals("") || value.equals("")) {
+            throw new IllegalArgumentException("Key or Value is empty");
         }
         String oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
@@ -112,6 +118,9 @@ public class VorotilovTable implements Table {
     public String remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
+        }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Key is empty");
         }
         String oldValue = tableIndexedData.remove(key);
         if (oldValue != null) {
@@ -168,16 +177,21 @@ public class VorotilovTable implements Table {
     public int rollback() {
         int numberOfRolledChanges = numberOfUncommittedChanges;
         numberOfUncommittedChanges = 0;
+        tableIndexedData.clear();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFileModified[nDir][nFile]) {
-                    tableFileModified[nDir][nFile] = false;
+                if (tableFiles[nDir][nFile] != null) {
                     tableFiles[nDir][nFile].setReadMode();
                     while (tableFiles[nDir][nFile].hasNext()) {
                         TableFile.Entry tempEntry = tableFiles[nDir][nFile].readEntry();
                         tableIndexedData.put(tempEntry.getKey(), tempEntry.getValue());
                     }
                 }
+            }
+        }
+        for (int nDir = 0; nDir < 16; ++nDir) {
+            for (int nFile = 0; nFile < 16; ++nFile) {
+                tableFileModified[nDir][nFile] = false;
             }
         }
         return numberOfRolledChanges;
