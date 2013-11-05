@@ -104,6 +104,11 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         if (!tableDirectory.exists()) {
             tableDirectory.mkdir();
             writeSignatureFile();
+        } else {
+            File[] children = tableDirectory.listFiles();
+            if (children == null || children.length == 0) {
+                throw new IllegalArgumentException(String.format("table directory: %s is empty", tableDirectory.getAbsolutePath()));
+            }
         }
     }
 
