@@ -26,9 +26,6 @@ public class Main {
         } catch (BadSignatureFileException bsfe) {
             System.err.println(bsfe.getMessage());
             System.exit(-1);
-        } catch (RuntimeException re) {
-            System.err.println(re.getCause().getMessage());
-            System.exit(-1);
         }
 
         // Commands

@@ -24,7 +24,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
     private File dbDirectory;
     private Map<String, ExtendedTable> tableMap = new HashMap<>();
 
-    public MultiFileTableProvider(File dbDirectory) {
+    public MultiFileTableProvider(File dbDirectory) throws IOException {
         if (dbDirectory == null) {
             throw new IllegalArgumentException("provider, constructor: bad db directory name");
         }
@@ -36,11 +36,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
                 continue;
             }
             MultiFileTable table = new MultiFileTable(f, f.getName(), this);
-            try {
-                table.load();
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe);
-            }
+            table.load();
             tableMap.put(table.getName(), table);
         }
         this.dbDirectory = dbDirectory;

@@ -15,6 +15,9 @@ public class TableEntryReader {
         isStreamValid = true;
         try {
             fileStream = new RandomAccessFile(input, "r");
+            if (fileStream.length() == 0) {
+                throw new IOException("empty file");
+            }
         } catch (FileNotFoundException fnfe) {
             isStreamValid = false;
         }
