@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,10 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
                 throw new IllegalArgumentException("key cannot be empty");
             }
         }
+
+        checkAlienStoreable(value);
+        checkCorrectStoreable(value);
+
         return storagePut(key, value);
     }
 
@@ -121,6 +126,25 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         String signature = StoreableUtils.join(formattedColumnTypes);
         writer.write(signature);
         writer.close();
+    }
+
+    public void checkAlienStoreable(Storeable storeable) {
+        DatabaseRow row = (DatabaseRow) storeable;
+        if (!row.classes.equals(columnTypes)) {
+            throw new IllegalArgumentException("alien storeable");
+        }
+    }
+
+    public void checkCorrectStoreable(Storeable storeable)
+    {
+        for(int index = 0; index < getColumnsCount(); ++index)
+        {
+            try {
+                StoreableUtils.checkValue(storeable.getColumnAt(index), columnTypes.get(index));
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
     }
 
     Set<String> rawGetKeys() {
