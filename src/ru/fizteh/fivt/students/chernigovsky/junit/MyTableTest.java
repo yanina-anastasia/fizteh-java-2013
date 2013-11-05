@@ -12,9 +12,8 @@ public class MyTableTest {
     @Before
     public void setUp() {
         dbDirectory.mkdir();
-        if (dbDirectory == null)
-            throw new IllegalStateException();
         tableProvider = new MyTableProvider(dbDirectory, false);
+        tableProvider.removeTable("testTable");
         table = tableProvider.createTable("testTable");
     }
 
