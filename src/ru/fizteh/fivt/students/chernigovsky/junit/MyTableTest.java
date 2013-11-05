@@ -1,8 +1,10 @@
 package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import org.junit.*;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MyTableTest {
     private ExtendedTable table;
@@ -12,6 +14,14 @@ public class MyTableTest {
     @Before
     public void setUp() {
         dbDirectory.mkdir();
+        try {
+            MultiFileHashMapUtils.delete(dbDirectory);
+        } catch (IOException ex) {
+            System.err.println("delete error");
+            System.exit(1);
+        }
+        dbDirectory.mkdir();
+
         tableProvider = new MyTableProvider(dbDirectory, false);
         tableProvider.removeTable("testTable");
         table = tableProvider.createTable("testTable");
