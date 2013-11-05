@@ -281,7 +281,7 @@ public class MyTable implements Table {
 
     @Override
     public String getName() {
-        return tableName;
+        return tableName.substring(tableName.lastIndexOf(File.separator) + 1, tableName.length());
     }
 
     @Override
