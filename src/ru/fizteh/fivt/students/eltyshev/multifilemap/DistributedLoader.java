@@ -18,6 +18,9 @@ public class DistributedLoader {
             if (bucket.isFile()) {
                 continue;
             }
+            if (bucket.listFiles().length == 0) {
+                throw new IllegalArgumentException("empty bucket");
+            }
             for (final File file : bucket.listFiles()) {
                 FilemapReader.loadFromFile(file.getAbsolutePath(), builder);
             }
