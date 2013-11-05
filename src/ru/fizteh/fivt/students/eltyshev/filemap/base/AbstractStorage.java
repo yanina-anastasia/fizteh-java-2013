@@ -40,7 +40,7 @@ public abstract class AbstractStorage<Key, Value> {
         try {
             load();
         } catch (IOException e) {
-            System.err.println("error loading table: " + e.getMessage());
+            throw new IllegalArgumentException("invalid file format");
         } catch (IllegalArgumentException e) {
             System.err.println("error loading table: " + e.getMessage());
         }

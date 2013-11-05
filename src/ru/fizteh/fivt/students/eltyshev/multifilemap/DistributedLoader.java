@@ -19,8 +19,6 @@ public class DistributedLoader {
                 continue;
             }
 
-            System.out.println(String.format("bucket: %s; parsed bucket: %d", bucket.getName(), MultifileMapUtils.parseCurrentBucketNumber(bucket)));
-
             if (bucket.listFiles().length == 0) {
                 throw new IllegalArgumentException("empty bucket");
             }
