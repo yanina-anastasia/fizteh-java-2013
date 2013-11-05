@@ -102,12 +102,9 @@ public class TableContainer<ValueType> {
         int count = 0;
         for (String key : currentTable.keySet()) {
             Diff diff = currentTable.get(key);
-            if (diff.oldValue == null && diff.newValue == null) {
-                continue;
+            if (diffHasChanges(diff.oldValue, diff.newValue)) {
+                ++count;
             }
-            //if (diffHasChanges(diff.oldValue, diff.newValue)) {
-            ++count;
-            //}
         }
         currentTable.clear();
         changesCount = 0;
