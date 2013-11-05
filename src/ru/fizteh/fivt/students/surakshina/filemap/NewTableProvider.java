@@ -79,7 +79,7 @@ public class NewTableProvider implements TableProvider {
     }
 
     private void checkTableName(String name) {
-        if ((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9‡-ˇ¿-ﬂ]+"))) {
+        if ((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9–∞-–Ø–ê-–Ø]+"))) {
             throw new IllegalArgumentException("Incorrect table name");
         }
     }
