@@ -77,6 +77,16 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
             throw new ColumnFormatException("alien Storeable");
         }
 
+
+        boolean wasLast = false;
+        try {
+            value.getColumnAt(columnType.size());
+        } catch(IndexOutOfBoundsException e) {
+            wasLast = true;
+        }
+        if (!wasLast) {
+            throw new ColumnFormatException("alien Storeable");
+        }
         return super.put(key, value);
      }
 
