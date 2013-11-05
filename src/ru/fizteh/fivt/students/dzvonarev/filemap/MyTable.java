@@ -23,11 +23,13 @@ public class MyTable implements Table {
         tableName = newTableName;
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
+        size = 0;
     }
 
     private String tableName; // current table
     private HashMap<String, String> fileMap;
     private HashMap<String, ValueNode> changesMap;
+    private int size;
 
 
     public void modifyFileMap() {
@@ -40,13 +42,9 @@ public class MyTable implements Table {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
             if (!Equals(value.newValue, value.oldValue)) {
-                if (value.oldValue == null) {
-                    fileMap.put(currItem.getKey(), value.newValue);
-                }
                 if (value.newValue == null) {
                     fileMap.remove(currItem.getKey());
-                }
-                if (value.newValue != null && value.oldValue != null) {
+                } else {
                     fileMap.put(currItem.getKey(), value.newValue);
                 }
             }
@@ -63,9 +61,6 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (value.newValue == null && value.oldValue == null) {
-                continue;
-            }
             if (!Equals(value.newValue, value.oldValue)) {
                 ++counter;
             }
@@ -101,6 +96,7 @@ public class MyTable implements Table {
                 }
             }
         }
+        size = fileMap.size();
     }
 
     /* READING FILEMAP */
@@ -319,6 +315,9 @@ public class MyTable implements Table {
         if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
+        if(!fileMap.containsKey(key)) {
+            ++size;
+        }
         String oldValue = get(key);
         addChanges(key, value);
         return oldValue;
@@ -329,6 +328,9 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
+        if (fileMap.containsKey(key)) {
+            --size;
+        }
         String oldValue = get(key);
         if (oldValue != null) {
             addChanges(key, null);
@@ -338,7 +340,7 @@ public class MyTable implements Table {
 
     @Override
     public int size() {
-        return fileMap.size();
+        return size;
     }
 
     @Override
@@ -346,6 +348,7 @@ public class MyTable implements Table {
         modifyFileMap();
         int count = getCountOfChanges();
         changesMap.clear();
+        size = fileMap.size();
         return count;
     }
 
@@ -353,6 +356,7 @@ public class MyTable implements Table {
     public int rollback() {
         int count = getCountOfChanges();
         changesMap.clear();
+        size = fileMap.size();
         return count;
     }
 
