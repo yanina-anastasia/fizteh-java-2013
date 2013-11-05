@@ -200,7 +200,9 @@ public class Table {
                 writeEntry(key, value, outputStream);
             } finally {
                 try {
-                    outputStream.close();
+                    if (outputStream != null) {
+                        outputStream.close();
+                    }
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
                 }
