@@ -10,7 +10,7 @@ public class CommandGet extends DataBaseCommand {
 
     @Override
     public void executeProcess(String[] input) {
-        if (state.getTableProvider() != null) {
+        if (state.getTable() != null) {
             String key = input[1];
             if (state.getTable().get(key) != null) {
                 System.out.println("found\n" + state.getTable().get(key));

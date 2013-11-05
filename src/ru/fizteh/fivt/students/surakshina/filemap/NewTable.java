@@ -50,7 +50,15 @@ public class NewTable implements Table {
     public String put(String key, String value) {
         checkName(key);
         checkName(value);
-        return dataBaseMap.put(key, new ValueState<String>(value, value)).getValue();
+        String result;
+        if (dataBaseMap.containsKey(key)) {
+            result = dataBaseMap.get(key).getValue();
+            dataBaseMap.get(key).setValue(value);
+        } else {
+            dataBaseMap.put(key, new ValueState<String>(value, value));
+            result = null;
+        }
+        return result;
     }
     @Override
     public String remove(String key) {

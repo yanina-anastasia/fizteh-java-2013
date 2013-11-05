@@ -11,7 +11,7 @@ public class CommandCreate extends DataBaseCommand {
     public void executeProcess(String[] input) {
         String name = input[1];
         try {
-            if (state.getTableProvider().createTable(name) != null) {
+            if (state.getTableProvider().createTable(name) == null) {
                 System.out.println(name + " exists");
             } else {
                 System.out.println("created");

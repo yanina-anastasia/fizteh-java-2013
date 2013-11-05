@@ -10,7 +10,7 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 
 public class NewTableProvider implements TableProvider {
     private File workingDirectory;
-    private NewTable currentTable;
+    private NewTable currentTable = null;
     private HashMap<String, NewTable> tables = new HashMap<>();
 
     public NewTableProvider(File dir) {
@@ -53,7 +53,9 @@ public class NewTableProvider implements TableProvider {
         NewTable table = tables.get(name);
         File tableFile = new File(workingDirectory, name);
         try {
+            if (table != null) {
             table.loadCommittedValues(load(tableFile));
+            }
         } catch (IOException e) {
             throw new WrappedIOException(e);
         }
@@ -135,6 +137,7 @@ public class NewTableProvider implements TableProvider {
                     }
                 }
             }
+            tableFile.delete();
         }
     }
 }

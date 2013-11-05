@@ -9,14 +9,17 @@ public class CommandPut extends DataBaseCommand {
 
     @Override
     public void executeProcess(String[] input) {
-        if (state.getTableProvider() != null) {
+        if (state.getTable() != null) {
             String key = input[1];
             String value = input[2];
-            if (state.getTable().put(key, value) != null) {
-                System.out.println("overwrite\n" + state.getTable().get(key));
+            String result = state.getTable().put(key, value);
+            if (result != null) {
+                System.out.println("overwrite\n" + result);
             } else {
                 System.out.println("new");
             }
+        } else {
+            System.out.println("no table");
         }
     }
 
