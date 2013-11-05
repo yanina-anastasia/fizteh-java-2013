@@ -129,7 +129,12 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     }
 
     public void checkAlienStoreable(Storeable storeable) {
-        DatabaseRow row = (DatabaseRow) storeable;
+        DatabaseRow row = null;
+        try {
+            row = (DatabaseRow) storeable;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("alien storeable");
+        }
         if (!row.classes.equals(columnTypes)) {
             throw new IllegalArgumentException("alien storeable");
         }
