@@ -23,7 +23,6 @@ public class MyTable implements Table {
         tableName = newTableName;
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
-        size = 0;
     }
 
     private String tableName; // current table

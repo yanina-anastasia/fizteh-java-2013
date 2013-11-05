@@ -44,4 +44,38 @@ public class MyTableTests {
         Assert.assertEquals(table.commit(), 0);
     }
 
+    @Test
+    public void checkSize() {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        MyTableProvider provider;
+        provider = factory.create(System.getProperty("fizteh.db.dir"));
+        table = provider.createTable("my2");
+        table.put("key", "value");
+        table.remove("key");
+        table.put("newKey", "value");
+        Assert.assertEquals("Incorrect size", 1, table.size());
+    }
+
+    public void testGet() {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        MyTableProvider provider;
+        provider = factory.create(System.getProperty("fizteh.db.dir"));
+        table = provider.createTable("my3");
+        table.put("Dmitry", "value");
+        table.put("Kolya", "value");
+        table.remove("Dmitry");
+        Assert.assertNotNull("expected value", table.get("Kolya"));
+    }
+
+    @Test
+    public void testGetAfterRemove() {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        MyTableProvider provider;
+        provider = factory.create(System.getProperty("fizteh.db.dir"));
+        table = provider.createTable("my4");
+        table.put("Pasha", "value");
+        table.remove("Pasha");
+        Assert.assertNull("expected null when get removed value", table.get("Pasha"));
+    }
+
 }
