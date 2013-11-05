@@ -54,7 +54,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
 
         if (!checkAlienStoreable(value)) {
-            value = createCompatibleStoreable(value);
+            return createCompatibleStoreable(value);
             //return value; //storageGet(key);//throw new ColumnFormatException("alien storeable");
         }
         checkCorrectStoreable(value);
