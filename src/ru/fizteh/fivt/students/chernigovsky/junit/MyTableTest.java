@@ -7,15 +7,13 @@ import java.io.File;
 public class MyTableTest {
     private ExtendedTable table;
     private ExtendedTableProvider tableProvider;
+    File dbDirectory = new File("/home/chernigovsky/database");
 
     @Before
     public void setUp() {
-        File dbDirectory = new File("/home/chernigovsky/database");
-        /*if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
-            dbDirectory.delete();
-            dbDirectory.mkdir();
-        }*/
         dbDirectory.mkdir();
+        if (dbDirectory == null)
+            throw new IllegalStateException();
         tableProvider = new MyTableProvider(dbDirectory, false);
         table = tableProvider.createTable("testTable");
     }
