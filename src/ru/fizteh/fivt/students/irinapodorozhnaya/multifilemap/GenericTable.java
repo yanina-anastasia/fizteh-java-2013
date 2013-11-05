@@ -163,13 +163,16 @@ public abstract class GenericTable<ValueType> {
                 File dir = new File(tableDirectory, i / 16 + ".dir");
                 if (!dir.isDirectory()) {
                     continue;
+                } else if (dir.listFiles().length == 0) {
+                    throw new IOException("empty dir");
                 }
                 File db = new File(dir, i % 16 + ".dat");
-                if (!db.exists()) {
-                    continue;
-                } else {
+                if (db.exists()) {
                     files.put(i, db);
                     oldDatabase.put(i, deserialize(FileStorage.openDataFile(db, i)));
+                    if (oldDatabase.get(i).isEmpty()) {
+                        throw new IOException("empty file");
+                    }
                     size += oldDatabase.get(i).size();
                     database.put(i, new HashMap<String, ValueType>());
                     database.get(i).putAll(oldDatabase.get(i));
