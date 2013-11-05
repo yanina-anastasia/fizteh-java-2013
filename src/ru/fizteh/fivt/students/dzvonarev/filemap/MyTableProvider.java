@@ -101,10 +101,6 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("Invalid table name " + tableName);
         }
-        File newTable = new File(workingDirectory + File.separator + tableName);
-        if (newTable.exists() && newTable.isFile() || !newTable.exists()) {
-            return null;
-        }
         return multiFileMap.get(tableName);
     }
 
