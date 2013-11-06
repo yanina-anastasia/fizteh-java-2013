@@ -88,7 +88,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
         }
-        return StorableUtils.writeStorableToString(value, columnTypes);
+        return StorableUtils.writeStorableToString((StorableTableLine)value, columnTypes);
     }
 
     @Override
