@@ -26,8 +26,8 @@ public class MultiFileHashMapCommands {
 
             String value = parent.dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
             System.out.println(value == null ? "new" : "overwrite\n" + value);
+        }
 
-            }
         Put() {
             super(3);
         }
@@ -57,6 +57,7 @@ public class MultiFileHashMapCommands {
                 System.out.println(value);
             }
         }
+
         Get() {
             super(2);
         }
@@ -76,6 +77,7 @@ public class MultiFileHashMapCommands {
             parent.curTable = new File(parentShell.currentDir.toString() + File.separator + args[1]);
             System.out.println("using " + args[1]);
         }
+
         Use() {
             super(2);
         }
@@ -113,6 +115,7 @@ public class MultiFileHashMapCommands {
             }
             System.out.println("dropped");
         }
+
         Drop() {
             super(2);
         }
@@ -134,6 +137,7 @@ public class MultiFileHashMapCommands {
             }
             System.out.println("created");
         }
+
         Create() {
             super(2);
         }
@@ -161,6 +165,7 @@ public class MultiFileHashMapCommands {
                 System.out.println("removed");
             }
         }
+
         Remove() {
             super(2);
         }
@@ -172,6 +177,7 @@ public class MultiFileHashMapCommands {
             parent.writeOut();
             System.exit(0);
         }
+
         Exit() {
             super(1);
         }
