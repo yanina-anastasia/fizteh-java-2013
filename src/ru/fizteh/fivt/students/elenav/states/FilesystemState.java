@@ -15,15 +15,16 @@ public abstract class FilesystemState {
 	private final PrintStream stream;
 	private final String name;
 	private File workingDirectory = null;
-	protected final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
-		
-	protected abstract void init();
+	private final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
+	
+	public void addCommand(AbstractCommand c) {
+		commands.add(c);
+	}
 	
 	protected FilesystemState(String n, File wd, PrintStream s) {
 		stream = s;
 		name = n;
 		workingDirectory = wd;
-		init();
 	}
 	
 	public PrintStream getStream() {
@@ -57,9 +58,9 @@ public abstract class FilesystemState {
 	public void interactiveMode() throws IOException {
 		String command = "";
 		final boolean flag = true;
+		Scanner sc = new Scanner(System.in);
 		do {
 			System.out.print("$ ");
-			Scanner sc = new Scanner(System.in);
 			command = sc.nextLine();
 			command = command.trim();
 			String[] commands = command.split("\\s*;\\s*");
@@ -70,7 +71,7 @@ public abstract class FilesystemState {
 					System.err.println(e.getMessage());
 				}
 			}
-		} while (flag);
+		} while (flag); 
 	}
 	
 	public void run(String[] args) throws IOException {
@@ -99,7 +100,5 @@ public abstract class FilesystemState {
 	public File getWorkingDirectory() {
 		return workingDirectory;
 	}
-
-	
 	
 }

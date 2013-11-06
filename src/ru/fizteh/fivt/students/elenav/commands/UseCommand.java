@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
 import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
+import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
 
 public class UseCommand extends AbstractCommand {
 
@@ -15,18 +15,30 @@ public class UseCommand extends AbstractCommand {
 	}
 
 	public void execute(String[] args, PrintStream s) throws IOException {
-		File f = new File(getState().getWorkingDirectory(), args[1]);
-		if (!f.exists()) {
-			getState().getStream().println(args[1] + " not exists");
+		MultiFileMapState multi = (MultiFileMapState) getState();
+		String name = args[1];
+		if (multi.getWorkingDirectory() != null) {
+			int numberOfChanges = multi.getNumberOfChanges();
+			if (numberOfChanges != 0) {
+				s.println(numberOfChanges + " unsaved changes");
+			} else {
+				useTable(name);
+			}
 		} else {
-			if (!args[1].equals(getState().getWorkingDirectory().getName())) {
+			useTable(name);
+		}
+	}
+	
+	private void useTable(String name) throws IOException {
+		File f = new File(((MonoMultiAbstractState) getState()).provider.getWorkingDirectory(), name);
+		if (!f.exists()) {
+			getState().getStream().println(name + " not exists");
+		} else {
+			if (getState().getWorkingDirectory() == null || getState().getName() != null && !name.equals(getState().getName())) {
 				MultiFileMapState multi = (MultiFileMapState) getState();
-				if (multi.getWorkingTable() != null) {
-					multi.write();
-				}
-				multi.setWorkingTable(new FileMapState(args[1], f, getState().getStream()));
+				multi.setWorkingDirectory(f);
 				multi.read();
-				getState().getStream().println("using " + args[1]);
+				getState().getStream().println("using " + name);
 			}
 		}
 	}
