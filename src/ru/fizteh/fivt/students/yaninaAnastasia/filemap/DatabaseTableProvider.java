@@ -242,10 +242,13 @@ public class DatabaseTableProvider implements TableProvider {
             File preSignature = new File(curDir, curTableName);
             File signatureFile = new File(preSignature, "signature.tsv");
             String signature = null;
+            if (!signatureFile.exists() || signatureFile.length() == 0) {
+                throw new IllegalArgumentException("Invalid database");
+            }
             try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
                 signature = reader.readLine();
             } catch (IOException e) {
-                //System.err.println("error loading signature file: " + e.getMessage());
+                System.err.println("error loading signature file");
                 continue;
             }
             List<Class<?>> columnTypes = new ArrayList<Class<?>>();
@@ -275,12 +278,14 @@ public class DatabaseTableProvider implements TableProvider {
                 if (currentDir.isFile()) {
                     throw new IllegalArgumentException("Illegal argument: it is not a directory");
                 }
+                if (currentDir.exists() && currentDir.length() == 0) {
+                    throw new IllegalArgumentException("Illegal database: the directory is empty");
+                }
                 if (!currentDir.exists()) {
                     continue;
                 } else {
                     for (int j = 0; j < 16; ++j) {
                         File currentFile = getFileWithNum(j, i);
-
                         if (currentFile.exists()) {
                             try {
                                 File tmpFile = new File(currentFile.toString());
