@@ -58,7 +58,9 @@ public class DatabaseTableProvider implements TableProvider {
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
-        if (!name.matches("[0-9A-Za-zА-Яа-я]+")) {
+        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".")) {
             throw new RuntimeException("Bad symbols in tablename " + name);
         }
         if (columnTypes == null || columnTypes.isEmpty()) {
@@ -133,11 +135,9 @@ public class DatabaseTableProvider implements TableProvider {
                 || name.startsWith(".") || name.endsWith(".")) {
             throw new RuntimeException("Bad symbols in tablename " + name);
         }
-
         if (!tables.containsKey(name)) {
             throw new IllegalStateException(String.format("%s not exists", name));
         }
-        // Удалять папку
         File temp = new File(curDir, name);
         if (temp.exists()) {
             File file = temp;
@@ -155,48 +155,52 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("value cannot be null or empty");
-        }
-        Deserializer deserializer = new Deserializer(value);
-        List<Class<?>> cols = new ArrayList<Class<?>>();
-        Storeable result = new DatabaseStoreable(cols);
-        List<Object> values = new ArrayList<>(table.getColumnsCount());
-        for (int index = 0; index < table.getColumnsCount(); ++index) {
-            try {
-                Class<?> expectedType = table.getColumnType(index);
-                Object columnValue = deserializer.getNext(expectedType);
-                if (columnValue == null) {
-                    throw new IllegalArgumentException("Very bad");
-                }
-
-                switch (formatColumnType(expectedType)) {
-                    case "String":
-                        String stringValue = (String) columnValue;
-                        if (stringValue.trim().isEmpty()) {
-                            throw new ParseException("value cannot be null", 0);
-                        }
-                        break;
-                }
-                values.add(columnValue);
-            } catch (ColumnFormatException e) {
-                throw new ParseException("incompatible type: " + e.getMessage(), index);
-            } catch (IndexOutOfBoundsException e) {
-                throw new ParseException("Xml representation doesn't match the format", index);
-            }
-        }
         try {
-            deserializer.close();
-            result = createFor(table, values);
-        } catch (ColumnFormatException e) {
-            throw new ParseException("incompatible types: " + e.getMessage(), 0);
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            throw new ParseException("Xml representation doesn't match the format" + e.getCause(), 0);
-        } catch (IOException e) {
-            throw new ParseException(e.getMessage(), 0);
+            if (value == null || value.isEmpty()) {
+                throw new IllegalArgumentException("value cannot be null or empty");
+            }
+            Deserializer deserializer = new Deserializer(value);
+            List<Class<?>> cols = new ArrayList<Class<?>>();
+            Storeable result = new DatabaseStoreable(cols);
+            List<Object> values = new ArrayList<>(table.getColumnsCount());
+            for (int index = 0; index < table.getColumnsCount(); ++index) {
+                try {
+                    Class<?> expectedType = table.getColumnType(index);
+                    Object columnValue = deserializer.getNext(expectedType);
+                    if (columnValue == null) {
+                        throw new IllegalArgumentException("Very bad");
+                    }
+
+                    switch (formatColumnType(expectedType)) {
+                        case "String":
+                            String stringValue = (String) columnValue;
+                            if (stringValue.trim().isEmpty()) {
+                                throw new ParseException("value cannot be null", 0);
+                            }
+                            break;
+                    }
+                    values.add(columnValue);
+                } catch (ColumnFormatException e) {
+                    throw new ParseException("incompatible type: " + e.getMessage(), index);
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ParseException("Xml representation doesn't match the format", index);
+                }
+            }
+            try {
+                deserializer.close();
+                result = createFor(table, values);
+            } catch (ColumnFormatException e) {
+                throw new ParseException("incompatible types: " + e.getMessage(), 0);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+                throw new ParseException("Xml representation doesn't match the format" + e.getCause(), 0);
+            } catch (IOException e) {
+                throw new ParseException(e.getMessage(), 0);
+            }
+            return result;
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        return result;
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {

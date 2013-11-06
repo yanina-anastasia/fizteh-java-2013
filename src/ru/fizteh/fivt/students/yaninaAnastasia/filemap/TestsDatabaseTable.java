@@ -41,26 +41,38 @@ public class TestsDatabaseTable {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testKeyNull()
-    {
-        table.put(null, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyKey()
-    {
-        table.put("", makeStoreable(1));
-    }
-
-    private Storeable makeStoreable(int value)
-    {
+    public Storeable makeStoreable(int value) {
         try {
             return provider.deserialize(table, String.format("<row><col>%d</col></row>", value));
         } catch (ParseException e) {
             return null;
         }
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testKeyNull() {
+        table.put(null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyKey() {
+        table.put("", makeStoreable(1));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testKeyWithWhiteSpaces() {
+        table.put("key key key", makeStoreable(5));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValueWrongStoreable() {
+        try {
+            table.put("key", provider.deserialize(table, "<row><col>Five</col></row>"));
+        } catch (ParseException e) {
+            //
+        }
+    }
+
 
     /*@Test(expected = IllegalArgumentException.class)
     public void testPutNullKey() {
