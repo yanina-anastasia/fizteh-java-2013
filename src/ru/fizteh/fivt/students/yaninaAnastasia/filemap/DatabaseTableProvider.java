@@ -219,6 +219,10 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable createFor(Table table) {
+        if (table == null)
+        {
+            return null;
+        }
         List<Class<?>> columns = null;
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columns.add(table.getColumnType(i));
@@ -233,6 +237,10 @@ public class DatabaseTableProvider implements TableProvider {
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
+        }
+        if (table == null)
+        {
+            return null;
         }
         List<Class<?>> columns = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); i++) {

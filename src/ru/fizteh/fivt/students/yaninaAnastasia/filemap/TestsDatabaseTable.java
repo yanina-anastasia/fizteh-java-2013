@@ -3,11 +3,13 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,21 @@ public class TestsDatabaseTable {
     public void testKeyNull()
     {
         table.put(null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyKey()
+    {
+        table.put("", makeStoreable(1));
+    }
+
+    private Storeable makeStoreable(int value)
+    {
+        try {
+            return provider.deserialize(table, String.format("<row><col>%d</col></row>", value));
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     /*@Test(expected = IllegalArgumentException.class)
