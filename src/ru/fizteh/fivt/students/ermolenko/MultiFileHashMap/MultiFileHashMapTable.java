@@ -61,15 +61,15 @@ public class MultiFileHashMapTable implements Table {
             throw new IllegalArgumentException("Incorrect key to get");
         }
         String returnValue;
-        if (changesBase.containsKey(key)) {
-            if (changesBase.get(key) == null) {
+        if (changesBase.containsKey(newKey)) {
+            if (changesBase.get(newKey) == null) {
                 returnValue = null;
             } else {
-                returnValue = changesBase.get(key);
+                returnValue = changesBase.get(newKey);
             }
         } else {
-            if (dataBase.containsKey(key)) {
-                returnValue = dataBase.get(key);
+            if (dataBase.containsKey(newKey)) {
+                returnValue = dataBase.get(newKey);
             } else {
                 returnValue = null;
             }
@@ -93,37 +93,37 @@ public class MultiFileHashMapTable implements Table {
 
         String returnValue;
 
-        if (changesBase.containsKey(key)) {
-            if (changesBase.get(key) == null) {
-                if (dataBase.get(key).equals(value)) {
-                    changesBase.remove(key);
+        if (changesBase.containsKey(newKey)) {
+            if (changesBase.get(newKey) == null) {
+                if (dataBase.get(newKey).equals(value)) {
+                    changesBase.remove(newKey);
                     ++sizeTable;
                     returnValue = null;
                 } else {
-                    changesBase.put(key, value);
+                    changesBase.put(newKey, value);
                     returnValue = null;
                     ++sizeTable;
                 }
             } else {
-                if (changesBase.get(key).equals(value)) {
-                    changesBase.put(key, value);
-                    returnValue = changesBase.get(key);
+                if (changesBase.get(newKey).equals(value)) {
+                    changesBase.put(newKey, value);
+                    returnValue = changesBase.get(newKey);
                 } else {
-                    returnValue = changesBase.get(key);
-                    changesBase.put(key, value);
+                    returnValue = changesBase.get(newKey);
+                    changesBase.put(newKey, value);
                 }
             }
         } else {
-            if (dataBase.get(key) == null) {
+            if (dataBase.get(newKey) == null) {
                 ++sizeTable;
                 returnValue = null;
-                changesBase.put(key, value);
+                changesBase.put(newKey, value);
             } else {
-                if (dataBase.get(key).equals(value)) {
-                    returnValue = dataBase.get(key);
+                if (dataBase.get(newKey).equals(value)) {
+                    returnValue = dataBase.get(newKey);
                 } else {
-                    returnValue = dataBase.get(key);
-                    changesBase.put(key, value);
+                    returnValue = dataBase.get(newKey);
+                    changesBase.put(newKey, value);
                 }
             }
         }
@@ -144,25 +144,25 @@ public class MultiFileHashMapTable implements Table {
         }
 
         String returnValue;
-        if (changesBase.containsKey(key)) {
-            if (changesBase.get(key) == null) {
+        if (changesBase.containsKey(newKey)) {
+            if (changesBase.get(newKey) == null) {
                 returnValue = null;
             } else {
-                if (dataBase.containsKey(key)) {
-                    returnValue = dataBase.get(key);
-                    changesBase.put(key, null);
+                if (dataBase.containsKey(newKey)) {
+                    returnValue = dataBase.get(newKey);
+                    changesBase.put(newKey, null);
                     --sizeTable;
                 } else {
-                    returnValue = changesBase.get(key);
+                    returnValue = changesBase.get(newKey);
                     --sizeTable;
-                    changesBase.remove(key);
+                    changesBase.remove(newKey);
                 }
             }
         } else {
-            if (dataBase.containsKey(key)) {
-                returnValue = dataBase.get(key);
+            if (dataBase.containsKey(newKey)) {
+                returnValue = dataBase.get(newKey);
                 --sizeTable;
-                changesBase.put(key, null);
+                changesBase.put(newKey, null);
             } else {
                 returnValue = null;
             }
