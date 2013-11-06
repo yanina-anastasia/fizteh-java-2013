@@ -11,12 +11,13 @@ public class VorotilovTable implements Table {
     private TableFile[][] tableFiles;
     private boolean[][] tableFileModified;
     private HashMap<String, String> tableIndexedData;
-    private int numberOfUncommittedChanges;
+    private HashSet<String> changedKeys;
 
     private void index() {
         tableFiles = new TableFile[16][16];
         tableFileModified = new boolean[16][16];
         tableIndexedData = new HashMap<>();
+        changedKeys = new HashSet<>();
         File[] subDirsList = tableRootDir.listFiles();
         if (subDirsList != null) {
             for (File subDir: subDirsList) {
@@ -62,7 +63,6 @@ public class VorotilovTable implements Table {
                 }
             }
         }
-        numberOfUncommittedChanges = 0;
     }
 
     VorotilovTable(File tableRootDir) {
@@ -109,7 +109,7 @@ public class VorotilovTable implements Table {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
             tableIndexedData.put(key, value);
-            ++numberOfUncommittedChanges;
+            changedKeys.add(key);
         }
         return oldValue;
     }
@@ -126,7 +126,7 @@ public class VorotilovTable implements Table {
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            ++numberOfUncommittedChanges;
+            changedKeys.remove(key);
         }
         return oldValue;
     }
@@ -138,8 +138,8 @@ public class VorotilovTable implements Table {
 
     @Override
     public int commit() {
-        int numberOfCommittedChanges = numberOfUncommittedChanges;
-        numberOfUncommittedChanges = 0;
+        int numberOfCommittedChanges = changedKeys.size();
+        changedKeys.clear();
         Set<Map.Entry<String, String>> dbSet = tableIndexedData.entrySet();
         Iterator<Map.Entry<String, String>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
@@ -176,8 +176,8 @@ public class VorotilovTable implements Table {
 
     @Override
     public int rollback() {
-        int numberOfRolledChanges = numberOfUncommittedChanges;
-        numberOfUncommittedChanges = 0;
+        int numberOfRolledChanges = changedKeys.size();
+        changedKeys.clear();
         tableIndexedData.clear();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
@@ -199,7 +199,7 @@ public class VorotilovTable implements Table {
     }
 
     public int uncommittedChanges() {
-        return numberOfUncommittedChanges;
+        return changedKeys.size();
     }
 
     public void close() throws Exception {

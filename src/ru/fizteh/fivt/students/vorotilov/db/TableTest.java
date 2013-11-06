@@ -119,11 +119,11 @@ public class TableTest {
     public void testRollbackOverwritePutAndRemove() {
         VorotilovTable testTable = tableProvider.createTable("newTable");
         testTable.put("key1", "value1");
-        testTable.commit();
+        Assert.assertEquals(testTable.commit(), 1);
         testTable.put("key1", "newValue");
         testTable.put("key2", "value2");
         testTable.remove("key1");
-        Assert.assertEquals(3, testTable.rollback());
+        Assert.assertEquals(1, testTable.rollback());
     }
 
     @Test
@@ -136,4 +136,11 @@ public class TableTest {
         Assert.assertEquals(size, testTable.size());
     }
 
+    @Test
+    public void testPutOverwrite() {
+        VorotilovTable testTable = tableProvider.createTable("newTable");
+        testTable.put("key1", "value1");
+        testTable.put("key1", "value2");
+        Assert.assertEquals(1, testTable.rollback());
+    }
 }
