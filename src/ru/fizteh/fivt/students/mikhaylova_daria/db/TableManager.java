@@ -38,9 +38,9 @@ public class TableManager implements TableProvider {
         try {
             cleaner();
         } catch (IllegalStateException e) {
-            throw new IllegalArgumentException("wrong type(" + e.getMessage() + ")", e);
+            throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
         } catch (Exception e) {
-            throw new RuntimeException("wrong type(" + e.getMessage() + ")", e);
+            throw new RuntimeException("wrong type (" + e.getMessage() + ")", e);
         }
     }
 
