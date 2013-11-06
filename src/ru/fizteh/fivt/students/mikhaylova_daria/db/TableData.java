@@ -66,7 +66,7 @@ public class TableData implements Table {
         String signature;
         File sign = new File(tableFile, "signature.tsv");
         if (!sign.exists()) {
-            throw new IllegalArgumentException(sign.getName() + " is not data table");
+            throw new IllegalArgumentException(sign.getName() + " does not exist");
         }
         try (BufferedReader signatureReader =
                      new BufferedReader(new FileReader(sign))) {
