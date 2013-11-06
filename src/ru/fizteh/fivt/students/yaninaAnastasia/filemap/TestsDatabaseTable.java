@@ -1,12 +1,15 @@
-/*package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
+package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestsDatabaseTable {
     Table table;
@@ -15,17 +18,34 @@ public class TestsDatabaseTable {
 
     @Before
     public void beforeTest() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>() {{
+            add(Integer.class);
+        }};
         factory = new DatabaseTableProviderFactory();
-        provider = factory.create("C:\\temp\\database_table_test");
-        table = provider.createTable("testTable");
+        try {
+            provider = factory.create("C:\\temp\\database_table_test");
+            table = provider.createTable("testTable", columnTypes);
+        } catch (IOException e) {
+            //
+        }
     }
 
     @After
     public void afterTest() {
-        provider.removeTable("testTable");
+        try {
+            provider.removeTable("testTable");
+        } catch (IOException e) {
+            //
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testKeyNull()
+    {
+        table.put(null, null);
+    }
+
+    /*@Test(expected = IllegalArgumentException.class)
     public void testPutNullKey() {
         table.put(null, "value");
     }
@@ -171,5 +191,5 @@ public class TestsDatabaseTable {
         Assert.assertEquals(table.size(), 0);
         Assert.assertEquals(table.rollback(), 3);
         Assert.assertEquals(table.size(), 3);
-    }
-}     */
+    }*/
+}

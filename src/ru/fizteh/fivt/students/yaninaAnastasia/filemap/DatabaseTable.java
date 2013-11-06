@@ -65,7 +65,7 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.isEmpty())) {
+        if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
         }
         Storeable oldValue = null;
@@ -178,7 +178,7 @@ public class DatabaseTable implements Table {
             if (isDirEmpty) {
                 try {
                     if (path.exists()) {
-                        CommandDrop.recRemove(path);
+                        DatabaseTableProvider.recRemove(path);
                     }
                 } catch (IOException e) {
                     return false;
@@ -188,7 +188,7 @@ public class DatabaseTable implements Table {
             if (path.exists()) {
                 File file = path;
                 try {
-                    if (!CommandDrop.recRemove(file)) {
+                    if (!DatabaseTableProvider.recRemove(file)) {
                         System.err.println("File was not deleted");
                         return false;
                     }

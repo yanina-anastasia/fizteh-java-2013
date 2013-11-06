@@ -58,9 +58,7 @@ public class DatabaseTableProvider implements TableProvider {
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
-        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
-                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                || name.startsWith(".") || name.endsWith(".")) {
+        if (!name.matches("[0-9A-Za-zА-Яа-я]+")) {
             throw new RuntimeException("Bad symbols in tablename " + name);
         }
         if (columnTypes == null || columnTypes.isEmpty()) {
@@ -74,6 +72,9 @@ public class DatabaseTableProvider implements TableProvider {
         }
         try {
             File tableDirectory = new File(curDir, name);
+            if (!tableDirectory.exists()) {
+                tableDirectory.mkdir();
+            }
             File signatureFile = new File(tableDirectory, "signature.tsv");
             signatureFile.createNewFile();
             BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
@@ -110,6 +111,19 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
+    public static boolean recRemove(File file) throws IOException {
+        if (file.isDirectory()) {
+            for (File innerFile : file.listFiles()) {
+                recRemove(innerFile);
+            }
+        }
+        if (!file.delete()) {
+            System.err.println("Error while deleting");
+            return false;
+        }
+        return true;
+    }
+
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
@@ -123,7 +137,20 @@ public class DatabaseTableProvider implements TableProvider {
         if (!tables.containsKey(name)) {
             throw new IllegalStateException(String.format("%s not exists", name));
         }
-
+        // Удалять папку
+        File temp = new File(curDir, name);
+        if (temp.exists()) {
+            File file = temp;
+            try {
+                if (!recRemove(file)) {
+                    System.err.println("File was not deleted");
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println(name + " not exists");
+        }
         tables.remove(name);
     }
 
@@ -245,7 +272,10 @@ public class DatabaseTableProvider implements TableProvider {
             }
             File signatureFile = new File(preSignature, "signature.tsv");
             String signature = null;
-            if (!signatureFile.exists() || signatureFile.listFiles().length == 0) {
+            if (!signatureFile.exists()) {
+                throw new IllegalArgumentException("Invalid database");
+            }
+            if (signatureFile.length() == 0) {
                 throw new IllegalArgumentException("Invalid database");
             }
             try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
