@@ -10,25 +10,19 @@ import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 
 
-
 public class MyMultiHashMap {
     public File curTable = null;
     public HashMap<Integer, HashMap<String, String>> dataBase = null;
     public Boolean[] check;
 
     MyMultiHashMap() {
-        public File curTable = null;
-        public HashMap<Integer, HashMap<String, String>> dataBase = null;
-        public Boolean[] check;
-
-        MyMultiHashMap() {
-            dataBase = new HashMap<Integer, HashMap<String, String>>();
-            check = new Boolean[256];
-            for (int i = 0; i < 256; i++) {
-                dataBase.put(i, new HashMap<String, String>());
-                check[i] = false;
-            }
+        dataBase = new HashMap<Integer, HashMap<String, String>>();
+        check = new Boolean[256]; //
+        for (int i = 0; i < 256; i++) {
+            dataBase.put(i, new HashMap<String, String>());
+            check[i] = false;
         }
+    }
 
     public void parseFile(File dbFile, int firstControlValue, int secondControlValue) throws Exception {
         if (!check[firstControlValue * 16 + secondControlValue]) {
