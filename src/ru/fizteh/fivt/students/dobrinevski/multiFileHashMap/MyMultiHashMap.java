@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
+import java.lang.Exception;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.io.FileOutputStream;
@@ -13,7 +14,7 @@ import java.io.FileInputStream;
 public class MyMultiHashMap {
     public File curTable = null;
     public HashMap<Integer, HashMap<String, String>> dataBase = null;
-    public Boolean[] check;
+    public boolean[] check;
 
     MyMultiHashMap() {
         dataBase = new HashMap<Integer, HashMap<String, String>>();
@@ -75,7 +76,8 @@ public class MyMultiHashMap {
         }
     }
 
-    public void writeOut() throws IOException {
+
+    public void writeOut() throws Exception {
         for (Integer i = 0; i < 16; i++) {
             for (Integer j = 0; j < 16; j++) {
                 if (check[i * 16 + j]) {
@@ -94,16 +96,19 @@ public class MyMultiHashMap {
                         String way = curTable.getCanonicalPath()
                                 + File.separator + i.toString() + ".dir";
                         File workFile = new File(way);
-                        if (!workFile.exists() || workFile.isFile()) {
+                        if (workFile.isFile()) {
+                            throw new Exception("Bad table");
+                        }
+                        if (!workFile.exists()) {
                             workFile.mkdir();
                         }
                         File workFile2 = new File(way + File.separator + j.toString() + ".dat");
-                        FileOutputStream fstream = new FileOutputStream(workFile2);
-                        for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
-                            writeEntry(entry, fstream);
+                        try (FileOutputStream fstream = new FileOutputStream(workFile2)) {
+                            for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
+                                writeEntry(entry, fstream);
+                            }
+                            dataBase.get(i * 16 + j).clear();
                         }
-                        dataBase.get(i * 16 + j).clear();
-                        fstream.close();
                     }
                     check[i * 16 + j] = false;
                 }

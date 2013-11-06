@@ -126,12 +126,12 @@ public class MultiFileHashMapCommands {
                 tmpFile = new File(parentShell.currentDir.getCanonicalPath() + File.separator + args[1]);
             }
             if (tmpFile.exists() && tmpFile.isDirectory()) {
-                    System.out.println(args[1] + " exists");
-                    return;
-                }
+                System.out.println(args[1] + " exists");
+                return;
+            }
             if (!tmpFile.mkdir()) {
-                    throw new Exception("\'" + args[1] + "\': Table wasn't created");
-                }
+                throw new Exception("\'" + args[1] + "\': Table wasn't created");
+            }
             System.out.println("created");
         }
         Create() {
