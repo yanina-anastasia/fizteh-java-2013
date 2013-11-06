@@ -8,7 +8,7 @@ public class TableManagerFactory implements TableProviderFactory {
 
     public TableManager create(String dir) throws IllegalArgumentException {
         if (dir == null) {
-            throw new IllegalArgumentException("Argument is null");
+            throw new IllegalArgumentException("wrong type (Argument is null)");
         }
         return new TableManager(dir);
     }

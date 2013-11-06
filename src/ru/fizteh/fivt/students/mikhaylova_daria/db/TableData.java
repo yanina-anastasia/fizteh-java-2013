@@ -37,6 +37,9 @@ public class TableData implements Table {
             str = str.append(" ");
         }
         File sign = new File(tableFile, "signature.tsv");
+        if (!sign.mkdir()) {
+            throw new RuntimeException("Creating \"signature.tsv\" error");
+        }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
             signatureWriter.write(str.toString());
@@ -62,6 +65,9 @@ public class TableData implements Table {
         this.tableFile = tableFile;
         String signature;
         File sign = new File(tableFile, "signature.tsv");
+        if (!sign.exists()) {
+            throw new IllegalArgumentException(sign.getName() + " is not data table");
+        }
         try (BufferedReader signatureReader =
                      new BufferedReader(new FileReader(sign))) {
             signature = signatureReader.readLine();

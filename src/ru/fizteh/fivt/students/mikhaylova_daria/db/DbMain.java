@@ -16,13 +16,13 @@ public class DbMain {
     public static void main(String[] arg) {
         String workingDirectoryName = System.getProperty("fizteh.db.dir");
         if (workingDirectoryName == null) {
-            System.err.println("Bad property");
+            System.err.println("wrong type (Bad property)");
             System.exit(1);
         }
         try {
            mainManager = new TableManager(workingDirectoryName);
         } catch (Exception e) {
-            System.err.println("Bad property");
+            System.err.println("wrong type (Bad property)");
             System.exit(1);
         }
 
@@ -56,19 +56,19 @@ public class DbMain {
 
     public void create(String[] command) throws IllegalArgumentException, IOException {
         if (command.length != 2) {
-            throw new IllegalArgumentException("create: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (create: Wrong number of arguments)");
         }
         String[] arg = command[1].trim().split("\\s+", 2);
         if (arg.length < 2) {
-            throw new IllegalArgumentException("Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
         }
         String nameDir = arg[0];
         if (!arg[1].startsWith("(")) {
-             throw new IllegalArgumentException("Not found list of types. Use \"(\" and \")\" ");
+             throw new IllegalArgumentException("wrong type (Not found list of types. Use hooks)");
         }
         String[] args = arg[1].trim().split("[()]");
         if (args.length != 2) { //arg[1] начинается со "(", поэтому отпаршивается пустая строка
-            throw new IllegalArgumentException("Wrong format of typelist");
+            throw new IllegalArgumentException("цкщтп ензу (Wrong format of typelist)");
         }
         ArrayList<Class<?>> columnTypes = new ArrayList<>();
         String[] signatures = args[1].trim().split("\\s+");
@@ -94,8 +94,8 @@ public class DbMain {
                                     if (signatures[i].equals("String")) {
                                         columnTypes.add(i, String.class);
                                     } else {
-                                        throw new IllegalArgumentException("This type is not supposed: "
-                                                + signatures[i]);
+                                        throw new IllegalArgumentException("wrong type (This type is not supposed: "
+                                                + signatures[i] + ")");
                                     }
                                 }
                             }
@@ -115,7 +115,7 @@ public class DbMain {
 
     public void drop(String[] command) throws IllegalArgumentException {
         if (command.length != 2) {
-            throw new IllegalArgumentException("drop: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (drop: Wrong number of arguments)");
         }
         String nameDir = command[1].trim();
         if (currentTable.tableFile.getName().equals(nameDir)) {
@@ -128,13 +128,13 @@ public class DbMain {
         }  catch (IllegalStateException e) {
              System.out.println(nameDir + " not exists");
         } catch (IOException e) {
-            System.out.println("Reading/writing error" + e.getMessage());
+            System.out.println("wrong type (Reading/writing error" + e.getMessage() + ")");
         }
     }
 
     public void use(String[] command) throws Exception {
         if (command.length != 2) {
-            throw new IOException("use: Wrong number of arguments");
+            throw new IOException("wrong type (use: Wrong number of arguments)");
         }
         String nameDir = command[1].trim();
         TableData buf = mainManager.getTable(nameDir);
@@ -163,12 +163,12 @@ public class DbMain {
             return;
         }
         if (command.length != 2) {
-            throw new IllegalArgumentException("put: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (put: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+", 2);
         if (arg.length != 2) {
-            throw new IllegalArgumentException("put: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (put: Wrong number of arguments)");
         }
         Storeable oldValue = currentTable.put(arg[0], mainManager.deserialize(currentTable, arg[1]));
         if (oldValue == null) {
@@ -185,12 +185,12 @@ public class DbMain {
             return;
         }
         if (command.length != 2) {
-            throw new IllegalArgumentException("remove: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (remove: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+");
         if (arg.length != 1) {
-            throw new IllegalArgumentException("remove: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (remove: Wrong number of arguments)");
         }
         Storeable removedValue = currentTable.remove(arg[0]);
         if (removedValue == null) {
@@ -206,12 +206,12 @@ public class DbMain {
             return;
         }
         if (command.length != 2) {
-            throw new IllegalArgumentException("get: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (get: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+");
         if (arg.length != 1) {
-            throw new IllegalArgumentException("get: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (get: Wrong number of arguments)");
         }
         Storeable value = currentTable.get(arg[0]);
         if (value == null) {
@@ -243,7 +243,7 @@ public class DbMain {
                 System.out.println(currentTable.commit());
             }
         } else {
-            throw new IllegalArgumentException("Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
         }
     }
 
@@ -255,7 +255,7 @@ public class DbMain {
                 System.out.println(currentTable.rollback());
             }
         } else {
-            throw new IllegalArgumentException("Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
         }
     }
 
@@ -267,7 +267,7 @@ public class DbMain {
                 System.out.println("no table");
             }
         } else {
-            throw new IllegalArgumentException("Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
         }
     }
 

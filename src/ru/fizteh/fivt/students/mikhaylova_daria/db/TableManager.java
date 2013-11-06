@@ -137,7 +137,11 @@ public class TableManager implements TableProvider {
             table = bidDataBase.get(nameTable);
         } else {
             if (creatingTableFile.exists()) {
-                table = new TableData(creatingTableFile, this);
+                try {
+                    table = new TableData(creatingTableFile, this);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                }
                 if (!bidDataBase.containsKey(nameTable)) {
                     bidDataBase.put(nameTable, table);
                 }
