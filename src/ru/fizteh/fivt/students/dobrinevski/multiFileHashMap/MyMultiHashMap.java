@@ -100,7 +100,9 @@ public class MyMultiHashMap {
                             throw new Exception("Bad table");
                         }
                         if (!workFile.exists()) {
-                            workFile.mkdir();
+                            if (!workFile.mkdir()) {
+                                throw new Exception("Directory wasn't created");
+                            }
                         }
                         File workFile2 = new File(way + File.separator + j.toString() + ".dat");
                         try (FileOutputStream fstream = new FileOutputStream(workFile2)) {
