@@ -221,6 +221,7 @@ public class FileMap {
             throw new DataFormatException(file.getName());
         } catch (Exception exp) {
             e = exp;
+            throw new DataFormatException(file.getName());
         } finally {
             if (dataBase != null) {
                 try {
