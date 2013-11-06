@@ -73,12 +73,12 @@ public class IOUtility {
             throw new IllegalStateException("Error: malformed database");
         }
         return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, StandardCharsets.UTF_8), 
-                new String(valueBuf, "UTF-8"));
+                new String(valueBuf, StandardCharsets.UTF_8));
     }
 
     public static void writeEntry(Map.Entry<String, String> e, FileOutputStream fstream) throws IOException {
-        byte[] keyBuf = e.getKey().getBytes("UTF-8");
-        byte[] valueBuf = e.getValue().getBytes("UTF-8");
+        byte[] keyBuf = e.getKey().getBytes(StandardCharsets.UTF_8);
+        byte[] valueBuf = e.getValue().getBytes(StandardCharsets.UTF_8);
         fstream.write(ByteBuffer.allocate(4).putInt(keyBuf.length).array());
         fstream.write(ByteBuffer.allocate(4).putInt(valueBuf.length).array());
         fstream.write(keyBuf);
