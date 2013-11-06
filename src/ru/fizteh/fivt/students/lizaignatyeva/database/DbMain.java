@@ -5,28 +5,49 @@ import ru.fizteh.fivt.students.lizaignatyeva.shell.Command;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandFactory;
 import ru.fizteh.fivt.students.lizaignatyeva.shell.CommandRunner;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 
 public class DbMain {
-    static Path path;
+    static Path directory;
     static CommandFactory factory;
 
-    private static Hashtable<String, Database> databases;
+    private static Hashtable<String, Table> tables;
     private static Hashtable<String, Command> commandsMap;
 
-    //static String currentDatabaseName;
-    static Database currentDatabase;
+    static Table currentTable = null;
 
-    public static Database getCurrentDatabase() throws Exception {
+    public static Table getCurrentTable() throws Exception {
         //return databases.get(currentDatabaseName); MULTI ONLY
-        return currentDatabase;
+        return currentTable;
     }
 
-    public  static void setCurrentDatabaseName(String name) {
-        //currentDatabaseName = name;
+    public static void resetCurrentTable() throws Exception {
+        currentTable = null;
+    }
+    public static Table getTable(String name) throws Exception {
+        return tables.get(name);
+    }
+
+    public static boolean tableExists(String name) throws Exception {
+        return tables.containsKey(name);
+    }
+
+    public static void setCurrentTable(String name) throws Exception {
+        currentTable = tables.get(name);
+    }
+
+    public static void removeTable(String name) throws  Exception {
+        tables.remove(name);
+    }
+
+    public static void addTable(Table table) throws Exception {
+
+        tables.put(table.name, table);
+       // System.out.println("HERE1");
     }
 
     public static String concatenateWithDelimiter(String[] strings, String delimiter) {
@@ -46,29 +67,60 @@ public class DbMain {
         commandsMap.put("get", new GetCommand());
         commandsMap.put("remove", new RemoveCommand());
         commandsMap.put("exit", new ExitCommand());
+        commandsMap.put("use", new UseCommand());
+        commandsMap.put("create", new CreateCommand());
+        commandsMap.put("drop", new DropCommand());
+    }
+
+    private static void scan() {
+        for (File subDir : directory.toFile().listFiles()) {
+            try {
+                Table currTable = new Table(subDir);
+                addTable(currTable);
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
+        }
+    }
+
+    public static void saveCurrentTable() {
+        if (currentTable == null) {
+            return;
+        }
+        try {
+            currentTable.writeToFile();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
         //TODO: remove that for MULTI
+        tables = new Hashtable<String, Table>();
         try {
             String dir = System.getProperty("fizteh.db.dir");
             if (dir == null) {
                 throw new Exception("directory not declared");
             }
-            path = Paths.get(dir);
-            if (!Files.isDirectory(path)) {
-                throw new Exception(path + " doesn't exist or is not a directory");
+            directory = Paths.get(dir);
+            if (!Files.isDirectory(directory)) {
+                throw new Exception(directory + " doesn't exist or is not a directory");
             }
         } catch (Exception e) {
             System.err.println("Error opening database" + (e.getMessage() == null ? "" : (": " + e.getMessage())));
             System.exit(1);
         }
-
+/*
         path = path.resolve("db.dat");
 
-        currentDatabase = new Database(path.toString()); // SIMPLE ONLY
+        currentTable = new Database(path.toString()); // SIMPLE ONLY*/
         addCommands();
-        CommandRunner runner = new CommandRunner(path.toFile(), commandsMap);
+        scan();
+        CommandRunner runner = new CommandRunner(directory.toFile(), commandsMap);
         runner.run(args);
 
     }

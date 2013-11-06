@@ -14,19 +14,23 @@ public class PutCommand extends Command {
             throw new IllegalArgumentException("invalid usage");
         }
 
-        Database database = DbMain.getCurrentDatabase();
+        Table table = DbMain.getCurrentTable();
+        if (table == null) {
+            System.out.println("no table");
+            return;
+        }
         //System.err.println("HERE");
         String key = args[0];
         String value = args[1];
 
-        if (database.data.containsKey(key)) {
+        if (table.data.containsKey(key)) {
             System.out.println("overwrite");
-            System.out.println(database.data.get(key));
-            database.data.remove(key);
-            database.data.put(key, value);
+            System.out.println(table.data.get(key));
+            table.data.remove(key);
+            table.data.put(key, value);
         } else {
             System.out.println("new");
-            database.data.put(key, value);
+            table.data.put(key, value);
         }
 
     }
