@@ -240,6 +240,9 @@ public class DatabaseTableProvider implements TableProvider {
             curTable = new DatabaseTable(curTableName, zeroList, this);
             loadingTable = new DatabaseTable(curTableName, zeroList, this);
             File preSignature = new File(curDir, curTableName);
+            if (preSignature.length() == 0) {
+                throw new IllegalArgumentException("Invalid database");
+            }
             File signatureFile = new File(preSignature, "signature.tsv");
             String signature = null;
             if (!signatureFile.exists() || signatureFile.length() == 0) {
@@ -249,7 +252,7 @@ public class DatabaseTableProvider implements TableProvider {
                 signature = reader.readLine();
             } catch (IOException e) {
                 System.err.println("error loading signature file");
-                continue;
+                throw new IllegalArgumentException("Invalid database");
             }
             List<Class<?>> columnTypes = new ArrayList<Class<?>>();
             for (final String columnType : signature.split("\\s")) {
