@@ -29,7 +29,8 @@ public class CheckOnCorrect {
         if (arg.trim().isEmpty()) {
             return false;
         }
-        return true;
+
+        return (!arg.contains(" "));
     }
 
     public static boolean goodColumnTypes(List<Class<?>> givenTypes) {
