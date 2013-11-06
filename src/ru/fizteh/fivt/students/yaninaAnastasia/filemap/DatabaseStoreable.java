@@ -23,7 +23,7 @@ public class DatabaseStoreable implements Storeable {
             throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
         }
         if (value != null) {
-            isColumnTypeValid(columnNum, value.getClass());
+            isColumnTypeValid(columnNum, value);
             try {
                 if (value == null) {
                     return;

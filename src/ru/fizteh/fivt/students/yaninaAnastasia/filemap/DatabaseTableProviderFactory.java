@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class DatabaseTableProviderFactory implements TableProviderFactory {
     public DatabaseTableProvider create(String directory) throws IOException {
-        if (directory == null) {
+        if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("Error while getting property");
         }
         File databaseDirectory = new File(directory);
