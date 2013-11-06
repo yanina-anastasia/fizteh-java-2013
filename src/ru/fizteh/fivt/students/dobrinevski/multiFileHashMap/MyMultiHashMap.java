@@ -84,9 +84,11 @@ public class MyMultiHashMap {
                     dir.delete();
                     if (dataBase.get(i * 16 + j).isEmpty()) {
                         dir = new File(curTable.getCanonicalPath() + File.separator + i.toString() + ".dir");
-                        String[] child = dir.list();
-                        if (child.length == 0) {
-                            dir.delete();
+                        if (dir.exists()) {
+                            String[] child = dir.list();
+                            if (child.length == 0) {
+                                dir.delete();
+                            }
                         }
                     } else {
                         String way = curTable.getCanonicalPath()
