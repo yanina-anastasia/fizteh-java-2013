@@ -219,11 +219,10 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable createFor(Table table) {
-        if (table == null)
-        {
+        if (table == null) {
             return null;
         }
-        List<Class<?>> columns = null;
+        List<Class<?>> columns = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columns.add(table.getColumnType(i));
         }
@@ -238,8 +237,7 @@ public class DatabaseTableProvider implements TableProvider {
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
         }
-        if (table == null)
-        {
+        if (table == null) {
             return null;
         }
         List<Class<?>> columns = new ArrayList<Class<?>>();
