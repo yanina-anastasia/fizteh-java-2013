@@ -63,26 +63,10 @@ public class CheckOnCorrect {
             return false;
         }
         for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
-            try {
-                if (givenStoreable.getColumnAt(i) != null) {
-                    if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
-                        return false;
-                    }
-                } else {
-                    try {
-                        givenStoreable.setColumnAt(i, givenTable.getColumnType(i).newInstance());
-                    } catch (InstantiationException exc) {
-                        System.err.println("good storeable row: bad type in table");
-                    } catch (IllegalAccessException exc) {
-                        System.err.println("good storeable row: one of table type's constructor is not accessible");
-                    } catch (ColumnFormatException exc) {
-                        return false;
-                    } finally {
-                        givenStoreable.setColumnAt(i, null);
-                    }
+            if (givenStoreable.getColumnAt(i) != null) {
+                if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
+                    return false;
                 }
-            } catch (IndexOutOfBoundsException exc) {
-                return false;
             }
         }
         return true;

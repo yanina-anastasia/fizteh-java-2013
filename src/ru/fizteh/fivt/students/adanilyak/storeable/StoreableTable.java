@@ -76,8 +76,8 @@ public class StoreableTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (!CheckOnCorrect.goodArg(key) || !CheckOnCorrect.goodStoreableRow(this, value)) {
-            throw new IllegalArgumentException("put: key or value is bad");
+        if (!CheckOnCorrect.goodArg(key)) {
+            throw new IllegalArgumentException("put: key is bad");
         }
         if (!CheckOnCorrect.goodStoreableRow(this, value)) {
             throw new ColumnFormatException("put: value not suitable for this table");
