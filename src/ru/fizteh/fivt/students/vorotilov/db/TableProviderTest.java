@@ -33,8 +33,9 @@ public class TableProviderTest {
 
     @Test
     public void testGetTable() {
-        tableProvider.createTable("newTable");
+        VorotilovTable table = tableProvider.createTable("newTable");
         Assert.assertNotNull(tableProvider.getTable("newTable"));
+        Assert.assertEquals(table, tableProvider.getTable("newTable"));
         tableProvider.removeTable("newTable");
     }
 
