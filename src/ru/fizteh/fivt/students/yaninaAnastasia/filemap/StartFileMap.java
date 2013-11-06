@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Shell;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class StartFileMap {
@@ -19,6 +20,9 @@ public class StartFileMap {
             curState.database = factory.create(path);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (IOException exp) {
+            System.err.println(exp.getMessage());
             System.exit(1);
         }
         ArrayList<Command> cmdList = new ArrayList<Command>();
