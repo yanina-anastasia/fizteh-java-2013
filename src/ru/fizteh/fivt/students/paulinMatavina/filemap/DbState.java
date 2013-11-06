@@ -13,7 +13,7 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class DbState extends State{
     public HashMap<String, String> data;
-    public HashMap<String, String> unsaved;
+    //public HashMap<String, String> initial;
     public RandomAccessFile dbFile;
     public String path;
     private int foldNum;
@@ -25,7 +25,6 @@ public class DbState extends State{
         path = dbPath;
         commands = new HashMap<String, Command>();
         data = new HashMap<String, String>();
-        unsaved = new HashMap<String, String>();
         try {
             loadData();
         } catch (IOException e) {
@@ -162,20 +161,24 @@ public class DbState extends State{
         fileCheck();
         int offset = 0;
         long pos = 0;
-        for (String s : data.keySet()) {
-            offset += s.getBytes("UTF-8").length + 5;
+        for (Map.Entry<String, String> s : data.entrySet()) {
+            if (s.getValue() != null) {
+                offset += s.getKey().getBytes("UTF-8").length + 5;
+            } 
         }
         
         for (Map.Entry<String, String> s : data.entrySet()) {
-            dbFile.seek(pos);
-            dbFile.write(s.getKey().getBytes("UTF-8"));
-            dbFile.write("\0".getBytes("UTF-8"));
-            dbFile.writeInt(offset);
-            pos = (int) dbFile.getFilePointer();
-            dbFile.seek(offset);
-            byte[] value = s.getValue().getBytes("UTF-8");
-            dbFile.write(value);
-            offset += value.length;
+            if (s.getValue() != null) {
+                dbFile.seek(pos);
+                dbFile.write(s.getKey().getBytes("UTF-8"));
+                dbFile.write("\0".getBytes("UTF-8"));
+                dbFile.writeInt(offset);
+                pos = (int) dbFile.getFilePointer();
+                dbFile.seek(offset);
+                byte[] value = s.getValue().getBytes("UTF-8");
+                dbFile.write(value);
+                offset += value.length;
+            }
         }
         dbFile.close();
     }
@@ -205,12 +208,8 @@ public class DbState extends State{
     
     public String remove(String[] args) {
         String key = args[0];
-        if (data.containsKey(key)) {
-            String value = data.get(key);
-            data.remove(key);
-            return value;
-        } else {
-            return null;
-        }
+        String value = data.get(key);
+        data.put(key, null);
+        return value;
     }
 }
