@@ -80,6 +80,9 @@ public class TableManager implements TableProvider {
                         if (files[g].isDirectory() || !fileNames.containsKey(files[g].getName())) {
                             throw new IllegalStateException(files[g].toString() + " is not a file of Date Base table");
                         }
+                        if (files[g].length() == 0) {
+                            throw new IllegalArgumentException("Empty file " + files[g].toString());
+                        }
                         idFile[1] = fileNames.get(files[g].getName());
                         FileMap currentFileMap = new FileMap(files[g].getCanonicalFile(), idFile);
                         try {
