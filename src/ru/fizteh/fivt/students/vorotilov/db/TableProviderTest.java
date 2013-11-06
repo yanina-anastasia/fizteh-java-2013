@@ -56,12 +56,12 @@ public class TableProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateTableWithEmptyName() {
-        tableProvider.createTable("");
+        tableProvider.createTable(" ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRemoveTableWithEmptyName() {
-        tableProvider.removeTable("");
+        tableProvider.removeTable("  ");
     }
 
     @Test(expected = IllegalArgumentException.class)

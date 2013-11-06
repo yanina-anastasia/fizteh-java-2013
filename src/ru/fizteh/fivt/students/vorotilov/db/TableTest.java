@@ -43,12 +43,12 @@ public class TableTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutEmptyKey() {
-        currentTable.put("", "value");
+        currentTable.put("  ", "value");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutEmptyValue() {
-        currentTable.put("key", "");
+        currentTable.put("key", "  ");
     }
 
     @Test
@@ -124,6 +124,16 @@ public class TableTest {
         testTable.put("key2", "value2");
         testTable.remove("key1");
         Assert.assertEquals(3, testTable.rollback());
+    }
+
+    @Test
+    public void testCommitRollback() {
+        VorotilovTable testTable = tableProvider.createTable("newTable");
+        testTable.put("1", "1");
+        testTable.commit();
+        int size = testTable.size();
+        testTable.rollback();
+        Assert.assertEquals(size, testTable.size());
     }
 
 }

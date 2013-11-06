@@ -101,7 +101,7 @@ public class VorotilovTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
-        if (key.equals("") || value.equals("")) {
+        if (key.trim().equals("") || value.trim().equals("")) {
             throw new IllegalArgumentException("Key or Value is empty");
         }
         String oldValue = tableIndexedData.get(key);
@@ -119,7 +119,7 @@ public class VorotilovTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
-        if (key.equals("")) {
+        if (key.trim().equals("")) {
             throw new IllegalArgumentException("Key is empty");
         }
         String oldValue = tableIndexedData.remove(key);
@@ -224,4 +224,5 @@ public class VorotilovTable implements Table {
             }
         }
     }
+
 }
