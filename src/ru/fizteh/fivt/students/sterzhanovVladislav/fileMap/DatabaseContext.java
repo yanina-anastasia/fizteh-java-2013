@@ -1,71 +1,89 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 
 public class DatabaseContext implements Closeable {
-    private HashMap<String, String> dataBase = null;
-    private Path dbRoot;
-    private Path activeDir;
+    private FileMapProvider provider = null;
+    private FileMap activeMap = null;
 
     public String remove(String key) throws Exception {
-        if (dataBase == null) {
-            throw new Exception("no table");
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
         }
-        String removed = dataBase.remove(key);
-        return removed;
+        return activeMap.remove(key);
     }
 
     public String get(String key) throws Exception {
-        if (dataBase == null) {
-            throw new Exception("no table");
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
         }
-        return dataBase.get(key);
+        return activeMap.get(key);
     }
 
     public String put(String key, String value) throws Exception {
-        if (dataBase == null) {
-            throw new Exception("no table");
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
         }
-        String previousValue = dataBase.put(key, value);
-        return previousValue;
+        return activeMap.put(key, value);
     }
     
-    public void loadTable(String dbName) throws Exception {
-        Path dbPath = Paths.get(dbRoot.normalize() + "/" + dbName);
-        File dbDir = dbPath.toFile();
-        if (!dbDir.exists() || !dbDir.isDirectory()) {
-            throw new Exception(dbName + " not exists");
+    public int commit() {
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
+        }
+        return activeMap.commit();
+    }
+    
+    public int rollback() {
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
+        }
+        return activeMap.rollback();
+    }
+    
+    public int getActiveSize() {
+        if (activeMap == null) {
+            throw new IllegalStateException("no table");
+        }
+        return activeMap.size();
+    }
+    
+    public void loadTable(String dbName) throws IllegalStateException, IOException {
+        if (activeMap != null && activeMap.isDirty()) {
+            throw new IllegalStateException(activeMap.getDiffSize() + " unsaved changes");
+        }
+        FileMap newMap = provider.getTable(dbName);
+        if (newMap == null) {
+            throw new IllegalStateException(dbName + " not exists");
         }
         closeActiveTable();
-        dataBase = IOUtility.parseDatabase(dbPath);
-        activeDir = dbPath;
+        activeMap = newMap;
+    }
+    
+    public void createTable(String dbName) throws IllegalStateException {
+        FileMap newMap = provider.createTable(dbName);
+        if (newMap == null) {
+            throw new IllegalStateException(dbName + " exists");
+        }
+    }
+    
+    public void removeTable(String dbName) throws IllegalStateException {
+        provider.removeTable(dbName);
+        if (!(activeMap == null) && dbName.equals(activeMap.getName())) {
+            activeMap = null;
+        }
     }
     
     public void closeActiveTable() throws IOException {
-        if (dataBase != null) {
-            IOUtility.writeOut(dataBase, activeDir);
-            dataBase = null;
+        if (activeMap != null) {
+            activeMap.writeOut(provider.getRootDir());
+            activeMap = null;
         }
     }
     
-    public Path getActiveDir() {
-        return activeDir;
-    }
-
-    public Path getRootDir() {
-        return dbRoot;
-    }
-    
-    public DatabaseContext(Path path) throws Exception {
-        dbRoot = path;
-        if (dbRoot == null || !dbRoot.toFile().isDirectory()) {
-            throw new Exception("fizteh.db.dir did not resolve to a valid directory");
-        }
+    public DatabaseContext(String path) throws IllegalStateException {
+        provider = new FileMapProvider(path);
     } 
     
     public void close() throws IOException {
