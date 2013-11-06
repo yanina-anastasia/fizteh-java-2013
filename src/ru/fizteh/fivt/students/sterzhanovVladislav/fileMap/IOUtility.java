@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -71,7 +72,8 @@ public class IOUtility {
         if (directoryID != checkDirID || fileID != checkFileID) {
             throw new IllegalStateException("Error: malformed database");
         }
-        return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, "UTF-8"), new String(valueBuf, "UTF-8"));
+        return new AbstractMap.SimpleEntry<String, String>(new String(keyBuf, StandardCharsets.UTF_8), 
+                new String(valueBuf, "UTF-8"));
     }
 
     public static void writeEntry(Map.Entry<String, String> e, FileOutputStream fstream) throws IOException {

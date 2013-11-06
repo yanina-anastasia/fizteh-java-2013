@@ -75,7 +75,7 @@ public class FileMapProvider implements TableProvider {
     }
     
     public String getRootDir() {
-        return new String(rootDir.toString());
+        return rootDir.toString();
     }
 
     public FileMapProvider(String root) throws IllegalArgumentException {

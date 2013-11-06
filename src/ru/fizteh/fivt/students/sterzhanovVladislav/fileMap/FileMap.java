@@ -117,7 +117,7 @@ public class FileMap implements Table {
     }
     
     public void setName(String name) {
-        this.name = new String(name);
+        this.name = name;
     }
     
     public FileMap(String dbName) {
@@ -175,7 +175,9 @@ public class FileMap implements Table {
         } catch (IOException e) {
             // Ignore
         }
-        path.toFile().mkdir();
+        if (!path.toFile().mkdir()) {
+            throw new IOException("Unable to create directory");
+        }
         for (Map.Entry<String, String> entry : db.entrySet()) {
             int b = entry.getKey().getBytes()[0];
             if (b < 0) {
