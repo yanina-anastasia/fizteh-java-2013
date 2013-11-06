@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.zip.DataFormatException;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
@@ -181,19 +182,27 @@ public class MultiDbState extends State implements Table {
     }
     
     public int size() {
-        return dbSize;
+        int result = 0;
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                result += data[i][j].size();
+            }
+        }
+        return result;
+    }
+    
+    private void assignInit() {
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                data[i][j].initial = new HashMap<String, String>(data[i][j].data);
+            }
+        }
     }
     
     public int rollback() {
         int chNum = changesNum();
         dbSize = primaryDbSize;
-        try {
-            loadData();
-        } catch (DataFormatException e) {
-            System.err.println("database: wrong format");
-        } catch (IOException e) {
-            System.err.println("database: wrong format");
-        }   
+        assignInit();
         return chNum;
     }
     
