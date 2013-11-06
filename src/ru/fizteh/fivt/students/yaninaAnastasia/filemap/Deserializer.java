@@ -14,8 +14,8 @@ public class Deserializer {
     String xmlRepresentation;
     XMLStreamReader reader;
 
-    public Deserializer(String xmlRepresentation) throws ParseException {
-        this.xmlRepresentation = xmlRepresentation;
+    public Deserializer(String str) throws ParseException {
+        this.xmlRepresentation = str;
         try {
             reader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(xmlRepresentation));
 
@@ -25,15 +25,15 @@ public class Deserializer {
 
             int nodeType = reader.next();
             if (nodeType != XMLStreamConstants.START_ELEMENT) {
-                throw new ParseException("incorrect xml format", 0);
+                throw new ParseException("Incorrect XML format", 0);
             }
 
             if (!reader.getName().getLocalPart().equals("row")) {
-                throw new ParseException("incorrect xml format", 0);
+                throw new ParseException("Incorrect XML format", 0);
             }
 
         } catch (XMLStreamException e) {
-            throw new ParseException("error with deserializing", 0);
+            throw new ParseException("Error with deserializing", 0);
         }
     }
 
@@ -42,27 +42,27 @@ public class Deserializer {
         try {
             int nodeType = reader.next();
             if (nodeType != XMLStreamConstants.START_ELEMENT || !reader.getName().getLocalPart().equals("col")) {
-                throw new ParseException("incorrect xml format", 0);
+                throw new ParseException("Incorrect XML format", 0);
             }
             nodeType = reader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
-                value = parseValue(reader.getText(), expectedType);
+                value = parseObject(reader.getText(), expectedType);
             } else {
                 if (!reader.getName().getLocalPart().equals("null")) {
-                    throw new ParseException("incorrect xml format", 0);
+                    throw new ParseException("Incorrect XML format", 0);
                 }
                 value = null;
                 nodeType = reader.next();
                 if (nodeType != XMLStreamConstants.END_ELEMENT) {
-                    throw new ParseException("incorrect xml format", 0);
+                    throw new ParseException("Incorrect XML format", 0);
                 }
             }
             nodeType = reader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT) {
-                throw new ParseException("incorrect xml format", 0);
+                throw new ParseException("Incorrect XML format", 0);
             }
         } catch (XMLStreamException e) {
-            throw new ParseException("incorrect xml format", 0);
+            throw new ParseException("Incorrect XML format", 0);
         }
         return value;
     }
@@ -71,14 +71,14 @@ public class Deserializer {
         try {
             int nodeType = reader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT && nodeType != XMLStreamConstants.END_DOCUMENT) {
-                throw new ParseException("incorrect xml format", 0);
+                throw new ParseException("Incorrect XML format", 0);
             }
         } catch (XMLStreamException e) {
-            throw new IOException("error with deserializing");
+            throw new IOException("Error with deserializing");
         }
     }
 
-    public static Object parseValue(String arg, Class<?> expectedType) throws ColumnFormatException {
+    public static Object parseObject(String arg, Class<?> expectedType) throws ColumnFormatException {
         Object value = null;
         try {
             switch (expectedType.getName()) {

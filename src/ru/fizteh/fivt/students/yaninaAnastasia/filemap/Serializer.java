@@ -32,12 +32,11 @@ public class Serializer implements Closeable {
                 if (value == null) {
                     return;
                 }
-
                 switch (typeGetter(value.getClass())) {
                     case "String":
-                        String stringValue = (String) value;
-                        if (stringValue.trim().isEmpty()) {
-                            throw new ParseException("value cannot be null", 0);
+                        String str = (String) value;
+                        if (str.trim().isEmpty()) {
+                            throw new ParseException("Incorrect value: it can not be null", 0);
                         }
                         break;
                 }
@@ -45,7 +44,7 @@ public class Serializer implements Closeable {
             }
             streamWriter.writeEndElement();
         } catch (XMLStreamException e) {
-            throw new IOException("error while serializing: " + e.getMessage());
+            throw new IOException("Error with serializing: " + e.getMessage());
         }
     }
 
@@ -54,7 +53,7 @@ public class Serializer implements Closeable {
             streamWriter.writeEndElement();
             streamWriter.flush();
         } catch (XMLStreamException e) {
-            throw new IOException("error while serializing: " + e.getMessage());
+            throw new IOException("Error with serializing: " + e.getMessage());
         }
     }
 
