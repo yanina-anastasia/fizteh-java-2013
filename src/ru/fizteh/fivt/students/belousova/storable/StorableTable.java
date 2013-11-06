@@ -45,7 +45,11 @@ public class StorableTable extends AbstractTable<String, GetColumnTypeStorable> 
             throw new IllegalArgumentException("key with whitespaces");
         }
 
-        return super.put(key, (GetColumnTypeStorable)value);
+        try {
+            return super.put(key, (GetColumnTypeStorable)value);
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("alien storable");
+        }
     }
 
     @Override
