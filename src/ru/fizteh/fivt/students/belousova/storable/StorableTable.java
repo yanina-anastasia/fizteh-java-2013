@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StorableTable extends AbstractTable<String, Storeable> implements ChangesCountingTable {
+public class StorableTable extends AbstractTable<String, GetColumnTypeStorable> implements ChangesCountingTable {
     private List<Class<?>> columnTypes = new ArrayList<>();
-    TableProvider tableProvider = null;
+    StorableTableProvider tableProvider = null;
 
-    public StorableTable(File directory, TableProvider tableProvider) throws IOException {
+    public StorableTable(File directory, StorableTableProvider tableProvider) throws IOException {
         dataDirectory = directory;
         this.tableProvider = tableProvider;
         File signatureFile = new File(directory, "signature.tsv");
@@ -23,7 +23,7 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
     }
 
     @Override
-    public Storeable put(String key, Storeable value) {
+    public GetColumnTypeStorable put(String key, Storeable value) {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
@@ -37,7 +37,7 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
             throw new IllegalArgumentException("empty value");
         }
 
-        if (!StorableUtils.isStorableValid(value, columnTypes)) {
+        if (!StorableUtils.isStorableValid((StorableTableLine)value, columnTypes)) {
             throw new IllegalArgumentException("alien storeable");
         }
 
@@ -45,11 +45,11 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
             throw new IllegalArgumentException("key with whitespaces");
         }
 
-        return super.put(key, value);
+        return super.put(key, (GetColumnTypeStorable)value);
     }
 
     @Override
-    public Storeable remove(String key) {
+    public GetColumnTypeStorable remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }
@@ -63,7 +63,7 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
     }
 
     @Override
-    public Storeable get(String key) {
+    public GetColumnTypeStorable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("null key");
         }

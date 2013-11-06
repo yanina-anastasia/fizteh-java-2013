@@ -70,7 +70,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
     }
 
     @Override
-    public Storeable deserialize(Table table, String value) throws ParseException {
+    public StorableTableLine deserialize(Table table, String value) throws ParseException {
         try {
             List<Class<?>> columnTypes = new ArrayList<>();
             for (int i = 0; i < table.getColumnsCount(); i++) {
@@ -92,7 +92,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
     }
 
     @Override
-    public Storeable createFor(Table table) {
+    public StorableTableLine createFor(Table table) {
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
@@ -101,7 +101,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+    public StorableTableLine createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (values.size() > table.getColumnsCount()) {
             throw new IndexOutOfBoundsException("too many values");
         }
@@ -109,7 +109,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
         }
-        Storeable storeable = new StorableTableLine(columnTypes);
+        StorableTableLine storeable = new StorableTableLine(columnTypes);
         int columnIndex = 0;
         for (Object value : values) {
             storeable.setColumnAt(columnIndex, value);

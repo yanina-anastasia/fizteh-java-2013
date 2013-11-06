@@ -6,7 +6,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StorableTableLine implements Storeable {
+public class StorableTableLine implements GetColumnTypeStorable {
     private List<Object> columns = new ArrayList<>();
     private List<Class<?>> columnTypes = new ArrayList<>();
 
@@ -156,5 +156,10 @@ public class StorableTableLine implements Storeable {
             }
         }
         return true;
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return columnTypes.get(columnIndex);
     }
 }

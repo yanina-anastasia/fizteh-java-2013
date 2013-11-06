@@ -4,7 +4,9 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.belousova.storable.GetColumnTypeStorable;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableLine;
+import ru.fizteh.fivt.students.belousova.storable.StorableTableProvider;
 
 import javax.xml.stream.*;
 import java.io.*;
@@ -82,14 +84,14 @@ public class StorableUtils {
         return bos.toString(StandardCharsets.UTF_8.toString());
     }
 
-    public static void readTable(File file, Table table, Map<String, Storeable> dataBase,
-                                 TableProvider tableProvider) throws IOException {
+    public static void readTable(File file, Table table, Map<String, GetColumnTypeStorable> dataBase,
+                                 StorableTableProvider tableProvider) throws IOException {
         Map<String, String> stringMap = new HashMap<>();
         MultiFileUtils.read(file, stringMap);
 
         for (String key : stringMap.keySet()) {
             try {
-                Storeable value = tableProvider.deserialize(table, stringMap.get(key));
+                StorableTableLine value = tableProvider.deserialize(table, stringMap.get(key));
                 dataBase.put(key, value);
             } catch (ParseException e) {
                 throw new IOException("read error", e);
@@ -138,9 +140,9 @@ public class StorableUtils {
         }
     }
 
-    public static Storeable readStorableValue(String s, List<Class<?>> columnTypes) throws ParseException {
+    public static StorableTableLine readStorableValue(String s, List<Class<?>> columnTypes) throws ParseException {
         XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-        Storeable line = new StorableTableLine(columnTypes);
+        StorableTableLine line = new StorableTableLine(columnTypes);
         try {
             XMLStreamReader reader = inputFactory.createXMLStreamReader(new StringReader(s));
             try {
@@ -204,7 +206,7 @@ public class StorableUtils {
         }
     }
 
-    public static String writeStorableToString(Storeable storeable, List<Class<?>> columnTypes) {
+    public static String writeStorableToString(StorableTableLine storeable, List<Class<?>> columnTypes) {
         XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
         StringWriter stringWriter = new StringWriter();
         try {
@@ -253,7 +255,7 @@ public class StorableUtils {
         }
     }
 
-    public static void writeTable(File file, Table table, Map<String, Storeable> storeableMap,
+    public static void writeTable(File file, Table table, Map<String, GetColumnTypeStorable> storeableMap,
                                   TableProvider tableProvider) throws IOException {
         Map<String, String> stringMap = new HashMap<>();
         for (String key : storeableMap.keySet()) {
@@ -262,14 +264,11 @@ public class StorableUtils {
         MultiFileUtils.write(file, stringMap);
     }
 
-    public static boolean isStorableValid(Storeable value, List<Class<?>> columnTypes) {
+    public static boolean isStorableValid(GetColumnTypeStorable value, List<Class<?>> columnTypes) {
         int columnIndex = 0;
         try {
             for (Class<?> columnType : columnTypes) {
-                if (value.getColumnAt(columnIndex) == null) {
-                    continue;
-                }
-                if (!columnType.equals(value.getColumnAt(columnIndex).getClass())) {
+                if (!columnType.equals(value.getColumnType(columnIndex))) {
                     return false;
                 }
                 columnIndex++;
