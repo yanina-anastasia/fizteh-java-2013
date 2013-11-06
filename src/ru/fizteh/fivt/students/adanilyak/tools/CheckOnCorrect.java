@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * User: Alexander
@@ -26,7 +27,7 @@ public class CheckOnCorrect {
         if (arg == null) {
             return false;
         }
-        if (arg.contains(" ")) {
+        if (arg.equals(Pattern.compile(".*\\s.*"))) {
             return false;
         }
         if (arg.trim().isEmpty()) {
