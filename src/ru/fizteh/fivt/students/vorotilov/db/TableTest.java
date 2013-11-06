@@ -123,7 +123,7 @@ public class TableTest {
         testTable.put("key1", "newValue");
         testTable.put("key2", "value2");
         testTable.remove("key1");
-        Assert.assertEquals(1, testTable.rollback());
+        Assert.assertEquals(2, testTable.rollback());
     }
 
     @Test

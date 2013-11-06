@@ -126,7 +126,7 @@ public class VorotilovTable implements Table {
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            changedKeys.remove(key);
+            changedKeys.add(key);
         }
         return oldValue;
     }
