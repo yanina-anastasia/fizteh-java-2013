@@ -22,9 +22,8 @@ public class MultiFileHashMapCommands {
 
             File dbFile = new File(parent.curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                     + File.separator + nFile.toString() + ".dat");
-            if (dbFile.exists() && dbFile.isFile()) {
-                parent.parseFile(dbFile, nDirectory, nFile);
-            }
+            parent.parseFile(dbFile, nDirectory, nFile);
+
             String value = parent.dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
             System.out.println(value == null ? "new" : "overwrite\n" + value);
 
@@ -48,9 +47,8 @@ public class MultiFileHashMapCommands {
 
             File dbFile = new File(parent.curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                     + File.separator + nFile.toString() + ".dat");
-            if (dbFile.exists() && dbFile.isFile()) {
-                parent.parseFile(dbFile, nDirectory, nFile);
-            }
+            parent.parseFile(dbFile, nDirectory, nFile);
+
             String value = parent.dataBase.get(nDirectory * 16 + nFile).get(args[1]);
             if (value == null) {
                 System.out.println("not found");
@@ -155,9 +153,8 @@ public class MultiFileHashMapCommands {
 
             File dbFile = new File(parent.curTable.getCanonicalPath() + File.separator + nDirectory.toString() + ".dir"
                     + File.separator + nFile.toString() + ".dat");
-            if (dbFile.exists() && dbFile.isFile()) {
-                parent.parseFile(dbFile, nDirectory, nFile);
-            }
+            parent.parseFile(dbFile, nDirectory, nFile);
+
             if (parent.dataBase.get(nDirectory * 16 + nFile).remove(args[1]) == null) {
                 System.out.println("not found");
             } else {

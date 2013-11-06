@@ -26,19 +26,21 @@ public class MyMultiHashMap {
 
     public void parseFile(File dbFile, int firstControlValue, int secondControlValue) throws Exception {
         if (!check[firstControlValue * 16 + secondControlValue]) {
-            FileInputStream fstream = new FileInputStream(dbFile);
-            while (fstream.available() > 0) {
-                Map.Entry<String, String> newEntry = parseEntry(fstream);
-                Integer hashCode = newEntry.getKey().hashCode();
-                hashCode = Math.abs(hashCode);
-                Integer nDirectory = hashCode % 16;
-                Integer nFile = hashCode / 16 % 16;
-                if (firstControlValue != nDirectory || secondControlValue != nFile) {
-                    throw new Exception("Error: bad file");
+            if (dbFile.exists() && dbFile.isFile()) {
+                FileInputStream fstream = new FileInputStream(dbFile);
+                while (fstream.available() > 0) {
+                    Map.Entry<String, String> newEntry = parseEntry(fstream);
+                    Integer hashCode = newEntry.getKey().hashCode();
+                    hashCode = Math.abs(hashCode);
+                    Integer nDirectory = hashCode % 16;
+                    Integer nFile = hashCode / 16 % 16;
+                    if (firstControlValue != nDirectory || secondControlValue != nFile) {
+                        throw new Exception("Error: bad file");
+                    }
+                    dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
                 }
-                dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
+                fstream.close();
             }
-            fstream.close();
             check[firstControlValue * 16 + secondControlValue] = true;
         }
     }
