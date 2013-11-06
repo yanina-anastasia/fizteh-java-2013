@@ -2,19 +2,27 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap.test;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProvider;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProviderFactory;
 
-public class MultiFileHashMapTableProviderTest {
+import java.io.File;
 
-    private MultiFileHashMapTableProvider tableProvider;
+public class MultiFileHashMapTableProviderTest {
+    private static File database;
+    private static MultiFileHashMapTableProvider tableProvider;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        database = new File("javatest").getCanonicalFile();
+        database.mkdir();
+        MultiFileHashMapTableProviderFactory factory = new MultiFileHashMapTableProviderFactory();
+        tableProvider = factory.create(database.toString());
+    }
 
     @Before
     public void setUp() throws Exception {
-
-        MultiFileHashMapTableProviderFactory tableProviderFactory = new MultiFileHashMapTableProviderFactory();
-        tableProvider = tableProviderFactory.create("javatest");
         tableProvider.createTable("existingTable");
     }
 
@@ -39,7 +47,7 @@ public class MultiFileHashMapTableProviderTest {
     @Test
     public void testGetTableExisted() throws Exception {
 
-        Assert.assertEquals(tableProvider.getTable("existingTable").getName(), "existingTable");
+        Assert.assertEquals("existingTable", tableProvider.getTable("existingTable").getName());
     }
 
     @Test
