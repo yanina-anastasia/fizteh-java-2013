@@ -6,18 +6,25 @@ import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapUtils;
 import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.*;
 
 public class DatabaseTableProvider implements TableProvider {
-    HashMap<String, MultiFileTable> tables = new HashMap<String, MultiFileTable>();
+    private static final String CORRECT_SYMBOLS = "[^0-9a-zA-Zа-яА-Я]";
+    private static final Pattern PATTERN = Pattern.compile(CORRECT_SYMBOLS);
 
+    HashMap<String, MultiFileTable> tables = new HashMap<String, MultiFileTable>();
     private String dataBaseDirectoryPath;
     private MultiFileTable currentTable = null;
 
-    public DatabaseTableProvider(String dataBaseDirectoryPath) throws IllegalStateException {
+    public DatabaseTableProvider(String dataBaseDirectoryPath) {
+        if (dataBaseDirectoryPath == null || dataBaseDirectoryPath.isEmpty()) {
+            throw new IllegalArgumentException("directory can't be null or empty");
+        }
+
         this.dataBaseDirectoryPath = dataBaseDirectoryPath;
 
         File dataBaseDirectory = new File(dataBaseDirectoryPath);
-        //System.out.println(dataBaseDirectory.getAbsolutePath());
+
         for (final File tableFile: dataBaseDirectory.listFiles()) {
             if (tableFile.isFile()) {
                 continue;
@@ -34,14 +41,16 @@ public class DatabaseTableProvider implements TableProvider {
         }
     }
 
-    public Table getTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
-            throw new IllegalArgumentException("table name can't be null");
+    public Table getTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("tablename can't be null or empty");
         }
+
+        checkNameValidity(name);
 
         MultiFileTable table = tables.get(name);
         if (table == null) {
-            throw new IllegalStateException(name + " not exists");
+            return table;
         }
 
         if (currentTable != null && currentTable.getUnsavedChangesNumber() > 0) {
@@ -53,15 +62,19 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
-    public Table createTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
-            throw new IllegalArgumentException("table name can't be null");
-        }
-        if (tables.containsKey(name)) {
-            throw new IllegalStateException(name + " exists");
+    public Table createTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("table name can't be null or empty");
         }
 
+        if (tables.containsKey(name)) {
+            return null;
+        }
+
+        checkNameValidity(name);
+
         MultiFileTable table;
+
         try {
             table = new MultiFileTable(dataBaseDirectoryPath, name);
         } catch (IOException exception) {
@@ -73,17 +86,28 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
-    public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (name == null) {
-            throw new IllegalArgumentException("table name can't be null");
+    public void removeTable(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("table name can't be null or empty");
         }
+
         if (!tables.containsKey(name)) {
             throw new IllegalStateException(name + " not exists");
         }
 
         tables.remove(name);
 
+        currentTable = null;
+
         File tableFile = new File(dataBaseDirectoryPath, name);
         MultiFileMapUtils.deleteFile(tableFile);
+    }
+
+    private void checkNameValidity(String name) {
+        Matcher matcher = PATTERN.matcher(name);
+
+        if (matcher.find()) {
+            throw new IllegalArgumentException("incorrect table name");
+        }
     }
 }

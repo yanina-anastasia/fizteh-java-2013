@@ -11,20 +11,27 @@ public class UseCommand extends AbstractCommand<MultiFileMapShellState> {
 
     public void execute(String[] args, MultiFileMapShellState shellState) {
         Table oldTable = shellState.table;
-
+        Table newTable = null;
         try {
-            shellState.table = shellState.tableProvider.getTable(args[1]);
-        } catch (IllegalArgumentException exception) {
-            System.err.println(exception.getMessage());
+            newTable = shellState.tableProvider.getTable(args[1]);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
             return;
-        } catch (IllegalStateException exception) {
-            System.err.println(exception.getMessage());
+        } catch (IllegalStateException e) {
+            System.err.println(e.getMessage());
             return;
         }
 
-        if (oldTable != null) {
-            oldTable.commit();
+        if (newTable == null) {
+            System.out.println(args[1] + " not exists");
+            return;
         }
+
+        if (shellState.table != null) {
+            shellState.table.commit();
+        }
+
+        shellState.table = newTable;
 
         System.out.println("using " + shellState.table.getName());
     }
