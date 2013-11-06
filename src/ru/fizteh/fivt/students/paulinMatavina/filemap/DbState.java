@@ -13,7 +13,7 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class DbState extends State {
     public HashMap<String, String> data;
-    private HashMap<String, String> initial;
+    public HashMap<String, String> initial;
     public RandomAccessFile dbFile;
     public String path;
     private int foldNum;
@@ -227,5 +227,15 @@ public class DbState extends State {
         String value = data.get(key);
         data.put(key, null);
         return value;
+    }
+    
+    public int size() {
+        int result = 0;
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            if (entry.getValue() != null) {
+                result++;
+            }
+        }
+        return result;
     }
 }
