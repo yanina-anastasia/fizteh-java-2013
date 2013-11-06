@@ -1,8 +1,9 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import java.io.IOException;
 import java.util.Scanner;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.valentinbarishev.shell.Shell;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandParser;
@@ -19,7 +20,7 @@ public class DbMain {
         }
     }
 
-    private static void initShell() {
+    private static void initShell() throws IOException {
 
         shell = new Shell();
 
@@ -80,7 +81,7 @@ public class DbMain {
     public static void main(final String[] args) {
         try {
             checkDbDir();
-            initShell();
+            //initShell();
 
             if (args.length > 0) {
                 packetRun(args);

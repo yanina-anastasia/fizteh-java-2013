@@ -18,7 +18,7 @@ public class ShellDropTable extends SimpleShellCommand {
                 context.table = null;
             }
 
-            context.provider.removeTable(getArg(1));
+            //context.provider.removeTable(getArg(1));
             System.out.println("dropped");
         } catch (IllegalStateException e) {
             System.out.println(getArg(1) + " not exists");

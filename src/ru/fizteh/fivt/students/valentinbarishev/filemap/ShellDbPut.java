@@ -20,13 +20,13 @@ public final class ShellDbPut  extends SimpleShellCommand {
             System.out.println("no table");
             return;
         }
-        String str = context.table.put(getArg(1), getSpacedArg(2));
-        if (str == null) {
-            System.out.println("new");
-        } else {
-            System.out.println("overwrite");
-            System.out.println(str);
-        }
+       // String str = context.table.put(getArg(1), getSpacedArg(2));
+       // if (str == null) {
+       //     System.out.println("new");
+       // } else {
+       //     System.out.println("overwrite");
+       //     System.out.println(str);
+      //  }
     }
 
     @Override

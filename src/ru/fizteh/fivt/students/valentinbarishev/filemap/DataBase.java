@@ -1,13 +1,20 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
-import ru.fizteh.fivt.storage.strings.Table;
+import java.io.IOException;
+import java.util.List;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public final class DataBase implements Table {
 
     private String name;
     private String dataBaseDirectory;
     private DataBaseFile[] files;
+    private TableProvider provider;
+    private List<Class<?>> types;
 
     public final class DirFile {
         private int nDir;
@@ -37,9 +44,18 @@ public final class DataBase implements Table {
         }
     }
 
-    public DataBase(final String dbDirectory) {
+    public DataBase(final String dbDirectory, final TableProvider newProvider, final List<Class<?>> newTypes) throws IOException {
         name = new File(dbDirectory).getName();
         dataBaseDirectory = dbDirectory;
+        provider = newProvider;
+
+        if (newTypes != null) {
+            types = newTypes;
+            MySignature.setSignature(dataBaseDirectory, types);
+        } else {
+            types = MySignature.getSignature(dataBaseDirectory);
+        }
+
         isCorrect();
         files = new DataBaseFile[256];
         loadFiles();
@@ -47,6 +63,9 @@ public final class DataBase implements Table {
 
     private void checkNames(final String[] dirs, final String secondName) {
         for (int i = 0; i < dirs.length; ++i) {
+            if (dirs[i].equals("signature.tsv")) {
+                continue;
+            }
             String[] name = dirs[i].split("\\.");
             if (name.length != 2 || !name[1].equals(secondName)) {
                 throw new MultiDataBaseException(dataBaseDirectory + " wrong file in path " + dirs[i]);
@@ -88,7 +107,9 @@ public final class DataBase implements Table {
         String[] dirs = file.list();
         checkNames(dirs, "dir");
         for (int i = 0; i < dirs.length; ++i) {
-            isCorrectDirectory(dataBaseDirectory + File.separator + dirs[i]);
+            if (!dirs[i].equals("signature.tsv")) {
+                isCorrectDirectory(dataBaseDirectory + File.separator + dirs[i]);
+            }
         }
     }
 
@@ -143,28 +164,30 @@ public final class DataBase implements Table {
     }
 
     @Override
-    public String put(final String keyStr, final String valueStr) {
+    public Storeable put(final String keyStr, final Storeable storeableValue) {
         checkKey(keyStr);
-        checkKey(valueStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
-        return file.put(keyStr, valueStr);
+        String value = WorkWithJSON.serialize(this, storeableValue);
+        String result = file.put(keyStr, value);
+        return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
-    public String get(final String keyStr) {
+    public Storeable get(final String keyStr) {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        DataBaseFile file = files[node.getId()];
-        return file.get(keyStr);
+        String result = files[node.getId()].get(keyStr);
+        return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
-    public String remove(final String keyStr) {
+    public Storeable remove(final String keyStr) {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
-        return file.remove(keyStr);
+        String result = file.remove(keyStr);
+        return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
@@ -196,11 +219,24 @@ public final class DataBase implements Table {
         return allCanceled;
     }
 
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
     public int getNewKeys() {
         int allNewSize = 0;
         for (int i = 0; i < 256; ++i) {
             allNewSize += files[i].getNewKeys();
         }
         return allNewSize;
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if ((columnIndex < 0) || (columnIndex >= types.size())) {
+            throw new IndexOutOfBoundsException("getColumnType: IOOBE");
+        }
+        return types.get(columnIndex);
     }
 }

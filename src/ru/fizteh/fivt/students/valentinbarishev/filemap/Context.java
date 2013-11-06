@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class Context {
     public TableProvider provider;
@@ -13,8 +13,9 @@ public class Context {
     }
 
     public int getChanges() {
+       //TODO
         if (table != null) {
-            return ((DataBase) table).getNewKeys();
+       //     return ((DataBase) table).getNewKeys();
         }
         return 0;
     }

@@ -15,7 +15,7 @@ public class ShellDbCommit extends SimpleShellCommand {
     @Override
     public void run() {
         if (context.table != null) {
-            System.out.println(context.table.commit());
+            //System.out.println(context.table.commit());
         } else {
             System.out.println("no table");
         }

@@ -13,10 +13,10 @@ public class ShellCreateTable extends SimpleShellCommand {
     }
 
     public void run() {
-        if (context.provider.createTable(getArg(1)) != null) {
-            System.out.println("created");
-        } else {
-            System.out.println(getArg(1) + " exists");
-        }
+       // if (context.provider.createTable(getArg(1)) != null) {
+       //     System.out.println("created");
+      //  } else {
+      //      System.out.println(getArg(1) + " exists");
+      //  }
     }
 }
