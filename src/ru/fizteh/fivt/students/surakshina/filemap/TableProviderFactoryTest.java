@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import org.junit.*;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
-import ru.fizteh.fivt.students.surakshina.filemap.NewTableProviderFactory;
 
 public class TableProviderFactoryTest {
     @Test(expected = IllegalArgumentException.class)
@@ -10,4 +9,5 @@ public class TableProviderFactoryTest {
         TableProviderFactory factory = new NewTableProviderFactory();
         factory.create(null);
     }
+    
 }

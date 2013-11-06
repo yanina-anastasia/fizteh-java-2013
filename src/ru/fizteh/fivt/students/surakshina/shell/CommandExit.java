@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.surakshina.shell;
 
-
 public class CommandExit extends AbstractCommand {
     public CommandExit(State stateNew) {
         super(stateNew);

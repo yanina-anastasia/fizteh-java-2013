@@ -9,6 +9,7 @@ public class CommandCd extends AbstractCommand {
         name = "cd";
         numberOfArguments = 1;
     }
+
     private File unionWithCurrentPath(String curr) {
         File curr1 = new File(curr);
         if (!curr1.isAbsolute()) {
@@ -21,13 +22,14 @@ public class CommandCd extends AbstractCommand {
         }
         return curr1;
     }
+
     @Override
     public void executeProcess(String[] input) {
         File currentFile = unionWithCurrentPath(input[1]);
         if (currentFile.exists() && currentFile.isDirectory()) {
-                state.setCurrentDirectory(currentFile);
-            } else {
-                state.printError("cd: '" + input[1] + "': No such file or directory");
-            }
+            state.setCurrentDirectory(currentFile);
+        } else {
+            state.printError("cd: '" + input[1] + "': No such file or directory");
         }
+    }
 }

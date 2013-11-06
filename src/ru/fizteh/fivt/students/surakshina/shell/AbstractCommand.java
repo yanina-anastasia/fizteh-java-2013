@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.surakshina.shell;
 
-
 public abstract class AbstractCommand implements Command {
     protected int numberOfArguments;
     protected String name;

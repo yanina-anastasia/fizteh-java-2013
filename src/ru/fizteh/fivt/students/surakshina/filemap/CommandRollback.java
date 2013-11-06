@@ -14,9 +14,9 @@ public class CommandRollback extends DataBaseCommand {
             if (state.getTable() == null) {
                 System.out.println("no table");
                 return;
-            } 
-        count = state.getTable().rollback();
-        System.out.println(count);
+            }
+            count = state.getTable().rollback();
+            System.out.println(count);
         }
     }
 }

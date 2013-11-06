@@ -9,16 +9,17 @@ public class NewTable implements Table {
     private String name;
     private HashMap<String, ValueState<String>> dataBaseMap = new HashMap<>();
     private NewTableProvider provider;
-    
+
     public NewTable(String newName, NewTableProvider newProvider) {
         name = newName;
         provider = newProvider;
     }
+
     @Override
     public String getName() {
         return name;
     }
-    
+
     private void checkName(String name) {
         if (name == null) {
             throw new IllegalArgumentException("key or value is null");
@@ -28,6 +29,7 @@ public class NewTable implements Table {
             throw new IllegalArgumentException("Key or value is null");
         }
     }
+
     @Override
     public String get(String key) {
         checkName(key);
@@ -36,19 +38,22 @@ public class NewTable implements Table {
         }
         return dataBaseMap.get(key).getValue();
     }
+
     public void loadCommittedValues(HashMap<String, String> load) {
         for (String key : load.keySet()) {
             ValueState<String> value = new ValueState<String>(load.get(key), load.get(key));
-            dataBaseMap.put(key, value); 
+            dataBaseMap.put(key, value);
         }
     }
+
     public HashMap<String, String> returnMap() {
         HashMap<String, String> map = new HashMap<>();
-        for (String key: dataBaseMap.keySet()) {
+        for (String key : dataBaseMap.keySet()) {
             map.put(key, dataBaseMap.get(key).getCommitedValue());
         }
         return map;
     }
+
     @Override
     public String put(String key, String value) {
         checkName(key);
@@ -63,6 +68,7 @@ public class NewTable implements Table {
         }
         return result;
     }
+
     @Override
     public String remove(String key) {
         checkName(key);
@@ -74,6 +80,7 @@ public class NewTable implements Table {
             return null;
         }
     }
+
     @Override
     public int size() {
         int count = 0;
@@ -84,6 +91,7 @@ public class NewTable implements Table {
         }
         return count;
     }
+
     public int unsavedChanges() {
         int count = 0;
         for (ValueState<String> value : dataBaseMap.values()) {
@@ -93,6 +101,7 @@ public class NewTable implements Table {
         }
         return count;
     }
+
     @Override
     public int commit() throws RuntimeException {
         int count = 0;
@@ -110,10 +119,11 @@ public class NewTable implements Table {
                 throw new RuntimeException(e.getMessage(), e);
             }
         } else {
-           return 0;
+            return 0;
         }
         return count;
     }
+
     @Override
     public int rollback() {
         int count = 0;

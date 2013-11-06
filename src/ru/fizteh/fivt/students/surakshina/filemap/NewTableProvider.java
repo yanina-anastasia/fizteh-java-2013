@@ -80,7 +80,7 @@ public class NewTableProvider implements TableProvider {
                 table.loadCommittedValues(load(tableFile));
             }
         } catch (IOException e) {
-            throw new WrappedIOException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         return table;
     }

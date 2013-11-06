@@ -20,6 +20,6 @@ public class CommandRemove extends DataBaseCommand {
         } else {
             System.out.println("no table");
         }
-        
+
     }
 }

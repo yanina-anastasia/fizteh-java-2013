@@ -112,7 +112,7 @@ public class Shell {
                 current = rewriteInput(current);
                 if (!current.isEmpty()) {
                     doCommand(extractArgumentsFromInputString(current));
-                 }
+                }
             }
             System.out.print("$ ");
             scanner1.close();
