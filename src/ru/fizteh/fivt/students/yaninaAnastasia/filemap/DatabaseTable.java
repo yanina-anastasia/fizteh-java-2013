@@ -78,7 +78,7 @@ public class DatabaseTable implements Table {
         for (int i = 0; i < getColumnsCount(); i++) {
             try {
                 if (value.getColumnAt(i) == null) {
-                    throw new IllegalArgumentException("Value cannot be null");
+                    continue;
                 }
                 switch (formatColumnType(columnTypes.get(i))) {
                     case "String":
