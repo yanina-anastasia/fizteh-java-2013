@@ -91,44 +91,17 @@ public class MultiFileHashMapTable implements Table {
             throw new IllegalArgumentException("Incorrect key or value to put");
         }
 
-        String returnValue;
-
-        if (changesBase.containsKey(newKey)) {
-            if (changesBase.get(newKey) == null) {
-                if (dataBase.get(newKey).equals(value)) {
-                    changesBase.remove(newKey);
-                    ++sizeTable;
-                    returnValue = null;
-                } else {
-                    changesBase.put(newKey, value);
-                    returnValue = null;
-                    ++sizeTable;
-                }
-            } else {
-                if (changesBase.get(newKey).equals(value)) {
-                    changesBase.put(newKey, value);
-                    returnValue = changesBase.get(newKey);
-                } else {
-                    returnValue = changesBase.get(newKey);
-                    changesBase.put(newKey, value);
-                }
-            }
-        } else {
-            if (dataBase.get(newKey) == null) {
-                ++sizeTable;
-                returnValue = null;
-                changesBase.put(newKey, value);
-            } else {
-                if (dataBase.get(newKey).equals(value)) {
-                    returnValue = dataBase.get(newKey);
-                } else {
-                    returnValue = dataBase.get(newKey);
-                    changesBase.put(newKey, value);
-                }
-            }
+        if ((!changesBase.containsKey(newKey) && !dataBase.containsKey(newKey)) ||
+                (changesBase.containsKey(newKey) && changesBase.get(newKey) == null)) {
+            ++sizeTable;
+        }
+        String result = get(newKey);
+        changesBase.put(newKey, newValue);
+        if (value.equals(dataBase.get(newKey))) {
+            changesBase.remove(newKey);
         }
 
-        return returnValue;
+        return result;
     }
 
     @Override
@@ -143,31 +116,15 @@ public class MultiFileHashMapTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
-        String returnValue;
-        if (changesBase.containsKey(newKey)) {
-            if (changesBase.get(newKey) == null) {
-                returnValue = null;
-            } else {
-                if (dataBase.containsKey(newKey)) {
-                    returnValue = dataBase.get(newKey);
-                    changesBase.put(newKey, null);
-                    --sizeTable;
-                } else {
-                    returnValue = changesBase.get(newKey);
-                    --sizeTable;
-                    changesBase.remove(newKey);
-                }
-            }
-        } else {
-            if (dataBase.containsKey(newKey)) {
-                returnValue = dataBase.get(newKey);
-                --sizeTable;
-                changesBase.put(newKey, null);
-            } else {
-                returnValue = null;
-            }
+        if (changesBase.get(newKey) != null || (!changesBase.containsKey(newKey) && dataBase.get(newKey) != null)) {
+            --sizeTable;
         }
-        return returnValue;
+        String result = get(newKey);
+        changesBase.put(newKey, null);
+        if (dataBase.get(newKey) == null) {
+            changesBase.remove(newKey);
+        }
+        return result;
     }
 
     @Override
