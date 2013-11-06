@@ -71,7 +71,8 @@ public class Shell {
             return false;
         }
         boolean flag = false;
-        if (cmds.get(commandName).getCmd() == "put") {
+        boolean flagCreate = false;
+        if ((cmds.get(commandName).getCmd() == "put") || (cmds.get(commandName).getCmd() == "create")) {
             flag = true;
         }
         String[] params = getParams(command, flag);
@@ -111,6 +112,8 @@ public class Shell {
                 System.out.print("$ ");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage() + e.getCause());
+            e.printStackTrace();
             String[] ar = {};
             try {
                 cmds.get("exit").exec(ar, curState);

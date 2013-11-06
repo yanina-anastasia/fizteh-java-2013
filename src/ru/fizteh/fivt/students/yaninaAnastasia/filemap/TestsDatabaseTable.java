@@ -1,12 +1,12 @@
-package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
+/*package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class TestsDatabaseTable {
     Table table;
@@ -172,4 +172,4 @@ public class TestsDatabaseTable {
         Assert.assertEquals(table.rollback(), 3);
         Assert.assertEquals(table.size(), 3);
     }
-}
+}     */

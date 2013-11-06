@@ -1,29 +1,32 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class DatabaseTable implements Table {
-    public HashMap<String, String> oldData;
-    public HashMap<String, String> modifiedData;
+    public HashMap<String, Storeable> oldData;
+    public HashMap<String, Storeable> modifiedData;
     public HashSet<String> deletedKeys;
     public int size;
     public int uncommittedChanges;
     private String tableName;
+    public List<Class<?>> columnTypes;
+    DatabaseTableProvider provider;
 
-    public DatabaseTable(String name) {
+
+    public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
         this.tableName = name;
-        oldData = new HashMap<String, String>();
-        modifiedData = new HashMap<String, String>();
+        oldData = new HashMap<String, Storeable>();
+        modifiedData = new HashMap<String, Storeable>();
         deletedKeys = new HashSet<String>();
+        columnTypes = colTypes;
+        provider = providerRef;
         uncommittedChanges = 0;
     }
 
@@ -45,7 +48,7 @@ public class DatabaseTable implements Table {
         this.tableName = name;
     }
 
-    public String get(String key) throws IllegalArgumentException {
+    public Storeable get(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -58,14 +61,8 @@ public class DatabaseTable implements Table {
         return oldData.get(key);
     }
 
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key cannot be null");
-        }
-        if (value == null || (value.isEmpty() || value.trim().isEmpty())) {
-            throw new IllegalArgumentException("Value name cannot be null");
-        }
-        String oldValue = null;
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
             oldValue = oldData.get(key);
@@ -81,11 +78,11 @@ public class DatabaseTable implements Table {
         return oldValue;
     }
 
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
-        String oldValue = null;
+        Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
             oldValue = oldData.get(key);
@@ -116,13 +113,14 @@ public class DatabaseTable implements Table {
         }
         for (String keyToAdd : modifiedData.keySet()) {
             if (modifiedData.get(keyToAdd) != null) {
-            oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+                oldData.put(keyToAdd, modifiedData.get(keyToAdd));
             }
         }
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
-        save();
+        TableBuilder tableBuilder = new TableBuilder(provider, this);
+        save(tableBuilder);
         uncommittedChanges = 0;
 
         return recordsCommited;
@@ -139,7 +137,14 @@ public class DatabaseTable implements Table {
         return recordsDeleted;
     }
 
-    public boolean save() {
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex > getColumnsCount()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return columnTypes.get(columnIndex);
+    }
+
+    public boolean save(TableBuilder tableBuilder) {
         if (oldData == null) {
             return true;
         }
@@ -191,7 +196,7 @@ public class DatabaseTable implements Table {
             for (int j = 0; j < 16; j++) {
                 File filePath = new File(path, String.format("%d.dat", j));
                 try {
-                    saveTable(keys.get(j), filePath.toString());
+                    saveTable(keys.get(j), filePath.toString(), tableBuilder);
                 } catch (IOException e) {
                     return false;
                 }
@@ -200,7 +205,7 @@ public class DatabaseTable implements Table {
         return true;
     }
 
-    public boolean saveTable(Set<String> keys, String path) throws IOException {
+    public boolean saveTable(Set<String> keys, String path, TableBuilder tableBuilder) throws IOException {
         if (keys.isEmpty()) {
             try {
                 Files.delete(Paths.get(path));
@@ -221,10 +226,11 @@ public class DatabaseTable implements Table {
                 temp.write(bytesToWrite);
                 temp.writeByte(0);
                 temp.writeInt((int) offset);
-                offset += oldData.get(step).getBytes(StandardCharsets.UTF_8).length;
+                String myOffset = tableBuilder.get(step);
+                offset += myOffset.getBytes(StandardCharsets.UTF_8).length;
             }
             for (String key : keys) {
-                String value = oldData.get(key);
+                String value = tableBuilder.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
             temp.close();
@@ -245,5 +251,9 @@ public class DatabaseTable implements Table {
             }
         }
         return tempSet.size() - toRemove.size();
+    }
+
+    public int getColumnsCount() {
+        return columnTypes.size();
     }
 }

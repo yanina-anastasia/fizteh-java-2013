@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
+/*package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -97,4 +97,4 @@ public class TestsDatabaseProvider {
         Assert.assertNotNull(provider.getTable("test4"));
         provider.removeTable("test4");
     }
-}
+}            */
