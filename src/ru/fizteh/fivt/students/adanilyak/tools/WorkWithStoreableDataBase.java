@@ -139,6 +139,10 @@ public class WorkWithStoreableDataBase {
                 throw new IOException(indexDirectory.toString() + ": not directory");
             }
 
+            if (indexDirectory.list().length == 0) {
+                throw new IOException(indexDirectory.toString() + ": is empty");
+            }
+
             for (int fileIndex = 0; fileIndex < 16; ++fileIndex) {
                 String fileIndexName = fileIndex + ".dat";
                 File fileIndexDat = new File(indexDirectory, fileIndexName);
@@ -197,8 +201,12 @@ public class WorkWithStoreableDataBase {
     }
 
     public static List<Class<?>> createListOfTypes(List<String> args) throws IOException {
+        return createListOfTypesFromString(args.get(2));
+    }
+
+    public static List<Class<?>> createListOfTypesFromString(String stringTypes) throws IOException {
         List<Class<?>> result = new ArrayList<>();
-        List<String> types = StoreableCmdParseAndExecute.intoCommandsAndArgs(args.get(2), " ");
+        List<String> types = StoreableCmdParseAndExecute.intoCommandsAndArgs(stringTypes, " ");
         for (String type : types) {
             switch (type) {
                 case "int":

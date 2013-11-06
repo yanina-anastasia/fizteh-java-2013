@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.adanilyak.modernfilemap;
+package ru.fizteh.fivt.students.adanilyak.filemap;
 
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 

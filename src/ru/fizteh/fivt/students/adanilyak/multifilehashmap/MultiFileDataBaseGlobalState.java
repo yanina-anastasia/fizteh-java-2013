@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapGlobalState;
+import ru.fizteh.fivt.students.adanilyak.filemap.FileMapGlobalState;
 
 /**
  * User: Alexander

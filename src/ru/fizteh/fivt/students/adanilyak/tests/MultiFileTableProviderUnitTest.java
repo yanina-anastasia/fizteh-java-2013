@@ -14,11 +14,11 @@ import java.io.IOException;
  * Time: 0:11
  */
 public class MultiFileTableProviderUnitTest {
-    MultiFileTableProvider testManager;
+    MultiFileTableProvider testProvider;
 
     @Before
     public void setUpTestObject() throws IOException {
-        testManager = new MultiFileTableProvider(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
+        testProvider = new MultiFileTableProvider(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
     }
 
     /**
@@ -28,34 +28,34 @@ public class MultiFileTableProviderUnitTest {
 
     @Test
     public void createTableTest() {
-        Assert.assertNotNull(testManager.createTable("testTable1"));
-        Assert.assertNull(testManager.createTable("testTable1"));
+        Assert.assertNotNull(testProvider.createTable("testTable1"));
+        Assert.assertNull(testProvider.createTable("testTable1"));
 
-        Assert.assertNotNull(testManager.createTable("тестоваяТаблица2"));
-        Assert.assertNull(testManager.createTable("тестоваяТаблица2"));
+        Assert.assertNotNull(testProvider.createTable("тестоваяТаблица2"));
+        Assert.assertNull(testProvider.createTable("тестоваяТаблица2"));
 
-        testManager.removeTable("testTable1");
-        testManager.removeTable("тестоваяТаблица2");
+        testProvider.removeTable("testTable1");
+        testProvider.removeTable("тестоваяТаблица2");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createNullTableTest() {
-        testManager.createTable(null);
+        testProvider.createTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createEmptyTableTest() {
-        testManager.createTable("");
+        testProvider.createTable("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createNlTableTest() {
-        testManager.createTable("    ");
+        testProvider.createTable("    ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createBadNameTableTest() {
-        testManager.createTable("not_normal-name@for$table^!");
+        testProvider.createTable("not_normal-name@for$table^!");
     }
 
     /**
@@ -65,37 +65,37 @@ public class MultiFileTableProviderUnitTest {
 
     @Test
     public void getTableTest() {
-        Assert.assertNull(testManager.getTable("testNonExictingTable3"));
-        Assert.assertNull(testManager.getTable("тестоваяНесуществующаяТаблица4"));
+        Assert.assertNull(testProvider.getTable("testNonExictingTable3"));
+        Assert.assertNull(testProvider.getTable("тестоваяНесуществующаяТаблица4"));
 
-        testManager.createTable("testTable5");
-        Assert.assertNotNull(testManager.getTable("testTable5"));
+        testProvider.createTable("testTable5");
+        Assert.assertNotNull(testProvider.getTable("testTable5"));
 
-        testManager.createTable("тестоваяТаблица6");
-        Assert.assertNotNull(testManager.getTable("тестоваяТаблица6"));
+        testProvider.createTable("тестоваяТаблица6");
+        Assert.assertNotNull(testProvider.getTable("тестоваяТаблица6"));
 
-        testManager.removeTable("testTable5");
-        testManager.removeTable("тестоваяТаблица6");
+        testProvider.removeTable("testTable5");
+        testProvider.removeTable("тестоваяТаблица6");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getNullTableTest() {
-        testManager.getTable(null);
+        testProvider.getTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEmptyTableTest() {
-        testManager.getTable("");
+        testProvider.getTable("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getNlTableTest() {
-        testManager.getTable("    ");
+        testProvider.getTable("    ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getBadNameTableTest() {
-        testManager.getTable("not_normal-name@for$table^!");
+        testProvider.getTable("not_normal-name@for$table^!");
     }
 
     /**
@@ -105,38 +105,38 @@ public class MultiFileTableProviderUnitTest {
 
     @Test
     public void removeTableTest() {
-        testManager.createTable("testTable7");
-        testManager.createTable("тестоваяТаблица8");
+        testProvider.createTable("testTable7");
+        testProvider.createTable("тестоваяТаблица8");
 
-        testManager.removeTable("testTable7");
-        Assert.assertNull(testManager.getTable("testTable7"));
+        testProvider.removeTable("testTable7");
+        Assert.assertNull(testProvider.getTable("testTable7"));
 
-        testManager.removeTable("тестоваяТаблица8");
-        Assert.assertNull(testManager.getTable("тестоваяТаблица8"));
+        testProvider.removeTable("тестоваяТаблица8");
+        Assert.assertNull(testProvider.getTable("тестоваяТаблица8"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void removeNullTableTest() {
-        testManager.removeTable(null);
+        testProvider.removeTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void removeEmptyTableTest() {
-        testManager.removeTable("");
+        testProvider.removeTable("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void removeNlTableTest() {
-        testManager.removeTable("    ");
+        testProvider.removeTable("    ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void removeBadNameTableTest() {
-        testManager.removeTable("not_normal-name@for$table^!");
+        testProvider.removeTable("not_normal-name@for$table^!");
     }
 
     @Test(expected = IllegalStateException.class)
-    public void removeNonExictingTable() {
-        testManager.removeTable("testNonExictingTable11");
+    public void removeNonExcitingTable() {
+        testProvider.removeTable("testNonExcitingTable11");
     }
 }

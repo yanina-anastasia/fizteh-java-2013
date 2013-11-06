@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.adanilyak.modernfilemap;
+package ru.fizteh.fivt.students.adanilyak.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDatFiles;

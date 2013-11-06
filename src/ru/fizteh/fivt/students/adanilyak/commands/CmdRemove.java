@@ -1,8 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.adanilyak.modernfilemap.FileMapGlobalState;
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
+import ru.fizteh.fivt.students.adanilyak.filemap.FileMapGlobalState;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;

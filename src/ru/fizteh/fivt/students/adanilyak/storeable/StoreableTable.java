@@ -155,6 +155,7 @@ public class StoreableTable implements Table {
         return columnTypes.size();
     }
 
+    @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         int columnsCount = getColumnsCount();
         if (columnIndex < 0 || columnIndex > columnsCount - 1) {
