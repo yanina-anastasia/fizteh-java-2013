@@ -27,10 +27,10 @@ public class CheckOnCorrect {
         if (arg == null) {
             return false;
         }
-        if (arg.equals(Pattern.compile(".*\\s.*"))) {
+        if (arg.trim().isEmpty()) {
             return false;
         }
-        if (arg.trim().isEmpty()) {
+        if (arg.matches(".*\\s+.*")) {
             return false;
         }
         return true;
