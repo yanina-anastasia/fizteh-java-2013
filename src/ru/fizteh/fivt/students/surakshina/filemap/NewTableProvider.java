@@ -27,6 +27,9 @@ public class NewTableProvider implements TableProvider {
     }
 
     public File getCurrentTableFile() {
+        if (currentTable == null) {
+            return null;
+        }
         return new File(workingDirectory, currentTable.getName());
     }
 
