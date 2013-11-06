@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
 
 public class DatabaseTable implements Table {
@@ -67,6 +68,29 @@ public class DatabaseTable implements Table {
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
+        }
+        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
+            throw new IllegalArgumentException("Key contains whitespaces");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
+        for (int i = 0; i < getColumnsCount(); i++) {
+            try {
+                if (value.getColumnAt(i) == null) {
+                    throw new IllegalArgumentException("Value cannot be null");
+                }
+                switch (formatColumnType(columnTypes.get(i))) {
+                    case "String":
+                        String stringValue = (String) value.getColumnAt(i);
+                        if (stringValue.trim().isEmpty()) {
+                            throw new ParseException("Value cannot be empty", 0);
+                        }
+                        break;
+                }
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
@@ -261,5 +285,26 @@ public class DatabaseTable implements Table {
 
     public int getColumnsCount() {
         return columnTypes.size();
+    }
+
+    public static String formatColumnType(Class<?> columnType) {
+        switch (columnType.getName()) {
+            case "java.lang.Integer":
+                return "int";
+            case "java.lang.Long":
+                return "long";
+            case "java.lang.Byte":
+                return "byte";
+            case "java.lang.Float":
+                return "float";
+            case "java.lang.Double":
+                return "double";
+            case "java.lang.Boolean":
+                return "boolean";
+            case "java.lang.String":
+                return "String";
+            default:
+                return null;
+        }
     }
 }
