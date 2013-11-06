@@ -83,7 +83,14 @@ public class MyMultiHashMap {
                 if (check[i * 16 + j]) {
                     File dir = new File(curTable.getCanonicalPath()
                             + File.separator + i.toString() + ".dir" + File.separator + j.toString() + ".dat");
-                    dir.delete();
+                    if (dir.exists()) {
+                        if (dir.isDirectory()) {
+                            throw new Exception("Bad table");
+                        }
+                        if(!dir.delete()) {
+                            throw new Exception("Failed in delete");
+                        }
+                    }
                     if (dataBase.get(i * 16 + j).isEmpty()) {
                         dir = new File(curTable.getCanonicalPath() + File.separator + i.toString() + ".dir");
                         if (dir.exists()) {
