@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
-import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.storage.structured.*;
 
 public class TableManagerFactory implements TableProviderFactory {
 

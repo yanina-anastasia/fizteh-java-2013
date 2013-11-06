@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import ru.fizteh.fivt.storage.structured.*;
 
 
 import ru.fizteh.fivt.students.mikhaylova_daria.shell.Parser;
@@ -39,25 +41,71 @@ public class DbMain {
         try {
             try {
                 Parser.parser(arg, DbMain.class, commandsList);
+            } catch (RuntimeException e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
             } catch (Exception e) {
+                e.printStackTrace();
                 System.err.println(e.getMessage());
             }
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());
             System.exit(1);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
         }
-        
     }
 
-    public void create(String[] command) throws IllegalArgumentException {
+    public void create(String[] command) throws IllegalArgumentException, IOException {
         if (command.length != 2) {
             throw new IllegalArgumentException("create: Wrong number of arguments");
         }
-        String nameDir = command[1].trim();
-        TableData table = mainManager.createTable(nameDir);
+        String[] arg = command[1].trim().split("\\s+", 2);
+        if (arg.length < 2) {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+        String nameDir = arg[0];
+        if (!arg[1].startsWith("(")) {
+             throw new IllegalArgumentException("Not found list of types. Use \"(\" and \")\" ");
+        }
+        String[] args = arg[1].trim().split("[()]");
+        if (args.length != 2) { //arg[1] начинается со "(", поэтому отпаршивается пустая строка
+            throw new IllegalArgumentException("Wrong format of typelist");
+        }
+        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+        String[] signatures = args[1].trim().split("\\s+");
+        for (int i = 0; i < signatures.length; ++i) {
+            if (signatures[i].equals("int")) {
+                columnTypes.add(i, int.class);
+            } else {
+                if (signatures[i].equals("long")) {
+                    columnTypes.add(i, long.class);
+                }  else {
+                    if (signatures[i].equals("byte")) {
+                        columnTypes.add(i, byte.class);
+                    } else {
+                        if (signatures[i].equals("float")) {
+                            columnTypes.add(i, float.class);
+                        } else {
+                            if (signatures[i].equals("double")) {
+                                columnTypes.add(i, double.class);
+                            } else {
+                                if (signatures[i].equals("boolean")) {
+                                    columnTypes.add(i, boolean.class);
+                                } else {
+                                    if (signatures[i].equals("String")) {
+                                        columnTypes.add(i, String.class);
+                                    } else {
+                                        throw new IllegalArgumentException("This type is not supposed: "
+                                                + signatures[i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        TableData table = mainManager.createTable(nameDir, columnTypes);
         if (table == null) {
             System.out.println(nameDir + " exists");
         } else {
@@ -79,6 +127,8 @@ public class DbMain {
             System.err.println(e.getMessage());
         }  catch (IllegalStateException e) {
              System.out.println(nameDir + " not exists");
+        } catch (IOException e) {
+            System.out.println("Reading/writing error" + e.getMessage());
         }
     }
 
@@ -107,7 +157,7 @@ public class DbMain {
 
     }
 
-    public static void put(String[] command) throws IllegalArgumentException {
+    public static void put(String[] command) throws Exception {
         if (currentTable == null) {
             System.out.println("no table");
             return;
@@ -120,7 +170,7 @@ public class DbMain {
         if (arg.length != 2) {
             throw new IllegalArgumentException("put: Wrong number of arguments");
         }
-        String oldValue = currentTable.put(arg[0], arg[1]);
+        Storeable oldValue = currentTable.put(arg[0], mainManager.deserialize(currentTable, arg[1]));
         if (oldValue == null) {
             System.out.println("new");
         } else {
@@ -142,7 +192,7 @@ public class DbMain {
         if (arg.length != 1) {
             throw new IllegalArgumentException("remove: Wrong number of arguments");
         }
-        String removedValue = currentTable.remove(arg[0]);
+        Storeable removedValue = currentTable.remove(arg[0]);
         if (removedValue == null) {
             System.out.println("not found");
         } else {
@@ -163,7 +213,7 @@ public class DbMain {
         if (arg.length != 1) {
             throw new IllegalArgumentException("get: Wrong number of arguments");
         }
-        String value = currentTable.get(arg[0]);
+        Storeable value = currentTable.get(arg[0]);
         if (value == null) {
             System.out.println("not found");
         } else {

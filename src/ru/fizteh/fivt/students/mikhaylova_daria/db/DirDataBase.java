@@ -10,13 +10,16 @@ public class DirDataBase {
 
     private boolean isReady = false;
 
+    TableData table;
+
     FileMap[] fileArray = new FileMap[16];
 
     DirDataBase() {
 
     }
 
-    DirDataBase(File directory, Short id) {
+    DirDataBase(File directory, Short id, TableData table) {
+        this.table = table;
         dir = directory;
         this.id = id;
         Short[] idFile = new Short[2];
@@ -64,7 +67,7 @@ public class DirDataBase {
     int size() {
         int numberOfKeys = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfKeys += fileArray[i].size();
+            numberOfKeys += fileArray[i].size(table);
         }
         return numberOfKeys;
     }
@@ -80,7 +83,7 @@ public class DirDataBase {
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
-                fileArray[i].commit();
+                fileArray[i].commit(table);
                 numberOfChanges += changesInFile;
             }
         }
