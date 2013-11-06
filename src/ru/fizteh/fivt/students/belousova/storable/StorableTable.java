@@ -37,7 +37,11 @@ public class StorableTable extends AbstractTable<String, GetColumnTypeStorable> 
             throw new IllegalArgumentException("empty value");
         }
 
-        if (!StorableUtils.isStorableValid((StorableTableLine)value, columnTypes)) {
+        try {
+            if (!StorableUtils.isStorableValid((StorableTableLine)value, columnTypes)) {
+                throw new IllegalArgumentException("alien storeable");
+            }
+        } catch (ClassCastException e) {
             throw new IllegalArgumentException("alien storeable");
         }
 
@@ -45,11 +49,7 @@ public class StorableTable extends AbstractTable<String, GetColumnTypeStorable> 
             throw new IllegalArgumentException("key with whitespaces");
         }
 
-        try {
-            return super.put(key, (GetColumnTypeStorable)value);
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("alien storable");
-        }
+        return super.put(key, (GetColumnTypeStorable)value);
     }
 
     @Override
