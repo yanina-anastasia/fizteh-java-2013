@@ -38,10 +38,8 @@ public class TableManager implements TableProvider {
         try {
             cleaner();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
             throw new IllegalArgumentException("wrong type(" + e.getMessage() + ")", e);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("wrong type(" + e.getMessage() + ")", e);
         }
     }
@@ -94,9 +92,7 @@ public class TableManager implements TableProvider {
                     }
                     File[] checkOnEmpty = directories[j].listFiles();
                     if (checkOnEmpty.length == 0) {
-                        if (!directories[j].delete()) {
-                            throw new Exception(directories[j] + ": Deleting error");
-                        }
+                            throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
                     }
                 }
             }
