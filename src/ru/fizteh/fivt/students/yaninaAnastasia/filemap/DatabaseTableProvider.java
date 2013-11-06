@@ -180,7 +180,7 @@ public class DatabaseTableProvider implements TableProvider {
                 }
                 values.add(columnValue);
             } catch (ColumnFormatException e) {
-                throw new IllegalArgumentException("incompatible type: " + e.getMessage());
+                throw new ParseException("incompatible type: " + e.getMessage(), index);
             } catch (IndexOutOfBoundsException e) {
                 throw new ParseException("Xml representation doesn't match the format", index);
             }
