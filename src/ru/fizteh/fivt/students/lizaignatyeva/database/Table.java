@@ -44,7 +44,6 @@ public class Table {
     public Table(File directory) throws IllegalArgumentException {
         path = directory;
         name = path.getName();
-        //System.out.println("found table " + name);
         try {
             readTable();
         } catch (Exception e) {
@@ -59,14 +58,12 @@ public class Table {
     private int getDirNumber(String key) {
         int number = key.getBytes()[0];
         number = Math.abs(number);
-        //System.out.println(String.format(key + " with first byte %d lies in directory %d ", number, number % 16));
         return number % 16;
     }
 
     private int getFileNumber(String key) {
         int number = key.getBytes()[0];
         number = Math.abs(number);
-        //System.out.println(String.format(key + "lies in file %d ", Math.abs(bytes[0]) / 16 % 16));
         return number / 16 % 16;
     }
 
@@ -120,7 +117,6 @@ public class Table {
 
     private boolean isValidFileName(String name) {
         for (int i = 0; i < base; ++i) {
-            //System.out.print(i);
             if (name.equals(Integer.toString(i) + ".dat")) {
                 return true;
             }
@@ -145,9 +141,6 @@ public class Table {
 
     public void readData(File directory) throws Exception {
         for (File file : directory.listFiles()) {
-            /*if (file.getName().equals(".DS_Store")) {
-                continue;
-            }  */
             if (!isValidFileName(file.getName())) {
                 throw new DataFormatException("Table '" + name + "' contains strange file(s): '"
                         + file.getName() + "'");
@@ -171,7 +164,6 @@ public class Table {
     }
 
     private void writeEntry(String key, String value, BufferedOutputStream outputStream) throws IOException {
-        //write();
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
         outputStream.write(intToBytes(keyBytes.length));
@@ -187,7 +179,6 @@ public class Table {
             //
         }
         FileUtils.mkDir(path.getAbsolutePath());
-        String fileName = path.getCanonicalPath();
         for (String key: data.keySet()) {
             String value = data.get(key);
             File directory = FileUtils.mkDir(path.getAbsolutePath()
