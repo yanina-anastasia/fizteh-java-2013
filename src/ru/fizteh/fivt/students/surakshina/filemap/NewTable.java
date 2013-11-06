@@ -103,7 +103,9 @@ public class NewTable implements Table {
         }
         if (count != 0) {
             try {
-                provider.saveChanges(provider.getCurrentTableFile());
+                if (provider.getCurrentTableFile() != null) {
+                    provider.saveChanges(provider.getCurrentTableFile());
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
