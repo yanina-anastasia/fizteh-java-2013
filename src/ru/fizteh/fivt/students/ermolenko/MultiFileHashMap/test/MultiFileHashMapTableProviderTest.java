@@ -1,8 +1,10 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko.multifilehashmap.test;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProvider;
+import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProviderFactory;
 
 public class MultiFileHashMapTableProviderTest {
 
