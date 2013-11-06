@@ -69,11 +69,6 @@ public class CheckOnCorrect {
                 }
             }
         }
-        try {
-            givenStoreable.getColumnAt(givenTable.getColumnsCount());
-        } catch (IndexOutOfBoundsException exc) {
-            return false;
-        }
         return true;
     }
 }
