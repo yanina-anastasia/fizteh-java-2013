@@ -14,7 +14,7 @@ public class MultiDbUse implements Command {
             System.out.println(dbName + " not exists");
         } else {
             if (multiState.getCurrTable() != null) {
-                int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum;
+                int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum();
                 if (chNum > 0) {
                     System.out.println(chNum + " uncommited changes");
                     return 0;

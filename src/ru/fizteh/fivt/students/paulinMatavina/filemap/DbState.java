@@ -11,9 +11,9 @@ import java.util.Vector;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class DbState extends State{
+public class DbState extends State {
     public HashMap<String, String> data;
-    //public HashMap<String, String> initial;
+    private HashMap<String, String> initial;
     public RandomAccessFile dbFile;
     public String path;
     private int foldNum;
@@ -23,8 +23,6 @@ public class DbState extends State{
         foldNum = folder;
         fileNum = file;
         path = dbPath;
-        commands = new HashMap<String, Command>();
-        data = new HashMap<String, String>();
         try {
             loadData();
         } catch (IOException e) {
@@ -115,6 +113,8 @@ public class DbState extends State{
     }
     
     public int loadData() throws IOException {
+        data = new HashMap<String, String>();
+        initial = new HashMap<String, String>();
         fileCheck();
         if (dbFile.length() == 0) {
             dbFile.close();
@@ -153,11 +153,27 @@ public class DbState extends State{
             key = key2;
             startOffset = endOffset;
         } while (position <= firstOffset); 
+        
+        initial = new HashMap<String, String>(data);
         dbFile.close();
+        return result;
+    }
+    
+    public int getChangeNum() {
+        int result = 0;
+        for (Map.Entry<String, String> s : data.entrySet()) {
+            String was = initial.get(s.getKey());
+            String became = s.getValue();
+            if ((was != null && !was.equals(became)) 
+                    || (was == null && became != null)) {
+                result++;
+            }
+        }
         return result;
     }
 
     public void commit() throws IOException {
+        initial = new HashMap<String, String>(data);
         fileCheck();
         int offset = 0;
         long pos = 0;

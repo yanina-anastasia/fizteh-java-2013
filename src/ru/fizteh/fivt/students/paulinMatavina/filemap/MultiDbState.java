@@ -15,7 +15,6 @@ public class MultiDbState extends State implements Table {
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
-    public int changesNum;
     private int dbSize;
     private int primaryDbSize;
     
@@ -23,8 +22,7 @@ public class MultiDbState extends State implements Table {
         if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("empty root directory");
         }
-        
-        changesNum = 0;
+
         dbSize = 0;
         isDropped = false;
         rootPath = property;
@@ -101,6 +99,8 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             return 0;
         }
+        
+        int chNum = changesNum();
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -122,9 +122,7 @@ public class MultiDbState extends State implements Table {
             }
         }
         
-        int chNum = changesNum;
         primaryDbSize = dbSize;
-        changesNum = 0;
         return chNum;
     }
     
@@ -150,10 +148,7 @@ public class MultiDbState extends State implements Table {
         int file = getFileNum(key);
         String result = data[folder][file].put(new String[] {key, value});
         if (result == null) {
-            changesNum++;
             dbSize++;
-        } else if (!result.equals(value)) {
-            changesNum++;
         }
         return result;  
     }
@@ -190,8 +185,7 @@ public class MultiDbState extends State implements Table {
     }
     
     public int rollback() {
-        int chNum = changesNum;
-        changesNum = 0;
+        int chNum = changesNum();
         dbSize = primaryDbSize;
         try {
             loadData();
@@ -211,5 +205,15 @@ public class MultiDbState extends State implements Table {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("empty parameter");
         }
+    }
+    
+    public int changesNum() {
+        int result = 0;
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                result += data[i][j].getChangeNum();
+            }
+        } 
+        return result;
     }
 }
