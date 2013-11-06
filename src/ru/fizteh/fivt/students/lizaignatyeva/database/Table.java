@@ -18,6 +18,7 @@ public class Table {
     final int base = 16;
     HashMap<String, String> data = new HashMap<String, String>();
     String name;
+
     public Table(Path globalDirectory, String tableName) {
         name = tableName;
         path = globalDirectory.resolve(tableName).toFile();
