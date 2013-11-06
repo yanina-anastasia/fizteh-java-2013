@@ -79,4 +79,9 @@ public class TableProviderTest {
         tableProvider.removeTable("notExistedTable");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadSymbolsInTableName() {
+        tableProvider.createTable("//a");
+    }
+
 }

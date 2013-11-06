@@ -86,8 +86,13 @@ public class VorotilovTableProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("Table name is null");
         }
-        if (name.equals("")) {
+        if (name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name is empty");
+        }
+        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".")) {
+            throw new IllegalArgumentException("Bad symbols in table name");
         }
     }
 
