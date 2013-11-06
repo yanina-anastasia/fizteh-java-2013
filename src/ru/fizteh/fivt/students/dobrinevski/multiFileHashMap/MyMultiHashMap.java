@@ -14,33 +14,38 @@ import java.io.FileInputStream;
 public class MyMultiHashMap {
     public File curTable = null;
     public HashMap<Integer, HashMap<String, String>> dataBase = null;
+    public Boolean[] check;
 
     MyMultiHashMap() {
-    dataBase = new HashMap<Integer, HashMap<String, String>>();
-        for (int i = 0; i < 256; i++) {
-            dataBase.put(i, new HashMap<String, String>());
+        public File curTable = null;
+        public HashMap<Integer, HashMap<String, String>> dataBase = null;
+        public Boolean[] check;
+
+        MyMultiHashMap() {
+            dataBase = new HashMap<Integer, HashMap<String, String>>();
+            check = new Boolean[256];
+            for (int i = 0; i < 256; i++) {
+                dataBase.put(i, new HashMap<String, String>());
+                check[i] = false;
+            }
         }
-    }
 
     public void parseFile(File dbFile, int firstControlValue, int secondControlValue) throws Exception {
-        FileInputStream fstream = new FileInputStream(dbFile);
-        while (fstream.available() > 0) {
-            Map.Entry<String, String> newEntry = parseEntry(fstream);
-            Integer hashCode = newEntry.getKey().hashCode();
-            hashCode = Math.abs(hashCode);
-            Integer nDirectory = hashCode % 16;
-            Integer nFile = hashCode / 16 % 16;
-            if (firstControlValue != nDirectory || secondControlValue != nFile) {
-                throw new Exception("Error: bad file");
+        if (!check[firstControlValue * 16 + secondControlValue]) {
+            FileInputStream fstream = new FileInputStream(dbFile);
+            while (fstream.available() > 0) {
+                Map.Entry<String, String> newEntry = parseEntry(fstream);
+                Integer hashCode = newEntry.getKey().hashCode();
+                hashCode = Math.abs(hashCode);
+                Integer nDirectory = hashCode % 16;
+                Integer nFile = hashCode / 16 % 16;
+                if (firstControlValue != nDirectory || secondControlValue != nFile) {
+                    throw new Exception("Error: bad file");
+                }
+                dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
             }
-            dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
-        }
-        fstream.close();
-        dbFile.delete();
-        File dir = dbFile.getParentFile();
-        String[] child = dir.list();
-        if (child.length == 0) {
-            dir.delete();
+            fstream.close();
+            check[firstControlValue * 16 + secondControlValue] = true;
         }
     }
 
@@ -77,20 +82,32 @@ public class MyMultiHashMap {
     public void writeOut() throws IOException {
         for (Integer i = 0; i < 16; i++) {
             for (Integer j = 0; j < 16; j++) {
-                if (!dataBase.get(i * 16 + j).isEmpty()) {
-                    String way = curTable.getCanonicalPath()
-                            + File.separator + i.toString() + ".dir";
-                    File workFile = new File(way);
-                    if (!workFile.exists() || workFile.isFile()) {
-                        workFile.mkdir();
+                if (check[i * 16 + j]) {
+                    File dir = new File(curTable.getCanonicalPath()
+                            + File.separator + i.toString() + ".dir" + File.separator + j.toString() + ".dat");
+                    dir.delete();
+                    if (dataBase.get(i * 16 + j).isEmpty()) {
+                        dir = new File(curTable.getCanonicalPath() + File.separator + i.toString() + ".dir");
+                        String[] child = dir.list();
+                        if (child.length == 0) {
+                            dir.delete();
+                        }
+                    } else {
+                        String way = curTable.getCanonicalPath()
+                                + File.separator + i.toString() + ".dir";
+                        File workFile = new File(way);
+                        if (!workFile.exists() || workFile.isFile()) {
+                            workFile.mkdir();
+                        }
+                        File workFile2 = new File(way + File.separator + j.toString() + ".dat");
+                        FileOutputStream fstream = new FileOutputStream(workFile2);
+                        for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
+                            writeEntry(entry, fstream);
+                        }
+                        dataBase.get(i * 16 + j).clear();
+                        fstream.close();
                     }
-                    File workFile2 = new File(way + File.separator + j.toString() + ".dat");
-                    FileOutputStream fstream = new FileOutputStream(workFile2);
-                    for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
-                        writeEntry(entry, fstream);
-                    }
-                    dataBase.get(i * 16 + j).clear();
-                    fstream.close();
+                    check[i * 16 + j] = false;
                 }
             }
         }
