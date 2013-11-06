@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.serializer;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -16,13 +17,23 @@ import java.text.ParseException;
 public class JSONserializer {
     public static Storeable deserialize(Table table, String value, TableProvider tableProvider) throws ParseException {
         Storeable result = tableProvider.createFor(table);
-        JSONObject input = new JSONObject(value);
-        for (Integer i = 0; i < input.length(); ++i) {
-            try {
-                result.setColumnAt(i, table.getColumnType(i).cast(input.get(i.toString())));
-            } catch (ColumnFormatException | IndexOutOfBoundsException exc) {
-                throw new ParseException("JSONserializer: deserialize: can not set column at, type missmatch or out of bounds", 10);
+        try {
+            JSONObject input = new JSONObject(value);
+            Object objectToSet;
+            for (Integer i = 0; i < input.length(); ++i) {
+                try {
+                    objectToSet = input.get(i.toString());
+                    if (objectToSet != JSONObject.NULL) {
+                        result.setColumnAt(i, table.getColumnType(i).cast(objectToSet));
+                    } else {
+                        result.setColumnAt(i, null);
+                    }
+                } catch (ColumnFormatException | IndexOutOfBoundsException exc) {
+                    throw new ParseException("JSONserializer: deserialize: can not set column at, type mismatch or out of bounds", 0);
+                }
             }
+        } catch (JSONException exc) {
+            throw new ParseException("JSONserializer: deserialize: string not valid to make JSON object", 0);
         }
         return result;
     }

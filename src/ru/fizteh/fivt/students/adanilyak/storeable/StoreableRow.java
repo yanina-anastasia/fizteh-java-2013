@@ -34,8 +34,10 @@ public class StoreableRow implements Storeable {
         }
 
         for (int i = 0; i < givenValues.size(); ++i) {
-            if (givenTable.getColumnType(i) != givenValues.get(i).getClass()) {
-                throw new ColumnFormatException("storeable row: types in value-list and in table's columns conflict");
+            if (givenValues.get(i) != null) {
+                if (givenTable.getColumnType(i) != givenValues.get(i).getClass()) {
+                    throw new ColumnFormatException("storeable row: types in value-list and in table's columns conflict");
+                }
             }
             types.add(givenTable.getColumnType(i));
             row.add(givenValues.get(i));
@@ -71,7 +73,7 @@ public class StoreableRow implements Storeable {
         if (columnIndex < 0 || columnIndex > columnsCount - 1) {
             throw new IndexOutOfBoundsException("get something at: bad index");
         }
-        if (valueClass != types.get(columnIndex)) {                         /** VALUE MAY BE NULL*/
+        if (valueClass != types.get(columnIndex)) {
             throw new ColumnFormatException("get something at: bad type");
         }
         return row.get(columnIndex);
@@ -110,13 +112,5 @@ public class StoreableRow implements Storeable {
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         return (String) getSomethingAt(columnIndex, String.class);
-    }
-
-    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        int columnsCount = types.size();
-        if (columnIndex < 0 || columnIndex > columnsCount - 1) {
-            throw new IndexOutOfBoundsException("get column type at: bad index");
-        }
-        return types.get(columnIndex);
     }
 }

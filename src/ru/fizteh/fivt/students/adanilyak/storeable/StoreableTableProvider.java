@@ -88,13 +88,16 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (value == null) {
+            throw new ParseException("storeable table provider: deserialize: value can not be null", 0);
+        }
         return JSONserializer.deserialize(table, value, this);
     }
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         if (!CheckOnCorrect.goodStoreableRow(table, value)) {
-            throw new IllegalArgumentException("storeable table provider: serialize: bad value");
+            throw new ColumnFormatException("storeable table provider: serialize: bad value");
         }
         return JSONserializer.serialize(table, value);
     }
