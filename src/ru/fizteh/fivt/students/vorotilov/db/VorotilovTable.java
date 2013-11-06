@@ -139,6 +139,7 @@ public class VorotilovTable implements Table {
     @Override
     public int commit() {
         int numberOfCommittedChanges = numberOfUncommittedChanges;
+        numberOfUncommittedChanges = 0;
         Set<Map.Entry<String, String>> dbSet = tableIndexedData.entrySet();
         Iterator<Map.Entry<String, String>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
