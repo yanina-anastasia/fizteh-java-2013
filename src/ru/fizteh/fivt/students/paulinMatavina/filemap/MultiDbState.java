@@ -194,7 +194,7 @@ public class MultiDbState extends State implements Table {
     private void assignInit() {
         for (int i = 0; i < folderNum; i++) {
             for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].initial = new HashMap<String, String>(data[i][j].data);
+                data[i][j].data = new HashMap<String, String>(data[i][j].initial);
             }
         }
     }
