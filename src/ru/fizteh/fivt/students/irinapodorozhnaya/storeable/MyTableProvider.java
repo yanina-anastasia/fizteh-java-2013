@@ -18,8 +18,9 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.TableRowFormat;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
 public class MyTableProvider implements ExtendProvider {
 
@@ -52,7 +53,7 @@ public class MyTableProvider implements ExtendProvider {
         
         checkCorrectName(name);
         if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("table name is null or has illegal name");
+            throw new IllegalArgumentException("bad column list");
         }
         
         File table = new File(dataBaseDir, name);
@@ -68,9 +69,14 @@ public class MyTableProvider implements ExtendProvider {
             Class<?> type = columnTypes.get(i);
             if (type == null) {
                 signature.close();
-                throw new IllegalArgumentException("null column type");
+                throw new IllegalArgumentException("illegal column type");
             }
-            signature.println(Utils.getPrimitiveTypeName(type.getSimpleName()));
+            String toWrite = Utils.getPrimitiveTypeName(type.getSimpleName());
+            if (toWrite == null) {
+                signature.close();
+                throw new IllegalArgumentException("illegal column type");
+            }
+            signature.println(toWrite);
         }
         signature.close();
         
