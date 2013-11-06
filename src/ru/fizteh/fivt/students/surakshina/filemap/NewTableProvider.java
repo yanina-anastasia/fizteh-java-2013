@@ -17,13 +17,17 @@ public class NewTableProvider implements TableProvider {
         workingDirectory = dir;
         for (File file : workingDirectory.listFiles()) {
             if (file.isDirectory()) {
-                tables.put(file.getName(), new NewTable(file.getName()));
+                tables.put(file.getName(), new NewTable(file.getName(), this));
             }
         }
     }
 
     public NewTable getNewCurrentTable() {
         return currentTable;
+    }
+
+    public File getCurrentTableFile() {
+        return new File(workingDirectory, currentTable.getName());
     }
 
     public void setCurrentTable(NewTable table) {
@@ -43,7 +47,23 @@ public class NewTableProvider implements TableProvider {
         c = (byte) Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         int ndirectory = c % 16;
         int nfile = c / 16 % 16;
-        File file = new File(workingDirectory + File.separator + ndirectory + ".dir" + File.separator + nfile + ".dat");
+        File fileDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
+                + ndirectory + ".dir");
+        if (!fileDir.exists()) {
+            if (!fileDir.mkdir()) {
+                throw new RuntimeException("Can't create file");
+            }
+        }
+        File file = new File(fileDir, nfile + ".dat");
+        if (!file.exists()) {
+            try {
+                if (!file.createNewFile()) {
+                    throw new RuntimeException("Can't create file");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Can't create file");
+            }
+        }
         return file;
     }
 
@@ -65,7 +85,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, String> load(File tableFile) throws IOException {
         HashMap<String, String> map = new HashMap<String, String>();
         for (File dir : tableFile.listFiles()) {
-            if (checkNameOfDataBaseDirectory(dir.toString()) && dir.isDirectory()) {
+            if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                 for (File file : dir.listFiles()) {
                     if (checkNameOfFiles(file.getName()) && file.isFile()) {
                         if (file.length() != 0) {
@@ -92,7 +112,7 @@ public class NewTableProvider implements TableProvider {
         } else {
             File table = new File(workingDirectory, name);
             table.mkdir();
-            tables.put(name, new NewTable(name));
+            tables.put(name, new NewTable(name, this));
             return tables.get(name);
         }
     }
@@ -116,7 +136,7 @@ public class NewTableProvider implements TableProvider {
             if (!files.containsKey(file)) {
                 files.put(file, new HashMap<String, String>());
             }
-            files.get(file).put(key, files.get(file).get(key));
+            files.get(file).put(key, map.get(key));
         }
         return files;
     }

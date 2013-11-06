@@ -15,7 +15,7 @@ public class CommandCommit extends DataBaseCommand {
         if (state.getTable() != null) {
             int count = state.getTable().commit();
             System.out.println(count);
-            if (count != 0) {
+            /*if (count != 0) {
                 try {
                     state.getTableProvider().saveChanges(state.getCurrentDirectory());
                 } catch (IOException e) {
@@ -23,7 +23,7 @@ public class CommandCommit extends DataBaseCommand {
                 }
             } else {
                return;
-            }
+            }*/
         } else {
             System.out.println("no table");
         }

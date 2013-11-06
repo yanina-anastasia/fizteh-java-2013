@@ -9,13 +9,16 @@ public class ValueState<ValueType> {
     }
     public boolean needToCommit() {
         if (commitedValue == null) {
-           return (commitedValue != value);
+           return (value != null);
         } else {
           return !commitedValue.equals(value);  
         }
     }
     public ValueType getValue() {
         return value;
+    }
+    public ValueType getCommitedValue() {
+        return commitedValue;
     }
     public void setValue(ValueType value) {
         this.value = value;
