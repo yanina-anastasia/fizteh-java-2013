@@ -150,6 +150,11 @@ public class WorkWithStoreableDataBase {
                 if (!fileIndexDat.exists()) {
                     continue;
                 }
+
+                if (fileIndexDat.length() == 0) {
+                    throw new IOException(fileIndexDat.toString() + ": is empty");
+                }
+
                 WorkWithDatFiles.readIntoStoreableMap(fileIndexDat, map, table, provider);
             }
         }
