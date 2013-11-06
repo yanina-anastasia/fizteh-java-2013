@@ -41,6 +41,9 @@ public class DatabaseTable implements Table {
     }
 
     public String getName() {
+        if (tableName == null) {
+            throw new IllegalArgumentException("Table name cannot be null");
+        }
         return tableName;
     }
 
@@ -62,6 +65,9 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if ((key == null) || (key.isEmpty())) {
+            throw new IllegalArgumentException("Key can not be null");
+        }
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
