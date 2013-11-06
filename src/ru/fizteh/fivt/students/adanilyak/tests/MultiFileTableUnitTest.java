@@ -16,21 +16,21 @@ import java.io.IOException;
  * Time: 18:32
  */
 public class MultiFileTableUnitTest {
-    MultiFileTableProvider testManager;
+    MultiFileTableProvider tableProvider;
     Table testTableEng;
     Table testTableRus;
 
     @Before
     public void setUpTestObject() throws IOException {
-        testManager = new MultiFileTableProvider(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
-        testTableEng = testManager.createTable("testTable9");
-        testTableRus = testManager.createTable("тестоваяТаблица10");
+        tableProvider = new MultiFileTableProvider(new File("/Users/Alexander/Documents/JavaDataBase/Tests"));
+        testTableEng = tableProvider.createTable("testTable9");
+        testTableRus = tableProvider.createTable("тестоваяТаблица10");
     }
 
     @After
     public void tearDownTestObject() {
-        testManager.removeTable("testTable9");
-        testManager.removeTable("тестоваяТаблица10");
+        tableProvider.removeTable("testTable9");
+        tableProvider.removeTable("тестоваяТаблица10");
     }
 
     /**

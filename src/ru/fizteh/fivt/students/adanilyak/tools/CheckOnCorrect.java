@@ -26,11 +26,13 @@ public class CheckOnCorrect {
         if (arg == null) {
             return false;
         }
+        if (arg.contains(" ")) {
+            return false;
+        }
         if (arg.trim().isEmpty()) {
             return false;
         }
-
-        return (!arg.contains(" "));
+        return true;
     }
 
     public static boolean goodColumnTypes(List<Class<?>> givenTypes) {
