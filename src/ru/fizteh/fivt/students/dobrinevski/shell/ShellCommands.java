@@ -47,7 +47,7 @@ public class ShellCommands {
     public static class Pwd extends Command {
         @Override
         public void innerExecute(String[] args) {
-            System.out.println(parentShell.currentDir);
+            System.out.println(parentShell.currentDir.toPath().normalize());
         }
         public Pwd() {
             super(1);
