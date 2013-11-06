@@ -125,13 +125,11 @@ public class Table {
     }
 
     public void readTable() throws Exception {
-        if (path.listFiles() == null) {
+        File[] subDirs = path.listFiles();
+        if (subDirs == null) {
             return;
         }
-        for (File dir : path.listFiles()) {
-            if (dir.getName().equals(".DS_Store")) {
-                continue;
-            }
+        for (File dir : subDirs) {
             if (!dir.isDirectory() || !isValidDirectoryName(dir.getName())) {
                 throw new DataFormatException("Table '" + name + "' contains strange file(s): '" + dir.getName() + "'");
             }
@@ -140,7 +138,11 @@ public class Table {
     }
 
     public void readData(File directory) throws Exception {
-        for (File file : directory.listFiles()) {
+        File[] children = directory.listFiles();
+        if (children == null) {
+            return;
+        }
+        for (File file : children) {
             if (!isValidFileName(file.getName())) {
                 throw new DataFormatException("Table '" + name + "' contains strange file(s): '"
                         + file.getName() + "'");
@@ -176,7 +178,8 @@ public class Table {
         try {
             this.delete();
         } catch (Exception e) {
-            //
+            System.err.println("Error while updating database files: " + e.getMessage());
+            System.exit(1);
         }
         FileUtils.mkDir(path.getAbsolutePath());
         for (String key: data.keySet()) {
@@ -184,20 +187,9 @@ public class Table {
             File directory = FileUtils.mkDir(path.getAbsolutePath()
                                         + File.separator + getDirName(key));
             File file = FileUtils.mkFile(directory, getFileName(key));
-            BufferedOutputStream outputStream = null;
-            try {
-                outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true));
-                //System.out.println("writing " + key);
+            try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), true))) {
                 writeEntry(key, value, outputStream);
-            } finally {
-                try {
-                    if (outputStream != null) {
-                        outputStream.close();
-                    }
-                } catch (IOException e) {
-                    System.err.println(e.getMessage());
-                }
-            } 
+            }
         }
     }
 
