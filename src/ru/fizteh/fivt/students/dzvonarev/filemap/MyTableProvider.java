@@ -18,8 +18,8 @@ public class MyTableProvider implements TableProvider {
         readData();
     }
 
-    private String workingDirectory;   // working directory
-    private String currTable;    // working table
+    private String workingDirectory;
+    private String currTable;
     private HashMap<String, MyTable> multiFileMap;
 
     public String getCurrentTable() {
@@ -31,9 +31,8 @@ public class MyTableProvider implements TableProvider {
     }
 
     public int changeCurrentTable(String newTable) {
-        if (!(new File(workingDirectory + File.separator + newTable)).exists()
-                || ((new File(workingDirectory + File.separator + newTable)).exists()
-                && (new File(workingDirectory + File.separator + newTable)).isFile())) {
+        File newDirectory = new File(workingDirectory + File.separator + newTable);
+        if (!newDirectory.exists() || newDirectory.exists() && newDirectory.isFile()) {
             return -1;
         } else {
             currTable = newTable;
@@ -42,11 +41,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public boolean tableNameIsValid(String name) {
-        if (name == null || !(name.matches("\\w+"))) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(name == null || !(name.matches("\\w+")));
     }
 
     public void readData() throws IOException, RuntimeException {
@@ -59,7 +54,7 @@ public class MyTableProvider implements TableProvider {
                     if (dirTable.isFile()) {
                         continue;
                     }
-                    MyTable newTable = new MyTable(workingDirectory + File.separator + table);
+                    MyTable newTable = new MyTable(dirTable);
                     newTable.readFileMap();
                     multiFileMap.put(table, newTable);
                 }
@@ -115,7 +110,7 @@ public class MyTableProvider implements TableProvider {
         if (!newTable.mkdir()) {
             throw new IllegalArgumentException("Can't create table " + tableName);
         }
-        MyTable table = new MyTable(workingDirectory + File.separator + tableName);
+        MyTable table = new MyTable(newTable);
         multiFileMap.put(tableName, table);
         return table;
     }

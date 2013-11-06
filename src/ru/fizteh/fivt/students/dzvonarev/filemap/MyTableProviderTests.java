@@ -29,4 +29,31 @@ public class MyTableProviderTests {
         provider.removeTable("instance");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void creatingNullTable() {
+        provider.createTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getNullTable() {
+        provider.getTable(null);
+    }
+
+    @Test
+    public void getNonExistingTable() {
+        Assert.assertNull("null", provider.getTable("testTable"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeNullTable() {
+        provider.removeTable(null);
+    }
+
+    @Test
+    public void getRemovedTable() {
+        provider.createTable("table");
+        provider.removeTable("table");
+        Assert.assertNull("null", provider.getTable("table"));
+    }
+
 }

@@ -19,17 +19,17 @@ public class MyTable implements Table {
         String newValue;
     }
 
-    public MyTable(String newTableName) {
-        tableName = newTableName;
+    public MyTable(File dirTable) {
+        tableFile = dirTable;
+        tableName = dirTable.getName();
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
     }
 
     private String tableName; // current table
+    private File tableFile;
     private HashMap<String, String> fileMap;
     private HashMap<String, ValueNode> changesMap;
-    private int size;
-
 
     public void modifyFileMap() {
         if (changesMap == null || changesMap.isEmpty()) {
@@ -40,7 +40,7 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (!Equals(value.newValue, value.oldValue)) {
+            if (!equals(value.newValue, value.oldValue)) {
                 if (value.newValue == null) {
                     fileMap.remove(currItem.getKey());
                 } else {
@@ -54,7 +54,7 @@ public class MyTable implements Table {
         if (changesMap == null || changesMap.isEmpty()) {
             return 0;
         }
-        size = 0;
+        int size = 0;
         Set fileSet = changesMap.entrySet();
         Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
         while (i.hasNext()) {
@@ -62,11 +62,9 @@ public class MyTable implements Table {
             ValueNode value = currItem.getValue();
             if (value.oldValue == null && value.newValue != null) {
                 ++size;
-                continue;
             }
             if (value.oldValue != null && value.newValue == null) {
                 --size;
-                continue;
             }
         }
         return size;
@@ -82,34 +80,28 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (!Equals(value.newValue, value.oldValue)) {
+            if (!equals(value.newValue, value.oldValue)) {
                 ++counter;
             }
         }
         return counter;
     }
 
-    public boolean Equals(String st1, String st2) {
-        if (st1 == null && st2 == null) {
-            return true;
-        }
-        if (st1 == null) {
-            return false;
-        }
-        return st1.equals(st2);
+    public boolean equals(String st1, String st2) {
+        return st1 == null && st2 == null || (st1 != null) && st1.equals(st2);
     }
 
     public void readFileMap() throws RuntimeException, IOException {
-        String[] dbDirs = (new File(tableName)).list();
+        String[] dbDirs = tableFile.list();
         if (dbDirs != null && dbDirs.length != 0) {
             for (String dbDir : dbDirs) {
                 if (!isValidDir(dbDir)) {
                     throw new RuntimeException("directory " + dbDir + " is not valid");
                 }
-                File dbDirTable = new File(tableName + File.separator + dbDir);
+                File dbDirTable = new File(tableName, dbDir);
                 String[] dbDats = dbDirTable.list();
                 if (dbDats == null || dbDats.length == 0) {
-                    throw new RuntimeException("reading directory: " + tableName + " is not valid");
+                    throw new RuntimeException("table " + getName() + " is not valid: directory " + dbDirTable + " is empty");
                 }
                 for (String dbDat : dbDats) {
                     String str = tableName + File.separator + dbDir + File.separator + dbDat;
@@ -252,10 +244,6 @@ public class MyTable implements Table {
         RandomAccessFile fileWriter = openFileForWrite(path);
         fileWriter.skipBytes((int) fileWriter.length());
         try {
-            if (key == null || value == null) {
-                closeFile(fileWriter);
-                throw new IOException("updating file: error in writing");
-            }
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
             fileWriter.writeInt(keyBytes.length);
@@ -263,7 +251,7 @@ public class MyTable implements Table {
             fileWriter.write(keyBytes);
             fileWriter.write(valueBytes);
         } catch (IOException e) {
-            throw new IOException("updating file: error in writing");
+            throw new IOException(e.getMessage() + " updating file " + path + " : error in writing", e);
         } finally {
             closeFile(fileWriter);
         }
@@ -274,7 +262,7 @@ public class MyTable implements Table {
         try {
             newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
-            throw new IOException("reading from file: file not found");
+            throw new IOException(e.getMessage() + " reading from file: file " + fileName + " not found", e);
         }
         return newFile;
     }
@@ -284,7 +272,7 @@ public class MyTable implements Table {
         try {
             newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
-            throw new IOException("writing to file: file not found");
+            throw new IOException(e.getMessage() + "writing to file: file " + fileName + " not found", e);
         }
         return newFile;
     }
@@ -293,7 +281,7 @@ public class MyTable implements Table {
         try {
             file.close();
         } catch (IOException e) {
-            throw new IOException("error in closing file");
+            throw new IOException(e.getMessage() + " error in closing file", e);
         }
     }
 
