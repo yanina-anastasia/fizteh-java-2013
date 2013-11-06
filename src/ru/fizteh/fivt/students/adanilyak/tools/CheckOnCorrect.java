@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableRow;
@@ -57,7 +58,7 @@ public class CheckOnCorrect {
         return true;
     }
 
-    public static boolean goodStoreableRow(Table givenTable, StoreableRow givenStoreable) {
+    public static boolean goodStoreableRow(Table givenTable, Storeable givenStoreable) {
         if (givenStoreable == null) {
             return false;
         }
@@ -67,8 +68,18 @@ public class CheckOnCorrect {
                     if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
                         return false;
                     }
-                } else if (givenStoreable.getColumnType(i) != givenTable.getColumnType(i)){
-                    return false;
+                } else {
+                    try {
+                        givenStoreable.setColumnAt(i, givenTable.getColumnType(i).newInstance());
+                    } catch (InstantiationException exc) {
+                        System.err.println("good storeable row: bad type in table");
+                    } catch (IllegalAccessException exc) {
+                        System.err.println("good storeable row: one of table type's constructor is not accessible");
+                    } catch (ColumnFormatException exc) {
+                        return false;
+                    } finally {
+                        givenStoreable.setColumnAt(i, null);
+                    }
                 }
             } catch (IndexOutOfBoundsException exc) {
                 return false;

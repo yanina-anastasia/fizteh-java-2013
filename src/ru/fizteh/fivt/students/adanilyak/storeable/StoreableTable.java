@@ -76,10 +76,10 @@ public class StoreableTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (!CheckOnCorrect.goodArg(key) || !CheckOnCorrect.goodStoreableRow(this, (StoreableRow)value)) {
+        if (!CheckOnCorrect.goodArg(key) || !CheckOnCorrect.goodStoreableRow(this, value)) {
             throw new IllegalArgumentException("put: key or value is bad");
         }
-        if (!CheckOnCorrect.goodStoreableRow(this, (StoreableRow)value)) {
+        if (!CheckOnCorrect.goodStoreableRow(this, value)) {
             throw new ColumnFormatException("put: value not suitable for this table");
         }
         Storeable valueInData = data.get(key);
