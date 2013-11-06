@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.adanilyak.tools;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableRow;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -56,7 +57,7 @@ public class CheckOnCorrect {
         return true;
     }
 
-    public static boolean goodStoreableRow(Table givenTable, Storeable givenStoreable) {
+    public static boolean goodStoreableRow(Table givenTable, StoreableRow givenStoreable) {
         if (givenStoreable == null) {
             return false;
         }
@@ -66,6 +67,8 @@ public class CheckOnCorrect {
                     if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
                         return false;
                     }
+                } else if (givenStoreable.getColumnType(i) != givenTable.getColumnType(i)){
+                    return false;
                 }
             } catch (IndexOutOfBoundsException exc) {
                 return false;

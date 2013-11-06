@@ -93,7 +93,7 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (!CheckOnCorrect.goodStoreableRow(table, value)) {
+        if (!CheckOnCorrect.goodStoreableRow(table, (StoreableRow)value)) {
             throw new IllegalArgumentException("storeable table provider: serialize: bad value");
         }
         return JSONserializer.serialize(table, value);

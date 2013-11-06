@@ -111,4 +111,12 @@ public class StoreableRow implements Storeable {
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         return (String) getSomethingAt(columnIndex, String.class);
     }
+
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        int columnsCount = types.size();
+        if (columnIndex < 0 || columnIndex > columnsCount - 1) {
+            throw new IndexOutOfBoundsException("get column type at: bad index");
+        }
+        return types.get(columnIndex);
+    }
 }
