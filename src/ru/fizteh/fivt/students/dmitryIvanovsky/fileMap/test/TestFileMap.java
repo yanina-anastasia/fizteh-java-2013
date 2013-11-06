@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMap;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;

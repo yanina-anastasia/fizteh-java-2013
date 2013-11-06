@@ -1,28 +1,99 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-import java.io.File;
-import java.io.RandomAccessFile;
+
+import java.io.*;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertClassToString;
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
 
 public class FileMap implements Table {
 
     private final Path pathDb;
     private final CommandShell mySystem;
     String nameTable;
-    Map<String, String> tableData;
-    Map<String, String> changeTable;
+    Map<String, Storeable> tableData;
+    Map<String, Storeable> changeTable;
     boolean existDir = false;
+    FileMapProvider parent;
+    List<Class<?>> columnType = new ArrayList<Class<?>>();
 
-    public FileMap(Path pathDb, String nameTable) throws Exception {
+    public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
         this.pathDb = pathDb;
+        this.changeTable = new HashMap<>();
+        this.parent = parent;
+        this.tableData = new HashMap<>();
+        this.mySystem = new CommandShell(pathDb.toString(), false, false);
+
+        File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
+        if (!theDir.exists()) {
+            try {
+                mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+                existDir = true;
+            } catch (Exception e) {
+                e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
+                throw e;
+            }
+        }
+
+        loadTypeFile(pathDb);
+
+        try {
+            loadTable(nameTable);
+        } catch (Exception e) {
+            e.addSuppressed(new ErrorFileMap("Format error storage table " + nameTable));
+            throw e;
+        }
+    }
+
+    private String readFileTsv(String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader( new File(fileName).getAbsoluteFile()))) {
+            String s;
+            while ((s = in.readLine()) != null) {
+                sb.append(s);
+            }
+        }
+        if (sb.length() == 0) {
+            throw new IOException("tsv file is empty");
+        }
+        return sb.toString();
+    }
+
+    private void writeFileTsv() throws FileNotFoundException {
+        try (PrintWriter out = new PrintWriter(pathDb.resolve("signature.tsv").toFile().getAbsoluteFile())){
+            for (Class<?> col : columnType) {
+                out.print(convertClassToString(col));
+            }
+        }
+    }
+
+    private void loadTypeFile(Path pathDb) throws IOException {
+        String fileStr = readFileTsv(pathDb.resolve("signature.tsv").toString());
+        StringTokenizer token = new StringTokenizer(fileStr);
+        while (token.hasMoreTokens()) {
+            String tok = token.nextToken();
+            Class<?> type = convertStringToClass(tok);
+            if (type == null) {
+                throw new IllegalArgumentException(String.format("wrong type %s", tok));
+            }
+            columnType.add(type);
+        }
+    }
+
+    public FileMap(Path pathDb, String nameTable, FileMapProvider parent, List<Class<?>> columnType) throws Exception {
+        this.nameTable = nameTable;
+        this.pathDb = pathDb;
+        this.parent = parent;
+        this.columnType = columnType;
         this.changeTable = new HashMap<>();
         this.tableData = new HashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
@@ -99,7 +170,7 @@ public class FileMap implements Table {
         }
     }
 
-    public void loadTableFile(File randomFile, Map dbMap, String nameDir) throws Exception {
+    public void loadTableFile(File randomFile, Map<String, Storeable> dbMap, String nameDir) throws Exception {
         if (randomFile.isDirectory()) {
             throw new ErrorFileMap("data file can't be a directory");
         }
@@ -160,7 +231,9 @@ public class FileMap implements Table {
                     if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
                         throw new ErrorFileMap("wrong key in the file");
                     }
-                    dbMap.put(key, value);
+
+
+                    dbMap.put(key, parent.deserialize(this, value));
 
                     vectorByte.clear();
                     dbFile.seek(currentPoint);
@@ -192,7 +265,9 @@ public class FileMap implements Table {
             return;
         }
 
-        Map<String, String>[][] arrayMap = new HashMap[16][16];
+        writeFileTsv();
+
+        Map<String, Storeable>[][] arrayMap = new HashMap[16][16];
         boolean[] useDir = new boolean[16];
         for (String key : tableData.keySet()) {
 
@@ -200,7 +275,7 @@ public class FileMap implements Table {
             int nfile = FileMapUtils.getHashFile(key);
 
             if (arrayMap[ndirectory][nfile] == null) {
-                arrayMap[ndirectory][nfile] = new HashMap<String, String>();
+                arrayMap[ndirectory][nfile] = new HashMap<String, Storeable>();
             }
             arrayMap[ndirectory][nfile].put(key, tableData.get(key));
             useDir[ndirectory] = true;
@@ -226,7 +301,7 @@ public class FileMap implements Table {
         tableData.clear();
     }
 
-    public void closeTableFile(File randomFile, Map<String, String> curMap) throws Exception {
+    public void closeTableFile(File randomFile, Map<String, Storeable> curMap) throws Exception {
         if (curMap == null || curMap.isEmpty()) {
             return;
         }
@@ -254,7 +329,8 @@ public class FileMap implements Table {
                 long point = dbFile.getFilePointer();
 
                 dbFile.seek(len);
-                String value = curMap.get(key);
+                Storeable valueStoreable = curMap.get(key);
+                String value = parent.serialize(this, valueStoreable);
                 dbFile.write(value.getBytes("UTF8"));
                 len += value.getBytes("UTF8").length;
 
@@ -292,19 +368,24 @@ public class FileMap implements Table {
         return true;
     }
 
-    public String put(String key, String value) {
-        if (key == null || value == null || key.equals("") || value.equals("")) {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException{
+        if (key == null || value == null || key.equals("")) {
             throw new IllegalArgumentException("key or value is clear");
         }
-        if (onlySpace(key) || onlySpace(value)) {
+        if (onlySpace(key)) {
             throw new IllegalArgumentException("only spaces");
         }
-        if (key.contains("\n") || value.contains("\n")) {
+        if (key.contains("\n")) {
             throw new IllegalArgumentException("newline in key or value");
         }
 
+        FileMapStoreable st = (FileMapStoreable) value;
+        if (!st.messageEqualsType(columnType).isEmpty()) {
+            throw new ColumnFormatException(st.messageEqualsType(columnType));
+        }
+
         if (tableData.containsKey(key)) {
-            String oldValue = tableData.get(key);
+            Storeable oldValue = tableData.get(key);
 
             if (oldValue.equals(value)) {
                 return oldValue;
@@ -331,7 +412,7 @@ public class FileMap implements Table {
         }
     }
 
-    public String get(String key) {
+    public Storeable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key is clear");
         }
@@ -342,7 +423,7 @@ public class FileMap implements Table {
         }
     }
 
-    public String remove(String key) {
+    public Storeable remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key is clear");
         }
@@ -356,7 +437,7 @@ public class FileMap implements Table {
                 }
             }
 
-            String value = tableData.get(key);
+            Storeable value = tableData.get(key);
             tableData.remove(key);
             return value;
         } else {
@@ -376,7 +457,7 @@ public class FileMap implements Table {
 
     public int rollback() {
         for (String key : changeTable.keySet()) {
-            String value = changeTable.get(key);
+            Storeable value = changeTable.get(key);
             if (value == null) {
                 tableData.remove(key);
             } else {
@@ -386,6 +467,16 @@ public class FileMap implements Table {
         int count = changeTable.size();
         changeTable.clear();
         return count;
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return columnType.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return columnType.get(columnIndex);
     }
 
 }

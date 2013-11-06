@@ -1,14 +1,16 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileMapProviderFactory implements TableProviderFactory {
 
-    public FileMapProvider create(String dir) {
+    public TableProvider create(String dir) throws IOException {
         if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException();
         }
@@ -26,7 +28,8 @@ public class FileMapProviderFactory implements TableProviderFactory {
         }
         Path pathTables = Paths.get(".").resolve(dir);
         try {
-            return new FileMapProvider(pathTables.toFile().getCanonicalPath());
+            TableProvider table = new FileMapProvider(pathTables.toFile().getCanonicalPath());
+            return table;
         } catch (Exception e) {
             throw new RuntimeException();
         }

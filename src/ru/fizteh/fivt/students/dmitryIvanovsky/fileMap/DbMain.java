@@ -28,7 +28,7 @@ public class DbMain {
         FileMapProvider fileMapCommand = null;
         try {
             FileMapProviderFactory factory = new FileMapProviderFactory();
-            fileMapCommand = factory.create(path);
+            fileMapCommand = (FileMapProvider) factory.create(path);
         } catch (Exception e) {
             System.err.println("Error loading database");
             FileMapUtils.getMessage(e);
