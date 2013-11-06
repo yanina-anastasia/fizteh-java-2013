@@ -10,10 +10,6 @@ public class Value implements Storeable {
     private ArrayList<Object> value;
     private Table table;
 
-//    Value() {
-//        value = new ArrayList<>(1);
-//    }
-
     Value(Table table) {
         this.table = table;
         value = new ArrayList<>(1);
@@ -24,8 +20,10 @@ public class Value implements Storeable {
         if (table.getColumnsCount() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!value.getClass().equals(table.getColumnType(columnIndex))) {
-            throw new ColumnFormatException("Wrong type of value ");
+        if (!(value == null)) {
+            if (!value.getClass().equals(table.getColumnType(columnIndex))) {
+                throw new ColumnFormatException("Wrong type of value ");
+            }
         }
         this.value.add(columnIndex, value);
     }
@@ -72,7 +70,6 @@ public class Value implements Storeable {
         }
         return (Byte) value.get(columnIndex);
     }
-
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {

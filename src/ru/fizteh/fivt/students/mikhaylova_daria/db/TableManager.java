@@ -30,17 +30,17 @@ public class TableManager implements TableProvider {
     TableManager(String nameMainDir) throws IllegalArgumentException {
         mainDir = new File(nameMainDir);
         if (!mainDir.exists()) {
-            throw new IllegalArgumentException(nameMainDir + " doesn't exist");
+            throw new IllegalArgumentException("wrong type (" + nameMainDir + " doesn't exist)");
         }
         if (!mainDir.isDirectory()) {
-            throw new IllegalArgumentException(nameMainDir + " is not a directory");
+            throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
         }
         try {
            // cleaner();
         } catch (IllegalStateException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw new IllegalArgumentException("wrong type(" + e.getMessage() + ")", e);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException("wrong type(" + e.getMessage() + ")", e);
         }
     }
 
@@ -92,17 +92,17 @@ public class TableManager implements TableProvider {
 
     public TableData createTable(String nameTable, List<Class<?>> columnTypes) throws IOException {
         if (nameTable == null) {
-            throw new IllegalArgumentException("nameTable is null");
+            throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
         nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
-            throw new IllegalArgumentException("nameTable is empty");
+            throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
         if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("bad symbol in tablename");
+            throw new IllegalArgumentException("wrong type (bad symbol in tablename");
         }
         if (nameTable.startsWith(".") || (nameTable.endsWith("."))) {
-            throw new IllegalArgumentException("bad symbol in tablename");
+            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
@@ -110,7 +110,7 @@ public class TableManager implements TableProvider {
         if (!creatingTableFile.exists()) {
             creatingTable = new TableData(creatingTableFile, columnTypes, this);
             if (!creatingTableFile.isDirectory()) {
-                throw new RuntimeException(correctName + "is not directory");
+                throw new RuntimeException("wrong type (" + correctName + "is not directory)");
             }
             if (!bidDataBase.containsKey(nameTable)) {
                 bidDataBase.put(nameTable, creatingTable);
@@ -125,10 +125,10 @@ public class TableManager implements TableProvider {
         }
         nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
-            throw new IllegalArgumentException("nameTable is empty");
+            throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
         if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("bad symbol in tablename");
+            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
         }
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
@@ -148,23 +148,23 @@ public class TableManager implements TableProvider {
 
     public void removeTable(String nameTable) throws IOException {
         if (nameTable == null) {
-            throw new IllegalArgumentException("nameTable is null");
+            throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
         nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
-            throw new IllegalArgumentException("nameTable is empty");
+            throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
         if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("bad symbol in tablename");
+            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
         }
 
         if (nameTable.startsWith(".") || (nameTable.endsWith("."))) {
-            throw new IllegalArgumentException("bad symbol in tablename");
+            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
         if (!creatingTableFile.exists()) {
-            throw new IllegalStateException("Table " + nameTable + "does not exist");
+            throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
         } else {
             String[] argShell = new String[] {
                     "rm",
@@ -186,28 +186,17 @@ public class TableManager implements TableProvider {
             Element row = doc.createElement("row");
             doc.appendChild(row);
             for (i = 0; i < table.getColumnsCount(); ++i) {
+                valueStr = null;
                 Element column = doc.createElement("col");
                 row.appendChild(column);
-                if (table.getColumnType(i).equals(Integer.class)) {
-                    valueStr = value.getIntAt(i).toString();
+                if (!(value.getColumnAt(i) == null)) {
+                    valueStr = value.getColumnAt(i).toString();
+                    Text text = doc.createTextNode(valueStr);
+                    column.appendChild(text);
+                } else {
+                    Element nil = doc.createElement("null");
+                    row.appendChild(nil);
                 }
-                if (table.getColumnType(i).equals(Byte.class)) {
-                    valueStr = value.getByteAt(i).toString();
-                }
-                if (table.getColumnType(i).equals(Float.class)) {
-                    valueStr = value.getFloatAt(i).toString();
-                }
-                if (table.getColumnType(i).equals(Double.class)) {
-                    valueStr = value.getDoubleAt(i).toString();
-                }
-                if (table.getColumnType(i).equals(Boolean.class)) {
-                    valueStr = value.getBooleanAt(i).toString();
-                }
-                if (table.getColumnType(i).equals(String.class)) {
-                    valueStr = value.getStringAt(i);
-                }
-                Text text = doc.createTextNode(valueStr);
-                column.appendChild(text);
             }
             TransformerFactory transFac = TransformerFactory.newInstance();
             Transformer trans = transFac.newTransformer();
@@ -219,7 +208,7 @@ public class TableManager implements TableProvider {
             xmlString = sw.toString();
 
         } catch (NumberFormatException numFormExc) {
-            throw new ColumnFormatException("Wrong type of argument " + i);
+            throw new ColumnFormatException("wrong type (Wrong type of argument " + i + ")");
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -235,11 +224,12 @@ public class TableManager implements TableProvider {
             Document xmlDoc = xmlDocBuilder.parse(theStream);
             Element row = xmlDoc.getDocumentElement();
             if (!row.getTagName().equals("row")) {
-                throw new ParseException("Bad first tag. \"row\" expected, but " + row.getTagName() + "was", 0);
+                throw new ParseException("wrong type (Bad first tag. \"row\" expected, but " + row.getTagName()
+                        + "was)", 0);
             }
             NodeList children = row.getChildNodes();
             if (children.getLength() != table.getColumnsCount()) {
-                throw new ParseException("Wrong number of columns", 0);
+                throw new ParseException("wrong type (Wrong number of columns)", 0);
             }
             for (int i = 0; i < children.getLength(); i++) {
                 Node child  = children.item(i);
@@ -250,7 +240,7 @@ public class TableManager implements TableProvider {
                     if (child.getNodeName().equals("null")) {
                         valueColumnStr = null;
                     } else {
-                        throw new ParseException("Unknown tag", i);
+                        throw new ParseException("wrong type (Unknown tag)", i);
                     }
                 }
                 try {
@@ -282,8 +272,8 @@ public class TableManager implements TableProvider {
                         }
                     }
                 } catch (NumberFormatException e) {
-                    throw new ParseException("Wrong type of column " + i
-                            + table.getColumnType(i).getCanonicalName() + "was expected", i);
+                    throw new ParseException("wrong type (Wrong type of column " + i
+                            + table.getColumnType(i).getCanonicalName() + "was expected)", i);
                 }
             }
         } catch (SAXException e) {
@@ -297,8 +287,7 @@ public class TableManager implements TableProvider {
     }
 
     public Storeable createFor(Table table) {
-        Storeable created = new Value(table);
-        return created;
+        return new Value(table);
     }
 
     /**
@@ -313,8 +302,14 @@ public class TableManager implements TableProvider {
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         Storeable created = new Value(table);
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            created.setColumnAt(i, values.get(i));
+        try {
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
+                created.setColumnAt(i, values.get(i));
+            }
+        } catch (ColumnFormatException e) {
+            throw new ColumnFormatException("wrong type (" + e.getMessage() + ")", e);
+        }  catch (IndexOutOfBoundsException e) {
+            throw new IndexOutOfBoundsException("wrong type (" + e.getMessage() + ")");
         }
         return created;
     }
