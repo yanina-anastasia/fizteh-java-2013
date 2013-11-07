@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-//import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;

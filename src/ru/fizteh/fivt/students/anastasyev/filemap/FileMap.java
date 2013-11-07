@@ -34,9 +34,7 @@ public class FileMap {
             throw e;
         } catch (IOException e) {
             throw new IOException(e.getMessage(), e);
-        } /*catch (Exception e) {
-            throw new IOException(e.getMessage(), e);
-        } */
+        }
         if (elementHashMap.isEmpty()) {
             delete();
         }
@@ -57,9 +55,7 @@ public class FileMap {
             throw new FileNotFoundException(nfile + ".dat - File not found");
         } catch (IOException e) {
             throw new IOException(e.getMessage(), e);
-        } /*catch (Exception e) {
-            throw new Exception("In " + nfile + ".dat something goes very-very wrong", e);
-        }  */
+        }
     }
 
     private void readWithCheck(RandomAccessFile input) throws IOException, ParseException {
