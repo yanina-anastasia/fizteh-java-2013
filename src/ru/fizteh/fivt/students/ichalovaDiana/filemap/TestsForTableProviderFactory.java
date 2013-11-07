@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ichalovaDiana.filemap;
+/*package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class TestsForTableProviderFactory {
     static Path databaseDirectory;
@@ -28,7 +28,7 @@ public class TestsForTableProviderFactory {
     
     @AfterClass
     public static void deleteDatabase() throws IOException {
-        FileUtils.resursiveDelete(databaseDirectory);
+        FileUtils.recursiveDelete(databaseDirectory);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -60,4 +60,4 @@ public class TestsForTableProviderFactory {
     public void createDirWithBackSlash() {
         tableProviderFactory.create("..\table");
     }
-}
+}*/

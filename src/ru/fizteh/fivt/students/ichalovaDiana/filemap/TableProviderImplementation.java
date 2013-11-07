@@ -127,15 +127,6 @@ public class TableProviderImplementation implements TableProvider {
     }
     
 
-    /**
-     * ѕреобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable}, соответствующий структуре таблицы.
-     *
-     * @param table “аблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param value —трока, из которой нужно прочитать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @return ѕрочитанный {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     *
-     * @throws java.text.ParseException - при каких-либо несоответсти€х в прочитанных данных.
-     */
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (value == null) {
             return null;
@@ -245,15 +236,6 @@ public class TableProviderImplementation implements TableProvider {
         return new StoreableImplementation(table);
     }
 
-    /**
-     * —оздает новый {@link ru.fizteh.fivt.storage.structured.Storeable} дл€ указанной таблицы, подставл€€ туда переданные значени€.
-     *
-     * @param table “аблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param values —писок значений, которыми нужно проинициализировать пол€ Storeable.
-     * @return {@link ru.fizteh.fivt.storage.structured.Storeable}, проинициализированный переданными значени€ми.
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException ѕри несоответствии типа переданного значени€ и колонки.
-     * @throws IndexOutOfBoundsException ѕри несоответствии числа переданных значений и числа колонок.
-     */
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         return new StoreableImplementation(table, values);
         
