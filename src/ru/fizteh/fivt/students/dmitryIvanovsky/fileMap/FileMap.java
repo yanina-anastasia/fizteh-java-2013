@@ -387,6 +387,8 @@ public class FileMap implements Table {
                 if (tmpFile.isDirectory()) {
                     for (File c : listFiles) {
                         s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
+                        s1 += readFileTsv2(c.getAbsolutePath().toString());
+                        s1 += "\n\n\n";
                         rm(c.toString());
                     }
                 } else {
@@ -396,7 +398,7 @@ public class FileMap implements Table {
             }
 
         } catch (Exception e) {
-
+            s1 += e.getMessage();
         }
     }
 
