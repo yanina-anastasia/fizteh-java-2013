@@ -4,26 +4,27 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Value implements Storeable {
-    ArrayList<Class<?>> types;
-    List<?> columns;
+    private ArrayList<Class<?>> types;
+    private ArrayList<Object> columns = new ArrayList<Object>();
 
-    public Value(ArrayList<Class<?>> columnTypes, List<?> columnValues) {
+    public Value(ArrayList<Class<?>> columnTypes) {
         types = columnTypes;
-        columns = columnValues;
+        for (int i = 0; i < types.size(); ++i) {
+            columns.add(null);
+        }
     }
 
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnIndex < 0 || columnIndex >= columns.size()) {
+        if (columnIndex < 0 || columnIndex >= types.size()) {
             throw new IndexOutOfBoundsException("Incorrect number of column to set.");
         }
-        if (!value.getClass().equals(types.get(columnIndex))) {
+        if (value != null && !value.getClass().equals(types.get(columnIndex))) {
             throw new ColumnFormatException("Incorrect type of setting value.");
         }
-
+        columns.set(columnIndex, value);
     }
 
     @Override

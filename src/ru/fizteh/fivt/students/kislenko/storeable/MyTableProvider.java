@@ -87,7 +87,11 @@ public class MyTableProvider implements TableProvider {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values.add(null);
         }
-        return new Value(types, values);
+        Value v = new Value(types);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            v.setColumnAt(i, null);
+        }
+        return v;
     }
 
     @Override
@@ -102,6 +106,10 @@ public class MyTableProvider implements TableProvider {
                 throw new ColumnFormatException("Invalid list of values.");
             }
         }
-        return new Value(types, values);
+        Value v = new Value(types);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            v.setColumnAt(i, values.get(i));
+        }
+        return v;
     }
 }
