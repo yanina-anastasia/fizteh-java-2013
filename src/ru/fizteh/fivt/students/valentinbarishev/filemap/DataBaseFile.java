@@ -136,6 +136,9 @@ public class DataBaseFile {
 
     private void load() {
         try {
+            if (dir.exists() && dir.list().length == 0) {
+                throw new IOException("Empty dir!");
+            }
             if (!dir.exists() || !file.exists()) {
                 return;
             }
@@ -144,6 +147,9 @@ public class DataBaseFile {
                 data.add(new Node(inputFile));
             }
             inputFile.close();
+            if (data.size() == 0) {
+                throw new IOException("Empty file!");
+            }
         } catch (FileNotFoundException e) {
             throw new DataBaseException("File not found!");
         } catch (IOException e) {
