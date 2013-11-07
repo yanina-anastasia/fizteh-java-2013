@@ -72,12 +72,13 @@ public class MultiFileMap implements Table {
     }
 
     private boolean whiteSpaceCheck(String string) {
-        for (int i = 0; i < string.length(); i++) {
+        /*for (int i = 0; i < string.length(); i++) {
             if (Character.isWhitespace(string.charAt(i))) {
                 return false;
             }
         }
-        return true;
+        return true; */
+        return !string.matches(".*\\s+.*");
     }
 
     public String getName() {
@@ -133,7 +134,7 @@ public class MultiFileMap implements Table {
             if (f.getName().equals("signature.tsv")) {
                 continue;
             }
-            if (!f.getName().matches("((1[0-5])|[0-9]).dir")) {
+            if (!f.getName().matches("((1[0-5])|[0-9])\\.dir")) {
                 throw new RuntimeException("Directory is invalid: unexpected files or directories found");
             } else {
                 File[] subfiles = f.listFiles();
@@ -144,7 +145,7 @@ public class MultiFileMap implements Table {
                     throw new RuntimeException("Directory shouldn't be empty");
                 }
                 for (File sf : subfiles) {
-                    if (!sf.getName().matches("((1[0-5])|[0-9]).dat")) {
+                    if (!sf.getName().matches("((1[0-5])|[0-9])\\.dat")) {
                         throw new RuntimeException("Directory is invalid: unexpected files or directories found");
                     } else {
                         if (sf.length() == 0) {
@@ -314,6 +315,9 @@ public class MultiFileMap implements Table {
     }
 
     public boolean storeableEqual(Storeable first, Storeable second) {
+        if (first.getClass() != second.getClass()) {
+            return false;
+        }
         for (int i = 0; i < columnTypes.size(); i++) {
             if (first.getColumnAt(i) == null) {
                 if (second.getColumnAt(i) != null) {
@@ -327,8 +331,11 @@ public class MultiFileMap implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null || value == null) {
+        if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Null value");
         }
         if (key.equals("")) {
             throw new IllegalArgumentException("Empty key");
