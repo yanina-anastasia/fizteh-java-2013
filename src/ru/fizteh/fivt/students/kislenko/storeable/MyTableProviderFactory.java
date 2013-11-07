@@ -12,8 +12,11 @@ public class MyTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Incorrect database name.");
         }
         File file = new File(path.trim());
-        if (!file.isDirectory()) {
+        if (file.isFile()) {
             throw new IllegalArgumentException("Database must be a directory.");
+        }
+        if (!file.exists()) {
+            file.mkdir();
         }
         return new MyTableProvider();
     }
