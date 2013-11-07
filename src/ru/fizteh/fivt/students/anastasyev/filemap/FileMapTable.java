@@ -154,8 +154,11 @@ public class FileMapTable implements Table {
 
     private boolean storeableEquals(Storeable first, Storeable second) {
         for (int i = 0; i < columnTypes.size(); ++i) {
-            if (!(first.getColumnAt(i) == null && second.getColumnAt(i) == null
-                    || first.getColumnAt(i).equals(second.getColumnAt(i)))) {
+            if (first.getColumnAt(i) == null) {
+                if (second.getColumnAt(i) != null) {
+                    return false;
+                }
+            } else if (!first.getColumnAt(i).equals(second.getColumnAt(i))) {
                 return false;
             }
         }
