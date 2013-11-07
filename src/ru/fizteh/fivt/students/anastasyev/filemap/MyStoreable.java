@@ -93,6 +93,12 @@ public class MyStoreable implements Storeable {
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
+            } else if (columnTypes.get(i) == Boolean.class) {
+                if (put.getClass() == Boolean.class) {
+                    row.add(put);
+                } else {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                }
             } else if (columnTypes.get(i) == String.class) {
                 if (put.getClass() == String.class) {
                     row.add(put);
