@@ -387,11 +387,11 @@ public class FileMap implements Table {
         int index = 0;
         while (true) {
             try {
-                switch (columnType.get(index).getName()) {
+                /*switch (columnType.get(index).getName()) {
                     case "java.lang.Integer":
                         value.getIntAt(index);
                     case "java.lang.Long":
-                        //value.getLongAt(index);
+                        value.getLongAt(index);
                     case "java.lang.Byte":
                         value.getByteAt(index);
                     case "java.lang.Float":
@@ -402,7 +402,7 @@ public class FileMap implements Table {
                         value.getBooleanAt(index);
                     case "java.lang.String":
                         value.getStringAt(index);
-                }
+                } */
                 ++index;
             } catch (IndexOutOfBoundsException e) {
                 if (index != columnType.size()) {
