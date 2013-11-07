@@ -254,9 +254,6 @@ public class TableProviderImplementation implements TableProvider {
     
     private boolean isValidColumnType(final String columnType) {
         List<String> validTypes = Arrays.asList("int", "long", "byte", "float", "double", "boolean", "String", "Integer", "Long", "Byte", "Float", "Double", "Boolean"); // simpleName
-        if (columnType == null) {
-            return false;
-        }
         if (validTypes.contains(columnType)) {
             return true;
         }
@@ -273,6 +270,9 @@ public class TableProviderImplementation implements TableProvider {
         }
         
         for (Class<?> columnType : columnTypes) {
+            if (columnType == null) {
+                return false;
+            }
             if (!isValidColumnType(columnType.getSimpleName())) {
                 return false;
             }
