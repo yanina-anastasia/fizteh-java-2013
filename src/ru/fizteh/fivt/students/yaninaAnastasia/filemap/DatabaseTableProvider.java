@@ -51,8 +51,6 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         curTable = table;
-        table.oldData = table.modifiedData;
-        table.modifiedData.clear();
         return table;
     }
 

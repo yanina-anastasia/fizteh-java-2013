@@ -145,7 +145,7 @@ public class DatabaseStoreable implements Storeable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         boolean first = true;
-        for (final Object column: columns) {
+        for (final Object column : columns) {
             if (!first) {
                 builder.append(" ");
             }

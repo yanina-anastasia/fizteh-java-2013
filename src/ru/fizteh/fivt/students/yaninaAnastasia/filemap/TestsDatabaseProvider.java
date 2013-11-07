@@ -5,8 +5,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +17,7 @@ public class TestsDatabaseProvider {
     DatabaseTableProviderFactory factory;
     DatabaseTableProvider provider;
     List<Class<?>> columnTypes = new ArrayList<>();
+    List<Class<?>> multiColumnTypes = new ArrayList<>();
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -21,6 +25,9 @@ public class TestsDatabaseProvider {
     @Before
     public void beforeTest() {
         columnTypes.add(Integer.class);
+        multiColumnTypes.add(Integer.class);
+        multiColumnTypes.add(String.class);
+        multiColumnTypes.add(Double.class);
         factory = new DatabaseTableProviderFactory();
         try {
             provider = factory.create(folder.getRoot().getPath());
@@ -99,10 +106,23 @@ public class TestsDatabaseProvider {
     }
 
     @Test
+    public void testMultiCreateGetTable() {
+        provider.createTable("test2_2", multiColumnTypes);
+        Assert.assertNotNull(provider.getTable("test2_2"));
+    }
+
+    @Test
     public void testCreateRemoveGet() {
         Assert.assertNotNull(provider.createTable("test3", columnTypes));
         provider.removeTable("test3");
         Assert.assertNull(provider.getTable("test3"));
+    }
+
+    @Test
+    public void testMultiCreateRemoveGet() {
+        Assert.assertNotNull(provider.createTable("test3_3", multiColumnTypes));
+        provider.removeTable("test3_3");
+        Assert.assertNull(provider.getTable("test3_3"));
     }
 
     @Test
