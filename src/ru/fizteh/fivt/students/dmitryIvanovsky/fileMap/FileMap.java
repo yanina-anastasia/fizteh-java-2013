@@ -400,7 +400,7 @@ public class FileMap implements Table {
         }
     }
 
-    private static String readFileTsv2(String fileName) throws IOException {
+    private String readFileTsv2(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
         try {
             try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
@@ -410,10 +410,10 @@ public class FileMap implements Table {
                     sb.append("\n");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                s1 += e.getMessage();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            s1 += e.getMessage();
         }
 
         return sb.toString();
