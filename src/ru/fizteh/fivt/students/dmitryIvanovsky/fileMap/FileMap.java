@@ -403,7 +403,7 @@ public class FileMap implements Table {
 
             int index = 0;
 
-            /*while (true) {
+            while (true) {
                 try {
                     switch (columnType.get(index).getName()) {
                         case "java.lang.Integer":
@@ -439,10 +439,9 @@ public class FileMap implements Table {
                 } catch (ColumnFormatException err) {
                     throw err;
                 }
-            }*/
+            }
 
             st = null;
-            throw new ColumnFormatException("this Storeable can't be use in this table");
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
