@@ -23,6 +23,10 @@ public class MySignature {
 
         List<Class<?>> result = new ArrayList<>();
 
+        if (data.length <= 0) {
+            throw new IOException("Empty signature: " + file.getCanonicalPath());
+        }
+
         for (int i = 0; i < data.length; ++i) {
             boolean flag = false;
             for (int j = 0; j < types.length; ++j) {
