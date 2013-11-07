@@ -29,6 +29,10 @@ public class MyStoreable implements Storeable {
         return row.get(columnIndex);
     }
 
+    public int getColumnCount() {
+        return columnTypes.size();
+    }
+
     public MyStoreable(Table currTable) {
         row = new ArrayList<Object>(currTable.getColumnsCount());
         columnTypes = new ArrayList<Class<?>>(currTable.getColumnsCount());

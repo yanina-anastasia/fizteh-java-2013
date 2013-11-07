@@ -14,19 +14,19 @@ public class FileMapTableProviderFactory implements TableProviderFactory {
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
             if (!fileDir.mkdirs()) {
-                throw new IOException("Can't create directory");
+                throw new IllegalArgumentException("Can't create directory");
             }
         }
         if (!fileDir.isDirectory()) {
-            throw new IOException("Wrong directory path");
+            throw new IllegalArgumentException("Wrong directory path");
         }
         FileMapTableProvider fileMapTableProvider = null;
         try {
             fileMapTableProvider = new FileMapTableProvider(fileDir.toString());
         } catch (IllegalArgumentException e) {
-            throw new IOException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         } catch (IOException e) {
-            throw new IOException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return fileMapTableProvider;
     }

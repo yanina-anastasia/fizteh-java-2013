@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
@@ -41,6 +42,24 @@ public class FileMapTable implements Table {
 
     private boolean isEmptyString(String val) {
         return (val == null || (val.isEmpty() || val.trim().isEmpty()));
+    }
+
+    private void checkValueCorrectness(Storeable value) {
+        if (value == null) {
+            throw new IllegalArgumentException();
+        }
+        if (((MyStoreable) value).getColumnCount() != columnTypes.size()) {
+            throw new ColumnFormatException("Column counts are not equals");
+        }
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
+                throw new ColumnFormatException("Wrong column format");
+            }
+        }
+        String valueStringAt = value.getStringAt(columnTypes.indexOf(String.class));
+        if (isEmptyString(valueStringAt)) {
+            throw new IllegalArgumentException();
+        }
     }
 
     public FileMap getMyState(int hashCode) throws IOException {
@@ -204,10 +223,7 @@ public class FileMapTable implements Table {
         if (isEmptyString(key)) {
             throw new IllegalArgumentException();
         }
-        String valueStringAt = value.getStringAt(columnTypes.indexOf(String.class));
-        if (isEmptyString(valueStringAt)) {
-            throw new IllegalArgumentException();
-        }
+        checkValueCorrectness(value);
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
