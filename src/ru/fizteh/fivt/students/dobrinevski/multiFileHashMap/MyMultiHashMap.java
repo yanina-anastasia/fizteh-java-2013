@@ -18,7 +18,7 @@ public class MyMultiHashMap {
 
     MyMultiHashMap() {
         dataBase = new HashMap<Integer, HashMap<String, String>>();
-        check = new Boolean[256]; //
+        check = new boolean[256]; //
         for (int i = 0; i < 256; i++) {
             dataBase.put(i, new HashMap<String, String>());
             check[i] = false;
