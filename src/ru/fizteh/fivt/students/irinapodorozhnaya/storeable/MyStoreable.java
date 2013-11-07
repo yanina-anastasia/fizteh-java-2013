@@ -17,7 +17,6 @@ public class MyStoreable implements Storeable, Serializable {
     private final Table table;
 
     public MyStoreable(Table table) {
-        System.out.println("new Storeable for " + table.getName());
         this.table = table;
         values = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
