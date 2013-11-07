@@ -104,6 +104,10 @@ public class FileMapStoreable implements Storeable {
         return "";
     }
 
+    public int hashCode() {
+        return 0;
+    }
+
     public boolean equals(Object obj) {
         if (!obj.getClass().getName().equals(this.getClass().getName())) {
             return false;
@@ -165,6 +169,8 @@ public class FileMapStoreable implements Storeable {
                         }
                     }
                     break;
+                default:
+
             }
         }
         return true;

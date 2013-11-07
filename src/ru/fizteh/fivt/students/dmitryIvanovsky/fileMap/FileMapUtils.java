@@ -2,14 +2,12 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FileMapUtils {
 
-    static void checkArg(String key) throws IllegalArgumentException{
+    static void checkArg(String key) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("key or value is clear");
         }
@@ -51,13 +49,13 @@ public class FileMapUtils {
 
     static Map<Class<?>, String> mapClassString()  {
         Map<Class<?>, String> convertList = new HashMap<Class<?>, String>(){ {
-            put(Integer.class,  "int"    );
-            put(Long.class,     "long"   );
-            put(Byte.class,     "byte"   );
-            put(Float.class,    "float"  );
-            put(Double.class,   "double" );
+            put(Integer.class,  "int");
+            put(Long.class,     "long");
+            put(Byte.class,     "byte");
+            put(Float.class,    "float");
+            put(Double.class,   "double");
             put(Boolean.class,  "boolean");
-            put(String.class,   "String" );
+            put(String.class,   "String");
         }};
         return convertList;
     }

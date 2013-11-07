@@ -8,7 +8,11 @@ import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandAbstract;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 
-import javax.xml.stream.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -16,9 +20,19 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.*;
+import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.myParsing;
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.parseValue;
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.getStringFromElement;
+
 
 public class FileMapProvider implements CommandAbstract, TableProvider {
 
@@ -227,12 +241,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         res.add(token.nextToken());
         res.add(token.nextToken());
 
-        for (int i=2; i<countTokens; ++i) {
+        for (int i = 2; i < countTokens; ++i) {
             String t = token.nextToken();
             if (i == 2 && t.trim().charAt(0) != '(') {
                 throw new IllegalArgumentException("wrong format");
             }
-            if (i == countTokens-1 && t.trim().charAt(t.trim().length()-1) != ')') {
+            if (i == countTokens - 1 && t.trim().charAt(t.trim().length() - 1) != ')') {
                 throw new IllegalArgumentException("wrong format");
             }
             if (t.charAt(0) == '(') {
@@ -258,7 +272,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         String nameTable = argsParse.get(1);
         List<Class<?>> colType = new ArrayList<>();
 
-        for (int i=2; i < argsParse.size(); ++i) {
+        for (int i = 2; i < argsParse.size(); ++i) {
             Class<?> type = convertStringToClass(argsParse.get(i));
             if (type == null) {
                 throw new IllegalArgumentException(String.format("error in type %s", argsParse.get(i)));
@@ -380,7 +394,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                         reader.nextTag();
                         if (!reader.getLocalName().equals("col")) {
                             if (!reader.isEndElement()) {
-                                throw new ParseException("invalid xml format", reader.getLocation().getCharacterOffset());
+                                throw new ParseException("invalid xml", reader.getLocation().getCharacterOffset());
                             }
                             if (reader.isEndElement() && reader.getLocalName().equals("row")) {
                                 break;
@@ -402,7 +416,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             }
             return line;
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new ParseException("wrong data format", 0);
         }
     }

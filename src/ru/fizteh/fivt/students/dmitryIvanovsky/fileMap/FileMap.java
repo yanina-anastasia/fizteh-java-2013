@@ -4,13 +4,22 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Vector;
+import java.util.StringTokenizer;
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.checkArg;
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertClassToString;
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
@@ -58,7 +67,7 @@ public class FileMap implements Table {
     private String readFileTsv(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
         try {
-            try (BufferedReader in = new BufferedReader(new FileReader( new File(fileName).getAbsoluteFile()))) {
+            try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
                 String s;
                 while ((s = in.readLine()) != null) {
                     sb.append(s);
@@ -77,7 +86,7 @@ public class FileMap implements Table {
 
     private void writeFileTsv() throws FileNotFoundException {
         Path pathTsv = pathDb.resolve(nameTable).resolve("signature.tsv");
-        try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())){
+        try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())) {
             for (Class<?> col : columnType) {
                 out.print(convertClassToString(col));
             }
@@ -369,15 +378,6 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
-    private Boolean onlySpace(String s) {
-        for (char c : s.toCharArray()) {
-            if (c != ' ') {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
         if (value == null) {
@@ -407,18 +407,27 @@ public class FileMap implements Table {
                     switch (columnType.get(index).getName()) {
                         case "java.lang.Integer":
                             value.getIntAt(index);
+                            break;
                         case "java.lang.Long":
                             value.getLongAt(index);
+                            break;
                         case "java.lang.Byte":
                             value.getByteAt(index);
+                            break;
                         case "java.lang.Float":
                             value.getFloatAt(index);
+                            break;
                         case "java.lang.Double":
                             value.getDoubleAt(index);
+                            break;
                         case "java.lang.Boolean":
                             value.getBooleanAt(index);
+                            break;
                         case "java.lang.String":
                             value.getStringAt(index);
+                            break;
+                        default:
+
                     }
                     ++index;
                 } catch (IndexOutOfBoundsException err) {

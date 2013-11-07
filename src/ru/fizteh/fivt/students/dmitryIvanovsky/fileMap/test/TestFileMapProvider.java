@@ -3,20 +3,14 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class TestFileMapProvider {
 
