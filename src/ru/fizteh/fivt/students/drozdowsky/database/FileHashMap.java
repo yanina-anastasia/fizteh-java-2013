@@ -39,7 +39,10 @@ public class FileHashMap implements Table {
     }
 
     public String put(String key, String value) {
-        if (!Utils.isValid(key) || value == null || value.isEmpty()) {
+        if (value == null) {
+            throw new IllegalArgumentException();
+        }
+        if (!Utils.isValid(key) ||  value.isEmpty()) {
             throw new IllegalArgumentException();
         }
         int nDir = getDirNum(key);
