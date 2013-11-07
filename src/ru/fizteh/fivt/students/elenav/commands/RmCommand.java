@@ -15,8 +15,10 @@ public class RmCommand extends AbstractCommand {
 		File f = new File(path);
 		if (f.isDirectory()) {
 			File[] files = f.listFiles();
-			for (File file : files) {
-				deleteRecursively(file.getAbsolutePath());
+			if (files != null) {
+				for (File file : files) {
+					deleteRecursively(file.getAbsolutePath());
+				}
 			}
 		}
 		if (!f.delete()) {

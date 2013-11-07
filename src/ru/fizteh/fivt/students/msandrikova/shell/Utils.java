@@ -145,4 +145,19 @@ public class Utils {
 		return instructionLine.split("\\s*;\\s*", -1);
 	}
 	
+	public static int getNameNumber(String name) {
+		String[] tokens = name.split("[.]");
+		return Integer.parseInt(tokens[0]);
+	}
+	
+	public static int getNDirectory(String key) {
+		int result = key.hashCode() % 16;
+		return Math.abs(result);
+	}
+	
+	public static int getNFile(String key) {
+		int result = key.hashCode() / 16 % 16;
+		return Math.abs(result);
+	}
+	
 }

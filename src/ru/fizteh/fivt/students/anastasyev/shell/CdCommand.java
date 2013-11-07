@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 import java.io.File;
 import java.io.IOException;
 
-public class CdCommand implements Command {
+public class CdCommand implements Command<Shell> {
     private static void cd(final String dir) throws IOException {
         File newUserDir = new File(dir);
         if (!newUserDir.isAbsolute()) {
@@ -16,7 +16,7 @@ public class CdCommand implements Command {
     }
 
     @Override
-    public final boolean exec(State state, final String[] command) {
+    public final boolean exec(Shell state, final String[] command) {
         if (command.length != 2) {
             System.err.println("cd: Usage - cd <absolute path|relative path>");
             return false;

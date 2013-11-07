@@ -3,22 +3,16 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandPut implements Executable {
+public class TableCommandPut extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "put";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 3;
-    }
 
     @Override
     public boolean execute(String[] args) {
         Table table = manager.getCurrentTable();
+        if (table == null) {
+            manager.printMessage("no table");
+            return false;
+        }
         String oldValue = table.put(args[1], args[2]);
         if (oldValue == null) {
             manager.printMessage("new");
@@ -30,6 +24,7 @@ public class TableCommandPut implements Executable {
     }
 
     public TableCommandPut(TableManager tableManager) {
+        super("put", 3);
         manager = tableManager;
     }
 }

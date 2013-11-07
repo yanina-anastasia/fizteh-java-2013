@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.shell;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.HashMap;
@@ -17,16 +16,37 @@ public class CommandLauncher {
     }
 
     CommandAbstract exampleClass;
-    Map<String, String> commandList;
+    Map<String, String> mapCommand;
     Map<String, Method> commandMethod;
+    Map<String, Boolean> mapSelfParsing;
+    Map<String, Integer> countArgument;
+    Boolean err = true;
+    Boolean out = true;
 
-    public CommandLauncher(CommandAbstract exampleClass, Map<String, String> commandList) throws NoSuchMethodException {
+    public CommandLauncher(CommandAbstract exampleClass) throws NoSuchMethodException {
         this.exampleClass = exampleClass;
-        this.commandList = commandList;
+
+        Map<String, Object[]> listCommand = exampleClass.mapComamnd();
+
+        this.mapCommand = new HashMap<>();
+        this.mapSelfParsing = new HashMap<>();
+        this.countArgument = new HashMap<>();
+        for (String key : listCommand.keySet()) {
+            Object[] value = listCommand.get(key);
+            mapCommand.put(key, (String) value[0]);
+            mapSelfParsing.put(key, (Boolean) value[1]);
+            countArgument.put(key, (Integer) value[2]);
+        }
+
         commandMethod = new HashMap<String, Method>();
         Class[] paramTypes = new Class[]{String[].class};
-        for (String key : commandList.keySet()) {
-            commandMethod.put(key, exampleClass.getClass().getMethod(key, paramTypes));
+        for (String key : mapCommand.keySet()) {
+            try {
+                commandMethod.put(key, exampleClass.getClass().getMethod(mapCommand.get(key), paramTypes));
+            } catch (Exception e) {
+                errPrint("Нет метода " + mapCommand.get(key));
+                throw e;
+            }
         }
     }
 
@@ -39,34 +59,51 @@ public class CommandLauncher {
             String command = token.nextToken().toLowerCase();
             if (command.equals("exit") && countTokens == 1) {
                 return Code.EXIT;
-            } else if (commandList.containsKey(command)) {
+            } else if (mapCommand.containsKey(command)) {
+                int countArg = countArgument.get(command);
+                if (!mapSelfParsing.get(command) && (countArg + 1 != countTokens)) {
+                    errPrint(String.format("%s: неверное число аргументов, нужно %d", command, countArg));
+                    return Code.ERROR;
+                }
                 Method method = commandMethod.get(command);
                 Vector<String> commandArgs = new Vector<>();
                 for (int i = 2; i <= countTokens; ++i) {
                     commandArgs.add(token.nextToken());
                 }
                 try {
-                    if (exampleClass.selfParsing()) {
+                    if (mapSelfParsing.get(command)) {
                         Object[] args = new Object[]{new String[]{query}};
-                        return (Code) method.invoke(exampleClass, args);
+                        method.invoke(exampleClass, args);
                     } else {
                         Object[] args = new Object[]{commandArgs.toArray(new String[commandArgs.size()])};
-                        return (Code) method.invoke(exampleClass, args);
+                        method.invoke(exampleClass, args);
                     }
+                    return Code.OK;
                 } catch (Exception e) {
-                    System.err.println(String.format("Ошибка выполнения команды \'%s\'", command));
+                    getMessage((Exception) e.getCause());
                     return Code.ERROR;
                 }
             } else {
-                System.err.println("Неизвестная команда");
+                errPrint("Неизвестная команда");
                 return Code.ERROR;
             }
         } else {
             if (!isInteractiveMode) {
-                System.err.println("Пустой ввод");
+                errPrint("Пустой ввод");
             }
             return Code.ERROR;
         }
+    }
+
+    private void getMessage(Exception e) {
+        //errPrint(String.valueOf(e.getSuppressed().length));
+        if (e.getMessage() != null) {
+            errPrint(e.getMessage());
+        }
+        for (int i = 0; i < e.getSuppressed().length; ++i) {
+            errPrint(e.getSuppressed()[i].getMessage());
+        }
+        //e.printStackTrace();
     }
 
     public Code runCommands(String query, boolean isInteractiveMode) {
@@ -88,7 +125,7 @@ public class CommandLauncher {
                 System.out.print(exampleClass.startShellString());
             } catch (Exception e) {
                 //e.printStackTrace();
-                System.err.println("Неправильный путь");
+                errPrint("Неправильный путь");
                 return;
             }
             if (sc.hasNextLine()) {
@@ -106,7 +143,7 @@ public class CommandLauncher {
         }
     }
 
-    public Code runShell(String[] args) throws IOException {
+    public Code runShell(String[] args) throws Exception {
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {
@@ -114,12 +151,41 @@ public class CommandLauncher {
                 builder.append(' ');
             }
             String query = builder.toString();
-            exampleClass.exit();
-            return runCommands(query, false);
+            Code res = runCommands(query, false);
+            try {
+                exampleClass.exit();
+            } catch (Exception e) {
+                getMessage(e);
+                throw e;
+            }
+
+            return res;
+
         } else {
+
             interactiveMode();
-            exampleClass.exit();
+
+            try {
+                exampleClass.exit();
+            } catch (Exception e) {
+                getMessage(e);
+                throw e;
+            }
+
             return Code.OK;
+
+        }
+    }
+
+    private void errPrint(String message) {
+        if (err) {
+            System.err.println(message);
+        }
+    }
+
+    private void outPrint(String message) {
+        if (out) {
+            System.out.println(message);
         }
     }
 

@@ -1,33 +1,29 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-public class RemoveCommand implements Command {
-    Table table;
+public class RemoveCommand extends DatabaseCommand {
 
-    public RemoveCommand (Table table) {
-        this.table = table;
+    public RemoveCommand (DatabaseState state) {
+        super (state);
+        this.name = "remove";
+        this.argsCount = 1;
     }
 
     @Override
     public void execute (String[] args) {
         String key = args[0];
-        String result = table.remove (key);
+        if (state.getTable () == null) {
+            state.getIoStreams ().out.println ("no table");
+            return;
+        }
+        String result = state.getTable ().remove (key);
         if (result == null) {
-            System.out.println ("not found");
-        }  else {
-            System.out.println ("removed");
+            state.getIoStreams ().out.println ("not found");
+        } else {
+            state.getIoStreams ().out.println ("removed");
         }
     }
 
-    @Override
-    public String getName () {
-        return "remove";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 1;
-    }
 }

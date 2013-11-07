@@ -9,6 +9,10 @@ public class ShellRm implements Command {
         try {
             File source = new File(((ShellState) state).makeNewSource(args[0]));
             File[] dirList = source.listFiles();
+            if (!source.exists()) {
+                System.err.println("rm: no file: " + source);
+                return 2;
+            }
             if (source.isDirectory()) {
                 for (int i = 0; i < dirList.length; i++) {
                     String[] arg = new String[1];

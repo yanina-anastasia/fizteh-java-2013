@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.shell.commands;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class HelpCommand<State> extends AbstractCommand<State> {
 
@@ -10,8 +11,9 @@ public class HelpCommand<State> extends AbstractCommand<State> {
         super("help", "help");
     }
 
-    public HelpCommand(ArrayList<Command<State>> commands) {
-        for (final Command<State> command : commands) {
+    public HelpCommand(List<Command> commands) {
+        super("help", "help");
+        for (final Command command : commands) {
             this.commands.put(command.getCommandName(), command);
         }
     }
@@ -33,9 +35,9 @@ public class HelpCommand<State> extends AbstractCommand<State> {
         if (!commands.containsKey(commandName)) {
             throw new IllegalArgumentException(String.format("'%s': command not found", commandName));
         }
-        Command<State> command = commands.get(commandName);
+        Command command = commands.get(commandName);
         System.out.println(command.getHelpString());
     }
 
-    private HashMap<String, Command<State>> commands = new HashMap<String, Command<State>>();
+    private HashMap<String, Command> commands = new HashMap<String, Command>();
 }

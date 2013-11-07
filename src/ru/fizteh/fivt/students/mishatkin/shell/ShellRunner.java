@@ -20,20 +20,23 @@ public class ShellRunner {
 			Command aCommand = null;
 			do {
 				try {
-					aCommand = in.nextCommandForReceiver(receiver);
+					aCommand = in.nextCommand(receiver);
 					if (aCommand != null) {
 						aCommand.execute();
 					}
 				} catch (TimeToExitException e) {
+					if (!e.getMessage().equals("")) {
+						System.err.println(e.getMessage());
+					}
 					shouldBreakRunLoop = true;
 				} catch (ShellException e) {
 					System.err.println(e.getMessage());
 					in.clearBuffers();
-					if (Shell.isArgumentsMode) {
+					if (!receiver.isInteractiveMode()) {
 						System.exit(1);
 					}
 				}
-			} while (in.hasUnexecutedCommands());
+			} while (in.hasUnexecutedCommands() && !shouldBreakRunLoop);
 			if (!shouldBreakRunLoop) {
 				receiver.showPrompt();
 			}

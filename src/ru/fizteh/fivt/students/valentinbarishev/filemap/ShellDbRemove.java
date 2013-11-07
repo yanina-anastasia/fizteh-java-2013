@@ -3,18 +3,22 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 public final class ShellDbRemove extends SimpleShellCommand {
-    private DataBase dataBase;
+    private Context context;
 
-    public ShellDbRemove(final DataBase newDataBase) {
+    public ShellDbRemove(Context newContext) {
+        context = newContext;
         setName("remove");
         setNumberOfArgs(2);
         setHint("usage: remove <key>");
-        dataBase = newDataBase;
     }
 
     @Override
     public void run() {
-        if (!dataBase.remove(getArg(1))) {
+        if (context.table == null) {
+            System.out.println("no table");
+            return;
+        }
+        if (context.table.remove(getArg(1)) == null) {
             System.out.println("not found");
         } else {
             System.out.println("removed");

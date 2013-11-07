@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.belousova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.ChangesCountingTable;
 import ru.fizteh.fivt.students.belousova.shell.Command;
-import ru.fizteh.fivt.students.belousova.utils.ShellUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,23 +15,18 @@ public class FileMap {
 
     public static void main(String[] args) {
         File data = new File(System.getProperty("fizteh.db.dir"), "db.dat");
-
         try {
-            Table state = new SingleFileTable(data);
-            makeCommandList(state);
+            ChangesCountingTable table = new SingleFileTable(data);
+            TableState tableState = new TableState(table);
+            makeCommandList(tableState);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(2);
         }
-        if (args.length == 0) {
-            ShellUtils.interactiveMode(System.in, commandList);
-        } else {
-            ShellUtils.batchMode(args, commandList);
-        }
 
     }
 
-    private static void makeCommandList(Table state) {
+    private static void makeCommandList(TableState state) {
         addCommand(new CommandGet(state));
         addCommand(new CommandPut(state));
         addCommand(new CommandRemove(state));

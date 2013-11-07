@@ -5,19 +5,23 @@ import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 public final class ShellDbPut  extends SimpleShellCommand {
-    private DataBase dataBase;
+    private Context context;
 
-    public ShellDbPut(final DataBase newDataBase) {
+    public ShellDbPut(final Context newContext) {
+        context = newContext;
         setName("put");
         setNumberOfArgs(3);
         setHint("usage: put <key> <value>");
-        dataBase = newDataBase;
     }
 
     @Override
     public void run() {
-        String str = dataBase.put(getArg(1), getSpacedArg(2));
-        if (str.isEmpty()) {
+        if (context.table == null) {
+            System.out.println("no table");
+            return;
+        }
+        String str = context.table.put(getArg(1), getSpacedArg(2));
+        if (str == null) {
             System.out.println("new");
         } else {
             System.out.println("overwrite");
@@ -36,5 +40,4 @@ public final class ShellDbPut  extends SimpleShellCommand {
         }
         return false;
     }
-
 }

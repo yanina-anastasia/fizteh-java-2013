@@ -1,41 +1,89 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Manager;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
 
-public class TableManager implements Manager {
+public class TableManager extends Manager {
 
-    BasicTable currentTable;
+    protected TableMember currentTable = null;
+    DistributedTableProvider provider;
+    HashMap<String, TableMember> tables;
 
-    public TableManager(File tableDirectory, String tableName) throws IOException {
-        currentTable = new BasicTable(tableDirectory, tableName);
+    public boolean existsTable(String name) {
+        if (!tables.containsKey(name)) {
+            try {
+                return provider.existsTable(name);
+            } catch (IllegalArgumentException e) {
+                printMessage(e.getMessage());
+                return false;
+            }
+        }
+        return tables.containsKey(name);
     }
 
-    @Override
-    public boolean timeToExit() {
-        return currentTable.timeToExit();
+    public TableManager(DistributedTableProvider provider) {
+        this.provider = provider;
+        tables = new HashMap<>();
     }
 
-    @Override
-    public void printMessage(final String message) {
-        currentTable.printMessage(message);
+    void setCurrentTable(TableMember table) {
+        currentTable = table;
+    }
+
+    public TableMember getTable(String name) throws IllegalArgumentException {
+        if (name == null) {
+            throw new IllegalArgumentException("table name shouldn't be null");
+        }
+        if (tables.containsKey(name)) {
+            return tables.get(name);
+        }
+        return createTable(name);
+    }
+
+    public TableMember createTable(String name) throws IllegalArgumentException {
+        if (name == null) {
+            throw new IllegalArgumentException("table name shouldn't be null");
+        }
+        if (!tables.containsKey(name)) {
+            try {
+                tables.put(name, provider.createTable(name));
+                if (tables.get(name) == null) {
+                   tables.put(name, provider.getTable(name)); 
+                }
+            } catch (IllegalArgumentException e) {
+                printMessage(e.getMessage());
+            }
+        }
+        return tables.get(name);
+    }
+
+    public boolean removeTable(String name) throws IllegalArgumentException {
+        if (name == null) {
+            throw new IllegalArgumentException("table name shouldn't be null");
+        }
+        if (currentTable == tables.get(name)) {
+            currentTable = null;
+        }
+        tables.remove(name);
+        try {
+            provider.removeTable(name);
+        } catch (IllegalArgumentException e) {
+            printMessage(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    public TableMember getCurrentTable() {
+        return currentTable;
     }
 
     @Override
     public void printSuggestMessage() {
-        currentTable.printSuggestMessage();
-    }
-
-    @Override
-    public void setExit() {
-        currentTable.commit();
-        currentTable.setExit();
-    }
-
-    public Table getCurrentTable() {
-        return currentTable;
+        if (currentTable != null) {
+            outputStream.print(currentTable.getName());
+        }
+        outputStream.print("$ ");
     }
 }

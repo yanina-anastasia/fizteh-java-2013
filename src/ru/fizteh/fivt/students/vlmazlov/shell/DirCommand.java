@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class DirCommand extends AbstractCommand {
+public class DirCommand extends AbstractShellCommand {
 	public DirCommand() {
 		super("dir", 0);
 	};	
 
-	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException {		
+	public void execute(String[] args, ShellState state, OutputStream out) throws CommandFailException {		
 		File curDir = new File(state.getCurDir());
 		String[] listing = curDir.list();
 

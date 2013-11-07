@@ -9,53 +9,40 @@ import java.util.Scanner;
 import java.util.Arrays;
 import java.io.OutputStream;
 
-public class Shell {
+public class Shell<T> {
 
-	private Map<String, Command> supportedCommands;
+	private Map<String, Command<T>> supportedCommands;
 	private static final String invitation = "$ ";
+	private T state;
 
-	public class ShellState {
-		private	String currentDirectory;
+	public Shell(Command<T>[] commands, T state) {
 
-		public ShellState(String _currentDirectory) {
-			currentDirectory = _currentDirectory;
-		}
+		Map<String, Command<T>> _supportedCommands = new TreeMap<String, Command<T>>();
 
-		public String getCurDir() {
-			return currentDirectory;
-		}
-
-		//default access modifier used to let commands modify the shell's state, which is desirable for cd, for instance
-
-		void changeCurDir(String newCurDir) {
-			currentDirectory = newCurDir;
-		}
-	}
-
-	public Shell(Command[] commands) {
-
-		Map<String, Command> _supportedCommands = new TreeMap<String, Command>();
-
-		for (Command command : commands) {
+		for (Command<T> command : commands) {
 			_supportedCommands.put(command.getName(), command);
 		}
 			
 		supportedCommands = Collections.unmodifiableMap(_supportedCommands);
+
+		this.state = state;
 	}
 	
 
 	public static void main(String[] args) {
+		ShellState state = new ShellState(System.getProperty("user.dir"));
+
 
 		Command[] commands = {
 			new RmCommand(), new CdCommand(), 
 			new MvCommand(), new MkdirCommand(), new CpCommand(), 
-			new PwdCommand(), new DirCommand(), new ExitCommand()
+			new PwdCommand(), new DirCommand(), new ExitCommand<ShellState>()
 		};
 
-		Shell shell = new Shell(commands);
-		Shell.ShellState state = shell.new ShellState(System.getProperty("user.dir"));
+		Shell<ShellState> shell = new Shell<ShellState>(commands, state);
+
 		try {
-			shell.process(args, state);
+			shell.process(args);
 		} catch (WrongCommandException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
@@ -69,16 +56,16 @@ public class Shell {
 		System.exit(0);
 	}
 
-	public void process(String[] args, Shell.ShellState state)
+	public void process(String[] args)
 	 throws WrongCommandException, CommandFailException, UserInterruptionException {
 
 		if (0 != args.length) {
 			
 			String arg = StringUtils.join(Arrays.asList(args), " ");
 
-			executeLine(arg, state);
+			executeLine(arg);
 		} else {
-			interactiveMode(state);
+			interactiveMode();
 		}
 	}
 
@@ -87,24 +74,24 @@ public class Shell {
 		return commandLine.split("\\s*;\\s*", -1);
 	}
 
-	private void executeLine(String commandLine, Shell.ShellState state) 
+	private void executeLine(String commandLine) 
 	throws WrongCommandException, CommandFailException, UserInterruptionException {
 
 		for (String exArg : parseLine(commandLine)) {
-			invokeCommand(exArg.split("\\s+"), state);
+			invokeCommand(exArg.split("\\s+"));
 		}
 	}
 
-	private void interactiveMode(Shell.ShellState state) {
+	private void interactiveMode() {
 		Scanner inputScanner = new Scanner(System.in);
 		Scanner stringScanner;
 
 		do {
 			//printing invitation
-			System.out.print(state.getCurDir() + invitation);
+			System.out.print(invitation);
 
 			try {
-				executeLine(inputScanner.nextLine(), state);
+				executeLine(inputScanner.nextLine());
 			} catch (WrongCommandException ex) {
 				
 				System.err.println(ex.getMessage());
@@ -119,7 +106,7 @@ public class Shell {
 		} while (!Thread.currentThread().isInterrupted());
 	}
 
-	private void invokeCommand(String[] toExecute, Shell.ShellState state) 
+	private void invokeCommand(String[] toExecute) 
 	throws WrongCommandException, CommandFailException, UserInterruptionException {
 		//toExecute[0] should be the beginning of the command
 		if (0 == toExecute.length) {

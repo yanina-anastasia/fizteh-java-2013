@@ -10,7 +10,7 @@ public class Main {
         starting.setState(startingDirectory.toPath());
         Command[] commandList = new Command[]{new CommandCd(), new CommandCp(), new CommandDir(),
                 new CommandMkdir(), new CommandMv(), new CommandPwd(), new CommandRm()};
-        Shell shell = new Shell(starting, commandList);
+        Shell<ShellState> shell = new Shell<ShellState>(starting, commandList);
         if (args.length == 0) {
             shell.interactiveMode();
         } else {

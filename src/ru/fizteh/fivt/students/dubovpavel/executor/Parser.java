@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.dubovpavel.executor;
 
-import ru.fizteh.fivt.students.dubovpavel.executor.Command;
-import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-
 import java.util.ArrayList;
 
 public class Parser {

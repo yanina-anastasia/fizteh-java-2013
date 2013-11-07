@@ -1,51 +1,47 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Paths;
 import java.util.Hashtable;
-import java.util.Vector;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Command;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Interpreter;
 
 public class FileMap {
 
-    private static final int OFFSET_BYTES = 4;
-
-    static RandomAccessFile dbFile;
-    static Hashtable<String, String> database = new Hashtable<String, String>();
-
     private static Hashtable<String, Command> commands = new Hashtable<String, Command>();
     private static Interpreter interpreter;
+    
+    private static TableProvider database;
+    private static TableImplementation table;
+    private static String currentTableName; // delete?
 
     static {
+        try {
+
+            String dbDir = System.getProperty("fizteh.db.dir");
+
+            TableProviderFactory factory = new TableProviderFactoryImplementation();
+            database = factory.create(dbDir);
+            
+        } catch (Exception e) {
+            System.out.println(((e.getMessage() != null) ? e.getMessage() : "unknown error"));
+            System.exit(1);
+        }
+
+        commands.put("create", new Create());
+        commands.put("drop", new Drop());
+        commands.put("use", new Use());
         commands.put("put", new Put());
         commands.put("get", new Get());
         commands.put("remove", new Remove());
+        commands.put("commit", new Commit());
+        commands.put("rollback", new Rollback());
+        commands.put("size", new Size());
         commands.put("exit", new Exit());
 
         interpreter = new Interpreter(commands);
-
-        try {
-            dbFile = new RandomAccessFile(Paths.get(System.getProperty("fizteh.db.dir"))
-                    .resolve("db.dat").toFile(), "rw");
-            getDataFromFile();
-        } catch (Exception e) {
-            System.out.println("Error while opening database: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
-            try {
-                if (dbFile != null) {
-                    dbFile.close();
-                }
-            } catch (IOException e1) {
-                System.out
-                        .println("Error while closing database: "
-                                + ((e1.getMessage() != null) ? e1.getMessage()
-                                        : "unkonown error"));
-            }
-            System.exit(1);
-        }
     }
 
     public static void main(String[] args) {
@@ -53,208 +49,303 @@ public class FileMap {
             interpreter.run(args);
         } catch (Exception e) {
             System.out.println("Error while running: " + e.getMessage());
-        } finally {
-
-            int exitCode = 0;
-
-            try {
-                saveChanges();
-            } catch (Exception e) {
-                exitCode = 1;
-                System.out.println("Error while saving changes: " + e.getMessage());
-            }
-
-            try {
-                if (dbFile != null) {
-                    dbFile.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Error while closing database: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
-            }
-
-            System.exit(exitCode);
         }
     }
 
-    static void getDataFromFile() throws IOException {
-        String key;
-        String value;
-        Vector<Byte> tempKey = new Vector<Byte>();
-        int tempOffset1;
-        int tempOffset2;
-        long currentPosition;
-        byte tempByte;
-        byte[] tempArray;
+    static class Create extends Command {
+        static final int ARG_NUM = 2;
 
-        dbFile.seek(0);
-        while (dbFile.getFilePointer() != dbFile.length()) {
-            tempByte = dbFile.readByte();
-            if (tempByte != '\0') {
-                tempKey.add(tempByte);
-            } else {
-                tempOffset1 = dbFile.readInt();
-                currentPosition = dbFile.getFilePointer();
-                while (dbFile.readByte() != '\0'
-                        && dbFile.getFilePointer() != dbFile.length());
-                if (dbFile.getFilePointer() == dbFile.length()) {
-                    tempOffset2 = (int) dbFile.length();
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+
+                String tableName = arguments[1];
+                
+                Table newTable = database.createTable(tableName);
+                
+                if (newTable == null) {
+                    System.out.println(tableName + " exists");
                 } else {
-                    tempOffset2 = dbFile.readInt();
+                    System.out.println("created");
                 }
-                dbFile.seek(tempOffset1);
-                tempArray = new byte[tempOffset2 - tempOffset1];
-                dbFile.readFully(tempArray);
-                value = new String(tempArray, "UTF-8");
-                tempArray = new byte[tempKey.size()];
-                for (int i = 0; i < tempKey.size(); ++i) {
-                    tempArray[i] = tempKey.elementAt(i).byteValue();
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+
+    static class Drop extends Command {
+        static final int ARG_NUM = 2;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
                 }
-                key = new String(tempArray, "UTF-8");
-                database.put(key, value);
-                tempKey.clear();
-                dbFile.seek(currentPosition);
+
+                String tableName = arguments[1];
+                
+                try {
+                    database.removeTable(tableName);
+                } catch (IllegalStateException e) {
+                    System.out.println(tableName + " not exists");
+                }
+                System.out.println("dropped");
+                
+                if (FileMap.currentTableName.equals(tableName)) {
+                    FileMap.currentTableName = null;
+                }
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
             }
         }
     }
 
-    static void saveChanges() throws IOException {
-        int currentOffset = 0;
-        long returnPosition;
-        String value;
+    static class Use extends Command {
+        static final int ARG_NUM = 2;
 
-        dbFile.setLength(0);
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
 
-        for (String key : database.keySet()) {
-            currentOffset += key.getBytes("UTF-8").length + OFFSET_BYTES + 1;
-        }
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                String tableName = arguments[1];
+                
+                if (FileMap.table != null) {
+                    int changesNumber = FileMap.table.countChanges();
+                    if (changesNumber > 0) {
+                        System.out.println(changesNumber + " unsaved changes");
+                        return;
+                    }
+                }
+                        
+                TableImplementation tempTable = (TableImplementation) database.getTable(tableName); // what can i do?
+                
+                if (tempTable == null) {
+                    System.out.println(tableName + " not exists");
+                } else {
+                    FileMap.currentTableName = tableName;
+                    FileMap.table = tempTable;
+                    System.out.println("using " + tableName);
+                }
 
-        for (String key : database.keySet()) {
-            dbFile.write(key.getBytes("UTF-8"));
-            dbFile.writeByte(0);
-            dbFile.writeInt(currentOffset);
-            value = database.get(key);
-            returnPosition = dbFile.getFilePointer();
-            dbFile.seek(currentOffset);
-            dbFile.write(value.getBytes("UTF-8"));
-
-            currentOffset += value.getBytes("UTF-8").length;
-            dbFile.seek(returnPosition);
-        }
-    }
-}
-
-class Put extends Command {
-    static final int ARG_NUM = 3;
-
-    @Override
-    protected void execute(String... arguments) throws Exception {
-        try {
-            if (arguments.length < ARG_NUM) {
-                throw new IllegalArgumentException("Illegal number of arguments");
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
             }
-
-            String key = arguments[1];
-
-            String value;
-
-            StringBuilder concatArgs = new StringBuilder();
-            for (int i = 2; i < arguments.length; ++i) {
-                concatArgs.append(arguments[i]).append(" ");
-            }
-            value = concatArgs.toString();
-
-            if (key.contains("\0") || value.contains("\0")) {
-                throw new IllegalArgumentException("null byte in key or value");
-            }
-
-            String oldValue = FileMap.database.put(key, value);
-
-            if (oldValue != null) {
-                System.out.println("overwrite");
-                System.out.println(oldValue);
-            } else {
-                System.out.println("new");
-            }
-            
-            FileMap.saveChanges();
-
-        } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
-}
+    
 
-class Get extends Command {
-    static final int ARG_NUM = 2;
+    static class Put extends Command {
+        static final int ARG_NUM = 3;
 
-    @Override
-    protected void execute(String... arguments) throws Exception {
-        try {
-            if (arguments.length != ARG_NUM) {
-                throw new IllegalArgumentException("Illegal number of arguments");
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length < ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+
+                String key = arguments[1];
+
+                StringBuilder concatArgs = new StringBuilder();
+                for (int i = 2; i < arguments.length; ++i) {
+                    concatArgs.append(arguments[i]).append(" ");
+                }
+                String value = concatArgs.toString();
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+                
+                String oldValue = table.put(key, value);
+                if (oldValue != null) {
+                    System.out.println("overwrite");
+                    System.out.println(oldValue);
+                } else {
+                    System.out.println("new");
+                }
+                
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
             }
-
-            String key = arguments[1];
-
-            String value = FileMap.database.get(key);
-
-            if (value != null) {
-                System.out.println("found");
-                System.out.println(value);
-            } else {
-                System.out.println("not found");
-            }
-
-        } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
-}
 
-class Remove extends Command {
-    static final int ARG_NUM = 2;
+    static class Get extends Command {
+        static final int ARG_NUM = 2;
 
-    @Override
-    protected void execute(String... arguments) throws Exception {
-        try {
-            if (arguments.length != ARG_NUM) {
-                throw new IllegalArgumentException("Illegal number of arguments");
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+
+                String key = arguments[1];
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                String value = table.get(key);
+
+                if (value != null) {
+                    System.out.println("found");
+                    System.out.println(value);
+                } else {
+                    System.out.println("not found");
+                }
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
             }
-
-            String key = arguments[1];
-
-            String value = FileMap.database.remove(key);
-
-            if (value != null) {
-                System.out.println("removed");
-            } else {
-                System.out.println("not found");
-            }
-
-        } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
-}
 
-class Exit extends Command {
-    static final int ARG_NUM = 1;
+    static class Remove extends Command {
+        static final int ARG_NUM = 2;
 
-    @Override
-    protected void execute(String... arguments) throws Exception {
-        try {
-            if (arguments.length != ARG_NUM) {
-                throw new IllegalArgumentException("Illegal number of arguments");
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+
+                String key = arguments[1];
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                String value = table.remove(key);
+
+                if (value != null) {
+                    System.out.println("removed");
+                } else {
+                    System.out.println("not found");
+                }
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
             }
-
-            FileMap.saveChanges();
-            FileMap.dbFile.close();
-            System.out.println("exit");
-            System.exit(0);
-
-        } catch (Exception e) {
-            throw new Exception(arguments[0] + ": " + e.getMessage());
         }
     }
+    
+    static class Commit extends Command {
+        static final int ARG_NUM = 1;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                int changesNumber = table.commit();
+                
+                System.out.println(changesNumber);
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    static class Rollback extends Command {
+        static final int ARG_NUM = 1;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                int changesNumber = table.rollback();
+                
+                System.out.println(changesNumber);
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    static class Size extends Command {
+        static final int ARG_NUM = 1;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                int size = table.size();
+                
+                System.out.println(size);
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+
+    static class Exit extends Command {
+        static final int ARG_NUM = 1;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+
+                System.out.println("exit");
+                System.exit(0);
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
 }

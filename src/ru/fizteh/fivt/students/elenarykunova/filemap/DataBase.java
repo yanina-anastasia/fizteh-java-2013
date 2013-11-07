@@ -10,57 +10,80 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
+
 public class DataBase {
 
-    public HashMap<String, String> data =  new HashMap<String, String>();
-    public RandomAccessFile dataFile;
-    String filePath = null;
-    
-    public DataBase(String fileName) {
-        String dir = System.getProperty("fizteh.db.dir");
-        if (dir == null) {
-            System.err.println(dir + ": no directory");
-            System.exit(1);
-        }
-        File tmpDir = new File(dir);
-        if (!tmpDir.exists()) {
-            System.err.println(dir + ": can't open directory");
-            System.exit(1);
-        } else if (tmpDir.isDirectory()) {
-            filePath = dir + File.separator + fileName;
-            File tmpFile = new File(filePath);
-            if (!tmpFile.exists()) {
-                try {
-                    if (!tmpFile.createNewFile()) {
-                        System.err.println(filePath + ": can't create file");
-                        System.exit(1);
-                    }
-                } catch (IOException e) {
+    private HashMap<String, String> data = new HashMap<String, String>();
+    private RandomAccessFile dataFile = null;
+    private String filePath = null;
+    private String tablePath = null;
+    private int ndir;
+    private int nfile;
+
+    public boolean hasFile() {
+        return (dataFile != null);
+    }
+
+    public String getFileName(int ndir, int nfile) {
+        return ndir + ".dir" + File.separator + nfile + ".dat";
+    }
+
+    public DataBase(String currTablePath, int numbDir, int numbFile, HashMap<String, String> map,
+            boolean createIfNotExists) throws RuntimeException {
+        tablePath = currTablePath;
+        ndir = numbDir;
+        nfile = numbFile;
+        filePath = tablePath + File.separator + getFileName(ndir, nfile);
+
+        File tmpFile = new File(filePath);
+        if (!tmpFile.exists() && createIfNotExists) {
+            if (!tmpFile.getParentFile().exists()) {
+                if (!tmpFile.getParentFile().mkdir()) {
                     System.err.println(filePath + ": can't create file");
                     System.exit(1);
                 }
             }
-        } else {
-            System.err.println(dir + ": isn't a directory");
-            System.exit(1);
+            try {
+                if (!tmpFile.createNewFile()) {
+                    System.err.println(filePath + ": can't create file");
+                    System.exit(1);
+                }
+            } catch (IOException e) {
+                System.err.println(filePath + ": can't create file");
+                System.exit(1);
+            }
         }
-        
-        try {
-            dataFile = new RandomAccessFile(filePath, "r");
-            load(dataFile);
-            closeDataFile();
-        } catch (FileNotFoundException | IllegalArgumentException e2) {
-            System.err.println(filePath + ": can't get access to file");
-            closeDataFile();
-            System.exit(1);
-        } 
+
+        if (tmpFile.exists()) {
+            try {
+                dataFile = new RandomAccessFile(filePath, "r");
+                load(dataFile, map);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(filePath + ": file not found", e);
+            } finally {
+                try {
+                    closeDataFile();
+                } catch (Throwable e5) {
+                }
+            }
+        }
     }
-    
+
     public void checkOffset(long offset, long currPtr) throws IOException {
         if (offset < currPtr || offset > dataFile.length()) {
             IOException e = new IOException();
             throw e;
         }
+    }
+
+    public boolean isCorrectPlace(String key) {
+        int hashcode = Math.abs(key.hashCode());
+        int currNumbDir = hashcode % 16;
+        int currNumbFile = hashcode / 16 % 16;
+        return (currNumbDir == ndir && currNumbFile == nfile);
     }
 
     public String getKeyFromFile() throws IOException {
@@ -75,24 +98,28 @@ public class DataBase {
         for (int i = 0; i < v.size(); i++) {
             res[i] = v.elementAt(i).byteValue();
         }
-        String result = new String(res, "UTF-8");       
+        String result = new String(res, "UTF-8");
+        if (!isCorrectPlace(result)) {
+            IOException e = new IOException();
+            throw e;
+        }
         return result;
     }
-    
+
     public String getValueFromFile(long nextOffset) throws IOException {
         int beginPtr = (int) dataFile.getFilePointer();
-        byte [] res = new byte[(int) (nextOffset - beginPtr)];
+        byte[] res = new byte[(int) (nextOffset - beginPtr)];
         dataFile.read(res);
         String result = new String(res, "UTF-8");
         return result;
     }
-    
-    public void load(RandomAccessFile dataFile) {
+
+    public void load(RandomAccessFile dataFile, HashMap<String, String> map) throws RuntimeException {
         try {
             if (dataFile.length() == 0) {
                 return;
             }
-            
+
             long currPtr = 0;
             long firstOffset = 0;
             long newOffset = 0;
@@ -100,13 +127,13 @@ public class DataBase {
             String keyFirst = "";
             String keySecond = "";
             String value;
-            
+
             dataFile.seek(currPtr);
             keyFirst = getKeyFromFile();
-            
+
             newOffset = dataFile.readInt();
             currPtr = dataFile.getFilePointer();
-            checkOffset(newOffset, currPtr);    
+            checkOffset(newOffset, currPtr);
             firstOffset = newOffset;
             do {
                 dataFile.seek(currPtr);
@@ -123,63 +150,80 @@ public class DataBase {
                     IOException e1 = new IOException();
                     throw e1;
                 }
-   
+
                 dataFile.seek(newOffset);
                 value = getValueFromFile(nextOffset);
-                
+
                 data.put(keyFirst, value);
-                
+                map.put(keyFirst, value);
+
                 keyFirst = keySecond;
                 newOffset = nextOffset;
-            } while (currPtr <= firstOffset);              
-        } catch (IOException | OutOfMemoryError e) {
-            closeDataFile();
-            System.err.println("can't read values from file");
-            System.exit(1);
+            } while (currPtr <= firstOffset);
+        } catch (IOException e) {
+            throw new RuntimeException(filePath + " can't read values from file");
+        } catch (OutOfMemoryError e) {
+            throw new RuntimeException(filePath + " can't read values from file: out of memory");
         }
     }
-    
+
     public String put(String key, String value) {
         return data.put(key, value);
     }
-    
+
     public String get(String key) {
         return data.get(key);
     }
-    
+
     public String remove(String key) {
         return data.remove(key);
     }
-    
+
     private int getLength(String str) throws UnsupportedEncodingException {
         int curr = 0;
+
         curr = str.getBytes("UTF-8").length;
         return curr;
     }
-    
-    protected void closeDataFile() {
+
+    protected void closeDataFile() throws RuntimeException {
         try {
             if (dataFile != null) {
                 dataFile.close();
             }
         } catch (IOException e) {
-            System.err.println("can't close file");
-            System.exit(1);
+            throw new RuntimeException(filePath + " can't close file");
         }
     }
-    
-    public void commitChanges() {
+
+    public void commitChanges() throws IOException, RuntimeException  {
+        IOException e1 = new IOException();
         try {
-            dataFile = new RandomAccessFile(filePath, "rw");
+            try {
+                dataFile = new RandomAccessFile(filePath, "rw");
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(filePath + " can't get access to file", e); 
+            }
+            if (data == null || data.isEmpty()) {
+                try {
+                    closeDataFile();
+                } catch (RuntimeException e2) {
+                    throw e2;
+                }
+                Shell sh = new Shell(tablePath, false);
+                if (sh.rm(filePath) != Shell.ExitCode.OK) {
+                    throw new RuntimeException(filePath + " can't delete file");
+                }
+                return;
+            }
+    
             int offset = 0;
             Set<Map.Entry<String, String>> mySet = data.entrySet();
             for (Map.Entry<String, String> myEntry : mySet) {
                 try {
                     offset += getLength(myEntry.getKey()) + 1 + 4;
                 } catch (UnsupportedEncodingException e) {
-                    System.err.println("can't write to file");
-                    closeDataFile();
-                    System.exit(1);
+                    throw e1;
                 }
             }
             int currOffset = offset;
@@ -195,16 +239,20 @@ public class DataBase {
                 for (Map.Entry<String, String> myEntry : mySet) {
                     dataFile.write(myEntry.getValue().getBytes());
                 }
-                closeDataFile();
-            } catch (IOException e1) {
-                System.err.println("can't write to file");
-                closeDataFile();
-                System.exit(1);
+                try {
+                    closeDataFile();
+                } catch (RuntimeException e3) {
+                    throw e3;
+                }
+            } catch (IOException e2) {
+                throw e2;
             }
-        } catch (FileNotFoundException | IllegalArgumentException e2) {
-            System.err.println("can't get access to file");
-            closeDataFile();
-            System.exit(1);
+        } catch (Throwable e) {
+        } finally {
+            try {
+                closeDataFile();
+            } catch (Throwable e5) {
+            }
         }
     }
 }

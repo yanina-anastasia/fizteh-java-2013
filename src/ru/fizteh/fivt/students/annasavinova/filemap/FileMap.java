@@ -2,48 +2,17 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import ru.fizteh.fivt.students.annasavinova.shell.UserShell;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 public class FileMap extends UserShell {
-    private RandomAccessFile dataFile;
-    private HashMap<String, String> dataMap;
+    private DataBaseProvider prov;
+    private DataBase currTable;
 
-    @Override
-    public String[] getArgsFromString(String str) {
-        str = str.trim();
-        if (str != null) {
-            return str.split("[\\s]+", 3);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public void printError(String errStr) {
-        if (isPacket) {
-            unloadFile();
-            printErrorAndExit(errStr);
-        } else {
-            System.out.println(errStr);
-        }
-    }
-
-    protected void printErrorAndExit(String errMessage) {
-        System.err.println(errMessage);
-        System.exit(1);
-    }
-
-    public void setDataFile(File file) {
+    public FileMap() {
         try {
-            dataFile = new RandomAccessFile(file, "rw");
-        } catch (FileNotFoundException e) {
-            printErrorAndExit("Cannot open file");
+            DBaseProviderFactory factory = new DBaseProviderFactory();
+            prov = (DataBaseProvider) factory.create(factory.getRoot());
+        } catch (RuntimeException e1) {
+            System.err.println(e1.getMessage());
+            System.exit(1);
         }
     }
 
@@ -56,100 +25,24 @@ public class FileMap extends UserShell {
         return str.toString();
     }
 
-    private void loadKeyAndValue() {
-        try {
-            int keyLong = dataFile.readInt();
-            int valueLong = dataFile.readInt();
-            if (keyLong <= 0 || valueLong <= 0) {
-                printErrorAndExit("Cannot Load File");
-            } else {
-                byte[] keyBytes = new byte[keyLong];
-                byte[] valueBytes = new byte[valueLong];
-                dataFile.read(keyBytes);
-                dataFile.read(valueBytes);
-                String key = new String(keyBytes);
-                String value = new String(valueBytes);
-                dataMap.put(key, value);
-            }
-        } catch (IOException | OutOfMemoryError e) {
-            try {
-                dataFile.close();
-            } catch (IOException e1) {
-                printErrorAndExit("Cannot load file");
-            }
-            printErrorAndExit("Cannot load file");
-        }
-    }
-
-    protected void loadFile(File data) {
-        dataMap = new HashMap<>();
-        setDataFile(data);
-        try {
-            dataFile.seek(0);
-            while (dataFile.getFilePointer() != dataFile.length()) {
-                loadKeyAndValue();
-            }
-        } catch (IOException e) {
-            try {
-                dataFile.close();
-            } catch (IOException e1) {
-                printErrorAndExit("Cannot load file");
-            }
-            printErrorAndExit("Cannot load file");
-        }
-    }
-
-    protected void unloadFile() {
-        try {
-            dataFile.setLength(0);
-            Set<Map.Entry<String, String>> entries = dataMap.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                byte[] keyBytes = key.getBytes("UTF-8");
-                byte[] valueBytes = value.getBytes();
-                dataFile.writeInt(keyBytes.length);
-                dataFile.writeInt(valueBytes.length);
-                dataFile.write(keyBytes);
-                dataFile.write(valueBytes);
-            }
-        } catch (IOException e) {
-            printErrorAndExit("Cannot unload file correctly");
-        } finally {
-            dataMap.clear();
-            try {
-                dataFile.close();
-            } catch (IOException e) {
-                printErrorAndExit("Cannot unload file");
-            }
-        }
-    }
-
-    public void doPut(String key, String value) {
-        if (dataMap.get(key) == null) {
-            System.out.println("new");
+    @Override
+    public void printError(String errStr) {
+        if (isPacket) {
+            currTable.unloadData();
+            System.err.println(errStr);
+            System.exit(1);
         } else {
-            System.out.println("overwrite");
-            System.out.println(dataMap.get(key));
-        }
-        dataMap.put(key, value);
-    }
-
-    public void doGet(String key) {
-        if (dataMap.get(key) == null) {
-            System.out.println("not found");
-        } else {
-            System.out.println("found");
-            System.out.println(dataMap.get(key));
+            System.out.println(errStr);
         }
     }
 
-    public void doRemove(String key) {
-        if (dataMap.get(key) == null) {
-            System.out.println("not found");
+    @Override
+    public String[] getArgsFromString(String str) {
+        str = str.trim();
+        if (str != null) {
+            return str.split("[\\s]+", 3);
         } else {
-            System.out.println("removed");
-            dataMap.remove(key);
+            return null;
         }
     }
 
@@ -157,25 +50,69 @@ public class FileMap extends UserShell {
     protected void execProc(String[] args) {
         if (args != null && args.length != 0) {
             switch (args[0]) {
-            case "put":
-                if (args.length > 2) {
-                    doPut(args[1], appendArgs(2, args));
+            case "create":
+                if (args.length > 1) {
+                    doCreateTable(appendArgs(1, args));
                 } else {
                     printError("Incorrect number of args");
                 }
                 break;
+            case "drop":
+                if (args.length > 1) {
+                    doDropTable(appendArgs(1, args));
+                } else {
+                    printError("Incorrect number of args");
+                }
+                break;
+            case "use":
+                if (args.length > 1) {
+                    doUseTable(appendArgs(1, args));
+                } else {
+                    printError("Incorrect number of args");
+                }
+                break;
+            case "put":
+                if (currTable == null) {
+                    System.out.println("no table");
+                } else {
+                    if (args.length > 2) {
+                        doPut(args[1], appendArgs(2, args));
+                    } else {
+                        printError("Incorrect number of args");
+                    }
+                }
+                break;
             case "get":
-                if (checkArgs(2, args)) {
-                    doGet(args[1]);
+                if (currTable == null) {
+                    System.out.println("no table");
+                } else {
+                    if (checkArgs(2, args)) {
+                        doGet(args[1]);
+                    }
                 }
                 break;
             case "remove":
-                if (checkArgs(2, args)) {
-                    doRemove(args[1]);
+                if (currTable == null) {
+                    System.out.println("no table");
+                } else {
+                    if (checkArgs(2, args)) {
+                        doRemove(args[1]);
+                    }
                 }
                 break;
+            case "size":
+                System.out.println(currTable.size());
+                break;
+            case "commit":
+                doCommit();
+                break;
+            case "rollback":
+                doRollBack();
+                break;
             case "exit":
-                unloadFile();
+                if (currTable != null) {
+                    currTable.unloadData();
+                }
                 System.exit(0);
                 break;
             default:
@@ -184,14 +121,119 @@ public class FileMap extends UserShell {
         }
     }
 
-    public static void main(String[] args) {
-        FileMap tmp = new FileMap();
-        if (System.getProperty("fizteh.db.dir") == null) {
-            tmp.printErrorAndExit("have no file");
-        }
-        File data = new File(System.getProperty("fizteh.db.dir") + File.separatorChar + "db.dat");
-        tmp.loadFile(data);
-        tmp.exec(args);
-        tmp.unloadFile();
+    private void doCommit() {
+        System.out.println(currTable.commit());
     }
+
+    private void doRollBack() {
+        System.out.println(currTable.rollback());
+    }
+
+    private void doCreateTable(String tableName) {
+        try {
+            if (prov.createTable(tableName) == null) {
+                System.out.println(tableName + " exists");
+            } else {
+                System.out.println("created");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void doUseTable(String tableName) {
+        if (currTable != null) {
+            int changes = currTable.countChanges();
+            if (changes != 0) {
+                System.out.println(changes + " unsaved changes");
+                return;
+            }
+        }
+        try {
+            if (prov.getTable(tableName) == null) {
+                System.out.println(tableName + " not exists");
+            } else {
+                if (currTable != null) {
+                    currTable.unloadData();
+                }
+                currTable = (DataBase) prov.getTable(tableName);
+                System.out.println("using " + tableName);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void doDropTable(String tableName) {
+        if (currTable == prov.getTable(tableName)) {
+            currTable = null;
+        }
+        try {
+            prov.removeTable(tableName);
+            System.out.println("dropped");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (IllegalStateException e) {
+            System.out.println(tableName + " not exists");
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void doPut(String key, String value) {
+        try {
+            String oldValue = currTable.put(key, value);
+            if (oldValue == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(oldValue);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void doGet(String key) {
+        try {
+            String value = currTable.get(key);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("found");
+                System.out.println(value);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+    }
+
+    private void doRemove(String key) {
+        try {
+            String value = currTable.remove(key);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("removed");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            FileMap data = new FileMap();
+            data.exec(args);
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
 }

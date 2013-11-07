@@ -5,28 +5,11 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  *
  */
 
-public abstract class Command {
-	private static int inputArgumentsCount;
-	protected CommandType type;
-	protected String[] args = new String[2];
-	protected CommandReceiver receiver;
-
-	public CommandType getType() {
-		return type;
-	}
-
-	public int getInputArgumentsCount() {
-		return inputArgumentsCount;
-	}
-
-	protected static void setInputArgumentsCount(int inputArgumentsCount) {
-		Command.inputArgumentsCount = inputArgumentsCount;
-	}
-
-	Command(CommandReceiver receiver) {
-		this.receiver = receiver;
-	}
-
-	public abstract void execute() throws ShellException;
-
+public interface Command<Receiver extends CommandReceiver> {
+	public String getName();
+	public int getArgumentsCount();
+	public void setArguments(String[] arguments);
+	public void setReceiver(Receiver receiver);
+	public void execute() throws ShellException;
 }
+

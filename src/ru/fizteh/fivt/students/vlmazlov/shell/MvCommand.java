@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class MvCommand extends AbstractCommand {
+public class MvCommand extends AbstractShellCommand {
 	public MvCommand() {
 		super("mv", 2);
 	};
@@ -12,10 +12,11 @@ public class MvCommand extends AbstractCommand {
 	//At this point, destination is guaranteed to be a directory,
 	//which is preserved throughout the recursive traverse
 
-	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException {	
+	public void execute(String[] args, ShellState state, OutputStream out) throws CommandFailException {	
 		String sourcePath = args[0], destinationPath = args[1];
 
-		File source = FileUtils.getAbsFile(sourcePath, state), destination = FileUtils.getAbsFile(destinationPath, state);
+		File source = FileUtils.getAbsFile(sourcePath, state.getCurDir()), 
+		destination = FileUtils.getAbsFile(destinationPath, state.getCurDir());
 
 		if (!source.exists()) {
 			throw new CommandFailException("mv: " + sourcePath + " doesn't exist");

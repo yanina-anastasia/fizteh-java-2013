@@ -62,7 +62,7 @@ public class Launcher {
                     manager.printMessage(tokens[0] + ": command not found");
                 } else {
                     Executable command = commands.get(tokens[0]);
-                    if (command.argumentsNumber() != tokens.length) {
+                    if (command.getArgumentsNumber() != tokens.length) {
                         manager.printMessage(tokens[0] + ": invalid number of arguments");
                     } else {
                         success = command.execute(tokens);

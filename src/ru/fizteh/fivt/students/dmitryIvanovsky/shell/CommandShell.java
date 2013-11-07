@@ -6,18 +6,44 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandShell implements CommandAbstract {
 
     File currentFile;
+    boolean out;
+    boolean err;
+
+    public Map<String, Object[]> mapComamnd() {
+        Map<String, Object[]> commandList = new HashMap<String, Object[]>(){ {
+            put("dir",      new Object[] {"dir",     false,  0 });
+            put("mv",       new Object[] {"mv",      false,  2 });
+            put("cp",       new Object[] {"cp",      false,  2 });
+            put("rm",       new Object[] {"rm",      false,  1 });
+            put("pwd",      new Object[] {"pwd",     false,  0 });
+            put("mkdir",    new Object[] {"mkdir",   false,  1 });
+            put("cd",       new Object[] {"cd",      false,  1 });
+        }};
+        return commandList;
+    }
 
     public CommandShell() {
         currentFile = new File(".");
+        this.out = true;
+        this.err = true;
     }
 
     public CommandShell(String path) {
         currentFile = new File(path);
+        this.out = true;
+        this.err = true;
+    }
+
+    public CommandShell(String path, boolean out, boolean err) {
+        currentFile = new File(path);
+        this.out = out;
+        this.err = err;
     }
 
     public void exit() {
@@ -26,10 +52,6 @@ public class CommandShell implements CommandAbstract {
 
     public String getCurrentFile() {
         return currentFile.toString();
-    }
-
-    public boolean selfParsing() {
-        return false;
     }
 
     public String startShellString() throws IOException {
@@ -45,7 +67,7 @@ public class CommandShell implements CommandAbstract {
         }
     }
 
-    private Code copyMove(String source, String destination, boolean isCopy) {
+    private void copyMove(String source, String destination, boolean isCopy) throws IOException, ErrorShell {
         String rusDescription = "переместить";
         String command = "mv";
         if (isCopy) {
@@ -68,7 +90,7 @@ public class CommandShell implements CommandAbstract {
                     Files.move(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
                 }
                 File[] listFiles = fileSource.listFiles();
-                if (listFiles != null) {
+                if (listFiles != null || listFiles.length != 0) {
                     for (File c : listFiles) {
                         String nameFile = c.getName();
                         copyMove(c.toString(), joinDir(destination) + File.separator + nameFile, isCopy);
@@ -76,8 +98,13 @@ public class CommandShell implements CommandAbstract {
                 }
             } else {
                 if (fileDestination.getCanonicalFile().equals(fileSource.getCanonicalFile())) {
-                    System.err.println(String.format("%s: \'%s %s\': файлы совпадают", command, source, destination));
-                    return Code.ERROR;
+                    String error;
+                    if (err) {
+                        error = String.format("%s: \'%s %s\': файлы совпадают", command, source, destination);
+                    } else {
+                        error = null;
+                    }
+                    throw new ErrorShell(error);
                 }
                 Path pathDestination = Paths.get(joinDir(destination));
                 if (fileDestination.isDirectory()) {
@@ -89,18 +116,21 @@ public class CommandShell implements CommandAbstract {
                     Files.move(Paths.get(joinDir(source)), pathDestination, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
-            return Code.OK;
+
         } catch (Exception e) {
-            String error = String.format("%s: \'%s %s\': не могу %s", command, source, destination, rusDescription);
-            System.err.println(error);
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("%s: \'%s %s\': не могу %s", command, source, destination, rusDescription);
+            } else {
+                error = null;
+            }
+            ErrorShell ex = new ErrorShell(error);
+            ex.addSuppressed(e);
+            throw ex;
         }
     }
 
-    public Code cd(String[] args) {
-        if (args.length != 1) {
-            return Code.ERROR;
-        }
+    public void cd(String[] args) throws ErrorShell {
         String newDir = args[0];
         try {
             File tmpFile = new File(newDir);
@@ -108,40 +138,42 @@ public class CommandShell implements CommandAbstract {
                 tmpFile = new File(joinDir(newDir));
             }
             if (!tmpFile.isDirectory()) {
-                System.err.println(String.format("cd: \'%s\': нет такого пути", newDir));
-                return Code.ERROR;
+                String error;
+                if (err) {
+                    error = String.format("cd: \'%s\': нет такого пути", newDir);
+                } else {
+                    error = null;
+                }
+                throw new ErrorShell(error);
             } else {
                 currentFile = tmpFile;
             }
-            return Code.OK;
+
         } catch (Exception e) {
-            System.err.println(String.format("cd: \'%s\': нет такого пути", newDir));
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("cd: \'%s\': нет такого пути", newDir);
+            } else {
+                error = null;
+            }
+            e.addSuppressed(new ErrorShell(error));
+            throw e;
         }
     }
 
-    public Code cp(String[] args) {
-        if (args.length != 2) {
-            return Code.ERROR;
-        }
+    public void cp(String[] args) throws IOException, ErrorShell {
         String source = args[0];
         String destination = args[1];
-        return copyMove(source, destination, true);
+        copyMove(source, destination, true);
     }
 
-    public Code mv(String[] args) {
-        if (args.length != 2) {
-            return Code.ERROR;
-        }
+    public void mv(String[] args) throws IOException, ErrorShell {
         String source = args[0];
         String destination = args[1];
-        return copyMove(source, destination, false);
+        copyMove(source, destination, false);
     }
 
-    public Code rm(String[] args) {
-        if (args.length != 1) {
-            return Code.ERROR;
-        }
+    public void rm(String[] args) throws ErrorShell {
         String path = args[0];
         try {
             File tmpFile = new File(joinDir(path));
@@ -154,65 +186,104 @@ public class CommandShell implements CommandAbstract {
                 }
             }
             if (!tmpFile.delete()) {
-                System.err.println(String.format("rm: \'%s\': не могу удалить", path));
-                return Code.ERROR;
+                String error;
+                if (err) {
+                    error = String.format("rm: \'%s\': не могу удалить", path);
+                } else {
+                    error = null;
+                }
+                throw new ErrorShell(error);
             }
-            return Code.OK;
+
         } catch (Exception e) {
-            System.err.println(String.format("rm: \'%s\': не могу удалить", path));
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("rm: \'%s\': не могу удалить", path);
+            } else {
+                error = null;
+            }
+            e.addSuppressed(new ErrorShell(error));
+            throw e;
         }
     }
 
-    public Code dir(String[] args) {
-        if (args.length != 0) {
-            return Code.ERROR;
-        }
+    public void dir(String[] args) {
         try {
             for (String child : currentFile.list()) {
-                System.out.println(child);
+                outPrint(child);
             }
-            return Code.OK;
         } catch (Exception e) {
-            System.out.println(String.format("dir: неправильный путь"));
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("dir: неправильный путь");
+            } else {
+                error = null;
+            }
+            e.addSuppressed(new ErrorShell(error));
+            throw e;
         }
     }
 
-    public Code pwd(String[] args) {
-        if (args.length != 0) {
-            return Code.ERROR;
-        }
+    public void pwd(String[] args) throws IOException {
         try {
-            System.out.println(currentFile.getCanonicalPath());
-            return Code.OK;
+            outPrint(currentFile.getCanonicalPath());
         } catch (Exception e) {
-            System.out.println("pwd: неправильный путь");
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("pwd: неправильный путь");
+            } else {
+                error = null;
+            }
+            e.addSuppressed(new ErrorShell(error));
+            throw e;
         }
     }
 
-    public Code mkdir(String[] args) {
-        if (args.length != 1) {
-            return Code.ERROR;
-        }
+    public void mkdir(String[] args) throws ErrorShell {
         String directoryName = args[0];
         File theDir = new File(joinDir(directoryName));
         if (!theDir.exists()) {
             try {
                 boolean result = theDir.mkdir();
                 if (!result) {
-                    System.err.println(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
-                    return Code.ERROR;
+                    String error;
+                    if (err) {
+                        error = String.format("mkdir: \'%s\': не могу создать директорию", directoryName);
+                    } else {
+                        error = null;
+                    }
+                    throw new ErrorShell(error);
                 }
-                return Code.OK;
             } catch (Exception e) {
-                System.err.println(String.format("mkdir: \'%s\': не могу создать директорию", directoryName));
-                return Code.ERROR;
+                String error;
+                if (err) {
+                    error = String.format("mkdir: \'%s\': не могу создать директорию", directoryName);
+                } else {
+                    error = null;
+                }
+                throw new ErrorShell(error);
             }
         } else {
-            System.err.println(String.format("mkdir: \'%s\': директория существует", directoryName));
-            return Code.ERROR;
+            String error;
+            if (err) {
+                error = String.format("mkdir: \'%s\': директория существует", directoryName);
+            } else {
+                error = null;
+            }
+            throw new ErrorShell(error);
         }
     }
+
+    private void errPrint(String message) {
+        if (err) {
+            System.err.println(message);
+        }
+    }
+
+    private void outPrint(String message) {
+        if (out) {
+            System.out.println(message);
+        }
+    }
+
 }

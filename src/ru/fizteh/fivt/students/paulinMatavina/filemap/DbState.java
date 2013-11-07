@@ -14,10 +14,14 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 public class DbState extends State{
     public HashMap<String, String> data;
     public RandomAccessFile dbFile;
-    private String path;
+    public String path;
+    private int foldNum;
+    private int fileNum;
     
-    public DbState() {
-        path = System.getProperty("fizteh.db.dir") + File.separator + "db.dat";
+    public DbState(String dbPath, int folder, int file) {
+        foldNum = folder;
+        fileNum = file;
+        path = dbPath;
         commands = new HashMap<String, Command>();
         fileCheck();
         data = new HashMap<String, String>();
@@ -110,7 +114,7 @@ public class DbState extends State{
         return byteVectToStr(byteVect);
     }
     
-    private void loadData() throws IOException {
+    public void loadData() throws IOException {
         if (dbFile.length() == 0) {
                 return;
         } 
@@ -133,7 +137,14 @@ public class DbState extends State{
             } else {
                 value = getValueFromFile(startOffset, (int) dbFile.length());
             }
-            data.put(key, value);
+            
+            if (key.getBytes().length > 0) {
+                if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
+                    throw new IOException("wrong key in file");
+                }
+                data.put(key, value);
+            }
+            
             key = key2;
             startOffset = endOffset;
         } while (position <= firstOffset); 
@@ -159,5 +170,48 @@ public class DbState extends State{
             dbFile.write(value);
             offset += value.length;
         }
+    }
+    
+    public int getFolderNum(String key) {
+        return (Math.abs(key.getBytes()[0]) % 16);
+    }
+    
+    public int getFileNum(String key) {
+        return ((Math.abs(key.getBytes()[0]) / 16) % 16);
+    }
+    
+    public int put(String[] args) {
+        String key = args[0];
+        String value = args[1];
+        String result = data.put(key, value);
+        if (result != null) {
+                System.out.println("overwrite");
+                System.out.println(result);
+        } else {
+                System.out.println("new");
+        }
+        return 0;
+    }
+    
+    public int get(String[] args) {
+        String key = args[0];
+        if (data.containsKey(key)) {
+            System.out.println("found");
+            System.out.println(data.get(key));
+        } else {
+            System.out.println("not found");
+        }
+        return 0;
+    }
+    
+    public int remove(String[] args) {
+        String key = args[0];
+        if (data.containsKey(key)) {
+            data.remove(key);
+            System.out.println("removed");
+        } else {
+            System.out.println("not found");
+        }
+        return 0;
     }
 }

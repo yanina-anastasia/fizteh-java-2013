@@ -10,7 +10,7 @@ public class Program {
     public static void main(String[] Args) throws IOException {
         Shell shell = new Shell();
 
-        ArrayList<Command<FileSystemShellState>> commands = new ArrayList<Command<FileSystemShellState>>();
+        ArrayList<Command> commands = new ArrayList<Command>();
 
         // putting MakeDirCommand
         Command<FileSystemShellState> command = new MakeDirCommand();

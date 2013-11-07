@@ -10,11 +10,13 @@ public class Launcher {
     private Vector<Command> allCommands;
     private State state;
 
-    private void trySaveState() throws IOException {
-        if (state.getClass().equals(FileMap.class)) {
-            ((FileMap) state).saveFileMap();
+    /*private void beforeStop() {
+        try {
+            state.stopping();
+        } catch (IOException e1) {
+            System.err.println(e1.getMessage());
         }
-    }
+    }*/
 
     private boolean launch(final String arg) throws IOException {
         if (arg.equals("")) {
@@ -36,7 +38,7 @@ public class Launcher {
         return result;
     }
 
-    public void interactiveMode() {
+    public void interactiveMode() throws ExitException {
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.err.flush();
@@ -52,11 +54,7 @@ public class Launcher {
                     }
                 }
             } catch (NoSuchElementException e) {
-                try {
-                    trySaveState();
-                } catch (IOException e1) {
-                    System.err.println(e1.getMessage());
-                }
+                //beforeStop();
                 System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -64,7 +62,7 @@ public class Launcher {
         }
     }
 
-    public void packageMode(final String[] args) {
+    public void packageMode(final String[] args) throws ExitException {
         StringBuilder packageCommandsNames = new StringBuilder();
         for (String arg : args) {
             packageCommandsNames.append(arg).append(" ");
@@ -74,28 +72,31 @@ public class Launcher {
         try {
             for (String arg : allArgs) {
                 if (!launch(arg.trim())) {
-                    try {
-                        trySaveState();
-                    } catch (IOException e1) {
-                        System.err.println(e1.getMessage());
-                    }
-                    System.exit(1);
+                    throw new ExitException();
                 }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            try {
-                trySaveState();
-            } catch (IOException e1) {
-                System.err.println(e1.getMessage());
-            }
-            System.exit(1);
+            throw new ExitException();
         }
     }
 
-    public Launcher(State newState) {
+    public Launcher(State newState, String[] args) {
         state = newState;
         allCommands = state.getCommands();
+        int exitCode = 0;
+        try {
+            if (args.length == 0) {
+                interactiveMode();
+            } else {
+                packageMode(args);
+            }
+        } catch (ExitException e) {
+            exitCode = 1;
+        } finally {
+            //beforeStop();
+            System.exit(exitCode);
+        }
     }
 }
 

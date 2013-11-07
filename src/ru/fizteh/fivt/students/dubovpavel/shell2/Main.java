@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.dubovpavel.shell2;
 
 import ru.fizteh.fivt.students.dubovpavel.executor.Feeder;
-import ru.fizteh.fivt.students.dubovpavel.shell2.Performers.*;
+import ru.fizteh.fivt.students.dubovpavel.shell2.performers.*;
 
 public class Main {
     public static void main(String[] args) {

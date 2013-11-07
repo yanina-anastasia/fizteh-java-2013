@@ -17,7 +17,7 @@ public class Shell extends State {
         commands.add(new MvCommand());
         commands.add(new PwdCommand());
         commands.add(new RmCommand());
-        commands.add(new ru.fizteh.fivt.students.anastasyev.shell.ExitCommand());
+        commands.add(new ExitCommand());
     }
 
     public final void addCommand(final Command command) {
@@ -32,6 +32,7 @@ public class Shell extends State {
         userDir = newUserDir;
     }
 
+    @Override
     public final Vector<Command> getCommands() {
         return commands;
     }

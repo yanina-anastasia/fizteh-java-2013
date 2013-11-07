@@ -8,8 +8,10 @@ import java.io.IOException;
 
 
 public class CommandCopy extends AbstractCommand {
+	private StateShell state;
 	public CommandCopy(StateShell st) {
-		super(2, st);
+		super(2);
+		state = st;
 	}
 	
 	public String getName() {
@@ -17,8 +19,8 @@ public class CommandCopy extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) throws IOException {
-		File source = getFileByName(args[1]);
-		File dest = getFileByName(args[2]);
+		File source = state.getFileByName(args[1]);
+		File dest = state.getFileByName(args[2]);
 		try {
 			if (source.equals(dest)) {
 				throw new IOException("cp: '" + source.getName() + "' can't copy object to the same object");

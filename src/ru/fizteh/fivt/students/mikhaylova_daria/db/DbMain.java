@@ -2,209 +2,225 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Vector;
+
 
 import ru.fizteh.fivt.students.mikhaylova_daria.shell.Parser;
 
 public class DbMain {
-    private static String workingDirectoryName;
+
+    private static TableData currentTable = null;
+    private static TableManager mainManager;
 
     public static void main(String[] arg) {
-        workingDirectoryName = System.getProperty("fizteh.db.dir");
+        String workingDirectoryName = System.getProperty("fizteh.db.dir");
         if (workingDirectoryName == null) {
-            System.err.println("Property not found");
+            System.err.println("Bad property");
             System.exit(1);
         }
         try {
-            readerDateBase();
+           mainManager = new TableManager(workingDirectoryName);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Bad property");
             System.exit(1);
         }
+
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
         commandsList.put("get", "get");
         commandsList.put("remove", "remove");
         commandsList.put("exit", "exit");
+        commandsList.put("create", "create");
+        commandsList.put("use", "use");
+        commandsList.put("drop", "drop");
+        commandsList.put("commit", "commit");
+        commandsList.put("rollback", "rollback");
+        commandsList.put("size", "size");
+
         try {
             try {
-                Parser.parser(arg, FileMap.class, commandsList);
+                Parser.parser(arg, DbMain.class, commandsList);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
-            } finally {
-                writerDateBase();
             }
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
+        
     }
 
-    static void writerDateBase() throws Exception {
-        File workingDirectory = new File(workingDirectoryName);
-        if (!workingDirectory.isDirectory()) {
-            System.err.println(workingDirectoryName + "is not directory");
-            System.exit(1);
+    public void create(String[] command) throws IllegalArgumentException {
+        if (command.length != 2) {
+            throw new IllegalArgumentException("create: Wrong number of arguments");
         }
-        RandomAccessFile dateBase = null;
-        try {
-            dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "rw");
-            dateBase.setLength(0);
-        } catch (Exception e) {
-            throw new Exception("Creating" + workingDirectory.toPath().resolve("db.dat").toFile()
-                    + "is not possible");
+        String nameDir = command[1].trim();
+        TableData table = mainManager.createTable(nameDir);
+        if (table == null) {
+            System.out.println(nameDir + " exists");
+        } else {
+            System.out.println("created");
         }
-        try {
-            HashMap<String, Long> offsets = new HashMap<String, Long>();
-            long currentOffsetOfValue;
-            long offset = dateBase.getFilePointer();
-            for (String key: FileMap.fileMap.keySet()) {
-                dateBase.write(key.getBytes("UTF8"));
-                dateBase.write("\0".getBytes());
-                offset = dateBase.getFilePointer();
-                offsets.put(key, offset);
-                dateBase.seek(dateBase.getFilePointer() + 4);
-                currentOffsetOfValue = dateBase.getFilePointer();
-            }
-
-            long currentPosition = 0;
-            for (String key: FileMap.fileMap.keySet()) {
-                dateBase.write(FileMap.fileMap.get(key).getBytes("UTF8")); // выписали значение
-                currentPosition  = dateBase.getFilePointer();
-                currentOffsetOfValue = currentPosition - FileMap.fileMap.get(key).getBytes("UTF8").length;
-                dateBase.seek(offsets.get(key));
-                Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
-                dateBase.writeInt(lastOffsetInt);
-                dateBase.seek(currentPosition);
-            }
-        } catch (Exception e) {
-            System.err.println("Unknown error");
-            dateBase.close();
-            System.exit(1);
-        }
-        dateBase.close();
     }
 
-    static void readerDateBase() throws Exception {
-        File workingDirectory = new File(workingDirectoryName);
-        if (!workingDirectory.exists()) {
-            throw new IOException(workingDirectoryName + " doesn't exist");
+    public void drop(String[] command) throws IllegalArgumentException {
+        if (command.length != 2) {
+            throw new IllegalArgumentException("drop: Wrong number of arguments");
         }
-        if (!workingDirectory.isDirectory()) {
-            throw new IOException(workingDirectoryName + " is not directory");
+        String nameDir = command[1].trim();
+        if (currentTable.tableFile.getName().equals(nameDir)) {
+            currentTable = null;
         }
-        RandomAccessFile dateBase = null;
         try {
-            dateBase = new RandomAccessFile(workingDirectory.toPath().resolve("db.dat").toFile(), "r");
-        } catch (FileNotFoundException e) {
-            return;
-        } catch (Exception e) {
-            throw new Exception("Opening isn't possible");
+            mainManager.removeTable(command[1]);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        }  catch (IllegalStateException e) {
+             System.out.println(nameDir + " not exists");
         }
-        if (dateBase.length() == 0) {
-            dateBase.close();
+    }
+
+    public void use(String[] command) throws Exception {
+        if (command.length != 2) {
+            throw new IOException("use: Wrong number of arguments");
+        }
+        String nameDir = command[1].trim();
+        TableData buf = mainManager.getTable(nameDir);
+        if (buf == null) {
+            System.out.println(nameDir + " not exists");
+        } else {
+            if (currentTable != null) {
+                int numberOfChanges = currentTable.countChanges();
+                if (numberOfChanges != 0) {
+                    System.out.println(numberOfChanges + " unsaved changes");
+                } else {
+                    System.out.println("using " + nameDir);
+                    currentTable = buf;
+                }
+            } else {
+                System.out.println("using " + nameDir);
+                currentTable = buf;
+            }
+        }
+
+    }
+
+    public static void put(String[] command) throws IllegalArgumentException {
+        if (currentTable == null) {
+            System.out.println("no table");
             return;
         }
-        try {
-            HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
-            HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
-            String key = readKey(dateBase);
-            if (keyAndValueLength.containsKey(key)) {
-                System.err.println("Bad dates");
-                dateBase.close();
-                System.exit(1);
-            }
-            Integer offset = 0;
-            try {
-                offset = dateBase.readInt();
-            } catch (EOFException e) {
-                System.err.println("Bad file");
-                dateBase.close();
-                System.exit(1);
-            }
-            offsetAndKeyMap.put(offset, key);
-            final int firstOffset = offset;
-            try {
-                int lastOffset = offset;
-                String lastKey = null;
-                while (dateBase.getFilePointer() < firstOffset) {
-                    lastKey = key;
-                    key = readKey(dateBase);
-                    lastOffset = offset;
-                    offset = dateBase.readInt();
-                    offsetAndKeyMap.put(offset, key);
-                    keyAndValueLength.put(lastKey, offset - lastOffset);
-                    if (keyAndValueLength.containsKey(key)) {
-                        System.err.println("Bad dates");
-                        dateBase.close();
-                        System.exit(1);
-                    }
-                }
-                keyAndValueLength.put(key, (int) dateBase.length() - offset);
-            } catch (EOFException e) {
-                System.err.println("Bad file");
-                dateBase.close();
-                System.exit(1);
-            }
-            int lengthOfValue = 0;
-            try {
-                while (dateBase.getFilePointer() < dateBase.length()) {
-                    int currentOffset = (int) dateBase.getFilePointer();
-                    if (!offsetAndKeyMap.containsKey(currentOffset)) {
-                        System.err.println("Bad file");
-                        dateBase.close();
-                        System.exit(1);
-                    } else {
-                        key = offsetAndKeyMap.get(currentOffset);
-                        lengthOfValue = keyAndValueLength.get(key);
-                    }
-                    byte[] valueInBytes = new byte[lengthOfValue];
-                    for (int i = 0; i < lengthOfValue; ++i) {
-                        valueInBytes[i] = dateBase.readByte();
-                    }
-                    String value = new String(valueInBytes, "UTF8");
-                    FileMap.fileMap.put(key, value);
-                }
-            } catch (EOFException e) {
-                System.err.println("Bad File");
-                dateBase.close();
-                System.exit(1);
-            }
-        } catch (Exception e) {
-            System.err.println("Unknown error");
-            dateBase.close();
-            System.exit(1);
+        if (command.length != 2) {
+            throw new IllegalArgumentException("put: Wrong number of arguments");
         }
-        dateBase.close();
+        command[1] = command[1].trim();
+        String[] arg = command[1].split("\\s+", 2);
+        if (arg.length != 2) {
+            throw new IllegalArgumentException("put: Wrong number of arguments");
+        }
+        String oldValue = currentTable.put(arg[0], arg[1]);
+        if (oldValue == null) {
+            System.out.println("new");
+        } else {
+            System.out.println("overwrite");
+            System.out.println(oldValue);
+        }
     }
 
-    private static String readKey(RandomAccessFile dateBase) throws Exception {
-        Vector<Byte> keyBuilder = new Vector<Byte>();
-        try {
-            byte buf = dateBase.readByte();
-            while (buf != "\0".getBytes("UTF8")[0]) {
-                keyBuilder.add(buf);
-                buf = dateBase.readByte();
-            }
-        } catch (EOFException e) {
-            System.err.println("Bad file");
-            dateBase.close();
-            System.exit(1);
+    public static void remove(String[] command) throws IllegalArgumentException {
+        if (currentTable == null) {
+            System.out.println("no table");
+            return;
         }
-        String key = null;
-        try {
-            byte[] keyInBytes = new byte[keyBuilder.size()];
-            for (int i = 0; i < keyBuilder.size(); ++i) {
-                keyInBytes[i] = keyBuilder.elementAt(i);
-            }
-            key = new String(keyInBytes, "UTF8");
-        } catch (Exception e) {
-            System.err.println("Reading Error");
-            dateBase.close();
-            System.exit(1);
+        if (command.length != 2) {
+            throw new IllegalArgumentException("remove: Wrong number of arguments");
         }
-        return key;
+        command[1] = command[1].trim();
+        String[] arg = command[1].split("\\s+");
+        if (arg.length != 1) {
+            throw new IllegalArgumentException("remove: Wrong number of arguments");
+        }
+        String removedValue = currentTable.remove(arg[0]);
+        if (removedValue == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("removed");
+        }
     }
+
+    public static void get(String[] command) throws IllegalArgumentException {
+        if (currentTable == null) {
+            System.out.println("no table");
+            return;
+        }
+        if (command.length != 2) {
+            throw new IllegalArgumentException("get: Wrong number of arguments");
+        }
+        command[1] = command[1].trim();
+        String[] arg = command[1].split("\\s+");
+        if (arg.length != 1) {
+            throw new IllegalArgumentException("get: Wrong number of arguments");
+        }
+        String value = currentTable.get(arg[0]);
+        if (value == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("found");
+            System.out.println(value);
+        }
+    }
+
+    public static void exit(String[] arg) {
+        if (currentTable != null) {
+            int numberOfChanges = currentTable.countChanges();
+            if (numberOfChanges != 0) {
+                System.out.println(numberOfChanges + " unsaved changes");
+            }  else {
+                System.exit(0);
+            }
+        } else {
+            System.exit(0);
+        }
+    }
+
+    public static void commit(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable == null) {
+                System.out.println("no table");
+            } else {
+                System.out.println(currentTable.commit());
+            }
+        } else {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+    }
+
+    public static void rollback(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable == null) {
+                System.out.println("no table");
+            } else {
+                System.out.println(currentTable.rollback());
+            }
+        } else {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+    }
+
+    public static void size(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable != null) {
+                System.out.println(currentTable.size());
+            } else {
+                System.out.println("no table");
+            }
+        } else {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+    }
+
 }
 
 
