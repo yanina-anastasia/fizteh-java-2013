@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,14 +18,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -151,8 +148,10 @@ public class TableProviderImplementation implements TableProvider {
                 if (e.getTagName().equals("col")) {
                     String text = e.getTextContent();
                     values.add(parseToColumn(table, i, text));
-                } else if (e.getTagName().equals("null")) { // TODO else
+                } else if (e.getTagName().equals("null")) {
                     values.add(null);
+                } else {
+                    throw new ParseException("Unexpected element", i);
                 }
                 break;
             default:
@@ -248,7 +247,8 @@ public class TableProviderImplementation implements TableProvider {
     }
     
     private boolean isValidColumnType(final String columnType) {
-        List<String> validTypes = Arrays.asList("int", "long", "byte", "float", "double", "boolean", "String", "Integer", "Long", "Byte", "Float", "Double", "Boolean"); // simpleName
+        List<String> validTypes = Arrays.asList("int", "long", "byte", "float", "double", "boolean", 
+                "String", "Integer", "Long", "Byte", "Float", "Double", "Boolean"); // simpleName
         if (validTypes.contains(columnType)) {
             return true;
         }

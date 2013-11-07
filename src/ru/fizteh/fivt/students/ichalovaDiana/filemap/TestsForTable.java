@@ -99,7 +99,7 @@ public class TestsForTable {
         Assert.assertNull(table.put("key1", value1));
         Assert.assertTrue(table.commit() == 1);
         Assert.assertTrue(table.rollback() == 0);
-        //Assert.assertEquals(value1, table.get("key1"));
+        Assert.assertTrue(((TableImplementation) table).storeableAreEqual(value1, table.get("key1")));
     }
     
     @Test

@@ -117,14 +117,12 @@ public class StoreableImplementation implements Storeable {
         }
         
         for (int columnIndex = 0; columnIndex < table.getColumnsCount(); ++columnIndex) {
-            if (values.get(columnIndex) != null && !values.get(columnIndex).getClass().equals(table.getColumnType(columnIndex))) { //instance of 
+            if (values.get(columnIndex) != null 
+                    && !values.get(columnIndex).getClass().equals(table.getColumnType(columnIndex))) {
                 throw new ColumnFormatException("Type mismatch: given " + values.get(columnIndex).getClass() 
                         + " instead of " + table.getColumnType(columnIndex));
             }
         }
     }
     
-    /*public boolean equals(Object obj) {
-        for (int i = 0; i 
-    }*/
 }

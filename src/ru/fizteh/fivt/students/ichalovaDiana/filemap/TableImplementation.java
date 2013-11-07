@@ -91,7 +91,7 @@ public class TableImplementation implements Table {
 
         Storeable prevValue = putChanges.get(key);
         if (prevValue != null) {
-            if (value.equals(originValue)) {
+            if (storeableAreEqual(value, originValue)) {
                 putChanges.remove(key);
             } else {
                 putChanges.put(key, value);
@@ -100,7 +100,7 @@ public class TableImplementation implements Table {
         }
         
         if (removeChanges.contains(key)) {
-            if (value.equals(originValue)) {
+            if (storeableAreEqual(value, originValue)) {
                 removeChanges.remove(key);
             } else {
                 removeChanges.remove(key);
@@ -224,8 +224,8 @@ public class TableImplementation implements Table {
         
         for (int columnIndex = 0; columnIndex < getColumnsCount(); ++columnIndex) {
             try {
-                if (value.getColumnAt(columnIndex) != null && 
-                        !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) { //instance of
+                if (value.getColumnAt(columnIndex) != null 
+                        && !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) {
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -318,5 +318,9 @@ public class TableImplementation implements Table {
         }
         
         return size;
+    }
+    
+    boolean storeableAreEqual(Storeable first, Storeable second) {
+        return tableProvider.serialize(this, first).equals(tableProvider.serialize(this, second));
     }
 }
