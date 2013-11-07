@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import org.json.JSONObject;
+//import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -51,7 +51,7 @@ public class FileMapTable implements Table {
         }
         int i = 0;
         for (; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != null && value.getColumnAt(i) != JSONObject.NULL) {
+            if (value.getColumnAt(i) != null /*&& value.getColumnAt(i) != JSONObject.NULL*/) {
                 try {
                     if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
                         throw new ColumnFormatException("Wrong column format");
@@ -62,13 +62,13 @@ public class FileMapTable implements Table {
             }
         }
         try {
-            if (value.getColumnAt(i) != null && value.getColumnAt(i) != JSONObject.NULL) {
+            if (value.getColumnAt(i) != null /*&& value.getColumnAt(i) != JSONObject.NULL*/) {
                 throw new ColumnFormatException("Wrong column count");
             }
         } catch (IndexOutOfBoundsException e) {
             //It's OK
         }
-        if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
+        if (value.getColumnAt(columnTypes.indexOf(String.class)) != null
                 && value.getStringAt(columnTypes.indexOf(String.class)) != null
                 && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
             throw new IllegalArgumentException("empty string in value");
@@ -164,13 +164,13 @@ public class FileMapTable implements Table {
         for (int i = 0; i < columnTypes.size(); ++i) {
             Object val1 = first.getColumnAt(i);
             Object val2 = second.getColumnAt(i);
-            if (val1 == JSONObject.NULL && val2 == JSONObject.NULL) {
+            if (val1 == null && val2 == null) {
                 continue;
             }
-            if (val1 == JSONObject.NULL && val2 != JSONObject.NULL) {
+            if (val1 == null && val2 != null) {
                 return false;
             }
-            if (val1 != JSONObject.NULL && val2 == JSONObject.NULL) {
+            if (val1 != null && val2 == null) {
                 return false;
             }
             if (!val1.equals(val2)) {
