@@ -174,7 +174,7 @@ public class DbMain {
             System.out.println("new");
         } else {
             System.out.println("overwrite");
-            System.out.println(oldValue);
+            System.out.println(mainManager.serialize(currentTable, oldValue));
         }
     }
 
