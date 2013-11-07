@@ -36,10 +36,16 @@ public class Utils {
             }
         }
         scanner.close();
+        if (types.size() == 0) {
+            throw new IllegalArgumentException("Empty signature file.");
+        }
         return types;
     }
 
     static public void writeColumnTypes(String pathToTable, String[] types) throws IOException {
+        if (types.length == 0) {
+            throw new IllegalArgumentException("Empty signature.");
+        }
         File signature = new File(pathToTable, "signature.tsv");
         signature.createNewFile();
         RandomAccessFile output = new RandomAccessFile(signature, "rw");
