@@ -444,7 +444,11 @@ public class FileMap implements Table {
             st = null;
 
             File f = new File(".");
-            throw new ColumnFormatException(f.getAbsolutePath().toString());
+            String s1 = "";
+            for (String s : f.list()) {
+                s1 += s+" ";
+            }
+            throw new ColumnFormatException(s1);
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
