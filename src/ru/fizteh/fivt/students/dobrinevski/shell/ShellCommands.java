@@ -20,6 +20,7 @@ public class ShellCommands {
                 throw new Exception("\'" + args[1] + "\': Not a directory");
             }
         }
+
         public Cd() {
             super(2);
         }
@@ -39,6 +40,7 @@ public class ShellCommands {
                 throw new Exception("\'" + args[1] + "\': Directory wasn't created");
             }
         }
+
         public Mkdir() {
             super(2);
         }
@@ -49,6 +51,7 @@ public class ShellCommands {
         public void innerExecute(String[] args) {
             System.out.println(parentShell.currentDir.toPath().normalize());
         }
+
         public Pwd() {
             super(1);
         }
@@ -133,6 +136,7 @@ public class ShellCommands {
                 }
             }
         }
+
         public Copy() {
             super(3);
         }
