@@ -175,6 +175,14 @@ public class DatabaseTable implements Table {
         return columnTypes.get(columnIndex);
     }
 
+    public Storeable storeableGet(String key) {
+        return oldData.get(key);
+    }
+
+    public void storeablePut(String key, Storeable value) {
+        oldData.put(key, value);
+    }
+
     public boolean save(TableBuilder tableBuilder) {
         if (oldData == null) {
             return true;

@@ -15,7 +15,7 @@ public class TableBuilder {
     }
 
     public String get(String key) {
-        Storeable value = table.oldData.get(key);
+        Storeable value = table.storeableGet(key);
         try {
             String str = provider.serialize(table, value);
             return str;
@@ -31,6 +31,6 @@ public class TableBuilder {
         } catch (ParseException e) {
             System.err.println(e.getMessage());
         }
-        table.put(key, storage);
+        table.storeablePut(key, storage);
     }
 }
