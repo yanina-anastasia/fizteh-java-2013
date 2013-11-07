@@ -94,6 +94,9 @@ public class MultiFileHashTable implements Table {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("Key must be not empty");
         }
+        if (key.trim().contains(" ")) {
+            throw new IllegalArgumentException("Key must not contain whitespace");
+        }
         if (value == null) {
             throw new IllegalArgumentException("Value must be not null");
         }

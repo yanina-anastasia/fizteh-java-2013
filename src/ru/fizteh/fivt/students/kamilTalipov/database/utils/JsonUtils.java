@@ -59,7 +59,12 @@ public class JsonUtils {
         Storeable result = provider.createFor(table);
         for (int i = 0; i < json.length(); ++i) {
             try {
-                result.setColumnAt(i, table.getColumnType(i).cast(json.get(Integer.toString(i))));
+                Object object = json.get(Integer.toString(i));
+                if (object == null) {
+                    result.setColumnAt(i, null);
+                } else {
+                    result.setColumnAt(i, table.getColumnType(i).cast(object));
+                }
             }  catch (ColumnFormatException | IndexOutOfBoundsException e) {
                 throw new ParseException("JSON: incorrect format", i);
             }

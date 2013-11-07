@@ -18,7 +18,7 @@ public class MultiFileHashTableProvider implements TableProvider {
     public MultiFileHashTableProvider(String databaseDirectory) throws IOException,
             DatabaseException {
         if (databaseDirectory == null) {
-            throw new DatabaseException("Database directory path must be not null");
+            throw new IllegalArgumentException("Database directory path must be not null");
         }
 
         try {

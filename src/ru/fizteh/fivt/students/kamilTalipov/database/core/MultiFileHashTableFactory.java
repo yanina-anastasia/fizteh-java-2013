@@ -22,6 +22,10 @@ public class MultiFileHashTableFactory implements TableProviderFactory {
             IllegalArgumentException exception = new IllegalArgumentException("File not found");
             exception.addSuppressed(e);
             throw exception;
+        } catch (IllegalArgumentException e) {
+            IOException exception = new IOException("Provider io error");
+            exception.addSuppressed(e);
+            throw exception;
         }
     }
 }
