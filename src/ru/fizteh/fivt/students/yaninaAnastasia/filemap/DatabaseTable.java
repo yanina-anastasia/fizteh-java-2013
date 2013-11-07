@@ -158,6 +158,7 @@ public class DatabaseTable implements Table {
 
     public int rollback() {
         int recordsDeleted = changesCount();
+
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
@@ -276,11 +277,21 @@ public class DatabaseTable implements Table {
         tempSet.addAll(modifiedData.keySet());
         tempSet.addAll(deletedKeys);
         for (String key : tempSet) {
-            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key)) {
+            if (modifiedData.containsKey(key) && compare(oldData.get(key), modifiedData.get(key))) {
                 toRemove.add(key);
             }
         }
         return tempSet.size() - toRemove.size();
+    }
+
+    private boolean compare(Storeable key1, Storeable key2) {
+        if (key1 == null && key2 == null) {
+            return true;
+        }
+        if (key1 == null || key2 == null) {
+            return false;
+        }
+        return key1.equals(key2);
     }
 
     public int getColumnsCount() {

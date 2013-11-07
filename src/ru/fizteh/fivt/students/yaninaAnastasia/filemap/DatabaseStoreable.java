@@ -18,6 +18,19 @@ public class DatabaseStoreable implements Storeable {
         }
     }
 
+    public boolean equals(Object obj) {
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Storeable st = (Storeable) obj;
+        for (int i = 0; i < columns.size(); i++) {
+            if (this.getColumnAt(i) != st.getColumnAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void setColumnAt(int columnNum, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnNum < 0 || columnNum >= classes.size()) {
             throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));

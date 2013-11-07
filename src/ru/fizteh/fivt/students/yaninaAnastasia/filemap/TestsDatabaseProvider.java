@@ -2,7 +2,9 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,12 +15,15 @@ public class TestsDatabaseProvider {
     DatabaseTableProvider provider;
     List<Class<?>> columnTypes = new ArrayList<>();
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
     public void beforeTest() {
         columnTypes.add(Integer.class);
         factory = new DatabaseTableProviderFactory();
         try {
-            provider = factory.create("C:\\temp\\database_test");
+            provider = factory.create(folder.getRoot().getPath());
         } catch (IOException e) {
             //
         }
@@ -81,7 +86,7 @@ public class TestsDatabaseProvider {
 
     @Test
     public void testCreateRmTable() {
-        Assert.assertNotNull(provider.createTable("test1", columnTypes));
+        provider.createTable("test1", columnTypes);
         Assert.assertNull(provider.createTable("test1", columnTypes));
         provider.removeTable("test1");
         Assert.assertNotNull(provider.createTable("test1", columnTypes));
@@ -89,7 +94,7 @@ public class TestsDatabaseProvider {
 
     @Test
     public void testCreateGetTable() {
-        Assert.assertNotNull(provider.createTable("test2", columnTypes));
+        provider.createTable("test2", columnTypes);
         Assert.assertNotNull(provider.getTable("test2"));
     }
 

@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -19,6 +17,9 @@ public class TestsDatabaseTable {
     TableProviderFactory factory;
     TableProvider provider;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
     public void beforeTest() {
         List<Class<?>> columnTypes = new ArrayList<Class<?>>() {{
@@ -26,7 +27,7 @@ public class TestsDatabaseTable {
         }};
         factory = new DatabaseTableProviderFactory();
         try {
-            provider = factory.create("C:\\temp\\database_table_test");
+            provider = factory.create(folder.getRoot().getPath());
             table = provider.createTable("testTable", columnTypes);
         } catch (IOException e) {
             //
