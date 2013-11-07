@@ -16,6 +16,9 @@ public class TableData implements Table {
     TableManager manager;
 
     TableData(File tableFile, List<Class<?>> columnTypes, TableManager manager) {
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("list of column's types is null");
+        }
         this.manager = manager;
         this.columnTypes = new ArrayList(columnTypes);
         this.tableFile = tableFile;

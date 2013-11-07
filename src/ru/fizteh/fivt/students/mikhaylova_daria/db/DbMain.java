@@ -25,7 +25,6 @@ public class DbMain {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
         commandsList.put("get", "get");
