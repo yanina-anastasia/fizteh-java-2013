@@ -399,7 +399,10 @@ public class FileMap implements Table {
                 } else {
                     //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString());
                     //s1 += "\n\n\n";
+                    s1 += "not is Dir";
                 }
+            } else {
+                s1 += "listFile null";
             }
 
         } catch (Exception e) {
