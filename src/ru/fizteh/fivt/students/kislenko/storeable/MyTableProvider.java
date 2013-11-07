@@ -32,6 +32,11 @@ public class MyTableProvider implements TableProvider {
         if (columnTypes.size() == 0) {
             throw new IllegalArgumentException("Empty signature.");
         }
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (columnTypes.get(i) == null) {
+                throw new IllegalArgumentException("Incorrect column types in creating table.");
+            }
+        }
         if (name == null || !Paths.get(name).getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
