@@ -243,7 +243,7 @@ public class FileMap {
         } catch (Exception exp) {
             e = exp;
             //e.printStackTrace();
-            throw new DataFormatException(file.getName() + "2");
+            throw new DataFormatException(file.getName() + e.getMessage());
         } finally {
             if (dataBase != null) {
                 try {
