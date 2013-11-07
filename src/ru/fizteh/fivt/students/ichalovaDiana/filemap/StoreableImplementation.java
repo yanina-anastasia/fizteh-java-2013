@@ -12,7 +12,12 @@ public class StoreableImplementation implements Storeable {
     private Table table;
     
     StoreableImplementation(Table table) {
+        if (table == null) {
+            throw new RuntimeException("table is null");
+        }
         this.table = table;
+        
+        this.values = new ArrayList<Object>(); 
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values.add(null);
         }
@@ -20,6 +25,9 @@ public class StoreableImplementation implements Storeable {
     
     StoreableImplementation(Table table, List<?> values) 
             throws ColumnFormatException, IndexOutOfBoundsException { // check values
+        if (table == null) {
+            throw new RuntimeException("table is null");
+        }
         this.table = table;
         
         areValidValues(table, values);
@@ -91,6 +99,9 @@ public class StoreableImplementation implements Storeable {
     }
     
     private static void areValidValues(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (values == null) {
+            throw new ColumnFormatException("Empty values");
+        }
         if (table.getColumnsCount() != values.size()) {
             throw new IndexOutOfBoundsException("Illegal number of values");
         }
