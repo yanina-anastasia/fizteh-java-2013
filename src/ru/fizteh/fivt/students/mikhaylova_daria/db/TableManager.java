@@ -338,6 +338,15 @@ public class TableManager implements TableProvider {
      */
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table == null) {
+            throw new IllegalArgumentException("wrong type (table is null)");
+        }
+        if (values == null) {
+            throw new IllegalArgumentException("wrong type (values list is null)");
+        }
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (values list is empty)");
+        }
         Storeable created = new Value(table);
         try {
             for (int i = 0; i < table.getColumnsCount(); ++i) {
