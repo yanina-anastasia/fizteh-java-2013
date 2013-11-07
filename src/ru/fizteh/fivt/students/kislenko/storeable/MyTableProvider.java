@@ -26,6 +26,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public MyTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Empty signature.");
+        }
         if (name == null || !Paths.get(name).getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
