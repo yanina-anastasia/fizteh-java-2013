@@ -384,34 +384,58 @@ public class FileMap implements Table {
             throw new IllegalArgumentException("value can't be null");
         }
 
-        int index = 0;
-        while (true) {
+        FileMapStoreable st = null;
+        try {
+            st = (FileMapStoreable) value;
+        } catch (Exception e) {
+
+            boolean valueMoreSize = false;
             try {
-                /*switch (columnType.get(index).getName()) {
-                    case "java.lang.Integer":
-                        value.getIntAt(index);
-                    case "java.lang.Long":
-                        value.getLongAt(index);
-                    case "java.lang.Byte":
-                        value.getByteAt(index);
-                    case "java.lang.Float":
-                        value.getFloatAt(index);
-                    case "java.lang.Double":
-                        value.getDoubleAt(index);
-                    case "java.lang.Boolean":
-                        value.getBooleanAt(index);
-                    case "java.lang.String":
-                        value.getStringAt(index);
-                } */
-                ++index;
-            } catch (IndexOutOfBoundsException e) {
-                if (index != columnType.size()) {
-                    throw new ColumnFormatException("this Storeable can't be use in this table");
-                }
-                break;
-            } catch (ColumnFormatException e) {
-                throw e;
+                value.getColumnAt(columnType.size());
+                valueMoreSize = true;
+            } catch (Exception err) {
+                valueMoreSize = false;
             }
+
+            if (valueMoreSize) {
+                throw new ColumnFormatException("this Storeable can't be use in this table");
+            }
+
+            int index = 0;
+            while (true) {
+                try {
+                    switch (columnType.get(index).getName()) {
+                        case "java.lang.Integer":
+                            value.getIntAt(index);
+                        case "java.lang.Long":
+                            value.getLongAt(index);
+                        case "java.lang.Byte":
+                            value.getByteAt(index);
+                        case "java.lang.Float":
+                            value.getFloatAt(index);
+                        case "java.lang.Double":
+                            value.getDoubleAt(index);
+                        case "java.lang.Boolean":
+                            value.getBooleanAt(index);
+                        case "java.lang.String":
+                            value.getStringAt(index);
+                    }
+                    ++index;
+                } catch (IndexOutOfBoundsException err) {
+                    if (index != columnType.size()) {
+                        throw new ColumnFormatException("this Storeable can't be use in this table");
+                    }
+                    break;
+                } catch (ColumnFormatException err) {
+                    throw e;
+                }
+            }
+
+            st = null;
+        }
+
+        if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
+            throw new ColumnFormatException(st.messageEqualsType(columnType));
         }
 
         if (tableData.containsKey(key)) {
