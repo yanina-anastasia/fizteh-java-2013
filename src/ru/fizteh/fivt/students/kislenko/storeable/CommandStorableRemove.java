@@ -21,7 +21,6 @@ public class CommandStorableRemove implements Command<StoreableState> {
             throw new IOException("Database haven't initialized.");
         }
         Storeable oldValue = table.remove(args[0]);
-
         if (oldValue != null) {
             System.out.println("removed");
         } else {
