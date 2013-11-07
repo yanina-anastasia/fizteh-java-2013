@@ -9,6 +9,21 @@ import java.util.Map;
 
 public class FileMapUtils {
 
+    static void checkArg(String key) throws IllegalArgumentException{
+        if (key == null) {
+            throw new IllegalArgumentException("key or value is clear");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("only spaces");
+        }
+        if (key.contains(" ") || key.contains("\t")) {
+            throw new IllegalArgumentException("spaces can't be in key");
+        }
+        if (key.contains("\n")) {
+            throw new IllegalArgumentException("newline in key or value");
+        }
+    }
+
     static Map<String, Class<?>> mapStringClass()  {
         Map<String, Class<?>> convertList = new HashMap<String, Class<?>>(){ {
             put("int",       Integer.class);
@@ -73,6 +88,7 @@ public class FileMapUtils {
                 throw new ColumnFormatException("wrong column format");
         }
     }
+
     public static Object parseValue(String s, Class<?> classType) {
         try {
             switch (classType.getName()) {

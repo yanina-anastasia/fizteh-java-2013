@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.checkArg;
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertClassToString;
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
 
@@ -378,25 +379,26 @@ public class FileMap implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException("key or value is clear");
-        }
-        if (key.trim().isEmpty()) {
-            throw new IllegalArgumentException("only spaces");
-        }
-        if (key.contains(" ") || key.contains("\t")) {
-            throw new IllegalArgumentException("spaces can't be in key");
-        }
-        if (key.contains("\n")) {
-            throw new IllegalArgumentException("newline in key or value");
-        }
+        checkArg(key);
 
         int index = 0;
         while (true) {
             try {
-                Object res = value.getColumnAt(index);
-                if (res != null && !res.getClass().getName().equals(columnType.get(index).getName())) {
-                    throw new ColumnFormatException("this Storeable can't be use in this table");
+                switch (columnType.get(index).getName()) {
+                    case "java.lang.Integer":
+                        value.getIntAt(index);
+                    case "java.lang.Long":
+                        value.getLongAt(index);
+                    case "java.lang.Byte":
+                        value.getByteAt(index);
+                    case "java.lang.Float":
+                        value.getFloatAt(index);
+                    case "java.lang.Double":
+                        value.getDoubleAt(index);
+                    case "java.lang.Boolean":
+                        value.getBooleanAt(index);
+                    case "java.lang.String":
+                        value.getStringAt(index);
                 }
                 ++index;
             } catch (IndexOutOfBoundsException e) {
@@ -438,9 +440,8 @@ public class FileMap implements Table {
     }
 
     public Storeable get(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("key is clear");
-        }
+        checkArg(key);
+
         if (tableData.containsKey(key)) {
             return tableData.get(key);
         } else {
@@ -449,9 +450,8 @@ public class FileMap implements Table {
     }
 
     public Storeable remove(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("key is clear");
-        }
+        checkArg(key);
+
         if (tableData.containsKey(key)) {
 
             if (!changeTable.containsKey(key)) {
