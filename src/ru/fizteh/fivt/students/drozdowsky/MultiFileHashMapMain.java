@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky;
 
 import ru.fizteh.fivt.students.drozdowsky.Commands.MFHMController;
-import ru.fizteh.fivt.students.drozdowsky.database.FileHashMap;
-import ru.fizteh.fivt.students.drozdowsky.database.MFHMProviderFactory;
 import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
 import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;

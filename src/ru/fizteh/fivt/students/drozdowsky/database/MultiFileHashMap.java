@@ -23,9 +23,6 @@ public class MultiFileHashMap implements TableProvider {
         String[] content = dir.list();
         for (String directory : content) {
             File temp = new File(dir.getAbsoluteFile() + "/" + directory);
-            if (!temp.isDirectory()) {
-                throw new IllegalStateException(temp.getName() + ": not a directory");
-            }
             FileHashMap base = new FileHashMap(temp);
             database.put(directory, null);
         }
@@ -68,6 +65,8 @@ public class MultiFileHashMap implements TableProvider {
         if (database.containsKey(name)) {
             ShellController t = new ShellController(curDir);
             t.rm(name);
+            database.remove(name);
+
             database.remove(name);
         } else {
             throw new IllegalStateException();
