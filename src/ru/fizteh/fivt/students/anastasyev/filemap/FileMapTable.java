@@ -44,7 +44,7 @@ public class FileMapTable implements Table {
         return (val == null || (val.isEmpty() || val.trim().isEmpty()));
     }
 
-    private void checkValueCorrectness(Storeable value) {
+    private void checkValueCorrectness(Storeable value) throws ColumnFormatException {
         if (value == null) {
             throw new IllegalArgumentException();
         }
@@ -152,10 +152,20 @@ public class FileMapTable implements Table {
         }
     }
 
+    private boolean storeableEquals(Storeable first, Storeable second) {
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (!(first.getColumnAt(i) == null && second.getColumnAt(i) == null
+                    || first.getColumnAt(i).equals(second.getColumnAt(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private int changesCount() {
         int changesCount = 0;
         for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
-            if (entry.getValue().value != null && !entry.getValue().value.equals(entry.getValue().onDiskValue)
+            if (entry.getValue().value != null && !storeableEquals(entry.getValue().value, entry.getValue().onDiskValue)
                     || (entry.getValue().value == null && entry.getValue().getOnDisk() != null)) {
                 ++changesCount;
             }
@@ -300,12 +310,7 @@ public class FileMapTable implements Table {
         if (mapsTable[dirHash][datHash] == null) {
             return null;
         }
-        Storeable str = mapsTable[dirHash][datHash].get(key);
-        if (str == null) {
-            return null;
-        } else {
-            return str;
-        }
+        return mapsTable[dirHash][datHash].get(key);
     }
 
     @Override
