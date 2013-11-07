@@ -50,6 +50,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         for (String dirName : tableDirectory.toFile().list()) {
             if (dirName.equals("signature.tsv") && Files.isRegularFile(tableDirectory.resolve(dirName))) {
                 containsSignatureFile = true;
+                // isCorrectSignatureFile(tableDirectory.resolve(dirName));
                 continue; // TODO: check signature.tsv;
             }
             
@@ -86,5 +87,9 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
     }
+    
+    /*private static void isCorrectSignatureFile(Path signatureFilePath) {
+        
+    }*/
     
 }

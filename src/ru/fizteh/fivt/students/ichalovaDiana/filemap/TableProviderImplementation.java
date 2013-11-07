@@ -150,7 +150,9 @@ public class TableProviderImplementation implements TableProvider {
                 if (e.getTagName().equals("col")) {
                     String text = e.getTextContent();
                     values.add(parseToColumn(table, i, text));
-                } // TODO else
+                } else if (e.getTagName().equals("null")) { // TODO else
+                    values.add(null);
+                }
                 break;
             /*case Node.TEXT_NODE:
                 Text t = (Text) node;

@@ -222,7 +222,7 @@ public class TableImplementation implements Table {
         
         for (int columnIndex = 0; columnIndex < getColumnsCount(); ++columnIndex) {
             try {
-                if (!value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) { //instance of
+                if (value.getColumnAt(columnIndex) != null && !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) { //instance of
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {

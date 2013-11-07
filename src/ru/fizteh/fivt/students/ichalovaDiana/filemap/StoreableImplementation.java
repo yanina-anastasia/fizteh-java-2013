@@ -96,7 +96,7 @@ public class StoreableImplementation implements Storeable {
         }
         
         for (int columnIndex = 0; columnIndex < table.getColumnsCount(); ++columnIndex) {
-            if (!values.get(columnIndex).getClass().equals(table.getColumnType(columnIndex))) { //instance of 
+            if (values.get(columnIndex) != null && !values.get(columnIndex).getClass().equals(table.getColumnType(columnIndex))) { //instance of 
                 throw new ColumnFormatException("Type mismatch: given " + values.get(columnIndex).getClass() 
                         + " instead of " + table.getColumnType(columnIndex));
             }

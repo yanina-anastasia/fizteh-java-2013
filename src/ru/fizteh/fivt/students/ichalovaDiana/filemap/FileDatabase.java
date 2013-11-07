@@ -25,7 +25,7 @@ class FileDatabase implements AutoCloseable {
             
         } catch (Exception e) {
             Exception exception = new Exception("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"), e);
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
             try {
                 if (dbFile != null) {
                     dbFile.close();
@@ -33,7 +33,7 @@ class FileDatabase implements AutoCloseable {
             } catch (Exception e1) {
                 exception.addSuppressed(new Exception("Error while closing database: "
                                 + ((e1.getMessage() != null) ? e1.getMessage()
-                                        : "unkonown error"), e1));
+                                        : "unknown error"), e1));
             }
             
             throw exception;
