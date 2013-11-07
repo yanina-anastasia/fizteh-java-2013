@@ -64,11 +64,6 @@ public class MyTable implements Table {
         if (key.trim().isEmpty() || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-//        for (int i = 0; i < types.size(); ++i) {
-//            if (value.getColumnAt(i) == null) {
-//                throw new IllegalArgumentException("Null value is not correct value.");
-//            }
-//        }
         for (int i = 0; i < types.size(); ++i) {
             if (value.getColumnAt(i) != null && !types.get(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("");
