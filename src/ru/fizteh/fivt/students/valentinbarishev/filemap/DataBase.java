@@ -128,11 +128,11 @@ public final class DataBase implements Table {
         return dataBaseDirectory + File.separator + node.getNDirectory() + File.separator + node.getNFile();
     }
 
-    public void loadFiles() {
+    public void loadFiles() throws IOException {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 DirFile node = new DirFile(i, j);
-                DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile);
+                DataBaseFile file = new DataBaseFile(getFullName(node), node.nDir, node.nFile, this);
                 files[node.getId()] =  file;
             }
         }
@@ -170,7 +170,7 @@ public final class DataBase implements Table {
         DataBaseFile file = files[node.getId()];
         String value = WorkWithJSON.serialize(this, storeableValue);
         String result = file.put(keyStr, value);
-        return WorkWithJSON.deserialize(this, result);
+        return WorkWithJSON.validDeserialize(this, result);
     }
 
     @Override
@@ -178,7 +178,7 @@ public final class DataBase implements Table {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         String result = files[node.getId()].get(keyStr);
-        return WorkWithJSON.deserialize(this, result);
+        return WorkWithJSON.validDeserialize(this, result);
     }
 
     @Override
@@ -187,7 +187,7 @@ public final class DataBase implements Table {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         String result = file.remove(keyStr);
-        return WorkWithJSON.deserialize(this, result);
+        return WorkWithJSON.validDeserialize(this, result);
     }
 
     @Override

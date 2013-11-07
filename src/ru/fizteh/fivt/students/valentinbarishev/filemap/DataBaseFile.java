@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -103,8 +104,10 @@ public class DataBaseFile {
     protected List<Node> data;
     private int fileNumber;
     private int direcotryNumber;
+    private DataBase table;
 
-    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber) {
+    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber, DataBase newTable) throws IOException {
+        table = newTable;
         fileName = newFileName;
         file = new File(fileName);
         data = new ArrayList<Node>();
@@ -116,11 +119,16 @@ public class DataBaseFile {
         check();
     }
 
-    public boolean check() {
+    public boolean check() throws IOException {
         for (Node node : data) {
             if (!((node.getZeroByte() % 16 == direcotryNumber) && ((node.getZeroByte() / 16) % 16 == fileNumber))) {
                 throw new DataBaseWrongFileFormat("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
                         + " in file " + fileName);
+            }
+            try {
+                WorkWithJSON.deserialize(table, node.value.toString());
+            } catch (ParseException e) {
+                throw new IOException("Invalid file format! (parse exception error!)");
             }
         }
         return true;

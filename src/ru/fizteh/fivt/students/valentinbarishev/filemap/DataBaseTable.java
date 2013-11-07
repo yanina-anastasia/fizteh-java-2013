@@ -18,23 +18,6 @@ public final class DataBaseTable implements TableProvider {
     private String tableDir;
     private Map<String, DataBase> tableInUse;
 
-    public DataBase getTableFromMap(final String name, List<Class<?>> columnTypes) {
-        try {
-            if (!tableInUse.containsKey(name)) {
-                tableInUse.put(name, new DataBase(name, this, columnTypes));
-            }
-            return tableInUse.get(name);
-        } catch (IOException e) {
-            throw new DataBaseException("Get table from map failed!");
-        }
-    }
-
-    public void deleteTableFromMap(final String name) {
-       if (tableInUse.containsKey(name)) {
-           tableInUse.remove(name);
-       }
-    }
-
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
         tableInUse = new HashMap();
@@ -66,7 +49,9 @@ public final class DataBaseTable implements TableProvider {
             throw new MultiDataBaseException("Cannot create table " + tableName);
         }
 
-        return getTableFromMap(fullPath, columnTypes);
+        DataBase table = new DataBase(fullPath, this, columnTypes);
+        tableInUse.put(tableName, table);
+        return table;
     }
 
     @Override
@@ -79,12 +64,14 @@ public final class DataBaseTable implements TableProvider {
             throw new IllegalStateException("Table not exist already!");
         }
 
-        DataBase base = getTableFromMap(fullPath, null);
-        base.drop();
-        if (!file.delete()) {
-            throw new DataBaseException("Cannot delete a file " + tableName);
+        if (tableInUse.containsKey(tableName)) {
+            DataBase base = tableInUse.get(tableName);
+            base.drop();
+            if (!file.delete()) {
+                throw new DataBaseException("Cannot delete a file " + tableName);
+            }
+            tableInUse.remove(tableName);
         }
-        deleteTableFromMap(fullPath);
     }
 
     @Override
@@ -96,30 +83,27 @@ public final class DataBaseTable implements TableProvider {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-        return getTableFromMap(fullPath, null);
+        if (tableInUse.containsKey(tableName)) {
+            return tableInUse.get(tableName);
+        } else {
+            try {
+                DataBase table = new DataBase(fullPath, this, null);
+                tableInUse.put(tableName, table);
+                return table;
+            } catch (IOException e) {
+                throw new DataBaseException("Wrong format database " + fullPath);
+            }
+        }
     }
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        Storeable result = createFor(table);
-        JSONObject input = new JSONObject(value);
-        for (Integer i = 0; i < input.length(); ++i) {
-            try {
-                result.setColumnAt(i, table.getColumnType(i).cast(input.get(i.toString())));
-            } catch (ColumnFormatException | IndexOutOfBoundsException e) {
-                throw new ParseException("Deserialize exception!", 0);
-            }
-        }
-        return result;
+        return WorkWithJSON.deserialize(table, value);
     }
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        JSONArray array = new JSONArray();
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            array.put(value.getColumnAt(i));
-        }
-        return array.toString();
+        return WorkWithJSON.serialize(table, value);
     }
 
     @Override
