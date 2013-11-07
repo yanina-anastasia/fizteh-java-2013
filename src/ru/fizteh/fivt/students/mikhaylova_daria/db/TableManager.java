@@ -28,6 +28,13 @@ public class TableManager implements TableProvider {
     private File mainDir;
 
     TableManager(String nameMainDir) throws IllegalArgumentException {
+        if (nameMainDir == null) {
+            throw new IllegalArgumentException("wrong type (Name of directory is null)");
+        }
+        if (nameMainDir.contains(" ") || nameMainDir.contains("\\") || nameMainDir.contains("/")
+                || nameMainDir.contains("\t") || nameMainDir.contains(".") || nameMainDir.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters or empty)");
+        }
         mainDir = new File(nameMainDir);
         if (!mainDir.exists()) {
             throw new IllegalArgumentException("wrong type (" + nameMainDir + " doesn't exist)");
@@ -107,15 +114,18 @@ public class TableManager implements TableProvider {
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
-        nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("wrong type (bad symbol in tablename");
+        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\t") || nameTable.contains(".")) {
+            throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
-        if (nameTable.startsWith(".") || (nameTable.endsWith("."))) {
-            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("wrong type (list of types is null)");
+        }
+        if (columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (list of types is empty)");
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
@@ -136,12 +146,12 @@ public class TableManager implements TableProvider {
         if (nameTable == null) {
             throw new IllegalArgumentException();
         }
-        nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
+        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\t") || nameTable.contains(".")) {
+            throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
@@ -167,16 +177,12 @@ public class TableManager implements TableProvider {
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
-        nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains("\\") || nameTable.contains("/")) {
-            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
-        }
-
-        if (nameTable.startsWith(".") || (nameTable.endsWith("."))) {
-            throw new IllegalArgumentException("wrong type (bad symbol in tablename)");
+        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\t") || nameTable.contains(".")) {
+            throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
@@ -193,6 +199,12 @@ public class TableManager implements TableProvider {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (table == null) {
+            throw new IllegalArgumentException("wrong type (table is null)");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("wrong type (value is null)");
+        }
         int i = 0;
         String xmlString;
         try {
@@ -233,6 +245,12 @@ public class TableManager implements TableProvider {
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (table == null) {
+            throw new IllegalArgumentException("wrong type (table is null)");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("wrong type (value is null)");
+        }
         Storeable storeableVal = new Value(table);
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -304,6 +322,9 @@ public class TableManager implements TableProvider {
     }
 
     public Storeable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("wrong type (table is null)");
+        }
         return new Value(table);
     }
 

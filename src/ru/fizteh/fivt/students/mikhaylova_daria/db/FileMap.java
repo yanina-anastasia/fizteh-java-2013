@@ -25,10 +25,15 @@ public class FileMap {
     }
 
     public Storeable put(String key, Storeable value, TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
@@ -46,10 +51,15 @@ public class FileMap {
     }
 
     public Storeable get(String key, TableData table) throws IllegalArgumentException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
@@ -66,10 +76,15 @@ public class FileMap {
     }
 
     public Storeable remove(String key, TableData table) throws IllegalArgumentException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
@@ -86,6 +101,9 @@ public class FileMap {
     }
 
     private void writerFile(TableData table) throws Exception {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         RandomAccessFile fileDataBase = null;
         String stringValue;
         Exception e = new Exception("Writing error");
@@ -151,6 +169,9 @@ public class FileMap {
     }
 
     void readerFile(TableData table) throws Exception {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         Exception e = new Exception("Reading error");
         Storeable storeableValue;
         RandomAccessFile dataBase = null;
@@ -288,6 +309,9 @@ public class FileMap {
 
 
     void commit(TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         int numberOfChanges = numberOfChangesCounter();
         if (numberOfChanges != 0) {
             try {
@@ -308,6 +332,9 @@ public class FileMap {
     }
 
     int size(TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         if (!isLoaded) {
             try {
                 readerFile(table);

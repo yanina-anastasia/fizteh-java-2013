@@ -75,9 +75,6 @@ public class TableData implements Table {
         if (!sign.exists()) {
             throw new IllegalArgumentException(sign.getName() + " does not exist");
         }
-        if (sign.length() == 0) {
-            throw new IllegalArgumentException(sign.toString() + " Empty type list");
-        }
         try (BufferedReader signatureReader =
                      new BufferedReader(new FileReader(sign))) {
             signature = signatureReader.readLine();
@@ -85,6 +82,9 @@ public class TableData implements Table {
             throw new IllegalArgumentException("Reading error: signature.tsv", e);
         }
         String[] signatures = signature.trim().split(" ");
+        if (signatures.length == 0) {
+            throw new IllegalArgumentException(sign.toString() + " Empty type list");
+        }
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
                 columnTypes.add(Integer.class);
@@ -155,7 +155,9 @@ public class TableData implements Table {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
@@ -180,7 +182,9 @@ public class TableData implements Table {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
@@ -238,7 +242,7 @@ public class TableData implements Table {
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex > columnTypes.size()) {
+        if (columnIndex >= columnTypes.size()) {
             throw new IndexOutOfBoundsException("Index " + columnIndex
                     + "does not exist. Number of columns is" + columnTypes.size());
         }
