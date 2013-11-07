@@ -56,11 +56,17 @@ public class FileMap implements Table {
 
     private String readFileTsv(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new FileReader( new File(fileName).getAbsoluteFile()))) {
-            String s;
-            while ((s = in.readLine()) != null) {
-                sb.append(s);
+        try {
+            try (BufferedReader in = new BufferedReader(new FileReader( new File(fileName).getAbsoluteFile()))) {
+                String s;
+                while ((s = in.readLine()) != null) {
+                    sb.append(s);
+                }
+            } catch (Exception e) {
+                throw new IOException("not found signature.tsv", e);
             }
+        } catch (Exception e) {
+            throw new IOException("not found signature.tsv", e);
         }
         if (sb.length() == 0) {
             throw new IOException("tsv file is empty");
@@ -69,7 +75,8 @@ public class FileMap implements Table {
     }
 
     private void writeFileTsv() throws FileNotFoundException {
-        try (PrintWriter out = new PrintWriter(pathDb.resolve("signature.tsv").toFile().getAbsoluteFile())){
+        Path pathTsv = pathDb.resolve(nameTable).resolve("signature.tsv");
+        try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())){
             for (Class<?> col : columnType) {
                 out.print(convertClassToString(col));
             }
@@ -77,7 +84,7 @@ public class FileMap implements Table {
     }
 
     private void loadTypeFile(Path pathDb) throws IOException {
-        String fileStr = readFileTsv(pathDb.resolve("signature.tsv").toString());
+        String fileStr = readFileTsv(pathDb.resolve(nameTable).resolve("signature.tsv").toString());
         StringTokenizer token = new StringTokenizer(fileStr);
         while (token.hasMoreTokens()) {
             String tok = token.nextToken();
@@ -109,6 +116,8 @@ public class FileMap implements Table {
             }
         }
 
+        writeFileTsv();
+
         try {
             loadTable(nameTable);
         } catch (Exception e) {
@@ -135,6 +144,9 @@ public class FileMap implements Table {
         }
 
         for (File nameDir : listFileMap) {
+            if (nameDir.getName().equals("signature.tsv")) {
+                continue;
+            }
             if (!nameDir.isDirectory()) {
                 throw new ErrorFileMap(nameDir.getAbsolutePath() + " isn't directory");
             }
@@ -260,12 +272,11 @@ public class FileMap implements Table {
         mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
         existDir = false;
         mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+        writeFileTsv();
         existDir = true;
         if (tableData.isEmpty()) {
             return;
         }
-
-        writeFileTsv();
 
         Map<String, Storeable>[][] arrayMap = new HashMap[16][16];
         boolean[] useDir = new boolean[16];

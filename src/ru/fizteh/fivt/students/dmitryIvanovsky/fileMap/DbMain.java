@@ -3,11 +3,15 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
+
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
@@ -18,6 +22,7 @@ public class DbMain {
             runDb(args, pathTables.toFile().getCanonicalPath());
 
         } catch (Exception e) {
+            //e.printStackTrace();
             System.out.println("Error loading");
             FileMapUtils.getMessage(e);
             System.exit(1);

@@ -99,9 +99,10 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             if (!currentFileMap.isDirectory()) {
                 throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
             }
-            return new FileMap(pathDb, nameMap, this);
+            FileMap table = new FileMap(pathDb, nameMap, this);
+            return table;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
             throw e;
             //return null;
@@ -189,11 +190,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 outPrint(nameTable + " not exists");
             } else {
                 if (!nameTable.equals(useNameTable)) {
-                    useNameTable = nameTable;
                     if (dbData != null) {
                         dbData.closeTable();
                     }
                     dbData = loadDb(nameTable);
+                    useNameTable = nameTable;
                 }
                 outPrint("using " + nameTable);
             }
@@ -228,13 +229,24 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
         for (int i=2; i<countTokens; ++i) {
             String t = token.nextToken();
+            if (i == 2 && t.trim().charAt(0) != '(') {
+                throw new IllegalArgumentException("wrong format");
+            }
+            if (i == countTokens-1 && t.trim().charAt(t.trim().length()-1) != ')') {
+                throw new IllegalArgumentException("wrong format");
+            }
             if (t.charAt(0) == '(') {
                 t = t.substring(1);
             }
-            if (t.charAt(t.length() - 1) == ')') {
-                t = t.substring(0, t.length() - 1);
+            if (t.isEmpty()) {
+                continue;
             }
-            if (!t.trim().isEmpty()) {
+            if (t.charAt(t.length() - 1) == ')') {
+                if (t.length() - 1 > 0) {
+                    t = t.substring(0, t.length() - 1);
+                }
+            }
+            if (!t.trim().isEmpty() && !t.contains(")") && !t.contains("(")) {
                 res.add(t.trim());
             }
         }
@@ -249,7 +261,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         for (int i=2; i < argsParse.size(); ++i) {
             Class<?> type = convertStringToClass(argsParse.get(i));
             if (type == null) {
-                throw new IllegalArgumentException("error in type");
+                throw new IllegalArgumentException(String.format("error in type %s", argsParse.get(i)));
             }
             colType.add(type);
         }

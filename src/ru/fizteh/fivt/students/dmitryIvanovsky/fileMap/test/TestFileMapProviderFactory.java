@@ -38,7 +38,7 @@ public class TestFileMapProviderFactory {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    /*@Test(expected = IllegalArgumentException.class)
     public void createNull() {
         multiMapFactory.create(null);
     }
@@ -51,7 +51,7 @@ public class TestFileMapProviderFactory {
     @Test()
     public void createProvider() {
         multiMapFactory.create(pathTables.toString());
-    }
+    }   */
 
     @AfterClass
     public static void tearDown() {
