@@ -12,13 +12,13 @@ public class FileMapTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Directory path can't be null");
         }
         File fileDir = new File(dir);
+        if (fileDir.isFile()) {
+            throw new IllegalArgumentException("Wrong directory path");
+        }
         if (!fileDir.exists()) {
             //if (!fileDir.mkdirs()) {
             throw new IOException("Can't create directory");
             //}
-        }
-        if (!fileDir.isDirectory()) {
-            throw new IllegalArgumentException("Wrong directory path");
         }
         FileMapTableProvider fileMapTableProvider = null;
         try {
