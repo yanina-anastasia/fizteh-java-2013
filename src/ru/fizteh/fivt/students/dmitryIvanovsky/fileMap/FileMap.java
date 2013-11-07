@@ -139,8 +139,7 @@ public class FileMap implements Table {
         File[] listFileMap = currentFileMap.listFiles();
 
         if (listFileMap == null || listFileMap.length == 0) {
-            //errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
-            return ;
+            throw new ErrorFileMap(pathDb.toString() + " empty table");
         }
 
         for (File nameDir : listFileMap) {
@@ -160,8 +159,7 @@ public class FileMap implements Table {
 
             File[] listNameDir = nameDir.listFiles();
             if (listNameDir == null || listNameDir.length == 0) {
-                //throw new ErrorFileMap(nameDir.getAbsolutePath() + " папка пуста");
-                return;
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " empty dir");
             }
             for (File randomFile : listNameDir) {
 

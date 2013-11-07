@@ -10,6 +10,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import static junit.framework.Assert.assertTrue;
@@ -44,11 +45,11 @@ public class TestFileMapProvider {
 
     }
 
-    /*@Test(expected = IllegalArgumentException.class)
-    public void createNull() {
-        multiMap.createTable(null);
+    @Test(expected = IllegalArgumentException.class)
+    public void createNull() throws IOException {
+        multiMap.createTable(null, null);
     }
-
+    /*
     @Test(expected = IllegalArgumentException.class)
     public void getNull() {
         multiMap.getTable(null);
