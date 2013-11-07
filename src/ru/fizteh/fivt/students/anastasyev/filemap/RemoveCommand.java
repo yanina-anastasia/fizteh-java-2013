@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class RemoveCommand implements Command<FileMapTableProvider> {
                 System.out.println("not found");
                 return true;
             }
-            String str = currTable.remove(command[1]);
+            Storeable str = currTable.remove(command[1]);
             if (str == null) {
                 System.out.println("not found");
             } else {

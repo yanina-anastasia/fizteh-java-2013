@@ -1,32 +1,40 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.RandomAccessFile;
+import java.text.ParseException;
+import java.util.*;
 
 public class FileMapTable implements Table {
     private File currentFileMapTable;
     private FileMap[][] mapsTable;
     private HashMap<String, Value> changedKeys = new HashMap<String, Value>();
-    int size = 0;
+    private ArrayList<Class<?>> columnTypes;
+    private FileMapTableProvider provider;
+    private int size = 0;
+
+    public int indexOfColumn(Class<?> column) {
+        return columnTypes.indexOf(column);
+    }
 
     private class Value {
-        private String value;
-        private String onDiskValue;
+        private Storeable value;
+        private Storeable onDiskValue;
 
-        public Value(String newValue, String newOnDisk) {
+        public Value(Storeable newValue, Storeable newOnDisk) {
             value = newValue;
             onDiskValue = newOnDisk;
         }
 
-        public String getValue() {
+        public Storeable getValue() {
             return value;
         }
 
-        public String getOnDisk() {
+        public Storeable getOnDisk() {
             return onDiskValue;
         }
     }
@@ -52,7 +60,11 @@ public class FileMapTable implements Table {
                 }
             }
             String datName = dir.toString() + File.separator + datHash + ".dat";
-            mapsTable[dirHash][datHash] = new FileMap(datName, dirHash, datHash);
+            try {
+                mapsTable[dirHash][datHash] = new FileMap(datName, dirHash, datHash, this, provider);
+            } catch (ParseException e) {
+                throw new IOException("incorrect value format", e);
+            }
         }
         return mapsTable[dirHash][datHash];
     }
@@ -75,7 +87,7 @@ public class FileMapTable implements Table {
         }
     }
 
-    private void readTable() throws IOException {
+    private void readTable() throws IOException, ParseException {
         mapsTable = new FileMap[16][16];
         size = 0;
         for (int i = 0; i < 16; ++i) {
@@ -90,7 +102,7 @@ public class FileMapTable implements Table {
                         if (!dbDat.isFile()) {
                             throw new IOException(i + ".dat is not a FileMap file");
                         }
-                        mapsTable[i][j] = new FileMap(dbDat.toString(), i, j);
+                        mapsTable[i][j] = new FileMap(dbDat.toString(), i, j, this, provider);
                         if (mapsTable[i][j].isEmpty()) {
                             mapsTable[i][j].delete();
                             mapsTable[i][j] = null;
@@ -121,7 +133,53 @@ public class FileMapTable implements Table {
         return changesCount;
     }
 
-    public FileMapTable(String tableName) throws IOException {
+    private void readSignature() throws IOException {
+        File signature = new File(currentFileMapTable, "signature.tsv");
+        if (!signature.exists()) {
+            throw new IOException("signature.tsv doesn't exists");
+        }
+        if (signature.length() == 0) {
+            throw new IOException("signature.tsv is empty");
+        }
+        columnTypes = new ArrayList<Class<?>>();
+        try (RandomAccessFile input = new RandomAccessFile(signature.toString(), "r")) {
+            int position = 0;
+            while (input.getFilePointer() != input.length()) {
+                byte ch = 0;
+                Vector<Byte> v = new Vector<Byte>();
+                ch = input.readByte();
+                while (ch != ' ') {
+                    v.add(ch);
+                    ch = input.readByte();
+                }
+                byte[] res = new byte[v.size()];
+                for (int i = 0; i < v.size(); i++) {
+                    res[i] = v.elementAt(i).byteValue();
+                }
+                String type = new String(res, "UTF-8");
+                Class<?> classType = provider.getClassName(type);
+                columnTypes.add(classType);
+            }
+        }
+    }
+
+    public FileMapTable(String tableName, FileMapTableProvider newProvider) throws IOException, ParseException {
+        currentFileMapTable = new File(tableName);
+        provider = newProvider;
+        if (!currentFileMapTable.exists()) {
+            if (!currentFileMapTable.mkdir()) {
+                throw new IOException("Can't create " + currentFileMapTable.getName());
+            }
+        }
+        if (!currentFileMapTable.isDirectory()) {
+            throw new IOException(currentFileMapTable.getName() + " is not a directory");
+        }
+        readSignature();
+        readTable();
+    }
+
+    public FileMapTable(String tableName, List<Class<?>> newColumnTypes, FileMapTableProvider newProvider)
+            throws IOException, ParseException {
         currentFileMapTable = new File(tableName);
         if (!currentFileMapTable.exists()) {
             if (!currentFileMapTable.mkdir()) {
@@ -132,6 +190,8 @@ public class FileMapTable implements Table {
             throw new IOException(currentFileMapTable.getName() + " is not a directory");
         }
         readTable();
+        columnTypes = new ArrayList<Class<?>>(newColumnTypes);
+        provider = newProvider;
     }
 
     @Override
@@ -140,8 +200,8 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (isEmptyString(key) || isEmptyString(value)) {
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if (isEmptyString(key)) {
             throw new IllegalArgumentException();
         }
         int absHash = Math.abs(key.hashCode());
@@ -152,7 +212,7 @@ public class FileMapTable implements Table {
         } catch (IOException e) {
             throw new IllegalArgumentException("Can't open fileMap");
         }
-        String str = mapsTable[dirHash][datHash].put(key, value);
+        Storeable str = mapsTable[dirHash][datHash].put(key, value);
         Value element = changedKeys.get(key);
         if (str == null) {
             ++size;
@@ -173,7 +233,7 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmptyString(key)) {
             throw new IllegalArgumentException();
         }
@@ -183,7 +243,7 @@ public class FileMapTable implements Table {
         if (mapsTable[dirHash][datHash] == null) {
             return null;
         }
-        String str = mapsTable[dirHash][datHash].remove(key);
+        Storeable str = mapsTable[dirHash][datHash].remove(key);
         if (str == null) {
             return null;
         } else {
@@ -199,7 +259,7 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public String get(String key) throws IllegalArgumentException {
+    public Storeable get(String key) throws IllegalArgumentException {
         if (isEmptyString(key)) {
             throw new IllegalArgumentException();
         }
@@ -209,8 +269,8 @@ public class FileMapTable implements Table {
         if (mapsTable[dirHash][datHash] == null) {
             return null;
         }
-        String str = mapsTable[dirHash][datHash].get(key);
-        if (str.equals("not found")) {
+        Storeable str = mapsTable[dirHash][datHash].get(key);
+        if (str == null) {
             return null;
         } else {
             return str;
@@ -246,7 +306,7 @@ public class FileMapTable implements Table {
     public int rollback() throws RuntimeException {
         try {
             readTable();
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         int changesCount = changesCount();
@@ -261,5 +321,18 @@ public class FileMapTable implements Table {
 
     public int uncommittedSize() {
         return changesCount();
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
+            throw new IndexOutOfBoundsException(columnIndex + " outOfBounds");
+        }
+        return columnTypes.get(columnIndex);
     }
 }

@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
