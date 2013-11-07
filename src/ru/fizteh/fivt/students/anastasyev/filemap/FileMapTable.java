@@ -68,8 +68,9 @@ public class FileMapTable implements Table {
         } catch (IndexOutOfBoundsException e) {
             //It's OK
         }
-        String valueStringAt = value.getStringAt(columnTypes.indexOf(String.class));
-        if (valueStringAt != null && valueStringAt.trim().isEmpty()) {
+        if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
+                && value.getStringAt(columnTypes.indexOf(String.class)) != null
+                && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
             throw new IllegalArgumentException("empty string in value");
         }
     }

@@ -220,7 +220,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         if (table == null) {
             throw new ParseException("Table is null", 0);
         }
-        if (value == null || value == JSONObject.NULL || value.trim().isEmpty()) {
+        if (value == null || value.trim().isEmpty()) {
             throw new ParseException("Null value", 0);
         }
         JSONArray json = null;

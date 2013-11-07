@@ -58,15 +58,6 @@ public class MyStoreable implements Storeable {
         }
     }
 
-    /**
-     * Установить значение в колонку
-     * @param columnIndex - индекс колонки в таблице, начиная с нуля
-     * @param value - значение, которое нужно установить.
-     *              Может быть null.
-     *              Тип значения должен соответствовать декларированному типу колонки.
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException - Тип значения не соответствует типу колонки.
-     * @throws IndexOutOfBoundsException - Неверный индекс колонки.
-     */
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         indexCheck(columnIndex);
         if (value != null) {
