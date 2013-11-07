@@ -1,11 +1,10 @@
-package ru.fizteh.fivt.students.kislenko.multifilemap;
+package ru.fizteh.fivt.students.kislenko.storeable;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
-import java.io.IOException;
 
-public class CommandDrop implements Command<MultiFileHashMapState> {
+public class CommandDrop implements Command<StoreableState> {
     public String getName() {
         return "drop";
     }
@@ -14,7 +13,7 @@ public class CommandDrop implements Command<MultiFileHashMapState> {
         return 1;
     }
 
-    public void run(MultiFileHashMapState state, String[] args) throws IOException {
+    public void run(StoreableState state, String[] args) throws Exception {
         File db = state.getPath().resolve(args[0]).toFile();
         if (!db.exists()) {
             System.out.println(args[0] + " not exists");
@@ -29,13 +28,12 @@ public class CommandDrop implements Command<MultiFileHashMapState> {
                     dbDir.delete();
                 }
             }
-            if (args[0].equals(state.getWorkingTableName())) {
+            if (state.getCurrentTable() != null && args[0].equals(state.getCurrentTable().getPath().getFileName().toString())) {
                 state.getCurrentTable().clear();
-                state.setCurrentTable("");
-                state.setWorkingPath("");
+                state.setCurrentTable(null);
             }
             db.delete();
-            state.deleteTable(args[0]);
+            state.deleteTable(state.getPath().resolve(args[0]).toString());
             System.out.println("dropped");
         }
     }
