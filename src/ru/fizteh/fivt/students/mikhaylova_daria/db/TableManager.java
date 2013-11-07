@@ -89,8 +89,9 @@ public class TableManager implements TableProvider {
                             TableData tableDat = new TableData(tables[i], this);
                             currentFileMap.readerFile(tableDat);
                             currentFileMap.setAside();
-                        } catch (IllegalArgumentException e) {
-                            throw new IllegalArgumentException("the directory is not Data Base");
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                            throw new IllegalArgumentException("the directory is not Data Base", e);
                         }
                     }
                     File[] checkOnEmpty = directories[j].listFiles();
@@ -203,9 +204,9 @@ public class TableManager implements TableProvider {
             doc.appendChild(row);
             for (i = 0; i < table.getColumnsCount(); ++i) {
                 valueStr = null;
-                Element column = doc.createElement("col");
-                row.appendChild(column);
                 if (!(value.getColumnAt(i) == null)) {
+                    Element column = doc.createElement("col");
+                    row.appendChild(column);
                     valueStr = value.getColumnAt(i).toString();
                     Text text = doc.createTextNode(valueStr);
                     column.appendChild(text);
