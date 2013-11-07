@@ -81,7 +81,7 @@ public class DirDataBase {
                 try {
                     startWorking();
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage(), e);
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
                 fileArray[i].commit(table);
                 numberOfChanges += changesInFile;

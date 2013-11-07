@@ -38,13 +38,13 @@ public class TableData implements Table {
         }
         File sign = new File(tableFile, "signature.tsv");
         if (!sign.mkdir()) {
-            throw new RuntimeException("Creating \"signature.tsv\" error");
+            throw new IllegalArgumentException("Creating \"signature.tsv\" error");
         }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
             signatureWriter.write(str.toString());
         } catch (IOException e) {
-            throw new RuntimeException("Reading error: signature.tsv", e);
+            throw new IllegalArgumentException("Reading error: signature.tsv", e);
         }
         if (tableFile != null) {
             for (short i = 0; i < 16; ++i) {
@@ -72,7 +72,7 @@ public class TableData implements Table {
                      new BufferedReader(new FileReader(sign))) {
             signature = signatureReader.readLine();
         } catch (IOException e) {
-            throw new RuntimeException("Reading error: signature.tsv", e);
+            throw new IllegalArgumentException("Reading error: signature.tsv", e);
         }
         String[] signatures = signature.trim().split(" ");
         for (int i = 0; i < signatures.length; ++i) {
@@ -159,7 +159,7 @@ public class TableData implements Table {
             removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
             dirArray[nDirectory].deleteEmptyDir();
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return removedValue;
     }
@@ -184,7 +184,7 @@ public class TableData implements Table {
             getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
             dirArray[nDirectory].deleteEmptyDir();
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return getValue;
     }

@@ -293,7 +293,7 @@ public class FileMap {
             try {
                 writerFile(table);
             } catch (Exception e) {
-                throw new RuntimeException("Writing error", e);
+                throw new IllegalArgumentException("Writing error", e);
             }
         }
     }
@@ -312,9 +312,9 @@ public class FileMap {
             try {
                 readerFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad dates", e);
+                throw new IllegalArgumentException("Bad dates", e);
             } catch (Exception e) {
-                throw new RuntimeException("Reading error", e);
+                throw new IllegalArgumentException("Reading error", e);
             }
         }
         return fileMap.size();
