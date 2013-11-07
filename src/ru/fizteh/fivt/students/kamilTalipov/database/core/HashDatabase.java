@@ -1,23 +1,29 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 
-import java.io.FileNotFoundException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 
 public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
-    public HashDatabase(String databaseDirectory) throws FileNotFoundException, DatabaseException {
+    public HashDatabase(String databaseDirectory) throws IOException, DatabaseException {
         this.tableProvider = new MultiFileHashTableProvider(databaseDirectory);
         activeTable = null;
     }
 
     @Override
-    public boolean createTable(String tableName) {
+    public boolean createTable(String tableName, List<Class<?>> types) {
         if (tableProvider.getTable(tableName) != null) {
             return false;
         }
 
         try {
-            tableProvider.createTable(tableName);
+            tableProvider.createTable(tableName, types);
         } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        } catch (IOException e) {
             System.err.println(e.getMessage());
         }
 
@@ -57,15 +63,22 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     }
 
     @Override
-    public String put(String key, String value) throws NoTableSelectedException {
+    public Storeable put(String key, String stringValue) throws NoTableSelectedException {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
+        }
+        Storeable value = null;
+        try {
+            value = tableProvider.deserialize(activeTable, stringValue);
+        } catch (ParseException e) {
+            System.err.println(e.getMessage());
+            return null;
         }
         return activeTable.put(key, value);
     }
 
     @Override
-    public String get(String key) throws NoTableSelectedException {
+    public Storeable get(String key) throws NoTableSelectedException {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
@@ -73,7 +86,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     }
 
     @Override
-    public String remove(String key) throws NoTableSelectedException {
+    public Storeable remove(String key) throws NoTableSelectedException {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }

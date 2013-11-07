@@ -1,9 +1,11 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
 
 public interface Database {
-    String put(String key, String value);
-    String get(String key);
-    String remove(String key);
+    Storeable put(String key, String value);
+    Storeable get(String key);
+    Storeable remove(String key);
     int size();
     void exit() throws DatabaseException;
 }

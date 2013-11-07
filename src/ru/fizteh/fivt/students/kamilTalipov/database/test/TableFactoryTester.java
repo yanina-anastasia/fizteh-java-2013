@@ -1,30 +1,26 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.test;
 
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableFactory;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class TableFactoryTester {
-    static MultiFileHashTableFactory factory;
-
-    @BeforeClass
-    public static void beforeClass() {
-        factory = new MultiFileHashTableFactory();
-    }
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Test
-    public void normalCreateTest() throws FileNotFoundException, DatabaseException {
-        MultiFileHashTableProvider provider = factory.create(System.getProperty("user.dir")
-                                                            + File.separator + "Test");
-        provider.remove();
+    public void normalCreateTest() throws IOException {
+        MultiFileHashTableFactory factory = new MultiFileHashTableFactory();
+        MultiFileHashTableProvider provider = factory.create(folder.getRoot().getAbsolutePath());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void nullCreateTest() throws FileNotFoundException, DatabaseException {
-        factory.create(null);
+    public void nullCreateTest() throws IOException {
+        MultiFileHashTableFactory factory = new MultiFileHashTableFactory();
+        MultiFileHashTableProvider provider = factory.create(null);
     }
-
 }

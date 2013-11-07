@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 public class DatabaseException extends Exception {
     public DatabaseException(String message) {

@@ -1,14 +1,22 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.kamilTalipov.database.utils.FileUtils;
+import ru.fizteh.fivt.students.kamilTalipov.database.utils.JsonUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MultiFileHashTableProvider implements TableProvider {
-    public MultiFileHashTableProvider(String databaseDirectory) throws FileNotFoundException,
-                                                                        DatabaseException {
+    public MultiFileHashTableProvider(String databaseDirectory) throws IOException,
+            DatabaseException {
         if (databaseDirectory == null) {
             throw new DatabaseException("Database directory path must be not null");
         }
@@ -19,7 +27,7 @@ public class MultiFileHashTableProvider implements TableProvider {
             throw new DatabaseException("File: " + databaseDirectory + " not a directory");
         }
 
-        tables = new ArrayList<MultiFileHashTable>();
+        tables = new ArrayList<>();
         loadTables();
     }
 
@@ -43,19 +51,20 @@ public class MultiFileHashTableProvider implements TableProvider {
         return null;
     }
 
+
     @Override
-    public MultiFileHashTable createTable(String name) throws IllegalArgumentException {
+    public MultiFileHashTable createTable(String name, List<Class<?>> columnTypes) throws
+                                                                        IllegalArgumentException, IOException {
         if (getTable(name) != null) {
             return null;
         }
 
-
         MultiFileHashTable newTable;
         try {
-            newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(), name);
+            newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(), name, this, columnTypes);
             tables.add(newTable);
         } catch (FileNotFoundException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("File not found");
+            IOException exception = new IOException("File not found");
             exception.addSuppressed(e);
             throw exception;
         } catch (DatabaseException e) {
@@ -92,6 +101,26 @@ public class MultiFileHashTableProvider implements TableProvider {
         tables.remove(tableIndex);
     }
 
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        return JsonUtils.deserialize(value, this, table);
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        return JsonUtils.serialize(value, table);
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        return new TableRow(table);
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        return new TableRow(table, values);
+    }
+
     public void exit() throws DatabaseException {
         for (MultiFileHashTable table : tables) {
             table.exit();
@@ -112,11 +141,11 @@ public class MultiFileHashTableProvider implements TableProvider {
         return -1;
     }
 
-    private void loadTables() throws DatabaseException, FileNotFoundException {
+    private void loadTables() throws DatabaseException, IOException {
         File[] innerFiles = databaseDirectory.listFiles();
         for (File file : innerFiles) {
             if (file.isDirectory()) {
-                tables.add(new MultiFileHashTable(databaseDirectory.getAbsolutePath(), file.getName()));
+                tables.add(new MultiFileHashTable(databaseDirectory.getAbsolutePath(), file.getName(), this));
             }
         }
     }

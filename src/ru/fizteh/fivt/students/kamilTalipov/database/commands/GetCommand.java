@@ -1,6 +1,9 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.commands;
 
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.Database;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.NoTableSelectedException;
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
@@ -18,7 +21,7 @@ public class GetCommand extends SimpleCommand {
         }
 
         try {
-            String value = database.get(args[0]);
+            Storeable value = database.get(args[0]);
             if (value == null) {
                 System.out.println("not found");
             } else {

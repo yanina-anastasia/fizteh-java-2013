@@ -1,12 +1,13 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class MultiFileHashTableFactory implements TableProviderFactory {
     @Override
-    public MultiFileHashTableProvider create(String dir) throws IllegalArgumentException {
+    public MultiFileHashTableProvider create(String dir) throws IllegalArgumentException, IOException {
         if (dir == null) {
             throw new IllegalArgumentException("Directory path must be not null");
         }

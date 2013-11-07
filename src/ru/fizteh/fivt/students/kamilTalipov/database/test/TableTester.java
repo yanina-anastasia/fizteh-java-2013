@@ -1,26 +1,35 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.test;
 
 
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.DatabaseException;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.TableRow;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TableTester {
-    static MultiFileHashTable table;
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
-    @BeforeClass
-    public static void beforeClass() {
-        try {
-            table = new MultiFileHashTable(System.getProperty("user.dir"), "Test");
-        } catch (DatabaseException e) {
-            System.err.println(e.getMessage());
-        } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
+    public MultiFileHashTableProvider provider;
+    public MultiFileHashTable table;
 
+    @Before
+    public void tableInit() throws IOException, DatabaseException {
+        provider = new MultiFileHashTableProvider(folder.getRoot().getAbsolutePath());
+
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        table = provider.createTable("Test", types);
     }
 
     @Test
@@ -30,37 +39,62 @@ public class TableTester {
 
     @Test
     public void putGetCommitTest() {
-        table.put("123", "hello");
-        Assert.assertEquals(table.get("123"), "hello");
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(1);
+        values.add("hello");
+        Storeable storeable = new TableRow(table, values);
+        table.put("123", storeable);
+        Assert.assertEquals(table.get("123").toString(), storeable.toString());
         Assert.assertEquals(table.size(), 1);
         Assert.assertEquals(table.commit(), 1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesPutTest() {
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(1);
+        values.add(2);
+        Storeable storeable = new TableRow(table, values);
+        table.put("123", storeable);
     }
 
     @Test
     public void removeTest() {
         Assert.assertEquals(table.remove("fff"), null);
-        table.put("qwe", "ggg");
-        Assert.assertEquals(table.remove("qwe"), "ggg");
+
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(42);
+        values.add("don't panic");
+        Storeable storeable = new TableRow(table, values);
+        table.put("answer", storeable);
+        Assert.assertEquals(table.remove("answer").toString(), storeable.toString());
         Assert.assertEquals(table.rollback(), 1);
     }
 
     @Test
     public void rollbackTest() {
-        Assert.assertEquals(table.put("fits", "1235"), null);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(1);
+        values.add("hello");
+        Storeable storeable = new TableRow(table, values);
+        Assert.assertEquals(table.put("fits", storeable), null);
         Assert.assertEquals(table.rollback(), 1);
         Assert.assertEquals(table.get("fits"), null);
     }
 
     @Test
     public void overwriteTest() {
-        table.put("123", "abc");
-        Assert.assertEquals(table.put("123", "xyz"), "abc");
-        table.commit();
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(1);
+        values.add("hello");
+        Storeable storeable = new TableRow(table, values);
+        table.put("123", storeable);
+        Assert.assertEquals(table.put("123", storeable).toString(), storeable.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void putNullTest() {
-        table.put(null, "test");
+        table.put(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -71,14 +105,5 @@ public class TableTester {
     @Test(expected = IllegalArgumentException.class)
     public void removeNullTest() {
         table.remove(null);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        try {
-            table.removeTable();
-        } catch (DatabaseException e) {
-            System.err.println(e.getMessage());
-        }
     }
 }

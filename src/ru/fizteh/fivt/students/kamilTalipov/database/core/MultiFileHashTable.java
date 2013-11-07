@@ -1,40 +1,72 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 
-import ru.fizteh.fivt.storage.strings.Table;
-import static ru.fizteh.fivt.students.kamilTalipov.database.InputStreamUtils.readInt;
-import static ru.fizteh.fivt.students.kamilTalipov.database.InputStreamUtils.readString;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.kamilTalipov.database.utils.FileUtils;
+import ru.fizteh.fivt.students.kamilTalipov.database.utils.JsonUtils;
+
+import static ru.fizteh.fivt.students.kamilTalipov.database.utils.InputStreamUtils.readInt;
+import static ru.fizteh.fivt.students.kamilTalipov.database.utils.InputStreamUtils.readString;
+
+import java.io.*;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MultiFileHashTable implements Table {
-    public MultiFileHashTable(String workingDirectory, String tableName) throws DatabaseException,
-                                                                                FileNotFoundException {
+    public MultiFileHashTable(String workingDirectory, String tableName,
+                              TableProvider myTableProvider,
+                              List<Class<?>> types) throws DatabaseException, IOException {
         if (workingDirectory == null) {
             throw new IllegalArgumentException("Working directory path must be not null");
         }
         if (tableName == null) {
             throw new IllegalArgumentException("Table name must be not null");
         }
+        if (myTableProvider == null) {
+            throw new IllegalArgumentException("Table provider must be not null");
+        }
+        if (types == null) {
+            throw new IllegalArgumentException("Types must be not null");
+        }
+        if (types.isEmpty()) {
+            throw new IllegalArgumentException("Types must be not empty");
+        }
 
         this.tableName = tableName;
+
+        this.myTableProvider = myTableProvider;
+
+        this.types = new ArrayList<>();
+        for (Class<?> type : types) {
+            if (type == null) {
+                throw new IllegalArgumentException("Type must be not null");
+            }
+            this.types.add(type);
+        }
 
         try {
             tableDirectory = FileUtils.makeDir(workingDirectory + File.separator + tableName);
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Couldn't open table '" + tableName + "'");
         }
+        writeSignatureFile();
 
-        table = new HashMap<String, String>();
-        oldValues = new HashMap<String, String>();
+        table = new HashMap<>();
+        oldValues = new HashMap<>();
         readTable();
+    }
+
+    public MultiFileHashTable(String workingDirectory, String tableName,
+                              TableProvider myTableProvider) throws DatabaseException, IOException {
+        this(workingDirectory, tableName, myTableProvider, getTypes(workingDirectory, tableName));
     }
 
     @Override
@@ -43,7 +75,7 @@ public class MultiFileHashTable implements Table {
     }
 
     @Override
-    public String get(String key) throws IllegalArgumentException {
+    public Storeable get(String key) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
@@ -51,36 +83,38 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
-        return table.get(key);
+        return deserialize(table.get(key));
     }
 
     @Override
-    public String put(String key, String value) throws IllegalArgumentException {
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("Key must be not empty");
         }
-        if (value == null) {
-            throw new IllegalArgumentException("Value must be not null");
-        }
-        if (value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Value must be not empty");
+
+        String stringValue;
+        try {
+            stringValue = JsonUtils.serialize(value, this);
+        } catch (ColumnFormatException e) {
+            throw new ColumnFormatException("Incorrect storeable value");
         }
 
-        String oldValue = table.put(key, value);
+        String oldValue = table.put(key, stringValue);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
-        } else if (oldValues.get(key) != null && oldValues.get(key).equals(value)) {
+        } else if (oldValues.get(key) != null && oldValues.get(key).equals(stringValue)) {
             oldValues.remove(key);
         }
 
-        return oldValue;
+
+        return deserialize(oldValue);
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
@@ -94,7 +128,8 @@ public class MultiFileHashTable implements Table {
         } else if (oldValues.get(key) == null) {
             oldValues.remove(key);
         }
-        return oldValue;
+
+        return deserialize(oldValue);
     }
 
     public void removeTable() throws DatabaseException {
@@ -129,6 +164,16 @@ public class MultiFileHashTable implements Table {
         return changes;
     }
 
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return types.get(columnIndex);
+    }
+
     public int uncommittedChanges() {
         return oldValues.size();
     }
@@ -144,9 +189,13 @@ public class MultiFileHashTable implements Table {
     private void readTable() throws DatabaseException, FileNotFoundException {
         File[] innerFiles = tableDirectory.listFiles();
         for (File file : innerFiles) {
-            if (!file.isDirectory() || !isCorrectDirectoryName(file.getName())) {
+            if (!file.isDirectory() && file.getName().equals(SIGNATURE_FILE_NAME)) {
+                continue;
+            }
+            if (!file.isDirectory()
+                    || (file.isDirectory() && !isCorrectDirectoryName(file.getName()))) {
                 throw new DatabaseException("At table '" + tableName
-                        + "': directory contain redundant files");
+                        + "': directory contain redundant files ");
             }
 
             readData(file);
@@ -155,6 +204,8 @@ public class MultiFileHashTable implements Table {
 
     private void writeTable() throws DatabaseException, IOException {
         removeDataFiles();
+
+        writeSignatureFile();
 
         if (table.size() == 0) {
             return;
@@ -168,19 +219,43 @@ public class MultiFileHashTable implements Table {
                                                 + File.separator + getDirectoryName(key[0]));
             File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), getFileName(key[0]));
 
-            FileOutputStream output = new FileOutputStream(dbFile, true);
-            try {
+
+            try (FileOutputStream output = new FileOutputStream(dbFile, true)) {
                 output.write(ByteBuffer.allocate(4).putInt(key.length).array());
                 output.write(ByteBuffer.allocate(4).putInt(value.length).array());
                 output.write(key);
                 output.write(value);
-            } finally {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    throw new DatabaseException("Database io error", e);
-                }
             }
+        }
+    }
+
+    private static List<Class<?>> getTypes(String workingDirectory,
+                                           String tableName) throws IOException {
+        FileInputStream signatureFile = new FileInputStream(workingDirectory + File.separator
+                                                            + tableName + File.separator
+                                                            + SIGNATURE_FILE_NAME);
+        ObjectInputStream signatureStream = new ObjectInputStream(signatureFile);
+        ArrayList<Class<?>> types = new ArrayList<>();
+        while (true) {
+            try {
+                Class<?> type = (Class<?>) signatureStream.readObject();
+                types.add(type);
+            } catch (ClassNotFoundException e) {
+                throw new IOException("Incorrect signature file format", e);
+            } catch (EOFException e) {
+                break;
+            }
+        }
+
+        return types;
+    }
+
+    private void writeSignatureFile() throws IOException {
+        File outputFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
+        FileOutputStream fileStream = new FileOutputStream(outputFile);
+        ObjectOutputStream outputStream = new ObjectOutputStream(fileStream);
+        for (Class<?> type : types) {
+            outputStream.writeObject(type);
         }
     }
 
@@ -210,9 +285,9 @@ public class MultiFileHashTable implements Table {
     }
 
     private void readData(File dbDir) throws DatabaseException, FileNotFoundException {
-        for (File dbFile : dbDir.listFiles()) {
-            FileInputStream input = new FileInputStream(dbFile);
-            try {
+        File[] innerFiles = dbDir.listFiles();
+        for (File dbFile : innerFiles) {
+            try (FileInputStream input = new FileInputStream(dbFile)) {
                 while (input.available() > 0) {
                     int keyLen = readInt(input);
                     int valueLen = readInt(input);
@@ -229,12 +304,6 @@ public class MultiFileHashTable implements Table {
                 }
             } catch (IOException e) {
                 throw new DatabaseException("Database file have incorrect format");
-            } finally {
-                try {
-                    input.close();
-                }  catch (IOException e) {
-                    throw new DatabaseException("Database file have incorrect format", e);
-                }
             }
         }
     }
@@ -242,7 +311,8 @@ public class MultiFileHashTable implements Table {
     private void removeDataFiles() throws DatabaseException {
         File[] innerFiles = tableDirectory.listFiles();
         for (File file : innerFiles) {
-            if (!file.isDirectory() || !isCorrectDirectoryName(file.getName())) {
+            if ((!file.isDirectory() && !file.getName().equals(SIGNATURE_FILE_NAME))
+                    || (file.isDirectory() && !isCorrectDirectoryName(file.getName()))) {
                 throw new DatabaseException("At table '" + tableName
                         + "': directory contain redundant files");
             }
@@ -250,15 +320,31 @@ public class MultiFileHashTable implements Table {
         }
     }
 
+    private Storeable deserialize(String value) {
+        Storeable result;
+        try {
+            result = JsonUtils.deserialize(value, myTableProvider, this);
+        }  catch (ParseException e) {
+            throw new IllegalArgumentException("Can't get value", e);
+        }
+        return result;
+    }
+
     private HashMap<String, String> table;
     private HashMap<String, String> oldValues;
 
+    private final ArrayList<Class<?>> types;
+
     private final String tableName;
     private final File tableDirectory;
+
+    private final TableProvider myTableProvider;
 
     private static final int ALL_DIRECTORIES = 16;
     private static final int FILES_IN_DIRECTORY = 16;
 
     private static final int MAX_KEY_LEN = 1 << 24;
     private static final int MAX_VALUE_LEN = 1 << 24;
+
+    private static final String SIGNATURE_FILE_NAME = "signature.tsv";
 }
