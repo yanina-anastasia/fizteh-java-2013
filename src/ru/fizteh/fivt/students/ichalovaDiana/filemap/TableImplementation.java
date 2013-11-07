@@ -28,7 +28,7 @@ public class TableImplementation implements Table {
     private int currentTableSize;
     
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
-            String tableName, List<Class<?>> columnTypes) { //check types
+            String tableName, List<Class<?>> columnTypes) {
 
         this.tableProvider = tableProvider;
         this.databaseDirectory = databaseDirectory;
@@ -88,7 +88,7 @@ public class TableImplementation implements Table {
             throw new RuntimeException("Error while deserializing value with key " + key + ": "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
-       
+
         Storeable prevValue = putChanges.get(key);
         if (prevValue != null) {
             if (value.equals(originValue)) {
@@ -129,9 +129,10 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Invalid key");
         }
         
+        String originValueString = getValueFromFile(key);
         Storeable originValue;
         try {
-            originValue = tableProvider.deserialize(this, getValueFromFile(key));
+            originValue = tableProvider.deserialize(this, originValueString);
         } catch (ParseException e) {
             throw new RuntimeException("Error while deserializing value with key " + key + ": "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
@@ -223,7 +224,8 @@ public class TableImplementation implements Table {
         
         for (int columnIndex = 0; columnIndex < getColumnsCount(); ++columnIndex) {
             try {
-                if (value.getColumnAt(columnIndex) != null && !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) { //instance of
+                if (value.getColumnAt(columnIndex) != null && 
+                        !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) { //instance of
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {

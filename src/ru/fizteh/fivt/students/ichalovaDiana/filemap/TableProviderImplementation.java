@@ -135,7 +135,8 @@ public class TableProviderImplementation implements TableProvider {
         
         Document document;
         try {
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(value.getBytes("UTF-8")));
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(new ByteArrayInputStream(value.getBytes("UTF-8")));
         } catch (SAXException | IOException | ParserConfigurationException e) {
             throw new RuntimeException("Error while deserializing: " + e.getMessage(), e);
         }
@@ -154,14 +155,8 @@ public class TableProviderImplementation implements TableProvider {
                     values.add(null);
                 }
                 break;
-            /*case Node.TEXT_NODE:
-                Text t = (Text) node;
-                String text = t.getData();
-                values.add(parseToColumn(table, currentColumnIndex, text));
-                break;
             default:
-                //System.out.println("NodeType: " + node.getNodeType());
-                break;*/
+                throw new ParseException("Unexpected element", i);
             }
         }
         

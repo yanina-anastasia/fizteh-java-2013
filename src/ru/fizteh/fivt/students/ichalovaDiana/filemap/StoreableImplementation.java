@@ -38,17 +38,20 @@ public class StoreableImplementation implements Storeable {
         }
     }
     
+    @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (!value.getClass().equals(table.getColumnType(columnIndex))) {
+        if (value != null && !value.getClass().equals(table.getColumnType(columnIndex))) {
             throw new ColumnFormatException("Error while setting value " + value + " at index " + columnIndex);
         }
         values.set(columnIndex, value);
     }
 
+    @Override
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
         return values.get(columnIndex);
     }
 
+    @Override
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Integer.class)) {
             throw new ColumnFormatException("Error while getting integer value at index " + columnIndex);
@@ -56,6 +59,7 @@ public class StoreableImplementation implements Storeable {
         return (Integer) values.get(columnIndex);
     }
 
+    @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Long.class)) {
             throw new ColumnFormatException("Error while getting long value at index " + columnIndex);
@@ -63,6 +67,7 @@ public class StoreableImplementation implements Storeable {
         return (Long) values.get(columnIndex);
     }
 
+    @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Byte.class)) {
             throw new ColumnFormatException("Error while getting byte value at index " + columnIndex);
@@ -70,13 +75,15 @@ public class StoreableImplementation implements Storeable {
         return (Byte) values.get(columnIndex);
     }
 
+    @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Float.class)) {
             throw new ColumnFormatException("Error while getting float value at index " + columnIndex);
         }
         return (Float) values.get(columnIndex);
     }
-
+    
+    @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Double.class)) {
             throw new ColumnFormatException("Error while getting double value at index " + columnIndex);
@@ -84,6 +91,7 @@ public class StoreableImplementation implements Storeable {
         return (Double) values.get(columnIndex);
     }
 
+    @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(Boolean.class)) {
             throw new ColumnFormatException("Error while getting boolean value at index " + columnIndex);
@@ -91,6 +99,7 @@ public class StoreableImplementation implements Storeable {
         return (Boolean) values.get(columnIndex);
     }
 
+    @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (!table.getColumnType(columnIndex).equals(String.class)) {
             throw new ColumnFormatException("Error while getting string value at index " + columnIndex);
@@ -98,7 +107,8 @@ public class StoreableImplementation implements Storeable {
         return (String) values.get(columnIndex);
     }
     
-    private static void areValidValues(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+    private static void areValidValues(Table table, List<?> values)
+            throws ColumnFormatException, IndexOutOfBoundsException {
         if (values == null) {
             throw new ColumnFormatException("Empty values");
         }
@@ -113,4 +123,8 @@ public class StoreableImplementation implements Storeable {
             }
         }
     }
+    
+    /*public boolean equals(Object obj) {
+        for (int i = 0; i 
+    }*/
 }
