@@ -378,10 +378,10 @@ public class FileMap implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null || value == null || key.equals("")) {
+        if (key == null || value == null) {
             throw new IllegalArgumentException("key or value is clear");
         }
-        if (onlySpace(key)) {
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("only spaces");
         }
         if (key.contains(" ")) {
