@@ -19,6 +19,9 @@ public class TableData implements Table {
         if (columnTypes == null) {
             throw new IllegalArgumentException("list of column's types is null");
         }
+        if (columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("list of column's types is empty");
+        }
         this.manager = manager;
         this.columnTypes = new ArrayList(columnTypes);
         this.tableFile = tableFile;
