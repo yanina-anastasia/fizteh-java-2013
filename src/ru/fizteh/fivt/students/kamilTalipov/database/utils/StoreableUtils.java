@@ -6,6 +6,13 @@ import ru.fizteh.fivt.storage.structured.Table;
 
 public class StoreableUtils {
     public static boolean isCorrectStoreable(Storeable value, Table table) {
+        if (value == null) {
+            throw new IllegalArgumentException("Storeable must be not null");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
         if (!isCorrectSize(value, table)) {
             return false;
         }

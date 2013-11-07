@@ -24,7 +24,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         try {
             this.databaseDirectory = FileUtils.makeDir(databaseDirectory);
         } catch (IllegalArgumentException e) {
-            throw new IOException("File: " + databaseDirectory + " not a directory");
+            throw new IllegalArgumentException("File: " + databaseDirectory + " not a directory");
         }
 
         tables = new ArrayList<>();

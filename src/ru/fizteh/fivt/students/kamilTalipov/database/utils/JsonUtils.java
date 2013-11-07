@@ -13,6 +13,13 @@ import static ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils
 
 public class JsonUtils {
     public static String serialize(Storeable value, Table table) throws ColumnFormatException {
+        if (value == null) {
+            throw new IllegalArgumentException("Storeable must be not null");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
         if (!isCorrectStoreable(value, table)) {
             throw new ColumnFormatException("Incorrect storeable");
         }
@@ -37,9 +44,17 @@ public class JsonUtils {
 
     public static Storeable deserialize(String value,
                                         TableProvider provider, Table table) throws ParseException {
+        if (provider == null) {
+            throw new IllegalArgumentException("Table provider must be not null");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
         if (value == null) {
             return null;
         }
+
         JSONObject json = new JSONObject(value);
         Storeable result = provider.createFor(table);
         for (int i = 0; i < json.length(); ++i) {
