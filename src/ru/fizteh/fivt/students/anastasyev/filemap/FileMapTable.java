@@ -153,6 +153,12 @@ public class FileMapTable implements Table {
     }
 
     private boolean storeableEquals(Storeable first, Storeable second) {
+        if (first == null && second != null || first != null && second == null) {
+            return false;
+        }
+        if (first == null && second == null) {
+            return true;
+        }
         for (int i = 0; i < columnTypes.size(); ++i) {
             Object val1 = first.getColumnAt(i);
             Object val2 = second.getColumnAt(i);
