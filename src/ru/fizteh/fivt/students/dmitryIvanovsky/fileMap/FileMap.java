@@ -34,6 +34,7 @@ public class FileMap implements Table {
     boolean existDir = false;
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
+    String s1 = "";
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
@@ -378,6 +379,24 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
+    public void rm(String path) {
+        try {
+            File tmpFile = new File(path);
+            File[] listFiles = tmpFile.listFiles();
+            if (listFiles != null) {
+                if (tmpFile.isDirectory()) {
+                    for (File c : listFiles) {
+                        s1 += c.getAbsoluteFile().toString()+"\n";
+                        rm(c.toString());
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
         if (value == null) {
@@ -443,11 +462,7 @@ public class FileMap implements Table {
 
             st = null;
 
-            File f = new File(".");
-            String s1 = "";
-            for (String s : f.list()) {
-                s1 += s+" ";
-            }
+            rm(".");
             throw new ColumnFormatException(s1);
         }
 
