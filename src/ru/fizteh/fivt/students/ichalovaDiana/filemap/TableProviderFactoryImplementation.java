@@ -22,7 +22,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         Path dbDir = Paths.get(dir);
     
         if (!Files.isDirectory(dbDir)) {
-            throw new IllegalArgumentException(dbDir + " doesn't exist or is not a directory");
+            throw new IOException(dbDir + " doesn't exist or is not a directory");
         }
         
         isCorrectDatabaseDirectory(dbDir);

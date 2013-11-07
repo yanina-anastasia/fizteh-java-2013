@@ -265,6 +265,10 @@ public class TableProviderImplementation implements TableProvider {
             return false;
         }
         
+        if (columnTypes.isEmpty()) {
+            return false;
+        }
+        
         for (Class<?> columnType : columnTypes) {
             if (!isValidColumnType(columnType.getSimpleName())) {
                 return false;
