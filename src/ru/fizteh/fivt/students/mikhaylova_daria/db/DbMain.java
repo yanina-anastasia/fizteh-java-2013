@@ -68,7 +68,7 @@ public class DbMain {
         }
         String[] args = arg[1].trim().split("[()]");
         if (args.length != 2) { //arg[1] начинается со "(", поэтому отпаршивается пустая строка
-            throw new IllegalArgumentException("цкщтп ензу (Wrong format of typelist)");
+            throw new IllegalArgumentException("wrong type (Wrong format of typelist)");
         }
         ArrayList<Class<?>> columnTypes = new ArrayList<>();
         String[] signatures = args[1].trim().split("\\s+");

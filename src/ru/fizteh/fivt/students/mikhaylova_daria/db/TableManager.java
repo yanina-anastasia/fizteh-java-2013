@@ -40,7 +40,7 @@ public class TableManager implements TableProvider {
         } catch (IllegalStateException e) {
             throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
         } catch (Exception e) {
-            throw new RuntimeException("wrong type (" + e.getMessage() + ")", e);
+            throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
         }
     }
 
@@ -123,7 +123,7 @@ public class TableManager implements TableProvider {
         if (!creatingTableFile.exists()) {
             creatingTable = new TableData(creatingTableFile, columnTypes, this);
             if (!creatingTableFile.isDirectory()) {
-                throw new RuntimeException("wrong type (" + correctName + "is not directory)");
+                throw new IllegalArgumentException("wrong type (" + correctName + "is not directory)");
             }
             if (!bidDataBase.containsKey(nameTable)) {
                 bidDataBase.put(nameTable, creatingTable);
@@ -227,7 +227,7 @@ public class TableManager implements TableProvider {
         } catch (NumberFormatException numFormExc) {
             throw new ColumnFormatException("wrong type (Wrong type of argument " + i + ")");
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e.getMessage(), e);
         }
         return xmlString;
     }
@@ -294,11 +294,11 @@ public class TableManager implements TableProvider {
                 }
             }
         } catch (SAXException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         } catch (ParserConfigurationException e) {
-             throw new RuntimeException(e.getMessage(), e);
+             throw new IllegalArgumentException(e.getMessage(), e);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return storeableVal;
     }
