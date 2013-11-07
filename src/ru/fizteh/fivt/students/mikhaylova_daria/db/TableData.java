@@ -134,6 +134,9 @@ public class TableData implements Table {
             throw new IllegalArgumentException("key is null");
         }
         key = key.trim();
+        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+            throw new IllegalArgumentException("Bad char in key");
+        }
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is null");
         }
