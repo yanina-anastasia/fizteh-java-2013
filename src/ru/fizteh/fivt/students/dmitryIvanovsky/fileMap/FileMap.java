@@ -380,6 +380,9 @@ public class FileMap implements Table {
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
+        if (value == null) {
+            throw new IllegalArgumentException("value can't be null");
+        }
 
         int index = 0;
         while (true) {
@@ -388,7 +391,7 @@ public class FileMap implements Table {
                     case "java.lang.Integer":
                         value.getIntAt(index);
                     case "java.lang.Long":
-                        value.getLongAt(index);
+                        //value.getLongAt(index);
                     case "java.lang.Byte":
                         value.getByteAt(index);
                     case "java.lang.Float":
