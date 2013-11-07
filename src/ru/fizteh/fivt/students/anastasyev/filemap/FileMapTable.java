@@ -51,7 +51,7 @@ public class FileMapTable implements Table {
         }
         int i = 0;
         for (; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != JSONObject.NULL) {
+            if (value.getColumnAt(i) != null && value.getColumnAt(i) != JSONObject.NULL) {
                 try {
                     if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
                         throw new ColumnFormatException("Wrong column format");
@@ -62,17 +62,17 @@ public class FileMapTable implements Table {
             }
         }
         try {
-            if (value.getColumnAt(i) != null) {
+            if (value.getColumnAt(i) != null && value.getColumnAt(i) != JSONObject.NULL) {
                 throw new ColumnFormatException("Wrong column count");
             }
         } catch (IndexOutOfBoundsException e) {
             //It's OK
         }
-        /*if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
+        if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
                 && value.getStringAt(columnTypes.indexOf(String.class)) != null
                 && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
             throw new IllegalArgumentException("empty string in value");
-        } */
+        }
     }
 
     public FileMap getMyState(int hashCode) throws IOException {

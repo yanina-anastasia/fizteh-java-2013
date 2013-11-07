@@ -85,6 +85,24 @@ public class FileMapTableTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testPutNl() throws ParseException {
+        String valueOldString = "[5, \"valueOld\"]";
+        Storeable valueOld = tableProvider.deserialize(currTable, valueOldString);
+        valueOld.setColumnAt(1, "     ");
+        currTable.put("key", valueOld);
+    }
+
+    @Test
+    public void testPut() throws ParseException {
+        String valueOldString = "[5, null]";
+        Storeable valueOld = tableProvider.deserialize(currTable, valueOldString);
+        String valueNewString = "[null, \"valueNew\"]";
+        Storeable valueNew = tableProvider.deserialize(currTable, valueNewString);
+        assertNull(currTable.put("key", valueOld));
+        assertEquals(currTable.put("key", valueNew), valueOld);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void removeNullKey() {
         currTable.remove(null);
     }
