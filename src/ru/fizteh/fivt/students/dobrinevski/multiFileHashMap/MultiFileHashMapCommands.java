@@ -28,8 +28,8 @@ public class MultiFileHashMapCommands {
             System.out.println(value == null ? "new" : "overwrite\n" + value);
         }
 
-        Put() {
-            super(3);
+        Put(MyMultiHashMap parent) {
+            super(3, parent);
         }
     }
 
@@ -58,8 +58,8 @@ public class MultiFileHashMapCommands {
             }
         }
 
-        Get() {
-            super(2);
+        Get(MyMultiHashMap parent) {
+            super(2, parent);
         }
     }
 
@@ -78,8 +78,8 @@ public class MultiFileHashMapCommands {
             System.out.println("using " + args[1]);
         }
 
-        Use() {
-            super(2);
+        Use(MyMultiHashMap parent) {
+            super(2, parent);
         }
     }
 
@@ -116,8 +116,8 @@ public class MultiFileHashMapCommands {
             System.out.println("dropped");
         }
 
-        Drop() {
-            super(2);
+        Drop(MyMultiHashMap parent) {
+            super(2, parent);
         }
     }
 
@@ -138,8 +138,8 @@ public class MultiFileHashMapCommands {
             System.out.println("created");
         }
 
-        Create() {
-            super(2);
+        Create(MyMultiHashMap parent) {
+            super(2, parent);
         }
     }
 
@@ -166,8 +166,8 @@ public class MultiFileHashMapCommands {
             }
         }
 
-        Remove() {
-            super(2);
+        Remove(MyMultiHashMap parent) {
+            super(2, parent);
         }
     }
 
@@ -178,10 +178,8 @@ public class MultiFileHashMapCommands {
             System.exit(0);
         }
 
-        Exit() {
-            super(1);
+        Exit(MyMultiHashMap parent) {
+            super(1, parent);
         }
     }
-
-
 }

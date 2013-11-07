@@ -11,26 +11,19 @@ public class Main {
 
     static {
         dtb = new MyMultiHashMap();
-        MultiFileHashMapCommand buf = new MultiFileHashMapCommands.Create();
-        buf.parent = dtb;
+        MultiFileHashMapCommand buf = new MultiFileHashMapCommands.Create(dtb);
         cmdMap.put("create", buf);
-        buf =  new MultiFileHashMapCommands.Drop();
-        buf.parent = dtb;
+        buf =  new MultiFileHashMapCommands.Drop(dtb);
         cmdMap.put("drop", buf);
-        buf = new MultiFileHashMapCommands.Use();
-        buf.parent = dtb;
+        buf = new MultiFileHashMapCommands.Use(dtb);
         cmdMap.put("use", buf);
-        buf = new MultiFileHashMapCommands.Put();
-        buf.parent = dtb;
+        buf = new MultiFileHashMapCommands.Put(dtb);
         cmdMap.put("put", buf);
-        buf = new MultiFileHashMapCommands.Get();
-        buf.parent = dtb;
+        buf = new MultiFileHashMapCommands.Get(dtb);
         cmdMap.put("get", buf);
-        buf = new MultiFileHashMapCommands.Remove();
-        buf.parent = dtb;
+        buf = new MultiFileHashMapCommands.Remove(dtb);
         cmdMap.put("remove", buf);
-        buf = new MultiFileHashMapCommands.Exit();
-        buf.parent = dtb;
+        buf = new MultiFileHashMapCommands.Exit(dtb);
         cmdMap.put("exit", buf);
         }
 
