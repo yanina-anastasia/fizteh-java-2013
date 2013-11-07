@@ -13,7 +13,7 @@ public class CommandCd extends AbstractCommand {
     private File unionWithCurrentPath(String curr) {
         File curr1 = new File(curr);
         if (!curr1.isAbsolute()) {
-            curr1 = new File(state.getCurrentDirectory() + File.separator + curr);
+            curr1 = new File(state.getCurrentDirectory(), curr);
             try {
                 curr1 = curr1.getCanonicalFile();
             } catch (IOException exception) {

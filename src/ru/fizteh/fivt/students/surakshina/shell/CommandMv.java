@@ -15,7 +15,7 @@ public class CommandMv extends AbstractCommand {
     private File unionWithCurrentPath(String curr) {
         File curr1 = new File(curr);
         if (!curr1.isAbsolute()) {
-            curr1 = new File(state.getCurrentDirectory() + File.separator + curr);
+            curr1 = new File(state.getCurrentDirectory(), curr);
             try {
                 curr1 = curr1.getCanonicalFile();
             } catch (IOException exception) {
@@ -33,7 +33,7 @@ public class CommandMv extends AbstractCommand {
             state.printError("Incorrect number of arguments");
         } else {
             File currentFile = unionWithCurrentPath(source);
-            File destinationFile = new File(destination + File.separator + source);
+            File destinationFile = new File(destination, source);
             if (!destinationFile.isAbsolute()) {
                 destinationFile = new File(state.getCurrentDirectory() + File.separator + destination + File.separator
                         + source);

@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.shell;
 
-public class CommandPWD extends AbstractCommand {
-    public CommandPWD(State stateNew) {
+public class CommandPwd extends AbstractCommand {
+    public CommandPwd(State stateNew) {
         super(stateNew);
         name = "pwd";
         numberOfArguments = 0;

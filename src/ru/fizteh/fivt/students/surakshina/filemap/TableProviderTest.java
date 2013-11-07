@@ -33,6 +33,7 @@ public class TableProviderTest {
         provider.removeTable(tableName);
         assertNull(provider.getTable(tableName));
     }
+
     @Test
     public void getTestTable() {
         Table table = provider.createTable("Table");
@@ -41,11 +42,12 @@ public class TableProviderTest {
         assertEquals(table, provider.getTable("Table"));
         provider.removeTable("Table");
     }
-    
+
     @Test(expected = IllegalStateException.class)
     public void testRemoveNotExistsTable() {
         provider.removeTable("NotExistsTable");
     }
+
     @Test(expected = RuntimeException.class)
     public void testIncorrectName() {
         provider.getTable("//");

@@ -11,7 +11,6 @@ public class Shell {
     private Map<String, Command> commands = new HashMap<String, Command>();
     public static final String INCORRECT_INPUT = "Incorrect input";
     public static final String INCORRECT_NUMBER_OF_ARGUMENTS = "Incorrect number of arguments";
-    String currentPath = System.getProperty("user.dir");
     State state;
 
     protected void checkInput(String[] args) {
@@ -28,7 +27,7 @@ public class Shell {
         shellCommands.add(new CommandCp(state));
         shellCommands.add(new CommandDir(state));
         shellCommands.add(new CommandMkdir(state));
-        shellCommands.add(new CommandPWD(state));
+        shellCommands.add(new CommandPwd(state));
         shellCommands.add(new CommandRm(state));
         shellCommands.add(new CommandMv(state));
         shellCommands.add(new CommandExit(state));

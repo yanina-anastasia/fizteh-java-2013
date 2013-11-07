@@ -20,7 +20,7 @@ public class CommandRm extends AbstractCommand {
 
     @Override
     public void executeProcess(String[] input) {
-        File currentFile = new File(state.getCurrentDirectory() + File.separator + input[1]);
+        File currentFile = new File(state.getCurrentDirectory(), input[1]);
         if (!currentFile.exists()) {
             state.printError("rm: cannot remove '" + input[1] + "': No such file or directory");
         } else {

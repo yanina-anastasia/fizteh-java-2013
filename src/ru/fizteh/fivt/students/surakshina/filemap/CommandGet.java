@@ -14,7 +14,8 @@ public class CommandGet extends DataBaseCommand {
             String key = input[1];
             String value = state.getTable().get(key);
             if (value != null) {
-                System.out.println("found\n" + value);
+                System.out.println("found ");
+                System.out.println(value);
             } else {
                 System.out.println("not found");
             }

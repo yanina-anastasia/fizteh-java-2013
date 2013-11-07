@@ -14,7 +14,8 @@ public class CommandPut extends DataBaseCommand {
             String value = input[2];
             String result = state.getTable().put(key, value);
             if (result != null) {
-                System.out.println("overwrite\n" + result);
+                System.out.println("overwrite ");
+                System.out.println(result);
             } else {
                 System.out.println("new");
             }

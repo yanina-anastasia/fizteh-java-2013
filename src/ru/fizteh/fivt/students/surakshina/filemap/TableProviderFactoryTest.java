@@ -9,5 +9,5 @@ public class TableProviderFactoryTest {
         TableProviderFactory factory = new NewTableProviderFactory();
         factory.create(null);
     }
-    
+
 }
