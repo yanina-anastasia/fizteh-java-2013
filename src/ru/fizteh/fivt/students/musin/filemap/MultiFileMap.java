@@ -115,30 +115,36 @@ public class MultiFileMap implements Table {
         return true;
     }
 
-    public boolean validateDirectory() {
+    public void validateDirectory() {
         File[] files = location.listFiles();
         if (files == null) {
-            return false;
+            throw new RuntimeException("Path specifies invalid location");
         }
         for (File f : files) {
             if (f.getName().equals("signature.tsv")) {
                 continue;
             }
             if (!f.getName().matches("((1[0-5])|[0-9]).dir")) {
-                return false;
+                throw new RuntimeException("Directory is invalid: unexpected files or directories found");
             } else {
                 File[] subfiles = f.listFiles();
                 if (subfiles == null) {
-                    return false;
+                    throw new RuntimeException("Path specifies invalid location");
+                }
+                if (subfiles.length == 0) {
+                    throw new RuntimeException("Directory shouldn't be empty");
                 }
                 for (File sf : subfiles) {
                     if (!sf.getName().matches("((1[0-5])|[0-9]).dat")) {
-                        return false;
+                        throw new RuntimeException("Directory is invalid: unexpected files or directories found");
+                    } else {
+                        if (sf.length() == 0) {
+                            throw new RuntimeException("File shouldn't be empty");
+                        }
                     }
                 }
             }
         }
-        return true;
     }
 
     /**
@@ -156,9 +162,7 @@ public class MultiFileMap implements Table {
         if (location.exists() && !location.isDirectory()) {
             throw new RuntimeException("Specified location is not a directory");
         }
-        if (!validateDirectory()) {
-            throw new RuntimeException("Directory is invalid: unexpected files or directories found");
-        }
+        validateDirectory();
         File signature = new File(location, "signature.tsv");
         try (BufferedReader reader = new BufferedReader(new FileReader(signature))) {
             String[] typeNames = reader.readLine().split("\\s+");
