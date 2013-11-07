@@ -71,6 +71,15 @@ public class MultiFileMap implements Table {
         return true;
     }
 
+    private boolean whiteSpaceCheck(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (Character.isWhitespace(string.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String getName() {
         return location.getName();
     }
@@ -304,6 +313,19 @@ public class MultiFileMap implements Table {
         newKey.clear();
     }
 
+    public boolean storeableEqual(Storeable first, Storeable second) {
+        for (int i = 0; i < columnTypes.size(); i++) {
+            if (first.getColumnAt(i) == null) {
+                if (second.getColumnAt(i) != null) {
+                    return false;
+                }
+            } else if (!first.getColumnAt(i).equals(second.getColumnAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
@@ -313,6 +335,9 @@ public class MultiFileMap implements Table {
         }
         if (!newLineCheck(key)) {
             throw new IllegalArgumentException("New-line in key or value");
+        }
+        if (!newLineCheck(key)) {
+            throw new IllegalArgumentException("WhiteSpace not allowed in key");
         }
         if (!checkColumnTypes(value)) {
             throw new ColumnFormatException("Type mismatch");
@@ -325,11 +350,11 @@ public class MultiFileMap implements Table {
             if (!newKey.contains(key)) {
                 Storeable diffValue = oldValue.get(key);
                 if (diffValue == null) {
-                    if (!result.equals(value)) {
+                    if (!storeableEqual(result, value)) {
                         oldValue.put(key, result);
                     }
                 } else {
-                    if (diffValue.equals(value)) {
+                    if (storeableEqual(diffValue, value)) {
                         oldValue.remove(key);
                     }
                 }
@@ -339,7 +364,7 @@ public class MultiFileMap implements Table {
             if (diffValue == null) {
                 newKey.add(key);
             } else {
-                if (diffValue.equals(value)) {
+                if (storeableEqual(diffValue, value)) {
                     oldValue.remove(key);
                 }
             }

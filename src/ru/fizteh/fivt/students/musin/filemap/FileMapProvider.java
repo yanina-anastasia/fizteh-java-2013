@@ -130,6 +130,9 @@ public class FileMapProvider implements TableProvider {
         }
         for (Class<?> columnType : columnTypes) {
             boolean check = false;
+            if (columnType == null) {
+                throw new IllegalArgumentException("Null doesn't specify a type");
+            }
             for (Class<?> allowedClass : FixedList.CLASSES) {
                 if (columnType == allowedClass) {
                     check = true;

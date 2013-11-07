@@ -11,7 +11,14 @@ public class FileMapProviderFactory implements TableProviderFactory {
         if (location == null) {
             throw new IllegalArgumentException("Null location");
         }
-        FileMapProvider newProvider = new FileMapProvider(new File(location));
+        if (location.equals("")) {
+            throw new IllegalArgumentException("Empty location");
+        }
+        File path = new File(location);
+        FileMapProvider newProvider = new FileMapProvider(path);
+        if (path.exists() && !path.isDirectory()) {
+            throw new IllegalArgumentException("File is located at specified location");
+        }
         if (!newProvider.isValidLocation()) {
             throw new IOException("Database location is invalid");
         }
