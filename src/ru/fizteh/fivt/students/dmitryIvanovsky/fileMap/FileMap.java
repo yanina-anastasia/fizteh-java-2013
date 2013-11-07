@@ -377,20 +377,35 @@ public class FileMap implements Table {
         return true;
     }
 
-    public Storeable put(String key, Storeable value) throws ColumnFormatException{
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key == null || value == null || key.equals("")) {
             throw new IllegalArgumentException("key or value is clear");
         }
         if (onlySpace(key)) {
             throw new IllegalArgumentException("only spaces");
         }
+        if (key.contains(" ")) {
+            throw new IllegalArgumentException("spaces can't be in key");
+        }
         if (key.contains("\n")) {
             throw new IllegalArgumentException("newline in key or value");
         }
 
-        FileMapStoreable st = (FileMapStoreable) value;
-        if (!st.messageEqualsType(columnType).isEmpty()) {
-            throw new ColumnFormatException(st.messageEqualsType(columnType));
+        int index = 0;
+        while (true) {
+            try {
+                if (!value.getColumnAt(index).getClass().getName().equals(columnType.get(index).getName())) {
+                    throw new ColumnFormatException("this Storeable can't be use in this table");
+                }
+                ++index;
+            } catch (IndexOutOfBoundsException e) {
+                if (index != columnType.size()) {
+                    throw new ColumnFormatException("this Storeable can't be use in this table");
+                }
+                break;
+            } catch (ColumnFormatException e) {
+                throw e;
+            }
         }
 
         if (tableData.containsKey(key)) {

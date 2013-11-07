@@ -282,7 +282,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (antiCorrectDir(name)) {
             throw new RuntimeException("bad symbol in name");
         }
-
+        if (columnType == null || columnType.size() == 0) {
+            throw new IllegalArgumentException("columnType can't be empty");
+        }
         for (Class<?> col : columnType) {
             if (col == null || !alloyType.contains(col.getName())) {
                 throw new IllegalArgumentException("name is clear");
