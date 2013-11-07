@@ -39,7 +39,7 @@ public class FileHashMap implements Table {
     }
 
     public String put(String key, String value) {
-        if (value == null || value.equals("") || value.contains("\n")) {
+        if (value == null || value.equals("") || value.contains(System.lineSeparator())) {
             throw new IllegalArgumentException();
         }
         if (!Utils.isValid(key)) {
