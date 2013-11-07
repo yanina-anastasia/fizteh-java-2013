@@ -394,7 +394,8 @@ public class FileMap implements Table {
         int index = 0;
         while (true) {
             try {
-                if (!value.getColumnAt(index).getClass().getName().equals(columnType.get(index).getName())) {
+                Object res = value.getColumnAt(index);
+                if (res != null && !res.getClass().getName().equals(columnType.get(index).getName())) {
                     throw new ColumnFormatException("this Storeable can't be use in this table");
                 }
                 ++index;
