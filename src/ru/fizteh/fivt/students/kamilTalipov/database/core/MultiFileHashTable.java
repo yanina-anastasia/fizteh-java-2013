@@ -49,6 +49,9 @@ public class MultiFileHashTable implements Table {
             if (type == null) {
                 throw new IllegalArgumentException("Type must be not null");
             }
+            if (!isSupportedType(type)) {
+                throw new IllegalArgumentException("Unsupported table type " + type.getCanonicalName());
+            }
             this.types.add(type);
         }
 
@@ -94,7 +97,7 @@ public class MultiFileHashTable implements Table {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("Key must be not empty");
         }
-        if (key.trim().contains(" ")) {
+        if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("Key must not contain whitespace");
         }
         if (value == null) {
@@ -334,6 +337,16 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Can't get value", e);
         }
         return result;
+    }
+
+    private boolean isSupportedType(Class<?> type) {
+        return type == Integer.class
+                || type == Long.class
+                || type == Byte.class
+                || type == Float.class
+                || type == Double.class
+                || type == Boolean.class
+                || type == String.class;
     }
 
     private HashMap<String, String> table;
