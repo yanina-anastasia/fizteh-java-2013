@@ -20,6 +20,8 @@ public class MultiDbState extends State implements Table {
     private int primaryDbSize;
     
     public MultiDbState(String property, String dbName) {
+        validate(property);
+        validate(dbName);
         if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("empty root directory");
         }

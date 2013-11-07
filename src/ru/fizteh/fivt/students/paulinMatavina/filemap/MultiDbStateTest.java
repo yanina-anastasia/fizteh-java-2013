@@ -2,27 +2,43 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+
 import ru.fizteh.fivt.storage.strings.*;
 
 public class MultiDbStateTest {
+    public static TemporaryFolder rootFolder = new TemporaryFolder();  
     @Rule
     public ExpectedException thrown = ExpectedException.none();  
-    MultiDbState table;
-    MyTableProvider provider;
-    MyTableProviderFactory factory;
-    final String property = "/home/paulin/db/";
+    static Table table;
+    static TableProvider provider;
+    static TableProviderFactory factory;
+    static File root;
     
-    @Test
+    @BeforeClass
+    public static void tempFolder() {
+        try {
+            rootFolder.create();
+            root = rootFolder.newFolder("root");
+        } catch (IOException e) {
+            fail("unable to create temporary folder");
+        }
+    }  
+    
     @Before
-    public void testConstructorsOk() {
+    public void initialization() {
         factory = new MyTableProviderFactory();
-        provider = (MyTableProvider) factory.create(property);
-        table = (MultiDbState) provider.getTable("default");
-        assertNotNull(table);
+        provider = factory.create(root.getAbsolutePath());
+        table = provider.createTable("default");
     }  
     
     //tests for TableProviderFactory 
@@ -184,4 +200,9 @@ public class MultiDbStateTest {
         assertEquals("name", t.getName());
         provider.removeTable("name");
     }    
+    
+    @After
+    public void after() {
+        provider.removeTable("default");
+    }
 }
