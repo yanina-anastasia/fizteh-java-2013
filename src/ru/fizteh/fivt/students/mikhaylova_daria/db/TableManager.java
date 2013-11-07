@@ -250,6 +250,9 @@ public class TableManager implements TableProvider {
         if (value == null) {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (value is empty)");
+        }
         Storeable storeableVal = new Value(table);
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -282,23 +285,23 @@ public class TableManager implements TableProvider {
                         storeableVal.setColumnAt(i, null);
                     } else {
                         if (table.getColumnType(i).equals(Integer.class)) {
-                            int valueInt = Integer.parseInt(valueColumnStr.trim());
+                            Integer valueInt = Integer.parseInt(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueInt);
                         }
                         if (table.getColumnType(i).equals(Byte.class)) {
-                            byte valueByte = Byte.parseByte(valueColumnStr.trim());
+                            Byte valueByte = Byte.parseByte(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueByte);
                         }
                         if (table.getColumnType(i).equals(Float.class)) {
-                            float valueFloat = Float.parseFloat(valueColumnStr.trim());
+                            Float valueFloat = Float.parseFloat(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueFloat);
                         }
                         if (table.getColumnType(i).equals(Double.class)) {
-                            double valueDouble = Double.parseDouble(valueColumnStr.trim());
+                            Double valueDouble = Double.parseDouble(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueDouble);
                         }
                         if (table.getColumnType(i).equals(Boolean.class)) {
-                            boolean valueBoolean = Boolean.parseBoolean(valueColumnStr.trim());
+                            Boolean valueBoolean = Boolean.parseBoolean(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueBoolean);
                         }
                         if (table.getColumnType(i).equals(String.class)) {
@@ -307,7 +310,7 @@ public class TableManager implements TableProvider {
                     }
                 } catch (NumberFormatException e) {
                     throw new ParseException("wrong type (Wrong type of column " + i
-                            + table.getColumnType(i).getCanonicalName() + "was expected)", i);
+                            + " " + table.getColumnType(i).getCanonicalName() + " was expected)", i);
                 }
             }
         } catch (SAXException e) {

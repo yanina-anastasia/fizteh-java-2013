@@ -195,7 +195,7 @@ public class FileMap {
             try {
                 offset = dataBase.readInt();
             } catch (EOFException e1) {
-                throw new DataFormatException(file.getName() + "4");
+                throw new DataFormatException(file.getName());
             }
             offsetAndKeyMap.put(offset, key);
             final int firstOffset = offset;
@@ -215,7 +215,7 @@ public class FileMap {
                 }
                 keyAndValueLength.put(key, (int) dataBase.length() - offset);
             } catch (EOFException e1) {
-                throw new DataFormatException(file.getName() + "3");
+                throw new DataFormatException(file.getName());
             }
             int lengthOfValue = 0;
             while (dataBase.getFilePointer() < dataBase.length()) {
@@ -239,11 +239,7 @@ public class FileMap {
             return;
         } catch (EOFException e2) {
             e = e2;
-            throw new DataFormatException(file.getName() + "1");
-        } catch (Exception exp) {
-            e = exp;
-            //e.printStackTrace();
-            throw new DataFormatException(file.getName() + e.getMessage());
+            throw new DataFormatException(file.getName());
         } finally {
             if (dataBase != null) {
                 try {
