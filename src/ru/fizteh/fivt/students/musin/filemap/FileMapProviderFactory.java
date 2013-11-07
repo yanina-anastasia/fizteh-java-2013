@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 
