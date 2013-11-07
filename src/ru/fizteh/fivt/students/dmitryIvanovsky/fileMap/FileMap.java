@@ -442,6 +442,9 @@ public class FileMap implements Table {
             }
 
             st = null;
+
+            File f = new File(".");
+            throw new ColumnFormatException(f.getAbsolutePath().toString());
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
