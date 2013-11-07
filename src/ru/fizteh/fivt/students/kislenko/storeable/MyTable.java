@@ -47,7 +47,7 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        if (key.trim().isEmpty()) {
+        if (key.trim().isEmpty() || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.containsKey(key)) {
@@ -61,7 +61,7 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if (key.trim().isEmpty()) {
+        if (key.trim().isEmpty() || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         for (int i = 0; i < types.size(); ++i) {
