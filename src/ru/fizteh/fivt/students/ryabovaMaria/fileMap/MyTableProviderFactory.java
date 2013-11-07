@@ -1,14 +1,15 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import java.io.IOException;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class MyTableProviderFactory implements TableProviderFactory {
     private File curDir;
     
     @Override
-    public TableProvider create(String dir) {
+    public TableProvider create(String dir) throws IOException {
         if (dir == null) {
             throw new IllegalArgumentException("Bad directory");
         }

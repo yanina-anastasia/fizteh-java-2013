@@ -2,12 +2,19 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class TableCommands implements Table {
+    private ArrayList<Class<?>> types;
+    private TableProvider tableProvider;
     private File tableDir;
     private HashMap<String, String>[][] list;
     private HashMap<String, String>[][] lastList;
@@ -16,7 +23,9 @@ public class TableCommands implements Table {
     private int numberOfDir;
     private int numberOfFile;
     
-    TableCommands(File directory) {
+    TableCommands(File directory, List<Class<?>> types, TableProvider tableProvider) {
+        this.tableProvider = tableProvider;
+        this.types = new ArrayList(types);
         list = new HashMap[16][16];
         lastList = new HashMap[16][16];
         for (int i = 0; i < 16; ++i) {
@@ -47,7 +56,9 @@ public class TableCommands implements Table {
             if (ok) {
                 isCorrectDir(value, listOfDirs[i]);
             } else {
-                throw new IllegalArgumentException("Incorrect table");
+                if (!(listOfDirs[i].equals("signature.tsv") && new File(tableDir, listOfDirs[i]).isFile())) {
+                    throw new IllegalArgumentException("Incorrect table");
+                }
             }
         }
     }
@@ -165,33 +176,47 @@ public class TableCommands implements Table {
     }
 
     @Override
-    public String get(String key) {
+    public Storeable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("Bad key");
         }
         getUsingDatFile(key);
-        return list[numberOfDir][numberOfFile].get(key);
+        String value = list[numberOfDir][numberOfFile].get(key);
+        try {
+            return tableProvider.deserialize(this, value);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     @Override
-    public String put(String key, String value) {
+    public Storeable put(String key, Storeable value) {
         if (value == null || key == null) {
             throw new IllegalArgumentException("Bad args");
         }
-        if (value.contains("\n") || key.contains("\n") || key.isEmpty() || value.isEmpty()) {
-            throw new IllegalArgumentException("Bad args");
+        try {
+            getUsingDatFile(key);
+            update.put(numberOfDir*16 + numberOfFile, " ");
+            String stringValue = tableProvider.serialize(this, value);
+            String lastValue = list[numberOfDir][numberOfFile].put(key, stringValue);
+            Storeable answer = tableProvider.deserialize(this, lastValue);
+            return answer;
+        } catch (ParseException | NullPointerException e) {
+            System.err.println(e);
+            return null;
         }
-        getUsingDatFile(key);
-        update.put(numberOfDir*16 + numberOfFile, " ");
-        String lastValue = (String) list[numberOfDir][numberOfFile].put(key, value);
-        return lastValue;
     }
 
     @Override
-    public String remove(String key) {
+    public Storeable remove(String key) {
         getUsingDatFile(key);
         update.put(numberOfDir*16 + numberOfFile, null);
-        return list[numberOfDir][numberOfFile].remove(key);
+        String value = list[numberOfDir][numberOfFile].remove(key);
+        try {
+            return tableProvider.deserialize(this, value);
+        } catch (ParseException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -317,5 +342,18 @@ public class TableCommands implements Table {
         int result = countChanges(false);
         assigment(list, lastList);
         return result;
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= types.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return types.get(columnIndex);
     }
 }
