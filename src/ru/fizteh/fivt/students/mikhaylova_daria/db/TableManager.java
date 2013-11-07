@@ -65,6 +65,7 @@ public class TableManager implements TableProvider {
                     throw new IllegalStateException(tables[i].toString() + " is not table");
                 }
             }
+
             File[] directories = tables[i].listFiles();
             if (directories.length > 17) {
                 throw new IllegalStateException(tables[i].toString() + ": Wrong number of files in the table");
