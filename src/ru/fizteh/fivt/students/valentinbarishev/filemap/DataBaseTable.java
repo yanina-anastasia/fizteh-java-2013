@@ -91,7 +91,7 @@ public final class DataBaseTable implements TableProvider {
                 tableInUse.put(tableName, table);
                 return table;
             } catch (IOException e) {
-                throw new DataBaseException("Wrong format database " + fullPath);
+                throw new MultiDataBaseException(e.getMessage());
             }
         }
     }

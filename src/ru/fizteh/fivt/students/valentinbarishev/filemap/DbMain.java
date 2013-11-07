@@ -20,23 +20,28 @@ public class DbMain {
         }
     }
 
-    private static void initShell() throws IOException {
+    private static void initShell() {
+        try {
+            shell = new Shell();
 
-        shell = new Shell();
+            TableProviderFactory factory = new MyTableProviderFactory();
+            Context context = new Context(factory.create(System.getProperty("fizteh.db.dir")));
 
-        TableProviderFactory factory = new MyTableProviderFactory();
-        Context context = new Context(factory.create(System.getProperty("fizteh.db.dir")));
+            shell.addCommand(new ShellDbPut(context));
+            shell.addCommand(new ShellExit(context));
+            shell.addCommand(new ShellDbGet(context));
+            shell.addCommand(new ShellDbRemove(context));
+            shell.addCommand(new ShellCreateTable(context));
+            shell.addCommand(new ShellDropTable(context));
+            shell.addCommand(new ShellUseTable(context));
+            shell.addCommand(new ShellDbSize(context));
+            shell.addCommand(new ShellDbCommit(context));
+            shell.addCommand(new ShellDbRollback(context));
 
-        shell.addCommand(new ShellDbPut(context));
-        shell.addCommand(new ShellExit(context));
-        shell.addCommand(new ShellDbGet(context));
-        shell.addCommand(new ShellDbRemove(context));
-        shell.addCommand(new ShellCreateTable(context));
-        shell.addCommand(new ShellDropTable(context));
-        shell.addCommand(new ShellUseTable(context));
-        shell.addCommand(new ShellDbSize(context));
-        shell.addCommand(new ShellDbCommit(context));
-        shell.addCommand(new ShellDbRollback(context));
+        } catch (IOException e) {
+            System.out.println("init shell failed!");
+            System.exit(1);
+        }
     }
 
     private static void packetRun(final String[] args) {
@@ -81,7 +86,7 @@ public class DbMain {
     public static void main(final String[] args) {
         try {
             checkDbDir();
-            //initShell();
+            initShell();
 
             if (args.length > 0) {
                 packetRun(args);

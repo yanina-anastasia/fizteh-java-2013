@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandString;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
@@ -20,13 +21,13 @@ public final class ShellDbPut  extends SimpleShellCommand {
             System.out.println("no table");
             return;
         }
-       // String str = context.table.put(getArg(1), getSpacedArg(2));
-       // if (str == null) {
-       //     System.out.println("new");
-       // } else {
-       //     System.out.println("overwrite");
-       //     System.out.println(str);
-      //  }
+        Storeable str = context.table.put(getArg(1), null);
+        if (str == null) {
+            System.out.println("new");
+        } else {
+            System.out.println("overwrite");
+            System.out.println(str);
+        }
     }
 
     @Override
