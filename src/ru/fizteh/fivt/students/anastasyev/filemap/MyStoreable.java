@@ -54,9 +54,9 @@ public class MyStoreable implements Storeable {
             if (values.get(i).equals(null)) {
                 row.add(i, null);
             } else {
-                if (!currTable.getColumnType(i).equals(values.get(i).getClass())) {
+                /*if (!currTable.getColumnType(i).equals(values.get(i).getClass())) {
                     throw new ColumnFormatException("Column type is not equal giving value type");
-                }
+                }*/
                 row.add(i, values.get(i));
             }
         }
