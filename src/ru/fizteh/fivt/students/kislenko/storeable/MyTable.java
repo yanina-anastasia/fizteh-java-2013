@@ -44,7 +44,10 @@ public class MyTable implements Table {
 
     @Override
     public Storeable get(String key) {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null) {
+            throw new NullPointerException("Incorrect key to get.");
+        }
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.containsKey(key)) {
@@ -55,7 +58,10 @@ public class MyTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null || value == null || key.trim().isEmpty()) {
+        if (key == null || value == null) {
+            throw new NullPointerException("Incorrect key/value to put.");
+        }
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         for (int i = 0; i < types.size(); ++i) {
@@ -79,7 +85,10 @@ public class MyTable implements Table {
 
     @Override
     public Storeable remove(String key) {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null) {
+            throw new NullPointerException("Incorrect key to remove.");
+        }
+        if (key.trim().isEmpty() || key.split("\\s+").length > 1) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {

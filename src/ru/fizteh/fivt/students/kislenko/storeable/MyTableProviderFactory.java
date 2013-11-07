@@ -13,7 +13,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
         }
         File file = new File(path.trim());
         if (!file.isDirectory()) {
-            throw new IllegalArgumentException("Database must be a directory.");
+            throw new IOException("Database must be a directory.");
         }
         return new MyTableProvider();
     }
