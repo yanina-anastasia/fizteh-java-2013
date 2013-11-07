@@ -391,7 +391,7 @@ public class FileMap implements Table {
             throw new IllegalArgumentException("newline in key or value");
         }
 
-        /*int index = 0;
+        int index = 0;
         while (true) {
             try {
                 if (!value.getColumnAt(index).getClass().getName().equals(columnType.get(index).getName())) {
@@ -406,7 +406,7 @@ public class FileMap implements Table {
             } catch (ColumnFormatException e) {
                 throw e;
             }
-        }  */
+        }
 
         if (tableData.containsKey(key)) {
             Storeable oldValue = tableData.get(key);
