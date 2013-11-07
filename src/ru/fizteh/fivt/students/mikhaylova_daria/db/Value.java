@@ -12,7 +12,7 @@ public class Value implements Storeable {
 
     Value(Table table) {
         this.table = table;
-        value = new ArrayList<>(1);
+        value = new ArrayList<>(table.getColumnsCount());
     }
 
 
