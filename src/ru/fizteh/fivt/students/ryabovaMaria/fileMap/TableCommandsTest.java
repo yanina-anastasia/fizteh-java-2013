@@ -15,7 +15,7 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 public class TableCommandsTest {
-    TableProviderFactory tempFactory = new MyTableProviderFactory();
+    /*TableProviderFactory tempFactory = new MyTableProviderFactory();
     TableProvider tempTableProvider;
     Table tempTable;
     File createdFolder;
@@ -184,5 +184,5 @@ public class TableCommandsTest {
     public void rollbackTestNoChanges() {
         commitTestPutAndRemoveOneKey();
         assertTrue("Rollback error", tempTable.rollback() == 0);
-    }
+    }*/
 }
