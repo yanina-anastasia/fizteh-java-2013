@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
 import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -25,8 +26,12 @@ public class MultiFileHashMapMain {
         }
         String[] commandNames = {"create", "drop", "use", "put", "get", "remove", "exit", "size", "commit", "rollback"};
         HashMap<String, Method> map = Utils.getMethods(commandNames, MFHMController.class);
-        MFHMController db = new MFHMController(new MultiFileHashMap(dbDirectory));
-        ModeController<MFHMController> start = new ModeController<>(db);
-        start.execute(map, args);
+        try {
+            MFHMController db = new MFHMController(new MultiFileHashMap(dbDirectory));
+            ModeController<MFHMController> start = new ModeController<>(db);
+            start.execute(map, args);
+        } catch (IllegalStateException | IllegalPathStateException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

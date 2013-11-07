@@ -120,7 +120,9 @@ public class MFHMController {
     }
 
     public boolean exit() {
-        currentdb.close();
+        if (currentdb != null) {
+            currentdb.close();
+        }
         System.exit(0);
         return true;
     }

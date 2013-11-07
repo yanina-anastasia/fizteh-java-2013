@@ -4,47 +4,50 @@ import ru.fizteh.fivt.students.drozdowsky.PathController;
 
 import java.io.*;
 
-public class ShellCommands {
-    public static boolean cd(PathController path, String[] args) {
+public class ShellController {
+
+    PathController path;
+
+    public ShellController() {
+        path = new PathController();
+    }
+
+    public ShellController(PathController path) {
+        this.path = path;
+    }
+
+    public boolean cd(String to) {
         try {
-            if (args.length != 2) {
-                System.err.println("usage: cd <absolute path|relative path>");
-                return false;
-            }
             PathController test = new PathController(path);
 
-            test.changePath(args[1]);
+            test.changePath(to);
 
             if (test.isDirectory()) {
-                path.changePath(args[1]);
+                path.changePath(to);
             } else {
                 if (!test.exists()) {
-                    System.err.println("cd: " + args[1] + ": No such file or directory");
+                    System.err.println("cd: " + to + ": No such file or directory");
                     return false;
                 }
-                System.err.println("cd: " + args[1] + ": Not a directory");
+                System.err.println("cd: " + to + ": Not a directory");
                 return false;
             }
             return true;
         } catch (IOException e) {
-            System.err.println("cd: " + args[1] + ": " + e.getMessage());
+            System.err.println("cd: " + to + ": " + e.getMessage());
         }
         return false;
     }
 
-    public static boolean cp(PathController path, String[] args) {
-        if (args.length != 3) {
-            System.err.println("usage: cp file|directory file|directory");
-            return false;
-        }
+    public boolean cp(String from, String to) {
         try {
             PathController pathFrom = new PathController(path);
             PathController pathTo = new PathController(path);
-            pathFrom.changePath(args[1]);
-            pathTo.changePath(args[2]);
+            pathFrom.changePath(from);
+            pathTo.changePath(to);
 
             if (pathFrom.getPath().equals(pathTo.getPath())) {
-                System.err.println(args[1] + " and " + args[2] + " are identical (not copied).");
+                System.err.println(from + " and " + to + " are identical (not copied).");
                 return false;
             }
 
@@ -57,13 +60,8 @@ public class ShellCommands {
         return false;
     }
 
-    public static boolean dir(PathController path, String[] args) {
+    public boolean dir() {
         try {
-            if (args.length != 1) {
-                System.err.println("usage: dir");
-                return false;
-            }
-
             File totalPath = path.getPath();
             String[] result = totalPath.list();
             if (result == null) {
@@ -79,50 +77,40 @@ public class ShellCommands {
         return true;
     }
 
-    public static boolean mkdir(PathController path, String[] args) {
-        if (args.length != 2) {
-            System.err.println("usage: mkdir directory");
-            return false;
-        }
+    public boolean mkdir(String where) {
+
         try {
             PathController tempPath = new PathController(path);
-            tempPath.changePath(args[1]);
+            tempPath.changePath(where);
             File newDirectory = tempPath.getPath();
 
             if (!newDirectory.mkdir() && newDirectory.exists()) {
-                System.err.println("mkdir: " + args[1] + ": " + "File exists");
+                System.err.println("mkdir: " + where + ": " + "File exists");
                 return false;
             }
             return true;
         } catch (SecurityException e) {
-            System.err.println("mkdir: " + args[1] + ": " + "Permission denied");
+            System.err.println("mkdir: " + where + ": " + "Permission denied");
         } catch (IOException e) {
-            System.err.println("mkdir: " + args[1] + ": " + e.getMessage());
+            System.err.println("mkdir: " + where + ": " + e.getMessage());
         }
         return false;
     }
 
-    public static boolean mv(PathController path, String[] args) {
-        if (args.length != 3) {
-            System.err.println("usage: mv file|directory file|directory");
-            return false;
-        }
+    public boolean mv(String from, String to) {
         try {
             PathController pathFrom = new PathController(path);
             PathController pathTo = new PathController(path);
-            pathFrom.changePath(args[1]);
-            pathTo.changePath(args[2]);
+            pathFrom.changePath(from);
+            pathTo.changePath(to);
 
             if (pathFrom.getPath().equals(pathTo.getPath())) {
-                System.err.println(args[1] + " and " + args[2] + " are identical (not moved).");
+                System.err.println(from + " and " + to + " are identical (not moved).");
                 return false;
             }
 
-            if (cp(path, args)) {
-                String[] args2 = new String[2];
-                args2[1] = args[1];
-                args2[0] = args[0];
-                return rm(path, args2);
+            if (cp(from, to)) {
+                return rm(from);
             }
             return false;
         } catch (SecurityException e) {
@@ -133,23 +121,19 @@ public class ShellCommands {
         return false;
     }
 
-    public static boolean pwd(PathController path, String[] args) {
+    public boolean pwd() {
         System.out.println(path.toString());
         return true;
     }
 
-    public static boolean rm(PathController path, String[] args) {
-        if (args.length != 2) {
-            System.err.println("usage: rm file|directory");
-            return false;
-        }
+    public boolean rm(String what) {
         try {
             PathController tempPath = new PathController(path);
-            tempPath.changePath(args[1]);
+            tempPath.changePath(what);
             File toDelete = tempPath.getPath();
 
             if (!toDelete.exists()) {
-                System.err.println("rm: " + args[1] + ": " + "No such file or directory");
+                System.err.println("rm: " + what + ": " + "No such file or directory");
                 return false;
             }
             if (toDelete.isDirectory()) {
@@ -159,18 +143,14 @@ public class ShellCommands {
             toDelete.delete();
             return true;
         } catch (SecurityException e) {
-            System.err.println("mkdir: " + args[1] + ": " + "Permission denied");
+            System.err.println("mkdir: " + what + ": " + "Permission denied");
         } catch (IOException e) {
-            System.err.println("mkdir: " + args[1] + ": " + e.getMessage());
+            System.err.println("mkdir: " + what + ": " + e.getMessage());
         }
         return false;
     }
 
-    public static boolean exit(PathController path, String[] args) {
-        if (args.length != 1) {
-            System.err.println("usage: exit");
-            return false;
-        }
+    public boolean exit() {
         System.exit(0);
         return true;
     }
@@ -219,7 +199,7 @@ public class ShellCommands {
         }
     }
 
-    private static void deleteDirectory(File toDelete) throws IOException {
+    public static void deleteDirectory(File toDelete) throws IOException {
         File[] files = toDelete.listFiles();
         if (files != null) {
             for (File f: files) {

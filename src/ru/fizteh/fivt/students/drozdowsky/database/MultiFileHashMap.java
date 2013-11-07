@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.drozdowsky.database;
 
+import ru.fizteh.fivt.students.drozdowsky.Commands.ShellController;
 import ru.fizteh.fivt.students.drozdowsky.PathController;
-import ru.fizteh.fivt.students.drozdowsky.Commands.ShellCommands;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
@@ -23,6 +23,9 @@ public class MultiFileHashMap implements TableProvider {
         String[] content = dir.list();
         for (String directory : content) {
             File temp = new File(dir.getAbsoluteFile() + "/" + directory);
+            if (!temp.isDirectory()) {
+                throw new IllegalStateException(temp.getName() + ": not a directory");
+            }
             FileHashMap base = new FileHashMap(temp);
             database.put(directory, null);
         }
@@ -63,9 +66,8 @@ public class MultiFileHashMap implements TableProvider {
             throw new IllegalArgumentException();
         }
         if (database.containsKey(name)) {
-            File table = new File(dir.getAbsolutePath() + "/" + name);
-            String[] newArgs = {"rm", name};
-            ShellCommands.rm(curDir, newArgs);
+            ShellController t = new ShellController(curDir);
+            t.rm(name);
             database.remove(name);
         } else {
             throw new IllegalStateException();
