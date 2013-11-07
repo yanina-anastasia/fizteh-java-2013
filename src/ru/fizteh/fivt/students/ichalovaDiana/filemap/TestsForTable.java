@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ichalovaDiana.filemap;
+/*package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
 
 public class TestsForTable {
     
@@ -32,12 +32,12 @@ public class TestsForTable {
     
     @After
     public void deleteTable() throws IOException {
-        FileUtils.resursiveDelete(databaseDirectory.resolve("temp"));
+        FileUtils.recursiveDelete(databaseDirectory.resolve("temp"));
     }
     
     @AfterClass
     public static void deleteDatabase() throws IOException {
-        FileUtils.resursiveDelete(databaseDirectory);
+        FileUtils.recursiveDelete(databaseDirectory);
     }
     
     @Test
@@ -96,4 +96,4 @@ public class TestsForTable {
         Assert.assertTrue(table.rollback() == 0);
         Assert.assertEquals("value1", table.get("key1"));
     }
-}
+}*/

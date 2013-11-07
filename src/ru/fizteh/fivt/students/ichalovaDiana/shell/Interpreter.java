@@ -1,13 +1,14 @@
 package ru.fizteh.fivt.students.ichalovaDiana.shell;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Interpreter {
 
-    private Hashtable<String, Command> commands = new Hashtable<String, Command>();
+    private Map<String, Command> commands = new HashMap<String, Command>();
 
-    public Interpreter(Hashtable<String, Command> commands) {
+    public Interpreter(Map<String, Command> commands) {
         this.commands = commands;
     }
 
@@ -58,7 +59,7 @@ public class Interpreter {
             if (cmd == null) {
                 throw new Exception("Command not found");
             }
-            cmd.execute(inputCommandsWithParams[i]);
+            cmd.execute(inputCommandsWithParams[i]); 
         }
     }
 
