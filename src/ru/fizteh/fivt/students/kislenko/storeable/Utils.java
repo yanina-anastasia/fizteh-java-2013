@@ -16,6 +16,10 @@ public class Utils {
         List<Class<?>> types = new ArrayList<Class<?>>();
         while (scanner.hasNext()) {
             String type = scanner.next();
+            if (type == null) {
+                scanner.close();
+                throw new IllegalArgumentException("Some invalid class in signature");
+            }
             if (type.equals("String")) {
                 types.add(String.class);
             } else if (type.equals("int")) {
