@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.kislenko.storeable;
 
-import org.json.*;
+import org.json.JSONArray;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -26,6 +26,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public MyTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Incorrect column type list.");
+        }
         if (columnTypes.size() == 0) {
             throw new IllegalArgumentException("Empty signature.");
         }
