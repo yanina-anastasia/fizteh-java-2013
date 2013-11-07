@@ -14,7 +14,7 @@ public class FileMapTableProviderFactory implements TableProviderFactory {
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
             if (!fileDir.mkdirs()) {
-                throw new IllegalArgumentException("Can't create directory");
+                throw new IOException("Can't create directory");
             }
         }
         if (!fileDir.isDirectory()) {

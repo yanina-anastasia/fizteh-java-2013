@@ -48,17 +48,28 @@ public class FileMapTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException();
         }
-        if (((MyStoreable) value).getColumnCount() != columnTypes.size()) {
-            throw new ColumnFormatException("Column counts are not equals");
-        }
-        for (int i = 0; i < columnTypes.size(); ++i) {
-            if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
-                throw new ColumnFormatException("Wrong column format");
+        int i = 0;
+        for (; i < columnTypes.size(); ++i) {
+            if (value.getColumnAt(i) != null) {
+                try {
+                    if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
+                        throw new ColumnFormatException("Wrong column format");
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ColumnFormatException("Wrong column count");
+                }
             }
         }
+        try {
+            if (value.getColumnAt(i) != null) {
+                throw new ColumnFormatException("Wrong column count");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            //It's OK
+        }
         String valueStringAt = value.getStringAt(columnTypes.indexOf(String.class));
-        if (isEmptyString(valueStringAt)) {
-            throw new IllegalArgumentException();
+        if (valueStringAt != null && valueStringAt.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty string in value");
         }
     }
 
@@ -220,8 +231,8 @@ public class FileMapTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if (isEmptyString(key)) {
-            throw new IllegalArgumentException();
+        if (isEmptyString(key) || key.contains(" ")) {
+            throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
         int absHash = Math.abs(key.hashCode());
@@ -254,8 +265,8 @@ public class FileMapTable implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (isEmptyString(key)) {
-            throw new IllegalArgumentException();
+        if (isEmptyString(key) || key.contains(" ")) {
+            throw new IllegalArgumentException("Wrong key");
         }
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
@@ -280,8 +291,8 @@ public class FileMapTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (isEmptyString(key)) {
-            throw new IllegalArgumentException();
+        if (isEmptyString(key) || key.contains(" ")) {
+            throw new IllegalArgumentException("Wrong key");
         }
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
