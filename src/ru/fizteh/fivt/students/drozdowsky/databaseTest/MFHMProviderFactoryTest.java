@@ -27,7 +27,7 @@ public class MFHMProviderFactoryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void nullCreateTestShouldFail() {
+    public void createNullTestShouldFail() {
         MultiFileHashMap provider = factory.create(null);
     }
 
