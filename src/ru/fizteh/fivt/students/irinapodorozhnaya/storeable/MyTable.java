@@ -18,6 +18,9 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.GenericTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
+
+import javax.xml.stream.XMLStreamException;
 
 public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     
@@ -63,13 +66,13 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         if (value == null || key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument in put");
         }
-
+        /*
         int sizeColumn = columnType.size();
 
         try {
             for (int i = 0; i < sizeColumn; ++i) {
                 Object valueI = value.getColumnAt(i);
-                if (valueI != null && !valueI.getClass().isAssignableFrom(columnType.get(i))) {
+                if (valueI != null && !valueI.getClass().equals(columnType.get(i))) {
                         throw new ColumnFormatException(i + " column has incorrect format");
                 }
             }
@@ -77,15 +80,19 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
             throw new ColumnFormatException("alien Storeable");
         }
 
-        System.out.println("put " + value + " in " + getName());
+
         try {
             value.getColumnAt(columnType.size());
         } catch(IndexOutOfBoundsException e) {
-            return super.put(key, value);
+
+        }*/
+        try {
+            return super.put(key, XMLSerializer.deserialize(this, XMLSerializer.serialize(this, value)));
+        } catch (XMLStreamException | ParseException e1) {
+            throw new ColumnFormatException(e1);
         }
 
-
-        throw new ColumnFormatException("alien Storeable");
+        //throw new ColumnFormatException("alien Storeable");
      }
 
     @Override
