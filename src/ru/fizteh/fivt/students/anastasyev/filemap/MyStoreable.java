@@ -43,9 +43,9 @@ public class MyStoreable implements Storeable {
     }
 
     public MyStoreable(Table currTable, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        /*if (currTable.getColumnsCount() != values.size()) {
+        if (currTable.getColumnsCount() != values.size()) {
             throw new IndexOutOfBoundsException("The columns count is not equal giving values count");
-        }  */
+        }
         row = new ArrayList<Object>(currTable.getColumnsCount());
         columnTypes = new ArrayList<Class<?>>(currTable.getColumnsCount());
         for (int i = 0; i < currTable.getColumnsCount(); ++i) {
