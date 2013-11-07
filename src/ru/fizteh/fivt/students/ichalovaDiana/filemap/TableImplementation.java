@@ -29,6 +29,7 @@ public class TableImplementation implements Table {
     
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
             String tableName, List<Class<?>> columnTypes) { //check types
+
         this.tableProvider = tableProvider;
         this.databaseDirectory = databaseDirectory;
         this.tableName = tableName;

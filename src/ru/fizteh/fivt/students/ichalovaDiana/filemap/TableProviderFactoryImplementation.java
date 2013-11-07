@@ -21,8 +21,12 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
          
         Path dbDir = Paths.get(dir);
     
+        if (!Files.exists(dbDir)) {
+            throw new IOException(dbDir + " doesn't exist");
+        }
+        
         if (!Files.isDirectory(dbDir)) {
-            throw new IOException(dbDir + " doesn't exist or is not a directory");
+            throw new IllegalArgumentException(dbDir + " is not a directory");
         }
         
         isCorrectDatabaseDirectory(dbDir);
@@ -50,8 +54,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         for (String dirName : tableDirectory.toFile().list()) {
             if (dirName.equals("signature.tsv") && Files.isRegularFile(tableDirectory.resolve(dirName))) {
                 containsSignatureFile = true;
-                // isCorrectSignatureFile(tableDirectory.resolve(dirName));
-                continue; // TODO: check signature.tsv;
+                continue;
             }
             
             if (!dirName.matches("(1[0-5]|[0-9]).dir")) {
@@ -87,9 +90,6 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
     }
-    
-    /*private static void isCorrectSignatureFile(Path signatureFilePath) {
-        
-    }*/
+
     
 }
