@@ -384,7 +384,7 @@ public class FileMap implements Table {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("only spaces");
         }
-        if (key.contains(" ")) {
+        if (key.contains(" ") || key.contains("\t")) {
             throw new IllegalArgumentException("spaces can't be in key");
         }
         if (key.contains("\n")) {
