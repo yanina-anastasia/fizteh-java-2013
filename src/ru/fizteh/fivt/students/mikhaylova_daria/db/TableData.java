@@ -37,8 +37,12 @@ public class TableData implements Table {
             str = str.append(" ");
         }
         File sign = new File(tableFile, "signature.tsv");
-        if (!sign.mkdir()) {
-            throw new IllegalArgumentException("Creating \"signature.tsv\" error");
+        try {
+            if (!sign.createNewFile()) {
+                throw new IllegalArgumentException("Creating \"signature.tsv\" error");
+            }
+        } catch (IOException e) {
+             throw new RuntimeException(e.getMessage(), e);
         }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
