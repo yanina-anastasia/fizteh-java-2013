@@ -410,10 +410,10 @@ public class FileMap implements Table {
                     sb.append("\n");
                 }
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         return sb.toString();
