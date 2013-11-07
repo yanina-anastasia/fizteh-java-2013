@@ -91,7 +91,7 @@ public final class DataBaseTable implements TableProvider {
                 tableInUse.put(tableName, table);
                 return table;
             } catch (IOException e) {
-                throw new MultiDataBaseException(e.getMessage());
+                throw new DataBaseException(e.getMessage());
             }
         }
     }
