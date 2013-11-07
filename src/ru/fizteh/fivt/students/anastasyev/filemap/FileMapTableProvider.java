@@ -241,10 +241,8 @@ public class FileMapTableProvider extends State implements TableProvider {
         }
         try {
             return createFor(table, values);
-        } catch (ColumnFormatException e) {
-            throw new ParseException("ColumnFormatException" + e.getMessage(), 0);
-        } catch (IndexOutOfBoundsException e) {
-            throw new ParseException("IndexOutOfBoundsException" + e.getMessage(), 0);
+        } catch (ColumnFormatException | IndexOutOfBoundsException e) {
+            throw new ParseException(e.getMessage(), 0);
         }
     }
 
