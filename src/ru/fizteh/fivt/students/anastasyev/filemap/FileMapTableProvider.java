@@ -250,7 +250,8 @@ public class FileMapTableProvider extends State implements TableProvider {
         Object[] values = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values[i] = value.getColumnAt(i);
-            if (values[i] != JSONObject.NULL && !values[i].getClass().equals(table.getColumnType(i))) {
+            if (values[i] != null && values[i] != JSONObject.NULL
+                    && !values[i].getClass().equals(table.getColumnType(i))) {
                 throw new ColumnFormatException("Wrong column format");
             }
         }
