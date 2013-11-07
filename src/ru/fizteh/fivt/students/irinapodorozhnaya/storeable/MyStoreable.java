@@ -11,12 +11,13 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
 import javax.xml.stream.XMLStreamException;
 
-public class MyStoreable implements Storeable {
+public class MyStoreable implements Storeable, Serializable {
 
     private final List<Object> values;    
     private final Table table;
 
     public MyStoreable(Table table) {
+        System.out.println("new Storeable for " + table.getName());
         this.table = table;
         values = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {

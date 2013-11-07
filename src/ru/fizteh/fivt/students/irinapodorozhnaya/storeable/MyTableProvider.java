@@ -101,7 +101,8 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        
+
+        System.out.println("deseriaize " + value);
         Storeable res;
         try {
             res = XMLSerializer.deserialize(table, value);
@@ -122,11 +123,13 @@ public class MyTableProvider implements ExtendProvider {
         } catch (XMLStreamException e) {
             throw new ColumnFormatException(e);
         }
+        System.out.println("serialize " + value);
         return res;
     }
 
     @Override
     public Storeable createFor(Table table) {
+        System.out.println("create for + " + table.getName());
         return new MyStoreable(table);
     }
 
@@ -143,6 +146,7 @@ public class MyTableProvider implements ExtendProvider {
         for (int i = 0; i < size; ++i) {
             res.setColumnAt(i, values.get(i));
         }
+        System.out.println("create for values" + table.getName() );
         return res;
     }
     
