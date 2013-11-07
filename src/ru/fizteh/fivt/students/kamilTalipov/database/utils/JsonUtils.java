@@ -60,7 +60,7 @@ public class JsonUtils {
         for (int i = 0; i < json.length(); ++i) {
             try {
                 Object object = json.get(Integer.toString(i));
-                if (object == null) {
+                if (object == JSONObject.NULL) {
                     result.setColumnAt(i, null);
                 } else {
                     result.setColumnAt(i, table.getColumnType(i).cast(object));
