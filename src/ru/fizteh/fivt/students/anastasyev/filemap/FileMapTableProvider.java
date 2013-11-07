@@ -168,8 +168,14 @@ public class FileMapTableProvider extends State implements TableProvider {
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException,
             IllegalArgumentException, RuntimeException {
         isBadName(name);
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Null column types");
+        }
         ArrayList<String> types = new ArrayList<String>();
         for (Class<?> type : columnTypes) {
+            if (type == null) {
+                throw new IllegalArgumentException("Null column type");
+            }
             String typeName = providedTypesNames.get(type);
             if (typeName == null) {
                 throw new IllegalArgumentException("Wrong column format");

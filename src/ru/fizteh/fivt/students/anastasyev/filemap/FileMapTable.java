@@ -189,9 +189,9 @@ public class FileMapTable implements Table {
         if (!currentFileMapTable.isDirectory()) {
             throw new IOException(currentFileMapTable.getName() + " is not a directory");
         }
-        readTable();
         columnTypes = new ArrayList<Class<?>>(newColumnTypes);
         provider = newProvider;
+        readTable();
     }
 
     @Override
@@ -202,6 +202,10 @@ public class FileMapTable implements Table {
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if (isEmptyString(key)) {
+            throw new IllegalArgumentException();
+        }
+        String valueStringAt = value.getStringAt(columnTypes.indexOf(String.class));
+        if (isEmptyString(valueStringAt)) {
             throw new IllegalArgumentException();
         }
         int absHash = Math.abs(key.hashCode());
