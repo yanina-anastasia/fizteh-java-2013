@@ -64,7 +64,11 @@ public class JsonUtils {
                     result.setColumnAt(i, null);
                 } else {
                     if (table.getColumnType(i) == Long.class) {
-                        result.setColumnAt(i, (Long) object);
+                        try {
+                            result.setColumnAt(i, (Long) object);
+                        } catch (ClassCastException e) {
+                            throw new ParseException("test", i);
+                        }
                     } else {
                         result.setColumnAt(i, table.getColumnType(i).cast(object));
                     }
