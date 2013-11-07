@@ -402,6 +402,7 @@ public class FileMap implements Table {
             }
 
             int index = 0;
+
             /*while (true) {
                 try {
                     switch (columnType.get(index).getName()) {
@@ -441,6 +442,7 @@ public class FileMap implements Table {
             }*/
 
             st = null;
+            throw new ColumnFormatException("this Storeable can't be use in this table");
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
