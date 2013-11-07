@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.dzvonarev.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
@@ -117,7 +118,7 @@ public class Shell {
 
     public static void run(String expression) throws IOException {
         String newExpression = expression.trim();
-        Vector<String> args = new Vector<String>();
+        ArrayList<String> args = new ArrayList<String>();
         args.add(newExpression);
         String cmdName;
         if (newExpression.indexOf(' ', 0) != -1) {
