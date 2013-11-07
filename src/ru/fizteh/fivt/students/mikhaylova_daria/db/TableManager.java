@@ -31,8 +31,8 @@ public class TableManager implements TableProvider {
         if (nameMainDir == null) {
             throw new IllegalArgumentException("wrong type (Name of directory is null)");
         }
-        if (nameMainDir.contains(" ") || nameMainDir.contains("\\") || nameMainDir.contains("/")
-                || nameMainDir.contains("\t") || nameMainDir.contains(".") || nameMainDir.isEmpty()) {
+        if (nameMainDir.contains("\\") || nameMainDir.contains("/")
+                || nameMainDir.contains("\n") || nameMainDir.contains(".") || nameMainDir.isEmpty()) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters or empty)");
         }
         mainDir = new File(nameMainDir);
@@ -117,8 +117,8 @@ public class TableManager implements TableProvider {
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
-                || nameTable.contains("\t") || nameTable.contains(".")) {
+        if (nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\n") || nameTable.contains(".")) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
         if (columnTypes == null) {
@@ -149,8 +149,8 @@ public class TableManager implements TableProvider {
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
-                || nameTable.contains("\t") || nameTable.contains(".")) {
+        if (nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\n") || nameTable.contains(".")) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
         TableData table = null;
@@ -180,8 +180,8 @@ public class TableManager implements TableProvider {
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
-        if (nameTable.contains(" ") || nameTable.contains("\\") || nameTable.contains("/")
-                || nameTable.contains("\t") || nameTable.contains(".")) {
+        if (nameTable.contains("\\") || nameTable.contains("/")
+                || nameTable.contains("\n") || nameTable.contains(".")) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
