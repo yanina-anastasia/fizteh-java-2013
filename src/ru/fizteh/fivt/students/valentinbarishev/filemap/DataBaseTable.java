@@ -64,12 +64,13 @@ public final class DataBaseTable implements TableProvider {
             throw new IllegalStateException("Table not exist already!");
         }
 
-        if (tableInUse.containsKey(tableName)) {
-            DataBase base = tableInUse.get(tableName);
+        if (!tableInUse.containsKey(tableName)) {
+            DataBase base = new DataBase(tableName, this, null);
             base.drop();
             if (!file.delete()) {
                 throw new DataBaseException("Cannot delete a file " + tableName);
             }
+            tableInUse.get(tableName).drop();
             tableInUse.remove(tableName);
         }
     }
