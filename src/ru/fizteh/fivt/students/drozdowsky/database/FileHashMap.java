@@ -30,6 +30,9 @@ public class FileHashMap implements Table {
     }
 
     public String get(String key) {
+        if (!Utils.isValid(key)) {
+            throw new IllegalArgumentException();
+        }
         int nDir = getDirNum(key);
         int nFile = getFileNum(key);
         return base[nDir][nFile].get(key);
@@ -46,6 +49,9 @@ public class FileHashMap implements Table {
     }
 
     public String remove(String key) {
+        if (!Utils.isValid(key)) {
+            throw new IllegalArgumentException();
+        }
         int nDir = getDirNum(key);
         int nFile = getFileNum(key);
         return base[nDir][nFile].remove(key);
@@ -142,14 +148,14 @@ public class FileHashMap implements Table {
         }
 
         File[] directories = db.listFiles();
-        for (File directory : directories != null ? directories : new File[0]) {
+        for (File directory : (directories != null ? directories : new File[0])) {
             int nDir = dirNameInRange(directory.getName(), NDIRS);
             if (nDir == -1 || !(directory.isDirectory())) {
                 throw new IllegalStateException(db.getAbsolutePath() + ": Not valid database " + directory.getName());
             }
 
             File[] files = directory.listFiles();
-            for (File file : files != null ? files : new File[0]) {
+            for (File file : (files != null ? files : new File[0])) {
                 int nFile = fileNameInRange(file.getName(), NFILES);
                 if (nFile == -1 || !(file.isFile())) {
                     throw new IllegalStateException(db.getAbsolutePath() + ": Not valid database " + file.getName());
