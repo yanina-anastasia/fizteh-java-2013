@@ -13,6 +13,9 @@ public class Value implements Storeable {
     Value(Table table) {
         this.table = table;
         value = new ArrayList<>(table.getColumnsCount());
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            value.add(new Object());
+        }
     }
 
 
