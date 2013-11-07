@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -50,7 +51,7 @@ public class FileMapTable implements Table {
         }
         int i = 0;
         for (; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != null) {
+            if (value.getColumnAt(i) != JSONObject.NULL) {
                 try {
                     if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
                         throw new ColumnFormatException("Wrong column format");
@@ -162,13 +163,13 @@ public class FileMapTable implements Table {
         for (int i = 0; i < columnTypes.size(); ++i) {
             Object val1 = first.getColumnAt(i);
             Object val2 = second.getColumnAt(i);
-            if (val1 == null && val2 == null) {
+            if (val1 == JSONObject.NULL && val2 == JSONObject.NULL) {
                 continue;
             }
-            if (val1 == null && val2 != null) {
+            if (val1 == JSONObject.NULL && val2 != JSONObject.NULL) {
                 return false;
             }
-            if (val1 != null && val2 == null) {
+            if (val1 != JSONObject.NULL && val2 == JSONObject.NULL) {
                 return false;
             }
             if (!val1.equals(val2)) {

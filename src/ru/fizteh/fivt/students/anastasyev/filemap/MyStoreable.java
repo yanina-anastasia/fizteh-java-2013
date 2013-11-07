@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -50,7 +51,7 @@ public class MyStoreable implements Storeable {
         columnTypes = new ArrayList<Class<?>>(currTable.getColumnsCount());
         for (int i = 0; i < currTable.getColumnsCount(); ++i) {
             columnTypes.add(i, currTable.getColumnType(i));
-            if (!currTable.getColumnType(i).equals(values.get(i).getClass())) {
+            if (values.get(i) != JSONObject.NULL && !currTable.getColumnType(i).equals(values.get(i).getClass())) {
                 throw new ColumnFormatException("Column type is not equal giving value type");
             }
             row.add(i, values.get(i));
