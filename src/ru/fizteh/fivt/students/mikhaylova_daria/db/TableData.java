@@ -23,7 +23,7 @@ public class TableData implements Table {
             throw new IllegalArgumentException("list of column's types is empty");
         }
         this.manager = manager;
-        this.columnTypes = new ArrayList(columnTypes);
+        this.columnTypes = new ArrayList<>(columnTypes);
         this.tableFile = tableFile;
         if (!tableFile.exists()) {
             if (!tableFile.mkdir()) {
@@ -37,6 +37,11 @@ public class TableData implements Table {
         types.put("Float", "float");
         types.put("Boolean", "boolean");
         types.put("String", "String");
+        types.put("int", "int");
+        types.put("long", "long");
+        types.put("double", "double");
+        types.put("float", "float");
+        types.put("boolean", "boolean");
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < columnTypes.size(); ++i) {
             str = str.append(types.get(columnTypes.get(i).getSimpleName()));
