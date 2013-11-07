@@ -34,4 +34,12 @@ public class MyTableProviderTest {
         new File(path, "test").mkdirs();
         provider.getTable("test");
     }
+
+    @Test(expected = Error.class)
+    public void testSignatureEmpty() throws IOException {
+        File file = new File(path, "test");
+        file.mkdirs();
+        new File(file, "signature.tsv").createNewFile();
+        provider.getTable("test");
+    }
 }

@@ -19,6 +19,10 @@ public class MySignature {
             throw new IOException("Cannot find file:" + file.getCanonicalPath());
         }
         Scanner input = new Scanner(file);
+        if (!input.hasNext()) {
+            throw new IOException("Empty signature: " + file.getCanonicalPath());
+        }
+
         String[] data = input.next().split(" ");
 
         List<Class<?>> result = new ArrayList<>();
