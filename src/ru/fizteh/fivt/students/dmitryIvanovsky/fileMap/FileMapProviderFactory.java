@@ -24,7 +24,7 @@ public class FileMapProviderFactory implements TableProviderFactory {
             throw new IOException(dir + " not exists");
         }
         if (!file.isDirectory()) {
-            throw new IOException(dir + " isn't directory");
+            throw new IllegalArgumentException(dir + " isn't directory");
         }
         Path pathTables = Paths.get(".").resolve(dir);
         try {
