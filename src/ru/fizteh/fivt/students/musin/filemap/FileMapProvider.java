@@ -122,6 +122,24 @@ public class FileMapProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
         }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Null columnTypes");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Can't create table with no columns");
+        }
+        for (Class<?> columnType : columnTypes) {
+            boolean check = false;
+            for (Class<?> allowedClass : FixedList.CLASSES) {
+                if (columnType == allowedClass) {
+                    check = true;
+                    break;
+                }
+            }
+            if (!check) {
+                throw new IllegalArgumentException(String.format("Type %s not supported", columnType.toString()));
+            }
+        }
         if (name.equals("")) {
             throw new IllegalArgumentException("Empty name");
         }
@@ -191,7 +209,7 @@ public class FileMapProvider implements TableProvider {
             for (int i = 0; i < columnCount; i++) {
                 Object object = array.get(i);
                 if (object.equals(null)) {
-                     newList.setColumnAt(i, object);
+                     newList.setColumnAt(i, null);
                 } else if (columnTypes.get(i) == Integer.class) {
                     if (object.getClass() == Integer.class) {
                         newList.setColumnAt(i, object);
@@ -249,7 +267,7 @@ public class FileMapProvider implements TableProvider {
         Object[] objects = new Object[columnCount];
         for (int i = 0; i < columnCount; i++) {
             objects[i] = value.getColumnAt(i);
-            if (!objects[i].equals(null) && objects[i].getClass() != table.getColumnType(i)) {
+            if (objects[i] != null && objects[i].getClass() != table.getColumnType(i)) {
                 throw new ColumnFormatException(String.format("Wrong format: %s expected, %s found", table.getColumnType(i).toString(), objects[i].getClass().toString()));
             }
         }

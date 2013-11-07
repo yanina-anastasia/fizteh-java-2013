@@ -11,7 +11,7 @@ public class ShellDatabaseHandler {
     FileMapProvider database;
     MultiFileMap current;
 
-    public ShellDatabaseHandler(String location) {
+    public ShellDatabaseHandler(String location) throws IOException {
         FileMapProviderFactory factory = new FileMapProviderFactory();
         database = factory.create(location);
         current = null;

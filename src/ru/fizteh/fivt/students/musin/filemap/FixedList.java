@@ -32,7 +32,7 @@ public class FixedList implements Storeable {
         if (columnIndex >= objects.length || columnIndex < 0) {
             throw new IndexOutOfBoundsException(String.format("Index out of bounds: array size %d, found %d", objects.length, columnIndex));
         }
-        if (!value.equals(null) && value.getClass() != columnTypes.get(columnIndex)) {
+        if (value != null && value.getClass() != columnTypes.get(columnIndex)) {
             throw new ColumnFormatException(String.format("Wrong format: %s expected, %s found", columnTypes.get(columnIndex).toString(), value.getClass().toString()));
         }
         objects[columnIndex] = value;
@@ -140,7 +140,7 @@ public class FixedList implements Storeable {
             for (int i = 0; i < objects.length; i++) {
                 Object object = array.get(i);
                 if (array.get(i).equals(null)) {
-                    objects[i] = object;
+                    objects[i] = null;
                 } else if (columnTypes.get(i) == Integer.class) {
                     if (object.getClass() == Integer.class) {
                         objects[i] = object;
@@ -204,7 +204,11 @@ public class FixedList implements Storeable {
             return false;
         }
         for (int i = 0; i < objects.length; i++) {
-            if (!other.getColumnAt(i).equals(objects[i])) {
+            if (other.getColumnAt(i) == null) {
+                if (objects[i] != null) {
+                    return false;
+                }
+            } else if (!other.getColumnAt(i).equals(objects[i])) {
                 return false;
             }
         }

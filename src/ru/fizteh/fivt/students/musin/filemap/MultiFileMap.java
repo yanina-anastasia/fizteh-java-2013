@@ -52,7 +52,7 @@ public class MultiFileMap implements Table {
     public boolean checkColumnTypes(Storeable list) {
         try {
             for (int i = 0; i < columnTypes.size(); i++) {
-                if (!list.getColumnAt(i).equals(null) && columnTypes.get(i) != list.getColumnAt(i).getClass()) {
+                if (list.getColumnAt(i) != null && columnTypes.get(i) != list.getColumnAt(i).getClass()) {
                     return false;
                 }
             }
@@ -313,9 +313,6 @@ public class MultiFileMap implements Table {
         }
         if (!newLineCheck(key)) {
             throw new IllegalArgumentException("New-line in key or value");
-        }
-        if (value.getClass() != FixedList.class) {
-            throw new RuntimeException("Only FixedList is supported");
         }
         if (!checkColumnTypes(value)) {
             throw new ColumnFormatException("Type mismatch");
