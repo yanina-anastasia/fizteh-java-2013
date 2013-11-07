@@ -10,7 +10,7 @@ public class FileMap {
     
     public static void main(String[] args) {
         try {
-            FileMapCommands commands = new FileMapCommands("user.dir");
+            FileMapCommands commands = new FileMapCommands("fizteh.db.dir");
             shell = new Shell(commands);
             if (args.length > 0) {
                 shell.packet(args);
