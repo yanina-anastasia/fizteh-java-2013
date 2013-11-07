@@ -36,7 +36,7 @@ public class FileMap {
             try {
                 readerFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad data", e);
+                throw new IllegalArgumentException("Bad data", e);
             } catch (Exception e) {
                 throw new RuntimeException("Reading error", e);
             }
