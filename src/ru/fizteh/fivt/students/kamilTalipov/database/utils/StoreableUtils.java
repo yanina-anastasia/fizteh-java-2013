@@ -18,7 +18,8 @@ public class StoreableUtils {
         }
 
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i).getClass() != table.getColumnType(i)) {
+            if (value.getColumnAt(i) != null
+                    && value.getColumnAt(i).getClass() != table.getColumnType(i)) {
                 return false;
             }
         }
