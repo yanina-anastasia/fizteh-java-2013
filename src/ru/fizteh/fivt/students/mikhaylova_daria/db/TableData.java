@@ -65,10 +65,7 @@ public class TableData implements Table {
     }
 
 
-    /**
-     * подаётся 100% существующий файл
-     * @param tableFile
-     */
+
     TableData(File tableFile, TableManager manager) {
         this.manager = manager;
         this.columnTypes = new ArrayList<>();
@@ -77,6 +74,9 @@ public class TableData implements Table {
         File sign = new File(tableFile, "signature.tsv");
         if (!sign.exists()) {
             throw new IllegalArgumentException(sign.getName() + " does not exist");
+        }
+        if (sign.length() == 0) {
+            throw new IllegalArgumentException(sign.toString() + " Empty type list");
         }
         try (BufferedReader signatureReader =
                      new BufferedReader(new FileReader(sign))) {
@@ -87,25 +87,25 @@ public class TableData implements Table {
         String[] signatures = signature.trim().split(" ");
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
-                columnTypes.add(i, Integer.class);
+                columnTypes.add(Integer.class);
             } else {
                 if (signatures[i].equals("long")) {
-                    columnTypes.add(i, Long.class);
+                    columnTypes.add(Long.class);
                 }  else {
                     if (signatures[i].equals("byte")) {
-                        columnTypes.add(i, Byte.class);
+                        columnTypes.add(Byte.class);
                     } else {
                         if (signatures[i].equals("float")) {
-                            columnTypes.add(i, Float.class);
+                            columnTypes.add(Float.class);
                         } else {
                             if (signatures[i].equals("double")) {
-                                columnTypes.add(i, Double.class);
+                                columnTypes.add(Double.class);
                             } else {
                                 if (signatures[i].equals("boolean")) {
-                                    columnTypes.add(i, Boolean.class);
+                                    columnTypes.add(Boolean.class);
                                 } else {
                                     if (signatures[i].equals("String")) {
-                                        columnTypes.add(i, String.class);
+                                        columnTypes.add(String.class);
                                     } else {
                                         throw new IllegalArgumentException("This type is not supposed: "
                                                 + signatures[i]);
