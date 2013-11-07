@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,177 +12,79 @@ public class DataTable implements Table {
     public static final int DIR_COUNT = 16;
     public static final int FILE_COUNT = 16;
 
-    private File dataBaseDirectory;
+
+    private UniversalDataTable<String> dataTable;
+   /* private File dataBaseDirectory;
     private String tableName;
     private Map<String, String> dataStorage = new HashMap<String, String>();
 
     private Map<String, String> putKeys = new HashMap<String, String>();
-    private Set<String> removeKeys = new HashSet<String>();
+    private Set<String> removeKeys = new HashSet<String>();  */
 
     public DataTable() {
+        dataTable = new UniversalDataTable<String>();
     }
 
     public DataTable(String name) {
-        tableName = name;
+        dataTable = new UniversalDataTable<String>(name);
+        //tableName = name;
     }
 
     public DataTable(String name, File dir) {
-        tableName = name;
-        dataBaseDirectory = dir;
+        dataTable = new UniversalDataTable<String>(name, dir);
+        /*tableName = name;
+        dataBaseDirectory = dir;*/
     }
 
     public String getName() {
-        return tableName;
+        return dataTable.getName();
     }
 
     public String put(String key, String value) throws IllegalArgumentException {
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (value.trim().isEmpty())) {
             throw new IllegalArgumentException("Not correct key or value");
         }
-        String oldValue = null;
-        if (!removeKeys.contains(key)) {
-            if ((oldValue = putKeys.get(key)) == null) {
-                oldValue = dataStorage.get(key);
-                if (oldValue == null) {
-                    putKeys.put(key, value);
-                } else {
-                    if (!oldValue.equals(value)) {
-                        putKeys.put(key, value);
-                    }
-                }
-            } else {
-                String dataValue = dataStorage.get(key);
-                if (dataValue == null) {
-                    putKeys.put(key, value);
-                } else {
-                    if (!dataStorage.get(key).equals(value)) {
-                        putKeys.put(key, value);
-                    } else {
-                        putKeys.remove(key);
-                    }
-                }
-
-            }
-        } else {
-            String dataValue = dataStorage.get(key);
-            if (!dataValue.equals(value)) {
-                putKeys.put(key, value);
-            }
-            removeKeys.remove(key);
-        }
-        return oldValue;
+        return dataTable.put(key, value);
     }
 
     public Set<String> getKeys() {
-        return dataStorage.keySet();
+        return dataTable.getKeys();
     }
 
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Not correct key");
-        }
-        String value = null;
-        if (!putKeys.isEmpty()) {
-            if (putKeys.containsKey(key)) {
-                return putKeys.get(key);
-            }
-        }
-        if (!removeKeys.contains(key)) {
-            value = dataStorage.get(key);
-            if (value == null) {
-                value = putKeys.get(key);
-            }
-        }
-        return value;
+        return dataTable.get(key);
     }
 
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Not correct key");
-        }
-        if (!putKeys.isEmpty()) {
-            if (putKeys.get(key) != null) {
-                if (dataStorage.get(key) != null) {
-                    removeKeys.add(key);
-                }
-                return putKeys.remove(key);
-            }
-        }
-        if (!removeKeys.isEmpty()) {
-            if (removeKeys.contains(key)) {
-                return null;
-            }
-        }
-        String value;
-        if ((value = dataStorage.get(key)) != null) {
-            removeKeys.add(key);
-        }
-        return value;
+        return dataTable.remove(key);
     }
 
     public boolean isEmpty() {
-        return dataStorage.isEmpty();
+        return dataTable.isEmpty();
     }
 
     public int size() {
-        int size = dataStorage.size();
-        Set<String> keysToCommit = putKeys.keySet();
-        for (String key : keysToCommit) {
-            if (!dataStorage.containsKey(key)) {
-                ++size;
-            }
-        }
-        size -= removeKeys.size();
-        return size;
+        return dataTable.size();
     }
 
     public int commit() {
-        int commitSize = 0;
-        if (!putKeys.isEmpty()) {
-            Set<String> putKeysToCommit = putKeys.keySet();
-            for (String key : putKeysToCommit) {
-                dataStorage.put(key, putKeys.get(key));
-                ++commitSize;
-            }
-            putKeys.clear();
-        }
-        if (!removeKeys.isEmpty()) {
-            for (String key : removeKeys) {
-                dataStorage.remove(key);
-                ++commitSize;
-            }
-            removeKeys.clear();
-        }
-        return commitSize;
+        return dataTable.commit();
     }
 
     public int rollback() {
-        int rollbackSize = 0;
-        if (!putKeys.isEmpty()) {
-            rollbackSize += putKeys.size();
-            Set<String> putKeysToRollback = putKeys.keySet();
-            for (String key : putKeysToRollback) {
-                dataStorage.containsKey(key);
-            }
-            putKeys.clear();
-        }
-        if (!removeKeys.isEmpty()) {
-            rollbackSize += removeKeys.size();
-            removeKeys.clear();
-        }
-        return rollbackSize;
+        return dataTable.rollback();
     }
 
     public int commitSize() {
-        return putKeys.size() + removeKeys.size();
+        return dataTable.commitSize();
     }
 
     public File getWorkingDirectory() {
-        return dataBaseDirectory;
+        return dataTable.getWorkingDirectory();
     }
 
     public void load() throws IOException, IllegalArgumentException {
-        File curTable = new File(dataBaseDirectory, tableName);
+        File curTable = new File(dataTable.getWorkingDirectory(), dataTable.getName());
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
         if (dirs.length > DIR_COUNT) {
@@ -189,7 +92,7 @@ public class DataTable implements Table {
         }
         for (File d : dirs) {
             if (!d.isDirectory()) {
-                throw new IOException(tableName + " should include only directories");
+                throw new IOException(dataTable.getName() + " should include only directories");
             }
             File[] files = d.listFiles();
             if (files.length > FILE_COUNT) {
@@ -261,10 +164,11 @@ public class DataTable implements Table {
     }
 
     public void writeToDataBase() throws IOException {
-        Set<String> keys = dataStorage.keySet();
+        dataTable.rollback();
+        Set<String> keys = dataTable.getKeys();
         if (!keys.isEmpty()) {
             for (int i = 0; i < DIR_COUNT; ++i) {
-                File dir = new File(new File(dataBaseDirectory, tableName), new String(i + ".dir"));
+                File dir = new File(new File(dataTable.getWorkingDirectory(), dataTable.getName()), new String(i + ".dir"));
                 for (int j = 0; j < FILE_COUNT; ++j) {
                     DataTable keysToFile = new DataTable();
                     File file = new File(dir, new String(j + ".dat"));
@@ -280,7 +184,7 @@ public class DataTable implements Table {
                             if (!file.getCanonicalFile().exists()) {
                                 file.getCanonicalFile().createNewFile();
                             }
-                            keysToFile.put(key, dataStorage.get(key));
+                            keysToFile.put(key, dataTable.get(key));
                             keysToFile.commit();
                         }
                     }
