@@ -17,7 +17,7 @@ public class Value implements Storeable {
 
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!(value == null)) {
@@ -30,7 +30,7 @@ public class Value implements Storeable {
 
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
         }
         return value.get(columnIndex);
@@ -38,7 +38,7 @@ public class Value implements Storeable {
 
 
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Integer.class)) {
@@ -50,7 +50,7 @@ public class Value implements Storeable {
 
 
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Long.class)) {
@@ -61,7 +61,7 @@ public class Value implements Storeable {
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Byte.class)) {
@@ -72,7 +72,7 @@ public class Value implements Storeable {
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Float.class)) {
@@ -83,7 +83,7 @@ public class Value implements Storeable {
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Double.class)) {
@@ -94,7 +94,7 @@ public class Value implements Storeable {
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Boolean.class)) {
@@ -105,7 +105,7 @@ public class Value implements Storeable {
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (table.getColumnsCount() >= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(String.class)) {
