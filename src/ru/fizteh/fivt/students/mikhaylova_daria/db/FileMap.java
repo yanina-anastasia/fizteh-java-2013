@@ -282,13 +282,15 @@ public class FileMap {
         return key;
     }
 
-    int numberOfChangesCounter() {
+    int numberOfChangesCounter(TableData table) {
         int numberOfChanges = 0;
         Set<String> newKeys = fileMap.keySet();
         Set<String> oldKeys = fileMapInitial.keySet();
         for (String key: newKeys) {
             if (oldKeys.contains(key)) {
-                if (!fileMap.get(key).equals(fileMapInitial.get(key))) {
+                String val1 = table.manager.serialize(table, fileMap.get(key));
+                String val2 = table.manager.serialize(table, fileMapInitial.get(key));
+                if (!val1.equals(val2)) {
                     ++numberOfChanges;
                 }
             } else {
@@ -308,7 +310,7 @@ public class FileMap {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
-        int numberOfChanges = numberOfChangesCounter();
+        int numberOfChanges = numberOfChangesCounter(table);
         if (numberOfChanges != 0) {
             try {
                 writerFile(table);
@@ -318,8 +320,8 @@ public class FileMap {
         }
     }
 
-    int rollback() {
-        int numberOfChanges = numberOfChangesCounter();
+    int rollback(TableData table) {
+        int numberOfChanges = numberOfChangesCounter(table);
         fileMap.clear();
         for (String key : fileMapInitial.keySet()) {
             fileMap.put(key, fileMapInitial.get(key));
