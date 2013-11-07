@@ -19,7 +19,7 @@ import java.nio.file.DirectoryStream;
 public class Shell {
     public static Vector<String> parse(String str, String separators) {
         String[] tokens = str.split(separators);
-        Vector<String> tokensWithoutEmptyStrings = new Vector<String>();
+        Vector<String> tokensWithoutEmptyStrings = new Vector<>();
         for (int i = 0; i < tokens.length; i++) {
             if (!tokens[i].equals("")) {
                 tokensWithoutEmptyStrings.add(tokens[i]);
