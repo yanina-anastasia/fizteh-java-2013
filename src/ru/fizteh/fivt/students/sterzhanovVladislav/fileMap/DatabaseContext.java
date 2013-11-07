@@ -2,6 +2,9 @@ package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class DatabaseContext implements Closeable {
     private FileMapProvider provider = null;
@@ -11,21 +14,33 @@ public class DatabaseContext implements Closeable {
         if (activeMap == null) {
             throw new IllegalStateException("no table");
         }
-        return activeMap.remove(key);
+        Storeable oldValue = activeMap.remove(key);
+        if (oldValue == null) {
+            return null;
+        }
+        return provider.serialize(activeMap, oldValue);
     }
 
     public String get(String key) throws Exception {
         if (activeMap == null) {
             throw new IllegalStateException("no table");
         }
-        return activeMap.get(key);
+        Storeable value = activeMap.get(key);
+        if (value == null) {
+            return null;
+        }
+        return provider.serialize(activeMap, value);
     }
 
     public String put(String key, String value) throws Exception {
         if (activeMap == null) {
             throw new IllegalStateException("no table");
         }
-        return activeMap.put(key, value);
+        Storeable oldValue = activeMap.put(key, provider.deserialize(activeMap, value));
+        if (oldValue == null) {
+            return null;
+        }
+        return provider.serialize(activeMap, oldValue);
     }
     
     public int commit() {
@@ -61,10 +76,14 @@ public class DatabaseContext implements Closeable {
         activeMap = newMap;
     }
     
-    public void createTable(String dbName) throws IllegalStateException {
-        FileMap newMap = provider.createTable(dbName);
-        if (newMap == null) {
-            throw new IllegalStateException(dbName + " exists");
+    public void createTable(String dbName, List<Class<?>> signature) throws IllegalStateException {
+        try {
+            FileMap newMap = provider.createTable(dbName, signature);
+            if (newMap == null) {
+                throw new IllegalStateException(dbName + " exists");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to create directory");
         }
     }
     

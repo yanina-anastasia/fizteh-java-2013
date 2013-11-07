@@ -2,7 +2,10 @@ package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableUtils;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.CommandParser;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.DefaultCommandParser;
 
@@ -90,7 +93,18 @@ public class FileMapCommands {
     public static class Create extends FileMapCommand {
         @Override
         public void innerExecute(String[] args) throws Exception {
-            dbContext.createTable(args[1]);
+            if (args.length < 3) {
+                throw new IllegalArgumentException("Unable to handle " + (args.length - 1) + " arguments");
+            }
+            List<Class<?>> typeList = new ArrayList<Class<?>>();
+            for (int i = 2; i < args.length; ++i) {
+                Class<?> type = StoreableUtils.resolveClass(args[i]);
+                if (type == null) {
+                    throw new IllegalArgumentException("Illegal class given: " + args[i]);
+                }
+                typeList.add(type);
+            }
+            dbContext.createTable(args[1], typeList);
             parentShell.out.println("created");
         }
         
@@ -100,7 +114,7 @@ public class FileMapCommands {
         }
         
         Create() {
-            super(2);
+            super(-1);
         }
     }
     

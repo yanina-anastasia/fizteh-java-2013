@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class FileMapProviderFactory implements TableProviderFactory {
 
