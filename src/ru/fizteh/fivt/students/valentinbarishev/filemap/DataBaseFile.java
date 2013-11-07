@@ -122,7 +122,7 @@ public class DataBaseFile {
     public boolean check() throws IOException {
         for (Node node : data) {
             if (!((node.getZeroByte() % 16 == direcotryNumber) && ((node.getZeroByte() / 16) % 16 == fileNumber))) {
-                throw new DataBaseWrongFileFormat("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
+                throw new IOException("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
                         + " in file " + fileName);
             }
             try {
