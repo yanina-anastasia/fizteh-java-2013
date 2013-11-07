@@ -61,8 +61,7 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        String serializedValue = provider.serialize(this, value);
-        if (key.trim().isEmpty() || serializedValue.trim().isEmpty() || key.split("\\s").length > 1) {
+        if (key.trim().isEmpty() || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         for (int i = 0; i < types.size(); ++i) {
