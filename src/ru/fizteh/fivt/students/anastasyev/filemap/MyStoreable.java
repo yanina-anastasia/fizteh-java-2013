@@ -68,7 +68,7 @@ public class MyStoreable implements Storeable {
      */
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         indexCheck(columnIndex);
-        if (!value.equals(null)) {
+        if (value != null) {
             columnFormatCheck(columnIndex, value.getClass());
         }
         row.set(columnIndex, value);

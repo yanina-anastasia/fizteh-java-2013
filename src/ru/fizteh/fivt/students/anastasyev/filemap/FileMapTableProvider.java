@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -222,59 +222,40 @@ public class FileMapTableProvider extends State implements TableProvider {
         if (value == null || value.trim().isEmpty()) {
             throw new ParseException("Null value", 0);
         }
-        JSONObject jsonObject = null;
+        JSONArray json = null;
         try {
-            jsonObject = new JSONObject(value);
+            json = new JSONArray(value);
         } catch (JSONException e) {
             throw new ParseException("Wrong value format", 0);
         }
-        Storeable storeable = createFor(table);
-        String[] types = JSONObject.getNames(jsonObject);
-        if (table.getColumnsCount() != types.length) {
+        if (json.length() != table.getColumnsCount()) {
             throw new ParseException("Incorrect types count", 0);
         }
-        for (String type : types) {
-            Object object = jsonObject.get(type);
-            if (!object.equals(null)) {
-                Class<?> newType = object.getClass();
-                if (!providedTypesNames.containsKey(newType)) {
-                    throw new ParseException("Wrong value format", 0);
-                }
-                try {
-                    storeable.setColumnAt(((FileMapTable) table).indexOfColumn(newType), newType.cast(object));
-                } catch (ColumnFormatException | IndexOutOfBoundsException e) {
-                    throw new ParseException(e.getMessage(), 0);
-                }
-            }
+        List<Object> values = new ArrayList<Object>();
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            values.add(json.get(i));
         }
-        return storeable;
+        try {
+            return createFor(table, values);
+        } catch (ColumnFormatException | IndexOutOfBoundsException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        StringBuilder result = new StringBuilder("{");
+        if (value == null) {
+            return null;
+        }
+        Object[] values = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i) != null) {
-                Class<?> currentType = value.getColumnAt(i).getClass();
-                if (!table.getColumnType(i).equals(currentType)) {
-                    throw new ColumnFormatException("wrong column format ");
-                }
-                if (!currentType.equals(String.class)) {
-                    result.append("\"" + providedTypesNames.get(table.getColumnType(i))
-                            + "\":" + value.getColumnAt(i).toString());
-                } else {
-                    result.append("\"" + providedTypesNames.get(table.getColumnType(i))
-                            + "\":" + value.getStringAt(i));
-                }
-            } else {
-                result.append("\"" + providedTypesNames.get(table.getColumnType(i)) + "\":" + "null");
-            }
-            if (i != table.getColumnsCount() - 1) {
-                result.append(", ");
-            } else {
-                result.append("}");
+            values[i] = value.getColumnAt(i);
+            if (values[i] != null && !values[i].getClass().equals(table.getColumnType(i))) {
+                throw new ColumnFormatException("Wrong column format");
             }
         }
-        return result.toString();    }
+        JSONArray array = new JSONArray(values);
+        return array.toString();
+    }
 
     public Storeable createFor(Table table) {
         return new MyStoreable(table);

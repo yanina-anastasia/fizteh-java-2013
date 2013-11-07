@@ -16,9 +16,9 @@ public class FileMapTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Wrong directory path");
         }
         if (!fileDir.exists()) {
-            //if (!fileDir.mkdirs()) {
-            throw new IOException("Can't create directory");
-            //}
+            if (!fileDir.mkdirs()) {
+                throw new IOException("Can't create directory");
+            }
         }
         FileMapTableProvider fileMapTableProvider = null;
         try {
