@@ -27,7 +27,7 @@ public class TableData implements Table {
         this.tableFile = tableFile;
         if (!tableFile.exists()) {
             if (!tableFile.mkdir()) {
-                tableFile = null;
+                throw new IllegalArgumentException("Creating of " + tableFile.toString() + "error");
             }
         }
         HashMap<String, String> types = new HashMap<>();
