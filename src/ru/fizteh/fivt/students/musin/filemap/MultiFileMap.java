@@ -421,7 +421,10 @@ public class MultiFileMap implements Table {
     public int rollback() {
         int changes = uncommittedChanges();
         for (Map.Entry<String, Storeable> entry : oldValue.entrySet()) {
-            put(entry.getKey(), entry.getValue());
+            int hashCode = Math.abs(entry.getKey().hashCode());
+            int dir = (hashCode % 16 + 16) % 16;
+            int file = ((hashCode / 16 % 16) + 16) % 16;
+            map[dir][file].put(entry.getKey(), entry.getValue());
         }
         for (String entry : newKey) {
             remove(entry);
