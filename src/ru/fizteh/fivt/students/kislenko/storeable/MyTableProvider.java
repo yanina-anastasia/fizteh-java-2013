@@ -32,8 +32,17 @@ public class MyTableProvider implements TableProvider {
         if (columnTypes.size() == 0) {
             throw new IllegalArgumentException("Empty signature.");
         }
-        for (int i = 0; i < columnTypes.size(); ++i) {
-            if (columnTypes.get(i) == null) {
+        for (Class<?> columnType : columnTypes) {
+            if (columnType == null) {
+                throw new IllegalArgumentException("Incorrect column types in creating table.");
+            }
+            if (!columnType.isAssignableFrom(Integer.class) &&
+                    !columnType.isAssignableFrom(Long.class) &&
+                    !columnType.isAssignableFrom(Byte.class) &&
+                    !columnType.isAssignableFrom(Float.class) &&
+                    !columnType.isAssignableFrom(Double.class) &&
+                    !columnType.isAssignableFrom(Boolean.class) &&
+                    !columnType.isAssignableFrom(String.class)) {
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
         }
