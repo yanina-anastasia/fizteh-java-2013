@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class DataBaseRollback implements CommandInterface {
 
@@ -13,7 +13,7 @@ public class DataBaseRollback implements CommandInterface {
 
     private MyTableProvider tableProvider;
 
-    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
+    public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
             throw new IOException("no table");

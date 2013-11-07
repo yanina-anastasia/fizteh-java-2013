@@ -4,7 +4,7 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class DataBaseGet implements CommandInterface {
 
@@ -14,12 +14,12 @@ public class DataBaseGet implements CommandInterface {
 
     private MyTableProvider tableProvider;
 
-    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
+    public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
             throw new IOException("no table");
         }
-        String str = args.elementAt(0);
+        String str = args.get(0);
         int spaceIndex = str.indexOf(' ', 0);
         while (str.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
             ++spaceIndex;

@@ -113,42 +113,43 @@ public class MyTable implements Table {
 
     /* READING FILEMAP */
     public void readMyFileMap(String fileName, String dir, String file) throws IOException, RuntimeException {
-        RandomAccessFile fileReader = openFileForRead(fileName);
-        long endOfFile = fileReader.length();
-        long currFilePosition = fileReader.getFilePointer();
-        if (endOfFile == 0) {
-            closeFile(fileReader);
-            throw new RuntimeException("reading directory: " + dir + " is not valid");
-        }
-        while (currFilePosition != endOfFile) {
-            int keyLen = fileReader.readInt();
-            int valueLen = fileReader.readInt();
-            if (keyLen <= 0 || valueLen <= 0) {
+        RandomAccessFile fileReader = null;
+        try {
+            fileReader = openFileForRead(fileName);
+            long endOfFile = fileReader.length();
+            long currFilePosition = fileReader.getFilePointer();
+            if (endOfFile == 0) {
                 closeFile(fileReader);
-                throw new RuntimeException(fileName + " : file is broken");
+                throw new RuntimeException("reading directory: " + dir + " is not valid");
             }
-            byte[] keyByte;
-            byte[] valueByte;
-            try {
+            while (currFilePosition != endOfFile) {
+                int keyLen = fileReader.readInt();
+                int valueLen = fileReader.readInt();
+                if (keyLen <= 0 || valueLen <= 0) {
+                    closeFile(fileReader);
+                    throw new RuntimeException(fileName + " : file is broken");
+                }
+                byte[] keyByte;
+                byte[] valueByte;
                 keyByte = new byte[keyLen];
                 valueByte = new byte[valueLen];
-            } catch (OutOfMemoryError e) {
-                closeFile(fileReader);
-                throw new RuntimeException(fileName + " : file is broken");
+                fileReader.readFully(keyByte, 0, keyLen);
+                fileReader.readFully(valueByte, 0, valueLen);
+                String key = new String(keyByte);
+                String value = new String(valueByte);
+                if (!keyIsValid(key, dir, file)) {
+                    closeFile(fileReader);
+                    throw new RuntimeException("file " + file + " in " + dir + " is not valid");
+                }
+                fileMap.put(key, value);
+                currFilePosition = fileReader.getFilePointer();
+                endOfFile = fileReader.length();
             }
-            fileReader.readFully(keyByte, 0, keyLen);
-            fileReader.readFully(valueByte, 0, valueLen);
-            String key = new String(keyByte);
-            String value = new String(valueByte);
-            if (!keyIsValid(key, dir, file)) {
-                closeFile(fileReader);
-                throw new RuntimeException("file " + file + " in " + dir + " is not valid");
-            }
-            fileMap.put(key, value);
-            currFilePosition = fileReader.getFilePointer();
-            endOfFile = fileReader.length();
+        } catch (OutOfMemoryError | IOException e) {
+            throw new RuntimeException(e.getMessage() + " " + fileName + " : file is broken", e);
+        } finally {
+            closeFile(fileReader);
         }
-        closeFile(fileReader);
     }
 
     public boolean keyIsValid(String key, String dir, String file) {
@@ -241,9 +242,10 @@ public class MyTable implements Table {
     }
 
     public void writeInFile(String path, String key, String value) throws IOException {
-        RandomAccessFile fileWriter = openFileForWrite(path);
-        fileWriter.skipBytes((int) fileWriter.length());
+        RandomAccessFile fileWriter = null;
         try {
+            fileWriter = openFileForWrite(path);
+            fileWriter.skipBytes((int) fileWriter.length());
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
             fileWriter.writeInt(keyBytes.length);

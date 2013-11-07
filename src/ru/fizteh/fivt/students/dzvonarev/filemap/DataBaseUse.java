@@ -4,7 +4,7 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class DataBaseUse implements CommandInterface {
 
@@ -14,8 +14,8 @@ public class DataBaseUse implements CommandInterface {
 
     private MyTableProvider tableProvider;
 
-    public void execute(Vector<String> args) throws IOException, IllegalArgumentException {
-        String str = args.elementAt(0);
+    public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
+        String str = args.get(0);
         int spaceIndex = str.indexOf(' ', 0);
         if (spaceIndex == -1) {
             throw new IOException("use: wrong parameters");
