@@ -61,6 +61,21 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
+//        boolean wrong = true;
+//        for (int i = 0; i < types.size(); ++i) {
+//            if (value.getColumnAt(i) != null) {
+//                wrong = false;
+//                break;
+//            }
+//        }
+//        if (wrong) {
+//            throw new IllegalArgumentException();
+//        }
+        for (int i = 0; i < types.size(); ++i) {
+            if (value.getColumnAt(i) == null) {
+                throw new IllegalArgumentException("Null value is not correct value.");
+            }
+        }
         if (key.trim().isEmpty() || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
