@@ -441,7 +441,7 @@ public class FileMap implements Table {
         if (tableData.containsKey(key)) {
             Storeable oldValue = tableData.get(key);
 
-            if (oldValue.equals(value)) {
+            if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
                 return oldValue;
             }
 
@@ -456,7 +456,8 @@ public class FileMap implements Table {
             if (!changeTable.containsKey(key)) {
                 changeTable.put(key, null);
             } else {
-                if (changeTable.get(key) != null && changeTable.get(key).equals(value)) {
+                Storeable tmp = changeTable.get(key);
+                if (changeTable.get(key) != null && parent.serialize(this, tmp).equals(parent.serialize(this, value))) {
                     changeTable.remove(key);
                 }
             }

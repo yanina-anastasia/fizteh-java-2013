@@ -22,6 +22,9 @@ public class FileMapUtils {
         if (key.contains("\n")) {
             throw new IllegalArgumentException("newline in key or value");
         }
+        if (key.matches(".*\\s+.*")) {
+            throw new IllegalArgumentException("key isn't correct");
+        }
     }
 
     static Map<String, Class<?>> mapStringClass()  {
