@@ -299,6 +299,10 @@ public class TableProviderImplementation implements TableProvider {
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
         
+        if (columnTypes.isEmpty()) {
+            throw new IOException("Empty or invalid signature.tsv");
+        }
+        
         return columnTypes;
     }
 }
