@@ -138,7 +138,7 @@ public class TableData implements Table {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+        if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("Bad char in key");
         }
         if (key.isEmpty()) {
@@ -160,7 +160,7 @@ public class TableData implements Table {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+        if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("Bad char in key");
         }
         if (key.isEmpty()) {
@@ -187,7 +187,7 @@ public class TableData implements Table {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        if (key.contains(" ") || key.contains("\n") || key.contains("\t")) {
+        if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("Bad char in key");
         }
         if (key.isEmpty()) {
