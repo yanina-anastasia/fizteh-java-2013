@@ -68,11 +68,11 @@ public class FileMapTable implements Table {
         } catch (IndexOutOfBoundsException e) {
             //It's OK
         }
-        if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
+        /*if (value.getColumnAt(columnTypes.indexOf(String.class)) != JSONObject.NULL
                 && value.getStringAt(columnTypes.indexOf(String.class)) != null
                 && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
             throw new IllegalArgumentException("empty string in value");
-        }
+        } */
     }
 
     public FileMap getMyState(int hashCode) throws IOException {
