@@ -14,7 +14,7 @@ public class CreateCommand extends SimpleCommand {
 
     @Override
     public void run(Shell shell, String[] args) throws IllegalArgumentException {
-        if (args.length <= 2) {
+        if (args.length < 2) {
             throw new IllegalArgumentException(name + ": expected at least 2 arguments "
                                                 + args.length + " got");
         }

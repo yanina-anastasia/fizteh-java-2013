@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.kamilTalipov.database.utils;
 
+import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -55,20 +56,30 @@ public class JsonUtils {
             return null;
         }
 
-        JSONObject json = new JSONObject(value);
+        JSONObject json;
+        try {
+            json = new JSONObject(value);
+        } catch (JSONException e) {
+            ParseException exception = new ParseException("JSON: incorrect format", 0);
+            exception.addSuppressed(e);
+            throw exception;
+        }
         Storeable result = provider.createFor(table);
         for (int i = 0; i < json.length(); ++i) {
             try {
-                Object object = json.get(Integer.toString(i));
+                Object object;
+                try {
+                    object = json.get(Integer.toString(i));
+                } catch (JSONException e) {
+                    ParseException exception = new ParseException("JSON: incorrect format", i);
+                    exception.addSuppressed(e);
+                    throw exception;
+                }
                 if (object == JSONObject.NULL) {
                     result.setColumnAt(i, null);
                 } else {
                     if (table.getColumnType(i) == Long.class) {
-                        try {
-                            result.setColumnAt(i, Long.valueOf(object.toString()));
-                        } catch (ClassCastException e) {
-                            throw new ParseException("test", i);
-                        }
+                        result.setColumnAt(i, Long.valueOf(object.toString()));
                     } else {
                         result.setColumnAt(i, table.getColumnType(i).cast(object));
                     }

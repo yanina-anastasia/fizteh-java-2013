@@ -33,7 +33,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     @Override
     public boolean dropTable(String tableName) {
         try {
-            if (activeTable.equals(tableName)) {
+            if (activeTable != null && activeTable.equals(tableName)) {
                 activeTable = null;
             }
             tableProvider.removeTable(tableName);
@@ -63,17 +63,14 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     }
 
     @Override
-    public Storeable put(String key, String stringValue) throws NoTableSelectedException {
+    public Storeable put(String key, String stringValue) throws NoTableSelectedException, ParseException {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
         Storeable value = null;
-        try {
-            value = tableProvider.deserialize(activeTable, stringValue);
-        } catch (ParseException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+
+        value = tableProvider.deserialize(activeTable, stringValue);
+
         return activeTable.put(key, value);
     }
 

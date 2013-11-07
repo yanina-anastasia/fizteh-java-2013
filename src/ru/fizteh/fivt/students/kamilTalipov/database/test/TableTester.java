@@ -10,9 +10,9 @@ import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTable;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.TableRow;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TableTester {
@@ -39,10 +39,7 @@ public class TableTester {
 
     @Test
     public void putGetCommitTest() {
-        ArrayList<Object> values = new ArrayList<>();
-        values.add(1);
-        values.add("hello");
-        Storeable storeable = new TableRow(table, values);
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
         table.put("123", storeable);
         Assert.assertEquals(table.get("123").toString(), storeable.toString());
         Assert.assertEquals(table.size(), 1);
@@ -51,10 +48,7 @@ public class TableTester {
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypesPutTest() {
-        ArrayList<Object> values = new ArrayList<>();
-        values.add(1);
-        values.add(2);
-        Storeable storeable = new TableRow(table, values);
+        Storeable storeable = new TableRow(table, Arrays.asList(1, 2));
         table.put("123", storeable);
     }
 
@@ -62,10 +56,7 @@ public class TableTester {
     public void removeTest() {
         Assert.assertEquals(table.remove("fff"), null);
 
-        ArrayList<Object> values = new ArrayList<>();
-        values.add(42);
-        values.add("don't panic");
-        Storeable storeable = new TableRow(table, values);
+        Storeable storeable = new TableRow(table, Arrays.asList(42, "don't panic"));
         table.put("answer", storeable);
         Assert.assertEquals(table.remove("answer").toString(), storeable.toString());
         Assert.assertEquals(table.rollback(), 1);
@@ -73,10 +64,7 @@ public class TableTester {
 
     @Test
     public void rollbackTest() {
-        ArrayList<Object> values = new ArrayList<>();
-        values.add(1);
-        values.add("hello");
-        Storeable storeable = new TableRow(table, values);
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
         Assert.assertEquals(table.put("fits", storeable), null);
         Assert.assertEquals(table.rollback(), 1);
         Assert.assertEquals(table.get("fits"), null);
@@ -84,10 +72,7 @@ public class TableTester {
 
     @Test
     public void overwriteTest() {
-        ArrayList<Object> values = new ArrayList<>();
-        values.add(1);
-        values.add("hello");
-        Storeable storeable = new TableRow(table, values);
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
         table.put("123", storeable);
         Assert.assertEquals(table.put("123", storeable).toString(), storeable.toString());
     }

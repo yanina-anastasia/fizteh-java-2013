@@ -7,6 +7,8 @@ import ru.fizteh.fivt.students.kamilTalipov.database.core.NoTableSelectedExcepti
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
+import java.text.ParseException;
+
 public class PutCommand extends SimpleCommand {
     public PutCommand(Database database) {
         super("put", -2);
@@ -38,6 +40,8 @@ public class PutCommand extends SimpleCommand {
             System.err.println("no table");
         }  catch (ColumnFormatException e) {
             System.err.println("Incorrect column type");
+        } catch (ParseException e) {
+            System.err.println("JSON: incorrect format");
         }
     }
 
