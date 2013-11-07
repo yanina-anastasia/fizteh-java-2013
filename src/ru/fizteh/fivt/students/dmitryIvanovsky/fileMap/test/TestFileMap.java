@@ -5,11 +5,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMap;
+import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
+
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class TestFileMap {
@@ -18,33 +24,44 @@ public class TestFileMap {
     private static String nameTable;
     private static CommandShell mySystem;
     private static Path pathTables;
+    private static FileMapProvider multiMap;
 
     @BeforeClass
     public static void setUp() {
-        nameTable = "1_table";
+
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
-
+        pathTables = pathTables.resolve("bdTest");
         try {
-            mySystem.mkdir(new String[]{pathTables.resolve(nameTable).toString()});
+            mySystem.mkdir(new String[]{pathTables.toString()});
         } catch (ErrorShell e) {
             e.printStackTrace();
         }
 
         try {
-            //fileMap = new FileMap(pathTables, nameTable);
+            multiMap = new FileMapProvider(pathTables.toAbsolutePath().toString());
         } catch (Exception e) {
             e.printStackTrace();
             FileMapUtils.getMessage(e);
         }
 
+        List<Class<?>> list = new ArrayList<Class<?>>();
+        list.add(String.class);
+
+        try {
+            nameTable = "table";
+            fileMap = multiMap.createTable("table", list);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
     }
 
-    /*@Test
+    @Test
     public void correctGetNameShouldEquals() {
         assertEquals(nameTable, fileMap.getName());
     }
-
+    /*
     @Test(expected = IllegalArgumentException.class)
     public void getNullKeyShouldFail() {
         fileMap.get(null);
@@ -175,7 +192,7 @@ public class TestFileMap {
     @AfterClass
     public static void tearDown() {
         try {
-            mySystem.rm(new String[]{pathTables.resolve(nameTable).toString()});
+            mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -387,7 +387,7 @@ public class FileMap implements Table {
         FileMapStoreable st = null;
         try {
             st = (FileMapStoreable) value;
-        } catch (Exception e) {
+        } catch (ClassCastException e) {
 
             boolean valueMoreSize = false;
             try {
@@ -427,7 +427,7 @@ public class FileMap implements Table {
                     }
                     break;
                 } catch (ColumnFormatException err) {
-                    throw e;
+                    throw err;
                 }
             }
 
