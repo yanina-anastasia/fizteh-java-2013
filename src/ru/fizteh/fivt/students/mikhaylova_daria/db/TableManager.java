@@ -31,9 +31,8 @@ public class TableManager implements TableProvider {
         if (nameMainDir == null) {
             throw new IllegalArgumentException("wrong type (Name of directory is null)");
         }
-        if (nameMainDir.contains("\\") || nameMainDir.contains("/")
-                || nameMainDir.contains("\n") || nameMainDir.contains(".") || nameMainDir.isEmpty()) {
-            throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters or empty)");
+        if (nameMainDir.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (Name of directory is empty)");
         }
         mainDir = new File(nameMainDir);
         if (!mainDir.exists()) {
