@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
@@ -12,6 +13,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +48,7 @@ public class TestFileMap {
 
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(String.class);
+        list.add(Integer.class);
 
         try {
             nameTable = "table";
@@ -60,34 +63,36 @@ public class TestFileMap {
     public void correctGetNameShouldEquals() {
         assertEquals(nameTable, fileMap.getName());
     }
-    /*
+
     @Test(expected = IllegalArgumentException.class)
     public void getNullKeyShouldFail() {
         fileMap.get(null);
     }
 
     @Test
-    public void getPutOneKey() {
-        fileMap.put("1", "2");
-        assertEquals("2", fileMap.get("1"));
-        fileMap.put("1", "3");
-        assertEquals("3", fileMap.get("1"));
-        fileMap.put("1", "2");
-        assertEquals("2", fileMap.get("1"));
+    public void getPutOneKey() throws ParseException {
+        Storeable st = multiMap.deserialize(fileMap, "<row><col>qwe</col><col>12</col></row>");
+        fileMap.put("1", st);
+        assertEquals(st, fileMap.get("1"));
         fileMap.remove("1");
     }
 
-    @Test
-    public void getPutManyKey() {
-        fileMap.put("qwe1", "345");
-        fileMap.put("qwe2", "123");
+    /*@Test
+    public void getPutManyKey() throws ParseException {
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put("1", st1);
+        Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe2</col><col>2</col></row>");
+        fileMap.put("2", st2);
+        Storeable st3 = multiMap.deserialize(fileMap, "<row><col>qwe3</col><col>3</col></row>");
+        fileMap.put("3", st3);
+        Storeable st4 = multiMap.deserialize(fileMap, "<row><col>qwe4</col><col>4</col></row>");
+        fileMap.put("4", st4);
+
         assertEquals("123", fileMap.get("qwe2"));
-        fileMap.put("qwe3", "456");
-        fileMap.put("qwe4", "789");
+
+
         assertEquals("789", fileMap.get("qwe4"));
-        fileMap.put("1", "1");
-        fileMap.put("1", "2");
-        fileMap.put("1", "3");
+
         assertEquals("3", fileMap.get("1"));
         fileMap.remove("qwe1");
         fileMap.remove("qwe2");
@@ -186,7 +191,7 @@ public class TestFileMap {
         fileMap.put("1", "2");
         fileMap.rollback();
         assertEquals("1", fileMap.get("1"));
-    }    */
+    }  */
 
     @AfterClass
     public static void tearDown() {

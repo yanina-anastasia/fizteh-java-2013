@@ -436,7 +436,7 @@ public class FileMap implements Table {
                     }
                     break;
                 } catch (ColumnFormatException err) {
-                    throw err;
+                    //throw err;
                 }
             }
 
