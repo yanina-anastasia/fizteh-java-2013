@@ -226,4 +226,11 @@ public class TestsDatabaseTable {
         Assert.assertEquals(table.rollback(), 3);
         Assert.assertEquals(table.size(), 3);
     }
+
+    @Test
+    public void goodTest() {
+        Assert.assertNull(table.put("111", makeStoreable(1)));
+        table.remove("111");
+        Assert.assertEquals(table.rollback(), 0);
+    }
 }

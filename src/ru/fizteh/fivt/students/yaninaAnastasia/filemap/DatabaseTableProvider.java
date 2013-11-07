@@ -51,6 +51,8 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         curTable = table;
+        table.oldData = table.modifiedData;
+        table.modifiedData.clear();
         return table;
     }
 
@@ -397,7 +399,6 @@ public class DatabaseTableProvider implements TableProvider {
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
             if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
-
                 tableBuilder.put(key, putValue);
             } else {
                 throw new IllegalArgumentException("File has incorrect format");

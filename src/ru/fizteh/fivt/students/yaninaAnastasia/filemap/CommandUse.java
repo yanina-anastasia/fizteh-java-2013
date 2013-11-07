@@ -25,7 +25,6 @@ public class CommandUse extends Command {
             }
             myState.table = myState.database.getTable(args[0]);
             System.out.println("using " + args[0]);
-
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return false;
