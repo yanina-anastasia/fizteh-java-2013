@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-//import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -51,13 +50,51 @@ public class MyStoreable implements Storeable {
         columnTypes = new ArrayList<Class<?>>(currTable.getColumnsCount());
         for (int i = 0; i < currTable.getColumnsCount(); ++i) {
             columnTypes.add(i, currTable.getColumnType(i));
-            if (values.get(i).equals(null)) {
+            Object put = values.get(i);
+            if (put.equals(null)) {
                 row.add(i, null);
-            } else {
-                /*if (!currTable.getColumnType(i).equals(values.get(i).getClass())) {
+            } else if (columnTypes.get(i) == Integer.class) {
+                if (put.getClass() == Integer.class) {
+                    row.add(i, put);
+                } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
-                }*/
-                row.add(i, values.get(i));
+                }
+            } else if (columnTypes.get(i) == Long.class) {
+                if (put.getClass() == Long.class) {
+                    row.add(i, put);
+                } else if (put.getClass() == Integer.class) {
+                    row.add(i, Long.valueOf(((Integer) put).longValue()));
+                } else {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                }
+            } else if (columnTypes.get(i) == Byte.class) {
+                if (put.getClass() == Integer.class) {
+                    Integer number = (Integer) put;
+                    if (number > Byte.MAX_VALUE || number < Byte.MIN_VALUE) {
+                        throw new ColumnFormatException("Column type is not equal giving value type");
+                    }
+                    row.add(i, Byte.valueOf(number.byteValue()));
+                } else {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                }
+            } else if (columnTypes.get(i) == Float.class) {
+                if (put.getClass() == Double.class) {
+                    row.add(i, Float.valueOf(((Double) put).floatValue()));
+                } else {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                }
+            } else if (columnTypes.get(i) == Double.class) {
+                if (put.getClass() == Double.class) {
+                    row.add(i, put);
+                } else {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                }
+            } else if (columnTypes.get(i) == String.class) {
+                if (put.getClass() != String.class) {
+                    throw new ColumnFormatException("Column type is not equal giving value type");
+                } else {
+                    row.add(i, put);
+                }
             }
         }
     }
