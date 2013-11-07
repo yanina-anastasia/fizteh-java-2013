@@ -114,7 +114,8 @@ public class MultiFileHashTable implements Table {
         String oldValue = table.put(key, stringValue);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
-        } else if (oldValues.get(key) != null && oldValues.get(key).equals(stringValue)) {
+        } else if ((oldValues.get(key) == null)
+                    || (oldValues.get(key) != null && oldValues.get(key).equals(stringValue))) {
             oldValues.remove(key);
         }
 

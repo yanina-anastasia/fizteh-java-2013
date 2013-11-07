@@ -91,4 +91,17 @@ public class TableTester {
     public void removeNullTest() {
         table.remove(null);
     }
+
+    @Test
+    public void commitRollbackTest() {
+        Assert.assertEquals(table.commit(), 0);
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
+        Assert.assertEquals(table.put("fits", storeable), null);
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.put("fits", storeable).toString(), storeable.toString());
+        Assert.assertEquals(table.commit(), 0);
+        table.put("fits", new TableRow(table, Arrays.asList(2, "hfello")));
+        table.remove("fits");
+        Assert.assertEquals(table.rollback(), 0);
+    }
 }
