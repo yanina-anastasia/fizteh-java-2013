@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 class FileDatabase implements AutoCloseable {
     private static final int OFFSET_BYTES = 4;
 
     Path dbFilePath;
     RandomAccessFile dbFile;
-    Hashtable<String, String> database = new Hashtable<String, String>();
+    Map<String, String> database = new HashMap<String, String>();
 
-    public FileDatabase(Path dbFilePath) {
+    public FileDatabase(Path dbFilePath) throws Exception {
         try {
             this.dbFilePath = dbFilePath;
             Files.createDirectories(dbFilePath.getParent());
@@ -23,21 +24,19 @@ class FileDatabase implements AutoCloseable {
             getDataFromFile();
             
         } catch (Exception e) {
-            
-            System.out.println("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
+            Exception exception = new Exception("Error while opening database file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"), e);
             try {
                 if (dbFile != null) {
                     dbFile.close();
                 }
-            } catch (IOException e1) {
-                System.out
-                        .println("Error while closing database: "
+            } catch (Exception e1) {
+                exception.addSuppressed(new Exception("Error while closing database: "
                                 + ((e1.getMessage() != null) ? e1.getMessage()
-                                        : "unkonown error"));
+                                        : "unkonown error"), e1));
             }
-            System.exit(1);
             
+            throw exception;
         }
     }
 
@@ -72,7 +71,7 @@ class FileDatabase implements AutoCloseable {
     public void getDataFromFile() throws IOException {
         String key;
         String value;
-        Vector<Byte> tempKey = new Vector<Byte>();
+        ArrayList<Byte> tempKey = new ArrayList<Byte>();
         int tempOffset1;
         int tempOffset2;
         long currentPosition;
@@ -100,7 +99,7 @@ class FileDatabase implements AutoCloseable {
                 value = new String(tempArray, "UTF-8");
                 tempArray = new byte[tempKey.size()];
                 for (int i = 0; i < tempKey.size(); ++i) {
-                    tempArray[i] = tempKey.elementAt(i).byteValue();
+                    tempArray[i] = tempKey.get(i).byteValue();
                 }
                 key = new String(tempArray, "UTF-8");
                 database.put(key, value);

@@ -1,16 +1,20 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Command;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Interpreter;
 
 public class FileMap {
 
-    private static Hashtable<String, Command> commands = new Hashtable<String, Command>();
+    private static Map<String, Command> commands = new HashMap<String, Command>();
     private static Interpreter interpreter;
     
     private static TableProvider database;
@@ -59,13 +63,27 @@ public class FileMap {
         protected void execute(String... arguments) throws Exception {
             try {
 
-                if (arguments.length != ARG_NUM) {
+                if (arguments.length < ARG_NUM) {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
 
                 String tableName = arguments[1];
                 
-                Table newTable = database.createTable(tableName);
+                //TODO: rewrite!!!
+                
+                List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+                for (int i = 2; i < arguments.length; ++i) {
+                    if (i == 2) {
+                        arguments[i] = arguments[i].substring(1);
+                    }
+                    if (i == arguments.length - 1) {
+                        arguments[i] = arguments[i].substring(0, arguments[i].length() - 1);
+                    }
+                    columnTypes.add(forName(arguments[i]));
+                }
+                
+                
+                Table newTable = database.createTable(tableName, columnTypes);
                 
                 if (newTable == null) {
                     System.out.println(tableName + " exists");
@@ -76,6 +94,19 @@ public class FileMap {
             } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
             }
+        }
+        
+        private static Class<?> forName(String className) {
+            Map<String, Class<?>> types = new HashMap<String, Class<?>>();
+            types.put("int", int.class);
+            types.put("long", long.class);
+            types.put("byte", byte.class);
+            types.put("float", float.class);
+            types.put("double", double.class);
+            types.put("boolean", boolean.class);
+            types.put("String", String.class);
+            
+            return types.get(className);
         }
     }
 
@@ -171,7 +202,9 @@ public class FileMap {
                     return;
                 }
                 
-                String oldValue = table.put(key, value);
+                Storeable oldValueStoreable = table.put(key, FileMap.database.deserialize(table, value));
+                
+                String oldValue = FileMap.database.serialize(table, oldValueStoreable);
                 if (oldValue != null) {
                     System.out.println("overwrite");
                     System.out.println(oldValue);
@@ -203,7 +236,7 @@ public class FileMap {
                     return;
                 }
 
-                String value = table.get(key);
+                String value = FileMap.database.serialize(table, table.get(key));
 
                 if (value != null) {
                     System.out.println("found");
@@ -236,7 +269,7 @@ public class FileMap {
                     return;
                 }
 
-                String value = table.remove(key);
+                String value = FileMap.database.serialize(table, table.remove(key));
 
                 if (value != null) {
                     System.out.println("removed");
