@@ -16,7 +16,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("Database must be a directory.");
         }
         if (!file.exists()) {
-            file.mkdir();
+            throw new IOException("Database must be a directory.");
         }
         return new MyTableProvider();
     }
