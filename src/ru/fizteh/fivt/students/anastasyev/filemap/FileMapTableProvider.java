@@ -170,7 +170,10 @@ public class FileMapTableProvider extends State implements TableProvider {
             IllegalArgumentException, RuntimeException {
         isBadName(name);
         if (columnTypes == null) {
-            throw new IllegalArgumentException("Null column types");
+            throw new IllegalArgumentException("Null column type list");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Empty signature");
         }
         ArrayList<String> types = new ArrayList<String>();
         for (Class<?> type : columnTypes) {

@@ -51,7 +51,7 @@ public class FileMapTable implements Table {
         }
         int i = 0;
         for (; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != null /*&& value.getColumnAt(i) != JSONObject.NULL*/) {
+            if (value.getColumnAt(i) != null) {
                 try {
                     if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
                         throw new ColumnFormatException("Wrong column format");
@@ -259,10 +259,15 @@ public class FileMapTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if (isEmptyString(key) || key.contains(" ")) {
+        if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (value.getColumnAt(i) != null && !columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                throw new ColumnFormatException("");
+            }
+        }
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
