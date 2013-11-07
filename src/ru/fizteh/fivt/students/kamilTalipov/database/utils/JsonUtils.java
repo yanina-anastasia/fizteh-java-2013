@@ -63,7 +63,11 @@ public class JsonUtils {
                 if (object == JSONObject.NULL) {
                     result.setColumnAt(i, null);
                 } else {
-                    result.setColumnAt(i, table.getColumnType(i).cast(object));
+                    if (table.getColumnType(i) == Long.class) {
+                        result.setColumnAt(i, (Long) object);
+                    } else {
+                        result.setColumnAt(i, table.getColumnType(i).cast(object));
+                    }
                 }
             }  catch (ColumnFormatException | IndexOutOfBoundsException e) {
                 throw new ParseException("JSON: incorrect format", i);
