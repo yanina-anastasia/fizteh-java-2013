@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class CloseFile {
-    public static void closeFile(RandomAccessFile file) {
+    public static void closeFile(RandomAccessFile file) throws IOException {
         try {
-            file.close();
+            if (file != null) {
+                file.close();
+            }
         } catch (IOException e2) {
-            System.err.println("Can't close file ");
+            throw new IOException("Can't close file ");
         }
     }
 }

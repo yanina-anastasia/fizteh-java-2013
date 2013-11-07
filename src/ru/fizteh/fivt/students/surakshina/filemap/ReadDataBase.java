@@ -92,8 +92,6 @@ public class ReadDataBase {
             } else {
                 throw new IOException("Offset is negative");
             }
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e);
         } finally {
             CloseFile.closeFile(dataBase);
         }
