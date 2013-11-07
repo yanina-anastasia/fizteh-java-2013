@@ -41,6 +41,8 @@ public class MyMultiHashMap {
                     dataBase.get(nDirectory * 16 + nFile).put(newEntry.getKey(), newEntry.getValue());
                 }
                 fstream.close();
+            } else if (dbFile.exists() && !dbFile.isFile()) {
+                throw new Exception("Bad Table");
             }
             check[firstControlValue * 16 + secondControlValue] = true;
         }
