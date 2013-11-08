@@ -16,8 +16,8 @@ public class MyTable implements Table {
     private String name;
     private MyTableProvider provider;
     private ArrayList<Class<?>> types;
-    private HashMap<String, Value> storage;
-    private HashMap<String, Value> changes;
+    private HashMap<String, Storeable> storage;
+    private HashMap<String, Storeable> changes;
     private boolean[][] uses;
     private long byteSize;
     private int count;
@@ -25,8 +25,8 @@ public class MyTable implements Table {
     public MyTable(String tableName, List<Class<?>> columnTypes, MyTableProvider parent) {
         name = tableName;
         provider = parent;
-        storage = new HashMap<String, Value>();
-        changes = new HashMap<String, Value>();
+        storage = new HashMap<String, Storeable>();
+        changes = new HashMap<String, Storeable>();
         byteSize = 0;
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
@@ -76,7 +76,7 @@ public class MyTable implements Table {
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
         uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        changes.put(key, (Value) value);
+        changes.put(key, value);
         if (value.equals(storage.get(key))) {
             changes.remove(key);
         }
@@ -153,7 +153,7 @@ public class MyTable implements Table {
         changes.clear();
     }
 
-    public HashMap<String, Value> getMap() {
+    public HashMap<String, Storeable> getMap() {
         return storage;
     }
 
