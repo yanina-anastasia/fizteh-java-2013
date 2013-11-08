@@ -83,11 +83,13 @@ public class Filemap implements Table {
         for (int i = 0; i < types.size(); i++) {
             try {
                 if (value.getColumnAt(i) != null) {
-                    if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
-                                            throw new ColumnFormatException(
+                    Object resCast = provider.checkClasses(value.getColumnAt(i), types.get(i));
+                    if (!types.get(i).equals(resCast.getClass())) {
+                        throw new ColumnFormatException(
                                 "types mismatch: expected " + types.get(i)
                                         + " but was "
-                                        + value.getColumnAt(i).getClass() + value.getStringAt(i));
+                                        + resCast.getClass()
+                                        + value.getStringAt(i));
                     } else if (types.get(i).equals(String.class)) {
                         String strValue = value.getStringAt(i);
                         if (strValue.isEmpty() || strValue.trim().isEmpty()) {

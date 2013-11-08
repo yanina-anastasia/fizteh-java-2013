@@ -214,16 +214,16 @@ public class MyTableProvider implements TableProvider {
         }
     }
 
-/*    public Object checkClasses(Object first, Class<?> second) {
+    public Object checkClasses(Object first, Class<?> second) {
         Object result;
-        
+
         if (first == null) {
             return first;
         }
         if (first.getClass().equals(second)) {
             return first;
         }
-       
+
         if (first.getClass().equals(Integer.class)) {
             int val = (int) first;
             if (second.equals(Long.class)) {
@@ -238,6 +238,10 @@ public class MyTableProvider implements TableProvider {
                 result = Double.valueOf(val);
                 return result;
             }
+            if (second.equals(String.class)) {
+                result = String.valueOf(val);
+                return result;
+            }
             if (-128 <= val && val <= 127 && second.equals(Byte.class)) {
                 result = Byte.valueOf((byte) val);
                 return result;
@@ -249,6 +253,10 @@ public class MyTableProvider implements TableProvider {
                 result = Double.valueOf(val);
                 return result;
             }
+            if (second.equals(String.class)) {
+                result = String.valueOf(val);
+                return result;
+            }
         }
         if (first.getClass().equals(Long.class)) {
             long val = (long) first;
@@ -258,6 +266,10 @@ public class MyTableProvider implements TableProvider {
             }
             if (second.equals(Double.class)) {
                 result = Double.valueOf(val);
+                return result;
+            }
+            if (second.equals(String.class)) {
+                result = String.valueOf(val);
                 return result;
             }
         }
@@ -279,25 +291,18 @@ public class MyTableProvider implements TableProvider {
                 result = Integer.valueOf(val);
                 return result;
             }
+            if (second.equals(String.class)) {
+                result = String.valueOf(val);
+                return result;
+            }
         }
         if (first.getClass().equals(String.class)) {
             String val = (String) first;
             return JSONObject.stringToValue(val);
-
-/*            if (second.equals(Boolean.class)) {
-                if (val.toLowerCase().equals("false")) {
-                    result = Boolean.valueOf(false);
-                    return result;
-                }
-                if (val.toLowerCase().equals("true")) {
-                    result = Boolean.valueOf(true);
-                    return result;
-                }
-            }
         }
         return first;
     }
-*/
+
     @Override
     public Storeable deserialize(Table table, String value)
             throws ParseException, IllegalArgumentException {
@@ -317,12 +322,14 @@ public class MyTableProvider implements TableProvider {
         ArrayList<Object> values = new ArrayList<Object>();
         for (int i = 0; i < json.length(); i++) {
             if (!json.get(i).equals(JSONObject.NULL)) {
-                if (!json.get(i).getClass().equals(table.getColumnType(i))) {
-                    throw new ParseException(
-                            "deserialize: types mismatch " + json.get(i).getClass()
-                                    + " " + table.getColumnType(i), i);
+                Object resCast = checkClasses(json.get(i),
+                        table.getColumnType(i));
+                if (!resCast.getClass().equals(table.getColumnType(i))) {
+                    throw new ParseException("deserialize: types mismatch "
+                            + json.get(i).getClass() + " "
+                            + table.getColumnType(i), i);
                 }
-                values.add(json.get(i));
+                values.add(resCast);
             } else {
                 values.add(null);
             }
@@ -350,7 +357,8 @@ public class MyTableProvider implements TableProvider {
             JSONArray json = new JSONArray(array);
             return json.toString();
         } catch (JSONException e) {
-            throw new ColumnFormatException("can't make string from this Storeable");
+            throw new ColumnFormatException(
+                    "can't make string from this Storeable");
         }
     }
 
