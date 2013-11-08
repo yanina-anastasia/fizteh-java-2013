@@ -76,14 +76,16 @@ public class Filemap implements Table {
         }
         
         int k = 0;
-        while (k < types.size() + 2) {
+        while (k < types.size() + 1) {
             try {
                 value.getColumnAt(k);
             } catch (IndexOutOfBoundsException e) {
-                if (k != types.size() + 1) {
+                if (k != types.size()) {
                     throw new ColumnFormatException("number of columns mismatch");
                 }
+                break;
             }
+            k++;
         }
         
         for (int i = 0; i < types.size(); i++) {
@@ -151,18 +153,19 @@ public class Filemap implements Table {
             nfile = k % 16;
 
             val = data[ndir][nfile].get(key);
+             
             if (myEntry.getValue() == null) {
                 if (data[ndir][nfile].remove(key) != null) {
                     nchanges++;
                 }
             } else {
-                if (val == null || !val.equals(myEntry.getValue())) {
+                String currVal = getProvider().serialize(this,
+                        myEntry.getValue());
+                if (val == null || !val.equals(currVal)) {
                     nchanges++;
                     if (trackChanges) {
                         try {
-                            String newVal = getProvider().serialize(this,
-                                    myEntry.getValue());
-                            data[ndir][nfile].put(key, newVal);
+                            data[ndir][nfile].put(key, currVal);
                         } catch (ColumnFormatException e) {
                             throw new RuntimeException("some problems", e);
                         }
