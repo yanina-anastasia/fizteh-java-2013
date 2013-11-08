@@ -15,9 +15,12 @@ public class Main {
         }
         try {
             File dbDir = new File(dbAddress).getCanonicalFile();
-            if (!dbDir.isDirectory()) {
+            if (dbDir.isFile()) {
                 System.err.println("Incorrect database directory.");
                 System.exit(1);
+            }
+            if (!dbDir.exists()) {
+                dbDir.mkdir();
             }
             File[] tables = dbDir.listFiles();
             if (tables != null) {
