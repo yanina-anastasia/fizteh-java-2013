@@ -141,7 +141,7 @@ public class MyTable implements Table {
                     closeFile(fileReader);
                     throw new RuntimeException("file " + file + " in " + dir + " is not valid");
                 }
-                fileMap.put(key.trim(), value.trim());
+                fileMap.put(key, value);
                 currFilePosition = fileReader.getFilePointer();
                 endOfFile = fileReader.length();
             }
@@ -286,7 +286,7 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) throws IllegalArgumentException {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
@@ -314,7 +314,7 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
+        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
         String oldValue = get(key);
@@ -324,7 +324,7 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         String oldValue = get(key);

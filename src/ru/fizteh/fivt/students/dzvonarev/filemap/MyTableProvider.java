@@ -63,6 +63,7 @@ public class MyTableProvider implements TableProvider {
                     Remove shell = new Remove();
                     ArrayList<String> myArgs = new ArrayList<>();
                     myArgs.add(workingDirectory + File.separator + table);
+                    myArgs.add("notFromShell");
                     shell.execute(myArgs);
                     if (!(new File(workingDirectory + File.separator + table)).mkdir()) {
                         throw new IOException("exit: can't make " + table + " directory");
@@ -124,11 +125,12 @@ public class MyTableProvider implements TableProvider {
         if (!multiFileMap.containsKey(tableName)) {
             throw new IllegalStateException(tableName + " not exists");
         } else {
-            multiFileMap.remove(tableName);
             try {
+                multiFileMap.remove(tableName);
                 Remove shell = new Remove();
                 ArrayList<String> myArgs = new ArrayList<>();
                 myArgs.add(workingDirectory + File.separator + tableName);
+                myArgs.add("notFromShell");
                 shell.execute(myArgs);
                 System.out.println("dropped");
                 if ((currTable != null) && (currTable.equals(tableName))) {

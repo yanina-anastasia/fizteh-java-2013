@@ -32,7 +32,7 @@ public class DataBasePut implements CommandInterface {
         while (str.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
             ++newSpaceIndex;
         }
-        String value = (str.substring(newSpaceIndex + 1, str.length())).trim();
+        String value = str.substring(newSpaceIndex + 1, str.length());
         MyTable currTable = tableProvider.getTable(tableName);
         String result = currTable.put(key, value);
         if (result != null) {
