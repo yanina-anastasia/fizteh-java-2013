@@ -32,7 +32,7 @@ public class MyTable implements Table{
             get.innerExecute(buf);
             return get.returnValue.length == 1 ? null : get.returnValue[1];
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 
@@ -46,7 +46,7 @@ public class MyTable implements Table{
             put.innerExecute(buf);
             return put.returnValue.length == 1 ? null : put.returnValue[1];
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 
@@ -61,7 +61,7 @@ public class MyTable implements Table{
             new MultiFileHashMapCommands.Remove(baseHashMap, root).innerExecute(buf);
             return get.returnValue.length == 1 ? null : get.returnValue[1];
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 
@@ -72,7 +72,7 @@ public class MyTable implements Table{
             size.innerExecute(buf);
             return new Integer(size.returnValue[0]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 
@@ -83,7 +83,7 @@ public class MyTable implements Table{
             commit.innerExecute(buf);
             return new Integer(commit.returnValue[0]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 
@@ -94,7 +94,7 @@ public class MyTable implements Table{
             rollback.innerExecute(buf);
             return new Integer(rollback.returnValue[0]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Bad Table");
+            throw new RuntimeException("Bad Table");
         }
     }
 }

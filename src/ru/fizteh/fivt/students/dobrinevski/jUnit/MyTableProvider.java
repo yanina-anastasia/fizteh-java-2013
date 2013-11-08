@@ -40,7 +40,7 @@ public class MyTableProvider implements TableProvider {
             bTables.put(name, newTable);
             return newTable;
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -61,7 +61,7 @@ public class MyTableProvider implements TableProvider {
             bTables.put(name, newTable);
             return newTable;
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -79,7 +79,7 @@ public class MyTableProvider implements TableProvider {
                 new MultiFileHashMapCommands.Drop(new MyMultiHashMap(), root).innerExecute(args);
             }
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
