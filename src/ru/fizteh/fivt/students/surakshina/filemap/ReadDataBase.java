@@ -93,7 +93,11 @@ public class ReadDataBase {
                 throw new IOException("Offset is negative");
             }
         } finally {
-            CloseFile.closeFile(dataBase);
+            try {
+                CloseFile.closeFile(dataBase);
+            } catch (Throwable e) {
+                // It is OK
+            }
         }
         return mapFile;
     }

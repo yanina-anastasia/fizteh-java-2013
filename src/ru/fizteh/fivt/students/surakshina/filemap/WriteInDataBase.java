@@ -32,7 +32,11 @@ public class WriteInDataBase {
         } catch (IOException e) {
             throw new IOException(e.getMessage(), e);
         } finally {
-            CloseFile.closeFile(dataBase);
+            try {
+                CloseFile.closeFile(dataBase);
+            } catch (Throwable e) {
+                // It is ok
+            }
         }
     }
 }
