@@ -95,10 +95,10 @@ public class FileMapProvider implements TableProvider {
         }
         rootDir = Paths.get(root);
         if (rootDir == null) {
-            throw new IllegalArgumentException("rootDir can not be null");
+            throw new IllegalArgumentException("Error: RootDir can not be null");
         }
         if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
-            throw new IOException("root did not resolve to a valid directory");
+            throw new IOException("Root did not resolve to a valid directory");
         }
         tables = new HashMap<String, FileMap>();
     }
@@ -129,7 +129,7 @@ public class FileMapProvider implements TableProvider {
     public String serialize(Table table, Storeable value)
             throws ColumnFormatException {
         if (!StoreableUtils.validate(value, generateSignature(table))) {
-            throw new ColumnFormatException();
+            throw new ColumnFormatException("wrong type (can't serialize value according to signature)");
         }
         return StoreableUtils.serialize(value, generateSignature(table));
     }

@@ -42,7 +42,8 @@ public class StoreableRow implements Storeable {
             return null;
         }
         if (!obj.getClass().equals(type)) {
-            throw new ColumnFormatException();
+            throw new ColumnFormatException("wrong type (expected " + type.toString() 
+                    + ", but got " + obj.getClass().toString() + ")");
         }
         return obj;
     }

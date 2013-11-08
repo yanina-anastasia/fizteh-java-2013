@@ -152,7 +152,7 @@ public class StoreableUtils {
         } else if (type.equals(Boolean.class)) {
             return Boolean.parseBoolean(s);
         } else {
-            throw new IllegalArgumentException("Illegal Class");
+            throw new ColumnFormatException("wrong type (unable to handle type " + type.toString() + ")");
         }
     }
     

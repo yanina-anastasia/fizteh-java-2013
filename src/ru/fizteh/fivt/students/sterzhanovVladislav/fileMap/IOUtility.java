@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.List;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableUtils;
 
@@ -149,11 +150,11 @@ public class IOUtility {
     
     private static List<Class<?>> parseSignature(Path rootDir) throws IOException {
         if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
-            throw new IOException("directory does not exist");
+            throw new IOException("Error: Directory does not exist");
         }
         Path signaturePath = Paths.get(rootDir.toString() + "/" + FileMapProvider.SIGNATURE_FILE_NAME);
         if (signaturePath == null) {
-            throw new IOException("directory does not exist");
+            throw new IOException("Error: Directory does not exist");
         }
         List<Class<?>> signature = new ArrayList<Class<?>>();
         try {
@@ -161,7 +162,7 @@ public class IOUtility {
             String typeNamesList = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buf)).toString();
             for (String typeName : typeNamesList.split(" +")) {
                 if (!StoreableUtils.TYPENAMES.containsKey(typeName)) {
-                    throw new IllegalStateException("Error: malformed database");
+                    throw new ColumnFormatException("wrong type (" + typeName + " unknown)");
                 }
                 signature.add(StoreableUtils.TYPENAMES.get(typeName));
             }
@@ -173,7 +174,7 @@ public class IOUtility {
     
     public static void writeSignature(Path rootDir, List<Class<?>> signature) throws IOException {
         if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
-            throw new IOException("directory does not exist");
+            throw new IOException("Error: Directory does not exist");
         }
         Path signaturePath = Paths.get(rootDir.toString() + "/" + FileMapProvider.SIGNATURE_FILE_NAME);
         if (signaturePath == null) {
