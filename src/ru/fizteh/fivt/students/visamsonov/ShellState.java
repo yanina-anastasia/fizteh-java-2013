@@ -6,7 +6,7 @@ import java.io.*;
 
 public class ShellState {
 
-	public TableInterface database;
+	public StructuredTableInterface database;
 	public final TableProviderInterface tableProvider;
 
 	public ShellState () throws IOException {

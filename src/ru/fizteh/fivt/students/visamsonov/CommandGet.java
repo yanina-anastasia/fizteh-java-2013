@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.visamsonov;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class CommandGet extends CommandAbstract<ShellState> {
 
@@ -16,9 +17,9 @@ public class CommandGet extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		String value = state.database.get(args);
+		Storeable value = state.database.get(args);
 		if (value != null) {
-			getOutStream().printf("found\n%s\n", value);
+			getOutStream().printf("found\n%s\n", state.tableProvider.serialize(state.database, value));
 		}
 		else {
 			getOutStream().println("not found");

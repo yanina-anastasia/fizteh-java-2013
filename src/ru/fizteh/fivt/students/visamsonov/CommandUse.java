@@ -15,7 +15,7 @@ public class CommandUse extends CommandAbstract<ShellState> {
 			return false;
 		}
 		try {
-			TableInterface switchTable = state.tableProvider.getTable(args);
+			StructuredTableInterface switchTable = state.tableProvider.getTable(args);
 			if (switchTable == null) {
 				getErrStream().println(args + " not exists");
 				return false;

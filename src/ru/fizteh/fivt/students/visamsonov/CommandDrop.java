@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.visamsonov;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
+import java.io.IOException;
 
 public class CommandDrop extends CommandAbstract<ShellState> {
 
@@ -18,7 +19,7 @@ public class CommandDrop extends CommandAbstract<ShellState> {
 		try {
 			state.tableProvider.removeTable(args);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException | IOException e) {
 			printError(e.getMessage());
 			return false;
 		}

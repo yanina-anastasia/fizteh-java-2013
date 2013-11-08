@@ -16,7 +16,7 @@ public class CommandRemove extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		String value = state.database.remove(args);
+		Object value = state.database.remove(args);
 		if (value != null) {
 			getOutStream().printf("removed\n");
 		}

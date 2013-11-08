@@ -1,10 +1,12 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import java.io.IOException;
+import java.util.List;
 
 public interface TableProviderInterface extends TableProvider {
 
-	TableInterface getTable (String name);
+	StructuredTableInterface getTable (String name);
 
-	TableInterface createTable (String name);
+	StructuredTableInterface createTable (String name, List<Class<?>> columnTypes) throws IOException;
 }

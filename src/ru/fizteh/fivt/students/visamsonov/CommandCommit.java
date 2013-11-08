@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.visamsonov;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
-
 import java.io.*;
 
 public class CommandCommit extends CommandAbstract<ShellState> {
@@ -18,7 +17,13 @@ public class CommandCommit extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		getOutStream().println(state.database.commit());
+		try {
+			getOutStream().println(state.database.commit());
+		}
+		catch (IOException e) {
+			printError(e.getMessage());
+			return false;
+		}
 		return true;
 	}
 }
