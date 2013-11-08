@@ -28,7 +28,7 @@ public class TableManager implements TableProvider {
     private HashMap<String, TableData> bidDataBase = new HashMap<String, TableData>();
     private File mainDir;
 
-    TableManager(String nameMainDir) throws IllegalArgumentException {
+    TableManager(String nameMainDir) throws IllegalArgumentException, IOException {
         if (nameMainDir == null) {
             throw new IllegalArgumentException("wrong type (Name of directory is null)");
         }
@@ -47,7 +47,7 @@ public class TableManager implements TableProvider {
         } catch (IllegalStateException e) {
             throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
         } catch (Exception e) {
-            throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+            throw new IOException("wrong type (" + e.getMessage() + ")", e);
         }
     }
 
@@ -167,7 +167,7 @@ public class TableManager implements TableProvider {
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
                 } catch (IOException e) {
-                    throw new RuntimeException("wrong type (" + e.getMessage() + ")");
+                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
                 }
                 if (!bidDataBase.containsKey(nameTable)) {
                     bidDataBase.put(nameTable, table);
