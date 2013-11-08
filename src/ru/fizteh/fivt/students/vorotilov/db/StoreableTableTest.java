@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class StoreableTableTest {
         currentTable.put("  ", tableRow);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RuntimeException.class)
     public void testPutEmptyValue() throws IOException {
         List<Class<?>> classes = new ArrayList<>();
         classes.add(String.class);
@@ -89,6 +90,22 @@ public class StoreableTableTest {
         currentTable = tableProvider.createTable(currentTableName, classes);
         TableRow tableRow = new TableRow(classes);
         tableRow.setColumnAt(0, "value");
+        Assert.assertNull(currentTable.put("key", tableRow));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testPutWrongKey() throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        classes.add(String.class);
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        StoreableTable currentTable;
+        String currentTableName = "TestTable";
+        currentTable = tableProvider.createTable(currentTableName, classes);
+        List<Class<?>> wrongClasses = new ArrayList<>();
+        wrongClasses.add(Integer.class);
+        TableRow tableRow = new TableRow(classes);
+        tableRow.setColumnAt(0, 3);
         Assert.assertNull(currentTable.put("key", tableRow));
     }
 

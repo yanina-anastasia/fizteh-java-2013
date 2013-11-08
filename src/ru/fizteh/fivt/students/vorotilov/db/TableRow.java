@@ -48,7 +48,15 @@ public class TableRow implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
+        if (value == null) {
+            throw new ColumnFormatException("Stored data can't be null");
+        }
         checkType(columnIndex, value.getClass());
+        if (value instanceof String) {
+            if (((String) value).trim().equals("")) {
+                throw new ColumnFormatException("Empty string can't be stored");
+            }
+        }
         columns.add(columnIndex, value);
     }
 

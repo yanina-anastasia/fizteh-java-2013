@@ -170,6 +170,9 @@ public class StoreableTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
+        if (key.trim().equals("")) {
+            throw new IllegalArgumentException("Key or Value is empty");
+        }
         Storeable oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
