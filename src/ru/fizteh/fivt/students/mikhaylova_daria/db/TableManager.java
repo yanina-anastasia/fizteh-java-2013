@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.DataFormatException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -95,11 +96,10 @@ public class TableManager implements TableProvider {
                             TableData tableDat = new TableData(tables[i], this);
                             currentFileMap.readerFile(tableDat);
                             currentFileMap.setAside();
-                        } catch (IOException e) {
-                            //e.printStackTrace();
-                            throw new IOException("the directory is not Data Base", e);
-                        } catch (Exception e) {
-                            throw new IllegalArgumentException("the directory is not Data Base", e);
+                        } catch (DataFormatException e) {
+                            throw new IllegalArgumentException(e.getMessage(), e);
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException(e.getMessage(), e);
                         }
                     }
                     File[] checkOnEmpty = directories[j].listFiles();
