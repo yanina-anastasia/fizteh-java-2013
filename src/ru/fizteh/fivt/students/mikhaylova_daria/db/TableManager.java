@@ -38,7 +38,7 @@ public class TableManager implements TableProvider {
         }
         mainDir = new File(nameMainDir);
         if (!mainDir.exists()) {
-            throw new IllegalArgumentException("wrong type (" + nameMainDir + " doesn't exist)");
+            throw new IOException("wrong type (" + nameMainDir + " doesn't exist)");
         }
         if (!mainDir.isDirectory()) {
             throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
@@ -192,7 +192,7 @@ public class TableManager implements TableProvider {
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
         if (!creatingTableFile.exists()) {
-            throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
+            throw new IOException("wrong type (Table " + nameTable + "does not exist)");
         } else {
             String[] argShell = new String[] {
                     "rm",
