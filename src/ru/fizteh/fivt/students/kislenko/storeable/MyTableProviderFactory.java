@@ -11,6 +11,9 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if (path == null || path.trim().equals("")) {
             throw new IllegalArgumentException("Incorrect database name.");
         }
+        if (path.equals(".") || path.equals("..")) {
+            throw new RuntimeException("Incorrect database name.");
+        }
         File file = new File(path.trim());
         if (file.isFile()) {
             throw new IllegalArgumentException("Database must be a directory.");
