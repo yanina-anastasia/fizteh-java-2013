@@ -105,6 +105,6 @@ public class TableManager extends Manager {
         if (currentTable != null) {
             outputStream.print(currentTable.getName());
         }
-        outputStream.print("$ ");
+        outputStream.print("$");
     }
 }
