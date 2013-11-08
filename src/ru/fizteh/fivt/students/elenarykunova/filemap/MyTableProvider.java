@@ -316,7 +316,7 @@ public class MyTableProvider implements TableProvider {
         Object[] array = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); i++) {
             if (value.getColumnAt(i) != null
-                    && table.getColumnType(i).equals(
+                    && !table.getColumnType(i).equals(
                             value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException(value.getColumnAt(i).getClass()
                         + " serialize: types mismatch");
