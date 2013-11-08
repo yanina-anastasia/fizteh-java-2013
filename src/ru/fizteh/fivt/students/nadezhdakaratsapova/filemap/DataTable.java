@@ -157,7 +157,9 @@ public class DataTable implements Table {
                         throw new IllegalArgumentException("Wrong key in" + fileName);
                     }
                 }
-                fileReader.putKeysToTable();
+                while (fileReader.valuesToReadExists()) {
+                    fileReader.putStringValueToTable(fileReader.getNextValue());
+                }
                 fileReader.closeResources();
             }
         }

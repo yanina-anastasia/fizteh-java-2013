@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
 
 import java.io.*;
@@ -21,6 +22,7 @@ public class FileReader {
     private List<Byte> key = new ArrayList<Byte>();
     private List<Integer> offsets = new ArrayList<Integer>();
     private List<String> keysToMap = new ArrayList<String>();
+    private int curValue = 0;
 
 
     public FileReader(File file, UniversalDataTable table) throws FileNotFoundException {
@@ -77,6 +79,47 @@ public class FileReader {
         return keyToMap;
     }
 
+    public boolean valuesToReadExists() {
+        int offsetsSize = 0;
+        if (!offsets.isEmpty()) {
+            offsetsSize = offsets.size();
+        }
+        return (curValue < offsetsSize);
+    }
+
+    public String getNextValue() throws IOException {
+        if (curValue == offsets.size()) {
+            long fileLength = dataFile.length();
+            if (curPos < fileLength) {
+                int lastOffset = (int) (fileLength - curPos);
+                byte[] b = new byte[lastOffset];
+                for (int k = 0; curPos < fileLength; ++k, ++curPos) {
+                    b[k] = inStream.readByte();
+                }
+                return new String(b, StandardCharsets.UTF_8);
+            }
+
+        }
+        byte[] b = new byte[offsets.get(curValue)];
+        inStream.read(b, 0, offsets.get(curValue));
+        //dataTable.put(keysToMap.get(curValue), new String(b, StandardCharsets.UTF_8));
+        curPos += offsets.get(curValue);
+        return new String(b, StandardCharsets.UTF_8);
+    }
+
+    public void putStringValueToTable(String value) {
+        dataTable.put(keysToMap.get(curValue), value);
+        if (curValue == offsets.size()) {
+            dataTable.commit();
+        }
+        ++curValue;
+    }
+
+    public void putStoreableValueToTable(Storeable value) {
+        dataTable.put(keysToMap.get(curValue), value);
+        ++curValue;
+    }
+
     public void putKeysToTable() throws IOException {
         long fileLength = dataFile.length();
         int j = 0;
@@ -100,7 +143,6 @@ public class FileReader {
         }
         dataTable.commit();
     }
-
 
     public void closeResources() throws IOException {
         if (curPos > 0) {
