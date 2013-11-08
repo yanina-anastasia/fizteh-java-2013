@@ -21,6 +21,7 @@ public class MyTableProvider implements TableProvider {
         if (!root.exists() || !root.isDirectory()) {
             throw new IllegalArgumentException("failed in open root directory");
         }
+        bTables = new HashMap<String, MyTable>();
     }
 
     public Table getTable(String name) throws IllegalArgumentException {
