@@ -121,8 +121,8 @@ public class ReadWrite {
             while (it.hasNext()) {
                   Map.Entry<String, String> elem = it.next();
                   int a, b;
-                  a = elem.getKey().hashCode() % 16;
-                  b = elem.getKey().hashCode() / 16 % 16;
+                  a = Math.abs(elem.getKey().hashCode() % 16);
+                  b = Math.abs(elem.getKey().hashCode() / 16 % 16);
                   dataBase.get(a * 16 + b).put(elem.getKey(), elem.getValue());
             }
             for (int i = 0; i < 256; i++) {

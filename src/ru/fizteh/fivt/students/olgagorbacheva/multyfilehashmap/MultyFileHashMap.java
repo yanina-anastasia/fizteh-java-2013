@@ -47,7 +47,7 @@ public class MultyFileHashMap {
                   if (!state.getState().equals(
                               new File(System
                                           .getProperty("fizteh.db.dir"))
-                                          .getAbsolutePath())) {
+                                          .getCanonicalPath())) {
                         rw.writeFile(state);
                   }
             } catch (IOException | FileMapException exp) {
