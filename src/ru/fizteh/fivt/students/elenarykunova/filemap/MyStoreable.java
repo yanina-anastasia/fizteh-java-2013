@@ -48,7 +48,7 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("incorrect index");
         }
         if (value != null) {
-            if (!Object.class.equals(myTypes.get(columnIndex))) {
+            if (!value.getClass().equals(myTypes.get(columnIndex))) {
                 throw new ColumnFormatException(
                         "type of value mismatches type of column");
             }
@@ -68,7 +68,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Integer.class)) {
+        if (!myTypes.get(columnIndex).equals(Integer.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -80,7 +80,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Long.class)) {
+        if (!myTypes.get(columnIndex).equals(Long.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -104,7 +104,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Byte.class)) {
+        if (!myTypes.get(columnIndex).equals(Byte.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -127,7 +127,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Float.class)) {
+        if (!myTypes.get(columnIndex).equals(Float.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -150,7 +150,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Double.class)) {
+        if (!myTypes.get(columnIndex).equals(Double.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -174,7 +174,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(Boolean.class)) {
+        if (!myTypes.get(columnIndex).equals(Boolean.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
@@ -197,7 +197,7 @@ public class MyStoreable implements Storeable {
         if (!isCorrectIndex(columnIndex)) {
             throw new IndexOutOfBoundsException("incorrect index");
         }
-        if (!Object.class.equals(String.class)) {
+        if (!myTypes.get(columnIndex).equals(String.class)) {
             throw new ColumnFormatException(
                     "type of value mismatches type of column");
         }
