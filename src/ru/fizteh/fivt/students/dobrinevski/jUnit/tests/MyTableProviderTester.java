@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dobrinevski.jUnit.tests;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
