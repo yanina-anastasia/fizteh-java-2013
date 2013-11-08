@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
+
+import java.io.IOException;
 
 public class TableCommandCommit extends Executable {
     TableManager manager;
@@ -13,7 +15,12 @@ public class TableCommandCommit extends Executable {
             manager.printMessage("no table");
             return false;
         }
-        manager.printMessage(Integer.toString(table.commit()));
+        try {
+            manager.printMessage(Integer.toString(table.commit()));
+        } catch (IOException e) {
+            manager.printMessage(e.getMessage());
+            return false;
+        }
         return true;
     }
 

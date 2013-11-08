@@ -25,7 +25,7 @@ public class TestDistributedTableFactory extends FileManager {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createProviderEmptyShouldFail() {
+    public void createProviderEmptyShouldFail() throws IOException {
         factory.create(null);
     }
 
@@ -37,7 +37,7 @@ public class TestDistributedTableFactory extends FileManager {
     }
 
     @Test
-    public void createProvider() {
+    public void createProvider() throws IOException {
         Assert.assertTrue("failed create provider", factory.create(folder.getRoot().getName()) != null);
     }
 }

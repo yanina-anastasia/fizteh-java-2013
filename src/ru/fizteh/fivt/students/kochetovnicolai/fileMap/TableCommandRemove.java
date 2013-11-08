@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
 public class TableCommandRemove extends Executable {
@@ -13,7 +14,7 @@ public class TableCommandRemove extends Executable {
             manager.printMessage("no table");
             return false;
         }
-        String oldValue = table.remove(args[1]);
+        Storeable oldValue = table.remove(args[1]);
         if (oldValue == null) {
             manager.printMessage("not found");
         } else {

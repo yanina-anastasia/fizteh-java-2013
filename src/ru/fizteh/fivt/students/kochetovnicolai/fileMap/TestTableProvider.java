@@ -6,15 +6,15 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @RunWith(Theories.class)
-public class TestTableProvider extends FileManager {
+public class TestTableProvider {
     protected DistributedTableProviderFactory factory;
     protected TableProvider provider;
 
@@ -34,7 +34,7 @@ public class TestTableProvider extends FileManager {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void removeTableEmptyShouldFail() {
+    public void removeTableEmptyShouldFail() throws IOException {
        provider.removeTable(null);
     }
 
@@ -54,21 +54,23 @@ public class TestTableProvider extends FileManager {
     };
 
     @Theory
-    public void removeTableBadSymbolShouldFail(String name) {
+    public void removeTableBadSymbolShouldFail(String name) throws IOException {
         thrown.expect(IllegalArgumentException.class);
         provider.removeTable(name);
     }
 
     @Test
-    public void removeNotExistingTableShouldFail() {
+    public void removeNotExistingTableShouldFail() throws IOException {
         thrown.expect(IllegalStateException.class);
         provider.removeTable("test");
     }
 
     @Theory
-    public void createTableBadSymbolShouldFail(String name) {
+    public void createTableBadSymbolShouldFail(String name) throws IOException {
         thrown.expect(IllegalArgumentException.class);
-        provider.createTable(name);
+        ArrayList<Class<?>> type = new ArrayList<>();
+        type.add(String.class);
+        provider.createTable(name, type);
     }
 
     @Theory
@@ -83,10 +85,12 @@ public class TestTableProvider extends FileManager {
     }
 
     @Test
-    public void createTableShouldBeOK() {
-        Table table = provider.createTable("abcd");
+    public void createTableShouldBeOK() throws IOException {
+        ArrayList<Class<?>> type = new ArrayList<>();
+        type.add(String.class);
+        Table table = provider.createTable("abcd", type);
         Assert.assertTrue("table shouldn't be null", table != null);
-        Table table2 = provider.createTable("abcd");
+        Table table2 = provider.createTable("abcd", type);
         /***/
         Assert.assertEquals("createTable should return null on the same names", null, table2);
         //
@@ -96,7 +100,7 @@ public class TestTableProvider extends FileManager {
         //
         provider.removeTable("abcd");
         Assert.assertEquals("getTable should return null after remove", provider.getTable("abcd"), null);
-        table = provider.createTable("abcd");
+        table = provider.createTable("abcd", type);
         Assert.assertTrue("createTable should return table after remove", table != null);
     }
 }

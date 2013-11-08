@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
     }
 
     @Override
-    public DistributedTableProvider create(String dir) throws IllegalArgumentException {
+    public DistributedTableProvider create(String dir) throws IOException, IllegalArgumentException {
         if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException("directory couldn't be null");
         }
@@ -22,7 +22,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
         try {
             path = path.getCanonicalFile();
         } catch (IOException e) {
-            throw new IllegalArgumentException("invalid directory");
+            throw new IllegalArgumentException("invalid directory", e);
         }
         String directory = path.getAbsolutePath();
         if (!providers.containsKey(directory)) {

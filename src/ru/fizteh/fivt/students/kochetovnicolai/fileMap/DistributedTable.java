@@ -50,6 +50,7 @@ public class DistributedTable extends FileManager implements Table {
                     if (firstByte % partsNumber != dirNumber || (firstByte / partsNumber) % partsNumber != fileNumber) {
                         throw new IOException("invalid key format");
                     }
+                    cache.put(pair[0], pair[1]);
                     fileRecordNumber++;
                 }
             } catch (IOException e) {
@@ -77,9 +78,6 @@ public class DistributedTable extends FileManager implements Table {
                 }
             }
         }
-        if (currentPath.list().length != directoriesNumber) {
-            throw new IOException(currentPath.getPath() + ": contains unknown files or directories");
-        }
         return tableSize;
     }
 
@@ -97,9 +95,9 @@ public class DistributedTable extends FileManager implements Table {
                 filesList[i][j] = new File(directoriesList[i].getPath() + File.separator + j + ".dat");
             }
         }
-        oldRecordNumber = readTable();
         cache = new HashMap<>();
         changes = new HashMap<>();
+        oldRecordNumber = readTable();
         rollback();
     }
 
@@ -121,14 +119,7 @@ public class DistributedTable extends FileManager implements Table {
         }
         if (changes.containsKey(key)) {
             return changes.get(key);
-        } else if (cache.containsKey(key)) {
-            return cache.get(key);
         } else {
-            try {
-                cache.put(key, readValue(key));
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage());
-            }
             return cache.get(key);
         }
     }
@@ -249,7 +240,7 @@ public class DistributedTable extends FileManager implements Table {
                 }
             }
         } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e);
         } finally {
             for (int i = 0; i < partsNumber; i++) {
                 for (int j = 0; j < partsNumber; j++) {
