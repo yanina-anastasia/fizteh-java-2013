@@ -68,6 +68,15 @@ public class TestsDatabaseTable {
         }
     }
 
+    @Test
+    public void testPutWithNulls() throws Exception
+    {
+        table.put("brandnewrandomkey", provider.deserialize(table, "<row><col><null></null></col></row>"));
+        List<Object> values = new ArrayList<Object>(){{add(null);}};
+        Storeable st = provider.createFor(table, values);
+        table.put("SADASDASD", st);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testKeyNull() {
         table.put(null, null);

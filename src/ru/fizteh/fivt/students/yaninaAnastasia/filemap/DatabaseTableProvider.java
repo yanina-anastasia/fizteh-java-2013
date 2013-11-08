@@ -167,17 +167,18 @@ public class DatabaseTableProvider implements TableProvider {
             try {
                 Class<?> expectedType = table.getColumnType(index);
                 Object columnValue = deserializer.getNext(expectedType);
-                if (columnValue == null) {
-                    throw new IllegalArgumentException("Very bad");
-                }
+                if (columnValue != null) {
+                    //throw new IllegalArgumentException("Very bad");
 
-                switch (formatColumnType(expectedType)) {
-                    case "String":
-                        String stringValue = (String) columnValue;
-                        if (stringValue.trim().isEmpty()) {
-                            throw new ParseException("value cannot be null", 0);
-                        }
-                        break;
+
+                    switch (formatColumnType(expectedType)) {
+                        case "String":
+                            String stringValue = (String) columnValue;
+                            if (stringValue.trim().isEmpty()) {
+                                throw new ParseException("value cannot be null", 0);
+                            }
+                            break;
+                    }
                 }
                 values.add(columnValue);
             } catch (ColumnFormatException e) {

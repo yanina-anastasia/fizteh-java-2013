@@ -71,6 +71,10 @@ public class DatabaseTable implements Table {
         return oldData.get(key);
     }
 
+    public static boolean checkStringCorrect(String string) {
+        return string.matches("\\s*") || string.split("\\s+").length != 1;
+    }
+
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
@@ -82,9 +86,24 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         if (!checkAlienStoreable(value)) {
-            System.out.println(value);
+            //System.out.println(value);
             throw new ColumnFormatException("Alien storeable");
         }
+        for (int index = 0; index < getColumnsCount(); ++index) {
+            try {
+                switch (formatColumnType(columnTypes.get(index))) {
+                    case "String":
+                        String stringValue = (String) value.getColumnAt(index);
+                        if (checkStringCorrect(stringValue)) {
+                            throw new ParseException("value cannot be null", 0);
+                        }
+                        break;
+                }
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+        /*
         for (int i = 0; i < getColumnsCount(); i++) {
             try {
                 if (value.getColumnAt(i) == null) {
@@ -101,7 +120,8 @@ public class DatabaseTable implements Table {
             } catch (ParseException e) {
                 throw new IllegalArgumentException(e);
             }
-        }
+        }  */
+
         //Fixes 40s tests
 
         Storeable oldValue = null;
@@ -340,6 +360,7 @@ public class DatabaseTable implements Table {
     }
 
     public boolean checkAlienStoreable(Storeable storeable) {
+        int storeableColumnsCount = 0;
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 Object o = storeable.getColumnAt(index);
@@ -349,15 +370,11 @@ public class DatabaseTable implements Table {
                 if (!o.getClass().equals(getColumnType(index))) {
                     return false;
                 }
+                storeableColumnsCount++;
             } catch (IndexOutOfBoundsException e) {
                 return false;
             }
         }
-        try {
-            storeable.getColumnAt(getColumnsCount());
-        } catch (IndexOutOfBoundsException e) {
-            return true;
-        }
-        return false;
+        return storeableColumnsCount == getColumnsCount();
     }
 }
