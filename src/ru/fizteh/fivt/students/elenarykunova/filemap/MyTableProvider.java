@@ -45,7 +45,8 @@ public class MyTableProvider implements TableProvider {
             char c = str.charAt(i);
             if (c == '\\' || c == '/' || c == '.' || c == ':' || c == '*'
                     || c == '?' || c == '|' || c == '"' || c == '<' || c == '>'
-                    || c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                    || c == ' ' || c == '\t' || c == '\n' || c == '\r'
+                    || c == '(' || c == ')') {
                 return true;
             }
         }

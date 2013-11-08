@@ -56,7 +56,7 @@ public class Filemap implements Table {
     }
 
     public boolean isCorrectKey(String key) {
-        return (!provider.hasBadSymbols(key));
+        return (!provider.hasBadSymbols(key) && !key.contains("[") && !key.contains("]"));
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
@@ -101,6 +101,9 @@ public class Filemap implements Table {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
         }
+        if (!isCorrectKey(key)) {
+            throw new IllegalArgumentException("key has bad symbols");
+        }
         if (!isCorrectValue(value)) {
             throw new IllegalArgumentException("value is empty");
         }
@@ -108,9 +111,6 @@ public class Filemap implements Table {
             if (!getColumnType(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("put: types mismatch");
             }
-        }
-        if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("key has whitespaces");
         }
         Storeable res = updatedMap.put(key, value);
         return res;
