@@ -42,7 +42,7 @@ public class StoreableTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.contains("\\s"))) {
+        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("\\s") || (key.split("\\s+")).length > 1)) {
             throw new IllegalArgumentException("Not correct key or value");
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
