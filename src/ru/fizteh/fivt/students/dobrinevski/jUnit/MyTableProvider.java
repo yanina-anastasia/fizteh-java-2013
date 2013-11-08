@@ -14,10 +14,10 @@ public class MyTableProvider implements TableProvider {
     File root;
 
     public MyTableProvider(String dir) throws IllegalArgumentException {
-        if ((name == null) || (name == "")) {
+        if ((dir == null) || (dir == "")) {
             throw new IllegalArgumentException("directory is null");
         }
-        root = new File(dir);
+        root = new File(System.getProperty(dir));
         if (!root.exists() || !root.isDirectory()) {
             throw new IllegalArgumentException("failed in open root directory");
         }
