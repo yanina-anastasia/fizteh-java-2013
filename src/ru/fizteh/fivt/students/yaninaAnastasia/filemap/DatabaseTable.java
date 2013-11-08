@@ -85,10 +85,7 @@ public class DatabaseTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
-        if (!checkAlienStoreable(value)) {
-            //System.out.println(value);
-            throw new ColumnFormatException("Alien storeable");
-        }
+        checkValue(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 switch (formatColumnType(columnTypes.get(index))) {
@@ -359,14 +356,59 @@ public class DatabaseTable implements Table {
         }
     }
 
-    public boolean checkAlienStoreable(Storeable storeable) {
+    private void checkValue(Storeable st) throws ColumnFormatException {
+        int counter = 0;
+        try {
+            for (; counter < columnTypes.size(); ++counter) {
+                tryToGetValue(st, counter, columnTypes.get(counter));
+            }
+            try {
+                st.getColumnAt(counter);
+                throw new ColumnFormatException("table: wrong storable columns");
+            } catch (IndexOutOfBoundsException e) {
+                //
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("table: wrong storable columns");
+        }
+    }
+
+    private void tryToGetValue(Storeable st, int index, Class<?> type) throws ColumnFormatException {
+        switch (type.getSimpleName()) {
+            case "Integer":
+                st.getIntAt(index);
+                break;
+            case "Long":
+                st.getLongAt(index);
+                break;
+            case "Byte":
+                st.getByteAt(index);
+                break;
+            case "Float":
+                st.getFloatAt(index);
+                break;
+            case "Double":
+                st.getDoubleAt(index);
+                break;
+            case "Boolean":
+                st.getBooleanAt(index);
+                break;
+            case "String":
+                st.getStringAt(index);
+                break;
+            default:
+                throw new ColumnFormatException("table: wrong storable columns");
+        }
+    }
+
+    /*public boolean checkAlienStoreable(Storeable storeable) {
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 Object o = storeable.getColumnAt(index);
                 if (o == null) {
                     continue;
                 }
-                if (!o.getClass().isAssignableFrom(getColumnType(index))) {
+                if (!o.getClass().equals(getColumnType(index))) {
                     System.out.println(String.format("expected: %s; actual: %s", getColumnType(index).getName(), o.getClass().getName()));
                     System.out.println(storeable);
                     return false;
@@ -377,13 +419,11 @@ public class DatabaseTable implements Table {
                 return false;
             }
         }
-        try
-        {
+        try {
             storeable.getColumnAt(getColumnsCount());
-        } catch (IndexOutOfBoundsException e)
-        {
+        } catch (IndexOutOfBoundsException e) {
             return true;
         }
         return false;
-    }
+    }  */
 }
