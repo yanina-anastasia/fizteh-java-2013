@@ -22,4 +22,10 @@ public class MyTableProviderFactoryTest {
         TableProviderFactory factory = new MyTableProviderFactory();
         Assert.assertNotNull(factory.create(folder.newFolder("folder").getCanonicalPath()));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateEmpty() throws IOException {
+        TableProviderFactory factory = new MyTableProviderFactory();
+        Assert.assertNotNull(factory.create(""));
+    }
 }

@@ -10,7 +10,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public TableProvider create(String dir) throws IOException {
-        if (dir == null) {
+        if (dir == null || dir.trim().equals("")) {
             throw new IllegalArgumentException("Dir cannot be null");
         }
 
