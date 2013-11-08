@@ -366,7 +366,7 @@ public class DatabaseTable implements Table {
                 if (o == null) {
                     continue;
                 }
-                if (!o.getClass().equals(getColumnType(index))) {
+                if (!o.getClass().isAssignableFrom(getColumnType(index))) {
                     System.out.println(String.format("expected: %s; actual: %s", getColumnType(index).getName(), o.getClass().getName()));
                     System.out.println(storeable);
                     return false;
