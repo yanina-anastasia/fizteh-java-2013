@@ -140,7 +140,7 @@ public class FileMapProvider implements TableProvider {
                 }
             }
             if (!check) {
-                throw new IllegalArgumentException(String.format("Type %s not supported", columnType.toString()));
+                throw new IllegalArgumentException(String.format("wrong type %s not supported", columnType.toString()));
             }
         }
         if (name.equals("")) {
@@ -259,7 +259,7 @@ public class FileMapProvider implements TableProvider {
             }
             return newList;
         } catch (JSONException e) {
-            throw new RuntimeException(String.format("Error parsing string %s", value), e);
+            throw new ParseException(e.getMessage(), 0);
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error parsing string %s", value), e);
         }

@@ -1,10 +1,12 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.musin.shell.Shell;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class ShellDatabaseHandler {
@@ -86,7 +88,7 @@ public class ShellDatabaseHandler {
                             } else if (typeNames[i].equals("String")) {
                                 columnTypes.add(String.class);
                             } else {
-                                throw new RuntimeException(String.format("Unknown type %s", typeNames[i]));
+                                throw new RuntimeException(String.format("wrong type %s is not supported", typeNames[i]));
                             }
                         }
                         Table table = database.createTable(args.get(0), columnTypes);
@@ -237,6 +239,10 @@ public class ShellDatabaseHandler {
                         } else {
                             System.out.printf("overwrite\n%s\n", database.serialize(current, value));
                         }
+                    } catch (ColumnFormatException e) {
+                        System.out.printf("wrong type %s\n", e.getMessage());
+                    } catch (ParseException e) {
+                        System.out.printf("wrong type %s\n", e.getMessage());
                     } catch (Exception e) {
                         printException(e);
                         return -1;
