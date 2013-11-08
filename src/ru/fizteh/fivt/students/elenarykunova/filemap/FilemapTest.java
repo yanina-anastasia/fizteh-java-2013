@@ -98,22 +98,22 @@ public class FilemapTest {
 
     @Test
     public void testPutGetRemove() throws IllegalArgumentException, ParseException {
-        String valStr1 = "[1, 1.5, \"value\"]";
+        String valStr1 = "[1,1.5,\"value\"]";
         Storeable val1 = prov.deserialize(table, valStr1);
         assertNull(table.put("key", val1));
         
-        String valStr2 = "[1, 1.5, \"value2\"]";
+        String valStr2 = "[1,1.5,\"value2\"]";
         Storeable val2 = prov.deserialize(table, valStr2);
         assertNotNull(table.put("key", val2));
         
-        String valStrGet = prov.serialize(table, table.get("key"));
+//        String valStrGet = prov.serialize(table, table.get("key"));
         assertNotEquals(table.get("key"), val1);
         
-        String valStrPut = prov.serialize(table, table.put("key", val1)); 
+//        String valStrPut = prov.serialize(table, table.put("key", val1)); 
         assertEquals(table.put("key", val1), val2);
         assertNull(table.get("other_key"));
         
-        String valStrRemove = prov.serialize(table, table.remove("key"));
+//        String valStrRemove = prov.serialize(table, table.remove("key"));
         assertEquals(table.remove("key"), val1);
         
         assertNull(table.get("key"));
