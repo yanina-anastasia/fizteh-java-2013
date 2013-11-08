@@ -1,14 +1,15 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
 import java.io.IOException;
 
 public class CommitCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private StoreableTableProvider curState;
 
-    public CommitCommand(MultiFileHashMapProvider state) {
+    public CommitCommand(StoreableTableProvider state) {
         curState = state;
     }
 

@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class UniversalDataTable<ValueType> {
-    public static final int DIR_COUNT = 16;
-    public static final int FILE_COUNT = 16;
 
     private File dataBaseDirectory;
     private String tableName;

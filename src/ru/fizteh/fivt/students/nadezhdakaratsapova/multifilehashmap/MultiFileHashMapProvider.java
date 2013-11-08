@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class MultiFileHashMapProvider implements TableProvider {
-    public static final int DIR_COUNT = 16;
-    public static final int FILE_COUNT = 16;
     public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
     private File workingDirectory;
     public DataTable curDataBaseStorage = null;

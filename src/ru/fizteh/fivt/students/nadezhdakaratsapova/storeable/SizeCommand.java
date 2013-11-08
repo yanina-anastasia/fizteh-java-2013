@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
-
+import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
 import java.io.IOException;
 
 public class SizeCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private StoreableTableProvider curState;
 
-    public SizeCommand(MultiFileHashMapProvider state) {
+    public SizeCommand(StoreableTableProvider state) {
         curState = state;
     }
 

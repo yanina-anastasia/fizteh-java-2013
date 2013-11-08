@@ -21,6 +21,11 @@ public class DataTableTest {
         dataTable = new DataTable(TESTED_TABLE);
     }
 
+    @After
+    public void tearDown() throws Exception {
+
+    }
+
     @Test
     public void getNameTest() throws Exception {
         Assert.assertEquals(dataTable.getName(), TESTED_TABLE);

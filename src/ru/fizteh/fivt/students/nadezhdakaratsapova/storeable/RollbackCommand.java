@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
-
+import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
 import java.io.IOException;
 
 public class RollbackCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private StoreableTableProvider curState;
 
-    public RollbackCommand(MultiFileHashMapProvider state) {
+    public RollbackCommand(StoreableTableProvider state) {
         curState = state;
     }
 
@@ -23,4 +23,5 @@ public class RollbackCommand implements Command {
     public int getArgsCount() {
         return 0;
     }
+
 }
