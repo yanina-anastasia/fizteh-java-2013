@@ -38,7 +38,7 @@ public class ShellUtils {
     public static void interactiveMode(InputStream inputStream, Map<String, Command> commandList) {
 
         do {
-            System.out.print("$ ");
+            System.out.print(" $ ");
             Scanner scanner = new Scanner(inputStream);
             String s = scanner.nextLine();
             try {
