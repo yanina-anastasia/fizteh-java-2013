@@ -6,7 +6,7 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
 
 public class MyTableProviderTester {
-    public static FileMapProvider provider;
+    public static MyTableProvider provider;
 
     @Before
     public void init() {
