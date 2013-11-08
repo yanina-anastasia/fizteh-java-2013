@@ -147,9 +147,9 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         try {
             storeable.getColumnAt(getColumnsCount());
         } catch (IndexOutOfBoundsException e) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void checkCorrectStoreable(Storeable storeable) {
