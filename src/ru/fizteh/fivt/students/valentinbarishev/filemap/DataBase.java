@@ -139,7 +139,7 @@ public final class DataBase implements Table {
     }
 
     private void checkKey(final String key) {
-        if ((key == null) || (key.trim().length() == 0) || (key.contains(" "))) {
+        if ((key == null) || (key.contains(" "))) {
             throw new IllegalArgumentException("Wrong key!");
         }
     }

@@ -85,4 +85,14 @@ public class MyTableTest {
         table.put("simple", null);
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testPutSpasedKey() {
+        Storeable storeable = provider.createFor(table);
+
+        storeable.setColumnAt(0, "n e w_ v a lu e");
+        storeable.setColumnAt(1, 100);
+
+        table.put("  ", storeable);
+    }
+
 }
