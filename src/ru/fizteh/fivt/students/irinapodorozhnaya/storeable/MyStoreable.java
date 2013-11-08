@@ -127,24 +127,4 @@ public class MyStoreable implements Storeable, Serializable {
         }
         return (String) value;
     }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object.getClass() != this.getClass()) {
-            return false;
-        }
-        Storeable storeable = (Storeable) object;
-        try {
-            for (int i = 0; i < table.getColumnsCount(); ++i) {
-                if (values.get(i) != null && storeable.getColumnAt(i) != null) {
-                    if (!values.get(i).equals(storeable.getColumnAt(i))) {
-                        return false;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-        return true;
-    }
 }

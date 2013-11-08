@@ -18,9 +18,6 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.GenericTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
-
-import javax.xml.stream.XMLStreamException;
 
 public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     
@@ -66,7 +63,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         if (value == null || key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("null argument in put");
         }
-        /*
+
         int sizeColumn = columnType.size();
 
         try {
@@ -82,17 +79,11 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
 
 
         try {
-            value.getColumnAt(columnType.size());
+            value.getColumnAt(sizeColumn);
+            throw new ColumnFormatException("alien Storeable");
         } catch(IndexOutOfBoundsException e) {
-
-        }*/
-        try {
-            return super.put(key, XMLSerializer.deserialize(this, XMLSerializer.serialize(this, value)));
-        } catch (XMLStreamException | ParseException e1) {
-            throw new ColumnFormatException(e1);
+            return super.put(key, value);
         }
-
-        //throw new ColumnFormatException("alien Storeable");
      }
 
     @Override
