@@ -57,6 +57,10 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
                 continue;
             }
             
+            if (tableDirectory.resolve(dirName).toFile().list().length == 0) {
+                throw new IllegalArgumentException("Invalid table format");
+            }
+            
             if (!dirName.matches("(1[0-5]|[0-9]).dir")) {
                 throw new IllegalArgumentException("Invalid table format");
             }

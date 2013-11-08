@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -208,7 +209,12 @@ public class FileMap {
                     return;
                 }
                 
-                Storeable oldValueStoreable = table.put(key, FileMap.database.deserialize(table, value));
+                Storeable oldValueStoreable;
+                try {
+                    oldValueStoreable = table.put(key, FileMap.database.deserialize(table, value));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                }
                 
                 String oldValue = FileMap.database.serialize(table, oldValueStoreable);
                 if (oldValue != null) {
