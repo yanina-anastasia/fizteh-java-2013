@@ -377,11 +377,12 @@ public class DatabaseTable implements Table {
                 return false;
             }
         }
-       /* try {
+        try {
             storeable.getColumnAt(getColumnsCount());
+            return false;
         } catch (IndexOutOfBoundsException e) {
-            return true;
-        }     */
+            //
+        }
         return true;
     }
 }
