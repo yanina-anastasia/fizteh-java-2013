@@ -72,11 +72,15 @@ public class SignatureController {
                 ++curPos;
             }
         }
+
         return types;
     }
 
     public void checkSignatureValidity(List<Class<?>> columnTypes) {
         for (Class<?> cls : columnTypes) {
+            if (cls == null) {
+                throw new IllegalArgumentException("Not allowed type of signature");
+            }
             switch (cls.getSimpleName()) {
                 case "Integer":
                 case "Long":
