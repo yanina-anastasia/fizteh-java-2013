@@ -89,7 +89,7 @@ public class StoreableUtils {
         parameters = parameters.replaceAll("\\s+", " ");
         int spaceIndex = parameters.indexOf(' ');
         if (spaceIndex == -1) {
-            throw new IllegalArgumentException("incorrect format!");
+            throw new IllegalArgumentException("wront type (no column types)");
         }
         String columnTypesString = parameters.substring(spaceIndex).replaceAll("\\((.*)\\)", "$1");
         List<String> columnTypes = CommandParser.parseParams(columnTypesString);

@@ -12,7 +12,7 @@ public class Shell<State> {
 
     private HashMap<String, Command> commands = new HashMap<String, Command>();
     private String[] args;
-    private String prompt = " $ ";
+    private String prompt = "$ ";
     private State shellState;
 
     public void setArgs(String[] args) {
