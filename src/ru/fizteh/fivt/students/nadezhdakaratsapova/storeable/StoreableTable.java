@@ -74,7 +74,7 @@ public class StoreableTable implements Table {
                         value.getStringAt(i);
                         break;
                     default:
-                        throw new IllegalArgumentException("Not allowed type of signature");
+                        throw new ColumnFormatException("Not allowed type of signature");
                 }
             }
         }
