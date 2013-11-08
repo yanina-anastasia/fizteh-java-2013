@@ -30,7 +30,7 @@ public class MyStoreable implements Storeable {
                     "number of columns and size of values list mismatch");
         }
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            if (!table.getColumnType(i).equals(values.get(i).getClass())) {
+            if (values.get(i) != null && !table.getColumnType(i).equals(values.get(i).getClass())) {
                 throw new ColumnFormatException("createFor: types mismatch");
             }
         }
