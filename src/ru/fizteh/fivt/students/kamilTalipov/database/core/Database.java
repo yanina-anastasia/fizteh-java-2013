@@ -6,8 +6,12 @@ import java.text.ParseException;
 
 public interface Database {
     Storeable put(String key, String value) throws ParseException;
+
     Storeable get(String key);
+
     Storeable remove(String key);
+
     int size();
+
     void exit() throws DatabaseException;
 }

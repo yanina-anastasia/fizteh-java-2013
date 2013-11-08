@@ -41,4 +41,64 @@ public class StoreableUtils {
 
         return false;
     }
+
+    public static boolean isEqualStoreable(Storeable storeable1, Storeable storeable2) {
+        if (storeable1 == null) {
+            if (storeable2 == null) {
+                return true;
+            }
+            return false;
+        }
+        if (storeable2 == null) {
+            return false;
+        }
+
+        int size = 0;
+        while (true) {
+            boolean wasException1 = false;
+            try {
+                storeable1.getColumnAt(size);
+            }  catch (IndexOutOfBoundsException e) {
+                wasException1 = true;
+            }
+
+            boolean wasException2 = false;
+            try {
+                storeable2.getColumnAt(size);
+            }  catch (IndexOutOfBoundsException e) {
+                wasException2 = true;
+            }
+
+            if (wasException1 != wasException2) {
+                return false;
+            } else if (wasException1) {
+                break;
+            }
+
+            ++size;
+        }
+
+        for (int i = 0; i < size; ++i) {
+            Object object1 = storeable1.getColumnAt(i);
+            Object object2 = storeable2.getColumnAt(i);
+            if (object1 == null) {
+                if (object2 != null) {
+                    return false;
+                }
+                continue;
+            }
+            if (object2 == null) {
+                return false;
+            }
+
+            if (object1.getClass() != object2.getClass()) {
+                return false;
+            }
+            if (!object1.toString().equals(object2.toString())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

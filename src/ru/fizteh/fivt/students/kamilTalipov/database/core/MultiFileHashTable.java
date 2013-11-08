@@ -3,14 +3,15 @@ package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.kamilTalipov.database.utils.FileUtils;
 import ru.fizteh.fivt.students.kamilTalipov.database.utils.JsonUtils;
+import ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils;
 
 import static ru.fizteh.fivt.students.kamilTalipov.database.utils.InputStreamUtils.readInt;
 import static ru.fizteh.fivt.students.kamilTalipov.database.utils.InputStreamUtils.readString;
+import static ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils.isEqualStoreable;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -18,8 +19,8 @@ import java.text.ParseException;
 import java.util.*;
 
 public class MultiFileHashTable implements Table {
-    private HashMap<String, String> table;
-    private HashMap<String, String> oldValues;
+    private HashMap<String, Storeable> table;
+    private HashMap<String, Storeable> oldValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -75,7 +76,6 @@ public class MultiFileHashTable implements Table {
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Couldn't open table '" + tableName + "'");
         }
-        writeSignatureFile();
 
         table = new HashMap<>();
         oldValues = new HashMap<>();
@@ -101,7 +101,7 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
-        return deserialize(table.get(key));
+        return table.get(key);
     }
 
     @Override
@@ -118,23 +118,19 @@ public class MultiFileHashTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value must be not null");
         }
-
-        String stringValue;
-        try {
-            stringValue = JsonUtils.serialize(value, this);
-        } catch (ColumnFormatException e) {
-            throw new ColumnFormatException("Incorrect storeable value");
+        if (!StoreableUtils.isCorrectStoreable(value, this)) {
+            throw new IllegalArgumentException("Storeable incorrect value");
         }
 
-        String oldValue = table.put(key, stringValue);
+        Storeable oldValue = table.put(key, value);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
-        } else if (oldValues.get(key) != null && oldValues.get(key).equals(stringValue)) {
+        } else if (oldValues.get(key) != null
+                && isEqualStoreable(value, oldValue)) {
             oldValues.remove(key);
         }
 
-
-        return deserialize(oldValue);
+        return oldValue;
     }
 
     @Override
@@ -146,14 +142,14 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
-        String oldValue = table.remove(key);
+        Storeable oldValue = table.remove(key);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
         } else if (oldValues.get(key) == null) {
             oldValues.remove(key);
         }
 
-        return deserialize(oldValue);
+        return oldValue;
     }
 
     public void removeTable() throws DatabaseException {
@@ -175,7 +171,7 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int rollback() {
-        for (Map.Entry<String, String> entry : oldValues.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : oldValues.entrySet()) {
             if (entry.getValue() == null) {
                 table.remove(entry.getKey());
             } else {
@@ -235,9 +231,9 @@ public class MultiFileHashTable implements Table {
             return;
         }
 
-        for (Map.Entry<String, String> entry : table.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : table.entrySet()) {
             byte[] key = entry.getKey().getBytes("UTF-8");
-            byte[] value = entry.getValue().getBytes("UTF-8");
+            byte[] value = serialize(entry.getValue()).getBytes("UTF-8");
 
             File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
                                                 + File.separator + getDirectoryName(key[0]));
@@ -255,8 +251,8 @@ public class MultiFileHashTable implements Table {
 
     private static List<Class<?>> getTypes(String workingDirectory,
                                            String tableName) throws IOException {
-        File signatureFile = FileUtils.makeFile(workingDirectory + File.separator + tableName,
-                                                SIGNATURE_FILE_NAME);
+        File signatureFile = new File(workingDirectory + File.separator + tableName
+                                        + File.separator + SIGNATURE_FILE_NAME);
         if (!signatureFile.exists()) {
             throw new IOException("Signature file is not exist");
         }
@@ -267,7 +263,10 @@ public class MultiFileHashTable implements Table {
             }
 
             while (signatureScanner.hasNextLine()) {
-                String[] inputTypes = signatureScanner.nextLine().split("\\s+");
+                String[] inputTypes = signatureScanner.nextLine().trim().split("\\s+");
+                if (inputTypes.length == 0) {
+                    throw new IOException("Signature file is empty");
+                }
                 for (String type : inputTypes) {
                     switch (type) {
                         case "int":
@@ -383,18 +382,26 @@ public class MultiFileHashTable implements Table {
                     int keyLen = readInt(input);
                     int valueLen = readInt(input);
                     if (keyLen > MAX_KEY_LEN || valueLen > MAX_VALUE_LEN) {
-                        throw new DatabaseException("Database file have incorrect format");
+                        throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
+                                                    + "' have incorrect format");
                     }
                     String key = readString(input, keyLen);
                     if (!getDirectoryName(key.getBytes("UTF-8")[0]).equals(dbDir.getName())
                             || !getFileName(key.getBytes("UTF-8")[0]).equals(dbFile.getName())) {
-                        throw new DatabaseException("Database file have incorrect format");
+                        throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
+                                                    + "' have incorrect format");
                     }
                     String value = readString(input, valueLen);
-                    table.put(key, value);
+                    try {
+                        table.put(key, deserialize(value));
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Database file '" + dbFile.getAbsolutePath()
+                                                            + "' have incorrect format");
+                    }
                 }
             } catch (IOException e) {
-                throw new DatabaseException("Database file have incorrect format");
+                throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
+                                            + "' have incorrect format");
             }
         }
     }
@@ -411,12 +418,16 @@ public class MultiFileHashTable implements Table {
         }
     }
 
+    private String serialize(Storeable value) {
+        return JsonUtils.serialize(value, this);
+    }
+
     private Storeable deserialize(String value) {
         Storeable result;
         try {
             result = JsonUtils.deserialize(value, myTableProvider, this);
         }  catch (ParseException e) {
-            throw new IllegalArgumentException("Can't get value", e);
+            throw new IllegalArgumentException("Can't get value '" + value + "'", e);
         }
         return result;
     }
