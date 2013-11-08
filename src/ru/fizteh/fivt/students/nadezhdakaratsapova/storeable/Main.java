@@ -51,6 +51,9 @@ public class Main {
         } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
             System.exit(3);
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println(e.getMessage());
+            System.exit(4);
         }
     }
 }
