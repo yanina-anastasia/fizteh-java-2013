@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.container;
 
-import com.sun.corba.se.spi.ior.ObjectKey;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntry;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryReader;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
@@ -8,9 +7,7 @@ import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class TableContainer<ValueType> {
     private static final int DIR_COUNT = 16;
@@ -75,7 +72,7 @@ public class TableContainer<ValueType> {
     }
 
     public ValueType containerRemoveValue(String key) {
-        ValueType oldValue = null;
+        ValueType oldValue;
         if (containerGetValue(key) == null) {
             return null;
         }
@@ -90,7 +87,9 @@ public class TableContainer<ValueType> {
             diff.newValue = null;
         } else {
             oldValue = originalTable.get(key);
-            currentTable.put(key, new Diff(oldValue, null));
+            if (oldValue != null) {
+                currentTable.put(key, new Diff(oldValue, null));
+            }
         }
         if (oldValue != null) {
             --actualSize;
@@ -209,7 +208,7 @@ public class TableContainer<ValueType> {
         return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
     }
 
-    private boolean diffHasChanges(Object oldValue, Object newValue) {
+    private boolean diffHasChanges(ValueType oldValue, ValueType newValue) {
         if (oldValue == null && newValue == null) {
             return false;
         }

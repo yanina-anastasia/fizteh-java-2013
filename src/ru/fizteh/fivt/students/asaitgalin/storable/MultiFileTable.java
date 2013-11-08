@@ -68,7 +68,7 @@ public class MultiFileTable implements ExtendedTable {
         if (key.matches("\\s*") || key.split("\\s+").length != 1) {
             throw new IllegalArgumentException("put: key or value is empty");
         }
-        checkValue(value);
+        //checkValue(value);
         return container.containerPutValue(key, value);
     }
 
