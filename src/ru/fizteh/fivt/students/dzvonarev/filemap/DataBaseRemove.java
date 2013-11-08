@@ -27,7 +27,7 @@ public class DataBaseRemove implements CommandInterface {
         if (str.indexOf(' ', spaceIndex + 1) != -1) {
             throw new IOException("remove: wrong input");
         }
-        String key = str.substring(spaceIndex + 1, str.length());
+        String key = (str.substring(spaceIndex + 1, str.length())).trim();
         MyTable currTable = tableProvider.getTable(tableName);
         String value = currTable.remove(key);
         if (value == null) {

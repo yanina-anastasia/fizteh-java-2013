@@ -28,11 +28,11 @@ public class DataBasePut implements CommandInterface {
             throw new IOException("put: wrong parameters");
         }
         int index = newSpaceIndex;
-        String key = str.substring(spaceIndex + 1, index);
+        String key = (str.substring(spaceIndex + 1, index)).trim();
         while (str.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
             ++newSpaceIndex;
         }
-        String value = str.substring(newSpaceIndex + 1, str.length());
+        String value = (str.substring(newSpaceIndex + 1, str.length())).trim();
         MyTable currTable = tableProvider.getTable(tableName);
         String result = currTable.put(key, value);
         if (result != null) {
