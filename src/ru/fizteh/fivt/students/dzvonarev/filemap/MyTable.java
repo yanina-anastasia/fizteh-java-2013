@@ -161,17 +161,13 @@ public class MyTable implements Table {
         return (dir.equals(rightDir) && file.equals(rightFile));
     }
 
-    public boolean isFilesInDirValid(String dirName) {
-        File dir = new File(dirName);
-        String[] file = dir.list();
-        if (file == null || file.length == 0) {
+    public boolean isFilesInDirValid(File file) {
+        String[] files = file.list();
+        if (files == null || files.length == 0) {
             return true;
         }
-        for (String currFile : file) {
-            if (new File(dirName + File.separator + currFile).isHidden()) {
-                continue;
-            }
-            if (new File(dirName + File.separator + currFile).isDirectory()) {
+        for (String currFile : files) {
+            if (new File(file.toString() + File.separator + currFile).isDirectory()) {
                 return false;
             }
             if (!currFile.matches("[0-9][.]dat|1[0-5][.]dat")) {
@@ -188,11 +184,9 @@ public class MyTable implements Table {
             return true;
         }
         for (String currFile : file) {
-            if (new File(path + File.separator + currFile).isHidden()) {
-                continue;
-            }
-            if (new File(path + File.separator + currFile).isDirectory() && currFile.matches("[0-9][.]dir|1[0-5][.]dir")) {
-                if (!isFilesInDirValid(path + File.separator + currFile)) {
+            File newCurrFile = new File(path + File.separator + currFile);
+            if (newCurrFile.isDirectory() && currFile.matches("[0-9][.]dir|1[0-5][.]dir")) {
+                if (!isFilesInDirValid(newCurrFile)) {
                     return false;
                 }
             } else {
@@ -219,12 +213,10 @@ public class MyTable implements Table {
             int b = key.getBytes()[0];
             int nDirectory = Math.abs(b) % 16;
             int nFile = Math.abs(b) / 16 % 16;
-            String rightDir = Integer.toString(nDirectory) + ".dir";
-            String rightFile = Integer.toString(nFile) + ".dat";
-            String path = tableName +
-                    File.separator + rightDir + File.separator + rightFile;
-            String dir = tableName +
-                    File.separator + rightDir;
+            String rightDir = nDirectory + ".dir";
+            String rightFile = nFile + ".dat";
+            String path = tableName + File.separator + rightDir + File.separator + rightFile;
+            String dir = tableName + File.separator + rightDir;
             File file = new File(path);
             File fileDir = new File(dir);
             if (!fileDir.exists()) {
@@ -282,7 +274,7 @@ public class MyTable implements Table {
     public void closeFile(RandomAccessFile file) throws IOException {
         try {
             file.close();
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
             throw new IOException(e.getMessage() + " error in closing file", e);
         }
     }
@@ -294,7 +286,7 @@ public class MyTable implements Table {
 
     @Override
     public String get(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
@@ -322,7 +314,7 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
+        if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
         String oldValue = get(key);
@@ -332,7 +324,7 @@ public class MyTable implements Table {
 
     @Override
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         String oldValue = get(key);
