@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
@@ -46,9 +47,45 @@ public class StoreableTable implements Table {
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("\\s") || (key.split("\\s+")).length > 1)) {
             throw new IllegalArgumentException("Not correct key or value");
         }
-        SignatureController signatureController = new SignatureController();
+        int signColumnsCount = getColumnsCount();
+        int i;
+        for (i = 0; i < signColumnsCount; ++i) {
+            if (value.getColumnAt(i) != null) {
+                switch (getColumnType(i).getSimpleName()) {
+                    case "Integer":
+                        value.getIntAt(i);
+                        break;
+                    case "Long":
+                        value.getLongAt(i);
+                        break;
+                    case "Byte":
+                        value.getByteAt(i);
+                        break;
+                    case "Float":
+                        value.getFloatAt(i);
+                        break;
+                    case "Double":
+                        value.getDoubleAt(i);
+                        break;
+                    case "Boolean":
+                        value.getBooleanAt(i);
+                        break;
+                    case "String":
+                        value.getStringAt(i);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Not allowed type of signature");
+                }
+            }
+        }
+        try {
+            value.getColumnAt(i + 1);
+        } catch (IndexOutOfBoundsException e) {
+            return dataTable.put(key, value);
+        }
+        throw new ColumnFormatException("put: invalid value: invalid storeable type");
 
-        return dataTable.put(key, value);
+
     }
 
     public Set<String> getKeys() {
