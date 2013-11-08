@@ -120,7 +120,12 @@ public class TableRecord implements Storeable {
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (value == null) {
+            checkIndex(columnIndex);
+            values.set(columnIndex, null);
+        } else {
         checkColumnType(columnIndex, value.getClass());
+        }
         values.set(columnIndex, value);
     }
 

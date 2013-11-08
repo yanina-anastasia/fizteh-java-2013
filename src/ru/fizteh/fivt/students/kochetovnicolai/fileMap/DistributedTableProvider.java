@@ -222,48 +222,53 @@ public class DistributedTableProvider implements TableProvider {
         try {
             XMLStreamReader streamReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
             if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.START_ELEMENT) {
-                throw new ParseException(value, streamReader.getTextStart());
+                throw new ParseException(value, 0);
             }
             if (!streamReader.getName().getLocalPart().equals("row")) {
-                throw new ParseException(value, streamReader.getTextStart());
+                throw new ParseException(value, 0);
             }
             for (int i = 0; i < record.size(); i++) {
                 if (!streamReader.hasNext()) {
-                    throw new ParseException(value, streamReader.getTextStart());
+                    throw new ParseException(value, 0);
                 }
                 int next = streamReader.next();
-                if (next != XMLStreamConstants.START_ELEMENT) {
-                    if (!streamReader.getName().getLocalPart().equals("null")) {
-                        throw new ParseException(value, streamReader.getTextStart());
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (streamReader.getName().getLocalPart().equals("null")) {
+                        record.setColumnAt(i, null);
+                        if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.END_ELEMENT
+                                || !streamReader.getName().getLocalPart().equals("null")) {
+                            throw new ParseException(value, 0);
+                        }
+                    } else if (streamReader.getName().getLocalPart().equals("col")) {
+                        if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.CHARACTERS
+                                || !streamReader.hasText()) {
+                            throw new ParseException(value, 0);
+                        }
+                        String text = streamReader.getText();
+                        try {
+                            record.setColumnFromStringAt(i, text);
+                        } catch (IllegalArgumentException e) {
+                            throw new ParseException(value, 0);
+                        }
+                        if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.END_ELEMENT
+                                || !streamReader.getName().getLocalPart().equals("col")) {
+                            throw new ParseException(value, 0);
+                        }
+                    } else {
+                        throw new ParseException(value, 0);
                     }
-                    record.setColumnAt(i, null);
                 } else {
-                    if (!streamReader.getName().getLocalPart().equals("col")) {
-                        throw new ParseException(value, streamReader.getTextStart());
-                    }
-                    if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.CHARACTERS) {
-                        throw new ParseException(value, streamReader.getTextStart());
-                    }
-                    String text = streamReader.getText();
-                    try {
-                        record.setColumnFromStringAt(i, text);
-                    } catch (IllegalArgumentException e) {
-                        throw new ParseException(value, streamReader.getTextStart());
-                    }
-                    if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.END_ELEMENT
-                            || !streamReader.getName().getLocalPart().equals("col")) {
-                        throw new ParseException(value, streamReader.getTextStart());
-                    }
+                    throw new ParseException(value, 0);
                 }
             }
             if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.END_ELEMENT) {
-                throw new ParseException(value, streamReader.getTextStart());
+                throw new ParseException(value, 0);
             }
             if (!streamReader.getName().getLocalPart().equals("row")) {
-                throw new ParseException(value, streamReader.getTextStart());
+                throw new ParseException(value, 0);
             }
         } catch (XMLStreamException e) {
-            throw new IllegalArgumentException(e);
+            throw new ParseException(e.getMessage(), 0);
         }
         return record;
     }
