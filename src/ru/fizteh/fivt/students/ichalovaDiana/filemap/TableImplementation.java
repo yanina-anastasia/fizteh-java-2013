@@ -109,7 +109,7 @@ public class TableImplementation implements Table {
             return null;
         }
         
-        if (value.equals(originValue)) {
+        if (storeableAreEqual(value, originValue)) {
             return originValue;
         } else if (originValue == null) {
             putChanges.put(key, value);

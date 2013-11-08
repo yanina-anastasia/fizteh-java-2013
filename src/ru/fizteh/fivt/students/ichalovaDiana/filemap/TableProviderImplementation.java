@@ -206,7 +206,7 @@ public class TableProviderImplementation implements TableProvider {
             if (currentValue != null) {
                 col = document.createElement("col");
                 col.setTextContent(currentValue.toString());
-                row.appendChild(col);           
+                row.appendChild(col);
             } else {
                 nullElement = document.createElement("null");
                 row.appendChild(nullElement);

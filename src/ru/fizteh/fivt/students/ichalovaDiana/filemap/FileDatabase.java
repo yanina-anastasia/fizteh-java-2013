@@ -42,11 +42,7 @@ class FileDatabase implements AutoCloseable {
     }
 
     public String put(String key, String value) throws Exception {
-    
         String oldValue = database.put(key, value);
-
-        saveChanges();
-        
         return oldValue;
     }
     
@@ -54,15 +50,9 @@ class FileDatabase implements AutoCloseable {
         return database.get(key);
     }
     
-    public String remove(String key) throws Exception {
-        
+    public String remove(String key) throws Exception {   
         String value = database.remove(key);
-
-        if (value != null) {
-            saveChanges();
-        }
         return value;
-        
     }
     
     public int getSize() {
@@ -137,6 +127,7 @@ class FileDatabase implements AutoCloseable {
     
     @Override
     public void close() throws Exception {
+        saveChanges();
         if (dbFile.length() == 0) {
             dbFile.close();
             Files.delete(dbFilePath);

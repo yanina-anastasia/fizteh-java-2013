@@ -109,4 +109,12 @@ public class TestsForTable {
         Assert.assertTrue(table.commit() == 0);
         Assert.assertTrue(table.rollback() == 0);
     }
+    
+    @Test
+    public void putCommitPutSameValueCommit() throws IOException {
+        Assert.assertNull(table.put("key1", value1));
+        Assert.assertTrue(table.commit() == 1);
+        Assert.assertTrue(((TableImplementation) table).storeableAreEqual(value1, table.put("key1", value1)));
+        Assert.assertTrue(table.commit() == 0);
+    }
 }
