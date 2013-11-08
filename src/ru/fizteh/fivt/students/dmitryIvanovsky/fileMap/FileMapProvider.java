@@ -365,6 +365,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (setDirTable.contains(name)) {
             setDirTable.remove(name);
             mapFileMap.remove(name);
+            dbData.setDrop();
             try {
                 mySystem.rm(new String[]{pathDb.resolve(name).toString()});
             } catch (Exception e) {

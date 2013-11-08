@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.checkArg;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertClassToString;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
+
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
 
 public class FileMap implements Table {
 
@@ -34,6 +33,7 @@ public class FileMap implements Table {
     Map<String, Storeable> tableData;
     Map<String, Storeable> changeTable;
     boolean existDir = false;
+    boolean tableDrop = false;
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
     String s1 = "";
@@ -141,7 +141,10 @@ public class FileMap implements Table {
     }
 
     public void exit() throws Exception {
-        closeTable();
+        //outPrint("123");
+        if (!tableDrop) {
+            closeTable();
+        }
     }
 
     private void loadTable(String nameMap) throws Exception {
@@ -280,6 +283,9 @@ public class FileMap implements Table {
     public void closeTable() throws Exception {
         mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
         existDir = false;
+        if (tableDrop) {
+            return;
+        }
         mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
         writeFileTsv();
         existDir = true;
@@ -473,6 +479,10 @@ public class FileMap implements Table {
             tableData.put(key, value);
             return null;
         }
+    }
+
+    public void setDrop() {
+        tableDrop = true;
     }
 
     public Storeable get(String key) {
