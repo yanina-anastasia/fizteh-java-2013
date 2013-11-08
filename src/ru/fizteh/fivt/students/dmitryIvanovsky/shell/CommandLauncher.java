@@ -124,7 +124,7 @@ public class CommandLauncher {
             try {
                 System.out.flush();
                 //System.out.print("\n");
-                System.out.println(exampleClass.startShellString());
+                System.out.print(exampleClass.startShellString());
                 System.out.flush();
             } catch (Exception e) {
                 //e.printStackTrace();
@@ -182,6 +182,7 @@ public class CommandLauncher {
 
     private void errPrint(String message) {
         if (err) {
+            System.err.flush();
             System.err.println(message);
             System.err.flush();
         }
@@ -189,6 +190,7 @@ public class CommandLauncher {
 
     private void outPrint(String message) {
         if (out) {
+            System.out.flush();
             System.out.println(message);
             System.out.flush();
         }

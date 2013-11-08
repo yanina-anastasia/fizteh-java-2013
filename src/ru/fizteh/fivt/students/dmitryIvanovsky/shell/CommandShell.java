@@ -192,7 +192,7 @@ public class CommandShell implements CommandAbstract {
                 } else {
                     error = null;
                 }
-                throw new ErrorShell(error);
+                //throw new ErrorShell(error);
             }
 
         } catch (Exception e) {

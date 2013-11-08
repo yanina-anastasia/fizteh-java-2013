@@ -92,6 +92,7 @@ public class FileMap implements Table {
         try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())) {
             for (Class<?> col : columnType) {
                 out.print(convertClassToString(col));
+                out.print(" ");
             }
         }
     }

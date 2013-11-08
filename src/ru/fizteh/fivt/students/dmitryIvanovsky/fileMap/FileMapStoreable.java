@@ -32,6 +32,10 @@ public class FileMapStoreable implements Storeable {
 
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (value == null) {
+            column.set(columnIndex, null);
+            return;
+        }
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, value.getClass());
         column.set(columnIndex, value);

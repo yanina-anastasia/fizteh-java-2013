@@ -153,8 +153,15 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             if (res == null) {
                 outPrint("not found");
             } else {
+                //System.err.println("found\r\n" + serialize(dbData, res));
+                //outPrint("found\r\n" + serialize(dbData, res));
+                //System.out.flush();
+                String s = serialize(dbData, res);
                 outPrint("found");
-                outPrint(serialize(dbData, res));
+                //outPrint("\n");
+                //System.out.flush();
+                outPrint(s);
+                //System.out.flush();
             }
         }
     }
@@ -307,10 +314,10 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (setDirTable.contains(name)) {
             return null;
         } else {
+            setDirTable.add(name);
             try {
                 FileMap fileMap = new FileMap(pathDb, name, this, columnType);
                 mapFileMap.put(name, fileMap);
-                setDirTable.add(name);
                 return fileMap;
             } catch (Exception e) {
                 RuntimeException error = new RuntimeException();
@@ -394,7 +401,8 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                     while (reader.hasNext()) {
                         reader.nextTag();
                         if (!reader.getLocalName().equals("col")) {
-                            if (!reader.isEndElement()) {
+                            //System.out.println(reader.getLocalName());
+                            if (!reader.getLocalName().equals("null") && !reader.isEndElement()) {
                                 throw new ParseException("invalid xml", reader.getLocation().getCharacterOffset());
                             }
                             if (reader.isEndElement() && reader.getLocalName().equals("row")) {
@@ -402,8 +410,13 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                             }
                         }
                         String text = reader.getElementText();
-                        if (!text.equals("null")) {
-                            line.setColumnAt(columnIndex, parseValue(text, columnTypes.get(columnIndex)));
+                        if (text.isEmpty()) {
+                            line.setColumnAt(columnIndex, null);
+                        } else {
+                            //System.out.println("123" + text);
+                            if (!text.equals("null")) {
+                                line.setColumnAt(columnIndex, parseValue(text, columnTypes.get(columnIndex)));
+                            }
                         }
                         columnIndex++;
                     }
@@ -418,6 +431,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             return line;
 
         } catch (Exception e) {
+            //e.printStackTrace();
             throw new ParseException("wrong data format", 0);
         }
     }
@@ -436,13 +450,13 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             try {
                 writer.writeStartElement("row");
                 for (int i = 0; i < columnType.size(); i++) {
-                    writer.writeStartElement("col");
                     if (value.getColumnAt(i) == null) {
-                        writer.writeCharacters("null");
+                        writer.writeEmptyElement("null");
                     } else {
+                        writer.writeStartElement("col");
                         writer.writeCharacters(getStringFromElement(value, i, columnType.get(i)));
+                        writer.writeEndElement();
                     }
-                    writer.writeEndElement();
                 }
                 writer.writeEndElement();
             } finally {
@@ -481,13 +495,17 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     private void errPrint(String message) {
         if (err) {
+            System.err.flush();
             System.err.println(message);
+            System.err.flush();
         }
     }
 
     private void outPrint(String message) {
         if (out) {
+            //System.out.flush();
             System.out.println(message);
+            //System.out.flush();
         }
     }
 
