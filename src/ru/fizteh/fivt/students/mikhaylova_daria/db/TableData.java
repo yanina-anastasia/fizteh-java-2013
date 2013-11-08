@@ -32,6 +32,9 @@ public class TableData implements Table {
         types.put("boolean", Boolean.class);
         ArrayList<Class<?>> answer = new ArrayList<>();
         for (int i = 0; i < arg.size(); ++i) {
+            if (arg.get(i) == null) {
+                throw new IllegalArgumentException("Wrong type in " + i + " column: null type");
+            }
             if (!types.containsKey(arg.get(i).getSimpleName())) {
                  throw new IllegalArgumentException("Wrong type in " + i + " column: " + arg.get(i).getCanonicalName());
             }
