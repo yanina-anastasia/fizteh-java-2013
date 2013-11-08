@@ -17,11 +17,9 @@ public class MultiFileHashMapRemoveCommand extends AbstractCommand<MultiFileHash
             System.out.println("no table");
             throw new IOException("ERROR: not existing table");
         } else {
-            if (curTable.get(input[0]) == null) {
+            if (curTable.remove(input[0]) == null) {
                 System.out.println("not found");
             } else {
-                curTable.remove(input[0]);
-
                 System.out.println("removed");
             }
         }
