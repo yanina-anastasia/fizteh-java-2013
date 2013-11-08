@@ -34,6 +34,8 @@ public class TableData implements Table {
         types.put("Double", "double");
         types.put("Float", "float");
         types.put("Boolean", "boolean");
+        types.put("Byte", "Byte");
+        types.put("byte", "Byte");
         types.put("String", "String");
         types.put("int", "int");
         types.put("long", "long");
