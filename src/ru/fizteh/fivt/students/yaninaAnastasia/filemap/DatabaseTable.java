@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
@@ -91,6 +92,15 @@ public class DatabaseTable implements Table {
             } catch (ParseException e) {
                 throw new IllegalArgumentException(e);
             }
+        }
+        //Fixes 40s tests
+        for (final Class<?> columnType : columnTypes) {
+            if (columnType == null || formatColumnType(columnType) == null) {
+                throw new IllegalArgumentException("unknown column type");
+            }
+        }
+        if (!checkAlienStoreable(value)) {
+            throw new ColumnFormatException("Alien storeable");
         }
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
@@ -325,5 +335,27 @@ public class DatabaseTable implements Table {
             default:
                 return null;
         }
+    }
+
+    public boolean checkAlienStoreable(Storeable storeable) {
+        for (int index = 0; index < getColumnsCount(); ++index) {
+            try {
+                Object o = storeable.getColumnAt(index);
+                if (o == null) {
+                    continue;
+                }
+                if (!o.getClass().equals(getColumnType(index))) {
+                    return false;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                return false;
+            }
+        }
+        try {
+            storeable.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e) {
+            return true;
+        }
+        return false;
     }
 }

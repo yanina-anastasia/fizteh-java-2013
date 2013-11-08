@@ -132,4 +132,62 @@ public class TestsDatabaseProvider {
         Assert.assertNotNull(provider.getTable("test4"));
         provider.removeTable("test4");
     }
+
+    @Test
+    public void firstDeserializing() {
+        Table testTable = provider.createTable("testTable", columnTypes);
+        Storeable testStoreable = provider.createFor(testTable, columnTypes);
+        testStoreable.setColumnAt(0, 5);
+        try {
+            Assert.assertEquals(testStoreable, provider.deserialize(testTable, "<row><col>5</col></row>"));
+        } catch (ParseException e) {
+            //
+        }
+        provider.removeTable("testTable");
+    }
+
+    /*@Test
+    public void secondDeserializing() {
+        Table testTable = provider.createTable("testTable", multiColumnTypes);
+        Storeable testStoreable = provider.createFor(testTable, multiColumnTypes);
+        testStoreable.setColumnAt(0, 1);
+        testStoreable.setColumnAt(1, "One");
+        testStoreable.setColumnAt(2, 1.1);
+        try {
+            Assert.assertEquals(testStoreable,
+                    provider.deserialize(testTable, "<row><col>1</col><col>One</col><col>1.1</col></row>"));
+        } catch (ParseException e) {
+            //
+        }
+        provider.removeTable("testTable");
+    } */
+
+    @Test
+    public void firstSerializing() {
+        Table testTable = provider.createTable("testTable", columnTypes);
+        Storeable testStoreable = provider.createFor(testTable, columnTypes);
+        testStoreable.setColumnAt(0, 5);
+        Assert.assertEquals("<row><col>5</col></row>", provider.serialize(testTable, testStoreable));
+        provider.removeTable("testTable");
+    }
+
+    /*@Test
+    public void secondSerializing() {
+        Table testTable = provider.createTable("testTable", multiColumnTypes);
+        Storeable testStoreable = provider.createFor(testTable, multiColumnTypes);
+        testStoreable.setColumnAt(0, 2);
+        testStoreable.setColumnAt(1, "Two");
+        testStoreable.setColumnAt(0, 2.2);
+        Assert.assertEquals("<row><col>2</col><col>Two</col><col>2.2</col></row>",
+                provider.serialize(testTable, testStoreable));
+        provider.removeTable("testTable");
+    } */
+
+    @Test
+    public void testCreateFor() {
+        Table testTable = provider.createTable("testTable", columnTypes);
+        Storeable testStoreable = provider.createFor(testTable, columnTypes);
+        Assert.assertEquals(testStoreable.getColumnAt(0), Integer.class);
+        provider.removeTable("testTable");
+    }
 }

@@ -4,7 +4,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.yaninaAnastasia.shell.Command;
 
 import java.io.IOException;
-import java.text.ParseException;
 
 public class CommandGet extends Command {
     public boolean exec(String[] args, State curState) throws IOException {

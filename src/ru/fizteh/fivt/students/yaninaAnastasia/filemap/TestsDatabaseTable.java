@@ -29,7 +29,7 @@ public class TestsDatabaseTable {
         List<Class<?>> columnMultiTypes = new ArrayList<Class<?>>() {{
             add(Integer.class);
             add(String.class);
-            add(String.class);
+            add(Double.class);
         }};
         factory = new DatabaseTableProviderFactory();
         try {
@@ -59,7 +59,7 @@ public class TestsDatabaseTable {
         }
     }
 
-    public Storeable makeMultiStoreable(int value, String valueString, String valueDouble) {
+    public Storeable makeMultiStoreable(int value, String valueString, Double valueDouble) {
         try {
             return provider.deserialize(multiColumnTable, "<row><col>" + value + "</col><col>" + valueString + "</col><col>"
                     + valueDouble + "</col></row>");
@@ -139,18 +139,18 @@ public class TestsDatabaseTable {
 
     @Test
     public void testMultiPutGetRemove() {
-        multiColumnTable.put("ключ", makeMultiStoreable(1, "значение1", "1.1"));
+        multiColumnTable.put("ключ", makeMultiStoreable(1, "значение1", 1.1));
         multiColumnTable.remove("ключ");
-        Assert.assertNull(multiColumnTable.put("ключ", makeMultiStoreable(1, "значение1", "1.1")));
+        Assert.assertNull(multiColumnTable.put("ключ", makeMultiStoreable(1, "значение1", 1.1)));
         multiColumnTable.remove("ключ");
         Assert.assertNull(multiColumnTable.get("ключ"));
     }
 
     @Test
     public void testMultiWork() {
-        multiColumnTable.put("key", makeMultiStoreable(1, "value", "extra value"));
-        multiColumnTable.put("key", makeMultiStoreable(2, "value2", "extra value 2"));
-        multiColumnTable.put("key_extra", makeMultiStoreable(3, "value3", "extra value 3"));
+        multiColumnTable.put("key", makeMultiStoreable(1, "value", 1.1));
+        multiColumnTable.put("key", makeMultiStoreable(2, "value2", 2.2));
+        multiColumnTable.put("key_extra", makeMultiStoreable(3, "value3", 3.3));
         try {
             Assert.assertEquals(multiColumnTable.commit(), 2);
         } catch (IOException e) {
@@ -160,9 +160,9 @@ public class TestsDatabaseTable {
 
     @Test
     public void testMultiRollback() {
-        multiColumnTable.put("key", makeMultiStoreable(1, "value", "extra value"));
+        multiColumnTable.put("key", makeMultiStoreable(1, "value", 1.1));
         multiColumnTable.remove("key");
-        multiColumnTable.put("key_extra", makeMultiStoreable(3, "value3", "extra value 3"));
+        multiColumnTable.put("key_extra", makeMultiStoreable(3, "value3", 3.3));
         multiColumnTable.remove("key_extra");
         Assert.assertEquals(multiColumnTable.rollback(), 0);
     }
@@ -241,6 +241,20 @@ public class TestsDatabaseTable {
         table.put("key2", makeStoreable(2));
         Assert.assertEquals(table.size(), 1);
         Assert.assertEquals(table.rollback(), 0);
+    }
+
+    @Test
+    public void getColumnsCountTest() {
+        Assert.assertEquals(table.getColumnsCount(), 1);
+        Assert.assertEquals(multiColumnTable.getColumnsCount(), 3);
+    }
+
+    @Test
+    public void getColumnTypeTest() {
+        Assert.assertEquals(table.getColumnType(0), Integer.class);
+        Assert.assertEquals(multiColumnTable.getColumnType(0), Integer.class);
+        Assert.assertEquals(multiColumnTable.getColumnType(1), String.class);
+        Assert.assertEquals(multiColumnTable.getColumnType(2), Double.class);
     }
 
     @Test

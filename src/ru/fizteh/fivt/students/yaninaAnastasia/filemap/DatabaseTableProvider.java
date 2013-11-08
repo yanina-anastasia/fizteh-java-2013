@@ -51,6 +51,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         curTable = table;
+
         return table;
     }
 
