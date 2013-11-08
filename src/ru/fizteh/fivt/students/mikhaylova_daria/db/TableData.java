@@ -176,8 +176,6 @@ public class TableData implements Table {
             throw new IllegalArgumentException("value is null");
         }
 
-            System.out.println("Всё хорошо" + value.getIntAt(1));
-
         try {
             manager.serialize(this, value);
         } catch (Exception e) {
