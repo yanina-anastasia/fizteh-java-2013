@@ -176,29 +176,12 @@ public class TableData implements Table {
             throw new IllegalArgumentException("value is null");
         }
 
-        for (int i = 0; i < getColumnsCount(); ++i) {
-            if (getColumnType(i).equals(Integer.class)) {
-                value.getIntAt(i);
-            }
-            if (getColumnType(i).equals(Long.class)) {
-                value.getLongAt(i);
-            }
-            if (getColumnType(i).equals(Byte.class)) {
-                value.getByteAt(i);
-            }
-            if (getColumnType(i).equals(Float.class)) {
-                value.getFloatAt(i);
-            }
-            if (getColumnType(i).equals(Double.class)) {
-                value.getDoubleAt(i);
-            }
-            if (getColumnType(i).equals(Boolean.class)) {
-                value.getBooleanAt(i);
-            }
-            if (getColumnType(i).equals(String.class)) {
-                value.getStringAt(i);
-            }
+        try {
+            manager.serialize(this, value);
+        } catch (Exception e) {
+            throw new ColumnFormatException("Wrong typelist of value", e);
         }
+
         byte b = key.getBytes()[0];
         if (b < 0) {
             b *= (-1);

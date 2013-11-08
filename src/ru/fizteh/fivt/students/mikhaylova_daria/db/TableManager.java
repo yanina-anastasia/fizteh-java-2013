@@ -244,8 +244,6 @@ public class TableManager implements TableProvider {
                 if (!(value.getColumnAt(i) == null)) {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
-//                    Method m = table.getColumnType(i).getMethod("toString");
-//                    valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
                     if (table.getColumnType(i).equals(Integer.class)) {
                         valueStr = value.getIntAt(i).toString();
                     }
