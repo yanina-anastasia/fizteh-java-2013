@@ -44,43 +44,43 @@ public class StoreableDataValue implements Storeable {
 
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, Long.class);
         return (Long) columnValues.get(columnIndex);
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, Byte.class);
         return (Byte) columnValues.get(columnIndex);
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, Float.class);
         return (Float) columnValues.get(columnIndex);
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, Double.class);
         return (Double) columnValues.get(columnIndex);
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, Boolean.class);
         return (Boolean) columnValues.get(columnIndex);
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexValidity(columnIndex);
-        checkClassEquivalence(columnIndex, Integer.class);
+        checkClassEquivalence(columnIndex, String.class);
         return (String) columnValues.get(columnIndex);
     }
 
     public void checkColumnIndexValidity(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex >= columnTypes.size() || columnIndex < 0) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("Invalid index of column");
         }
     }
 
@@ -89,4 +89,5 @@ public class StoreableDataValue implements Storeable {
             throw new ColumnFormatException("Invalid column type. It should be " + cls.getName());
         }
     }
+
 }
