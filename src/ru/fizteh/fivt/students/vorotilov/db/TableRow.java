@@ -172,7 +172,7 @@ public class TableRow implements Storeable {
 
     private void checkBounds(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= classes.size()) {
-            throw new IndexOutOfBoundsException();
+            throw new ColumnFormatException();
         }
     }
 

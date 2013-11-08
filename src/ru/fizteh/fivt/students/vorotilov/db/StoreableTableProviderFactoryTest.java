@@ -26,4 +26,11 @@ public class StoreableTableProviderFactoryTest {
             throw new AssertionError();
         }
     }
+
+    @Test(expected = IOException.class)
+    public void createProviderUnavailableShouldFail() throws IOException {
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        tableProviderFactory.create("\\root\\abc");
+    }
+
 }

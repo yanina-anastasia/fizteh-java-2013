@@ -21,6 +21,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
      * @throws IllegalArgumentException Если значение директории null или имеет недопустимое значение.
      * @throws java.io.IOException В случае ошибок ввода/вывода.
      */
+
     @Override
     public StoreableTableProvider create(String path) throws IOException {
         if (path == null) {
@@ -39,7 +40,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
             }
         } else {
             if (!rootDir.mkdirs()) {
-                throw new IllegalArgumentException("Can't create root directory: " + path);
+                throw new IOException("Can't create root directory: " + path);
             }
         }
         return new StoreableTableProvider(rootDir);

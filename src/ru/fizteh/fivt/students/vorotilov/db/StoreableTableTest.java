@@ -361,4 +361,5 @@ public class StoreableTableTest {
         Assert.assertEquals(currentTable.rollback(), 1);
         Assert.assertEquals(currentTable.size(), 3);
     }
+
 }
