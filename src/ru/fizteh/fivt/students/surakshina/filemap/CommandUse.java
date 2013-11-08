@@ -30,6 +30,7 @@ public class CommandUse extends DataBaseCommand {
             }
         } catch (RuntimeException e) {
             state.printError(e.getMessage());
+            return;
         }
         state.getTableProvider().setCurrentTable((NewTable) table);
         System.out.println("using " + name);
