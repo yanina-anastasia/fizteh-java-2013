@@ -216,12 +216,15 @@ public class MyTableProvider implements TableProvider {
 
     public Object checkClasses(Object first, Class<?> second) {
         Object result;
+        
+        
         if (first == null) {
             return first;
         }
         if (first.getClass().equals(second)) {
             return first;
         }
+       
         if (first.getClass().equals(Integer.class)) {
             int val = (int) first;
             if (second.equals(Long.class)) {
@@ -280,7 +283,9 @@ public class MyTableProvider implements TableProvider {
         }
         if (first.getClass().equals(String.class)) {
             String val = (String) first;
-            if (second.equals(Boolean.class)) {
+            return JSONObject.stringToValue(val);
+
+/*            if (second.equals(Boolean.class)) {
                 if (val.toLowerCase().equals("false")) {
                     result = Boolean.valueOf(false);
                     return result;
@@ -289,7 +294,7 @@ public class MyTableProvider implements TableProvider {
                     result = Boolean.valueOf(true);
                     return result;
                 }
-            }
+            }*/
         }
         return first;
     }
