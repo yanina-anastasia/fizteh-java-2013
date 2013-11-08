@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiFileTableRowTest {
-    MultiFileTableRow row;
+    private MultiFileTableRow row;
 
     @Before
     public void setUp() throws Exception {

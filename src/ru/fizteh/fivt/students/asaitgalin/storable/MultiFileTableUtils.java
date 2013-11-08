@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.asaitgalin.storable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MultiFileTableUtils {
     public static List<Class<?>> getColumnTypes(String[] values) {
@@ -59,7 +61,14 @@ public class MultiFileTableUtils {
     }
 
     public static boolean isValidType(String type) {
-        return type.equals("int") || type.equals("long") || type.equals("byte") || type.equals("float") ||
-                type.equals("double") || type.equals("boolean") || type.equals("String");
+        Set<String> validTypes = new HashSet<>();
+        validTypes.add("int");
+        validTypes.add("long");
+        validTypes.add("byte");
+        validTypes.add("float");
+        validTypes.add("double");
+        validTypes.add("boolean");
+        validTypes.add("String");
+        return validTypes.contains(type);
     }
 }

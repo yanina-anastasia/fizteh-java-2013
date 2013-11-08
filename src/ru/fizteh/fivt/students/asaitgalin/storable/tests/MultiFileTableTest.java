@@ -1,29 +1,43 @@
 package ru.fizteh.fivt.students.asaitgalin.storable.tests;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MultiFileTableTest {
-    private static final String DB_PATH = "/home/andrey/testdb";
+    private static final File dbTestPath = new File("./testsTable");
+
     private static TableProvider provider;
     private static Table testTable;
+
+    @BeforeClass
+    public static void globalSetUp() {
+        dbTestPath.mkdir();
+    }
+
+    @AfterClass
+    public static void globalTearDown() {
+        try {
+            FileUtils.deleteRecursively(dbTestPath);
+        } catch (IOException ioe) {
+            //
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
         List<Class<?>> columns = new ArrayList<>();
         columns.add(Integer.class);
         columns.add(String.class);
-        provider = new MultiFileTableProvider(new File(DB_PATH));
+        provider = new MultiFileTableProvider(dbTestPath);
         testTable = provider.createTable("table3", columns);
     }
 

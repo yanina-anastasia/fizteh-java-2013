@@ -8,8 +8,8 @@ import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableProviderFactory
 import java.io.IOException;
 
 public class MultiFileTableProviderFactoryTest {
-    private static final String badPath = "/notexistingdir";
-    TableProviderFactory factory;
+    private static final String BAD_PATH = "/notexistingdir";
+    private TableProviderFactory factory;
 
     @Before
     public void setUp() throws Exception {
@@ -18,7 +18,7 @@ public class MultiFileTableProviderFactoryTest {
 
     @Test(expected = IOException.class)
     public void testCreateProviderUnavailable() throws Exception {
-        factory.create(badPath);
+        factory.create(BAD_PATH);
     }
 
     @Test(expected = IllegalArgumentException.class)

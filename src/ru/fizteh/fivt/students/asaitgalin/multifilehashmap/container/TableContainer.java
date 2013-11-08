@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.container;
 
-import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntry;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryReader;
 import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
 
@@ -167,20 +166,18 @@ public class TableContainer<ValueType> {
                 boolean hasFiles = false;
                 for (File f : subDir.listFiles()) {
                     hasFiles = true;
-                    if (f.exists()) {
-                        TableEntryReader reader = new TableEntryReader(f);
-                        while (reader.hasNextEntry()) {
-                            TableEntry entry = reader.readNextEntry();
-                            File validFile = new File(new File(tableDirectory, getKeyDir(entry.getKey()) + ".dir"),
-                                    getKeyFile(entry.getKey()) + ".dat");
-                            if (!f.equals(validFile)) {
-                                throw new IOException("Corrupted database");
-                            }
-                            try {
-                                originalTable.put(entry.getKey(), unpacker.getValueFromString(entry.getValue()));
-                            } catch (Exception e) {
-                                throw new IOException(e);
-                            }
+                    TableEntryReader reader = new TableEntryReader(f);
+                    while (reader.hasNextEntry()) {
+                        Map.Entry<String, String> entry = reader.readNextEntry();
+                        File validFile = new File(new File(tableDirectory, getKeyDir(entry.getKey()) + ".dir"),
+                        getKeyFile(entry.getKey()) + ".dat");
+                        if (!f.equals(validFile)) {
+                            throw new IOException("Corrupted database");
+                        }
+                        try {
+                            originalTable.put(entry.getKey(), unpacker.getValueFromString(entry.getValue()));
+                        } catch (Exception e) {
+                            throw new IOException(e);
                         }
                     }
                 }

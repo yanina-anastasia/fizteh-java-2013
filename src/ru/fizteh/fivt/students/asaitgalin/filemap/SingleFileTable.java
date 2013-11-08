@@ -18,7 +18,7 @@ public class SingleFileTable implements Table {
     public void loadTable() throws IOException {
         TableEntryReader reader = new TableEntryReader(dbName);
         while (reader.hasNextEntry()) {
-            TableEntry entry = reader.readNextEntry();
+            Map.Entry<String, String> entry = reader.readNextEntry();
             table.put(entry.getKey(), entry.getValue());
         }
     }

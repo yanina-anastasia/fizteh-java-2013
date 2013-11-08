@@ -1,30 +1,43 @@
 package ru.fizteh.fivt.students.asaitgalin.storable.tests;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableProviderFactory;
+import ru.fizteh.fivt.students.asaitgalin.utils.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MultiFileTableProviderTest {
-    private static final String dbPath = "/home/andrey/testdb";
+    private static final File DB_TEST_PATH = new File("./testsProvider");
 
-    TableProviderFactory factory = new MultiFileTableProviderFactory();
-    TableProvider provider;
-    Table table;
+    private TableProviderFactory factory = new MultiFileTableProviderFactory();
+    private TableProvider provider;
+    private Table table;
+
+    @BeforeClass
+    public static void globalSetUp() {
+        DB_TEST_PATH.mkdir();
+    }
+
+    @AfterClass
+    public static void globalTearDown() {
+        try {
+            FileUtils.deleteRecursively(DB_TEST_PATH);
+        } catch (IOException ioe) {
+            //
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
-        provider = factory.create(dbPath);
+        provider = factory.create(DB_TEST_PATH.getAbsolutePath());
         List<Class<?>> columns = new ArrayList<>();
         columns.add(Integer.class);
         columns.add(String.class);
