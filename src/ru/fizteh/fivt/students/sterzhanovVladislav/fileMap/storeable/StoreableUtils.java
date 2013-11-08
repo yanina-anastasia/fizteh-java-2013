@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,12 +45,12 @@ public class StoreableUtils {
         }
     }
 
-    public static String serialize(Storeable s, Class<?>[] types) {
+    public static String serialize(Storeable s, List<Class<?>> types) {
         Document document;
         try {
             document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element root = document.createElement("row") ;
-            for (int i = 0; i < types.length; ++i) {
+            for (int i = 0; i < types.size(); ++i) {
                 Object obj = s.getColumnAt(i);
                 Element child;
                 if (obj == null) {
@@ -76,7 +77,7 @@ public class StoreableUtils {
         return writer.getBuffer().toString().replaceAll("\n|\r", "");
     }
 
-    public static Storeable deserialize(String s, Class<?>[] types) throws ParseException {
+    public static Storeable deserialize(String s, List<Class<?>> types) throws ParseException {
         StoreableRow row = new StoreableRow(types);
         Document document;
         try {
@@ -101,7 +102,7 @@ public class StoreableUtils {
                         row.setColumnAt(i, null);
                     } else if (tagName.equals("col")) {
                         String value = e.getTextContent();
-                        row.setColumnAt(i, dynamicParse(value, types[i]));
+                        row.setColumnAt(i, dynamicParse(value, types.get(i)));
                     } else {
                         throw new ParseException("Illegal tag, expected: \"col\", but got: \"" + tagName + "\"", i);
                     }
@@ -113,14 +114,14 @@ public class StoreableUtils {
         return row;
     }
 
-    public static boolean validate(Storeable s, Class<?>[] types) {
-        for (int classID = 0; classID < types.length; ++classID) {
+    public static boolean validate(Storeable s, List<Class<?>> types) {
+        for (int classID = 0; classID < types.size(); ++classID) {
             try {
                 Object object = s.getColumnAt(classID);
                 if (object == null) {
                     continue;
                 }
-                if (!object.getClass().equals(types[classID])) {
+                if (!object.getClass().equals(types.get(classID))) {
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -128,7 +129,7 @@ public class StoreableUtils {
             }
         }
         try {
-            s.getColumnAt(types.length);
+            s.getColumnAt(types.size());
             return false;
         } catch (IndexOutOfBoundsException e) {
             return true;

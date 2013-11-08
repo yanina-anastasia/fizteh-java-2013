@@ -8,7 +8,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 public class StoreableRow implements Storeable {
     
     private Object[] row;
-    private Class<?>[] signature;
+    private List<Class<?>> signature;
 
     @Override
     public void setColumnAt(int columnIndex, Object value)
@@ -19,7 +19,7 @@ public class StoreableRow implements Storeable {
         if (value == null) {
             row[columnIndex] = null;
         } else {
-            if (signature[columnIndex] != value.getClass()) {
+            if (signature.get(columnIndex) != value.getClass()) {
                 throw new ColumnFormatException();
             } else {
                 row[columnIndex] = value;
@@ -38,6 +38,9 @@ public class StoreableRow implements Storeable {
     private Object getObjAt(int columnIndex, Class<?> type) 
             throws IndexOutOfBoundsException, ColumnFormatException {
         Object obj = getColumnAt(columnIndex);
+        if (obj == null) {
+            return null;
+        }
         if (!obj.getClass().equals(type)) {
             throw new ColumnFormatException();
         }
@@ -126,19 +129,22 @@ public class StoreableRow implements Storeable {
         return hashcode;
     }
     
-    public StoreableRow(Class<?>[] signature) {
-        this.row = new Object[signature.length];
+    public StoreableRow(List<Class<?>> signature) {
+        if (signature == null) {
+            throw new IllegalArgumentException("Got null signature");
+        }
+        this.row = new Object[signature.size()];
         this.signature = signature;
     }
 
-    public StoreableRow(Class<?>[] signature, List<?> values) {
+    public StoreableRow(List<Class<?>> signature, List<?> values) {
         this(signature);
-        if (signature.length != values.size()) {
+        if (signature.size() != values.size()) {
             throw new IndexOutOfBoundsException();
         }
         for (int valueID = 0; valueID < values.size(); ++valueID) {
             Object nextValue = values.get(valueID);
-            if (nextValue != null && nextValue.getClass() != signature[valueID]) {
+            if (nextValue != null && nextValue.getClass() != signature.get(valueID)) {
                 throw new ColumnFormatException();
             }
             row[valueID] = nextValue;

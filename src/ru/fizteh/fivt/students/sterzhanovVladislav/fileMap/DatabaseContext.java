@@ -101,7 +101,7 @@ public class DatabaseContext implements Closeable {
         }
     }
     
-    public DatabaseContext(String path) throws IllegalStateException {
+    public DatabaseContext(String path) throws IllegalStateException, IOException {
         provider = new FileMapProvider(path);
     } 
     

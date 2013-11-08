@@ -3,8 +3,8 @@ package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -17,7 +17,7 @@ public class FileMap implements Table {
     private String name = null;
     private HashMap<String, Storeable> db = null;
     private HashMap<String, Diff> diff = null;
-    private Class<?>[] columnTypes = null;
+    private List<Class<?>> columnTypes = null;
 
     @Override
     public String getName() {
@@ -83,15 +83,15 @@ public class FileMap implements Table {
     
     @Override 
     public int getColumnsCount() {
-        return columnTypes.length;
+        return columnTypes.size();
     }
     
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex >= columnTypes.length || columnIndex < 0) {
+        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
-        return columnTypes[columnIndex];
+        return columnTypes.get(columnIndex);
     }
     
     private int estimateDiffDelta() {
@@ -134,14 +134,14 @@ public class FileMap implements Table {
         this.name = name;
     }
     
-    public FileMap(String dbName, Class<?>[] classes) {
+    public FileMap(String dbName, List<Class<?>> classes) {
         name = dbName;
         db = new HashMap<String, Storeable>();
         diff = new HashMap<String, Diff>();
-        this.columnTypes = Arrays.copyOf(classes, classes.length);
+        this.columnTypes = classes;
     }
     
-    public FileMap(String dbName, HashMap<String, Storeable> db, Class<?>[] classes) {
+    public FileMap(String dbName, HashMap<String, Storeable> db, List<Class<?>> classes) {
         this(dbName, classes);
         this.db = new HashMap<String, Storeable>(db);
     }
@@ -194,7 +194,7 @@ public class FileMap implements Table {
         IOUtility.writeSignature(path, columnTypes);
     }
     
-    public Class<?>[] getSignature() {
+    public List<Class<?>> getSignature() {
         return columnTypes;
     }
 

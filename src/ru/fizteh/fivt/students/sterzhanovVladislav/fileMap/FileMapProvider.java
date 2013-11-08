@@ -46,7 +46,7 @@ public class FileMapProvider implements TableProvider {
 
     @Override
     public FileMap createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty() || columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException();
         }
         Path dbPath = Paths.get(rootDir.normalize() + "/" + name);
@@ -57,7 +57,7 @@ public class FileMapProvider implements TableProvider {
             return null;
         }
         createFileStructure(dbPath, columnTypes);
-        FileMap newFileMap = new FileMap(name, columnTypes.toArray(new Class<?>[0]));
+        FileMap newFileMap = new FileMap(name, columnTypes);
         tables.put(name, newFileMap);
         return newFileMap;
     }
@@ -89,13 +89,16 @@ public class FileMapProvider implements TableProvider {
         return rootDir.toString();
     }
 
-    public FileMapProvider(String root) throws IllegalArgumentException {
+    public FileMapProvider(String root) throws IllegalArgumentException, IOException {
         if (root == null) {
             throw new IllegalArgumentException();
         }
         rootDir = Paths.get(root);
-        if (rootDir == null || !rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
-            throw new IllegalArgumentException("fizteh.db.dir did not resolve to a valid directory");
+        if (rootDir == null) {
+            throw new IllegalArgumentException("rootDir can not be null");
+        }
+        if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
+            throw new IOException("root did not resolve to a valid directory");
         }
         tables = new HashMap<String, FileMap>();
     }
@@ -104,7 +107,7 @@ public class FileMapProvider implements TableProvider {
         if (!dbPath.toFile().mkdir()) {
             throw new IOException("Unable to create directory");
         }
-        IOUtility.writeSignature(dbPath, columnTypes.toArray(new Class<?>[0]));
+        IOUtility.writeSignature(dbPath, columnTypes);
     }
     
     private static boolean isValidFileName(String name) {
@@ -142,11 +145,11 @@ public class FileMapProvider implements TableProvider {
         return new StoreableRow(generateSignature(table), values);
     }
     
-    private static Class<?>[] generateSignature(Table table) {
+    private static List<Class<?>> generateSignature(Table table) {
         List<Class<?>> classList = new ArrayList<Class<?>>();
         for (int classID = 0; classID < table.getColumnsCount(); ++classID) {
             classList.add(table.getColumnType(classID));
         }
-        return classList.toArray(new Class<?>[0]);
+        return classList;
     }
 }

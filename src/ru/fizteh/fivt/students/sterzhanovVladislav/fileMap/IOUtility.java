@@ -29,7 +29,7 @@ public class IOUtility {
     public static FileMap parseDatabase(Path dbDir) 
             throws IllegalStateException, IOException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
-        Class<?>[] dbSignature = parseSignature(dbDir);
+        List<Class<?>> dbSignature = parseSignature(dbDir);
         for (File subdir : dbDir.toFile().listFiles()) {
             if (subdir.getName().equals(FileMapProvider.SIGNATURE_FILE_NAME)) {
                 continue;
@@ -53,7 +53,7 @@ public class IOUtility {
     }
 
     public static void parseFileIntoDB(File dbFile, HashMap<String, Storeable> map, int checkDirID, int checkFileID,
-            Class<?>[] signature) 
+            List<Class<?>> signature) 
             throws FileNotFoundException, IOException {
         try (FileInputStream fstream = new FileInputStream(dbFile)) {
             while (fstream.available() > 0) {
@@ -64,7 +64,7 @@ public class IOUtility {
     }
 
     public static Map.Entry<String, Storeable> parseEntry(FileInputStream fstream, int checkDirID, int checkFileID,
-            Class<?>[] signature) 
+            List<Class<?>> signature) 
             throws IllegalStateException, IOException, UnsupportedEncodingException {
         byte[] sizeBuf = new byte[4];
         safeRead(fstream, sizeBuf, 4);
@@ -96,7 +96,7 @@ public class IOUtility {
         return new AbstractMap.SimpleEntry<String, Storeable>(new String(keyBuf, StandardCharsets.UTF_8), value);
     }
     
-    public static void writeDatabase(HashMap<String, Storeable> dataBase, Path path, Class<?>[] classes) 
+    public static void writeDatabase(HashMap<String, Storeable> dataBase, Path path, List<Class<?>> classes) 
             throws IOException {
         if (!path.toFile().mkdir()) {
             throw new IOException("Unable to create directory");
@@ -122,7 +122,7 @@ public class IOUtility {
         } 
     }
 
-    public static void writeEntry(Entry<String, Storeable> entry, FileOutputStream fstream, Class<?>[] signature) 
+    public static void writeEntry(Entry<String, Storeable> entry, FileOutputStream fstream, List<Class<?>> signature) 
             throws IOException {
         byte[] keyBuf = entry.getKey().getBytes(StandardCharsets.UTF_8);
         byte[] valueBuf = StoreableUtils.serialize(entry.getValue(), signature).getBytes(StandardCharsets.UTF_8);
@@ -147,13 +147,13 @@ public class IOUtility {
         }
     }
     
-    private static Class<?>[] parseSignature(Path rootDir) throws IOException {
+    private static List<Class<?>> parseSignature(Path rootDir) throws IOException {
         if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
             throw new IOException("directory does not exist");
         }
         Path signaturePath = Paths.get(rootDir.toString() + "/" + FileMapProvider.SIGNATURE_FILE_NAME);
         if (signaturePath == null) {
-            throw new IllegalStateException("Error: malformed database");
+            throw new IOException("directory does not exist");
         }
         List<Class<?>> signature = new ArrayList<Class<?>>();
         try {
@@ -168,10 +168,10 @@ public class IOUtility {
         } catch (IOException e) {
             throw new IllegalStateException("Error: malformed database");
         }
-        return signature.toArray(new Class<?>[0]);
+        return signature;
     }
     
-    public static void writeSignature(Path rootDir, Class<?>[] signature) throws IOException {
+    public static void writeSignature(Path rootDir, List<Class<?>> signature) throws IOException {
         if (!rootDir.toFile().exists() || !rootDir.toFile().isDirectory()) {
             throw new IOException("directory does not exist");
         }
@@ -180,9 +180,9 @@ public class IOUtility {
             throw new IllegalStateException("Error: malformed database");
         }
         FileOutputStream fstream = new FileOutputStream(signaturePath.toFile());
-        for (int typeID = 0; typeID < signature.length; ++typeID) {
-            String typeName = StoreableUtils.CLASSES.get(signature[typeID]);
-            byte[] typeNameBuf = (typeName + ((typeID < signature.length - 1) ? " " : ""))
+        for (int typeID = 0; typeID < signature.size(); ++typeID) {
+            String typeName = StoreableUtils.CLASSES.get(signature.get(typeID));
+            byte[] typeNameBuf = (typeName + ((typeID < signature.size() - 1) ? " " : ""))
                     .getBytes(StandardCharsets.UTF_8);
             fstream.write(typeNameBuf);
         }
