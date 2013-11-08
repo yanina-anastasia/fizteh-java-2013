@@ -90,7 +90,7 @@ public class FileMapProvider implements TableProvider {
     }
 
     public FileMapProvider(String root) throws IllegalArgumentException, IOException {
-        if (root == null) {
+        if (root == null || root.isEmpty()) {
             throw new IllegalArgumentException();
         }
         rootDir = Paths.get(root);
