@@ -281,11 +281,11 @@ public class MyTableProvider implements TableProvider {
         if (first.getClass().equals(String.class)) {
             String val = (String) first;
             if (second.equals(Boolean.class)) {
-                if (val.equals("false")) {
+                if (val.toLowerCase().equals("false")) {
                     result = Boolean.valueOf(false);
                     return result;
                 }
-                if (val.equals("true")) {
+                if (val.toLowerCase().equals("true")) {
                     result = Boolean.valueOf(true);
                     return result;
                 }
