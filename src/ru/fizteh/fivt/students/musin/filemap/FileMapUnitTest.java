@@ -468,6 +468,18 @@ public class FileMapUnitTest {
         MultiFileMap table = provider.createTable("new", getColumnTypeList());
         provider.createFor(table, new ArrayList<Object>(4));
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void tooManyColumnsPutShouldFail() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        ArrayList<Class<?>> columnTypes = getColumnTypeList();
+        columnTypes.add(Integer.class);
+        table.put("a", new FixedList(columnTypes));
+    }
 }
 
 

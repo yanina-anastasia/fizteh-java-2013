@@ -59,7 +59,12 @@ public class MultiFileMap implements Table {
         } catch (IndexOutOfBoundsException e) {
             return false;
         }
-        return true;
+        try {
+            list.getColumnAt(columnTypes.size());
+            return false;
+        } catch (IndexOutOfBoundsException e) {
+            return true;
+        }
     }
 
     private boolean newLineCheck(String string) {
@@ -72,13 +77,12 @@ public class MultiFileMap implements Table {
     }
 
     private boolean whiteSpaceCheck(String string) {
-        /*for (int i = 0; i < string.length(); i++) {
+        for (int i = 0; i < string.length(); i++) {
             if (Character.isWhitespace(string.charAt(i))) {
                 return false;
             }
         }
-        return true; */
-        return !string.matches(".*\\s+.*");
+        return true;
     }
 
     public String getName() {
@@ -343,11 +347,11 @@ public class MultiFileMap implements Table {
         if (!newLineCheck(key)) {
             throw new IllegalArgumentException("New-line in key or value");
         }
-        if (!newLineCheck(key)) {
-            throw new IllegalArgumentException("WhiteSpace not allowed in key");
-        }
         if (!checkColumnTypes(value)) {
             throw new ColumnFormatException("Type mismatch");
+        }
+        if (!whiteSpaceCheck(key)) {
+            throw new IllegalArgumentException("Whitespace not allowed in key");
         }
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
