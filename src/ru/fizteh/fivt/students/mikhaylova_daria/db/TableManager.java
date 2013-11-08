@@ -192,7 +192,7 @@ public class TableManager implements TableProvider {
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
         if (!creatingTableFile.exists()) {
-            throw new IllegalArgumentException("wrong type (Table " + nameTable + "does not exist)");
+            throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
         } else {
             String[] argShell = new String[] {
                     "rm",
