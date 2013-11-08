@@ -230,7 +230,6 @@ public class TableManager implements TableProvider {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
                     Method m = table.getColumnType(i).getMethod("toString");
-                    System.out.println((value.getColumnAt(i)).getClass().getSimpleName());
                     valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
                     Text text = doc.createTextNode(valueStr);
                     column.appendChild(text);
@@ -347,15 +346,6 @@ public class TableManager implements TableProvider {
         return new Value(table);
     }
 
-    /**
-     * Создает новый {@link ru.fizteh.fivt.storage.structured.Storeable} для указанной таблицы, подставляя туда переданные значения.
-     *
-     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param values Список значений, которыми нужно проинициализировать поля Storeable.
-     * @return {@link ru.fizteh.fivt.storage.structured.Storeable}, проинициализированный переданными значениями.
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа переданного значения и колонки.
-     * @throws IndexOutOfBoundsException При несоответствии числа переданных значений и числа колонок.
-     */
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table == null) {

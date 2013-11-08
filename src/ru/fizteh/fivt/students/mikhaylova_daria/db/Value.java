@@ -48,10 +48,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is"
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Integer integer = null;
+        if (value.get(columnIndex) != null) {
+            integer = (Integer) value.get(columnIndex);
         }
-        return (Integer) value.get(columnIndex);
+        return integer;
     }
 
 
@@ -63,10 +64,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Long val = null;
+        if (value.get(columnIndex) != null) {
+            val = (Long) value.get(columnIndex);
         }
-        return (long) value.get(columnIndex);
+        return val;
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -77,10 +79,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Byte val = null;
+        if (value.get(columnIndex) != null) {
+            val = (Byte) value.get(columnIndex);
         }
-        return (Byte) value.get(columnIndex);
+        return val;
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -91,10 +94,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Float val = null;
+        if (value.get(columnIndex) != null) {
+            val = (Float) value.get(columnIndex);
         }
-        return (Float) value.get(columnIndex);
+        return val;
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -105,10 +109,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Double val = null;
+        if (value.get(columnIndex) != null) {
+            val = (Double) value.get(columnIndex);
         }
-        return (Double) value.get(columnIndex);
+        return val;
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -119,10 +124,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        Boolean val = null;
+        if (value.get(columnIndex) != null) {
+            val = (Boolean) value.get(columnIndex);
         }
-        return (Boolean) value.get(columnIndex);
+        return val;
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -133,10 +139,11 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        if (value.get(columnIndex) == null) {
-            return null;
+        String val = null;
+        if (value.get(columnIndex) != null) {
+            val = (String) value.get(columnIndex);
         }
-        return (String) value.get(columnIndex);
+        return val;
     }
 
 }
