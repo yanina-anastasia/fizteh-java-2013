@@ -30,7 +30,7 @@ public class TestDistributedTableFactory extends FileManager {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createProviderOnFileShouldFail() throws IOException {
+    public void createProviderOnFileShouldFail() throws IllegalArgumentException, IOException {
         String name = "file";
         File file = folder.newFile(name);
         factory.create(file.getAbsolutePath());

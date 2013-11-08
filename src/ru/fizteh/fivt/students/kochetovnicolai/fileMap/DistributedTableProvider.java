@@ -86,7 +86,10 @@ public class DistributedTableProvider implements TableProvider {
         if (currentPath == null) {
             throw new IllegalArgumentException("working directory shouldn't be null");
         }
-        if ((currentPath.exists() && !currentPath.isDirectory()) || (!currentPath.exists() && !currentPath.mkdir())) {
+        if (currentPath.exists() && !currentPath.isDirectory()) {
+            throw new IllegalArgumentException("couldn't create working directory on file");
+        }
+        if (!currentPath.exists() && !currentPath.mkdir()) {
             throw new IOException("couldn't create working directory");
         }
         tables = new HashMap<>();
