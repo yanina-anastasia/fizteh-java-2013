@@ -76,9 +76,8 @@ public class TableImplementation implements Table {
         if (!isValidKey(key)) {
             throw new IllegalArgumentException("Invalid key");
         }
-        if (!isValidValue(value)) {
-            throw new IllegalArgumentException("Invalid value");
-        }
+        
+        isValidValue(value);
         
         String originValueString = getValueFromFile(key);
         Storeable originValue;
@@ -210,30 +209,36 @@ public class TableImplementation implements Table {
     }
     
     private boolean isValidKey(final String key) {
-        if (key == null || key.trim().isEmpty() || key.contains(" ") || key.contains("\n") || key.contains("\t") 
-                || key.contains("\0")) {
+        if (key == null || key.isEmpty() || key.matches(".*\\s.*") || key.contains("\0")) {
             return false;
         }
         return true;
     }
     
-    private boolean isValidValue(final Storeable value) {
+    private void isValidValue(final Storeable value) throws ColumnFormatException, IllegalArgumentException {
         if (value == null) {
-            return false;
+            throw new IllegalArgumentException("value is null");
         }
         
         for (int columnIndex = 0; columnIndex < getColumnsCount(); ++columnIndex) {
             try {
                 if (value.getColumnAt(columnIndex) != null 
                         && !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) {
-                    return false;
+                    throw new ColumnFormatException("Invalid column: value at index " + columnIndex 
+                            + " doesn't correspond to the type of column");
                 }
             } catch (IndexOutOfBoundsException e) {
-                return false;
+                throw new ColumnFormatException("Invalid value: less columns");
             }
         }
         
-        return true;
+        try {
+            value.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e) {
+            /* OK */
+            return;
+        }
+        throw new ColumnFormatException("Invalid value: more columns");
     }
     
     private String getValueFromFile(String key) {
