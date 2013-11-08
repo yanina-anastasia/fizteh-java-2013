@@ -68,7 +68,7 @@ public class MultiFileTable implements ExtendedTable {
         if (key.matches("\\s*") || key.split("\\s+").length != 1) {
             throw new IllegalArgumentException("put: key or value is empty");
         }
-        //checkValue(value);
+        checkValue(value);
         return container.containerPutValue(key, value);
     }
 
@@ -112,22 +112,49 @@ public class MultiFileTable implements ExtendedTable {
         container.containerLoad();
     }
 
-    private void checkValue(Storeable st) {
+    private void tryToGetValue(Storeable st, int index, Class<?> type) throws ColumnFormatException {
+        switch (type.getSimpleName()) {
+            case "Integer":
+                st.getIntAt(index);
+                break;
+            case "Long":
+                st.getLongAt(index);
+                break;
+            case "Byte":
+                st.getLongAt(index);
+                break;
+            case "Float":
+                st.getFloatAt(index);
+                break;
+            case "Double":
+                st.getDoubleAt(index);
+                break;
+            case "Boolean":
+                st.getBooleanAt(index);
+                break;
+            case "String":
+                st.getStringAt(index);
+                break;
+            default:
+                throw new ColumnFormatException("table: wrong storable columns");
+        }
+    }
+
+    private void checkValue(Storeable st) throws ColumnFormatException {
         int counter = 0;
         try {
             for (; counter < columnTypes.size(); ++counter) {
-                Object o = st.getColumnAt(counter);
-                if (o != null) {
-                    if (!columnTypes.get(counter).equals(o.getClass())) {
-                        throw new IllegalArgumentException("table, put: alien storable");
-                    }
-                }
+                tryToGetValue(st, counter, columnTypes.get(counter));
+            }
+            try {
+                st.getColumnAt(counter);
+                throw new ColumnFormatException("table: wrong storable columns");
+            } catch (IndexOutOfBoundsException e) {
+                //
             }
         } catch (IndexOutOfBoundsException e) {
-            //
-        }
-        if (counter != columnTypes.size()) {
-            throw new IllegalArgumentException("table, put: alien storable");
+            throw new ColumnFormatException("table: wrong storable columns");
         }
     }
+
 }
