@@ -241,12 +241,32 @@ public class TableManager implements TableProvider {
             Element row = doc.createElement("row");
             doc.appendChild(row);
             for (i = 0; i < table.getColumnsCount(); ++i) {
-                valueStr = null;
                 if (!(value.getColumnAt(i) == null)) {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
-                    Method m = table.getColumnType(i).getMethod("toString");
-                    valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
+//                    Method m = table.getColumnType(i).getMethod("toString");
+//                    valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
+                    if (table.getColumnType(i).equals(Integer.class)) {
+                        valueStr = value.getIntAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(Long.class)) {
+                        valueStr = value.getLongAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(Byte.class)) {
+                        valueStr = value.getByteAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(Float.class)) {
+                        valueStr = value.getFloatAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(Double.class)) {
+                        valueStr = value.getDoubleAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(Boolean.class)) {
+                        valueStr = value.getBooleanAt(i).toString();
+                    }
+                    if (table.getColumnType(i).equals(String.class)) {
+                        valueStr = value.getStringAt(i);
+                    }
                     Text text = doc.createTextNode(valueStr);
                     column.appendChild(text);
                 } else {
