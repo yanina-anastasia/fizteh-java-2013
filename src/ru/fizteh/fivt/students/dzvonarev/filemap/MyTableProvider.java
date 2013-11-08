@@ -1,13 +1,11 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.dzvonarev.shell.Remove;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MyTableProvider implements TableProvider {
 
@@ -62,7 +60,10 @@ public class MyTableProvider implements TableProvider {
                     if (new File(workingDirectory + File.separator + table).isFile()) {
                         continue;
                     }
-                    ShellRemove.execute(table);
+                    Remove shell = new Remove();
+                    ArrayList<String> myArgs = new ArrayList<>();
+                    myArgs.add(workingDirectory + File.separator + table);
+                    shell.execute(myArgs);
                     if (!(new File(workingDirectory + File.separator + table)).mkdir()) {
                         throw new IOException("exit: can't make " + table + " directory");
                     }
@@ -125,7 +126,10 @@ public class MyTableProvider implements TableProvider {
         } else {
             multiFileMap.remove(tableName);
             try {
-                ShellRemove.execute(tableName);
+                Remove shell = new Remove();
+                ArrayList<String> myArgs = new ArrayList<>();
+                myArgs.add(workingDirectory + File.separator + tableName);
+                shell.execute(myArgs);
                 System.out.println("dropped");
                 if ((currTable != null) && (currTable.equals(tableName))) {
                     currTable = null;
