@@ -101,7 +101,7 @@ public class FileMapProvider implements TableProvider {
             throw new IOException("Error: Root directory does not exist");
         }
         if (!rootDir.toFile().isDirectory()) {
-            throw new IllegalArgumentException("Error: Root did not resolve to a valid directory");
+            throw new IOException("Error: Root did not resolve to a valid directory");
         }
         tables = new HashMap<String, FileMap>();
     }
