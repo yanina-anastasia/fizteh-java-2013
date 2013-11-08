@@ -48,7 +48,7 @@ public class FileMap {
             }
 
         }
-        return fileMap.put(key, value);
+        return fileMapInitial.put(key, value);
     }
 
     public Storeable get(String key, TableData table) throws IllegalArgumentException {
