@@ -98,7 +98,9 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException("Error: RootDir can not be null");
         }
         if (!rootDir.toFile().exists()) {
-            throw new IOException("Error: Root directory does not exist");
+            if (!rootDir.toFile().mkdir()) {
+                throw new IOException("Error: Root directory does not exist, unable to create root directory");
+            }
         }
         if (!rootDir.toFile().isDirectory()) {
             throw new IllegalArgumentException("Error: Root did not resolve to a valid directory");
