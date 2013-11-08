@@ -12,14 +12,7 @@ public class DataTable implements Table {
     public static final int DIR_COUNT = 16;
     public static final int FILE_COUNT = 16;
 
-
     private UniversalDataTable<String> dataTable;
-   /* private File dataBaseDirectory;
-    private String tableName;
-    private Map<String, String> dataStorage = new HashMap<String, String>();
-
-    private Map<String, String> putKeys = new HashMap<String, String>();
-    private Set<String> removeKeys = new HashSet<String>();  */
 
     public DataTable() {
         dataTable = new UniversalDataTable<String>();
@@ -27,13 +20,10 @@ public class DataTable implements Table {
 
     public DataTable(String name) {
         dataTable = new UniversalDataTable<String>(name);
-        //tableName = name;
     }
 
     public DataTable(String name, File dir) {
         dataTable = new UniversalDataTable<String>(name, dir);
-        /*tableName = name;
-        dataBaseDirectory = dir;*/
     }
 
     public String getName() {
