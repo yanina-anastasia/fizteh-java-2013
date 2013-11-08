@@ -7,131 +7,113 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.strings.*;
 
 public class MultiDbStateTest {
-    public static TemporaryFolder rootFolder = new TemporaryFolder();  
     @Rule
-    public ExpectedException thrown = ExpectedException.none();  
-    static Table table;
-    static TableProvider provider;
-    static TableProviderFactory factory;
-    static File root;
-    
-    @BeforeClass
-    public static void tempFolder() {
-        try {
-            rootFolder.create();
-            root = rootFolder.newFolder("root");
-        } catch (IOException e) {
-            fail("unable to create temporary folder");
-        }
-    }  
+    public TemporaryFolder rootFolder = new TemporaryFolder();  
+    Table table;
+    TableProvider provider;
+    TableProviderFactory factory;
+    File root;
     
     @Before
-    public void initialization() {
+    public void initialization() throws IOException {
+        rootFolder.create();
+        root = rootFolder.newFolder("root");
         factory = new MyTableProviderFactory();
         provider = factory.create(root.getAbsolutePath());
         table = provider.createTable("default");
     }  
     
     //tests for TableProviderFactory 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testFactoryCreateWrong() {
-        thrown.expect(IllegalArgumentException.class);
-        provider = (MyTableProvider) factory.create("wrong-path");
-    }   
-    @Test
+        provider = factory.create("wrong-path");
+    }  
+    
+    @Test(expected = IllegalArgumentException.class)
     public void testFactoryCreateNull() {
-        thrown.expect(IllegalArgumentException.class);
-        provider = (MyTableProvider) factory.create(null);
+        provider = factory.create(null);
     }   
     //end of tests for TableProviderFactory
     
     //tests for TableProvider
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testProviderGetTableNull() {
-        thrown.expect(IllegalArgumentException.class);
         provider.getTable(null);
     } 
+    
     @Test
     public void testProviderGetTableNotExisting() {
-        table = (MultiDbState) provider.getTable("not-existing-table");
+        table = provider.getTable("not-existing-table");
         assertNull("not null on not existing table", table);
     }  
-    @Test
+    
+    @Test(expected = RuntimeException.class)
     public void testProviderGetTableIncorrect() {
-        thrown.expect(RuntimeException.class);
-        table = (MultiDbState) provider.getTable("..");
+        table = provider.getTable("..");
     } 
-    @Test
+    
+    @Test(expected = IllegalArgumentException.class)
     public void testProviderCreateTableNull() {
-        thrown.expect(IllegalArgumentException.class);
         provider.createTable(null);
     } 
     
     @Test
     public void testProviderCreateTableExisting() {
-        table = (MultiDbState) provider.createTable("default");
+        table = provider.createTable("default");
         assertNull(table);
     } 
     
     @Test
     public void testProviderCreateRemoveTableOk() {
-        table = (MultiDbState) provider.createTable("myLittlePony");
+        table = provider.createTable("myLittlePony");
         assertNotNull(table);
         provider.removeTable("myLittlePony");
     } 
     
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testProviderRemoveTableNotExisting() {
-        thrown.expect(IllegalStateException.class);
         provider.removeTable("myLittlePony");
     } 
     
     @Test
     public void testProviderCreateRemovePut() {
-        table = (MultiDbState) provider.createTable("myLittleTable");
+        table = provider.createTable("myLittleTable");
         assertNotNull(table);
         provider.removeTable("myLittleTable");
         table.put("put", "to dropped");
     } 
     
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testProviderNewNameWrong() {
-        thrown.expect(RuntimeException.class);
         provider.createTable("nam/e");
     }
     
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testProviderNewNameNull() {
-        thrown.expect(IllegalArgumentException.class);
         provider.createTable(null);
     }
     
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testProviderNewNameEmpty() {
-        thrown.expect(IllegalArgumentException.class);
         provider.createTable("      ");
     }
     //end of tests for TableProvider
     
     //tests for Table            
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testTablePutNullKey() {
-        thrown.expect(IllegalArgumentException.class);
         table.put(null, "1");
     }
     
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testTablePutNullValue() {
-        thrown.expect(IllegalArgumentException.class);
         table.put("abcd", null);
     }
     
@@ -140,9 +122,8 @@ public class MultiDbStateTest {
         table.put("abcd", "1");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testTableGetNullValue() {
-        thrown.expect(IllegalArgumentException.class);
         table.put("abcd", null);
     } 
     

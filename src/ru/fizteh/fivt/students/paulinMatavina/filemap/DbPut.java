@@ -6,9 +6,6 @@ public class DbPut implements Command {
     @Override
     public int execute(String[] args, State state) {
         String key = args[0];
-        if (key == null) {
-            throw new IllegalArgumentException();
-        }
         MyTableProvider multiState = (MyTableProvider) state;
         if (multiState.getCurrTable() == null) {
             System.out.println("no table");

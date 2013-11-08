@@ -20,11 +20,10 @@ public class ShellState extends State{
     public int cd(final String source) {
         File newDir = new File(makeNewSource(source));
         if (!newDir.exists()) {
-            return 2;
+            throw new IllegalArgumentException("cd: " + source + ": does not exist");
         }
         if (!newDir.isDirectory()) {
-            System.err.println("cd: " + source + ": is not a directory");
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("cd: " + source + ": is not a directory");
         }
         try {
             if (newDir.isAbsolute()) {
@@ -34,16 +33,16 @@ public class ShellState extends State{
                             + File.separator + newDir);
             }
         } catch (Exception e) {
-            System.err.println("cd: " + source
+            throw new IllegalArgumentException("cd: " + source
                     + ": is not a correct directory");
-            throw new IllegalArgumentException();
         }
         return 0;
     }
     
     @Override
     public int exitWithError(int errCode) {
-        return errCode;
+        System.exit(errCode);
+        return 0;
     }
     
     public int rm(String[] args) throws IllegalArgumentException {

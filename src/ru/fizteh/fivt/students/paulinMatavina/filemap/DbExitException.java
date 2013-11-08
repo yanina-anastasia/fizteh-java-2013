@@ -1,8 +1,9 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-class DbExitException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+import ru.fizteh.fivt.students.paulinMatavina.utils.ExitException;;
 
+@SuppressWarnings("serial")
+class DbExitException extends ExitException {
     public DbExitException() {
         super();
     }
