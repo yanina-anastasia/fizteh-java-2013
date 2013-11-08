@@ -141,7 +141,7 @@ public class MyTable implements Table {
                     closeFile(fileReader);
                     throw new RuntimeException("file " + file + " in " + dir + " is not valid");
                 }
-                fileMap.put(key, value);
+                fileMap.put(key.trim(), value.trim());
                 currFilePosition = fileReader.getFilePointer();
                 endOfFile = fileReader.length();
             }
@@ -156,8 +156,8 @@ public class MyTable implements Table {
         int b = key.getBytes()[0];
         int nDirectory = Math.abs(b) % 16;
         int nFile = Math.abs(b) / 16 % 16;
-        String rightDir = Integer.toString(nDirectory) + ".dir";
-        String rightFile = Integer.toString(nFile) + ".dat";
+        String rightDir = nDirectory + ".dir";
+        String rightFile = nFile + ".dat";
         return (dir.equals(rightDir) && file.equals(rightFile));
     }
 
