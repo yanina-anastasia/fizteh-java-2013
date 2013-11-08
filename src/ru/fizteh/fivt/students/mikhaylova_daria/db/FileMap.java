@@ -339,7 +339,7 @@ public class FileMap {
                 throw new IllegalArgumentException("Reading error", e);
             }
         }
-        return fileMapInitial.size();
+        return fileMap.size();
     }
 
 }

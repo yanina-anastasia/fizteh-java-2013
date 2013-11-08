@@ -157,6 +157,13 @@ public class TableData implements Table {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
+
+        try {
+            manager.serialize(this, value);
+        } catch (Exception e) {
+            throw new ColumnFormatException("Wrong typelist of value", e);
+        }
+
         byte b = key.getBytes()[0];
         if (b < 0) {
             b *= (-1);
