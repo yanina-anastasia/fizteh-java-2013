@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.belousova.storable;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.belousova.multifilehashmap.AbstractTable;
@@ -35,6 +36,10 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
         }
         if (value.toString().trim().isEmpty()) {
             throw new IllegalArgumentException("empty value");
+        }
+
+        if (!StorableUtils.isStorableValid(value, columnTypes)) {
+            throw new ColumnFormatException("wrong storeable format");
         }
 
 //        try {

@@ -264,16 +264,41 @@ public class StorableUtils {
         MultiFileUtils.write(file, stringMap);
     }
 
-    public static boolean isStorableValid(GetColumnTypeStorable value, List<Class<?>> columnTypes) {
+    private static Object getValueWithType(Storeable storeable, int columnIndex,
+                                           Class<?> columnType) throws ColumnFormatException {
+        switch (columnType.getName()) {
+            case "java.lang.Integer":
+                return storeable.getIntAt(columnIndex);
+            case "java.lang.Long":
+                return storeable.getLongAt(columnIndex);
+            case "java.lang.Byte":
+                return storeable.getByteAt(columnIndex);
+            case "java.lang.Float":
+                return storeable.getFloatAt(columnIndex);
+            case "java.lang.Double":
+                return storeable.getDoubleAt(columnIndex);
+            case "java.lang.Boolean":
+                return storeable.getBooleanAt(columnIndex);
+            case "java.lang.String":
+                return storeable.getStringAt(columnIndex);
+            default:
+                throw new ColumnFormatException("wrong column format");
+        }
+    }
+
+    public static boolean isStorableValid(Storeable value, List<Class<?>> columnTypes) throws ColumnFormatException {
         int columnIndex = 0;
         try {
             for (Class<?> columnType : columnTypes) {
-                if (!columnType.equals(value.getColumnType(columnIndex))) {
-                    return false;
-                }
+                getValueWithType(value, columnIndex, columnType);
                 columnIndex++;
             }
-            return true;
+            try {
+                value.getColumnAt(columnIndex);
+                return false;
+            } catch (IndexOutOfBoundsException e) {
+                return true;
+            }
         } catch (IndexOutOfBoundsException e) {
             return false;
         }
