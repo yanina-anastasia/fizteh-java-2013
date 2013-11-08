@@ -66,6 +66,9 @@ public class TableCommands implements Table {
     private void isCorrectDir(int numOfDir, String name) {
         File curDir = tableDir.toPath().resolve(name).normalize().toFile();
         String[] listOfFiles = curDir.list();
+        if (listOfFiles.length == 0) {
+            throw new IllegalArgumentException("empty dir"); 
+        }
         for (int i = 0; i < listOfFiles.length; ++i) {
             boolean ok = false;
             int value = -1;
