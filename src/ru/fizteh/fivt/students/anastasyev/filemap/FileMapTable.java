@@ -65,12 +65,16 @@ public class FileMapTable implements Table {
                 throw new ColumnFormatException("Wrong column count");
             }
         } catch (IndexOutOfBoundsException e) {
-            //It's OK
+            //It's OK   Некрасивая конструкция, and I know it
         }
-        if (value.getColumnAt(columnTypes.indexOf(String.class)) != null
-                && value.getStringAt(columnTypes.indexOf(String.class)) != null
-                && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
-            throw new IllegalArgumentException("empty string in value");
+        try {
+            if (value.getColumnAt(columnTypes.indexOf(String.class)) != null
+                    && value.getStringAt(columnTypes.indexOf(String.class)) != null
+                    && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
+                throw new IllegalArgumentException("empty string in value");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("Wrong column count");
         }
     }
 
