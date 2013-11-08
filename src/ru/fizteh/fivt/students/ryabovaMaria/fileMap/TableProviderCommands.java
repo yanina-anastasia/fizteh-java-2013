@@ -39,6 +39,9 @@ public class TableProviderCommands implements TableProvider {
     
     @Override
     public Table getTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("bad tablename");
+        }
         isCorrectArgument(name);
         try {
             if (!tableDir.exists()) {
@@ -146,6 +149,9 @@ public class TableProviderCommands implements TableProvider {
 
     @Override
     public void removeTable(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("bad tablename");
+        }
         isCorrectArgument(name);
         if (!tableDir.isDirectory()) {
             throw new IllegalStateException(name + " cannot be deleted");
@@ -183,6 +189,9 @@ public class TableProviderCommands implements TableProvider {
     
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (name == null) {
+            throw new IllegalArgumentException("bad tablename");
+        }
         types = columnTypes;
         isCorrectColumnTypes((ArrayList) columnTypes);
         isCorrectArgument(name);
@@ -351,6 +360,9 @@ public class TableProviderCommands implements TableProvider {
     
     @Override
     public Storeable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("bad tablename");
+        }
         List<Class<?>> curTypes;
         try {
             curTypes = getTypeList(table);
@@ -362,6 +374,9 @@ public class TableProviderCommands implements TableProvider {
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table == null) {
+            throw new IllegalArgumentException("bad tablename");
+        }
         List<Class<?>> curTypes;
         try {
             curTypes = getTypeList(table);
