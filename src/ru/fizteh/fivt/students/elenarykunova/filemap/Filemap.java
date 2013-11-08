@@ -56,7 +56,7 @@ public class Filemap implements Table {
     }
 
     public boolean isCorrectKey(String key) {
-        return (!key.contains(" "));
+        return (!provider.hasBadSymbols(key));
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
@@ -76,8 +76,15 @@ public class Filemap implements Table {
             return false;
         }
         
-        if (((MyStoreable) value).getSize() != types.size()) {
-            return false;
+        int k = 0;
+        while (k < types.size() + 2) {
+            try {
+                value.getColumnAt(k);
+            } catch (IndexOutOfBoundsException e) {
+                if (k != types.size() + 1) {
+                    throw new ColumnFormatException("number of columns mismatch");
+                }
+            }
         }
         
         for (int i = 0; i < types.size(); i++) {
