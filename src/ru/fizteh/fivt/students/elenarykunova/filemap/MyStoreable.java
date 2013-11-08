@@ -52,6 +52,9 @@ public class MyStoreable implements Storeable {
                 throw new ColumnFormatException(
                         "type of value mismatches type of column");
             }
+        } else {
+            throw new ColumnFormatException(
+                    "setColumnAt: empty type");
         }
         myValues.add(columnIndex, value);
     }

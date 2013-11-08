@@ -87,13 +87,13 @@ public class MyTableProvider implements TableProvider {
     }
 
     public boolean isCorrectType(Class<?> type) {
-        if (type.equals(Integer.class) || type.equals(Long.class)
+        if (type == null) {
+            return false;
+        }
+        return (type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Byte.class) || type.equals(Float.class)
                 || type.equals(Double.class) || type.equals(Boolean.class)
-                || type.equals(String.class)) {
-            return true;
-        }
-        return false;
+                || type.equals(String.class));
     }
 
     public void writeTypes(File info, List<Class<?>> types) throws IOException {
