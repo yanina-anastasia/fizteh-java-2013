@@ -144,7 +144,7 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-        if (columnTypes == null) {
+        if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("list of types is empty");
         }
         for (Class<?> type : columnTypes) {
