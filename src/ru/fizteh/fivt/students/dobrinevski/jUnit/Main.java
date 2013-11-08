@@ -15,7 +15,7 @@ public class Main {
 
     static {
         try {
-            String way = System.getProperty("user.dir");
+            String way = System.getProperty("fiztex.db.dir");
             if (way == null) {
                 throw new Exception("Illegal way");
             }
@@ -42,7 +42,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        Shell sl = new Shell(cmdMap, "user.dir");
+        Shell sl = new Shell(cmdMap, "fizteh.db.dir");
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {
