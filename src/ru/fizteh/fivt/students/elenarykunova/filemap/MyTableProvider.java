@@ -297,7 +297,7 @@ public class MyTableProvider implements TableProvider {
         ArrayList<Object> values = new ArrayList<Object>();
         for (int i = 0; i < json.length(); i++) {
             Object resCast = checkClasses(json.get(i), table.getColumnType(i));
-            if (!resCast.getClass().equals(table.getColumnType(i))) {
+            if (resCast != null && !resCast.getClass().equals(table.getColumnType(i))) {
                 throw new ParseException(
                         "deserialize: types mismatch " + json.get(i).getClass()
                                 + " " + table.getColumnType(i), i);
