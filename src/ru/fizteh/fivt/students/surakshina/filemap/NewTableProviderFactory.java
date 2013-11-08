@@ -17,7 +17,7 @@ public class NewTableProviderFactory implements TableProviderFactory {
         }
         File directory = new File(path);
         if (!directory.isDirectory()) {
-            throw new IOException("Not a directory");
+            throw new IllegalArgumentException("Not a directory");
         }
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
