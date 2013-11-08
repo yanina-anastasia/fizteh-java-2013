@@ -70,7 +70,7 @@ public class ShellUtils {
                 }
                 command.execute(tokens);
             } catch (IOException e) {
-                throw new IOException(tokens[0] + ": " + e.getMessage(), e);
+                throw new IOException(tokens[0] + ": " + "wrong type (" + e.getMessage() + ")", e);
             }
         }
     }
