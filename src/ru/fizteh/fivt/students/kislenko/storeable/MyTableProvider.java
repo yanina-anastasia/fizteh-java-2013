@@ -88,7 +88,9 @@ public class MyTableProvider implements TableProvider {
         }
         List<Object> values = new ArrayList<Object>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (array.get(i).getClass().equals(Integer.class) &&
+            if (array.get(i).equals(null)) {
+                values.add(null);
+            } else if (array.get(i).getClass().equals(Integer.class) &&
                     table.getColumnType(i).isAssignableFrom(Integer.class)) {
                 values.add(array.getInt(i));
             } else if ((array.get(i).getClass().equals(Long.class) ||
@@ -153,7 +155,7 @@ public class MyTableProvider implements TableProvider {
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
-            if (!table.getColumnType(i).equals(values.get(i).getClass())) {
+            if (values.get(i) != null && !table.getColumnType(i).equals(values.get(i).getClass())) {
                 throw new ColumnFormatException("Invalid list of values.");
             }
         }
