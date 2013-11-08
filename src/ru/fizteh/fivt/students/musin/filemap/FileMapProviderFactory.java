@@ -20,7 +20,9 @@ public class FileMapProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("File is located at specified location");
         }
         if (!newProvider.isValidLocation()) {
-            throw new IOException("Database location is invalid");
+            if (!path.mkdir()) {
+                throw new IOException("Database location is invalid");
+            }
         }
         if (!newProvider.isValidContent()) {
             throw new RuntimeException("Database folder contains files");
