@@ -87,16 +87,20 @@ public class ShellLogic {
             err.flush();
             // ---
 
-            out.print("$ ");
+            out.print(" $ ");
             String inputLine = inputStream.nextLine();
             try {
                 List<String> commandWithArgs = parseCmdAndArgs(inputLine, parserAndExecutor);
                 for (String command : commandWithArgs) {
+                    //Synchronize out and err streams
+                    // ---
+                    out.flush();
+                    err.flush();
+                    // ---
                     execute(command, cmdList, parserAndExecutor);
                 }
             } catch (Exception exc) {
                 err.println(exc.getMessage());
-                System.exit(3);
             }
         } while (!Thread.currentThread().isInterrupted());
     }

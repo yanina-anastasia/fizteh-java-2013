@@ -44,7 +44,6 @@ public class CmdDrop implements Cmd {
                 throw new IllegalArgumentException("Bad table name");
             }
             if (storeableWorkState.getTable(useTableName) == null) {
-                System.err.println(useTableName + " not exists");
                 throw new IllegalStateException(useTableName + " not exists");
             } else {
                 storeableWorkState.removeTable(useTableName);
@@ -56,7 +55,6 @@ public class CmdDrop implements Cmd {
                 throw new IllegalArgumentException("Bad table name");
             }
             if (multifileWorkState.getTable(useTableName) == null) {
-                System.err.println(useTableName + " not exists");
                 throw new IllegalStateException(useTableName + " not exists");
             } else {
                 multifileWorkState.removeTable(useTableName);
