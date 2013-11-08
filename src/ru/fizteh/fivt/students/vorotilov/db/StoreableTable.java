@@ -1,16 +1,28 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
-public class VorotilovTable implements Table {
+/**
+ * Представляет интерфейс для работы с таблицей, содержащей ключи-значения. Ключи должны быть уникальными.
+ *
+ * Транзакционность: изменения фиксируются или откатываются с помощью методов {@link #commit()} или {@link #rollback()},
+ * соответственно. Предполагается, что между вызовами этих методов никаких операций ввода-вывода не происходит.
+ *
+ * Данный интерфейс не является потокобезопасным.
+ */
+public class StoreableTable implements Table {
 
+    private TableProvider tableProvider;
+    private List<Class<?>> columnTypes;
     private final File tableRootDir;
     private TableFile[][] tableFiles;
     private boolean[][] tableFileModified;
-    private HashMap<String, String> tableIndexedData;
+    private HashMap<String, Storeable> tableIndexedData;
     private HashSet<String> changedKeys;
 
     private void index() {
@@ -22,6 +34,9 @@ public class VorotilovTable implements Table {
         if (subDirsList != null) {
             for (File subDir: subDirsList) {
                 int numberOfSubDir;
+                if (subDir.getName().equals(SignatureFile.signatureFileName)) {
+                    continue;
+                }
                 if (!subDir.isDirectory()) {
                     throw new IllegalStateException("In table root dir found object is not a directory");
                 }
@@ -56,7 +71,12 @@ public class VorotilovTable implements Table {
                             tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
                             while (tableFiles[numberOfSubDir][numberOfSubFile].hasNext()) {
                                 TableFile.Entry tempEntry = tableFiles[numberOfSubDir][numberOfSubFile].readEntry();
-                                tableIndexedData.put(tempEntry.getKey(), tempEntry.getValue());
+                                try {
+                                    tableIndexedData.put(tempEntry.getKey(),
+                                            tableProvider.deserialize(this, tempEntry.getValue()));
+                                } catch (ParseException e) {
+                                    throw new IllegalStateException("Can't deserialize", e);
+                                }
                             }
                         }
                     }
@@ -65,7 +85,7 @@ public class VorotilovTable implements Table {
         }
     }
 
-    VorotilovTable(File tableRootDir) {
+    StoreableTable(TableProvider tableProvider, File tableRootDir, List<Class<?>> classes) {
         if (tableRootDir == null) {
             throw new IllegalArgumentException("Table root dir is null");
         } else if (!tableRootDir.exists()) {
@@ -73,17 +93,55 @@ public class VorotilovTable implements Table {
         } else if (!tableRootDir.isDirectory()) {
             throw new IllegalArgumentException("Proposed object is not directory");
         }
+        this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
+        columnTypes = classes;
+        try {
+            SignatureFile.createSignature(tableRootDir, columnTypes);
+        } catch (IOException e) {
+            throw new IllegalStateException("Can't write signature", e);
+        }
         index();
     }
 
+    StoreableTable(TableProvider tableProvider, File tableRootDir) {
+        if (tableRootDir == null) {
+            throw new IllegalArgumentException("Table root dir is null");
+        } else if (!tableRootDir.exists()) {
+            throw new IllegalArgumentException("Proposed root dir not exists");
+        } else if (!tableRootDir.isDirectory()) {
+            throw new IllegalArgumentException("Proposed object is not directory");
+        }
+        this.tableProvider = tableProvider;
+        this.tableRootDir = tableRootDir;
+        try {
+            columnTypes = SignatureFile.readSignature(tableRootDir);
+        } catch (IOException e) {
+            throw new IllegalStateException("Can't read signature", e);
+        }
+        index();
+    }
+
+    /**
+     * Возвращает название таблицы.
+     *
+     * @return Название таблицы.
+     */
     @Override
     public String getName() {
         return tableRootDir.getName();
     }
 
+    /**
+     * Получает значение по указанному ключу.
+     *
+     * @param key Ключ для поиска значения. Не может быть null.
+     * @return Значение. Если не найдено, возвращает null.
+     *
+     * @throws IllegalArgumentException Если значение параметра key является null.
+     */
     @Override
-    public String get(String key) {
+    public Storeable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
@@ -93,18 +151,26 @@ public class VorotilovTable implements Table {
         return tableIndexedData.get(key);
     }
 
+    /**
+     * Устанавливает значение по указанному ключу.
+     *
+     * @param key Ключ для нового значения. Не может быть null.
+     * @param value Новое значение. Не может быть null.
+     * @return Значение, которое было записано по этому ключу ранее. Если ранее значения не было записано,
+     * возвращает null.
+     *
+     * @throws IllegalArgumentException Если значение параметров key или value является null.
+     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException - при попытке передать Storeable с колонками другого типа.
+     */
     @Override
-    public String put(String key, String value) {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
-        if (key.trim().equals("") || value.trim().equals("")) {
-            throw new IllegalArgumentException("Key or Value is empty");
-        }
-        String oldValue = tableIndexedData.get(key);
+        Storeable oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
@@ -114,15 +180,23 @@ public class VorotilovTable implements Table {
         return oldValue;
     }
 
+    /**
+     * Удаляет значение по указанному ключу.
+     *
+     * @param key Ключ для поиска значения. Не может быть null.
+     * @return Предыдущее значение. Если не найдено, возвращает null.
+     *
+     * @throws IllegalArgumentException Если значение параметра key является null.
+     */
     @Override
-    public String remove(String key) {
+    public Storeable remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
         if (key.trim().equals("")) {
             throw new IllegalArgumentException("Key is empty");
         }
-        String oldValue = tableIndexedData.remove(key);
+        Storeable oldValue = tableIndexedData.remove(key);
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
@@ -131,17 +205,29 @@ public class VorotilovTable implements Table {
         return oldValue;
     }
 
+    /**
+     * Возвращает количество ключей в таблице. Возвращает размер текущей версии, с учётом незафиксированных изменений.
+     *
+     * @return Количество ключей в таблице.
+     */
     @Override
     public int size() {
         return tableIndexedData.size();
     }
 
+    /**
+     * Выполняет фиксацию изменений.
+     *
+     * @return Число записанных изменений.
+     *
+     * @throws java.io.IOException если произошла ошибка ввода/вывода. Целостность таблицы не гарантируется.
+     */
     @Override
-    public int commit() {
+    public int commit() throws IOException {
         int numberOfCommittedChanges = changedKeys.size();
         changedKeys.clear();
-        Set<Map.Entry<String, String>> dbSet = tableIndexedData.entrySet();
-        Iterator<Map.Entry<String, String>> i = dbSet.iterator();
+        Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
+        Iterator<Map.Entry<String, Storeable>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 if (tableFileModified[nDir][nFile]) {
@@ -160,10 +246,11 @@ public class VorotilovTable implements Table {
             }
         }
         while (i.hasNext()) {
-            Map.Entry<String, String> tempMapEntry = i.next();
+            Map.Entry<String, Storeable> tempMapEntry = i.next();
             HashcodeDestination dest = new HashcodeDestination(tempMapEntry.getKey());
             if (tableFileModified[dest.getDir()][dest.getFile()]) {
-                tableFiles[dest.getDir()][dest.getFile()].writeEntry(tempMapEntry.getKey(), tempMapEntry.getValue());
+                tableFiles[dest.getDir()][dest.getFile()].writeEntry(tempMapEntry.getKey(),
+                        tableProvider.serialize(this, tempMapEntry.getValue()));
             }
         }
         for (int nDir = 0; nDir < 16; ++nDir) {
@@ -174,6 +261,11 @@ public class VorotilovTable implements Table {
         return numberOfCommittedChanges;
     }
 
+    /**
+     * Выполняет откат изменений с момента последней фиксации.
+     *
+     * @return Число откаченных изменений.
+     */
     @Override
     public int rollback() {
         int numberOfRolledChanges = changedKeys.size();
@@ -185,7 +277,12 @@ public class VorotilovTable implements Table {
                     tableFiles[nDir][nFile].setReadMode();
                     while (tableFiles[nDir][nFile].hasNext()) {
                         TableFile.Entry tempEntry = tableFiles[nDir][nFile].readEntry();
-                        tableIndexedData.put(tempEntry.getKey(), tempEntry.getValue());
+                        try {
+                            tableIndexedData.put(tempEntry.getKey(),
+                                    tableProvider.deserialize(this, tempEntry.getValue()));
+                        } catch (ParseException e) {
+                            throw new IllegalStateException("Can't deserialize", e);
+                        }
                     }
                 }
             }
@@ -196,10 +293,6 @@ public class VorotilovTable implements Table {
             }
         }
         return numberOfRolledChanges;
-    }
-
-    public int uncommittedChanges() {
-        return changedKeys.size();
     }
 
     public void close() throws Exception {
@@ -225,4 +318,34 @@ public class VorotilovTable implements Table {
         }
     }
 
+    public int uncommittedChanges() {
+        return changedKeys.size();
+    }
+
+    /**
+     * Возвращает количество колонок в таблице.
+     *
+     * @return Количество колонок в таблице.
+     */
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    /**
+     * Возвращает тип значений в колонке.
+     *
+     * @param columnIndex Индекс колонки. Начинается с нуля.
+     * @return Класс, представляющий тип значения.
+     *
+     * @throws IndexOutOfBoundsException - неверный индекс колонки
+     */
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return columnTypes.get(columnIndex);
+    }
+
+    public List<Class<?>> getColumnTypes() throws IndexOutOfBoundsException {
+        return columnTypes;
+    }
 }

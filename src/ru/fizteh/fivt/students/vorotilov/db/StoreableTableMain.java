@@ -1,15 +1,19 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
-import ru.fizteh.fivt.storage.strings.*;
-import ru.fizteh.fivt.students.vorotilov.shell.*;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.vorotilov.shell.ConsoleInput;
+import ru.fizteh.fivt.students.vorotilov.shell.ExitCommand;
+import ru.fizteh.fivt.students.vorotilov.shell.NoNextCommand;
+import ru.fizteh.fivt.students.vorotilov.shell.WrongCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-public class TableMain {
+public class StoreableTableMain {
     private static boolean interactiveMode;
-    private static VorotilovTableProvider tableProvider;
-    private static VorotilovTable currentTable;
+    private static StoreableTableProvider tableProvider;
+    private static StoreableTable currentTable;
 
     private static void processCommand(String[] parsedCommand) throws ExitCommand, IOException, WrongCommand {
         try {
@@ -22,11 +26,12 @@ public class TableMain {
                         throw new ExitCommand();
                     }
                 case "create":
-                    if (parsedCommand.length != 2) {
-                        System.out.println("put: must get 1 parameters");
+                    if (parsedCommand.length != 3) {
+                        System.out.println("create: must get 2 parameters");
                         throw new WrongCommand();
                     } else {
-                        Table newTable = tableProvider.createTable(parsedCommand[1]);
+                        List<Class<?>> columTypes = SignatureFile.parseInputColumnTypes(parsedCommand[2]);
+                        StoreableTable newTable = tableProvider.createTable(parsedCommand[1], columTypes);
                         if (newTable == null) {
                             System.out.println(parsedCommand[1] + " exists");
                         } else {
@@ -39,7 +44,7 @@ public class TableMain {
                         System.out.println("use: must get 1 parameter");
                         throw new WrongCommand();
                     } else {
-                        VorotilovTable newTable = tableProvider.getTable(parsedCommand[1]);
+                        StoreableTable newTable = tableProvider.getTable(parsedCommand[1]);
                         if (newTable == null) {
                             System.out.println(parsedCommand[1] + " not exists");
                             throw new WrongCommand();
@@ -94,7 +99,9 @@ public class TableMain {
                         System.out.println("no table");
                         throw new WrongCommand();
                     } else {
-                        String value = currentTable.put(parsedCommand[1], parsedCommand[2]);
+                        Storeable value = currentTable.put(parsedCommand[1],
+                                tableProvider.createFor(currentTable,
+                                        SignatureFile.parseValues(currentTable, parsedCommand[2])));
                         if (value == null) {
                             System.out.println("new");
                         } else {
@@ -110,7 +117,7 @@ public class TableMain {
                         System.out.println("no table");
                         throw new WrongCommand();
                     } else {
-                        String value = currentTable.get(parsedCommand[1]);
+                        Storeable value = currentTable.get(parsedCommand[1]);
                         if (value != null) {
                             System.out.println("found\n" + value);
                         } else {
@@ -159,7 +166,7 @@ public class TableMain {
                         System.out.println("no table");
                         throw new WrongCommand();
                     } else {
-                        String value = currentTable.remove(parsedCommand[1]);
+                        Storeable value = currentTable.remove(parsedCommand[1]);
                         if (value != null) {
                             System.out.println("removed");
                         } else {
@@ -183,7 +190,7 @@ public class TableMain {
     public static void main(String[] args) {
         interactiveMode = (args.length == 0);
         try {
-            VorotilovTableProviderFactory tableProviderFactory = new VorotilovTableProviderFactory();
+            StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
             String rootDir = System.getProperty("fizteh.db.dir");
             if (rootDir == null) {
                 throw new IllegalArgumentException("Property is null");
@@ -200,7 +207,6 @@ public class TableMain {
             }
         } catch (ExitCommand | NoNextCommand e) {
             if (currentTable != null) {
-                currentTable.commit();
                 try {
                     currentTable.close();
                 } catch (Exception f) {
@@ -210,13 +216,13 @@ public class TableMain {
             System.exit(0);
         } catch (IOException | WrongCommand | RuntimeException e) {
             if (currentTable != null) {
-                currentTable.commit();
                 try {
                     currentTable.close();
                 } catch (Exception f) {
                     throw new RuntimeException();
                 }
             }
+            e.printStackTrace();
             System.exit(1);
         }
     }
