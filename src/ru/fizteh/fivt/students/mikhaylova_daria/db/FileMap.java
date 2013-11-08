@@ -187,10 +187,10 @@ public class FileMap {
                 b *= (-1);
             }
             if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
             }
             if (keyAndValueLength.containsKey(key)) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
             }
             Integer offset = 0;
             try {
@@ -222,7 +222,7 @@ public class FileMap {
             while (dataBase.getFilePointer() < dataBase.length()) {
                 int currentOffset = (int) dataBase.getFilePointer();
                 if (!offsetAndKeyMap.containsKey(currentOffset)) {
-                    throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                    //throw new DataFormatException("Illegal key in file3 " + file.toPath().toString());
                 } else {
                     key = offsetAndKeyMap.get(currentOffset);
                     lengthOfValue = keyAndValueLength.get(key);
