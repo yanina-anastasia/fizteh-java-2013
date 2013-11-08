@@ -77,6 +77,9 @@ public class StoreableTableProvider implements TableProvider {
         if (!name.matches(TABLE_NAME)) {
             throw new RuntimeException("Not correct file name");
         }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("the null column type is not allowed");
+        }
         if (columnTypes.isEmpty()) {
             throw new IllegalArgumentException("Not correct types");
         }
