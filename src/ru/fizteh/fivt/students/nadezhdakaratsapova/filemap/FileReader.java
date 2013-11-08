@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -15,13 +17,13 @@ public class FileReader {
     private int curPos = 0;
     private int offset1 = 1;
     private Integer prevOffset = 0;
-    private DataTable dataTable;
+    private UniversalDataTable dataTable;
     private List<Byte> key = new ArrayList<Byte>();
     private List<Integer> offsets = new ArrayList<Integer>();
     private List<String> keysToMap = new ArrayList<String>();
 
 
-    public FileReader(File file, DataTable table) throws FileNotFoundException {
+    public FileReader(File file, UniversalDataTable table) throws FileNotFoundException {
         dataFile = file;
         dataTable = table;
         if (file.length() != 0) {
