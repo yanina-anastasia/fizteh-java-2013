@@ -16,7 +16,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
         } else {
             File dataDirectory = new File(dir);
             if (!dataDirectory.exists()) {
-                throw new IOException("The working directory doesn't exist");
+                throw new IllegalArgumentException("The working directory doesn't exist");
             }
             if (!dataDirectory.isDirectory()) {
                 throw new IllegalArgumentException("The root directory should be a directory");
