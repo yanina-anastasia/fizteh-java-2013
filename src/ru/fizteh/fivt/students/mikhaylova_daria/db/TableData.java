@@ -45,7 +45,7 @@ public class TableData implements Table {
             if (c == null) {
                 throw new ColumnFormatException("null in typelist");
             }
-            if (!types.containsKey(c.getName())) {
+            if (!types.containsKey(c.getSimpleName())) {
                 throw new IllegalArgumentException("Wrong type in typelist");
             }
         }
