@@ -67,11 +67,12 @@ public final class DataBaseTable implements TableProvider {
         if (!tableInUse.containsKey(tableName)) {
             DataBase base = new DataBase(tableName, this, null);
             base.drop();
-            if (!file.delete()) {
-                throw new DataBaseException("Cannot delete a file " + tableName);
-            }
+        } else {
             tableInUse.get(tableName).drop();
             tableInUse.remove(tableName);
+        }
+        if (!file.delete()) {
+            throw new DataBaseException("Cannot delete a file " + tableName);
         }
     }
 

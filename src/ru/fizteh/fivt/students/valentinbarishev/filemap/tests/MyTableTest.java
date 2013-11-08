@@ -80,4 +80,9 @@ public class MyTableTest {
         Assert.assertEquals(table.commit(), 0);
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testPutNullValue() {
+        table.put("simple", null);
+    }
+
 }

@@ -19,7 +19,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
         if (!tableDirFile.exists()) {
             if (!tableDirFile.mkdirs()) {
                 try {
-                    throw new IllegalArgumentException("Cannot create directory! " + tableDirFile.getCanonicalPath());
+                    throw new IOException("Cannot create directory! " + tableDirFile.getCanonicalPath());
                 } catch (IOException e) {
                     throw new RuntimeException("Mkdirs failed", e);
                 }

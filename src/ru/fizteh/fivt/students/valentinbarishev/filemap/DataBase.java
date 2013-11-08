@@ -139,7 +139,7 @@ public final class DataBase implements Table {
     }
 
     private void checkKey(final String key) {
-        if ((key == null) || (key.trim().length() == 0)) {
+        if ((key == null) || (key.trim().length() == 0) || (key.contains(" "))) {
             throw new IllegalArgumentException("Wrong key!");
         }
     }
@@ -156,6 +156,9 @@ public final class DataBase implements Table {
             }
             tryDeleteDirectory(Integer.toString(i) + ".dir");
         }
+        if (!new File(dataBaseDirectory, "signature.tsv").delete()) {
+            throw new DataBaseException("Cannot delete a file!");
+        }
     }
 
     @Override
@@ -166,6 +169,9 @@ public final class DataBase implements Table {
     @Override
     public Storeable put(final String keyStr, final Storeable storeableValue) {
         checkKey(keyStr);
+        if (storeableValue == null) {
+            throw new IllegalArgumentException("Wrong put value = null!");
+        }
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         String value = WorkWithJSON.serialize(this, storeableValue);

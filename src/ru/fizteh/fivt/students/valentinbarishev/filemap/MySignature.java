@@ -50,11 +50,16 @@ public class MySignature {
     public static void setSignature(final String dir, List<Class<?>> classesList) throws IOException {
         PrintWriter output = new PrintWriter(new File(dir, "signature.tsv"));
         for (int i = 0; i < classesList.size(); ++i) {
+            boolean flag = false;
             for (int j = 0; j < classes.length; ++j) {
                 if (classes[j].equals(classesList.get(i))) {
                     output.write(types[j]);
+                    flag = true;
                     break;
                 }
+            }
+            if (!flag) {
+                throw new IllegalArgumentException("Bad types!");
             }
             if (i + 1 != classesList.size()) {
                 output.write(" ");
