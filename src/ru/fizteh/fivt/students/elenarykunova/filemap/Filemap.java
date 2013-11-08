@@ -79,7 +79,7 @@ public class Filemap implements Table {
             throw new IllegalArgumentException("value is empty");
         }
         for (int i = 0; i < getColumnsCount(); i++) {
-            if (!getColumnType(i).equals(value.getColumnAt(i))) {
+            if (!getColumnType(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("put: types mismatch");
             }
         }
