@@ -77,9 +77,34 @@ public class MyTableProvider implements TableProvider {
         if (array.length() != table.getColumnsCount()) {
             throw new ParseException("Incorrect count of columns in input.", Math.min(array.length(), table.getColumnsCount()));
         }
-        List<Object> values = new ArrayList<Object>(2);
+        List<Object> values = new ArrayList<Object>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            values.add(array.get(i));
+            if (array.get(i).getClass().equals(Integer.class) &&
+                    table.getColumnType(i).isAssignableFrom(Integer.class)) {
+                values.add(array.getInt(i));
+            } else if ((array.get(i).getClass().equals(Long.class) ||
+                    array.get(i).getClass().equals(Integer.class)) &&
+                    table.getColumnType(i).isAssignableFrom(Long.class)) {
+                values.add(array.getLong(i));
+            } else if (array.get(i).getClass().equals(Integer.class) &&
+                    table.getColumnType(i).isAssignableFrom(Byte.class)) {
+                Integer a = array.getInt(i);
+                values.add(a.byteValue());
+            } else if (array.get(i).getClass().equals(Double.class) &&
+                    table.getColumnType(i).isAssignableFrom(Float.class)) {
+                Double a = array.getDouble(i);
+                values.add(a.floatValue());
+            } else if (array.get(i).getClass().equals(Double.class) &&
+                    table.getColumnType(i).isAssignableFrom(Double.class)) {
+                values.add(array.getDouble(i));
+            } else if (array.get(i).getClass().equals(Boolean.class) &&
+                    table.getColumnType(i).isAssignableFrom(Boolean.class)) {
+                values.add(array.getBoolean(i));
+            } else if (array.get(i).getClass().equals(String.class) && table.getColumnType(i).isAssignableFrom(String.class)) {
+                values.add(array.getString(i));
+            } else {
+                throw new ParseException("Incorrect value string.", -1);
+            }
         }
         return createFor(table, values);
     }

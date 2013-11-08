@@ -30,11 +30,13 @@ public class CommandCreate implements Command<StoreableState> {
             types[types.length - 1] = types[types.length - 1].substring(0, types[types.length - 1].length() - 1);
             try {
                 Utils.writeColumnTypes(state.getPath().resolve(args[0]).toString(), types);
+                state.createTable(args[0]);
             } catch (Exception e) {
+                File signature = new File(tableDir, "signature.tsv");
+                signature.delete();
                 tableDir.delete();
                 throw e;
             }
-            state.createTable(args[0]);
             System.out.println("created");
         }
     }
