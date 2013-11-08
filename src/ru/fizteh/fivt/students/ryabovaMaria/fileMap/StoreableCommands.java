@@ -14,7 +14,17 @@ public class StoreableCommands implements Storeable{
         values = new ArrayList(types.size());
     }
     
-    StoreableCommands(List<Object> values, List<Class<?>> types) {
+    StoreableCommands(List<Object> values, List<Class<?>> types) throws IndexOutOfBoundsException, ColumnFormatException {
+        if (values.size() != types.size()) {
+            throw new IndexOutOfBoundsException("incorrect number of elements");
+        }
+        for (int i = 0; i < types.size(); ++i) {
+            Class type = types.get(i);
+            Class value = values.get(i).getClass();
+            if (!type.getSimpleName().equals(value.getSimpleName())) {
+                throw new ColumnFormatException("wrong type");
+            }
+        }
         this.values = new ArrayList(values);
         this.types = new ArrayList(types);
     }
@@ -29,7 +39,8 @@ public class StoreableCommands implements Storeable{
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
         Class type = types.get(columnIndex);
-        if (!type.equals(value)) {
+        Class valueClass = value.getClass();
+        if (!type.getSimpleName().equals(valueClass.getSimpleName())) {
             throw new ColumnFormatException();
         } else {
             values.add(columnIndex, value);

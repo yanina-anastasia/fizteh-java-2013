@@ -87,6 +87,9 @@ public class FileMapCommands extends AbstractCommands {
     }
     
     public void drop() throws Exception {
+        if (lexems.length < 2) {
+            throw new Exception("incorrect nubmer of args");
+        }
         String tableName = lexems[1];
         if (myTable != null) {
             if (myTable.getName().equals(tableName)) {
@@ -104,6 +107,9 @@ public class FileMapCommands extends AbstractCommands {
     }
         
     public void use() throws Exception {
+        if (lexems.length < 2) {
+            throw new Exception("incorrect nubmer of args");
+        }
         String tableName = lexems[1];
         if (myTable != null) {
             Class c = myTable.getClass();

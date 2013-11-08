@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import org.json.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
@@ -41,19 +40,23 @@ public class TableProviderCommands implements TableProvider {
     @Override
     public Table getTable(String name) {
         isCorrectArgument(name);
-        if (!tableDir.exists()) {
-            return null;
+        try {
+            if (!tableDir.exists()) {
+                return null;
+            }
+            if (!tableDir.isDirectory()) {
+                throw new IllegalArgumentException(name + " is not a directory");
+            }
+            myTable = names.get(name);
+            if (myTable == null) {
+                readSignature();
+                myTable = new TableCommands(tableDir, types, this);
+                names.put(name, myTable);
+            }
+            return myTable;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
-        if (!tableDir.isDirectory()) {
-            throw new IllegalArgumentException(name + " is not a directory");
-        }
-        myTable = names.get(name);
-        if (myTable == null) {
-            readSignature();
-            myTable = new TableCommands(tableDir, types, this);
-            names.put(name, myTable);
-        }
-        return myTable;
     }
     
     private void readSignature() {
@@ -107,11 +110,9 @@ public class TableProviderCommands implements TableProvider {
         }
     }
     
-    private void writeSignature() {
+    private void writeSignature() throws IOException {
         File signature = new File(tableDir, "signature.tsv");
-        FileWriter sign = null;
-        try {
-            sign = new FileWriter(signature.toString());
+        try (FileWriter sign = new FileWriter(signature.toString())) {
             for (int i = 0; i < types.size(); ++i) {
                 String typeName = types.get(i).getSimpleName();
                 switch (typeName) {
@@ -136,19 +137,9 @@ public class TableProviderCommands implements TableProvider {
                     case ("String") :
                         break;
                     default :
-                        throw new Exception("Incorrect type name");
+                        throw new IllegalArgumentException("Incorrect type name");
                 }
                 sign.write(typeName + " ");
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("I can't write into signature.tsv");
-        } finally {
-            if (sign != null) {
-                try {
-                    sign.close();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("I can't write into signature.tsv");
-                }
             }
         }
     }
@@ -174,14 +165,18 @@ public class TableProviderCommands implements TableProvider {
             if (columnTypes.get(i) == null) {
                 throw new IllegalArgumentException("Illegal types");
             }
-            if (!(columnTypes.get(i).equals(Integer.class)
-             || columnTypes.get(i).equals(Byte.class)
-             || columnTypes.get(i).equals(Float.class)
-             || columnTypes.get(i).equals(Double.class)
-             || columnTypes.get(i).equals(Long.class)
-             || columnTypes.get(i).equals(Boolean.class)
-             || columnTypes.get(i).equals(String.class))) {
-                throw new IllegalArgumentException("Illegal types");
+            try {
+                if (!(columnTypes.get(i).equals(Integer.class)
+                 || columnTypes.get(i).equals(Byte.class)
+                 || columnTypes.get(i).equals(Float.class)
+                 || columnTypes.get(i).equals(Double.class)
+                 || columnTypes.get(i).equals(Long.class)
+                 || columnTypes.get(i).equals(Boolean.class)
+                 || columnTypes.get(i).equals(String.class))) {
+                    throw new IllegalArgumentException();
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("incorrect types");
             }
         }
     }
@@ -209,8 +204,18 @@ public class TableProviderCommands implements TableProvider {
         if (value == null) {
             return null;
         }
-        ArrayList<Object> values = new ArrayList(table.getColumnsCount());
-        ArrayList<Class<?>> tableTypes = new ArrayList(table.getColumnsCount());
+        ArrayList<Object> values = null;
+        try {    
+            values = new ArrayList(table.getColumnsCount());
+        } catch (Exception e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
+        ArrayList<Class<?>> tableTypes = null;
+        try {
+            tableTypes = new ArrayList(table.getColumnsCount());
+        } catch (Exception e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
         JSONArray array = null;
         try {
             array = new JSONArray(value);
@@ -221,41 +226,59 @@ public class TableProviderCommands implements TableProvider {
             throw new ParseException("Illegal number of args", 0);
         }
         for (int i = 0; i < array.length(); ++i) {
-            Class<?> type = table.getColumnType(i);
-            tableTypes.add(type);
-            Object current = null;
+            Class<?> type = null;
             try {
-                switch (type.getSimpleName()) {
-                    case ("Integer") :
-                        current = array.getInt(i);
-                        break;
-                    case ("Long") :
-                        current = array.getLong(i);
-                        break;
-                    case ("Byte") :
-                        current = Byte.valueOf(array.get(i).toString());
-                        break;
-                    case ("Boolean") :
-                        current = array.getBoolean(i);
-                        break;
-                    case ("Float") :
-                        current = Float.valueOf(array.get(i).toString());
-                        break;
-                    case ("Double") :
-                        current = array.getDouble(i);
-                        break;
-                    case ("String") :
-                        current = array.getString(i);
-                        break;
-                    default : 
-                        throw new Exception();
+                type = table.getColumnType(i);
+            } catch (Exception e) {
+                throw new ParseException(e.getMessage(), 0);
+            }
+            tableTypes.add(type);
+            try {
+                if (array.get(i) == null) {
+                    values.add(null);
+                } else {
+                    switch (type.getSimpleName()) {
+                        case ("Integer") :
+                            Integer currentInt = array.getInt(i);
+                            values.add(currentInt);
+                            break;
+                        case ("Long") :
+                            Long currentLong = array.getLong(i);
+                            values.add(currentLong);
+                            break;
+                        case ("Byte") :
+                            Byte currentByte = Byte.valueOf(array.get(i).toString());
+                            values.add(currentByte);
+                            break;
+                        case ("Boolean") :
+                            Boolean currentBoolean = array.getBoolean(i);
+                            values.add(currentBoolean);
+                            break;
+                        case ("Float") :
+                            Float currentFloat = Float.valueOf(array.get(i).toString());
+                            values.add(currentFloat);
+                            break;
+                        case ("Double") :
+                            Double currentDouble = array.getDouble(i);
+                            values.add(currentDouble);
+                            break;
+                        case ("String") :
+                            String currentString = array.getString(i);
+                            values.add(currentString);
+                            break;
+                        default : 
+                            throw new Exception();
+                    }
                 }
-                values.add(current);
             } catch (Exception e) {
                 throw new ParseException("Illegal type of column", i);
             }
         }
-        return new StoreableCommands(values, tableTypes);
+        try {
+            return new StoreableCommands(values, tableTypes);
+        } catch (Exception e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
     }
 
     @Override
@@ -263,9 +286,19 @@ public class TableProviderCommands implements TableProvider {
         if (value == null) {
             return null;
         }
-        JSONArray text = new JSONArray();
+        JSONArray text = null;
+        try {
+            text = new JSONArray();
+        } catch (Exception e) {
+            throw new ColumnFormatException(e.getMessage());
+        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            Class<?> type = table.getColumnType(i);
+            Class<?> type = null;
+            try {
+                type = table.getColumnType(i);
+            } catch (Exception e) {
+                throw new ColumnFormatException(e.getMessage());
+            }
             Object current = null;
             try {
                 switch (type.getSimpleName()) {
@@ -293,9 +326,17 @@ public class TableProviderCommands implements TableProvider {
             } catch (Exception e) {
                 throw new ColumnFormatException("Illegal type of column");
             }
-            text.put(current);
+            try {
+                text.put(current);
+            } catch (Exception e) {
+                throw new ColumnFormatException(e.getMessage());
+            }
         }
-        return text.toString();
+        try {
+            return text.toString();
+        } catch (Exception e) {
+            throw new ColumnFormatException(e.getMessage());
+        }
     }
 
     private List<Class<?>> getTypeList(Table table) {
@@ -310,13 +351,23 @@ public class TableProviderCommands implements TableProvider {
     
     @Override
     public Storeable createFor(Table table) {
-        List<Class<?>> curTypes = getTypeList(table);
+        List<Class<?>> curTypes;
+        try {
+            curTypes = getTypeList(table);
+        } catch (Exception e) {
+            return null;
+        } 
         return new StoreableCommands(curTypes);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        List<Class<?>> curTypes = getTypeList(table);
+        List<Class<?>> curTypes;
+        try {
+            curTypes = getTypeList(table);
+        } catch (Exception e) {
+            return null;
+        }
         return new StoreableCommands((List<Object>) values, curTypes);
     }
 }
