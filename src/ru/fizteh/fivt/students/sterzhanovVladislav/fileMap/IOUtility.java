@@ -36,18 +36,18 @@ public class IOUtility {
                 continue;
             }
             if (!subdir.isDirectory() || !subdir.getName().matches("^([0-9]|[1][0-5])\\.dir$")) {
-                throw new IllegalStateException("Malformed database");
+                throw new IllegalStateException("Error: Malformed database");
             }
             File[] listFiles = subdir.listFiles();
             if (listFiles.length == 0) {
-                throw new IllegalStateException("Malformed database");
+                throw new IllegalStateException("Error: Malformed database");
             }
             for (File file : listFiles) {
                 if (!file.isFile() || file.length() == 0) {
-                    throw new IllegalStateException("Malformed database");
+                    throw new IllegalStateException("Error: Malformed database");
                 }
                 if (!file.getName().matches("(^([0-9]|[1][0-5])\\.dat$)|")) {
-                    throw new IllegalStateException("Malformed database");
+                    throw new IllegalStateException("Error: Malformed database");
                 }
                 int dirID = Integer.parseInt(subdir.getName().replaceAll("\\.dir", ""));
                 int fileID = Integer.parseInt(file.getName().replaceAll("\\.dat", ""));
@@ -104,7 +104,7 @@ public class IOUtility {
     public static void writeDatabase(HashMap<String, Storeable> dataBase, Path path, List<Class<?>> classes) 
             throws IOException {
         if (!path.toFile().mkdir()) {
-            throw new IOException("Unable to create directory");
+            throw new IOException("Error: Unable to create directory");
         }
         for (Map.Entry<String, Storeable> entry : dataBase.entrySet()) {
             int b = entry.getKey().getBytes()[0];
