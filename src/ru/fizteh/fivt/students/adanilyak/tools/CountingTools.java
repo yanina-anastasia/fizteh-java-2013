@@ -29,14 +29,17 @@ public class CountingTools {
 
     public static boolean equals(Table table, Storeable first, Storeable second) {
         for (Integer i = 0; i < table.getColumnsCount(); ++i) {
-            if (first.getColumnAt(i) == null && second.getColumnAt(i) != null)
+            if (first.getColumnAt(i) == null && second.getColumnAt(i) != null) {
                 return false;
+            }
 
-            if (first.getColumnAt(i) != null && second.getColumnAt(i) == null)
+            if (first.getColumnAt(i) != null && second.getColumnAt(i) == null) {
                 return false;
+            }
 
-            if (first.getColumnAt(i) == null && second.getColumnAt(i) == null)
+            if (first.getColumnAt(i) == null && second.getColumnAt(i) == null) {
                 continue;
+            }
 
             if (!first.getColumnAt(i).equals(second.getColumnAt(i))) {
                 return false;

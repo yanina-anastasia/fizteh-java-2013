@@ -11,6 +11,7 @@ import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,12 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (!CheckOnCorrect.goodStoreableRow(table, value)) {
+        List<Class<?>> columnTypes = new ArrayList<>();
+        for (int i = 0; i < table.getColumnsCount(); i++) {
+            columnTypes.add(table.getColumnType(i));
+        }
+
+        if (!CheckOnCorrect.goodStoreable(value, columnTypes)) {
             throw new ColumnFormatException("storeable table provider: serialize: bad value");
         }
         return JSONserializer.serialize(table, value);

@@ -57,8 +57,8 @@ public class CheckOnCorrect {
         }
         return true;
     }
-
-    public static boolean goodStoreableRow(Table givenTable, Storeable givenStoreable) {
+    /*
+    public static boolean goodStoreable(Table givenTable, Storeable givenStoreable) {
         if (givenStoreable == null) {
             return false;
         }
@@ -70,6 +70,46 @@ public class CheckOnCorrect {
             }
         }
         return true;
+    }
+    */
+    private static Object getValueWithType(Storeable storeable, int columnIndex,
+                                           Class<?> columnType) throws ColumnFormatException {
+        switch (columnType.getName()) {
+            case "java.lang.Integer":
+                return storeable.getIntAt(columnIndex);
+            case "java.lang.Long":
+                return storeable.getLongAt(columnIndex);
+            case "java.lang.Byte":
+                return storeable.getByteAt(columnIndex);
+            case "java.lang.Float":
+                return storeable.getFloatAt(columnIndex);
+            case "java.lang.Double":
+                return storeable.getDoubleAt(columnIndex);
+            case "java.lang.Boolean":
+                return storeable.getBooleanAt(columnIndex);
+            case "java.lang.String":
+                return storeable.getStringAt(columnIndex);
+            default:
+                throw new ColumnFormatException("column has a wrong type");
+        }
+    }
+
+    public static boolean goodStoreable(Storeable value, List<Class<?>> columnTypes) {
+        int columnIndex = 0;
+        try {
+            for (Class<?> columnType : columnTypes) {
+                getValueWithType(value, columnIndex, columnType);
+                columnIndex++;
+            }
+            try {
+                value.getColumnAt(columnIndex);
+                return false;
+            } catch (IndexOutOfBoundsException exc) {
+                return true;
+            }
+        } catch (IndexOutOfBoundsException | ColumnFormatException exc) {
+            return false;
+        }
     }
 }
 

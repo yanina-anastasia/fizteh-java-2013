@@ -283,9 +283,13 @@ public class StoreableTableProviderUnitTest {
         valuesToMakeStoreable.add(1);
         valuesToMakeStoreable.add(null);
         valuesToMakeStoreable.add(3);
-        Storeable testStoreable = null;
+        Storeable testStoreable;
         Assert.assertNotNull(testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable));
-        Assert.assertTrue(CheckOnCorrect.goodStoreableRow(testTable, testStoreable));
+        List<Class<?>> columnTypes = new ArrayList<>();
+        for (int i = 0; i < testTable.getColumnsCount(); i++) {
+            columnTypes.add(testTable.getColumnType(i));
+        }
+        Assert.assertTrue(CheckOnCorrect.goodStoreable(testStoreable, columnTypes));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)

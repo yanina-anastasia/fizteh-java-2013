@@ -79,7 +79,7 @@ public class StoreableTable implements Table {
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("put: key is bad");
         }
-        if (!CheckOnCorrect.goodStoreableRow(this, value)) {
+        if (!CheckOnCorrect.goodStoreable(value, this.columnTypes)) {
             throw new ColumnFormatException("put: value not suitable for this table");
         }
         Storeable valueInData = data.get(key);
