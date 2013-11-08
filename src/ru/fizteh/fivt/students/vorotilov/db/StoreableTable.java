@@ -163,9 +163,7 @@ public class StoreableTable implements Table {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkKey(key);
-        if (value == null) {
-            throw new IllegalArgumentException("Value is null");
-        }
+        checkValue(value);
         Storeable oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
@@ -349,6 +347,18 @@ public class StoreableTable implements Table {
         }
         if (key.contains(" ") || key.contains("\t") || key.contains("\n")) {
             throw new IllegalArgumentException("Kay contains whitespaces");
+        }
+    }
+
+    private void checkValue(Storeable value) throws ColumnFormatException {
+        if (value == null) {
+            throw new IllegalArgumentException("Value is null");
+        }
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
+                throw new ColumnFormatException("Wrong column type. was: "
+                        + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
+            }
         }
     }
 
