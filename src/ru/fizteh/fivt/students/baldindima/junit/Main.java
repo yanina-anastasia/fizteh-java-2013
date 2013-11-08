@@ -45,7 +45,7 @@ public class Main {
 
         try {
             if (!checkDirectory()) {
-            	return ;
+            	System.exit(1); ;
             }
             makeShell();
 
