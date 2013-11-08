@@ -99,14 +99,14 @@ public class FileMapTableProviderTest {
         classList.add(String.class);
         Table table = tableProvider.createTable("table", classList);
         Storeable storeable = new MyStoreable(table);
-        storeable.setColumnAt(0, 1.5);
-        assertEquals(storeable.getDoubleAt(0), 1.5);
+        storeable.setColumnAt(0, null);
+        assertEquals(storeable.getDoubleAt(0), null);
         storeable.setColumnAt(1, ((Double) 5.505).floatValue());
         assertEquals(storeable.getFloatAt(1), ((Double) 5.505).floatValue());
         storeable.setColumnAt(2, "val");
         assertEquals(storeable.getStringAt(2), "val");
         String serialize = tableProvider.serialize(table, storeable);
-        assertEquals(serialize, "[1.5,5.505,\"val\"]");
+        assertEquals(serialize, "[null,5.505,\"val\"]");
     }
 
     @Test

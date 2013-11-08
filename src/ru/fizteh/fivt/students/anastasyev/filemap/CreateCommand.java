@@ -23,7 +23,7 @@ public class CreateCommand implements Command<FileMapTableProvider> {
     @Override
     public boolean exec(FileMapTableProvider provider, String[] command) {
         if (command.length <= 2) {
-            System.err.println("create: Usage - create tablename (type1 type2 ... typeN)");
+            System.err.println("wrong type ( usage - create tablename (type1 type2 ... typeN) )");
             return false;
         }
         try {
