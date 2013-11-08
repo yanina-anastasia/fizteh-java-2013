@@ -11,8 +11,8 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class MyStoreable implements Storeable {
 
-    private final List<Class<?>> myTypes = new ArrayList();
-    private List<Object> myValues = new ArrayList();
+    private final List<Class<?>> myTypes = new ArrayList<Class<?>>();
+    private List<Object> myValues = new ArrayList<Object>();
 
     public MyStoreable(Table table) {
         for (int i = 0; i < table.getColumnsCount(); i++) {

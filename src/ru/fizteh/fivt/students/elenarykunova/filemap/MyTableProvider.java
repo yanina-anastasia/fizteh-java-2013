@@ -233,6 +233,10 @@ public class MyTableProvider implements TableProvider {
                 result = Double.valueOf(val);
                 return result;
             }
+            if (-128 <= val && val <= 127 && second.equals(Byte.class)) {
+                result = Byte.valueOf((byte) val);
+                return result;
+            }
         }
         if (first.getClass().equals(Float.class)) {
             float val = (float) first;
@@ -250,7 +254,7 @@ public class MyTableProvider implements TableProvider {
             if (second.equals(Double.class)) {
                 result = Double.valueOf(val);
                 return result;
-            }            
+            }
         }
         if (first.getClass().equals(Byte.class)) {
             byte val = (byte) first;
@@ -276,9 +280,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value)
-            throws ParseException {
-        if (value == null) {
-            throw new RuntimeException("no value to deserialize found");
+            throws ParseException, IllegalArgumentException {
+        if (value == null || value.isEmpty() || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("deserialize: value is empty");
         }
         JSONArray json;
         try {
@@ -286,7 +290,7 @@ public class MyTableProvider implements TableProvider {
         } catch (JSONException e) {
             throw new ParseException("deserialize: can't parse", 0);
         }
-        if (json.length() != table.getColumnsCount()) {
+        if (json == null || json.length() != table.getColumnsCount()) {
             throw new ParseException(
                     "deserialize: number of elements mismatch", 0);
         }

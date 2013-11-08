@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +20,14 @@ public class Filemap implements Table {
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
     private String currTableName = null;
-    public HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
+    private HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
     private MyTableProvider provider = null;
-    List<Class<?>> types = null;
+    private final List<Class<?>> types = new ArrayList<Class<?>>();
 
+    public HashMap<String, Storeable> getHashMap() {
+        return updatedMap;
+    }
+    
     public MyTableProvider getProvider() {
         return provider;
     }
@@ -39,9 +44,9 @@ public class Filemap implements Table {
 
         if (!data[ndir][nfile].hasFile()) {
             try {
-                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
-            } catch (RuntimeException e) {
-                throw e;
+                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);  
+            } catch (ParseException e) {
+                throw new RuntimeException("wrong type (" + e.getMessage() + ")", e);
             }
         }
         return ndir * 16 + nfile;
@@ -229,7 +234,11 @@ public class Filemap implements Table {
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                data[i][j] = new DataBase(this, i, j, false);
+                try {
+                    data[i][j] = new DataBase(this, i, j, false);
+                } catch (ParseException e) {
+                    throw new RuntimeException("wrong type (load " + e.getMessage() + ")", e);
+                }
             }
         }
     }
@@ -265,7 +274,6 @@ public class Filemap implements Table {
         currTablePath = path;
         currTableName = name;
         File info = new File(path + File.separator + "signature.tsv");
-        types = new ArrayList();
 
         if (info.exists()) {
             FileInputStream is;
