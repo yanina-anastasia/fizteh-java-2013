@@ -1,36 +1,30 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 import java.io.File;
+import java.io.IOException;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 
 public class FileMapMain implements TableProviderFactory {
         
-    public TableProvider create(String dir) throws IllegalArgumentException {
-        IllegalArgumentException e = null;
+    public TableProvider create(String dir) throws IllegalArgumentException, IOException {
         if (dir == null || dir.isEmpty() || dir.trim().isEmpty()) {
-            e = new IllegalArgumentException("directory is not set");
+            throw new IllegalArgumentException("directory is not set");
         } else {
             File tmpDir = new File(dir);
             if (!tmpDir.exists()) {
                 if (!tmpDir.mkdirs()) {
-                    e = new IllegalArgumentException(dir + " doesn't exist and I can't create it");
+                    throw new IOException(dir + " doesn't exist and I can't create it");
                 }
             } else if (!tmpDir.isDirectory()) {
-                e = new IllegalArgumentException(dir + " isn't a directory");
+                throw new IllegalArgumentException(dir + " isn't a directory");
             }            
         }
-        if (e != null) {
-            throw e;
-        }
         MyTableProvider prov = null;
-        try {
-            prov = new MyTableProvider(dir);
-        } catch (IllegalArgumentException e1) {
-            throw e1;
-        }
-        return prov;
+        prov = new MyTableProvider(dir);
+        return (TableProvider) prov;
     }
     
     public static void main(String[] args) {
@@ -38,11 +32,14 @@ public class FileMapMain implements TableProviderFactory {
         MyTableProvider provider;
         try {
             provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
-            Filemap mp = new Filemap(null, null);
+            Filemap mp = new Filemap();
             ExecuteCmd exec = new ExecuteCmd(mp, provider);
             exec.workWithUser(args);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (IOException e1) {
+            System.err.println(e1.getMessage());
             System.exit(1);
         } catch (IllegalStateException e2) {
             System.err.println(e2.getMessage());

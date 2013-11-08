@@ -1,12 +1,20 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell.ExitCode;
+import org.json.*;
 
 public class MyTableProvider implements TableProvider {
 
@@ -16,26 +24,7 @@ public class MyTableProvider implements TableProvider {
     public MyTableProvider() {
     }
 
-    public MyTableProvider(String newRootDir) throws IllegalArgumentException {
-        IllegalArgumentException e = null;
-        if (newRootDir == null || newRootDir.isEmpty()
-                || newRootDir.trim().isEmpty()) {
-            e = new IllegalArgumentException("directory is null");
-        } else {
-            File tmpDir = new File(newRootDir);
-            if (!tmpDir.exists()) {
-                if (!tmpDir.mkdirs()) {
-                    e = new IllegalArgumentException(newRootDir
-                            + " doesn't exist and I can't create it");
-                }
-            } else if (!tmpDir.isDirectory()) {
-                e = new IllegalArgumentException(newRootDir
-                        + " isn't a directory");
-            }
-        }
-        if (e != null) {
-            throw e;
-        }
+    public MyTableProvider(String newRootDir) {
         rootDir = newRootDir;
         tables = new HashMap<String, Filemap>();
     }
@@ -63,6 +52,7 @@ public class MyTableProvider implements TableProvider {
         return false;
     }
 
+    @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
         if (isEmpty(name)) {
@@ -81,19 +71,69 @@ public class MyTableProvider implements TableProvider {
         }
         try {
             if (tables.get(name) != null) {
-                return tables.get(name);
+                return (Table) tables.get(name);
             } else {
+                File info = new File(tablePath + File.separator + "signature.tsv");
+                if (!info.exists()) {
+                    throw new RuntimeException(name + " exists as folder and has no data as table");                    
+                }
                 Filemap result = new Filemap(tablePath, name);
                 tables.put(name, result);
-                return result;
+                return (Table) result;
             }
-        } catch (RuntimeException e) {
-            throw e;
+        } catch (IOException e1) {
+            throw new RuntimeException("can't read info from signature.tsv", e1);
         }
     }
 
-    public Table createTable(String name) throws IllegalArgumentException,
-            RuntimeException {
+    public boolean isCorrectType(Class<?> type) {
+        if (type.equals(Integer.class) || type.equals(Long.class)
+                || type.equals(Byte.class) || type.equals(Float.class)
+                || type.equals(Double.class) || type.equals(Boolean.class)
+                || type.equals(String.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void writeTypes(File info, List<Class<?>> types) throws IOException {
+        FileOutputStream os;
+        os = new FileOutputStream(info);
+
+        for (Class<?> type : types) {
+            switch (type.getSimpleName()) {
+            case "Integer":
+                os.write("int".getBytes());
+                break;
+            case "Long":
+                os.write("long".getBytes());
+                break;
+            case "Double":
+                os.write("double".getBytes());
+                break;
+            case "Byte":
+                os.write("byte".getBytes());
+                break;
+            case "Float":
+                os.write("float".getBytes());
+                break;
+            case "Boolean":
+                os.write("boolean".getBytes());
+                break;
+            case "String":
+                os.write("String".getBytes());
+                break;
+            default:
+                throw new IOException("unexpected type in table");
+            }
+            os.write(" ".getBytes());
+        }
+        os.close();
+    }
+    
+    @Override
+    public Table createTable(String name, List<Class<?>> columnTypes)
+            throws IllegalArgumentException, RuntimeException, IOException {
         if (isEmpty(name)) {
             throw new IllegalArgumentException("name of table is empty");
         }
@@ -104,23 +144,39 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("list of types is empty");
+        }
+        for (Class<?> type : columnTypes) {
+            if (!isCorrectType(type)) {
+                throw new IllegalArgumentException(type + " wrong type");
+            }
+        }
         File tmpFile = new File(tablePath);
+
+        File info = new File(tablePath + File.separator + "signature.tsv");
+
         if (tmpFile.exists() && tmpFile.isDirectory()) {
+            if (!info.exists()) {
+                throw new IllegalArgumentException(name + " exists, but couldn't find table info");
+            }
+            writeTypes(info, columnTypes);
             if (tables.get(name) == null) {
                 Filemap result = new Filemap(tablePath, name);
                 tables.put(name, result);
             }
             return null;
         } else {
-            if (!tmpFile.mkdir()) {
+            if (!tmpFile.mkdir() || !info.createNewFile()) {
                 throw new RuntimeException(name + " can't create a table");
             } else {
+                writeTypes(info, columnTypes);
                 if (tables.get(name) == null) {
                     Filemap result = new Filemap(tablePath, name);
                     tables.put(name, result);
-                    return result;
+                    return (Table) result;
                 } else {
-                    return tables.get(name);
+                    return null;
                 }
             }
 
@@ -153,5 +209,58 @@ public class MyTableProvider implements TableProvider {
                 throw new RuntimeException(name + " can't remove table");
             }
         }
+    }
+
+    @Override
+    public Storeable deserialize(Table table, String value)
+            throws ParseException {
+        if (value == null) {
+            throw new RuntimeException("no value to deserialize found");
+        }
+        JSONArray json;
+        try {
+            json = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException("deserialize: can't parse", 0);
+        }
+        if (json.length() != table.getColumnsCount()) {
+            throw new ParseException("deserialize: number of elements mismatch", 0);
+        }
+        ArrayList<Object> values = new ArrayList<Object>();
+        for (int i = 0; i < json.length(); i++) {
+            if (!json.get(i).getClass().equals(table.getColumnType(i))) {
+                throw new ParseException("deserialize: types mismatch", i);
+            }
+            values.add(json.get(i));
+        }
+        return createFor(table, values);
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value)
+            throws ColumnFormatException {
+        if (value == null) {
+            throw new RuntimeException("no value to serialize found");
+        }
+        Object[] array = new Object[table.getColumnsCount()];
+        for (int i = 0; i < table.getColumnsCount(); i++) {
+            if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
+                throw new ColumnFormatException("serialize: types mismatch");
+            }
+            array[i] = value.getColumnAt(i);
+        }
+        JSONArray json = new JSONArray(array);
+        return json.toString();
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        return (Storeable) new MyStoreable(table);
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values)
+            throws ColumnFormatException, IndexOutOfBoundsException {
+        return (Storeable) new MyStoreable(table, values);
     }
 }

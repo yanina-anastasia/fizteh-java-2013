@@ -1,87 +1,110 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
-public class Filemap implements Table{
+public class Filemap implements Table {
 
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
     private String currTableName = null;
-    private HashMap<String, String> updatedMap = new HashMap<String, String>();
-        
-    protected int getDataBaseFromKeyAndCheck(String key) throws RuntimeException {
+    public HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
+    private MyTableProvider provider = null;
+    List<Class<?>> types = null;
+
+    public MyTableProvider getProvider() {
+        return provider;
+    }
+
+    public String getTablePath() {
+        return currTablePath;
+    }
+
+    protected int getDataBaseFromKeyAndCheck(String key)
+            throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-        
+
         if (!data[ndir][nfile].hasFile()) {
             try {
-                data[ndir][nfile] = new DataBase(currTablePath, ndir, nfile, updatedMap, true);
+                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
             } catch (RuntimeException e) {
                 throw e;
             }
         }
         return ndir * 16 + nfile;
-    }    
-    
+    }
+
     public String getName() {
         return currTableName;
     }
-    
+
     public boolean isEmpty(String val) {
         return (val == null || (val.isEmpty() || val.trim().isEmpty()));
     }
-    
+
     public boolean isCorrectKey(String key) {
         return (!key.contains(" "));
     }
-    
-    public String get(String key) throws IllegalArgumentException {
+
+    public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
         }
         if (!isCorrectKey(key)) {
             throw new IllegalArgumentException("key has whitespaces");
         }
-        String res = updatedMap.get(key);
+        Storeable res = updatedMap.get(key);
         return res;
     }
 
-    public String put(String key, String value) throws IllegalArgumentException {
+    public Storeable put(String key, Storeable value)
+            throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
         }
-        if (isEmpty(value)) {
+        if (value == null) {
             throw new IllegalArgumentException("value is empty");
-        }            
+        }
+        for (int i = 0; i < getColumnsCount(); i++) {
+            if (!getColumnType(i).equals(value.getColumnAt(i))) {
+                throw new ColumnFormatException("put: types mismatch");
+            }
+        }
         if (!isCorrectKey(key)) {
             throw new IllegalArgumentException("key has whitespaces");
         }
-        String res = updatedMap.put(key, value);
+        Storeable res = updatedMap.put(key, value);
         return res;
     }
 
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
         }
         if (!isCorrectKey(key)) {
             throw new IllegalArgumentException("key has whitespaces");
         }
-        String res = updatedMap.put(key, null);
+        Storeable res = updatedMap.put(key, null);
         return res;
     }
 
     public int size() {
         int n = 0;
-        Set<Map.Entry<String, String>> mySet = updatedMap.entrySet();
-        for (Map.Entry<String, String> myEntry : mySet) {
+        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
             if (myEntry.getValue() != null) {
                 n++;
             }
@@ -90,35 +113,42 @@ public class Filemap implements Table{
     }
 
     public int getUncommitedChangesAndTrack(boolean trackChanges) {
-        Set<Map.Entry<String, String>> mySet = updatedMap.entrySet();
+        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
         int k;
         int ndir;
         int nfile;
         int nchanges = 0;
         String key;
         String val;
-        for (Map.Entry<String, String> myEntry : mySet) {
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
             key = myEntry.getKey();
             k = getDataBaseFromKeyAndCheck(key);
             ndir = k / 16;
             nfile = k % 16;
+
             val = data[ndir][nfile].get(key);
             if (myEntry.getValue() == null) {
                 if (data[ndir][nfile].remove(key) != null) {
-                    nchanges++;                    
+                    nchanges++;
                 }
             } else {
                 if (val == null || !val.equals(myEntry.getValue())) {
                     nchanges++;
                     if (trackChanges) {
-                        data[ndir][nfile].put(key, myEntry.getValue());
+                        try {
+                            String newVal = getProvider().serialize(this,
+                                    myEntry.getValue());
+                            data[ndir][nfile].put(key, newVal);
+                        } catch (ColumnFormatException e) {
+                            throw new RuntimeException("some problems", e);
+                        }
                     }
                 }
             }
         }
         return nchanges;
     }
-        
+
     public int commit() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(true);
         if (nchanges != 0) {
@@ -130,7 +160,7 @@ public class Filemap implements Table{
         }
         return nchanges;
     }
-    
+
     public int rollback() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(false);
         if (nchanges != 0) {
@@ -143,7 +173,7 @@ public class Filemap implements Table{
         currTablePath = null;
         currTableName = null;
     }
-    
+
     public void saveChanges() throws RuntimeException {
         if (currTableName == null) {
             return;
@@ -164,7 +194,8 @@ public class Filemap implements Table{
             File tmpDir = new File(currTablePath + File.separator + i + ".dir");
             if (tmpDir.exists() && tmpDir.list().length == 0) {
                 if (sh.rm(tmpDir.getAbsolutePath()) != Shell.ExitCode.OK) {
-                    throw new RuntimeException(tmpDir.getAbsolutePath() + " can't delete directory");
+                    throw new RuntimeException(tmpDir.getAbsolutePath()
+                            + " can't delete directory");
                 }
             }
         }
@@ -176,19 +207,80 @@ public class Filemap implements Table{
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                data[i][j] = new DataBase(currTablePath, i, j, updatedMap, false);
+                data[i][j] = new DataBase(this, i, j, false);
             }
         }
     }
-    
+
     public Filemap() {
     }
-    
-    public Filemap(String path, String name) throws RuntimeException {
+
+    public Class<?> getTypeFromString(String type) throws IOException {
+        switch (type) {
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "double":
+            return Double.class;
+        case "byte":
+            return Byte.class;
+        case "float":
+            return Float.class;
+        case "boolean":
+            return Boolean.class;
+        case "String":
+            return String.class;
+        default:
+            throw new IOException(type + " types in signature.tsv mismatch");
+        }
+
+    }
+
+    public Filemap(String path, String name)
+            throws RuntimeException, IOException {
         currTablePath = path;
         currTableName = name;
+        File info = new File(path + File.separator + "signature.tsv");
+        types = new ArrayList();
+
+        if (info.exists()) {
+            FileInputStream is;
+            is = new FileInputStream(info);
+            try {
+                Scanner sc = new Scanner(is);
+                sc.useDelimiter(" ");
+                try {
+                    while (sc.hasNext()) {
+                        String type = sc.next();
+                        types.add(getTypeFromString(type));
+                    } 
+                } finally {
+                    sc.close();
+                }
+            } finally {
+                is.close();
+            }
+        } else {
+            throw new RuntimeException("can't load data from table");
+        }
         if (currTableName != null) {
             load();
         }
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex)
+            throws IndexOutOfBoundsException {
+        if (0 > columnIndex || columnIndex >= types.size()) {
+            throw new IndexOutOfBoundsException(
+                    "get column type: index is out of bounds");
+        }
+        return types.get(columnIndex);
     }
 }

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,7 @@ public class DataBase {
     private String tablePath = null;
     private int ndir;
     private int nfile;
+    private Filemap table = null;
 
     public boolean hasFile() {
         return (dataFile != null);
@@ -29,9 +31,9 @@ public class DataBase {
         return ndir + ".dir" + File.separator + nfile + ".dat";
     }
 
-    public DataBase(String currTablePath, int numbDir, int numbFile, HashMap<String, String> map,
+    public DataBase(Filemap table, int numbDir, int numbFile,
             boolean createIfNotExists) throws RuntimeException {
-        tablePath = currTablePath;
+        tablePath = table.getTablePath();
         ndir = numbDir;
         nfile = numbFile;
         filePath = tablePath + File.separator + getFileName(ndir, nfile);
@@ -58,7 +60,7 @@ public class DataBase {
         if (tmpFile.exists()) {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
-                load(dataFile, map);
+                load(dataFile, table);
             } catch (RuntimeException e) {
                 throw e;
             } catch (FileNotFoundException e) {
@@ -67,6 +69,7 @@ public class DataBase {
                 try {
                     closeDataFile();
                 } catch (Throwable e5) {
+                    //
                 }
             }
         }
@@ -114,7 +117,7 @@ public class DataBase {
         return result;
     }
 
-    public void load(RandomAccessFile dataFile, HashMap<String, String> map) throws RuntimeException {
+    public void load(RandomAccessFile dataFile, Filemap table) throws RuntimeException {
         try {
             if (dataFile.length() == 0) {
                 return;
@@ -155,7 +158,13 @@ public class DataBase {
                 value = getValueFromFile(nextOffset);
 
                 data.put(keyFirst, value);
-                map.put(keyFirst, value);
+                MyStoreable val;
+                try {
+                    val = (MyStoreable) table.getProvider().deserialize(table, value);
+                } catch (ParseException e) {
+                    throw new RuntimeException(filePath + " can't deserialize values from file", e);
+                }
+                table.updatedMap.put(keyFirst, val);
 
                 keyFirst = keySecond;
                 newOffset = nextOffset;
@@ -248,10 +257,12 @@ public class DataBase {
                 throw e2;
             }
         } catch (Throwable e) {
+            //
         } finally {
             try {
                 closeDataFile();
             } catch (Throwable e5) {
+                //
             }
         }
     }

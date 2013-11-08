@@ -1,5 +1,10 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.text.ParseException;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
 public class ExecuteCmd extends Shell {
@@ -33,13 +38,28 @@ public class ExecuteCmd extends Shell {
     }
 
 
+    private ArrayList<Class<?>> getTypes(String arg) throws IOException {
+        arg = arg.trim();
+        arg = arg.replaceAll("[\\s]+", " ");
+        arg = arg.replace("(", "");
+        arg = arg.replace(")", "");
+        arg = arg.replace(",", "");
+        String[] array = arg.split(" ");
+        ArrayList<Class<?>> types = new ArrayList<Class<?>>();
+        for (int i = 2; i < array.length; i++) {
+            types.add(mp.getTypeFromString(array[i]));
+        }
+        return types;
+    }
+    
+    
     @Override
     protected ExitCode analyze(String input) {
         String[] arg = getArguments(input);
         if (arg == null || arg.length == 0) {
             return ExitCode.OK;
         }
-        String ans;
+        Storeable ans;
         switch (arg[0]) {
         case "put":
             if (arg.length == 3) {
@@ -48,16 +68,19 @@ public class ExecuteCmd extends Shell {
                     return ExitCode.OK;
                 }
                 try {
-                    ans = mp.put(arg[1], arg[2]);
+                    ans = mp.put(arg[1], mtp.deserialize(mp, arg[2]));
                 } catch (IllegalArgumentException e) {
                     System.err.println(e.getMessage());
                     return ExitCode.ERR;
+                } catch (ParseException e1) {
+                    System.err.println(e1.getMessage());
+                    return ExitCode.ERR;                    
                 }
                 if (ans == null) {
                     System.out.println("new");
                 } else {
                     System.out.println("overwrite");
-                    System.out.println(ans);
+                    System.out.println(mtp.serialize(mp, ans));
                 }
                 return ExitCode.OK;
             }
@@ -78,7 +101,7 @@ public class ExecuteCmd extends Shell {
                     System.out.println("not found");
                 } else {
                     System.out.println("found");
-                    System.out.println(ans);
+                    System.out.println(mtp.serialize(mp, ans));
                 }
                 return ExitCode.OK;
             }
@@ -104,13 +127,16 @@ public class ExecuteCmd extends Shell {
             }
             break;
         case "create":
-            if (arg.length == 2) {
+            if (arg.length >= 2) {
                 try {
-                    if (mtp.createTable(arg[1]) == null) {
+                    if (mtp.createTable(arg[1], getTypes(input)) == null) {
                         System.out.println(arg[1] + " exists");
                     } else {
                         System.out.println("created");
                     }
+                } catch (IOException e2) {
+                    System.err.println(e2.getMessage());
+                    return ExitCode.ERR;
                 } catch (RuntimeException e1) {
                     System.err.println(e1.getMessage());
                     return ExitCode.ERR;
