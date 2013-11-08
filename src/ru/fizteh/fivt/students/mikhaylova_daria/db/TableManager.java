@@ -59,14 +59,19 @@ public class TableManager implements TableProvider {
         }
         File[] tables = mainDir.listFiles();
         File sign = new File(mainDir, "signature.tsv");
+        if (tables == null) {
+             throw new IOException("Unknown error");
+        }
         for (short i = 0; i < tables.length; ++i) {
             if (tables[i].isFile()) {
                 if (!tables[i].toPath().equals(sign.toPath())) {
                     throw new IllegalStateException(tables[i].toString() + " is not table");
                 }
             }
-
             File[] directories = tables[i].listFiles();
+            if (directories == null) {
+                throw new IOException("Unknown error");
+            }
             if (directories.length > 17) {
                 throw new IllegalStateException(tables[i].toString() + ": Wrong number of files in the table");
             }
@@ -79,6 +84,9 @@ public class TableManager implements TableProvider {
                     }
                     idFile[0] = dirNames.get(directories[j].getName());
                     File[] files = directories[j].listFiles();
+                    if (files == null) {
+                        throw new IOException("Unknown error");
+                    }
                     if (files.length > 16) {
                         throw new IllegalStateException(tables[i].toString() + ": " + directories[j].toString()
                                 + ": Wrong number of files in the table");
@@ -103,8 +111,10 @@ public class TableManager implements TableProvider {
                         }
                     }
                     File[] checkOnEmpty = directories[j].listFiles();
-                    if (checkOnEmpty.length == 0) {
-                            throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
+                    if (checkOnEmpty != null) {
+                        if (checkOnEmpty.length == 0) {
+                                throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
+                        }
                     }
                 }
             }

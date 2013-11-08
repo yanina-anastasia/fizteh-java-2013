@@ -133,7 +133,7 @@ public class DbMain {
         }
     }
 
-    public void use(String[] command) throws Exception {
+    public void use(String[] command) throws IOException {
         if (command.length != 2) {
             throw new IOException("wrong type (use: Wrong number of arguments)");
         }

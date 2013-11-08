@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 import ru.fizteh.fivt.storage.structured.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class Value implements Storeable {
@@ -18,14 +20,35 @@ public class Value implements Storeable {
         }
     }
 
+    private Class<?> normType(String arg) {
+        HashMap<String, Class<?>> types = new HashMap<>();
+        types.put("Integer", Integer.class);
+        types.put("Long", Long.class);
+        types.put("Double", Double.class);
+        types.put("Float", Float.class);
+        types.put("Boolean", Boolean.class);
+        types.put("Byte", Byte.class);
+        types.put("byte", Byte.class);
+        types.put("String", String.class);
+        types.put("int", Integer.class);
+        types.put("long", Long.class);
+        types.put("double", Double.class);
+        types.put("float", Float.class);
+        types.put("boolean", Boolean.class);
+        return types.get(arg);
+    }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!(value == null)) {
+            if (normType(value.getClass().getSimpleName()) == null) {
+                throw new ColumnFormatException("This type is not supposed: " + value.getClass().getCanonicalName());
+            }
             if (!value.getClass().equals(table.getColumnType(columnIndex))) {
-                throw new ColumnFormatException("Wrong type of value ");
+                throw new ColumnFormatException("Wrong type of value: " + value.getClass()
+                        + " but expected "  + table.getColumnType(columnIndex));
             }
         }
         this.value.add(columnIndex, value);

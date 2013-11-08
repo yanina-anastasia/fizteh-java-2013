@@ -175,4 +175,10 @@ public class TestStoreable {
     public void incorrectValueStringButFoundInt() {
         st.setColumnAt(6, 12);
     }
+
+    @Test
+    public void correctValueByte() {
+        byte b = 1;
+        st.setColumnAt(1, b);
+    }
 }
