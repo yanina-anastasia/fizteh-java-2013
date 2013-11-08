@@ -57,21 +57,7 @@ public class CheckOnCorrect {
         }
         return true;
     }
-    /*
-    public static boolean goodStoreable(Table givenTable, Storeable givenStoreable) {
-        if (givenStoreable == null) {
-            return false;
-        }
-        for (int i = 0; i < givenTable.getColumnsCount(); ++i) {
-            if (givenStoreable.getColumnAt(i) != null) {
-                if (givenStoreable.getColumnAt(i).getClass() != givenTable.getColumnType(i)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    */
+
     private static Object getValueWithType(Storeable storeable, int columnIndex,
                                            Class<?> columnType) throws ColumnFormatException {
         switch (columnType.getName()) {
@@ -95,6 +81,9 @@ public class CheckOnCorrect {
     }
 
     public static boolean goodStoreable(Storeable value, List<Class<?>> columnTypes) {
+        if (value == null) {
+            return false;
+        }
         int columnIndex = 0;
         try {
             for (Class<?> columnType : columnTypes) {
