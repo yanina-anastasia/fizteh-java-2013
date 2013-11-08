@@ -42,10 +42,10 @@ public class Main {
                     System.err.println(e.getMessage());
                 }
             }
-        } catch (IOException e) {
+        } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
-        } catch (IllegalArgumentException e) {
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(2);
         } catch (IllegalStateException e) {
