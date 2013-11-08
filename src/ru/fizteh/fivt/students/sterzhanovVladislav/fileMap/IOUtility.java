@@ -43,7 +43,7 @@ public class IOUtility {
                 throw new IllegalStateException("Malformed database");
             }
             for (File file : listFiles) {
-                if (!file.isFile()) {
+                if (!file.isFile() || file.length() == 0) {
                     throw new IllegalStateException("Malformed database");
                 }
                 if (!file.getName().matches("(^([0-9]|[1][0-5])\\.dat$)|")) {
