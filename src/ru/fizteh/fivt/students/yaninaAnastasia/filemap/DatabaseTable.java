@@ -368,10 +368,12 @@ public class DatabaseTable implements Table {
                     continue;
                 }
                 if (!o.getClass().equals(getColumnType(index))) {
+                    System.out.println("not equal");
                     return false;
                 }
                 storeableColumnsCount++;
             } catch (IndexOutOfBoundsException e) {
+                System.out.println("index out of bound");
                 return false;
             }
         }
