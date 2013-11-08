@@ -144,7 +144,7 @@ public class DataTable implements Table {
                 if (!fileName.equals(new String(fileNumber + ".dat"))) {
                     throw new IllegalArgumentException("Not allowed name of file in table");
                 }
-                FileReader fileReader = new FileReader(f, this);
+                FileReader fileReader = new FileReader(f, this.dataTable);
                 while (fileReader.checkingLoadingConditions()) {
                     String key = fileReader.getNextKey();
                     int hashByte = Math.abs(key.getBytes()[0]);
