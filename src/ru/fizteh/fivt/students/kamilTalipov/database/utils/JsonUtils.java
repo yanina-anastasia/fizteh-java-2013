@@ -27,14 +27,17 @@ public class JsonUtils {
 
         StringBuilder result = new StringBuilder("{");
         for (int i = 0; i < table.getColumnsCount(); ++i) {
+            result.append("\"");
+            result.append(i);
+            result.append("\": ");
             if (value.getColumnAt(i) != null) {
-                result.append("\"" + i + "\": " + value.getColumnAt(i).toString());
+                result.append(value.getColumnAt(i).toString());
             } else {
-                result.append("\"" + i + "\": " + "null");
+                result.append("null");
             }
 
             if (i != table.getColumnsCount() - 1) {
-                result.append(",");
+                result.append(", ");
             }  else {
                 result.append("}");
             }

@@ -7,6 +7,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 import java.util.ArrayList;
 
 public class CreateCommand extends SimpleCommand {
+    private final MultiTableDatabase database;
+
     public CreateCommand(MultiTableDatabase database) {
         super("create", -2);
         this.database = database;
@@ -22,11 +24,13 @@ public class CreateCommand extends SimpleCommand {
         ArrayList<Class<?>> types = new ArrayList<>();
         for (int i = 1; i < args.length; ++i) {
             switch (args[i]) {
-                case "Integer": case "int":
+                case "Integer":
+                case "int":
                     types.add(Integer.class);
                     break;
 
-                case "Long": case "long":
+                case "Long":
+                case "long":
                     types.add(Long.class);
                     break;
 
@@ -34,15 +38,18 @@ public class CreateCommand extends SimpleCommand {
                     types.add(Byte.class);
                     break;
 
-                case "Float": case "float":
+                case "Float":
+                case "float":
                     types.add(Float.class);
                     break;
 
-                case "Double": case "double":
+                case "Double":
+                case "double":
                     types.add(Double.class);
                     break;
 
-                case "Boolean": case "boolean":
+                case "Boolean":
+                case "boolean":
                     types.add(Boolean.class);
                     break;
 
@@ -62,6 +69,4 @@ public class CreateCommand extends SimpleCommand {
             System.out.println(args[0] + " exists");
         }
     }
-
-    private final MultiTableDatabase database;
 }

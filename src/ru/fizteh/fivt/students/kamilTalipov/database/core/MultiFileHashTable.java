@@ -15,12 +15,27 @@ import static ru.fizteh.fivt.students.kamilTalipov.database.utils.InputStreamUti
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MultiFileHashTable implements Table {
+    private HashMap<String, String> table;
+    private HashMap<String, String> oldValues;
+
+    private final ArrayList<Class<?>> types;
+
+    private final String tableName;
+    private final File tableDirectory;
+
+    private final TableProvider myTableProvider;
+
+    private static final int ALL_DIRECTORIES = 16;
+    private static final int FILES_IN_DIRECTORY = 16;
+
+    private static final int MAX_KEY_LEN = 1 << 24;
+    private static final int MAX_VALUE_LEN = 1 << 24;
+
+    private static final String SIGNATURE_FILE_NAME = "signature.tsv";
+
     public MultiFileHashTable(String workingDirectory, String tableName,
                               TableProvider myTableProvider,
                               List<Class<?>> types) throws DatabaseException, IOException {
@@ -114,8 +129,7 @@ public class MultiFileHashTable implements Table {
         String oldValue = table.put(key, stringValue);
         if (!oldValues.containsKey(key)) {
             oldValues.put(key, oldValue);
-        } else if ((oldValues.get(key) == null)
-                    || (oldValues.get(key) != null && oldValues.get(key).equals(stringValue))) {
+        } else if (oldValues.get(key) != null && oldValues.get(key).equals(stringValue)) {
             oldValues.remove(key);
         }
 
@@ -241,19 +255,51 @@ public class MultiFileHashTable implements Table {
 
     private static List<Class<?>> getTypes(String workingDirectory,
                                            String tableName) throws IOException {
-        FileInputStream signatureFile = new FileInputStream(workingDirectory + File.separator
-                                                            + tableName + File.separator
-                                                            + SIGNATURE_FILE_NAME);
-        ObjectInputStream signatureStream = new ObjectInputStream(signatureFile);
+        File signatureFile = FileUtils.makeFile(workingDirectory + File.separator + tableName,
+                                                SIGNATURE_FILE_NAME);
         ArrayList<Class<?>> types = new ArrayList<>();
-        while (true) {
-            try {
-                Class<?> type = (Class<?>) signatureStream.readObject();
-                types.add(type);
-            } catch (ClassNotFoundException e) {
-                throw new IOException("Incorrect signature file format", e);
-            } catch (EOFException e) {
-                break;
+        try (Scanner signatureScanner = new Scanner(new FileInputStream(signatureFile))) {
+            if (!signatureScanner.hasNextLine()) {
+                throw new IOException("Signature file is empty");
+            }
+
+            while (signatureScanner.hasNextLine()) {
+                String[] inputTypes = signatureScanner.nextLine().split("\\s+");
+                for (String type : inputTypes) {
+                    switch (type) {
+                        case "int":
+                            types.add(Integer.class);
+                            break;
+
+                        case "long":
+                            types.add(Long.class);
+                            break;
+
+                        case "byte":
+                            types.add(Byte.class);
+                            break;
+
+                        case "float":
+                            types.add(Float.class);
+                            break;
+
+                        case "double":
+                            types.add(Double.class);
+                            break;
+
+                        case "boolean":
+                            types.add(Boolean.class);
+                            break;
+
+                        case "String":
+                            types.add(String.class);
+                            break;
+
+                        default:
+                            throw new IOException("Signature file contain unsupported type '"
+                                                    + type + "'");
+                    }
+                }
             }
         }
 
@@ -261,11 +307,43 @@ public class MultiFileHashTable implements Table {
     }
 
     private void writeSignatureFile() throws IOException {
-        File outputFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
-        FileOutputStream fileStream = new FileOutputStream(outputFile);
-        ObjectOutputStream outputStream = new ObjectOutputStream(fileStream);
-        for (Class<?> type : types) {
-            outputStream.writeObject(type);
+        File signatureFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
+        try (BufferedWriter signatureWriter = new BufferedWriter(new FileWriter(signatureFile))) {
+            for (int i = 0; i < getColumnsCount(); ++i) {
+                switch (getColumnType(i).getCanonicalName()) {
+                    case "java.lang.Integer":
+                        signatureWriter.write("int ");
+                        break;
+
+                    case "java.lang.Long":
+                        signatureWriter.write("long ");
+                        break;
+
+                    case "java.lang.Byte":
+                        signatureWriter.write("byte ");
+                        break;
+
+                    case "java.lang.Float":
+                        signatureWriter.write("float ");
+                        break;
+
+                    case "java.lang.Double":
+                        signatureWriter.write("double ");
+                        break;
+
+                    case "java.lang.Boolean":
+                        signatureWriter.write("boolean ");
+                        break;
+
+                    case "java.lang.String":
+                        signatureWriter.write("String ");
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("Unsupported type '"
+                                                            + getColumnType(i).getCanonicalName() + "'");
+                }
+            }
         }
     }
 
@@ -349,22 +427,4 @@ public class MultiFileHashTable implements Table {
                 || type == Boolean.class
                 || type == String.class;
     }
-
-    private HashMap<String, String> table;
-    private HashMap<String, String> oldValues;
-
-    private final ArrayList<Class<?>> types;
-
-    private final String tableName;
-    private final File tableDirectory;
-
-    private final TableProvider myTableProvider;
-
-    private static final int ALL_DIRECTORIES = 16;
-    private static final int FILES_IN_DIRECTORY = 16;
-
-    private static final int MAX_KEY_LEN = 1 << 24;
-    private static final int MAX_VALUE_LEN = 1 << 24;
-
-    private static final String SIGNATURE_FILE_NAME = "signature.tsv";
 }

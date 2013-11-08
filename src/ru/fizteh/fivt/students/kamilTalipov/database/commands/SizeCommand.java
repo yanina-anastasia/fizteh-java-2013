@@ -6,6 +6,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class SizeCommand extends SimpleCommand {
+    private final Database database;
+
     public SizeCommand(Database database) {
         super("size", 0);
         this.database = database;
@@ -24,6 +26,4 @@ public class SizeCommand extends SimpleCommand {
             System.err.println("no table");
         }
     }
-
-    private final Database database;
 }

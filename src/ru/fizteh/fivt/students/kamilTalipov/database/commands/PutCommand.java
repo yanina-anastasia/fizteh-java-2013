@@ -10,6 +10,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 import java.text.ParseException;
 
 public class PutCommand extends SimpleCommand {
+    private final Database database;
+
     public PutCommand(Database database) {
         super("put", -2);
         this.database = database;
@@ -44,6 +46,4 @@ public class PutCommand extends SimpleCommand {
             System.err.println("JSON: incorrect format");
         }
     }
-
-    private final Database database;
 }

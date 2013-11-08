@@ -8,6 +8,9 @@ import java.text.ParseException;
 import java.util.List;
 
 public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
+    private final MultiFileHashTableProvider tableProvider;
+    private MultiFileHashTable activeTable;
+
     public HashDatabase(String databaseDirectory) throws IOException, DatabaseException {
         this.tableProvider = new MultiFileHashTableProvider(databaseDirectory);
         activeTable = null;
@@ -118,7 +121,4 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     public void exit() throws DatabaseException {
         tableProvider.exit();
     }
-
-    private final MultiFileHashTableProvider tableProvider;
-    private MultiFileHashTable activeTable;
 }

@@ -8,6 +8,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class GetCommand extends SimpleCommand {
+    private final Database database;
+
     public GetCommand(Database database) {
         super("get", 1);
         this.database = database;
@@ -32,6 +34,4 @@ public class GetCommand extends SimpleCommand {
             System.err.println("no table");
         }
     }
-
-    private final Database database;
 }

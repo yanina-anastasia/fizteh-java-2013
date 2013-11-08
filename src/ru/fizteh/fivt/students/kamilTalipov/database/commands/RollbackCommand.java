@@ -6,6 +6,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class RollbackCommand extends SimpleCommand {
+    private final TransactionDatabase database;
+
     public RollbackCommand(TransactionDatabase database) {
         super("rollback", 0);
         this.database = database;
@@ -24,6 +26,4 @@ public class RollbackCommand extends SimpleCommand {
             System.err.println("no table");
         }
     }
-
-    private final TransactionDatabase database;
 }

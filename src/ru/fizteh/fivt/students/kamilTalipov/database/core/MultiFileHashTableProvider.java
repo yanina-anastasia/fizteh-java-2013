@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiFileHashTableProvider implements TableProvider {
+    private final File databaseDirectory;
+    private final ArrayList<MultiFileHashTable> tables;
+
     public MultiFileHashTableProvider(String databaseDirectory) throws IOException,
             DatabaseException {
         if (databaseDirectory == null) {
@@ -157,7 +160,4 @@ public class MultiFileHashTableProvider implements TableProvider {
                 || tableName.contains("<") || tableName.contains(">")
                 || tableName.contains("|");
     }
-
-    private final File databaseDirectory;
-    private final ArrayList<MultiFileHashTable> tables;
 }

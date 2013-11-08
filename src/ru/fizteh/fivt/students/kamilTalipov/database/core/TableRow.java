@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableRow implements Storeable {
+    private final List<Class<?>> types;
+    private final List<Object> values;
+    private final Table table;
+
     public TableRow(Table table) {
         if (table == null) {
             throw new IllegalArgumentException("Table must be not null");
@@ -104,8 +108,4 @@ public class TableRow implements Storeable {
         }
         return values.get(columnIndex);
     }
-
-    private final List<Class<?>> types;
-    private List<Object> values;
-    private final Table table;
 }

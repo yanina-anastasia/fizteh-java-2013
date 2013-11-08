@@ -7,6 +7,8 @@ import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class RemoveCommand extends SimpleCommand {
+    private final Database database;
+
     public RemoveCommand(Database database) {
         super("remove", 1);
         this.database = database;
@@ -30,6 +32,4 @@ public class RemoveCommand extends SimpleCommand {
             System.err.println("no table");
         }
     }
-
-    private final Database database;
 }
