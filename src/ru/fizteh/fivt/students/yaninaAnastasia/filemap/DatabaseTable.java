@@ -82,6 +82,7 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         if (!checkAlienStoreable(value)) {
+            System.out.println(value);
             throw new ColumnFormatException("Alien storeable");
         }
         for (int i = 0; i < getColumnsCount(); i++) {
