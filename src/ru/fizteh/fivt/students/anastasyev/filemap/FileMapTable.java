@@ -50,14 +50,14 @@ public class FileMapTable implements Table {
         }
         int i = 0;
         for (; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != null) {
-                try {
+            try {
+                if (value.getColumnAt(i) != null) {
                     if (!columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
                         throw new ColumnFormatException("Wrong column format");
                     }
-                } catch (IndexOutOfBoundsException e) {
-                    throw new ColumnFormatException("Wrong column count");
                 }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Wrong column count");
             }
         }
         try {
