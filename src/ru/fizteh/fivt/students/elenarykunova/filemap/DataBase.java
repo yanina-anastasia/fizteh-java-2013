@@ -22,9 +22,10 @@ public class DataBase {
     private int ndir;
     private int nfile;
     private Filemap table = null;
-
+    private boolean exists = false;
+    
     public boolean hasFile() {
-        return (dataFile != null);
+        return exists;
     }
 
     public String getFileName(int ndir, int nfile) {
@@ -61,6 +62,7 @@ public class DataBase {
         if (tmpFile.exists()) {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
+                exists = true;
                 load(dataFile, table);
             } catch (FileNotFoundException e1) {
                 throw new RuntimeException(filePath + ": can't find file", e1);
@@ -225,6 +227,7 @@ public class DataBase {
                 if (sh.rm(filePath) != Shell.ExitCode.OK) {
                     throw new RuntimeException(filePath + " can't delete file");
                 }
+                exists = false;
                 return;
             }
 
