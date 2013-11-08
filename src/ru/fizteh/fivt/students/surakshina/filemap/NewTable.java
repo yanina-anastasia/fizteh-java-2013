@@ -32,8 +32,15 @@ public class NewTable implements Table {
             FileInputStream stream = new FileInputStream(new File(provider.getCurrentDirectory() + File.separator
                     + this.name + File.separator + "signature.tsv"));
             Scanner scanner = new Scanner(stream);
+            int i = 0;
             while (scanner.hasNext()) {
                 list.add(provider.getNameClass(scanner.next()));
+                if (list.get(i) == null) {
+                    scanner.close();
+                    stream.close();
+                    throw new IOException("Bad signature");
+                }
+                ++i;
             }
             scanner.close();
             stream.close();
