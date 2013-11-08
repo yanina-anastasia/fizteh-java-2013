@@ -164,9 +164,31 @@ public class StorableUtils {
                             break;
                         }
                     }
-                    String text = reader.getElementText();
-                    if (!text.equals("null")) {
+
+                    if (reader.next() == XMLStreamConstants.CHARACTERS) {
+                        String text = reader.getText();
                         line.setColumnAt(columnIndex, parseValue(text, columnTypes.get(columnIndex)));
+                    } else {
+                        reader.next();
+                        if (reader.getName().getLocalPart().equals("null")) {
+                            if (!reader.isStartElement()) {
+                                throw new ParseException("invalid xml format",
+                                        reader.getLocation().getCharacterOffset());
+                            }
+                            reader.next();
+                            if (!reader.isEndElement() || !reader.getName().getLocalPart().equals("null")) {
+                                throw new ParseException("invalid xml format",
+                                        reader.getLocation().getCharacterOffset());
+                            }
+                            reader.next();
+                            if (!reader.isEndElement() || !reader.getName().getLocalPart().equals("col")) {
+                                throw new ParseException("invalid xml format",
+                                        reader.getLocation().getCharacterOffset());
+                            }
+                        } else if (!reader.getName().getLocalPart().equals("row") || !reader.isEndElement()) {
+                            throw new ParseException("invalid xml format",
+                                    reader.getLocation().getCharacterOffset());
+                        }
                     }
                     columnIndex++;
                 }
@@ -216,7 +238,7 @@ public class StorableUtils {
                 for (int i = 0; i < columnTypes.size(); i++) {
                     writer.writeStartElement("col");
                     if (storeable.getColumnAt(i) == null) {
-                        writer.writeCharacters("null");
+                        writer.writeStartElement("null");
                     } else {
                         writer.writeCharacters(getStringFromElement(storeable, i, columnTypes.get(i)));
                     }
