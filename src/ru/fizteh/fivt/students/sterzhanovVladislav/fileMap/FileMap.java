@@ -208,7 +208,7 @@ public class FileMap implements Table {
     }
 
     private static boolean isValidKey(String s) {
-        return !(s == null || s.isEmpty() || s.contains("\n") || s.contains(" ") || s.contains("\t"));
+        return !(s == null || s.isEmpty() || s.contains("\n") || s.matches(".*\\s+.*"));
     }
 
     private boolean isValidValue(Storeable s) {
