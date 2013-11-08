@@ -47,9 +47,7 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Not correct key or value");
         }
         SignatureController signatureController = new SignatureController();
-        for (int i = 0; i < getColumnsCount(); ++i) {
-            signatureController.checkColumnTypeValidity(value, i, getColumnType(i));
-        }
+
         return dataTable.put(key, value);
     }
 
