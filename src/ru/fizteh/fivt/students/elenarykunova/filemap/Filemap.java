@@ -70,12 +70,33 @@ public class Filemap implements Table {
         return res;
     }
 
+    public boolean isCorrectValue(Storeable value) throws ColumnFormatException {
+        boolean hasNotNull = false;
+        if (value == null) {
+            return false;
+        }
+        
+        if (((MyStoreable) value).getSize() != types.size()) {
+            return false;
+        }
+        
+        for (int i = 0; i < types.size(); i++) {
+            if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
+                return false;
+            }
+            if (value.getColumnAt(i) != null) {
+                hasNotNull = true;
+            }
+        }
+        return hasNotNull;
+    }
+    
     public Storeable put(String key, Storeable value)
             throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("key is empty");
         }
-        if (value == null) {
+        if (!isCorrectValue(value)) {
             throw new IllegalArgumentException("value is empty");
         }
         for (int i = 0; i < getColumnsCount(); i++) {
@@ -237,8 +258,9 @@ public class Filemap implements Table {
 
     }
 
-    public Filemap(String path, String name)
+    public Filemap(String path, String name, MyTableProvider mtp)
             throws RuntimeException, IOException {
+        provider = mtp;
         currTablePath = path;
         currTableName = name;
         File info = new File(path + File.separator + "signature.tsv");

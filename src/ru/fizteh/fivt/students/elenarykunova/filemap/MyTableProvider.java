@@ -45,13 +45,13 @@ public class MyTableProvider implements TableProvider {
             char c = str.charAt(i);
             if (c == '\\' || c == '/' || c == '.' || c == ':' || c == '*'
                     || c == '?' || c == '|' || c == '"' || c == '<' || c == '>'
-                    || c == ' ') {
+                    || c == ' ' || c == '\t' || c == '\n' || c == '\r') {
                 return true;
             }
         }
         return false;
     }
-    
+
     @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
@@ -71,13 +71,14 @@ public class MyTableProvider implements TableProvider {
         }
         File info = new File(tablePath + File.separator + "signature.tsv");
         if (!info.exists() || info.length() == 0) {
-            throw new RuntimeException(name + " exists as folder and has no data as table");                    
+            throw new RuntimeException(name
+                    + " exists as folder and has no data as table");
         }
         try {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-                Filemap result = new Filemap(tablePath, name);
+                Filemap result = new Filemap(tablePath, name, this);
                 tables.put(name, result);
                 return (Table) result;
             }
@@ -92,8 +93,8 @@ public class MyTableProvider implements TableProvider {
         }
         return (type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Byte.class) || type.equals(Float.class)
-                || type.equals(Double.class) || type.equals(Boolean.class)
-                || type.equals(String.class));
+                || type.equals(Double.class) || type.equals(Boolean.class) || type
+                    .equals(String.class));
     }
 
     public void writeTypes(File info, List<Class<?>> types) throws IOException {
@@ -130,7 +131,7 @@ public class MyTableProvider implements TableProvider {
         }
         os.close();
     }
-    
+
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, RuntimeException, IOException {
@@ -158,11 +159,12 @@ public class MyTableProvider implements TableProvider {
 
         if (tmpFile.exists() && tmpFile.isDirectory()) {
             if (!info.exists()) {
-                throw new IllegalArgumentException(name + " exists, but couldn't find table info");
+                throw new IllegalArgumentException(name
+                        + " exists, but couldn't find table info");
             }
             writeTypes(info, columnTypes);
             if (tables.get(name) == null) {
-                Filemap result = new Filemap(tablePath, name);
+                Filemap result = new Filemap(tablePath, name, this);
                 tables.put(name, result);
             }
             return null;
@@ -172,7 +174,7 @@ public class MyTableProvider implements TableProvider {
             } else {
                 writeTypes(info, columnTypes);
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name);
+                    Filemap result = new Filemap(tablePath, name, this);
                     tables.put(name, result);
                     return (Table) result;
                 } else {
@@ -211,6 +213,36 @@ public class MyTableProvider implements TableProvider {
         }
     }
 
+    public Object checkClasses(Object first, Class<?> second) {
+        Object result;
+        if (first.getClass().equals(second)) {
+            return first;
+        }
+        if (first.getClass().equals(Integer.class)) {
+            int val = (int) first;
+            if (second.equals(Long.class)) {
+                result = Long.valueOf(val);
+                return result;
+            }
+            if (second.equals(Float.class)) {
+                result = Float.valueOf(val);
+                return result;
+            }
+            if (second.equals(Double.class)) {
+                result = Double.valueOf(val);
+                return result;
+            }
+        }
+        if (first.getClass().equals(Float.class)) {
+            float val = (float) first;
+            if (second.equals(Double.class)) {
+                result = Double.valueOf(val);
+                return result;
+            }
+        }
+        return first;
+    }
+
     @Override
     public Storeable deserialize(Table table, String value)
             throws ParseException {
@@ -224,14 +256,18 @@ public class MyTableProvider implements TableProvider {
             throw new ParseException("deserialize: can't parse", 0);
         }
         if (json.length() != table.getColumnsCount()) {
-            throw new ParseException("deserialize: number of elements mismatch", 0);
+            throw new ParseException(
+                    "deserialize: number of elements mismatch", 0);
         }
         ArrayList<Object> values = new ArrayList<Object>();
         for (int i = 0; i < json.length(); i++) {
-            if (!json.get(i).getClass().equals(table.getColumnType(i))) {
-                throw new ParseException("deserialize: types mismatch", i);
+            Object resCast = checkClasses(json.get(i), table.getColumnType(i));
+            if (!resCast.getClass().equals(table.getColumnType(i))) {
+                throw new ParseException(
+                        "deserialize: types mismatch " + json.get(i).getClass()
+                                + " " + table.getColumnType(i), i);
             }
-            values.add(json.get(i));
+            values.add(resCast);
         }
         return createFor(table, values);
     }
@@ -245,7 +281,8 @@ public class MyTableProvider implements TableProvider {
         Object[] array = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); i++) {
             if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
-                throw new ColumnFormatException("serialize: types mismatch");
+                throw new ColumnFormatException(value.getColumnAt(i).getClass()
+                        + " serialize: types mismatch");
             }
             array[i] = value.getColumnAt(i);
         }

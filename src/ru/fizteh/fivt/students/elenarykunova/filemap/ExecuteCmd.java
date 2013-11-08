@@ -68,7 +68,7 @@ public class ExecuteCmd extends Shell {
                     return ExitCode.OK;
                 }
                 try {
-                    ans = mp.put(arg[1], mtp.deserialize(mp, arg[2]));
+                    ans = mp.put(arg[1], mtp.deserialize(mp, input.substring(input.indexOf("["))));
                 } catch (IllegalArgumentException e) {
                     System.err.println(e.getMessage());
                     return ExitCode.ERR;
