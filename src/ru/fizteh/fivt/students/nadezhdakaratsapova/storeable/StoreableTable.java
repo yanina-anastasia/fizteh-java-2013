@@ -50,8 +50,8 @@ public class StoreableTable implements Table {
         int signColumnsCount = getColumnsCount();
         int i;
         for (i = 0; i < signColumnsCount; ++i) {
-            if (value.getColumnAt(i) != null) {
-                try {
+            try {
+                if (value.getColumnAt(i) != null) {
                     switch (getColumnType(i).getSimpleName()) {
                         case "Integer":
                             value.getIntAt(i);
@@ -77,10 +77,11 @@ public class StoreableTable implements Table {
                         default:
                             throw new ColumnFormatException("Not allowed type of signature");
                     }
-                } catch (IndexOutOfBoundsException e) {
-                    throw new ColumnFormatException(e.getMessage());
                 }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException(e.getMessage());
             }
+
         }
         try {
             value.getColumnAt(i);
