@@ -53,6 +53,9 @@ public class SignatureFile {
      * @throws ColumnFormatException Если неизвестный тип колонки
      */
     public static void createSignature(File tableRootDir, List<Class<?>> classes) throws IOException {
+        if (classes == null) {
+            throw new IllegalArgumentException("Column types is null");
+        }
         File signatureFile = new File(tableRootDir, signatureFileName);
         if (signatureFile.exists()) {
             throw new IllegalStateException("Signature file is already exists");

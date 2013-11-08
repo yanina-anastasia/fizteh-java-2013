@@ -74,6 +74,24 @@ public class StoreableTableProviderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableWithNullColumnTypesShoulFail() throws IOException {
+        List<Class<?>> classes = null;
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        Assert.assertNotNull(tableProvider);
+        tableProvider.createTable("tta", classes);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableWithout() throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        Assert.assertNotNull(tableProvider);
+        tableProvider.createTable("tta", classes);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testRemoveTableWithEmptyName() throws IOException {
         StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
         StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());

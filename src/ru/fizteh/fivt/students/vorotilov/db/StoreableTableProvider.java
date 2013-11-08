@@ -83,6 +83,12 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
         checkTableName(name);
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Column type is null");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Can't create table without colums");
+        }
         File tableRootDir = new File(rootDir, name);
         if (tableRootDir.exists()) {
             return null;

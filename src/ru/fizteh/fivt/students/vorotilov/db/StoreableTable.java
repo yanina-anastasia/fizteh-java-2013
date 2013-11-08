@@ -93,6 +93,9 @@ public class StoreableTable implements Table {
         } else if (!tableRootDir.isDirectory()) {
             throw new IllegalArgumentException("Proposed object is not directory");
         }
+        if (classes == null) {
+            throw new IllegalArgumentException("Column type is null");
+        }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
         columnTypes = classes;
