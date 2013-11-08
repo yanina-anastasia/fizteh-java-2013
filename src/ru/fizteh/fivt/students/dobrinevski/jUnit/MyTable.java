@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.dobrinevski.jUnit;
 
 import java.io.File;
 import ru.fizteh.fivt.storage.strings.*;
-import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiFileHashMap;
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiHashMap;
 import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommands;
 import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommand;
 import ru.fizteh.fivt.students.dobrinevski.shell.Command;
