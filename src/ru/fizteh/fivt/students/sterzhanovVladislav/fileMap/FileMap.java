@@ -143,8 +143,8 @@ public class FileMap implements Table {
         db = new HashMap<String, Storeable>();
         diff = new HashMap<String, Diff>();
         for (Class<?> type : classes) {
-            if (type == null) {
-                throw new IllegalArgumentException("Signature can not contain null class");
+            if (type == null || !StoreableUtils.CLASSES.containsKey(type)) {
+                throw new IllegalArgumentException("Invalid column type");
             }
         }
         this.columnTypes = classes;
