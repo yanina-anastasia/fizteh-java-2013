@@ -115,7 +115,7 @@ public class NewTableProvider implements TableProvider {
         NewTable table = tables.get(name);
         File tableFile = new File(workingDirectory, name);
         try {
-            if (table != null) {
+            if (table != null || tableFile != null) {
                 currentTable = table;
                 table.loadCommitedValues(load(tableFile));
             }
