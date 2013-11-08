@@ -44,14 +44,12 @@ public class TableManager implements TableProvider {
         }
         try {
             cleaner();
-        } catch (IllegalStateException e) {
-            throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
         } catch (Exception e) {
             throw new IOException("wrong type (" + e.getMessage() + ")", e);
         }
     }
 
-    private void cleaner() throws Exception {
+    private void cleaner() throws IOException {
         HashMap<String, Short> fileNames = new HashMap<String, Short>();
         HashMap<String, Short> dirNames = new HashMap<String, Short>();
         for (short i = 0; i < 16; ++i) {
@@ -97,8 +95,10 @@ public class TableManager implements TableProvider {
                             TableData tableDat = new TableData(tables[i], this);
                             currentFileMap.readerFile(tableDat);
                             currentFileMap.setAside();
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                             //e.printStackTrace();
+                            throw new IOException("the directory is not Data Base", e);
+                        } catch (Exception e) {
                             throw new IllegalArgumentException("the directory is not Data Base", e);
                         }
                     }
@@ -232,6 +232,11 @@ public class TableManager implements TableProvider {
                     Element nil = doc.createElement("null");
                     row.appendChild(nil);
                 }
+            }
+            try {
+                value.getColumnAt(i);
+                throw new ColumnFormatException("Wrong number of columns in value");
+            } catch (IndexOutOfBoundsException e) {
             }
             TransformerFactory transFac = TransformerFactory.newInstance();
             Transformer trans = transFac.newTransformer();

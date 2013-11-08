@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
@@ -168,7 +169,7 @@ public class FileMap {
         }
     }
 
-    void readerFile(TableData table) throws Exception {
+    void readerFile(TableData table) throws IOException, DataFormatException, ParseException {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
