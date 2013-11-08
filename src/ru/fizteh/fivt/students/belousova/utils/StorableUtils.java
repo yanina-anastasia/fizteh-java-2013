@@ -84,14 +84,14 @@ public class StorableUtils {
         return bos.toString(StandardCharsets.UTF_8.toString());
     }
 
-    public static void readTable(File file, Table table, Map<String, GetColumnTypeStorable> dataBase,
+    public static void readTable(File file, Table table, Map<String, Storeable> dataBase,
                                  StorableTableProvider tableProvider) throws IOException {
         Map<String, String> stringMap = new HashMap<>();
         MultiFileUtils.read(file, stringMap);
 
         for (String key : stringMap.keySet()) {
             try {
-                StorableTableLine value = tableProvider.deserialize(table, stringMap.get(key));
+                Storeable value = tableProvider.deserialize(table, stringMap.get(key));
                 dataBase.put(key, value);
             } catch (ParseException e) {
                 throw new IOException("read error", e);
@@ -255,7 +255,7 @@ public class StorableUtils {
         }
     }
 
-    public static void writeTable(File file, Table table, Map<String, GetColumnTypeStorable> storeableMap,
+    public static void writeTable(File file, Table table, Map<String, Storeable> storeableMap,
                                   TableProvider tableProvider) throws IOException {
         Map<String, String> stringMap = new HashMap<>();
         for (String key : storeableMap.keySet()) {
