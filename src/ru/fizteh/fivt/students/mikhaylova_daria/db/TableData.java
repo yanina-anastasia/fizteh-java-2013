@@ -15,6 +15,31 @@ public class TableData implements Table {
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
 
+    private ArrayList<Class<?>> normList(List<Class<?>> arg) {
+        HashMap<String, Class<?>> types = new HashMap<>();
+        types.put("Integer", Integer.class);
+        types.put("Long", Long.class);
+        types.put("Double", Double.class);
+        types.put("Float", Float.class);
+        types.put("Boolean", Boolean.class);
+        types.put("Byte", Byte.class);
+        types.put("byte", Byte.class);
+        types.put("String", String.class);
+        types.put("int", Integer.class);
+        types.put("long", Long.class);
+        types.put("double", Double.class);
+        types.put("float", Float.class);
+        types.put("boolean", Boolean.class);
+        ArrayList<Class<?>> answer = new ArrayList<>();
+        for (int i = 0; i < arg.size(); ++i) {
+            if (!types.containsKey(arg.get(i).getSimpleName())) {
+                 throw new IllegalArgumentException("Wrong type in " + i + " column: " + arg.get(i).getCanonicalName());
+            }
+            answer.add(types.get(arg.get(i).getSimpleName()));
+        }
+        return answer;
+    }
+
     TableData(File tableFile, List<Class<?>> columnTypes, TableManager manager) throws IOException {
         if (columnTypes == null) {
             throw new IllegalArgumentException("list of column's types is null");
@@ -27,6 +52,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException("Creating of " + tableFile.toString() + "error");
             }
         }
+        columnTypes = normList(columnTypes);
         this.manager = manager;
         HashMap<String, String> types = new HashMap<>();
         types.put("Integer", "int");
@@ -34,23 +60,9 @@ public class TableData implements Table {
         types.put("Double", "double");
         types.put("Float", "float");
         types.put("Boolean", "boolean");
-        types.put("Byte", "Byte");
-        types.put("byte", "Byte");
+        types.put("Byte", "byte");
         types.put("String", "String");
-        types.put("int", "int");
-        types.put("long", "long");
-        types.put("double", "double");
-        types.put("float", "float");
-        types.put("boolean", "boolean");
         StringBuilder str = new StringBuilder();
-        for (Class c : columnTypes) {
-            if (c == null) {
-                throw new ColumnFormatException("null in typelist");
-            }
-            if (!types.containsKey(c.getSimpleName())) {
-                throw new IllegalArgumentException("Wrong type in typelist " + c.getSimpleName());
-            }
-        }
         this.columnTypes = new ArrayList<>(columnTypes);
         this.tableFile = tableFile;
         for (int i = 0; i < columnTypes.size(); ++i) {
@@ -158,11 +170,11 @@ public class TableData implements Table {
             throw new IllegalArgumentException("value is null");
         }
 
-        try {
-            manager.serialize(this, value);
-        } catch (Exception e) {
-            throw new ColumnFormatException("Wrong typelist of value", e);
-        }
+//        try {
+//            manager.serialize(this, value);
+//        } catch (Exception e) {
+//            throw new ColumnFormatException("Wrong typelist of value", e);
+//        }
 
         byte b = key.getBytes()[0];
         if (b < 0) {

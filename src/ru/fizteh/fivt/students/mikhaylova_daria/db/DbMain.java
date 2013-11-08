@@ -73,22 +73,22 @@ public class DbMain {
         String[] signatures = args[1].trim().split("\\s+");
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
-                columnTypes.add(i, int.class);
+                columnTypes.add(i, Integer.class);
             } else {
                 if (signatures[i].equals("long")) {
-                    columnTypes.add(i, long.class);
+                    columnTypes.add(i, Long.class);
                 }  else {
                     if (signatures[i].equals("byte")) {
-                        columnTypes.add(i, byte.class);
+                        columnTypes.add(i, Byte.class);
                     } else {
                         if (signatures[i].equals("float")) {
-                            columnTypes.add(i, float.class);
+                            columnTypes.add(i, Float.class);
                         } else {
                             if (signatures[i].equals("double")) {
-                                columnTypes.add(i, double.class);
+                                columnTypes.add(i, Double.class);
                             } else {
                                 if (signatures[i].equals("boolean")) {
-                                    columnTypes.add(i, boolean.class);
+                                    columnTypes.add(i, Boolean.class);
                                 } else {
                                     if (signatures[i].equals("String")) {
                                         columnTypes.add(i, String.class);
@@ -117,8 +117,10 @@ public class DbMain {
             throw new IllegalArgumentException("wrong type (drop: Wrong number of arguments)");
         }
         String nameDir = command[1].trim();
-        if (currentTable.tableFile.getName().equals(nameDir)) {
-            currentTable = null;
+        if (currentTable != null) {
+            if (currentTable.tableFile.getName().equals(nameDir)) {
+                currentTable = null;
+            }
         }
         try {
             mainManager.removeTable(command[1]);

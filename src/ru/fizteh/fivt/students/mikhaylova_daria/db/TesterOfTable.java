@@ -273,8 +273,8 @@ public class TesterOfTable {
         try {
             ArrayList<Class<?>> classList = new ArrayList<>();
             ArrayList<Object> objList = new ArrayList<>();
-            objList.add("value");
-            classList.add(String.class);
+            objList.add(new Long(123));
+            classList.add(Long.class);
             Table t = provider.createTable("newTable", classList);
             int nBefore = t.size();
             Storeable v1 = provider.createFor(t, objList);
