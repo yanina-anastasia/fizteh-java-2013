@@ -59,7 +59,7 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Long.class) {
                     row.add(put);
                 } else if (put.getClass() == Integer.class) {
-                    row.add(Long.valueOf(((Integer) put).longValue()));
+                    row.add(((Integer) put).longValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -71,7 +71,7 @@ public class MyStoreable implements Storeable {
                     if (number > Byte.MAX_VALUE || number < Byte.MIN_VALUE) {
                         throw new ColumnFormatException("Column type is not equal giving value type");
                     }
-                    row.add(Byte.valueOf(number.byteValue()));
+                    row.add(number.byteValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -79,13 +79,15 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Float.class) {
                     row.add(put);
                 } else if (put.getClass() == Double.class) {
-                    row.add(Float.valueOf(((Double) put).floatValue()));
+                    row.add(((Double) put).floatValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
             } else if (columnTypes.get(i) == Double.class) {
                 if (put.getClass() == Double.class) {
                     row.add(put);
+                } else if (put.getClass() == Float.class) {
+                    row.add(((Float) put).doubleValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }

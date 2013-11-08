@@ -2,12 +2,15 @@ package ru.fizteh.fivt.students.anastasyev.filemap.tests;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
+import ru.fizteh.fivt.students.anastasyev.filemap.MyStoreable;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +89,39 @@ public class FileMapTableProviderTest {
         badClasses.add(String.class);
         badClasses.add(null);
         tableProvider.createTable("table", badClasses);
+    }
+
+    @Test
+    public void serializeTest() throws IOException, ParseException {
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Double.class);
+        classList.add(Float.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
+        Storeable storeable = new MyStoreable(table);
+        storeable.setColumnAt(0, 1.5);
+        assertEquals(storeable.getDoubleAt(0), 1.5);
+        storeable.setColumnAt(1, ((Double) 5.505).floatValue());
+        assertEquals(storeable.getFloatAt(1), ((Double) 5.505).floatValue());
+        storeable.setColumnAt(2, "val");
+        assertEquals(storeable.getStringAt(2), "val");
+        String serialize = tableProvider.serialize(table, storeable);
+        assertEquals(serialize, "[1.5,5.505,\"val\"]");
+    }
+
+    @Test
+    public void deserializeSerializeTest() throws IOException, ParseException {
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Float.class);
+        classList.add(Double.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
+        String compositValue = "[1.5,2.5,\"val\"]";
+        Storeable compositValueStoreable = tableProvider.deserialize(table, compositValue);
+        assertEquals(tableProvider.serialize(table, compositValueStoreable), compositValue);
+        assertEquals(compositValueStoreable.getFloatAt(0), ((Double) 1.5).floatValue());
+        assertEquals(compositValueStoreable.getDoubleAt(1), Double.valueOf(2.5));
+        assertEquals(compositValueStoreable.getStringAt(2), "val");
     }
 }
 

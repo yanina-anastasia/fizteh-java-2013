@@ -13,11 +13,7 @@ public class PutCommand implements Command<FileMapTableProvider> {
             return false;
         }
         String arg1 = command[1];
-        StringBuilder builderArg2 = new StringBuilder();
-        for (int i = 2; i < command.length; ++i) {
-            builderArg2.append(command[i]).append(" ");
-        }
-        String arg2 = builderArg2.toString();
+        String arg2 = command[2];
         FileMapTable currTable = provider.getCurrentFileMapTable();
         if (currTable == null) {
             System.out.println("no table");

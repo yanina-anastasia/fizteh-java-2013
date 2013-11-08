@@ -266,11 +266,6 @@ public class FileMapTable implements Table {
             throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
-        /*for (int i = 0; i < columnTypes.size(); ++i) {
-            if (value.getColumnAt(i) != null && !columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
-                throw new ColumnFormatException("");
-            }
-        }*/
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
