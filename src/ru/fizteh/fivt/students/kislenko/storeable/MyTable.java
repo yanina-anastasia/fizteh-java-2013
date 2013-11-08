@@ -62,12 +62,19 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (key.trim().isEmpty() || key.split("\\s").length > 1) {
-            throw new IllegalArgumentException("Incorrect key/value to put.");
+            throw new IllegalArgumentException("Incorrect key to put.");
         }
-        for (int i = 0; i < types.size(); ++i) {
-            if (value.getColumnAt(i) != null && !types.get(i).equals(value.getColumnAt(i).getClass())) {
-                throw new ColumnFormatException("");
+        try {
+            for (int i = 0; i < types.size(); ++i) {
+                if (value.getColumnAt(i) != null && !types.get(i).equals(value.getColumnAt(i).getClass())) {
+                    throw new ColumnFormatException("Incorrect value to put.");
+                }
             }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("Incorrect value to put.");
+        }
+        if (!tryToGetUnnecessaryColumn(value)) {
+            throw new ColumnFormatException("Incorrect value to put.");
         }
         if ((!changes.containsKey(key) && !storage.containsKey(key)) ||
                 (changes.containsKey(key) && changes.get(key) == null)) {
@@ -175,5 +182,15 @@ public class MyTable implements Table {
 
     public MyTableProvider getProvider() {
         return provider;
+    }
+
+
+    private boolean tryToGetUnnecessaryColumn(Storeable value) {
+        try {
+            value.getColumnAt(types.size());
+        } catch (IndexOutOfBoundsException e) {
+            return true;
+        }
+        return false;
     }
 }
