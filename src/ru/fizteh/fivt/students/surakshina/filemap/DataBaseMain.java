@@ -12,7 +12,7 @@ public class DataBaseMain {
     public static void main(String[] args) {
         NewTableProviderFactory factory = new NewTableProviderFactory();
         String workingDirectory = System.getProperty("fizteh.db.dir");
-        if (workingDirectory  == null) {
+        if (workingDirectory  == null || workingDirectory.toString().trim().isEmpty()) {
             System.err.println("No directory");
             System.exit(1);
         }

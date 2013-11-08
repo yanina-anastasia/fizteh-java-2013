@@ -12,7 +12,7 @@ public class NewTableProviderFactory implements TableProviderFactory {
 
     @Override
     public TableProvider create(String path) throws IOException {
-        if (path == null) {
+        if (path == null || path.toString().trim().isEmpty()) {
             throw new IllegalArgumentException("No directory");
         }
         File directory = new File(path);
