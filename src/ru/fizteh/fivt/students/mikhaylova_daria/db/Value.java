@@ -60,7 +60,7 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
-        return (Long) value.get(columnIndex);
+        return (long) value.get(columnIndex);
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {

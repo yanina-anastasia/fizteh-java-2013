@@ -15,7 +15,7 @@ public class TableData implements Table {
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
 
-    TableData(File tableFile, List<Class<?>> columnTypes, TableManager manager) {
+    TableData(File tableFile, List<Class<?>> columnTypes, TableManager manager) throws IOException {
         if (columnTypes == null) {
             throw new IllegalArgumentException("list of column's types is null");
         }
@@ -59,7 +59,7 @@ public class TableData implements Table {
                      new BufferedWriter(new FileWriter(sign))) {
             signatureWriter.write(str.toString());
         } catch (IOException e) {
-            throw new IllegalArgumentException("Reading error: signature.tsv", e);
+            throw new IOException("Writing error: signature.tsv", e);
         }
         if (tableFile != null) {
             for (short i = 0; i < 16; ++i) {

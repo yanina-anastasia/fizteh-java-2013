@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -114,6 +115,7 @@ public class TableManager implements TableProvider {
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
+        nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
@@ -177,6 +179,7 @@ public class TableManager implements TableProvider {
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
+        nameTable = nameTable.trim();
         if (nameTable.isEmpty()) {
             throw new IllegalArgumentException("wrong type (nameTable is empty)");
         }
@@ -219,7 +222,8 @@ public class TableManager implements TableProvider {
                 if (!(value.getColumnAt(i) == null)) {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
-                    valueStr = value.getColumnAt(i).toString();
+                    Method m = table.getColumnType(i).getMethod("toString");
+                    valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
                     Text text = doc.createTextNode(valueStr);
                     column.appendChild(text);
                 } else {
@@ -236,10 +240,9 @@ public class TableManager implements TableProvider {
             trans.transform(source, result);
             xmlString = sw.toString();
 
-        } catch (NumberFormatException numFormExc) {
-            throw new ColumnFormatException("wrong type (Wrong type of argument " + i + ")");
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (Exception numFormExc) {
+            throw new ColumnFormatException("wrong type (Wrong type of argument " + i
+                    + " or " + numFormExc.getMessage() + ")");
         }
         return xmlString;
     }
@@ -289,6 +292,10 @@ public class TableManager implements TableProvider {
                             Integer valueInt = Integer.parseInt(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueInt);
                         }
+                        if (table.getColumnType(i).equals(Long.class)) {
+                            Long valueLong = Long.parseLong(valueColumnStr.trim());
+                            storeableVal.setColumnAt(i, valueLong);
+                        }
                         if (table.getColumnType(i).equals(Byte.class)) {
                             Byte valueByte = Byte.parseByte(valueColumnStr.trim());
                             storeableVal.setColumnAt(i, valueByte);
@@ -310,14 +317,14 @@ public class TableManager implements TableProvider {
                         }
                     }
                 } catch (NumberFormatException e) {
-                    throw new ParseException("wrong type (Wrong type of column " + i
-                            + " " + table.getColumnType(i).getCanonicalName() + " was expected)", i);
+                    throw new ColumnFormatException("wrong type (Wrong type of column " + i
+                            + " " + table.getColumnType(i).getCanonicalName() + " was expected)");
                 }
             }
         } catch (SAXException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw new ParseException(e.getMessage(), 0);
         } catch (ParserConfigurationException e) {
-             throw new IllegalArgumentException(e.getMessage(), e);
+             throw new ParseException(e.getMessage(), 0);
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
@@ -350,6 +357,9 @@ public class TableManager implements TableProvider {
         }
         if (values.isEmpty()) {
             throw new IllegalArgumentException("wrong type (values list is empty)");
+        }
+        if (table.getColumnsCount() != values.size()) {
+            throw new IndexOutOfBoundsException("Different size of list values and types");
         }
         Storeable created = new Value(table);
         try {
