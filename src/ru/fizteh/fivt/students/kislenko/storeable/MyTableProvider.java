@@ -50,7 +50,7 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         if (!Paths.get(name).getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
-            throw new RuntimeException("Incorrect table name.");
+            throw new IllegalArgumentException("Incorrect table name.");
         }
         if (tables.containsKey(name)) {
             return null;

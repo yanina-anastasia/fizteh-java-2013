@@ -41,7 +41,7 @@ public class MyTableTest {
 
     @Test
     public void testPutNormalValue() throws Exception {
-        Assert.assertNull(table.put("java", provider.deserialize(table, "[\"Dmitry\",58486067788038353]")));
+        Assert.assertNull(table.put("java", provider.deserialize(table, "[\"Komanov\",58486067788038353]")));
     }
 
     @Test(expected = IllegalArgumentException.class)
