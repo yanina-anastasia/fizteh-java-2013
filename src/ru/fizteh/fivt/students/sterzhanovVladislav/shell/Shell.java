@@ -11,12 +11,15 @@ import java.nio.file.Paths;
 
 public class Shell {
     public PrintStream out = System.out;
-    public PrintStream err = System.out;
+    public PrintStream err = System.err;
     private Path workingDir;
     
     private HashMap<String, Command> cmdMap;
     
     public void execCommandStream(InputStream cmdStream, boolean isInteractiveMode) throws Exception {
+        if (isInteractiveMode) {
+            err = System.out;
+        }
         Scanner cmdReader = new Scanner(cmdStream);
         try {
             maybePrintPrompt(isInteractiveMode);
