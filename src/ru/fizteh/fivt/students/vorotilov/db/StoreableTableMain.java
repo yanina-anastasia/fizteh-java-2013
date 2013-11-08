@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vorotilov.shell.ConsoleInput;
 import ru.fizteh.fivt.students.vorotilov.shell.ExitCommand;
@@ -184,6 +185,9 @@ public class StoreableTableMain {
             if (!interactiveMode) {
                 throw e;
             }
+        } catch (ColumnFormatException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
+            throw e;
         }
     }
 
@@ -222,7 +226,6 @@ public class StoreableTableMain {
                     throw new RuntimeException();
                 }
             }
-            e.printStackTrace();
             System.exit(1);
         }
     }
