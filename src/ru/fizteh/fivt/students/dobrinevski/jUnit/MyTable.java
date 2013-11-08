@@ -23,7 +23,7 @@ public class MyTable implements Table{
     }
 
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
+        if ((key == null)||(key == "")) {
             throw new IllegalArgumentException("Illegal key");
         }
         try {
@@ -37,7 +37,7 @@ public class MyTable implements Table{
     }
 
     public String put(String key, String value) {
-        if ((key == null) || (value == null)) {
+        if (((key == null)||(key == "")) || ((value == null)||(value == ""))) {
             throw new IllegalArgumentException("Illegal key");
         }
         try {
@@ -51,7 +51,7 @@ public class MyTable implements Table{
     }
 
     public String remove(String key) {
-        if (key == null) {
+        if ((key == null)||(key == "")) {
             throw new IllegalArgumentException("Illegal key");
         }
         try {
