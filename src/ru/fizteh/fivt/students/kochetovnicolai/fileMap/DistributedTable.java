@@ -32,7 +32,7 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     public boolean isValidKey(String key) {
-        return key != null && !key.equals("") && !key.matches("[\\s]*");
+        return key != null && !key.equals("") && !key.matches(".*[\\s].*");
     }
 
     public boolean isValidValue(String value) {

@@ -66,18 +66,14 @@ public class TableMember implements Table {
     }
 
     @Override
-    public TableRecord put(String key, Storeable value) throws IllegalArgumentException {
+    public TableRecord put(String key, Storeable value) throws ColumnFormatException {
         checkExistence();
         if (!table.isValidKey(key) || value == null) {
             throw new IllegalArgumentException("invalid key or value");
         }
         TableRecord old = get(key);
         String stringValue;
-        try {
-            stringValue = provider.serialize(this, value);
-        } catch (ColumnFormatException e) {
-            throw new IllegalArgumentException("couldn't serialize value", e);
-        }
+        stringValue = provider.serialize(this, value);
         changes.put(key, stringValue);
         return old;
     }

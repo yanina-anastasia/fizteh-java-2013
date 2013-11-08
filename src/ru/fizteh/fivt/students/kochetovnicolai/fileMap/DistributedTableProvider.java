@@ -81,11 +81,13 @@ public class DistributedTableProvider implements TableProvider {
         return tables.containsKey(name);
     }
 
-    public DistributedTableProvider(File workingDirectory) throws IllegalArgumentException {
+    public DistributedTableProvider(File workingDirectory) throws IOException, IllegalArgumentException {
         currentPath = workingDirectory;
-        if (currentPath == null || (currentPath.exists() && !currentPath.isDirectory())
-                || (!currentPath.exists() && !currentPath.mkdir())) {
-            throw new IllegalArgumentException("couldn't create working directory");
+        if (currentPath == null) {
+            throw new IllegalArgumentException("working directory shouldn't be null");
+        }
+        if ((currentPath.exists() && !currentPath.isDirectory()) || (!currentPath.exists() && !currentPath.mkdir())) {
+            throw new IOException("couldn't create working directory");
         }
         tables = new HashMap<>();
         tableMembers = new HashMap<>();
@@ -139,6 +141,9 @@ public class DistributedTableProvider implements TableProvider {
 
     @Override
     public TableMember createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (columnTypes == null || columnTypes.size() == 0) {
+            throw new IllegalArgumentException("invalid column type");
+        }
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
@@ -271,12 +276,23 @@ public class DistributedTableProvider implements TableProvider {
             return null;
         }
         List<Class<?>> tableTypes = types.get(table.getName());
-        StringWriter stringWriter = new StringWriter();
+        StringWriter stringWriter;
+        try {
+            value.getStringAt(tableTypes.size());
+            throw new ColumnFormatException("excess of values in storeable");
+        } catch (IndexOutOfBoundsException e) {
+            stringWriter = new StringWriter();
+        }
         try {
             XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
             streamWriter.writeStartElement("row");
             for (int i = 0; i < tableTypes.size(); i++) {
-                Object next = TableRecord.getColumnFromTypeAt(i, tableTypes.get(i), value);
+                Object next;
+                try {
+                    next = TableRecord.getColumnFromTypeAt(i, tableTypes.get(i), value);
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ColumnFormatException("lack of values at storeable", e);
+                }
                 if (next == null) {
                     streamWriter.writeEmptyElement("null");
                 } else {
