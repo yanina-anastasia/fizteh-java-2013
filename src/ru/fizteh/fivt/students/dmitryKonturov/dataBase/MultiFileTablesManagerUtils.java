@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
 
+import ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils.MultiFileMapLoaderWriter;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator.ShellCommand;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
@@ -170,8 +171,8 @@ class MultiFileTablesManagerUtils {
             try {
               if (shell.currentDatabase != null && shell.currentDatabaseName != null) {
                   MultiFileMapLoaderWriter.writeDatabase(shell.dataBasesWorkspace,
-                                                         shell.currentDatabaseName,
-                                                         shell.currentDatabase);
+                          shell.currentDatabaseName,
+                          shell.currentDatabase);
               }
                 //shell.currentDatabase = null;
                 //shell.currentDatabaseName = null;

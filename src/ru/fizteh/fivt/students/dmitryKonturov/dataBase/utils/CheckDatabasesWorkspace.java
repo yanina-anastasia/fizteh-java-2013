@@ -1,10 +1,13 @@
-package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
+package ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils;
 
+import ru.fizteh.fivt.students.dmitryKonturov.dataBase.DatabaseException;
+
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -18,7 +21,7 @@ import java.util.regex.Pattern;
  *
  */
 
-class CheckDatabasesWorkspace {
+public class CheckDatabasesWorkspace {
 
     /**
      * Возвращает двузначный номер файла, если файл начинается на (1[0-5]|[0-9])
@@ -39,28 +42,27 @@ class CheckDatabasesWorkspace {
         }
     }
 
-    static void checkFile(Path file, int ndir) throws DatabaseException {
+    public static void checkFile(Path file, int ndir) throws DatabaseException, IOException {
         String exceptionPrefix = String.format("Check \'%s'\' file", file.getFileName().toString());
         try {
-            SimpleDatabase tmpBase = new SimpleDatabase();
+            Map<String, String> tmpBase = new HashMap<>();
             int nfile = getNumberFromPath(file);
             SimpleDatabaseLoaderWriter.databaseLoadFromFile(tmpBase, file);
-            Set<Map.Entry<String, Object>> set = tmpBase.getEntries();
-            for (Map.Entry<String, Object> entry : set) {
+            for (Map.Entry<String, String> entry : tmpBase.entrySet()) {
                 int hash = Math.abs(entry.getKey().hashCode());
                 boolean ok = ((hash % 16 == ndir) && (hash / 16 % 16 == nfile));
                 if (!ok) {
                     throw new DatabaseException(exceptionPrefix, "Invalid file format");
                 }
             }
-        } catch (DatabaseException dbe) {
-            throw dbe;
+        } catch (IOException | DatabaseException ioException) {
+            throw ioException;
         } catch (Exception exc) {
             throw new DatabaseException(exceptionPrefix, exc);
         }
     }
 
-    static void checkDatabaseSubdirectory(Path subDir) throws DatabaseException {
+    public static void checkDatabaseSubdirectory(Path subDir) throws DatabaseException, IOException {
         String exceptionPrefix = String.format("Check subdirectory \'%s\'", subDir.getFileName().toString());
         try {
             if (!Files.isDirectory(subDir)) {
@@ -90,14 +92,14 @@ class CheckDatabasesWorkspace {
                     throw new DatabaseException(exceptionPrefix, dbe);
                 }
             }
-        } catch (DatabaseException dbe) {
-            throw dbe;
+        } catch (DatabaseException |  IOException e) {
+            throw e;
         } catch (Exception exc) {
             throw new DatabaseException(exceptionPrefix, exc);
         }
     }
 
-    static void checkDatabaseDirectory(Path databaseDir) throws DatabaseException {
+    public static void checkDatabaseDirectory(Path databaseDir) throws DatabaseException, IOException {
         String exceptionPrefix = String.format("Check database directory \'%s\'", databaseDir.toString());
         try {
             if (!Files.isDirectory(databaseDir)) {
@@ -107,27 +109,36 @@ class CheckDatabasesWorkspace {
             throw new DatabaseException(exceptionPrefix, "Security problems");
         }
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(databaseDir)) {
-            String regexp = "([0-9]|1[0-5])[.]dir";
+            String regexp = "([0-9]|1[0-5])[.]dir|" + StoreableUtils.getSignatureFileName();
+            boolean signatureFileFound = false;
             for (Path entry : stream) {
                 String dirName = entry.toFile().getName();
                 if (!Pattern.matches(regexp, dirName)) {
                     throw new DatabaseException(exceptionPrefix, "Directory contains not only 0.dir, ..., "
-                                                                 + "15.dir files: " + dirName);
+                                                                 + "15.dir files and signature file: " + dirName);
                 }
                 try {
-                    checkDatabaseSubdirectory(entry);
+                    if (dirName.equals(StoreableUtils.getSignatureFileName())) {
+                        StoreableUtils.checkSignatureFile(entry);
+                        signatureFileFound = true;
+                    } else {
+                        checkDatabaseSubdirectory(entry);
+                    }
                 } catch (DatabaseException dbe) {
                     throw new DatabaseException(exceptionPrefix, dbe);
                 }
             }
-        } catch (DatabaseException dbe) {
+            if (!signatureFileFound) {
+                throw new DatabaseException(exceptionPrefix, "Directory not contain signature file");
+            }
+        } catch (DatabaseException | IOException dbe) {
             throw dbe;
         } catch (Exception exception) {
             throw new DatabaseException(exceptionPrefix, exception);
         }
     }
 
-    static void checkWorkspace(Path workspace) throws DatabaseException {
+    public static void checkWorkspace(Path workspace) throws DatabaseException, IOException {
         String exceptionPrefix = String.format("Check workspace \'%s\'", workspace.toString());
         try {
             if (!Files.isDirectory(workspace)) {
@@ -135,6 +146,9 @@ class CheckDatabasesWorkspace {
             }
         } catch (SecurityException e) {
             throw new DatabaseException(exceptionPrefix, "Security problems");
+        }
+        if (!Files.isReadable(workspace) || !Files.isWritable(workspace)) {
+            throw new DatabaseException(exceptionPrefix, "Not enough rights to work");
         }
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(workspace)) {
             for (Path entry : stream) {
@@ -144,7 +158,7 @@ class CheckDatabasesWorkspace {
                     throw new DatabaseException(exceptionPrefix, dbe);
                 }
             }
-        } catch (DatabaseException dbe) {
+        } catch (DatabaseException | IOException dbe) {
             throw dbe;
         } catch (Exception ioException) {
             throw new DatabaseException(exceptionPrefix, ioException);

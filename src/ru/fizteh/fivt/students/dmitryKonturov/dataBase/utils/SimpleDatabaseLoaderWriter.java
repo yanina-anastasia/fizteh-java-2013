@@ -1,4 +1,6 @@
-package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
+package ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils;
+
+import ru.fizteh.fivt.students.dmitryKonturov.dataBase.DatabaseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +57,7 @@ final class SimpleDatabaseLoaderWriter {
         return new String(stringInBytes, StandardCharsets.UTF_8);
     }
 
-    public static void databaseLoadFromFile(SimpleDatabase dataBase, Path fileToRead) throws DatabaseException,
+    public static void databaseLoadFromFile(Map<String, String> dataBase, Path fileToRead) throws DatabaseException,
                                                                                              IOException {
         long fileLength;
         String exceptionPrefix = String.format("Load from \'%s\'", fileToRead.toString());
@@ -113,23 +115,13 @@ final class SimpleDatabaseLoaderWriter {
         }
     }
 
-    public static void databaseWriteToFile(SimpleDatabase database, Path fileToWrite) throws DatabaseException,
+    public static void databaseWriteToFile(Map<String, String> database, Path fileToWrite) throws DatabaseException,
                                                                                              IOException {
 
         String exceptionPrefix = String.format("Write to \'%s\'", fileToWrite.toString());
         try (OutputStream output = Files.newOutputStream(fileToWrite)) {
-            Set<Map.Entry<String, Object>> databaseSet = database.getEntries();
-
-            for (Map.Entry<String, Object> entry : databaseSet) {
-                String key = entry.getKey();
-                String valueString;
-                Object valueObject = entry.getValue();
-                if (valueObject instanceof String) {
-                    valueString = (String) valueObject;
-                } else {
-                    valueString = valueObject.toString();
-                }
-                writeKeyValuePair(output, key, valueString);
+            for (Map.Entry<String, String> entry : database.entrySet()) {
+                writeKeyValuePair(output, entry.getKey(), entry.getValue());
             }
         } catch (IOException e) {
             throw e;
