@@ -221,82 +221,78 @@ public class TesterOfTable {
 
 
 
-//    @Test
-//    public void putToEmptyTableFourKeysGetOneRemoveOneOverwriteOneCountSize() {
-//        try {
-//            int nBefore = table.size();
-//            ArrayList<Class<?>> classList = new ArrayList<>();
-//            ArrayList<Object> objList = new ArrayList<>();
-//            objList.add("value");
-//            classList.add(String.class);
-//            Table t = provider.createTable("newTable", classList);
-//            Storeable v1 = provider.createFor(t, objList);
-//            Storeable v2 = provider.createFor(t, objList);
-//            Storeable v3 = provider.createFor(t, objList);
-//            table.put("new1", v1);
-//            table.put("new2", v2);
-//            table.put("new3", v3);
-//            int commitSize = table.commit();
-//            int nAfter = table.size();
-//            assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
-//            assertNotEquals("неправильно работает commit", 3, commitSize);
-//        } catch (IOException e) {
-//            fail();
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    @Test
-//    public void commitEmpty() {
-//        table.commit();
-//        assertEquals(table.commit(), 0);
-//    }
-//
-//    @Test
-//    public void commitRollback() {
-//        table.commit();
-//        assertEquals(table.rollback(), 0);
-//    }
-//
-//    @Test
-//    public void commitNewState() {
-//        table.put("new5", "v");
-//        table.put("new6", "value");
-//        table.put("new7", "d");
-//        table.put("new8", "a");
-//        table.commit();
-//        table.put("new5", "v");
-//        table.put("new6", "new value");
-//        assertEquals("неправильно работает remove или put", table.remove("new7"), "d");
-//        assertEquals("неправильно работает remove или put", table.remove("new8"), "a");
-//        table.put("new8", "b");
-//        assertNull("неправильно работает remove", table.remove("nonexistent"));
-//        table.get("new8");
-//        assertEquals(table.commit(), 3);
-//    }
-//
-//    @Test
-//    public void rollbackOldState() {
-//        table.put("new5", "v");
-//        table.put("new6", "value");
-//        table.put("new7", "d");
-//        table.put("new8", "a");
-//        table.commit();
-//        table.put("new5", "v");
-//        table.put("new6", "new value");
-//        assertEquals("неправильно работает remove или put", table.remove("new7"), "d");
-//        assertEquals("неправильно работает remove или put", table.remove("new8"), "a");
-//        table.put("new8", "b");
-//        assertNull("неправильно работает remove", table.remove("nonexistent"));
-//        table.get("new8");
-//        assertEquals(table.rollback(), 3);
-//    }
-//
-//    @AfterClass
-//    public static void afterAll() {
-//        String name = tableTempFile.toPath().toString();
-//        removeFile(name);
-//    }
+    @Test
+    public void putPutPutCommitAndCountSize() {
+        try {
+            ArrayList<Class<?>> classList = new ArrayList<>();
+            ArrayList<Object> objList = new ArrayList<>();
+            objList.add("value");
+            classList.add(String.class);
+            Table t = provider.createTable("newTable", classList);
+            int nBefore = t.size();
+            Storeable v1 = provider.createFor(t, objList);
+            Storeable v2 = provider.createFor(t, objList);
+            Storeable v3 = provider.createFor(t, objList);
+            t.put("new1", v1);
+            t.put("new2", v2);
+            t.put("new3", v3);
+            int commitSize = t.commit();
+            int nAfter = t.size();
+            assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
+            assertEquals("неправильно работает commit", 3, commitSize);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void commitEmpty() {
+        try {
+            table.commit();
+            assertEquals(table.commit(), 0);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void commitRollback() {
+        try {
+            table.commit();
+            assertEquals(table.rollback(), 0);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void putPutPutRollbackAndCountSize() {
+        try {
+            ArrayList<Class<?>> classList = new ArrayList<>();
+            ArrayList<Object> objList = new ArrayList<>();
+            objList.add("value");
+            classList.add(String.class);
+            Table t = provider.createTable("newTable", classList);
+            int nBefore = t.size();
+            Storeable v1 = provider.createFor(t, objList);
+            Storeable v2 = provider.createFor(t, objList);
+            Storeable v3 = provider.createFor(t, objList);
+            t.put("new1", v1);
+            t.put("new2", v2);
+            t.put("new3", v3);
+            int nAfter = t.size();
+            int commitSize = t.rollback();
+            assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
+            assertEquals("неправильно работает commit", 3, commitSize);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
 }
 
 
