@@ -138,16 +138,22 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
-            if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
-                for (File file : dir.listFiles()) {
+            if (dir.listFiles().length != 0) {
+                if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
+                    for (File file : dir.listFiles()) {
                         if (checkNameOfFiles(file.getName()) && file.isFile()) {
                             if (file.length() != 0) {
                                 map.putAll(ReadDataBase.loadFile(file, currentTable));
+                            } else {
+                                throw new IOException("empty file");
                             }
                         }
-                    } 
+                    }
                 }
+            } else {
+                throw new IOException("empty dir");
             }
+        }
         return map;
     }
 
