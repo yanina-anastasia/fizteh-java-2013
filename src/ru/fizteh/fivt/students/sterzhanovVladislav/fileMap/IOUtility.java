@@ -160,12 +160,14 @@ public class IOUtility {
         try {
             byte[] buf = Files.readAllBytes(signaturePath);
             String typeNamesList = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buf)).toString();
+            typeNamesList = typeNamesList.replaceAll("\n", " ");
             for (String typeName : typeNamesList.split(" +")) {
+                typeName = typeName.replaceAll("\n", " ");
                 if (!StoreableUtils.TYPENAMES.containsKey(typeName)) {
                     if (typeName.isEmpty()) {
                         typeName = "[empty]";
                     }
-                    throw new ColumnFormatException("wrong type (" + typeName.replace("\n", "[newline]") + " unknown)");
+                    throw new ColumnFormatException("wrong type (" + typeName + " unknown)");
                 }
                 signature.add(StoreableUtils.TYPENAMES.get(typeName));
             }
