@@ -30,6 +30,11 @@ public class DatabaseTable implements Table {
         columnTypes = colTypes;
         provider = providerRef;
         uncommittedChanges = 0;
+        for (final Class<?> columnType : columnTypes) {
+            if (columnType == null || formatColumnType(columnType) == null) {
+                throw new IllegalArgumentException("unknown column type");
+            }
+        }
     }
 
     public static int getDirectoryNum(String key) {
@@ -76,6 +81,9 @@ public class DatabaseTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
+        if (!checkAlienStoreable(value)) {
+            throw new ColumnFormatException("Alien storeable");
+        }
         for (int i = 0; i < getColumnsCount(); i++) {
             try {
                 if (value.getColumnAt(i) == null) {
@@ -94,14 +102,7 @@ public class DatabaseTable implements Table {
             }
         }
         //Fixes 40s tests
-        for (final Class<?> columnType : columnTypes) {
-            if (columnType == null || formatColumnType(columnType) == null) {
-                throw new IllegalArgumentException("unknown column type");
-            }
-        }
-        if (!checkAlienStoreable(value)) {
-            throw new ColumnFormatException("Alien storeable");
-        }
+
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {

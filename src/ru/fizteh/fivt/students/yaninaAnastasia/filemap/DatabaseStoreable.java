@@ -19,12 +19,17 @@ public class DatabaseStoreable implements Storeable {
     }
 
     public boolean equals(Object obj) {
-        if (obj.getClass() != this.getClass()) {
-            return false;
-        }
         Storeable st = (Storeable) obj;
         for (int i = 0; i < columns.size(); i++) {
-            if (this.getColumnAt(i) != st.getColumnAt(i)) {
+            Object value1 = this.getColumnAt(i);
+            Object value2 = st.getColumnAt(i);
+            if (value1 == null && value2 == null) {
+                continue;
+            }
+            if (value1 == null || value2 == null) {
+                return false;
+            }
+            if (!value1.equals(value2)) {
                 return false;
             }
         }

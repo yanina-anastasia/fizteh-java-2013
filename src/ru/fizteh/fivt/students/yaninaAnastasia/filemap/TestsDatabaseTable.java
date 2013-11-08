@@ -240,7 +240,7 @@ public class TestsDatabaseTable {
         table.put("key2", makeStoreable(3));
         table.put("key2", makeStoreable(2));
         Assert.assertEquals(table.size(), 1);
-        Assert.assertEquals(table.rollback(), 0);
+        Assert.assertEquals(0, table.rollback());
     }
 
     @Test
