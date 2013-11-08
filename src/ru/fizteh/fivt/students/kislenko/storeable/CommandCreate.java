@@ -15,7 +15,8 @@ public class CommandCreate implements Command<StoreableState> {
 
     public void run(StoreableState state, String[] args) throws Exception {
         File tableDir = state.getPath().resolve(args[0]).toFile();
-        if (args[0].equals("\\.") || args[0].equals("\\.\\.")) {
+        if (args[0].equals(".") || args[0].equals("..")) {
+            System.err.println("Dots in table name.");
             throw new RuntimeException("Dots in table name.");
         }
         if (tableDir.exists()) {

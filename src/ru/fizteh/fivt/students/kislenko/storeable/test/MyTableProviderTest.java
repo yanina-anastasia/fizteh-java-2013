@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.kislenko.storeable.test;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.students.kislenko.storeable.MyTableProvider;
@@ -24,18 +23,8 @@ public class MyTableProviderTest {
         typeList.add(Integer.class);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
-    @Test
-    public void simpleTest() throws Exception {
-        //Этот тест не проходит ни одна программа
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testCreateEmptyNameTable() throws Exception {
-        provider.createTable("", typeList);
+        provider.createTable("..", typeList);
     }
 }
