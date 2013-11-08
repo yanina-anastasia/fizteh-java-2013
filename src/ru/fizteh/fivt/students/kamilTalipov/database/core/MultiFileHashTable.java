@@ -254,18 +254,18 @@ public class MultiFileHashTable implements Table {
         File signatureFile = new File(workingDirectory + File.separator + tableName
                                         + File.separator + SIGNATURE_FILE_NAME);
         if (!signatureFile.exists()) {
-            throw new IOException("Signature file is not exist");
+            throw new IOException("Signature file is not exist (table '" + tableName + "')");
         }
         ArrayList<Class<?>> types = new ArrayList<>();
         try (Scanner signatureScanner = new Scanner(new FileInputStream(signatureFile))) {
             if (!signatureScanner.hasNextLine()) {
-                throw new IOException("Signature file is empty");
+                throw new IOException("Signature file is empty (table '" + tableName + "')");
             }
 
             while (signatureScanner.hasNextLine()) {
                 String[] inputTypes = signatureScanner.nextLine().trim().split("\\s+");
                 if (inputTypes.length == 0) {
-                    throw new IOException("Signature file is empty");
+                    throw new IOException("Signature file is empty (table '" + tableName + "')");
                 }
                 for (String type : inputTypes) {
                     switch (type) {
@@ -299,7 +299,7 @@ public class MultiFileHashTable implements Table {
 
                         default:
                             throw new IOException("Signature file contain unsupported type '"
-                                                    + type + "'");
+                                                    + type + "' (table '" + tableName + "')");
                     }
                 }
             }

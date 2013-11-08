@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -12,6 +13,10 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     private MultiFileHashTable activeTable;
 
     public HashDatabase(String databaseDirectory) throws IOException, DatabaseException {
+        File databaseDir = new File(databaseDirectory);
+        if (!databaseDir.exists()) {
+            System.err.println("Database directory path not exist: try to create");
+        }
         this.tableProvider = new MultiFileHashTableProvider(databaseDirectory);
         activeTable = null;
     }
@@ -70,11 +75,8 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }
-        Storeable value = null;
 
-        value = tableProvider.deserialize(activeTable, stringValue);
-
-        return activeTable.put(key, value);
+        return activeTable.put(key, tableProvider.deserialize(activeTable, stringValue));
     }
 
     @Override
