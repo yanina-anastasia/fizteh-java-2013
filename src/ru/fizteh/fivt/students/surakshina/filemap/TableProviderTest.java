@@ -26,13 +26,13 @@ public class TableProviderTest {
         factory = new NewTableProviderFactory();
         provider = factory.create(folder.newFolder().toString());
         list = new ArrayList<Class<?>>();
-        list.add(int.class);
-        list.add(double.class);
-        list.add(float.class);
+        list.add(Integer.class);
+        list.add(Double.class);
+        list.add(Float.class);
         list.add(String.class);
-        list.add(boolean.class);
-        list.add(byte.class);
-        list.add(long.class);
+        list.add(Boolean.class);
+        list.add(Byte.class);
+        list.add(Long.class);
 
     }
 
