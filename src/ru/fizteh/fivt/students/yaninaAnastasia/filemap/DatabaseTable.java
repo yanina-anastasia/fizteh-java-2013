@@ -368,10 +368,12 @@ public class DatabaseTable implements Table {
                 }
                 if (!o.getClass().equals(getColumnType(index))) {
                     System.out.println(String.format("expected: %s; actual: %s", getColumnType(index).getName(), o.getClass().getName()));
+                    System.out.println(storeable);
                     return false;
                 }
             } catch (IndexOutOfBoundsException e) {
-                System.out.println(e.getMessage());
+                System.out.println(String.format("index: %s; size: %d", e.getMessage(), getColumnsCount()));
+                System.out.println(storeable);
                 return false;
             }
         }
