@@ -22,14 +22,12 @@ public class TableData implements Table {
         if (columnTypes.isEmpty()) {
             throw new IllegalArgumentException("list of column's types is empty");
         }
-        this.manager = manager;
-        this.columnTypes = new ArrayList<>(columnTypes);
-        this.tableFile = tableFile;
         if (!tableFile.exists()) {
             if (!tableFile.mkdir()) {
                 throw new IllegalArgumentException("Creating of " + tableFile.toString() + "error");
             }
         }
+        this.manager = manager;
         HashMap<String, String> types = new HashMap<>();
         types.put("Integer", "int");
         types.put("Long", "long");
@@ -43,6 +41,16 @@ public class TableData implements Table {
         types.put("float", "float");
         types.put("boolean", "boolean");
         StringBuilder str = new StringBuilder();
+        for (Class c : columnTypes) {
+            if (c == null) {
+                throw new ColumnFormatException("null in typelist");
+            }
+            if (!types.containsKey(c.getName())) {
+                throw new IllegalArgumentException("Wrong type in typelist");
+            }
+        }
+        this.columnTypes = new ArrayList<>(columnTypes);
+        this.tableFile = tableFile;
         for (int i = 0; i < columnTypes.size(); ++i) {
             str = str.append(types.get(columnTypes.get(i).getSimpleName()));
             str = str.append(" ");
@@ -53,7 +61,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException("Creating \"signature.tsv\" error");
             }
         } catch (IOException e) {
-             throw new RuntimeException(e.getMessage(), e);
+             throw new IOException(e.getMessage(), e);
         }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
@@ -71,7 +79,7 @@ public class TableData implements Table {
 
 
 
-    TableData(File tableFile, TableManager manager) {
+    TableData(File tableFile, TableManager manager) throws IOException {
         this.manager = manager;
         this.columnTypes = new ArrayList<>();
         this.tableFile = tableFile;
@@ -84,7 +92,7 @@ public class TableData implements Table {
                      new BufferedReader(new FileReader(sign))) {
             signature = signatureReader.readLine();
         } catch (IOException e) {
-            throw new IllegalArgumentException("Reading error: signature.tsv", e);
+            throw new IOException("Reading error: signature.tsv", e);
         }
         String[] signatures = signature.trim().split(" ");
         if (signatures.length == 0) {

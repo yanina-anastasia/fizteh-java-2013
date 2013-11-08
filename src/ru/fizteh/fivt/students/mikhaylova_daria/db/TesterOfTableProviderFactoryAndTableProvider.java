@@ -23,6 +23,8 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     private File mainDir;
     private File goodTable;
     private File goodTableSign;
+    private File badTableEmpty;
+    private File badTableEmptySign;
     private TableProviderFactory factory;
     private ArrayList<Class<?>> goodTypeList;
     private ArrayList<Object> goodValueList;
@@ -40,6 +42,19 @@ public class TesterOfTableProviderFactoryAndTableProvider {
             if (!goodTableSign.createNewFile()) {
                 throw new IOException("Creating file error");
             }
+            badTableEmptySign = new File(mainDir, "badTable");
+            if (!badTableEmptySign.mkdir()) {
+                throw new IOException("Creating file error");
+            }
+            badTableEmpty = new File(mainDir, "badTable2");
+            if (!badTableEmpty.mkdir()) {
+                throw new IOException("Creating file error");
+            }
+            File badTableSign = new File(badTableEmptySign, "signature.tsv");
+            if (!badTableSign.createNewFile()) {
+                throw new IOException("Creating file error");
+            }
+
             String str = "int byte long float double boolean String";
             try (BufferedWriter signatureWriter =
                          new BufferedWriter(new FileWriter(goodTableSign))) {
@@ -85,6 +100,7 @@ public class TesterOfTableProviderFactoryAndTableProvider {
         folder.delete();
     }
 
+
     @Test(expected = IllegalArgumentException.class)
     public void createTableManagerByNullStringShouldFail() {
         TableProviderFactory factory = new TableManagerFactory();
@@ -112,6 +128,18 @@ public class TesterOfTableProviderFactoryAndTableProvider {
         try {
             TableProvider provider = factory.create(mainDir.toString());
             provider.createTable("table", null);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createdTableWrongTypeListShouldFail() {
+        try {
+            TableProvider provider = factory.create(mainDir.toString());
+            goodTypeList.add(Short.class);
+            provider.createTable("table", goodTypeList);
         } catch (IOException e) {
             fail();
             e.printStackTrace();
@@ -210,10 +238,44 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void getTableManagerByEmptyListShouldFail() {
+        TableProviderFactory factory = new TableManagerFactory();
+
+        try {
+            TableProvider obj = factory.create(null);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void getNullNameTableShouldFail() {
         try {
             TableProvider provider = factory.create(mainDir.toString());
             Table table = provider.getTable(null);
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTableWithoutSignFileShouldFail() {
+        try {
+            TableProvider provider = factory.create(mainDir.toString());
+            Table table = provider.getTable(badTableEmpty.getName());
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTableWithWrongSignFileShouldFail() {
+        try {
+            TableProvider provider = factory.create(mainDir.toString());
+            Table table = provider.getTable(badTableEmpty.getName());
         } catch (IOException e) {
             fail();
             e.printStackTrace();
