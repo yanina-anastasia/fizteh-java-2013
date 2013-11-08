@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -133,7 +134,7 @@ public class TableProviderImplementation implements TableProvider {
         Document document;
         try {
             document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                    .parse(new ByteArrayInputStream(value.getBytes("UTF-8")));
+                    .parse(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)));
         } catch (SAXException | IOException | ParserConfigurationException e) {
             throw new RuntimeException("Error while deserializing: " + e.getMessage(), e);
         }
@@ -292,7 +293,7 @@ public class TableProviderImplementation implements TableProvider {
             signatureFile.useDelimiter("\t");
             String currentType;
             while (signatureFile.hasNext()) {
-                currentType = signatureFile.next();
+                currentType = signatureFile.next().trim();
                 if (!isValidColumnType(currentType)) {
                     throw new IllegalArgumentException("Invalid column type in signature.tsv: " + currentType);
                 }

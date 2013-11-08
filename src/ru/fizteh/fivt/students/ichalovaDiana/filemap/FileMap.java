@@ -58,28 +58,31 @@ public class FileMap {
 
     static class Create extends Command {
         static final int ARG_NUM = 2;
-
+        public boolean rawArgumentsNeeded = true;
+        
         @Override
         protected void execute(String... arguments) throws Exception {
             try {
 
-                if (arguments.length < ARG_NUM) {
+                if (arguments.length != ARG_NUM) {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
 
-                String tableName = arguments[1];
+                String[] parsedArguments = arguments[1].split("\\s+", 2);
+                if (parsedArguments.length != 2) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
                 
-                //TODO: rewrite!!!
+                String tableName = parsedArguments[0];
+                
+                if (!parsedArguments[1].matches("\\(([A-Za-z]+\\s*)*\\)")) {
+                    throw new IllegalArgumentException("wrong type (Invalid types " + parsedArguments[1] + ")");
+                }
+                String[] types = parsedArguments[1].substring(1, parsedArguments[1].length() - 1).split("\\s+");
                 
                 List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-                for (int i = 2; i < arguments.length; ++i) {
-                    if (i == 2) {
-                        arguments[i] = arguments[i].substring(1);
-                    }
-                    if (i == arguments.length - 1) {
-                        arguments[i] = arguments[i].substring(0, arguments[i].length() - 1);
-                    }
-                    columnTypes.add(forName(arguments[i]));
+                for (int i = 0; i < types.length; ++i) {
+                    columnTypes.add(forName(types[i]));
                 }
                 
                 
@@ -112,6 +115,7 @@ public class FileMap {
 
     static class Drop extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -142,6 +146,7 @@ public class FileMap {
 
     static class Use extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -179,23 +184,24 @@ public class FileMap {
     
 
     static class Put extends Command {
-        static final int ARG_NUM = 3;
+        static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = true;
 
         @Override
         protected void execute(String... arguments) throws Exception {
             try {
 
-                if (arguments.length < ARG_NUM) {
+                if (arguments.length != ARG_NUM) {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
-
-                String key = arguments[1];
-
-                StringBuilder concatArgs = new StringBuilder();
-                for (int i = 2; i < arguments.length; ++i) {
-                    concatArgs.append(arguments[i]).append(" ");
+                
+                String[] parsedArguments = arguments[1].trim().split("\\s+", 2);
+                if (parsedArguments.length != 2) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
                 }
-                String value = concatArgs.toString();
+                
+                String key = parsedArguments[0];
+                String value = parsedArguments[1];
                 
                 if (FileMap.currentTableName == null) {
                     System.out.println("no table");
@@ -220,6 +226,7 @@ public class FileMap {
 
     static class Get extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -253,6 +260,7 @@ public class FileMap {
 
     static class Remove extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -285,6 +293,7 @@ public class FileMap {
     
     static class Commit extends Command {
         static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -311,6 +320,7 @@ public class FileMap {
     
     static class Rollback extends Command {
         static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -337,6 +347,7 @@ public class FileMap {
     
     static class Size extends Command {
         static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -363,6 +374,7 @@ public class FileMap {
 
     static class Exit extends Command {
         static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {

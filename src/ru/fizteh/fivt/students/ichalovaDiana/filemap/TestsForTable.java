@@ -38,7 +38,7 @@ public class TestsForTable {
         columnTypes.add(Integer.class);
         table = tableProvider.createTable("tableName", columnTypes);
         
-        value1 = new StoreableImplementation(table);
+        value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, true);
         value1.setColumnAt(1, "AA");
         value1.setColumnAt(2, 5);

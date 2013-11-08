@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -18,7 +19,7 @@ public class TestsForTableProviderFactory {
     
     @Test(expected = IOException.class)
     public void createNonExisting() throws IOException {
-        tableProviderFactory.create("not-exists");
+        tableProviderFactory.create("smth" + File.separator + "not-exists");
     }
     
     @Test(expected = IllegalArgumentException.class)

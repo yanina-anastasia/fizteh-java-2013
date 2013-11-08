@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -96,12 +97,12 @@ class FileDatabase implements AutoCloseable {
                 dbFile.seek(tempOffset1);
                 tempArray = new byte[tempOffset2 - tempOffset1];
                 dbFile.readFully(tempArray);
-                value = new String(tempArray, "UTF-8");
+                value = new String(tempArray, StandardCharsets.UTF_8);
                 tempArray = new byte[tempKey.size()];
                 for (int i = 0; i < tempKey.size(); ++i) {
                     tempArray[i] = tempKey.get(i).byteValue();
                 }
-                key = new String(tempArray, "UTF-8");
+                key = new String(tempArray, StandardCharsets.UTF_8);
                 database.put(key, value);
                 tempKey.clear();
                 dbFile.seek(currentPosition);
@@ -117,19 +118,19 @@ class FileDatabase implements AutoCloseable {
         dbFile.setLength(0);
 
         for (String key : database.keySet()) {
-            currentOffset += key.getBytes("UTF-8").length + OFFSET_BYTES + 1;
+            currentOffset += key.getBytes(StandardCharsets.UTF_8).length + OFFSET_BYTES + 1;
         }
 
         for (String key : database.keySet()) {
-            dbFile.write(key.getBytes("UTF-8"));
+            dbFile.write(key.getBytes(StandardCharsets.UTF_8));
             dbFile.writeByte(0);
             dbFile.writeInt(currentOffset);
             value = database.get(key);
             returnPosition = dbFile.getFilePointer();
             dbFile.seek(currentOffset);
-            dbFile.write(value.getBytes("UTF-8"));
+            dbFile.write(value.getBytes(StandardCharsets.UTF_8));
 
-            currentOffset += value.getBytes("UTF-8").length;
+            currentOffset += value.getBytes(StandardCharsets.UTF_8).length;
             dbFile.seek(returnPosition);
         }
     }
