@@ -20,7 +20,7 @@ public class CreateCommand extends AbstractCommand<StoreableShellState> {
         try {
             info = StoreableUtils.parseCreateCommand(params);
         } catch (IllegalArgumentException e) {
-            //System.err.println(e.getMessage());
+            System.err.println(e.getMessage());
             return;
         }
         Table newTable = shellState.provider.createTable(info.getTableName(), info.getColumnTypes());
