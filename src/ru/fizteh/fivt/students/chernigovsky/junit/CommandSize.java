@@ -1,22 +1,23 @@
-package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
+package ru.fizteh.fivt.students.chernigovsky.junit;
 
-import java.io.IOException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.Command;
 import ru.fizteh.fivt.students.chernigovsky.filemap.ExitException;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
 
-public class CommandCreate implements Command {
+import java.io.IOException;
+
+public class CommandSize  implements Command {
     public String getName() {
-        return "create";
+        return "size";
     }
     public int getArgumentsCount() {
-        return 1;
+        return 0;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.getCurrentTableProvider().createTable(args[1]) == null) {
-            System.out.println(args[1] + " exists");
+        if (state.getCurrentTableProvider() == null) {
+            System.out.println("no table");
         } else {
-            System.out.println("created");
+            System.out.println(state.getCurrentTable().size());
         }
     }
 }

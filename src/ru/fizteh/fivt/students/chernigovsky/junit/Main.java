@@ -1,52 +1,45 @@
-package ru.fizteh.fivt.students.chernigovsky.filemap;
-
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
+package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import ru.fizteh.fivt.students.chernigovsky.filemap.*;
+import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandCreate;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandDrop;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.CommandUse;
+import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
+
 public class Main {
     public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
-        File tableDirectory = new File(System.getProperty("fizteh.db.dir"));
-        if (!tableDirectory.exists() || !tableDirectory.isDirectory()) {
+        String dbPath = System.getProperty("fizteh.db.dir");
+        if (dbPath == null) {
+            System.err.print("DB directory not exists");
+            System.exit(1);
+        }
+        File dbDirectory = new File(dbPath);
+        if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
             System.err.println("DB directory not exists");
             System.exit(1);
         }
 
-        File table = new File(tableDirectory, "db.dat");
-        if (!table.exists()) {
-            try {
-                table.createNewFile();
-            } catch (IOException ex) {
-                System.err.println("Can't create db.dat");
-                System.exit(1);
-            }
-        }
-
-        ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory, true);
-        ExtendedTable myTable = new MyTable("db.dat", true);
-        State state = new State(myTable, myTableProvider);
-
-        try {
-            FileMapUtils.readTable(state);
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
-            System.exit(1);
-        }
-
-
+        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory, false);
+        State state = new State(null, tableProvider);
 
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());
         commandMap.put("remove", new CommandRemove());
         commandMap.put("exit", new CommandExit());
+        commandMap.put("create", new CommandCreate());
+        commandMap.put("drop", new CommandDrop());
+        commandMap.put("use", new CommandUse());
+        commandMap.put("size", new CommandSize());
+        commandMap.put("commit", new CommandCommit());
+        commandMap.put("rollback", new CommandRollback());
 
         if (args.length == 0) { // Interactive mode
             interactiveMode(commandMap, state);
@@ -61,7 +54,7 @@ public class Main {
         }
 
         try {
-            FileMapUtils.writeTable(state);
+            MultiFileHashMapUtils.writeTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -79,11 +72,13 @@ public class Main {
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
-                try {
-                    FileMapUtils.writeTable(state);
-                } catch (IOException exc) {
-                    System.err.println(exc.getMessage());
-                    System.exit(1);
+                if (state.getCurrentTable() != null) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(state);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
                 }
                 System.exit(0);
             }
@@ -97,11 +92,13 @@ public class Main {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
-            try {
-                FileMapUtils.writeTable(state);
-            } catch (IOException exc) {
-                System.err.println(exc.getMessage());
-                System.exit(1);
+            if (state.getCurrentTable() != null) {
+                try {
+                    MultiFileHashMapUtils.writeTable(state);
+                } catch (IOException exc) {
+                    System.err.println(exc.getMessage());
+                    System.exit(1);
+                }
             }
             System.exit(0);
         }
@@ -123,5 +120,4 @@ public class Main {
         }
 
     }
-
 }
