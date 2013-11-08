@@ -257,6 +257,9 @@ public class MultiFileHashTable implements Table {
                                            String tableName) throws IOException {
         File signatureFile = FileUtils.makeFile(workingDirectory + File.separator + tableName,
                                                 SIGNATURE_FILE_NAME);
+        if (!signatureFile.exists()) {
+            throw new IOException("Signature file is not exist");
+        }
         ArrayList<Class<?>> types = new ArrayList<>();
         try (Scanner signatureScanner = new Scanner(new FileInputStream(signatureFile))) {
             if (!signatureScanner.hasNextLine()) {
