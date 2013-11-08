@@ -42,8 +42,11 @@ public class StoreableTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.contains(" "))) {
+        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.contains("\\s"))) {
             throw new IllegalArgumentException("Not correct key or value");
+        }
+        for (int i = 0; i < getColumnsCount(); ++i) {
+
         }
         return dataTable.put(key, value);
     }
