@@ -64,23 +64,4 @@ public class TableProviderTest {
         Table table = provider.createTable("table", list);
         assertSame(provider.getTable("table"), table);
     }
-
-    /*
-     * @Test public void getTest() throws IOException { String tableName =
-     * "table"; Table table = provider.createTable("table", list);
-     * assertNotNull(table); assertEquals(tableName, table.getName());
-     * provider.removeTable(tableName);
-     * assertNull(provider.getTable(tableName)); }
-     * 
-     * @Test public void getTestTable() { Table table =
-     * provider.createTable("Table"); assertNotNull(provider.getTable("Table"));
-     * assertNull(provider.getTable("NotExistTable")); assertEquals(table,
-     * provider.getTable("Table")); provider.removeTable("Table"); }
-     * 
-     * @Test(expected = IllegalStateException.class) public void
-     * testRemoveNotExistsTable() { provider.removeTable("NotExistsTable"); }
-     * 
-     * @Test(expected = RuntimeException.class) public void testIncorrectName()
-     * { provider.getTable("//"); }
-     */
 }

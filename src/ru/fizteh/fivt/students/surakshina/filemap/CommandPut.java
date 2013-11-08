@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.text.ParseException;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class CommandPut extends DataBaseCommand {
@@ -24,9 +25,12 @@ public class CommandPut extends DataBaseCommand {
                 return;
             }
             try {
-            result = state.getTable().put(key, value);
-            } catch (IllegalArgumentException e) {
+                result = state.getTable().put(key, value);
+            } catch (ColumnFormatException e) {
                 state.printError(e.getMessage());
+                return;
+            } catch (IllegalArgumentException e2) {
+                state.printError(e2.getMessage());
                 return;
             }
             if (result != null) {

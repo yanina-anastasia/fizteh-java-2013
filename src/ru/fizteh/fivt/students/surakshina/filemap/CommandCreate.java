@@ -10,15 +10,6 @@ public class CommandCreate extends DataBaseCommand {
         numberOfArguments = 2;
     }
 
-    /*
-     * @Override public void executeProcess(String[] input) { String name =
-     * input[1]; try { if (state.getTableProvider().createTable(name) == null) {
-     * System.out.println(name + " exists"); } else {
-     * System.out.println("created"); } } catch (IllegalArgumentException e) {
-     * state.printError(e.getMessage()); }
-     * 
-     * }
-     */
     @Override
     public void executeProcess(String[] input) {
         String name = input[1];
@@ -27,9 +18,10 @@ public class CommandCreate extends DataBaseCommand {
         String[] result = ParseValue.parse(values);
         for (int i = 0; i < result.length; ++i) {
             if (!result[i].isEmpty()) {
-            classNew.add(state.getTableProvider().getNameClass(result[i]));
+                classNew.add(state.getTableProvider().getNameClass(result[i]));
             } else {
                 state.printError("Incorrect input");
+                return;
             }
         }
         try {
@@ -40,6 +32,7 @@ public class CommandCreate extends DataBaseCommand {
             }
         } catch (IllegalArgumentException | IOException e) {
             state.printError(e.getMessage());
+            return;
         }
 
     }

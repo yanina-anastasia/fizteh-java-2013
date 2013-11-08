@@ -14,7 +14,13 @@ public class CommandGet extends DataBaseCommand {
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
             String key = input[1];
-            Storeable value = state.getTable().get(key);
+            Storeable value = null;
+            try {
+                value = state.getTable().get(key);
+            } catch (IllegalArgumentException e) {
+                state.printError(e.getMessage());
+                return;
+            }
             if (value != null) {
                 System.out.println("found");
                 System.out.println(JSONSerializer.serialize(state.getTable(), value));

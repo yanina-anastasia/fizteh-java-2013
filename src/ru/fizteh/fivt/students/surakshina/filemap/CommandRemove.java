@@ -13,7 +13,13 @@ public class CommandRemove extends DataBaseCommand {
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
             String key = input[1];
-            Storeable result = state.getTable().remove(key);
+            Storeable result;
+            try {
+                result = state.getTable().remove(key);
+            } catch (IllegalArgumentException e) {
+                state.printError(e.getMessage());
+                return;
+            }
             if (result != null) {
                 System.out.println("removed");
             } else {

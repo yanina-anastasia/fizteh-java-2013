@@ -15,8 +15,7 @@ public class CommandSize extends DataBaseCommand {
         } else {
             System.out.println("no table");
         }
-        
+
     }
-    
 
 }

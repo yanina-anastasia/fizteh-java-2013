@@ -12,7 +12,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class ReadDataBase {
     public static HashMap<String, Storeable> loadFile(File file, NewTable table) throws IOException, ParseException {
-        //HashMap<String, String> mapFile = new HashMap<>();
         HashMap<String, Storeable> mapFile = new HashMap<>();
         RandomAccessFile dataBase = null;
         try {

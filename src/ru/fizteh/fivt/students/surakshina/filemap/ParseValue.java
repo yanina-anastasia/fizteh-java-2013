@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
-
 public class ParseValue {
     public static String[] parse(String input) {
         StringBuilder str = new StringBuilder(input);

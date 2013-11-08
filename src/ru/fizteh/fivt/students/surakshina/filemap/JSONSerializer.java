@@ -14,23 +14,24 @@ public class JSONSerializer {
         int numberColumns = table.getColumnsCount();
         Object[] values = new Object[numberColumns];
         if (numberColumns != values.length) {
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i) != null) {
-                if (value.getColumnAt(i).getClass() != table.getColumnType(i)) {
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
+                if (value.getColumnAt(i) != null) {
+                    if (value.getColumnAt(i).getClass() != table.getColumnType(i)) {
+                        throw new ColumnFormatException("Incorrect column name");
+                    }
+                } else {
                     throw new ColumnFormatException("Incorrect column name");
                 }
-            } else {
-                throw new ColumnFormatException("Incorrect column name");
+                values[i] = value.getColumnAt(i);
             }
-            values[i] = value.getColumnAt(i);
-        }
         } else {
             throw new ColumnFormatException("Incorrect column name");
         }
         JSONArray array = new JSONArray(values);
         return array.toString();
-        
+
     }
+
     public static Storeable deserialize(Table table, String value) throws ParseException {
         JSONArray array = null;
         try {
