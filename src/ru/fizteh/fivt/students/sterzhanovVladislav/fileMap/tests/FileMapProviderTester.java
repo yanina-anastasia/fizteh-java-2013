@@ -22,12 +22,7 @@ public class FileMapProviderTester {
         sampleSignature.add(String.class);
     }
     
-    @Test(expected = IllegalArgumentException.class)
-    public void invalidNameShouldFail() throws IllegalArgumentException, IOException {
-        TableProvider badProvider = new FileMapProvider("this should not contain /");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IOException.class)
     public void badDirectoryShouldFail() throws IllegalArgumentException, IOException {
         TableProvider badProvider = new FileMapProvider("asldkjfasdfajshdlfk");
     }
