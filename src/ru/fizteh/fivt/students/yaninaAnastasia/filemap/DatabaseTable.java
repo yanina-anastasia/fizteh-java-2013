@@ -201,7 +201,7 @@ public class DatabaseTable implements Table {
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex < 0 || columnIndex > getColumnsCount()) {
+        if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
             throw new IndexOutOfBoundsException();
         }
         return columnTypes.get(columnIndex);
@@ -360,7 +360,6 @@ public class DatabaseTable implements Table {
     }
 
     public boolean checkAlienStoreable(Storeable storeable) {
-        int storeableColumnsCount = 0;
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 Object o = storeable.getColumnAt(index);
@@ -368,15 +367,21 @@ public class DatabaseTable implements Table {
                     continue;
                 }
                 if (!o.getClass().equals(getColumnType(index))) {
-                    System.out.println("not equal");
+                    System.out.println(String.format("expected: %s; actual: %s", getColumnType(index).getName(), o.getClass().getName()));
                     return false;
                 }
-                storeableColumnsCount++;
             } catch (IndexOutOfBoundsException e) {
-                System.out.println("index out of bound");
+                System.out.println(e.getMessage());
                 return false;
             }
         }
-        return storeableColumnsCount == getColumnsCount();
+        try
+        {
+            storeable.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e)
+        {
+            return true;
+        }
+        return false;
     }
 }
