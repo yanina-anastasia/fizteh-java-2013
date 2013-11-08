@@ -101,6 +101,9 @@ public class SignatureFile {
      * @throws ColumnFormatException Если неизвестный тип колонки
      */
     public static String formatColumnType(Class<?> columnType) {
+        if (columnType == null) {
+            throw new IllegalArgumentException("Column type is null");
+        }
         switch (columnType.getName()) {
             case "java.lang.Integer":
                 return "int";
