@@ -4,6 +4,8 @@ import org.junit.*;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTable;
+import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
+
 
 public class MyTableTester {
     public static Table table;

@@ -5,10 +5,10 @@ import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 import java.io.File;
 
 public abstract class MultiFileHashMapCommand extends Command {
-    MyMultiHashMap parent;
-    File root;
+    public MyMultiHashMap parent;
+    public File root;
 
-    MultiFileHashMapCommand(int argCount, MyMultiHashMap prnt, File realRoot) {
+    public MultiFileHashMapCommand(int argCount, MyMultiHashMap prnt, File realRoot) {
         super(argCount);
         parent = prnt;
         root = realRoot;

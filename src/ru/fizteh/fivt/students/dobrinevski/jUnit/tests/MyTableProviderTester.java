@@ -20,7 +20,7 @@ public class MyTableProviderTester {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullDirectoryGiven() {
-        TableProvider provider = new FileMapProvider("IReallyHopeThatWeDontHaveDirectoryWithThisName");
+        TableProvider provider = new MyTableProvider("IReallyHopeThatWeDontHaveDirectoryWithThisName");
     }
 
     @Test
