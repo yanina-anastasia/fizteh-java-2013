@@ -136,11 +136,6 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     }
 
     public boolean checkAlienStoreable(Storeable storeable) {
-        if (!storeable.getClass().equals(DatabaseRow.class))
-        {
-            return false;
-        }
-
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 Object o = storeable.getColumnAt(index);
