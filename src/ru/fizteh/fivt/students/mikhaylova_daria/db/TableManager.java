@@ -168,6 +168,12 @@ public class TableManager implements TableProvider {
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
+        if (!creatingTableFile.exists()) {
+            if (bidDataBase.containsKey(nameTable)) {
+                bidDataBase.remove(nameTable);
+            }
+            return null;
+        }
         if (bidDataBase.containsKey(nameTable)) {
             table = bidDataBase.get(nameTable);
         } else {

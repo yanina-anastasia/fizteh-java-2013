@@ -111,6 +111,9 @@ public class TableData implements Table {
         } catch (IOException e) {
             throw new IOException("Reading error: signature.tsv", e);
         }
+        if (signature == null) {
+            throw new IllegalArgumentException("\"signature.tsv\" is bad");
+        }
         String[] signatures = signature.trim().split(" ");
         if (signatures.length == 0) {
             throw new IllegalArgumentException(sign.toString() + " Empty type list");
