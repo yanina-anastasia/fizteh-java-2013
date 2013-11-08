@@ -50,12 +50,70 @@ public class MyStoreable implements Storeable{
         }
     }
 
+    Object castTypes(Class<?> type, Object value) {
+        Class<?> valueType = value.getClass();
+
+        if (type == Integer.class) {
+            if (valueType == Integer.class) {
+                return value;
+            }
+            if (valueType == Byte.class) {
+                return new Integer((byte) value);
+            }
+            if (valueType == Long.class) {
+                long tmp = (long) value;
+                if (tmp <= Integer.MAX_VALUE && tmp >= Integer.MIN_VALUE) {
+                    return (int) tmp;
+                } else {
+                    throw new ColumnFormatException("Too big number for integer type: " + value.toString());
+                }
+            }
+            throw new ColumnFormatException("Wrong type: " + valueType + " insted of Integer!");
+        }
+
+        if (type == Byte.class) {
+            if (valueType == Byte.class) {
+                return value;
+            }
+            if (valueType == Long.class || valueType == Integer.class) {
+                long tmp;
+                if (valueType == Long.class) {
+                    tmp = (long) value;
+                } else {
+                    tmp = (int) value;
+                }
+                if (tmp <= Byte.MAX_VALUE && tmp >= Byte.MIN_VALUE) {
+                    return (byte) tmp;
+                } else {
+                    throw new ColumnFormatException("Too big number for byte type: " + value.toString());
+                }
+            }
+            throw new ColumnFormatException("Wrong type: " + valueType + " insted of Byte!");
+        }
+
+        if (type == Long.class) {
+            if (valueType == Long.class) {
+                return value;
+            }
+            if (valueType == Byte.class) {
+                return new Long((byte) value);
+            }
+            if (valueType == Integer.class) {
+                return new Long((int) value);
+            }
+            throw new ColumnFormatException("Wrong type: " + valueType + " insted of Long!");
+        }
+
+        return value;
+    }
+
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (value == JSONObject.NULL) {
             value = null;
         }
         checkBounds(columnIndex);
+        value = castTypes(types.get(columnIndex), value);
         checkType(columnIndex, value);
         values.set(columnIndex, value);
     }

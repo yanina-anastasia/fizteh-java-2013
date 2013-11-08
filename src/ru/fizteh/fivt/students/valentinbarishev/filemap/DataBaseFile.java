@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 
+import ru.fizteh.fivt.storage.structured.TableProvider;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,9 +107,12 @@ public class DataBaseFile {
     private int fileNumber;
     private int direcotryNumber;
     private DataBase table;
+    private TableProvider provider;
 
-    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber, DataBase newTable) throws IOException {
+    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber,
+                        DataBase newTable, TableProvider newProvider) throws IOException {
         table = newTable;
+        provider = newProvider;
         fileName = newFileName;
         file = new File(fileName);
         data = new ArrayList<Node>();
@@ -126,7 +131,7 @@ public class DataBaseFile {
                         + " in file " + fileName);
             }
             try {
-                WorkWithJSON.deserialize(table, node.value.toString());
+                provider.deserialize(table, node.value.toString());
             } catch (ParseException e) {
                 throw new IOException("Invalid file format! (parse exception error!)");
             }

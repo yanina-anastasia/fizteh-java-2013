@@ -59,4 +59,11 @@ public class MyStoreableTest {
         storeable.setColumnAt(0, "asdasd");
         storeable.getIntAt(0);
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testColumnFormatExceptionLongInt() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(1, (long) 1);
+        storeable.getIntAt(1);
+    }
 }

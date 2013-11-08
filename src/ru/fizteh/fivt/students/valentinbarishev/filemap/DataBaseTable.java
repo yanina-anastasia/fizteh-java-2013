@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,20 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        return WorkWithJSON.deserialize(table, value);
+        JSONArray json = new JSONArray(value);
+        List<Object> values = new ArrayList<>();
+        for (int i = 0; i < json.length(); ++i) {
+            values.add(json.get(i));
+        }
+
+        Storeable storeable;
+        try {
+            storeable = createFor(table, values);
+        } catch (IndexOutOfBoundsException|ColumnFormatException e) {
+            throw new ParseException("Wrong input " + value, 0);
+        }
+
+        return storeable;
     }
 
     @Override

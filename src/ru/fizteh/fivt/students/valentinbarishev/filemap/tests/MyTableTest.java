@@ -95,4 +95,21 @@ public class MyTableTest {
         table.put("  ", storeable);
     }
 
+    @Test
+    public void testPutGet() throws IOException {
+        types = new ArrayList<>();
+        types.add(Long.class);
+        types.add(Long.class);
+
+        Table table = provider.createTable("simple1", types);
+
+        Storeable storeable = provider.createFor(table);
+
+        storeable.setColumnAt(0, (long) 123123123);
+        storeable.setColumnAt(1, (long) 100);
+
+        Assert.assertNull(table.put("simple", storeable));
+        storeableEquals(table.get("simple"), storeable);
+    }
+
 }
