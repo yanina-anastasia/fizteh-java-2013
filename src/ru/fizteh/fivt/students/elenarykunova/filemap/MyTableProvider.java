@@ -240,6 +240,36 @@ public class MyTableProvider implements TableProvider {
                 return result;
             }
         }
+        if (first.getClass().equals(Long.class)) {
+            long val = (long) first;
+            if (second.equals(Float.class)) {
+                result = Float.valueOf(val);
+                return result;
+            }
+            if (second.equals(Double.class)) {
+                result = Double.valueOf(val);
+                return result;
+            }            
+        }
+        if (first.getClass().equals(Byte.class)) {
+            byte val = (byte) first;
+            if (second.equals(Long.class)) {
+                result = Long.valueOf(val);
+                return result;
+            }
+            if (second.equals(Float.class)) {
+                result = Float.valueOf(val);
+                return result;
+            }
+            if (second.equals(Double.class)) {
+                result = Double.valueOf(val);
+                return result;
+            }
+            if (second.equals(Integer.class)) {
+                result = Integer.valueOf(val);
+                return result;
+            }
+        }
         return first;
     }
 
