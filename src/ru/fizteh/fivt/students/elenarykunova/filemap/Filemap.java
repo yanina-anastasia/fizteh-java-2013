@@ -71,7 +71,6 @@ public class Filemap implements Table {
     }
 
     public boolean isCorrectValue(Storeable value) throws ColumnFormatException {
-        boolean hasNotNull = false;
         if (value == null) {
             return false;
         }
@@ -91,11 +90,8 @@ public class Filemap implements Table {
             if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
                 return false;
             }
-            if (value.getColumnAt(i) != null) {
-                hasNotNull = true;
-            }
         }
-        return hasNotNull;
+        return true;
     }
     
     public Storeable put(String key, Storeable value)
