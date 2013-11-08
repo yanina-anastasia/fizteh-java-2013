@@ -51,30 +51,34 @@ public class StoreableTable implements Table {
         int i;
         for (i = 0; i < signColumnsCount; ++i) {
             if (value.getColumnAt(i) != null) {
-                switch (getColumnType(i).getSimpleName()) {
-                    case "Integer":
-                        value.getIntAt(i);
-                        break;
-                    case "Long":
-                        value.getLongAt(i);
-                        break;
-                    case "Byte":
-                        value.getByteAt(i);
-                        break;
-                    case "Float":
-                        value.getFloatAt(i);
-                        break;
-                    case "Double":
-                        value.getDoubleAt(i);
-                        break;
-                    case "Boolean":
-                        value.getBooleanAt(i);
-                        break;
-                    case "String":
-                        value.getStringAt(i);
-                        break;
-                    default:
-                        throw new ColumnFormatException("Not allowed type of signature");
+                try {
+                    switch (getColumnType(i).getSimpleName()) {
+                        case "Integer":
+                            value.getIntAt(i);
+                            break;
+                        case "Long":
+                            value.getLongAt(i);
+                            break;
+                        case "Byte":
+                            value.getByteAt(i);
+                            break;
+                        case "Float":
+                            value.getFloatAt(i);
+                            break;
+                        case "Double":
+                            value.getDoubleAt(i);
+                            break;
+                        case "Boolean":
+                            value.getBooleanAt(i);
+                            break;
+                        case "String":
+                            value.getStringAt(i);
+                            break;
+                        default:
+                            throw new ColumnFormatException("Not allowed type of signature");
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ColumnFormatException(e.getMessage());
                 }
             }
         }
