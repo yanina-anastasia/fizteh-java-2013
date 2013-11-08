@@ -78,8 +78,8 @@ public class TransMultiFileHashMapCommands {
         public void innerExecute(String[] args) throws Exception {
             returnValue = new String[1];
             returnValue[0] = numOfChanges(parent).toString();
-            parent.dataBase.clear();
             for (int i = 0; i < 256; i++) {
+                parent.dataBase.get(i).clear();
                 parent.check[i] = false;
             }
         }
