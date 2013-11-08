@@ -9,7 +9,7 @@ import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;
 import java.io.File;
 import java.io.IOException;
 
-public class MFHMProviderFactoryTest {
+public class MfhmProviderFactoryTest {
     static MfhmProviderFactory factory;
     static File databaseDir;
 
