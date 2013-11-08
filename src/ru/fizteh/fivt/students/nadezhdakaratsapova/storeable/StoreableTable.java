@@ -79,7 +79,7 @@ public class StoreableTable implements Table {
             }
         }
         try {
-            value.getColumnAt(i + 1);
+            value.getColumnAt(i);
         } catch (IndexOutOfBoundsException e) {
             return dataTable.put(key, value);
         }
