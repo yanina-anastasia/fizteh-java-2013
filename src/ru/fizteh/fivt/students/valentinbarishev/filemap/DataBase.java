@@ -138,8 +138,17 @@ public final class DataBase implements Table {
         }
     }
 
+    boolean containsWhitespace(String s) {
+        for (int i = 0; i < s.length(); ++i) {
+            if (Character.isWhitespace(s.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void checkKey(final String key) {
-        if ((key == null) || (key.trim().length() == 0) || (key.contains(" "))) {
+        if ((key == null) || (key.trim().length() == 0) || (containsWhitespace(key))) {
             throw new IllegalArgumentException("Wrong key!");
         }
     }
