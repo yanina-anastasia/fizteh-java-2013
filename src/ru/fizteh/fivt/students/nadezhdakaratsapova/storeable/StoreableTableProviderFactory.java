@@ -11,7 +11,7 @@ import java.io.IOException;
 public class StoreableTableProviderFactory implements TableProviderFactory {
 
     public StoreableTableProvider create(String dir) throws IllegalArgumentException, IOException {
-        if (dir == null) {
+        if ((dir == null) || (dir.trim().isEmpty())) {
             throw new IllegalArgumentException("Not allowed name of DataBaseStorage");
         } else {
             File dataDirectory = new File(dir);
