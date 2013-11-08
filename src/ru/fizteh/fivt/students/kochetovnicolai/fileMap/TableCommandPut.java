@@ -20,7 +20,7 @@ public class TableCommandPut extends Executable {
         try {
             storeable = manager.deserialize(args[2]);
         } catch (ParseException e) {
-            manager.printMessage(e.getMessage());
+            manager.printMessage("wrong type (" + e.getMessage() + ")");
             return false;
         }
         Storeable oldValue = table.put(args[1], storeable);
@@ -28,7 +28,7 @@ public class TableCommandPut extends Executable {
         try {
             oldString = manager.serialize(oldValue);
         } catch (ParseException e) {
-            manager.printMessage(e.getMessage());
+            manager.printMessage("wrong type (" + e.getMessage() + ")");
             return false;
         }
         if (oldValue == null) {

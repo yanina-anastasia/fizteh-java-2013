@@ -25,7 +25,7 @@ public class TableCommandGet extends Executable {
             try {
                 stringValue = manager.serialize(table.get(args[1]));
             } catch (ParseException e) {
-                manager.printMessage(e.getMessage());
+                manager.printMessage("wrong type (" + e.getMessage() + ")");
                 return false;
             }
             manager.printMessage(stringValue);
