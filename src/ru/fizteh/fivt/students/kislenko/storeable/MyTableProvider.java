@@ -49,6 +49,9 @@ public class MyTableProvider implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
+        if (name.contains(".")) {
+            throw new RuntimeException("There is a fucking dot!");
+        }
         if (!Paths.get(name).getFileName().toString().matches("[0-9a-zA-Zа-яА-Я]+")) {
             throw new IllegalArgumentException("Incorrect table name.");
         }
