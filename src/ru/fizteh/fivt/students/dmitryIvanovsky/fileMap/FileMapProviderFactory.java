@@ -21,9 +21,11 @@ public class FileMapProviderFactory implements TableProviderFactory {
             throw new IOException(dir + " directory doesn't open");
         }
         if (!file.exists()) {
-            //File file = new File(dir);
-            file.mkdir();
-            //throw new IOException(dir + " not exists");
+            try {
+                file.mkdir();
+            } catch (Exception e) {
+                throw new IOException(dir + " not exists");
+            }
         }
         if (!file.isDirectory()) {
             throw new IllegalArgumentException(dir + " isn't directory");
