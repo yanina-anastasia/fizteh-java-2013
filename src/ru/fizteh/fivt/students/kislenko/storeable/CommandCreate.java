@@ -21,6 +21,11 @@ public class CommandCreate implements Command<StoreableState> {
             tableDir.mkdir();
             String[] types = new String[args.length - 1];
             System.arraycopy(args, 1, types, 0, args.length - 1);
+            if (types.length == 0) {
+                tableDir.delete();
+                System.out.println("wrong type (signature expected)");
+                throw new IllegalArgumentException("Signature exprcted.");
+            }
             types[0] = types[0].substring(1);
             types[types.length - 1] = types[types.length - 1].substring(0, types[types.length - 1].length() - 1);
             try {
