@@ -13,7 +13,14 @@ public class StoreableDataValue implements Storeable {
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 
     public StoreableDataValue(List<Class<?>> types) {
+        if (types == null) {
+            throw new IllegalArgumentException("the null types is not allowed");
+        }
         columnTypes = types;
+        int columnsCount = types.size();
+        for (int i = 0; i < columnsCount; ++i) {
+            columnValues.add(null);
+        }
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -72,7 +79,7 @@ public class StoreableDataValue implements Storeable {
     }
 
     public void checkColumnIndexValidity(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex >= columnValues.size() || columnIndex < 0) {
+        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
     }
