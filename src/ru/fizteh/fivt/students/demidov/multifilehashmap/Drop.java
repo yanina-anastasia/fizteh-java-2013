@@ -4,11 +4,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Drop extends BasicMultiFileHashMapCommand {
-	public Drop(MultiFileMap usedMultiFileMap) {
-		super(usedMultiFileMap);
+	public Drop(BasicDataBaseState dataBaseState) {
+		super(dataBaseState);
 	}
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		multiFileMap.deleteTable(arguments[0]);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {  
+		dataBaseState.drop(arguments[0]);
 		usedShell.curShell.getOutStream().println("dropped");
 	}	
 	public int getNumberOfArguments() {
