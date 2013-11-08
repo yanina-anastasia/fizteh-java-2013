@@ -51,7 +51,7 @@ public class MyTableProvider implements TableProvider {
         }
         return false;
     }
-
+    
     @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
@@ -69,14 +69,14 @@ public class MyTableProvider implements TableProvider {
         if (!tmpFile.exists() || !tmpFile.isDirectory()) {
             return null;
         }
+        File info = new File(tablePath + File.separator + "signature.tsv");
+        if (!info.exists() || info.length() == 0) {
+            throw new RuntimeException(name + " exists as folder and has no data as table");                    
+        }
         try {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-                File info = new File(tablePath + File.separator + "signature.tsv");
-                if (!info.exists()) {
-                    throw new RuntimeException(name + " exists as folder and has no data as table");                    
-                }
                 Filemap result = new Filemap(tablePath, name);
                 tables.put(name, result);
                 return (Table) result;
