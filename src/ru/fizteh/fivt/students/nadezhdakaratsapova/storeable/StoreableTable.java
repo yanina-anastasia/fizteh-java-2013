@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileReader;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileWriter;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.SignatureController;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
 
 import java.io.File;
@@ -45,8 +46,9 @@ public class StoreableTable implements Table {
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("\\s") || (key.split("\\s+")).length > 1)) {
             throw new IllegalArgumentException("Not correct key or value");
         }
+        SignatureController signatureController = new SignatureController();
         for (int i = 0; i < getColumnsCount(); ++i) {
-
+            signatureController.checkColumnTypeValidity(value, i, getColumnType(i));
         }
         return dataTable.put(key, value);
     }
