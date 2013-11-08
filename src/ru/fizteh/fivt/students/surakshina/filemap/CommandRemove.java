@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 public class CommandRemove extends DataBaseCommand {
     public CommandRemove(TableState state) {
         super(state);
@@ -11,7 +13,7 @@ public class CommandRemove extends DataBaseCommand {
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
             String key = input[1];
-            String result = state.getTable().remove(key);
+            Storeable result = state.getTable().remove(key);
             if (result != null) {
                 System.out.println("removed");
             } else {

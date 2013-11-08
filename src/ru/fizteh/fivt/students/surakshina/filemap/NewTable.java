@@ -1,18 +1,49 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 public class NewTable implements Table {
     private String name;
-    private HashMap<String, ValueState<String>> dataBaseMap = new HashMap<>();
-    private NewTableProvider provider;
+    // private HashMap<String, ValueState<String>> dataBaseMap = new
+    // HashMap<>();
+    private HashMap<String, ValueState<Storeable>> dataMap = new HashMap<>();
+    private NewTableProvider provider = null;
+    private ArrayList<Class<?>> types;
 
-    public NewTable(String newName, NewTableProvider newProvider) {
+    public NewTable(String newName, NewTableProvider newProvider) throws IOException {
         name = newName;
         provider = newProvider;
+        types = readSignature();
+    }
+
+    private ArrayList<Class<?>> readSignature() throws IOException {
+        ArrayList<Class<?>> list = new ArrayList<Class<?>>();
+        try {
+            FileInputStream stream = new FileInputStream(new File(provider.getCurrentDirectory() + File.separator
+                    + this.name + File.separator + "signature.tsv"));
+            Scanner scanner = new Scanner(stream);
+            while (scanner.hasNext()) {
+                list.add(provider.getNameClass(scanner.next()));
+            }
+            scanner.close();
+            stream.close();
+        } catch (FileNotFoundException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+        if (list.isEmpty()) {
+            throw new IOException("Signature is empty");
+        }
+        return list;
     }
 
     @Override
@@ -22,69 +53,73 @@ public class NewTable implements Table {
 
     private void checkName(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("key or value is null");
+            throw new IllegalArgumentException("wrong type (key or value is null)");
         }
         name = name.trim();
         if (name.isEmpty()) {
-            throw new IllegalArgumentException("Key or value is null");
+            throw new IllegalArgumentException("wrong type (Key or value is null)");
         }
     }
 
-    @Override
-    public String get(String key) {
-        checkName(key);
-        if (!dataBaseMap.containsKey(key)) {
-            return null;
-        }
-        return dataBaseMap.get(key).getValue();
-    }
+    /*
+     * @Override public String get(String key) { checkName(key); if
+     * (!dataBaseMap.containsKey(key)) { return null; } return
+     * dataBaseMap.get(key).getValue(); }
+     */
 
-    public void loadCommittedValues(HashMap<String, String> load) {
+    /*
+     * public void loadCommittedValues(HashMap<String, String> load) { for
+     * (String key : load.keySet()) { ValueState<String> value = new
+     * ValueState<String>(load.get(key), load.get(key)); dataBaseMap.put(key,
+     * value); } }
+     */
+
+    public void loadCommitedValues(HashMap<String, Storeable> load) {
         for (String key : load.keySet()) {
-            ValueState<String> value = new ValueState<String>(load.get(key), load.get(key));
-            dataBaseMap.put(key, value);
+            ValueState<Storeable> value = new ValueState<Storeable>(load.get(key), load.get(key));
+            dataMap.put(key, value);
         }
     }
+
+    /*
+     * public HashMap<String, String> returnMap() { HashMap<String, String> map
+     * = new HashMap<>(); for (String key : dataBaseMap.keySet()) { map.put(key,
+     * dataBaseMap.get(key).getCommitedValue()); } return map; }
+     */
 
     public HashMap<String, String> returnMap() {
         HashMap<String, String> map = new HashMap<>();
-        for (String key : dataBaseMap.keySet()) {
-            map.put(key, dataBaseMap.get(key).getCommitedValue());
+        for (String key : dataMap.keySet()) {
+            map.put(key, JSONSerializer.serialize(provider.getTable(name), dataMap.get(key).getCommitedValue()));
         }
         return map;
     }
 
-    @Override
-    public String put(String key, String value) {
-        checkName(key);
-        checkName(value);
-        String result;
-        if (dataBaseMap.containsKey(key)) {
-            result = dataBaseMap.get(key).getValue();
-            dataBaseMap.get(key).setValue(value);
-        } else {
-            dataBaseMap.put(key, new ValueState<String>(null, value));
-            result = null;
-        }
-        return result;
-    }
+    /*
+     * @Override public String put(String key, String value) { checkName(key);
+     * checkName(value); String result; if (dataBaseMap.containsKey(key)) {
+     * result = dataBaseMap.get(key).getValue();
+     * dataBaseMap.get(key).setValue(value); } else { dataBaseMap.put(key, new
+     * ValueState<String>(null, value)); result = null; } return result; }
+     */
 
-    @Override
-    public String remove(String key) {
-        checkName(key);
-        if (dataBaseMap.containsKey(key)) {
-            String oldVal = dataBaseMap.get(key).getValue();
-            dataBaseMap.get(key).setValue(null);
-            return oldVal;
-        } else {
-            return null;
-        }
-    }
+    /*
+     * @Override public String remove(String key) { checkName(key); if
+     * (dataBaseMap.containsKey(key)) { String oldVal =
+     * dataBaseMap.get(key).getValue(); dataBaseMap.get(key).setValue(null);
+     * return oldVal; } else { return null; } }
+     */
+
+    /*
+     * @Override public int size() { int count = 0; for (ValueState<String>
+     * value : dataBaseMap.values()) { if (value.getValue() != null) { ++count;
+     * } } return count; }
+     */
 
     @Override
     public int size() {
         int count = 0;
-        for (ValueState<String> value : dataBaseMap.values()) {
+        for (ValueState<Storeable> value : dataMap.values()) {
             if (value.getValue() != null) {
                 ++count;
             }
@@ -92,9 +127,15 @@ public class NewTable implements Table {
         return count;
     }
 
+    /*
+     * public int unsavedChanges() { int count = 0; for (ValueState<String>
+     * value : dataBaseMap.values()) { if (value.needToCommit()) { ++count; } }
+     * return count; }
+     */
+
     public int unsavedChanges() {
         int count = 0;
-        for (ValueState<String> value : dataBaseMap.values()) {
+        for (ValueState<Storeable> value : dataMap.values()) {
             if (value.needToCommit()) {
                 ++count;
             }
@@ -102,10 +143,20 @@ public class NewTable implements Table {
         return count;
     }
 
+    /*
+     * @Override public int commit() throws RuntimeException { int count = 0;
+     * for (ValueState<String> value : dataBaseMap.values()) { if
+     * (value.commitValue()) { ++count; } } if (count != 0) { try { if
+     * (provider.getCurrentTableFile() != null) {
+     * provider.saveChanges(provider.getCurrentTableFile()); } } catch
+     * (IOException e) { throw new RuntimeException(e.getMessage(), e); } } else
+     * { return 0; } return count; }
+     */
+
     @Override
     public int commit() throws RuntimeException {
         int count = 0;
-        for (ValueState<String> value : dataBaseMap.values()) {
+        for (ValueState<Storeable> value : dataMap.values()) {
             if (value.commitValue()) {
                 ++count;
             }
@@ -124,15 +175,80 @@ public class NewTable implements Table {
         return count;
     }
 
+    /*
+     * @Override public int rollback() { int count = 0; for (ValueState<String>
+     * value : dataBaseMap.values()) { if (value.rollbackValue()) { ++count; } }
+     * return count; }
+     */
+
     @Override
     public int rollback() {
         int count = 0;
-        for (ValueState<String> value : dataBaseMap.values()) {
+        for (ValueState<Storeable> value : dataMap.values()) {
             if (value.rollbackValue()) {
                 ++count;
             }
         }
         return count;
     }
+
+    @Override
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        checkName(key);
+        if (value == null) {
+            throw new IllegalArgumentException("wrong type (value is null)");
+        }
+        Storeable result;
+        if (dataMap.containsKey(key)) {
+            result = dataMap.get(key).getValue();
+            dataMap.get(key).setValue(value);
+        } else {
+            dataMap.put(key, new ValueState<Storeable>(null, value));
+            result = null;
+        }
+        return result;
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkIndex(columnIndex);
+        return types.get(columnIndex);
+    }
+
+    private void checkIndex(int columnIndex) {
+        if (columnIndex < 0 || columnIndex > types.size() - 1) {
+            throw new IndexOutOfBoundsException("Incorrect column index");
+        }
+    }
+
+    @Override
+    public Storeable get(String key) {
+        checkName(key);
+        if (!dataMap.containsKey(key)) {
+            return null;
+        }
+        return dataMap.get(key).getValue();
+    }
+
+    @Override
+    public Storeable remove(String key) {
+        checkName(key);
+        if (dataMap.containsKey(key)) {
+            Storeable oldVal = dataMap.get(key).getValue();
+            dataMap.get(key).setValue(null);
+            return oldVal;
+        } else {
+            return null;
+        }
+    }
+
+    /*
+     * public NewTableProvider getTableProvider() { return provider; }
+     */
 
 }

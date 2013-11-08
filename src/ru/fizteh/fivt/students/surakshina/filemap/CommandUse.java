@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
+
+
 
 public class CommandUse extends DataBaseCommand {
     public CommandUse(TableState state) {

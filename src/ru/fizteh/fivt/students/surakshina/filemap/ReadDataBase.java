@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 public class ReadDataBase {
-    public static HashMap<String, String> loadFile(File file) throws IOException {
-        HashMap<String, String> mapFile = new HashMap<>();
+    public static HashMap<String, Storeable> loadFile(File file, NewTable table) throws IOException, ParseException {
+        //HashMap<String, String> mapFile = new HashMap<>();
+        HashMap<String, Storeable> mapFile = new HashMap<>();
         RandomAccessFile dataBase = null;
         try {
             dataBase = new RandomAccessFile(file, "rw");
@@ -71,7 +75,7 @@ public class ReadDataBase {
                         dataBase.read(tmp);
                     }
                     value = new String(tmp, StandardCharsets.UTF_8);
-                    mapFile.put(keyFirst, value);
+                    mapFile.put(keyFirst, JSONSerializer.deserialize(table, value));
                     keyFirst = keySecond;
                     firstOffset = offsetOfValueSecond;
                 } while (currentPosition < offsetOfValueFirst);
@@ -86,7 +90,7 @@ public class ReadDataBase {
                         dataBase.read(tmp);
                     }
                     value = new String(tmp, StandardCharsets.UTF_8);
-                    mapFile.put(keyFirst, value);
+                    mapFile.put(keyFirst, JSONSerializer.deserialize(table, value));
                 }
 
             } else {

@@ -1,5 +1,9 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import java.text.ParseException;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 public class CommandPut extends DataBaseCommand {
     public CommandPut(TableState state) {
         super(state);
@@ -11,11 +15,23 @@ public class CommandPut extends DataBaseCommand {
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
             String key = input[1];
-            String value = input[2];
-            String result = state.getTable().put(key, value);
+            Storeable value = null;
+            Storeable result = null;
+            try {
+                value = JSONSerializer.deserialize(state.getTable(), input[2]);
+            } catch (ParseException e) {
+                state.printError(e.getMessage());
+                return;
+            }
+            try {
+            result = state.getTable().put(key, value);
+            } catch (IllegalArgumentException e) {
+                state.printError(e.getMessage());
+                return;
+            }
             if (result != null) {
                 System.out.println("overwrite");
-                System.out.println(result);
+                System.out.println(JSONSerializer.serialize(state.getTable(), result));
             } else {
                 System.out.println("new");
             }

@@ -2,19 +2,46 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import org.json.*;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class NewTableProvider implements TableProvider {
     private File workingDirectory;
     private NewTable currentTable = null;
     private HashMap<String, NewTable> tables = new HashMap<>();
+    private HashMap<String, Class<?>> providerTypes;
+    private HashMap<Class<?>, String> providerTypesNames;
 
-    public NewTableProvider(File dir) {
+    public NewTableProvider(File dir) throws IOException {
         workingDirectory = dir;
+        providerTypes = new HashMap<String, Class<?>>();
+        providerTypesNames = new HashMap<Class<?>, String>();
+
+        providerTypes.put("int", Integer.class);
+        providerTypesNames.put(Integer.class, "int");
+        providerTypes.put("long", Long.class);
+        providerTypesNames.put(Long.class, "long");
+        providerTypes.put("byte", Byte.class);
+        providerTypesNames.put(Byte.class, "byte");
+        providerTypes.put("float", Float.class);
+        providerTypesNames.put(Float.class, "float");
+        providerTypes.put("double", Double.class);
+        providerTypesNames.put(Double.class, "double");
+        providerTypes.put("boolean", Boolean.class);
+        providerTypesNames.put(Boolean.class, "boolean");
+        providerTypes.put("String", String.class);
+        providerTypesNames.put(String.class, "String");
         for (File file : workingDirectory.listFiles()) {
             if (file.isDirectory()) {
                 tables.put(file.getName(), new NewTable(file.getName(), this));
@@ -22,6 +49,16 @@ public class NewTableProvider implements TableProvider {
         }
     }
 
+    public Class<?> getNameClass(String str) {
+        return providerTypes.get(str);
+    }
+    
+    public String getNameString(Class<?> cl) {
+        return providerTypesNames.get(cl);
+    }
+    public File getCurrentDirectory() {
+        return workingDirectory;
+    }
     public NewTable getNewCurrentTable() {
         return currentTable;
     }
@@ -77,22 +114,33 @@ public class NewTableProvider implements TableProvider {
         File tableFile = new File(workingDirectory, name);
         try {
             if (table != null) {
-                table.loadCommittedValues(load(tableFile));
+                currentTable = table;
+                table.loadCommitedValues(load(tableFile));
             }
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         return table;
     }
 
-    private HashMap<String, String> load(File tableFile) throws IOException {
-        HashMap<String, String> map = new HashMap<String, String>();
+    /*
+     * private HashMap<String, String> load(File tableFile) throws IOException {
+     * HashMap<String, String> map = new HashMap<String, String>(); for (File
+     * dir : tableFile.listFiles()) { if
+     * (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) { for
+     * (File file : dir.listFiles()) { if (checkNameOfFiles(file.getName()) &&
+     * file.isFile()) { if (file.length() != 0) {
+     * map.putAll(ReadDataBase.loadFile(file)); } } } } } return map; }
+     */
+
+    private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
+        HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
             if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                 for (File file : dir.listFiles()) {
                     if (checkNameOfFiles(file.getName()) && file.isFile()) {
                         if (file.length() != 0) {
-                            map.putAll(ReadDataBase.loadFile(file));
+                            map.putAll(ReadDataBase.loadFile(file, currentTable));
                         }
                     }
                 }
@@ -107,18 +155,12 @@ public class NewTableProvider implements TableProvider {
         }
     }
 
-    @Override
-    public Table createTable(String name) {
-        checkTableName(name);
-        if (tables.get(name) != null) {
-            return null;
-        } else {
-            File table = new File(workingDirectory, name);
-            table.mkdir();
-            tables.put(name, new NewTable(name, this));
-            return tables.get(name);
-        }
-    }
+    /*
+     * @Override public Table createTable(String name) { checkTableName(name);
+     * if (tables.get(name) != null) { return null; } else { File table = new
+     * File(workingDirectory, name); table.mkdir(); tables.put(name, new
+     * NewTable(name, this)); return tables.get(name); } }
+     */
 
     public void saveChanges(File tableFile) throws IOException {
         NewTable table = tables.get(tableFile.getName());
@@ -164,4 +206,88 @@ public class NewTableProvider implements TableProvider {
             tableFile.delete();
         }
     }
+
+    @Override
+    public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        checkTableName(name);
+        if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Incorrect column name");
+        }
+        if (tables.get(name) != null) {
+            return null;
+        } else {
+            File table = new File(workingDirectory, name);
+            table.mkdir();
+            File file = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
+            PrintStream newFile = new PrintStream(file);
+            for (int i = 0; i < columnTypes.size(); ++i) {
+                if (columnTypes.get(i) == null) {
+                    newFile.close();
+                    throw new IllegalArgumentException("Incorrect column name");
+                }
+                newFile.println(getNameString(columnTypes.get(i)));
+            }
+            newFile.close();
+            tables.put(name, new NewTable(name, this));
+            return tables.get(name);
+        }
+    }
+
+    private boolean checkValuesName(List<Class<?>> columnTypes) {
+        ArrayList<Class<?>> list = new ArrayList<Class<?>>(columnTypes);
+        for (Class<?> type : list) {
+            if (type == null) {
+                return false;
+            } else {
+            return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Byte.class)
+                    || type.equals(Float.class) || type.equals(Double.class) || type.equals(Boolean.class)
+                    || type.equals(String.class);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        if (value == null || value.trim().isEmpty()) {
+            throw new ParseException("Illegal value", 0);
+        }
+        JSONArray array = null;
+        try {
+            array = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException("Incorrect format", 0);
+        }
+        if (array.length() != table.getColumnsCount()) {
+            throw new ParseException("Incorrect numer of types", 0);
+        }
+        ArrayList<Object> values = new ArrayList<Object>();
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            values.add(array.get(i));
+        }
+        try {
+            return createFor(table, values);
+        } catch (ColumnFormatException | IndexOutOfBoundsException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (value == null) {
+            throw new ColumnFormatException("Incorrect column name");
+        }
+        return JSONSerializer.serialize(table, value);
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        return new MyStoreable(table);
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        return new MyStoreable(table, values);
+    }
+
 }

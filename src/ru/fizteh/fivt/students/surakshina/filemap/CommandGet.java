@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 public class CommandGet extends DataBaseCommand {
 
     public CommandGet(TableState stateNew) {
@@ -12,10 +14,10 @@ public class CommandGet extends DataBaseCommand {
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
             String key = input[1];
-            String value = state.getTable().get(key);
+            Storeable value = state.getTable().get(key);
             if (value != null) {
                 System.out.println("found");
-                System.out.println(value);
+                System.out.println(JSONSerializer.serialize(state.getTable(), value));
             } else {
                 System.out.println("not found");
             }
