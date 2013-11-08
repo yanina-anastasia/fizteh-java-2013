@@ -207,7 +207,7 @@ public class StoreableTableProvider implements TableProvider {
             int columnCount = table.getColumnsCount();
             for (int i = 0; i < columnCount; ++i) {
                 xmlWriter.writeStartElement("col");
-                String s = signatureController.convertStorableFieldToString(value, i, table.getColumnType(i));
+                String s = signatureController.convertStoreableFieldToString(value, i, table.getColumnType(i));
                 if (s == null) {
                     xmlWriter.writeStartElement("null");
                     xmlWriter.writeEndElement();
