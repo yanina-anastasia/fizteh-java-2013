@@ -287,7 +287,7 @@ public class TableImplementation implements Table {
         }
     }
     
-    private static class DirectoryAndFileNumberCalculator {
+    static class DirectoryAndFileNumberCalculator {
             
         static int getnDirectory(String key) {
             int firstByte = Math.abs(key.getBytes()[0]);

@@ -146,4 +146,13 @@ class FileDatabase implements AutoCloseable {
         }
         dbFile.close();
     }
+    
+    public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException {
+        for (String key : database.keySet()) {
+            if (TableImplementation.DirectoryAndFileNumberCalculator.getnDirectory(key) != nDirectory
+                    || TableImplementation.DirectoryAndFileNumberCalculator.getnFile(key) != nFile) {
+                throw new IllegalArgumentException("wrong key placement");
+            }
+        }
+    }
 }

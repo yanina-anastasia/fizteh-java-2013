@@ -88,7 +88,11 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         if (tableFile.toFile().length() == 0) {
             throw new IllegalArgumentException("Invalid table format");
         }
+        int nDirectory = Integer.parseInt(tableFile.getParent().getFileName().toString().replaceFirst("[.][^.]+$", ""));
+        int nFile = Integer.parseInt(tableFile.getFileName().toString().replaceFirst("[.][^.]+$", ""));
         try (FileDatabase currentDatabase = new FileDatabase(tableFile)) {
+            currentDatabase.selfCheck(nDirectory, nFile);
+            
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while reading from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
