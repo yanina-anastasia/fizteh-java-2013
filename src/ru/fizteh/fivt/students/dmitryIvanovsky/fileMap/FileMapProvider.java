@@ -124,7 +124,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public String startShellString() {
-        return "$ ";
+        return " $ ";
     }
 
     public void multiPut(String[] args) throws ParseException {
