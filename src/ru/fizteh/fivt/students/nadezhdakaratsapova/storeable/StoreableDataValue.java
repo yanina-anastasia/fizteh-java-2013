@@ -72,7 +72,7 @@ public class StoreableDataValue implements Storeable {
     }
 
     public void checkColumnIndexValidity(int columnIndex) {
-        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
+        if (columnIndex >= columnValues.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
     }
