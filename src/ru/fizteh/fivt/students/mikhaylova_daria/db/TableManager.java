@@ -230,6 +230,7 @@ public class TableManager implements TableProvider {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
                     Method m = table.getColumnType(i).getMethod("toString");
+                    System.out.println(value.getColumnAt(i).toString());
                     valueStr = (String) m.invoke((table.getColumnType(i).cast(value.getColumnAt(i))));
                     Text text = doc.createTextNode(valueStr);
                     column.appendChild(text);
