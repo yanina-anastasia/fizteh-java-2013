@@ -52,13 +52,15 @@ public class NewTableProvider implements TableProvider {
     public Class<?> getNameClass(String str) {
         return providerTypes.get(str);
     }
-    
+
     public String getNameString(Class<?> cl) {
         return providerTypesNames.get(cl);
     }
+
     public File getCurrentDirectory() {
         return workingDirectory;
     }
+
     public NewTable getNewCurrentTable() {
         return currentTable;
     }
@@ -138,14 +140,14 @@ public class NewTableProvider implements TableProvider {
         for (File dir : tableFile.listFiles()) {
             if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                 for (File file : dir.listFiles()) {
-                    if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                        if (file.length() != 0) {
-                            map.putAll(ReadDataBase.loadFile(file, currentTable));
+                        if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                            if (file.length() != 0) {
+                                map.putAll(ReadDataBase.loadFile(file, currentTable));
+                            }
                         }
-                    }
+                    } 
                 }
             }
-        }
         return map;
     }
 
@@ -239,9 +241,9 @@ public class NewTableProvider implements TableProvider {
             if (type == null) {
                 return false;
             } else {
-            return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Byte.class)
-                    || type.equals(Float.class) || type.equals(Double.class) || type.equals(Boolean.class)
-                    || type.equals(String.class);
+                return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Byte.class)
+                        || type.equals(Float.class) || type.equals(Double.class) || type.equals(Boolean.class)
+                        || type.equals(String.class);
             }
         }
         return false;
