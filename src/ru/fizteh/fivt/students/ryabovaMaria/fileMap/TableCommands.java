@@ -104,7 +104,7 @@ public class TableCommands implements Table {
                 long lastPointer = 0;
                 long length = db.length();
                 if (length == 0) {
-                    return;
+                    throw new IllegalArgumentException("empty file");
                 }
                 db.seek(0);
                 String lastKey = "";
