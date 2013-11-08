@@ -120,8 +120,37 @@ public class FileMapTableProviderTest {
         Storeable compositValueStoreable = tableProvider.deserialize(table, compositValue);
         assertEquals(tableProvider.serialize(table, compositValueStoreable), compositValue);
         assertEquals(compositValueStoreable.getFloatAt(0), ((Double) 1.5).floatValue());
-        assertEquals(compositValueStoreable.getDoubleAt(1), Double.valueOf(2.5));
+        assertEquals(compositValueStoreable.getDoubleAt(1), 2.5);
         assertEquals(compositValueStoreable.getStringAt(2), "val");
+    }
+
+    @Test
+    public void createForTest() throws IOException {
+        List<Class<?>> types = new ArrayList<Class<?>>();
+        types.add(Integer.class);
+        types.add(Long.class);
+        types.add(Byte.class);
+        types.add(Float.class);
+        types.add(Double.class);
+        types.add(String.class);
+
+        Table table = tableProvider.createTable("createForTable", types);
+
+        List<Object> values = new ArrayList<Object>();
+        values.add((Object) 1);
+        values.add((Object) 2);
+        values.add((Object) 3);
+        values.add((Object) 4.5);
+        values.add((Object) 5);
+        values.add((Object) "string");
+        Storeable storeable = tableProvider.createFor(table, values);
+
+        assertEquals(storeable.getIntAt(0), (Integer) 1);
+        assertEquals(storeable.getLongAt(1), (Long) ((Integer) 2).longValue());
+        assertEquals(storeable.getByteAt(2), (Byte) ((Integer) 3).byteValue());
+        assertEquals(storeable.getFloatAt(3), ((Double) 4.5).floatValue());
+        assertEquals(storeable.getDoubleAt(4), ((Integer) 5).doubleValue());
+        assertEquals(storeable.getStringAt(5), "string");
     }
 }
 

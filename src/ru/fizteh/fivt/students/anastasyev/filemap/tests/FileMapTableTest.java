@@ -85,10 +85,15 @@ public class FileMapTableTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPutNl() throws ParseException {
-        String valueOldString = "[5, \"valueOld\"]";
-        Storeable valueOld = tableProvider.deserialize(currTable, valueOldString);
-        valueOld.setColumnAt(1, "     ");
+    public void testPutNl() throws ParseException, IOException {
+        String val = "[15,\"string\",\"second string\"]";
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
+        Storeable valueOld = tableProvider.deserialize(table, val);
+        valueOld.setColumnAt(2, "     ");
         currTable.put("key", valueOld);
     }
 
@@ -231,18 +236,22 @@ public class FileMapTableTest {
         assertEquals(currTable.size(), 2);
     }
 
-    /*@Test
-    public void testCommitRollback() {
-        Assert.assertNull(currTable.put("commit", "rollback"));
-        Assert.assertEquals(currTable.get("commit"), "rollback");
+    @Test
+    public void testCommitRollback() throws ParseException, IOException {
+        String rollbackVal = "[7,\"rollback\"]";
+        Storeable rollback = tableProvider.deserialize(currTable, rollbackVal);
+        String rollbackVal1 = "[7,\"rollback1\"]";
+        Storeable rollback1 = tableProvider.deserialize(currTable, rollbackVal1);
+        Assert.assertNull(currTable.put("commit", rollback));
+        Assert.assertEquals(currTable.get("commit"), rollback);
         Assert.assertEquals(currTable.rollback(), 1);
         Assert.assertNull(currTable.get("commit"));
-        Assert.assertNull(currTable.put("commit", "rollback"));
-        Assert.assertEquals(currTable.get("commit"), "rollback");
+        Assert.assertNull(currTable.put("commit", rollback));
+        Assert.assertEquals(currTable.get("commit"), rollback);
         Assert.assertEquals(currTable.commit(), 1);
-        Assert.assertEquals(currTable.remove("commit"), "rollback");
-        Assert.assertNull(currTable.put("commit", "rollback1"));
+        Assert.assertEquals(currTable.remove("commit"), rollback);
+        Assert.assertNull(currTable.put("commit", rollback1));
         Assert.assertEquals(currTable.commit(), 1);
-        Assert.assertEquals(currTable.get("commit"), "rollback1");
-    } */
+        Assert.assertEquals(currTable.get("commit"), rollback1);
+    }
 }

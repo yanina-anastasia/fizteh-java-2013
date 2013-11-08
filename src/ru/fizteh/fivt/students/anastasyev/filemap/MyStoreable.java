@@ -80,6 +80,8 @@ public class MyStoreable implements Storeable {
                     row.add(put);
                 } else if (put.getClass() == Double.class) {
                     row.add(((Double) put).floatValue());
+                } else if (put.getClass() == Integer.class) {
+                    row.add(((Integer) put).floatValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -88,6 +90,8 @@ public class MyStoreable implements Storeable {
                     row.add(put);
                 } else if (put.getClass() == Float.class) {
                     row.add(((Float) put).doubleValue());
+                } else if (put.getClass() == Integer.class) {
+                    row.add(((Integer) put).doubleValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }

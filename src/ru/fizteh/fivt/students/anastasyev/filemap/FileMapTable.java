@@ -68,10 +68,11 @@ public class FileMapTable implements Table {
             //It's OK   Некрасивая конструкция, and I know it
         }
         try {
-            if (value.getColumnAt(columnTypes.indexOf(String.class)) != null
-                    && value.getStringAt(columnTypes.indexOf(String.class)) != null
-                    && value.getStringAt(columnTypes.indexOf(String.class)).trim().isEmpty()) {
-                throw new IllegalArgumentException("empty string in value");
+            for (int j = 0; j < columnTypes.size(); ++j) {
+                if (columnTypes.get(j).equals(String.class) && value.getColumnAt(j) != null
+                        && value.getStringAt(j) != null && value.getStringAt(j).trim().isEmpty()) {
+                    throw new IllegalArgumentException("empty string in value");
+                }
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("Wrong column count");
