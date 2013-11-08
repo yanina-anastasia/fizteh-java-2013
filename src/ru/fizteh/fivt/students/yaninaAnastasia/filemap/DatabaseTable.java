@@ -389,13 +389,14 @@ public class DatabaseTable implements Table {
                 return false;
             }
         }
-        boolean flag = true;
+        return true;
+       /* boolean flag = true;
         try {
             storeable.getColumnAt(getColumnsCount());
             flag = false;
         } catch (IndexOutOfBoundsException e) {
             //
         }
-        return flag;
+        return flag; */
     }
 }
