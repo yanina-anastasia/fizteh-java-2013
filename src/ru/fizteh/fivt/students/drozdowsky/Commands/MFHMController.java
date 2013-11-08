@@ -5,12 +5,12 @@ import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;
 
 import java.awt.geom.IllegalPathStateException;
 
-public class MFHMController {
+public class MfhmController {
 
     FileHashMap currentdb;
     MultiFileHashMap multiFileHashMap;
 
-    public MFHMController(MultiFileHashMap multiFileHashMap) {
+    public MfhmController(MultiFileHashMap multiFileHashMap) {
         this.multiFileHashMap = multiFileHashMap;
         currentdb = null;
     }

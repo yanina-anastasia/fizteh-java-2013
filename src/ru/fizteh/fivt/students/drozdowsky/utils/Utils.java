@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.utils;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +77,10 @@ public class Utils {
     }
 
     public static boolean isValid(String name) {
-        return !(name == null || name.equals("") || name.contains("\n") || name.contains(" "));
+        return !(name == null || name.equals("") || name.contains(System.lineSeparator()) || name.contains(" ") || name.contains("\t"));
+    }
+
+    public static boolean isValidTablename(String name) {
+        return isValid(name) && !name.contains(File.separator) && !name.contains("\\");
     }
 }

@@ -5,7 +5,7 @@ import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 
 import java.io.File;
 
-public class MFHMProviderFactory implements TableProviderFactory {
+public class MfhmProviderFactory implements TableProviderFactory {
     public MultiFileHashMap create(String dir) {
         if (!Utils.isValid(dir) || !(new File(dir).isDirectory())) {
             throw new IllegalArgumentException();

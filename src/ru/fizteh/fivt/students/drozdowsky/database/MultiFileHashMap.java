@@ -22,7 +22,7 @@ public class MultiFileHashMap implements TableProvider {
         }
         String[] content = dir.list();
         for (String directory : content) {
-            File temp = new File(dir.getAbsoluteFile() + "/" + directory);
+            File temp = new File(dir.getAbsoluteFile() + File.separator + directory);
             FileHashMap base = new FileHashMap(temp);
             database.put(directory, null);
         }
@@ -30,11 +30,11 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap getTable(String name) {
-        if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
+        if (!Utils.isValidTablename(name)) {
             throw new IllegalArgumentException();
         }
         if (database.containsKey(name)) {
-            File table = new File(dir.getAbsolutePath() + "/" + name);
+            File table = new File(dir.getAbsolutePath() + File.separator + name);
             if (database.get(name) == null) {
                 database.put(name, new FileHashMap(table));
             }
@@ -45,13 +45,13 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public FileHashMap createTable(String name) {
-        if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
+        if (!Utils.isValidTablename(name)) {
             throw new IllegalArgumentException();
         }
         if (database.containsKey(name)) {
             return null;
         } else {
-            File newTable = new File(dir.getAbsolutePath() + "/" + name);
+            File newTable = new File(dir.getAbsolutePath() + File.separator + name);
             newTable.mkdir();
             database.put(name, new FileHashMap(newTable));
             return database.get(name);
@@ -59,7 +59,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public void removeTable(String name) {
-        if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
+        if (!Utils.isValidTablename(name)) {
             throw new IllegalArgumentException();
         }
         if (database.containsKey(name)) {
@@ -74,7 +74,7 @@ public class MultiFileHashMap implements TableProvider {
     }
 
     public void stopUsing(String name) {
-        if (!Utils.isValid(name) || name.contains("/") || name.contains("\\")) {
+        if (!Utils.isValidTablename(name)) {
             throw new IllegalArgumentException();
         }
         if (database.containsKey(name)) {

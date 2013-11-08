@@ -3,19 +3,19 @@ package ru.fizteh.fivt.students.drozdowsky.databaseTest;
 import org.junit.*;
 import org.junit.Test;
 import ru.fizteh.fivt.students.drozdowsky.Commands.ShellController;
-import ru.fizteh.fivt.students.drozdowsky.database.MFHMProviderFactory;
+import ru.fizteh.fivt.students.drozdowsky.database.MfhmProviderFactory;
 import ru.fizteh.fivt.students.drozdowsky.database.MultiFileHashMap;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MFHMProviderFactoryTest {
-    static MFHMProviderFactory factory;
+    static MfhmProviderFactory factory;
     static File databaseDir;
 
     @Before
     public void setUp() {
-        factory = new MFHMProviderFactory();
+        factory = new MfhmProviderFactory();
         String workingDir = System.getProperty("user.dir");
         databaseDir = new File(workingDir + "/" + "test");
         databaseDir.mkdir();

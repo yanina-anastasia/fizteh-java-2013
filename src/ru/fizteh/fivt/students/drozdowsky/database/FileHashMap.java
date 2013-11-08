@@ -179,23 +179,31 @@ public class FileHashMap implements Table {
 
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
-            File dirPath = new File(db.getAbsolutePath() + '/' + Integer.toString(i) + ".dir");
-            dirPath.mkdir();
+            File dirPath = new File(db.getAbsolutePath() + File.separator + Integer.toString(i) + ".dir");
+            if (!dirPath.mkdir()) {
+                throw new SecurityException();
+            }
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
-                    File filePath = new File(dirPath.getAbsolutePath() + '/' + Integer.toString(j) + ".dat");
+                    File filePath = new File(dirPath.getAbsolutePath() + File.separator + Integer.toString(j) + ".dat");
                     try {
-                        filePath.createNewFile();
+                        if (!filePath.createNewFile()) {
+                            throw new SecurityException();
+                        }
                     } catch (IOException ignored) { }
                     if (base[i][j].getKeys().size() == 0) {
-                        filePath.delete();
-                    } else {
-                        base[i][j].write(filePath);
+                        if (!filePath.delete()) {
+                            throw new SecurityException();
+                        } else {
+                            base[i][j].write(filePath);
+                        }
                     }
                 }
             }
             if (dirPath.exists()) {
-                dirPath.delete();
+                if (!dirPath.delete()) {
+                    throw new SecurityException();
+                }
             }
         }
     }
