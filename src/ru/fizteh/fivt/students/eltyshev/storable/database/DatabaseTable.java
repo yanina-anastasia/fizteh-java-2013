@@ -53,12 +53,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         }
 
         if (!checkAlienStoreable(value)) {
-            String xml = provider.serialize(this, value);
-            try {
-                return put(key, provider.deserialize(this, xml));
-            } catch (ParseException e) {
-                throw new ColumnFormatException("incorrect storeable");
-            }
+            throw new ColumnFormatException("alien storeable");
         }
         checkCorrectStoreable(value);
 
