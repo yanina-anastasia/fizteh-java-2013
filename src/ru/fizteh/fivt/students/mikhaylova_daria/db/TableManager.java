@@ -166,6 +166,8 @@ public class TableManager implements TableProvider {
                     table = new TableData(creatingTableFile, this);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                } catch (IOException e) {
+                    throw new RuntimeException("wrong type (" + e.getMessage() + ")");
                 }
                 if (!bidDataBase.containsKey(nameTable)) {
                     bidDataBase.put(nameTable, table);
