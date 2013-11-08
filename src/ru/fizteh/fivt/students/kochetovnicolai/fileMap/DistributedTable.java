@@ -42,6 +42,9 @@ public class DistributedTable extends FileManager implements Table {
     private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
         int fileRecordNumber = 0;
         currentFile = filesList[dirNumber][fileNumber];
+        if (currentFile.length() == 0) {
+            throw new IOException(currentFile.getPath() + ": empty file");
+        }
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
             String[] pair;
             try {
@@ -63,6 +66,10 @@ public class DistributedTable extends FileManager implements Table {
     protected int readTable() throws IOException {
         int directoriesNumber = 0;
         int tableSize = 0;
+        File signature = new File(currentPath.getPath() + File.separator + "signature.tsv");
+        if (signature.exists()) {
+            directoriesNumber++;
+        }
         for (int i = 0; i < partsNumber; i++) {
             if (directoriesList[i].exists()) {
                 directoriesNumber++;
@@ -73,10 +80,14 @@ public class DistributedTable extends FileManager implements Table {
                         tableSize += getCurrentFileLength(i, j);
                     }
                 }
-                if (directoriesList[i].list().length != filesNumber) {
+                int filesFoundNumber = directoriesList[i].list().length;
+                if (filesFoundNumber == 0 || directoriesList[i].list().length != filesNumber) {
                     throw new IOException(directoriesList[i].getPath() + ": contains unknown files or directories");
                 }
             }
+        }
+        if (directoriesNumber != currentPath.list().length) {
+            throw new IOException("redundant files into table directory");
         }
         return tableSize;
     }
