@@ -162,7 +162,10 @@ public class IOUtility {
             String typeNamesList = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buf)).toString();
             for (String typeName : typeNamesList.split(" +")) {
                 if (!StoreableUtils.TYPENAMES.containsKey(typeName)) {
-                    throw new ColumnFormatException("wrong type (" + typeName.replace("\n", "") + " unknown)");
+                    if (typeName.isEmpty()) {
+                        typeName = "[empty]";
+                    }
+                    throw new ColumnFormatException("wrong type (" + typeName.replace("\n", "[newline]") + " unknown)");
                 }
                 signature.add(StoreableUtils.TYPENAMES.get(typeName));
             }
