@@ -7,39 +7,13 @@ import java.util.Scanner;
 
 public class Shell {
     public File currentDir;
-    public static HashMap<String, Command> cmdMap;
+    private static HashMap<String, Command> cmdMap;
 
-    public Shell(HashMap<String, Command> ccmdMap, String dir) {
+    Shell(HashMap<String, Command> ccmdMap, String dir) {
         currentDir = new File(System.getProperty(dir));
         cmdMap = ccmdMap;
         for (Command cmd : cmdMap.values()) {
             cmd.parentShell = this;
-        }
-    }
-
-    private void executeCommand(String command) throws Exception {
-        if (command.trim().isEmpty()) {
-            return;
-        }
-        String[] args = command.trim().split("[\t ]+");
-        if (cmdMap.get(args[0]) != null) {
-            cmdMap.get(args[0]).execute(args);
-        } else {
-            throw new Exception("No such command");
-        }
-    }
-
-    public void executeCommands(String cmds) throws Exception {
-        Scanner scanner = new Scanner(cmds);
-        try {
-            while (scanner.hasNextLine()) {
-                String[] commands = scanner.nextLine().split(";");
-                for (String cmd : commands) {
-                    executeCommand(cmd);
-                }
-            }
-        } finally {
-            scanner.close();
         }
     }
 
@@ -78,6 +52,42 @@ public class Shell {
         }
     }
 
+    private void executeCommand(String command) throws Exception {
+        if (command.trim().isEmpty()) {
+            return;
+        }
+        String[] args = command.trim().split("[\t ]+");
+        Command buf = cmdMap.get(args[0]);
+        if(buf == "put") {
+            args = String[2];
+            args[0] = "put";
+            args[1] = command.substring(4);
+        }
+        if (buf != null) {
+            buf.execute(args);
+            for (String s: buf.returnValue) {
+                System.out.println(s);
+            }
+            buf.returnValue = null;
+        } else {
+            throw new Exception("No such command");
+        }
+    }
+
+    public void executeCommands(String cmds) throws Exception {
+        Scanner scanner = new Scanner(cmds);
+        try {
+            while (scanner.hasNextLine()) {
+                String[] commands = scanner.nextLine().split(";");
+                for (String cmd : commands) {
+                    executeCommand(cmd);
+                }
+            }
+        } finally {
+            scanner.close();
+        }
+    }
+
     public void iMode() {
         Scanner scan = new Scanner(System.in);
         String greeting;
@@ -111,5 +121,3 @@ public class Shell {
         }
     }
 }
-
-

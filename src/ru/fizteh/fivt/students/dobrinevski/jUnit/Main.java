@@ -1,9 +1,13 @@
-package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
+package ru.fizteh.fivt.students.dobrinevski.jUnit;
 
 import java.io.File;
 import java.util.HashMap;
-import ru.fizteh.fivt.students.dobrinevski.shell.Command;
+
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiFileHashMap;
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommands;
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommand;
 import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
+import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 
 public class Main {
     private static MyMultiHashMap dtb;
@@ -21,13 +25,15 @@ public class Main {
             }
             dtb = new MyMultiHashMap();
             cmdMap.put("create", new MultiFileHashMapCommands.Create(dtb, dbsDir));
+            cmdMap.put("rollback", new TransMultiFileHashMapCommands.RollBack(dtb, dbsDir));
+            cmdMap.put("commit", new TransMultiFileHashMapCommands.Commit(dtb, dbsDir));
+            cmdMap.put("size", new TransMultiFileHashMapCommands.Size(dtb, dbsDir));
             cmdMap.put("drop", new MultiFileHashMapCommands.Drop(dtb, dbsDir));
+            cmdMap.put("use", new TransMultiFileHashMapCommands.Use(dtb, dbsDir));
             cmdMap.put("put", new MultiFileHashMapCommands.Put(dtb, dbsDir));
             cmdMap.put("get", new MultiFileHashMapCommands.Get(dtb, dbsDir));
             cmdMap.put("remove", new MultiFileHashMapCommands.Remove(dtb, dbsDir));
-            cmdMap.put("use", new MultiFileHashMapCommands.Use(dtb, dbsDir));
-            cmdMap.put("exit", new MultiFileHashMapCommands.Exit(dtb, dbsDir));
-
+            cmdMap.put("exit", new TransMultiFileHashMapCommands.Exit(dtb, dbsDir));
 
         } catch (Exception e) {
             System.out.println("Error while opening database: " + (e.getMessage()));
