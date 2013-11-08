@@ -14,7 +14,7 @@ public class MyTableProvider implements TableProvider {
     File root;
 
     public MyTableProvider(String dir) throws IllegalArgumentException {
-        if (dir == null) {
+        if ((name == null) || (name == "")) {
             throw new IllegalArgumentException("directory is null");
         }
         root = new File(dir);
@@ -24,7 +24,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table getTable(String name) throws IllegalArgumentException {
-        if (name == null) {
+        if ((name == null) || (name == "")) {
             throw new IllegalArgumentException("Table name is null");
         }
         if (bTables.get(name) != null) {
@@ -44,7 +44,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public Table createTable(String name) {
-        if (name == null) {
+        if ((name == null) || (name == "")) {
             throw new IllegalArgumentException("Table name is null");
         }
         if (bTables.get(name) != null) {
@@ -65,7 +65,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) {
-        if (name == null) {
+        if ((name == null) || (name == "")) {
             throw new IllegalArgumentException("Table name is null");
         }
         String[] args = new String[2];
