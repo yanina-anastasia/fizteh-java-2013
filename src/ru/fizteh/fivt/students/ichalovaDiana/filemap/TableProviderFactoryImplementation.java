@@ -20,10 +20,12 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         }
          
         Path dbDir = Paths.get(dir);
-    
-        if (!Files.exists(dbDir)) {
+        
+        Files.createDirectory(dbDir);
+        
+        /*if (!Files.exists(dbDir)) {
             throw new IOException(dbDir + " doesn't exist");
-        }
+        }*/
         
         if (!Files.isDirectory(dbDir)) {
             throw new IllegalArgumentException(dbDir + " is not a directory");
