@@ -19,7 +19,7 @@ public class FileMapTableTest {
     Table currTable;
     String currTableName;
     List<Class<?>> classes;
-    String value = "[15,\"string\"]";
+    String value = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\"]";
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -29,6 +29,13 @@ public class FileMapTableTest {
         factory = new FileMapTableProviderFactory();
         classes = new ArrayList<Class<?>>();
         classes.add(Integer.class);
+        classes.add(Integer.class);
+        classes.add(Integer.class);
+        classes.add(Long.class);
+        classes.add(Float.class);
+        classes.add(Double.class);
+        classes.add(Boolean.class);
+        classes.add(String.class);
         classes.add(String.class);
         tableProvider = factory.create(folder.newFolder().toString());
         assertNotNull(tableProvider);
@@ -64,8 +71,8 @@ public class FileMapTableTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutEmptyValue() throws ParseException {
-        Storeable storeable = tableProvider.deserialize(currTable, "[15,\"45\"]");
-        storeable.setColumnAt(1, "     ");
+        Storeable storeable = tableProvider.deserialize(currTable, value);
+        storeable.setColumnAt(7, "     ");
         currTable.put("key", storeable);
     }
 
@@ -76,9 +83,8 @@ public class FileMapTableTest {
 
     @Test
     public void testPutOldKey() throws ParseException {
-        String valueOldString = "[5, \"valueOld\"]";
-        Storeable valueOld = tableProvider.deserialize(currTable, valueOldString);
-        String valueNewString = "[5, \"valueNew\"]";
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        String valueNewString = "[10,11,22,33,4.4,5,true,\"new1\",\"new2\"]";
         Storeable valueNew = tableProvider.deserialize(currTable, valueNewString);
         assertNull(currTable.put("key", valueOld));
         assertEquals(currTable.put("key", valueNew), valueOld);
@@ -99,9 +105,8 @@ public class FileMapTableTest {
 
     @Test
     public void testPut() throws ParseException {
-        String valueOldString = "[5, null]";
-        Storeable valueOld = tableProvider.deserialize(currTable, valueOldString);
-        String valueNewString = "[null, \"valueNew\"]";
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        String valueNewString = "[null,null,null,null,null,null,null,null,null]";
         Storeable valueNew = tableProvider.deserialize(currTable, valueNewString);
         assertNull(currTable.put("key", valueOld));
         assertEquals(currTable.put("key", valueNew), valueOld);
@@ -147,111 +152,136 @@ public class FileMapTableTest {
 
     @Test
     public void testCommit() throws Exception {
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
         int sizeBefore = currTable.size();
         String value1 = "[5, \"value1\"]";
-        Storeable value1Storeable = tableProvider.deserialize(currTable, value1);
+        Storeable value1Storeable = tableProvider.deserialize(table, value1);
         String value2 = "[7, \"value2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(currTable, value2);
+        Storeable value2Storeable = tableProvider.deserialize(table, value2);
         String value3 = "[7, \"value3\"]";
-        Storeable value3Storeable = tableProvider.deserialize(currTable, value3);
-        assertNull(currTable.put("key1", value1Storeable));
-        assertEquals(currTable.put("key1", value1Storeable), value1Storeable);
-        assertNull(currTable.put("key2", value2Storeable));
-        assertEquals(currTable.put("key2", value2Storeable), value2Storeable);
-        assertNull(currTable.put("key3", value3Storeable));
-        assertEquals(currTable.put("key3", value3Storeable), value3Storeable);
-        assertEquals(currTable.remove("key1"), value1Storeable);
-        assertEquals(currTable.put("key2", value1Storeable), value2Storeable);
-        assertEquals(currTable.commit(), 2);
-        int sizeAfter = currTable.size();
+        Storeable value3Storeable = tableProvider.deserialize(table, value3);
+        assertNull(table.put("key1", value1Storeable));
+        assertEquals(table.put("key1", value1Storeable), value1Storeable);
+        assertNull(table.put("key2", value2Storeable));
+        assertEquals(table.put("key2", value2Storeable), value2Storeable);
+        assertNull(table.put("key3", value3Storeable));
+        assertEquals(table.put("key3", value3Storeable), value3Storeable);
+        assertEquals(table.remove("key1"), value1Storeable);
+        assertEquals(table.put("key2", value1Storeable), value2Storeable);
+        assertEquals(table.commit(), 2);
+        int sizeAfter = table.size();
         assertEquals(2, sizeAfter - sizeBefore);
     }
 
     @Test
     public void testRollback() throws Exception {
-        String value1 = "[5,\"value1\"]";
-        Storeable value1Storeable = tableProvider.deserialize(currTable, value1);
-        Assert.assertEquals(tableProvider.serialize(currTable, value1Storeable), value1);
-        String value2 = "[7,\"value2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(currTable, value2);
-        Assert.assertEquals(tableProvider.serialize(currTable, value2Storeable), value2);
-        String value3 = "[7,\"value3\"]";
-        Storeable value3Storeable = tableProvider.deserialize(currTable, value3);
-        Assert.assertEquals(tableProvider.serialize(currTable, value3Storeable), value3);
-        Storeable valueStoreable = tableProvider.deserialize(currTable, value);
-        Assert.assertEquals(tableProvider.serialize(currTable, valueStoreable), value);
-        String newValue = "[1,\"newValue\"]";
-        Storeable newValueStoreable = tableProvider.deserialize(currTable, newValue);
-        Assert.assertEquals(tableProvider.serialize(currTable, newValueStoreable), newValue);
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
+        String value1 = "[5,\"value1\",null]";
+        Storeable value1Storeable = tableProvider.deserialize(table, value1);
+        Assert.assertEquals(tableProvider.serialize(table, value1Storeable), value1);
+        String value2 = "[7,null,\"val2\"]";
+        Storeable value2Storeable = tableProvider.deserialize(table, value2);
+        Assert.assertEquals(tableProvider.serialize(table, value2Storeable), value2);
+        String value3 = "[7,\"value3\",null]";
+        Storeable value3Storeable = tableProvider.deserialize(table, value3);
+        Assert.assertEquals(tableProvider.serialize(table, value3Storeable), value3);
+        String value4 = "[1,\"value4\",\"val4\"]";
+        Storeable valueStoreable = tableProvider.deserialize(table, value4);
+        Assert.assertEquals(tableProvider.serialize(table, valueStoreable), value4);
+        String newValue = "[1,\"value\",\"newValue\"]";
+        Storeable newValueStoreable = tableProvider.deserialize(table, newValue);
+        Assert.assertEquals(tableProvider.serialize(table, newValueStoreable), newValue);
 
-        assertNull(currTable.put("key1", value1Storeable));
-        assertNull(currTable.put("key2", value2Storeable));
-        assertEquals(currTable.remove("key2"), value2Storeable);
-        assertNull(currTable.put("key3", value3Storeable));
+        assertNull(table.put("key1", value1Storeable));
+        assertNull(table.put("key2", value2Storeable));
+        assertEquals(table.remove("key2"), value2Storeable);
+        assertNull(table.put("key3", value3Storeable));
 
-        assertEquals(currTable.commit(), 2);
+        assertEquals(table.commit(), 2);
 
-        assertEquals(currTable.remove("key1"), value1Storeable);
-        assertNull(currTable.put("key4", valueStoreable));
-        assertEquals(currTable.put("key3", newValueStoreable), value3Storeable);
-        assertEquals(currTable.remove("key4"), valueStoreable);
-        assertNull(currTable.get("key1"));
+        assertEquals(table.remove("key1"), value1Storeable);
+        assertNull(table.put("key4", valueStoreable));
+        assertEquals(table.put("key3", newValueStoreable), value3Storeable);
+        assertEquals(table.remove("key4"), valueStoreable);
+        assertNull(table.get("key1"));
 
-        assertEquals(currTable.rollback(), 2);
-        assertNotNull(currTable.get("key1"));
+        assertEquals(table.rollback(), 2);
+        assertNotNull(table.get("key1"));
 
-        assertEquals(tableProvider.serialize(currTable, currTable.remove("key1")), value1);
-        assertNull(currTable.put("key1", value1Storeable));
-        assertEquals(currTable.rollback(), 0);
+        assertEquals(tableProvider.serialize(table, table.remove("key1")), value1);
+        assertNull(table.put("key1", value1Storeable));
+        assertEquals(table.rollback(), 0);
     }
 
     @Test
     public void testSize() throws Exception {
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
         String value1 = "[5,\"value1\"]";
-        Storeable value1Storeable = tableProvider.deserialize(currTable, value1);
-        Assert.assertEquals(tableProvider.serialize(currTable, value1Storeable), value1);
+        Storeable value1Storeable = tableProvider.deserialize(table, value1);
+        Assert.assertEquals(tableProvider.serialize(table, value1Storeable), value1);
         String value2 = "[7,\"value2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(currTable, value2);
-        Assert.assertEquals(tableProvider.serialize(currTable, value2Storeable), value2);
+        Storeable value2Storeable = tableProvider.deserialize(table, value2);
+        Assert.assertEquals(tableProvider.serialize(table, value2Storeable), value2);
         String value3 = "[7,\"value3\"]";
-        Storeable value3Storeable = tableProvider.deserialize(currTable, value3);
-        Assert.assertEquals(tableProvider.serialize(currTable, value3Storeable), value3);
-        Storeable valueStoreable = tableProvider.deserialize(currTable, value);
-        Assert.assertEquals(tableProvider.serialize(currTable, valueStoreable), value);
+        Storeable value3Storeable = tableProvider.deserialize(table, value3);
+        Assert.assertEquals(tableProvider.serialize(table, value3Storeable), value3);
+        String value4 = "[8752,\"value4\"]";
+        Storeable valueStoreable = tableProvider.deserialize(table, value4);
+        Assert.assertEquals(tableProvider.serialize(table, valueStoreable), value4);
         String newValue = "[1,\"newValue\"]";
-        Storeable newValueStoreable = tableProvider.deserialize(currTable, newValue);
-        Assert.assertEquals(tableProvider.serialize(currTable, newValueStoreable), newValue);
+        Storeable newValueStoreable = tableProvider.deserialize(table, newValue);
+        Assert.assertEquals(tableProvider.serialize(table, newValueStoreable), newValue);
 
-        assertNull(currTable.put("key1", value1Storeable));
-        assertEquals(currTable.put("key1", value1Storeable), value1Storeable);
-        assertNull(currTable.put("key2", value2Storeable));
-        assertEquals(currTable.put("key2", value2Storeable), value2Storeable);
-        assertNull(currTable.put("key3", value3Storeable));
-        assertEquals(currTable.put("key3", value3Storeable), value3Storeable);
-        assertEquals(currTable.commit(), 3);
-        assertEquals(currTable.remove("key1"), value1Storeable);
-        assertNull(currTable.put("key4", valueStoreable));
-        assertEquals(currTable.put("key2", valueStoreable), value2Storeable);
-        assertEquals(currTable.remove("key4"), valueStoreable);
-        assertEquals(currTable.size(), 2);
+        assertNull(table.put("key1", value1Storeable));
+        assertEquals(table.put("key1", value1Storeable), value1Storeable);
+        assertNull(table.put("key2", value2Storeable));
+        assertEquals(table.put("key2", value2Storeable), value2Storeable);
+        assertNull(table.put("key3", value3Storeable));
+        assertEquals(table.put("key3", value3Storeable), value3Storeable);
+        assertEquals(table.commit(), 3);
+
+        assertEquals(table.remove("key1"), value1Storeable);
+        assertNull(table.put("key4", valueStoreable));
+        assertEquals(table.put("key2", valueStoreable), value2Storeable);
+        assertEquals(table.remove("key4"), valueStoreable);
+        assertEquals(table.size(), 2);
     }
 
     @Test
     public void testCommitRollback() throws ParseException, IOException {
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        Table table = tableProvider.createTable("table", classList);
+
         String rollbackVal = "[7,\"rollback\"]";
-        Storeable rollback = tableProvider.deserialize(currTable, rollbackVal);
+        Storeable rollback = tableProvider.deserialize(table, rollbackVal);
         String rollbackVal1 = "[7,\"rollback1\"]";
-        Storeable rollback1 = tableProvider.deserialize(currTable, rollbackVal1);
-        Assert.assertNull(currTable.put("commit", rollback));
-        Assert.assertEquals(currTable.get("commit"), rollback);
-        Assert.assertEquals(currTable.rollback(), 1);
-        Assert.assertNull(currTable.get("commit"));
-        Assert.assertNull(currTable.put("commit", rollback));
-        Assert.assertEquals(currTable.get("commit"), rollback);
-        Assert.assertEquals(currTable.commit(), 1);
-        Assert.assertEquals(currTable.remove("commit"), rollback);
-        Assert.assertNull(currTable.put("commit", rollback1));
-        Assert.assertEquals(currTable.commit(), 1);
-        Assert.assertEquals(currTable.get("commit"), rollback1);
+        Storeable rollback1 = tableProvider.deserialize(table, rollbackVal1);
+
+        Assert.assertNull(table.put("commit", rollback));
+        Assert.assertEquals(table.get("commit"), rollback);
+        Assert.assertEquals(table.rollback(), 1);
+
+        Assert.assertNull(table.get("commit"));
+        Assert.assertNull(table.put("commit", rollback));
+        Assert.assertEquals(table.get("commit"), rollback);
+        Assert.assertEquals(table.commit(), 1);
+
+        Assert.assertEquals(table.remove("commit"), rollback);
+        Assert.assertNull(table.put("commit", rollback1));
+
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertEquals(table.get("commit"), rollback1);
     }
 }
