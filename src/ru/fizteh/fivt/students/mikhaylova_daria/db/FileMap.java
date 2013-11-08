@@ -38,11 +38,6 @@ public class FileMap {
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
-//        try {
-//            table.manager.serialize(table, value);
-//        } catch (Exception e) {
-//            throw new ColumnFormatException("Wrong typelist of value", e);
-//        }
         if (!isLoaded) {
             try {
                 readerFile(table);
@@ -344,7 +339,7 @@ public class FileMap {
                 throw new IllegalArgumentException("Reading error", e);
             }
         }
-        return fileMap.size();
+        return fileMapInitial.size();
     }
 
 }
