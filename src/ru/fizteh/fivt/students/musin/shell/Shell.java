@@ -89,7 +89,7 @@ public class Shell {
     public int run(BufferedReader br) {
         exit = false;
         while (!exit) {
-            System.out.print("$ ");
+            System.out.print(" $ ");
             try {
                 String str = br.readLine();
                 if (str == null) {
