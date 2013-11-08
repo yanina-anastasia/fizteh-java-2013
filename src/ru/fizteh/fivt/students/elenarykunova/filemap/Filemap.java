@@ -27,7 +27,7 @@ public class Filemap implements Table {
     public HashMap<String, Storeable> getHashMap() {
         return updatedMap;
     }
-    
+
     public MyTableProvider getProvider() {
         return provider;
     }
@@ -44,9 +44,10 @@ public class Filemap implements Table {
 
         if (!data[ndir][nfile].hasFile()) {
             try {
-                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);  
+                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
             } catch (ParseException e) {
-                throw new RuntimeException("wrong type (" + e.getMessage() + ")", e);
+                throw new RuntimeException("wrong type (" + e.getMessage()
+                        + ")", e);
             }
         }
         return ndir * 16 + nfile;
@@ -61,7 +62,8 @@ public class Filemap implements Table {
     }
 
     public boolean isCorrectKey(String key) {
-        return (!provider.hasBadSymbols(key) && !key.contains("[") && !key.contains("]"));
+        return (!provider.hasBadSymbols(key) && !key.contains("[") && !key
+                .contains("]"));
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
@@ -75,17 +77,22 @@ public class Filemap implements Table {
         return res;
     }
 
-    public void checkValue(Storeable value) throws ColumnFormatException, IllegalArgumentException {
-                
+    public void checkValue(Storeable value) throws ColumnFormatException,
+            IllegalArgumentException {
+
         for (int i = 0; i < types.size(); i++) {
             try {
                 if (value.getColumnAt(i) != null) {
                     if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
-                        throw new ColumnFormatException("types mismatch");
+                        throw new ColumnFormatException(
+                                "types mismatch: expected " + types.get(i)
+                                        + " but was "
+                                        + value.getColumnAt(i).getClass());
                     } else if (types.get(i).equals(String.class)) {
                         String strValue = value.getStringAt(i);
                         if (strValue.isEmpty() || strValue.trim().isEmpty()) {
-                            throw new IllegalArgumentException("value: empty string");
+                            throw new IllegalArgumentException(
+                                    "value: empty string");
                         }
                     }
                 }
@@ -97,12 +104,12 @@ public class Filemap implements Table {
             value.getColumnAt(types.size());
             throw new ColumnFormatException("number of columns mismatch");
         } catch (IndexOutOfBoundsException e) {
-            //ok!
+            // ok!
         }
     }
-    
+
     public Storeable put(String key, Storeable value)
-           throws IllegalArgumentException, ColumnFormatException {
+            throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("put: key is empty");
         }
@@ -117,7 +124,7 @@ public class Filemap implements Table {
         } catch (ColumnFormatException e1) {
             throw new ColumnFormatException("put: " + e1.getMessage(), e1);
         } catch (IllegalArgumentException e2) {
-            throw new IllegalArgumentException("put: " + e2.getMessage(), e2);            
+            throw new IllegalArgumentException("put: " + e2.getMessage(), e2);
         }
         Storeable res = updatedMap.put(key, value);
         return res;
@@ -160,7 +167,7 @@ public class Filemap implements Table {
             nfile = k % 16;
 
             val = data[ndir][nfile].get(key);
-             
+
             if (myEntry.getValue() == null) {
                 if (data[ndir][nfile].remove(key) != null) {
                     nchanges++;
@@ -244,7 +251,8 @@ public class Filemap implements Table {
                 try {
                     data[i][j] = new DataBase(this, i, j, false);
                 } catch (ParseException e) {
-                    throw new RuntimeException("wrong type (load " + e.getMessage() + ")", e);
+                    throw new RuntimeException("wrong type (load "
+                            + e.getMessage() + ")", e);
                 }
             }
         }
@@ -292,7 +300,7 @@ public class Filemap implements Table {
                     while (sc.hasNext()) {
                         String type = sc.next();
                         types.add(getTypeFromString(type));
-                    } 
+                    }
                 } finally {
                     sc.close();
                 }

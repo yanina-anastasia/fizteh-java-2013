@@ -299,13 +299,17 @@ public class MyTableProvider implements TableProvider {
         }
         ArrayList<Object> values = new ArrayList<Object>();
         for (int i = 0; i < json.length(); i++) {
-            Object resCast = checkClasses(json.get(i), table.getColumnType(i));
-            if (json.isNull(i) && !resCast.getClass().equals(table.getColumnType(i))) {
-                throw new ParseException(
-                        "deserialize: types mismatch " + json.get(i).getClass()
-                                + " " + table.getColumnType(i), i);
+            if (!json.get(i).getClass().equals(JSONObject.NULL)) {
+                Object resCast = checkClasses(json.get(i), table.getColumnType(i));
+                if (!resCast.getClass().equals(table.getColumnType(i))) {
+                    throw new ParseException(
+                            "deserialize: types mismatch " + json.get(i).getClass()
+                                    + " " + table.getColumnType(i), i);
+                }
+                values.add(resCast);
+            } else {
+                values.add(null);
             }
-            values.add(resCast);
         }
         return createFor(table, values);
     }
