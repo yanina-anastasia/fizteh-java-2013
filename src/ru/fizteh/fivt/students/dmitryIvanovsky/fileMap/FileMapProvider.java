@@ -45,14 +45,14 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     boolean out;
     Map<String, FileMap> mapFileMap;
 
-    final HashSet alloyType = new HashSet(){ {
-        add("java.lang.String");
-        add("java.lang.Boolean");
-        add("java.lang.Double");
-        add("java.lang.Float");
-        add("java.lang.Byte");
-        add("java.lang.Long");
-        add("java.lang.Integer");
+    final HashSet allowType = new HashSet(){ {
+        add(String.class);
+        add(Boolean.class);
+        add(Double.class);
+        add(Float.class);
+        add(Byte.class);
+        add(Long.class);
+        add(Integer.class);
     }};
 
     public Map<String, Object[]> mapComamnd() {
@@ -300,7 +300,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             throw new IllegalArgumentException("columnType can't be empty");
         }
         for (Class<?> col : columnType) {
-            if (col == null || !alloyType.contains(col.getName())) {
+            if (col == null || !allowType.contains(col)) {
                 throw new IllegalArgumentException("name is clear");
             }
         }

@@ -70,50 +70,55 @@ public class FileMapUtils {
     }
 
     public static String getStringFromElement(Storeable storeable, int columnIndex, Class<?> columnType) {
-        switch (columnType.getName()) {
-            case "java.lang.Integer":
-                return Integer.toString(storeable.getIntAt(columnIndex));
-            case "java.lang.Long":
-                return Long.toString(storeable.getLongAt(columnIndex));
-            case "java.lang.Byte":
-                return Byte.toString(storeable.getByteAt(columnIndex));
-            case "java.lang.Float":
-                return Float.toString(storeable.getFloatAt(columnIndex));
-            case "java.lang.Double":
-                return Double.toString(storeable.getDoubleAt(columnIndex));
-            case "java.lang.Boolean":
-                return Boolean.toString(storeable.getBooleanAt(columnIndex));
-            case "java.lang.String":
-                return storeable.getStringAt(columnIndex);
-            default:
-                throw new ColumnFormatException("wrong column format");
+        if (columnType == Integer.class) {
+            return Integer.toString(storeable.getIntAt(columnIndex));
         }
+        if (columnType == Long.class) {
+            return Long.toString(storeable.getLongAt(columnIndex));
+        }
+        if (columnType == Byte.class) {
+            return Byte.toString(storeable.getByteAt(columnIndex));
+        }
+        if (columnType == Float.class) {
+            return Float.toString(storeable.getFloatAt(columnIndex));
+        }
+        if (columnType == Double.class) {
+            return Double.toString(storeable.getDoubleAt(columnIndex));
+        }
+        if (columnType == Boolean.class) {
+            return Boolean.toString(storeable.getBooleanAt(columnIndex));
+        }
+        if (columnType == String.class) {
+            return storeable.getStringAt(columnIndex);
+        }
+        throw new ColumnFormatException("wrong column format");
     }
 
     public static Object parseValue(String s, Class<?> classType) {
-        try {
-            switch (classType.getName()) {
-                case "java.lang.Integer":
-                    return Integer.parseInt(s);
-                case "java.lang.Long":
-                    return Long.parseLong(s);
-                case "java.lang.Byte":
-                    return Byte.parseByte(s);
-                case "java.lang.Float":
-                    return Float.parseFloat(s);
-                case "java.lang.Double":
-                    return Double.parseDouble(s);
-                case "java.lang.Boolean":
-                    return Boolean.parseBoolean(s);
-                case "java.lang.String":
-                    return s;
-                default:
-                    throw new ColumnFormatException("wrong column format");
-            }
-        } catch (NumberFormatException e) {
-            throw new ColumnFormatException("column format error");
+        if (classType == Integer.class) {
+            return Integer.parseInt(s);
         }
+        if (classType == Long.class) {
+            return Long.parseLong(s);
+        }
+        if (classType == Byte.class) {
+            return Byte.parseByte(s);
+        }
+        if (classType == Float.class) {
+            return Float.parseFloat(s);
+        }
+        if (classType == Double.class) {
+            return Double.parseDouble(s);
+        }
+        if (classType == Boolean.class) {
+            return Boolean.parseBoolean(s);
+        }
+        if (classType == String.class) {
+            return s;
+        }
+        throw new ColumnFormatException("wrong column format");
     }
+
     static int getCode(String s) {
         if (s.charAt(1) == '.') {
             return Integer.parseInt(s.substring(0, 1));

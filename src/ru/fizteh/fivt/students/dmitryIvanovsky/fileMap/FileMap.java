@@ -252,10 +252,7 @@ public class FileMap implements Table {
                     if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
                         throw new ErrorFileMap("wrong key in the file");
                     }
-
-
                     dbMap.put(key, parent.deserialize(this, value));
-
                     vectorByte.clear();
                     dbFile.seek(currentPoint);
                 } else {
@@ -406,31 +403,28 @@ public class FileMap implements Table {
 
             while (true) {
                 try {
-                    switch (columnType.get(index).getName()) {
-                        case "java.lang.Integer":
-                            value.getIntAt(index);
-                            break;
-                        case "java.lang.Long":
-                            value.getLongAt(index);
-                            break;
-                        case "java.lang.Byte":
-                            value.getByteAt(index);
-                            break;
-                        case "java.lang.Float":
-                            value.getFloatAt(index);
-                            break;
-                        case "java.lang.Double":
-                            value.getDoubleAt(index);
-                            break;
-                        case "java.lang.Boolean":
-                            value.getBooleanAt(index);
-                            break;
-                        case "java.lang.String":
-                            value.getStringAt(index);
-                            break;
-                        default:
-
+                    if (columnType.get(index) == Integer.class) {
+                        value.getIntAt(index);
                     }
+                    if (columnType.get(index) == Long.class) {
+                        value.getLongAt(index);
+                    }
+                    if (columnType.get(index) == Byte.class) {
+                        value.getByteAt(index);
+                    }
+                    if (columnType.get(index) == Float.class) {
+                        value.getFloatAt(index);
+                    }
+                    if (columnType.get(index) == Double.class) {
+                        value.getDoubleAt(index);
+                    }
+                    if (columnType.get(index) == Boolean.class) {
+                        value.getBooleanAt(index);
+                    }
+                    if (columnType.get(index) == String.class) {
+                        value.getStringAt(index);
+                    }
+
                     ++index;
                 } catch (IndexOutOfBoundsException err) {
                     if (index != columnType.size()) {
