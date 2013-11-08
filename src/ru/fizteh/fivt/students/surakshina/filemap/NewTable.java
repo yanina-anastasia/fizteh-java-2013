@@ -59,12 +59,9 @@ public class NewTable implements Table {
     }
 
     private void checkName(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("wrong type (key or value is null)");
-        }
-        name = name.trim();
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("wrong type (Key or value is null)");
+        if (name == null || name.trim().isEmpty() || name.contains(" ") || name.contains("\t")
+                || name.contains(System.lineSeparator()) || name.contains("[") || name.contains("]")) {
+            throw new IllegalArgumentException("wrong type (incorrect key)");
         }
     }
 
@@ -202,6 +199,7 @@ public class NewTable implements Table {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkName(key);
+        checkStoreable(value);
         if (value == null) {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
@@ -214,6 +212,26 @@ public class NewTable implements Table {
             result = null;
         }
         return result;
+    }
+
+    private void checkStoreable(Storeable value) {
+        int i = 0;
+        try {
+            for (i = 0; i < types.size(); ++i) {
+                if (!value.getColumnAt(i).equals(types.get(i))) {
+                    throw new ColumnFormatException("Storeable invalid");
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("Storeable invalid");
+        }
+        try {
+            value.getColumnAt(i);
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
+        throw new ColumnFormatException("Storeable invalid");
+
     }
 
     @Override

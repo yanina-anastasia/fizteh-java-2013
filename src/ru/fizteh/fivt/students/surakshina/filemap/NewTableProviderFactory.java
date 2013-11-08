@@ -16,12 +16,13 @@ public class NewTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("No directory");
         }
         File directory = new File(path);
-        if (!directory.isDirectory()) {
-            throw new IllegalArgumentException("Not a directory");
-        }
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
                 throw new IOException("Can't create a directory");
+            }
+        } else {
+            if (!directory.isDirectory()) {
+                throw new IllegalArgumentException("Not a directory");
             }
         }
         return new NewTableProvider(directory);

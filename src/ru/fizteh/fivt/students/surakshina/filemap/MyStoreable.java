@@ -23,13 +23,12 @@ public class MyStoreable implements Storeable {
             this.values.add(null);
         }
     }
-    
+
     @Override
     public int hashCode() {
         return this.hashCode();
     }
-    
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this != null && obj == null) {
@@ -46,6 +45,7 @@ public class MyStoreable implements Storeable {
         }
         return true;
     }
+
     public MyStoreable(Table table, List<?> values2) {
         int size = values.size();
         if (size != table.getColumnsCount()) {
@@ -61,7 +61,6 @@ public class MyStoreable implements Storeable {
             values.add(values2.get(i));
         }
     }
-
 
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
