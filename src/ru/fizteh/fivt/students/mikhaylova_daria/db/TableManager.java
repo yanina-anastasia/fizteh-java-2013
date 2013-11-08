@@ -228,11 +228,11 @@ public class TableManager implements TableProvider {
         }
         int i = 0;
         String xmlString;
-//        try {       //проверяем, что в передаваемом storeable столбцов не больше, чем в сигнатуре таблицы
-//            value.getColumnAt(table.getColumnsCount());
-//            throw new ColumnFormatException("Wrong number of columns in value");
-//        } catch (IndexOutOfBoundsException e) {
-//        }
+        try {       //проверяем, что в передаваемом storeable столбцов не больше, чем в сигнатуре таблицы
+            value.getColumnAt(table.getColumnsCount());
+            throw new ColumnFormatException("Wrong number of columns in value");
+        } catch (IndexOutOfBoundsException e) {
+        }
         try {
             String valueStr = null;
             DocumentBuilderFactory factoryDoc = DocumentBuilderFactory.newInstance();
