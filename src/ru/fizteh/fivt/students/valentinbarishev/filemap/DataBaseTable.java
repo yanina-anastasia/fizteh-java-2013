@@ -39,6 +39,10 @@ public final class DataBaseTable implements TableProvider {
         checkName(tableName);
         String fullPath = tableDir + File.separator + tableName;
 
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Invalid column types: null!");
+        }
+
         File file = new File(fullPath);
 
         if (file.exists()) {
