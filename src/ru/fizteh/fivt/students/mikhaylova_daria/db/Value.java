@@ -48,6 +48,9 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is"
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
+        if (value.get(columnIndex) == null) {
+            return null;
+        }
         return (Integer) value.get(columnIndex);
     }
 
@@ -60,6 +63,9 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
+        if (value.get(columnIndex) == null) {
+            return null;
+        }
         return (long) value.get(columnIndex);
     }
 
@@ -70,6 +76,9 @@ public class Value implements Storeable {
         if (!table.getColumnType(columnIndex).equals(Byte.class)) {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
+        }
+        if (value.get(columnIndex) == null) {
+            return null;
         }
         return (Byte) value.get(columnIndex);
     }
@@ -82,6 +91,9 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type og this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
+        if (value.get(columnIndex) == null) {
+            return null;
+        }
         return (Float) value.get(columnIndex);
     }
 
@@ -92,6 +104,9 @@ public class Value implements Storeable {
         if (!table.getColumnType(columnIndex).equals(Double.class)) {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
+        }
+        if (value.get(columnIndex) == null) {
+            return null;
         }
         return (Double) value.get(columnIndex);
     }
@@ -104,6 +119,9 @@ public class Value implements Storeable {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
+        if (value.get(columnIndex) == null) {
+            return null;
+        }
         return (Boolean) value.get(columnIndex);
     }
 
@@ -114,6 +132,9 @@ public class Value implements Storeable {
         if (!table.getColumnType(columnIndex).equals(String.class)) {
             throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
+        }
+        if (value.get(columnIndex) == null) {
+            return null;
         }
         return (String) value.get(columnIndex);
     }
