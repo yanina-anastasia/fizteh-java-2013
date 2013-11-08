@@ -13,7 +13,7 @@ public class MyTableTester {
 
     @Before
     public void init() {
-        table = new MyTableProvider.createTable("Tested Table");
+        table = MyTableProvider.createTable("Tested Table");
     }
 
     @Test
