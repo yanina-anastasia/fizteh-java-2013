@@ -122,7 +122,10 @@ public class CommandLauncher {
         Scanner sc = new Scanner(System.in);
         while (true) {
             try {
-                System.out.print(exampleClass.startShellString());
+                System.out.flush();
+                //System.out.print("\n");
+                System.out.println(exampleClass.startShellString());
+                System.out.flush();
             } catch (Exception e) {
                 //e.printStackTrace();
                 errPrint("Неправильный путь");
@@ -180,12 +183,14 @@ public class CommandLauncher {
     private void errPrint(String message) {
         if (err) {
             System.err.println(message);
+            System.err.flush();
         }
     }
 
     private void outPrint(String message) {
         if (out) {
             System.out.println(message);
+            System.out.flush();
         }
     }
 

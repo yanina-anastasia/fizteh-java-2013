@@ -124,7 +124,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public String startShellString() {
-        return " $ ";
+        return "$ ";
     }
 
     public void multiPut(String[] args) throws ParseException {
@@ -244,10 +244,10 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         for (int i = 2; i < countTokens; ++i) {
             String t = token.nextToken();
             if (i == 2 && t.trim().charAt(0) != '(') {
-                throw new IllegalArgumentException("wrong format");
+                throw new IllegalArgumentException("wrong type ( )");
             }
             if (i == countTokens - 1 && t.trim().charAt(t.trim().length() - 1) != ')') {
-                throw new IllegalArgumentException("wrong format");
+                throw new IllegalArgumentException("wrong type ( )");
             }
             if (t.charAt(0) == '(') {
                 t = t.substring(1);
@@ -275,7 +275,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         for (int i = 2; i < argsParse.size(); ++i) {
             Class<?> type = convertStringToClass(argsParse.get(i));
             if (type == null) {
-                throw new IllegalArgumentException(String.format("error in type %s", argsParse.get(i)));
+                throw new IllegalArgumentException(String.format("wrong type (%s)", argsParse.get(i)));
             }
             colType.add(type);
         }
@@ -297,7 +297,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             throw new RuntimeException("bad symbol in name");
         }
         if (columnType == null || columnType.size() == 0) {
-            throw new IllegalArgumentException("columnType can't be empty");
+            throw new IllegalArgumentException("wrong type ( )");
         }
         for (Class<?> col : columnType) {
             if (col == null || !allowType.contains(col)) {
@@ -307,16 +307,17 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (setDirTable.contains(name)) {
             return null;
         } else {
-            setDirTable.add(name);
             try {
                 FileMap fileMap = new FileMap(pathDb, name, this, columnType);
                 mapFileMap.put(name, fileMap);
+                setDirTable.add(name);
                 return fileMap;
             } catch (Exception e) {
                 RuntimeException error = new RuntimeException();
                 error.addSuppressed(e);
                 throw error;
             }
+
         }
     }
 

