@@ -92,7 +92,9 @@ public class FileMapTableProvider extends State implements TableProvider {
         }
         multiFileHashMapDir = new File(dbDir);
         if (!multiFileHashMapDir.exists()) {
-            throw new IllegalArgumentException(dbDir + " not exists");
+            if (!multiFileHashMapDir.mkdirs()) {
+                throw new IOException("Can't create directory");
+            }
         }
         if (!multiFileHashMapDir.isDirectory()) {
             throw new IllegalArgumentException(dbDir + " is not directory");
