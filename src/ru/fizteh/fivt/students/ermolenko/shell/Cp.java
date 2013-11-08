@@ -8,10 +8,12 @@ import java.nio.file.Path;
 public class Cp implements Command<ShellState> {
 
     public String getName() {
+
         return "cp";
     }
 
     private void copy(Path source, Path target) throws IOException {
+
         target = target.resolve(source.getFileName());
         if (source.toFile().isFile()) {
             Files.copy(source, target);
@@ -25,6 +27,7 @@ public class Cp implements Command<ShellState> {
     }
 
     public void executeCmd(ShellState inState, String[] args) throws IOException {
+
         if (2 == args.length) {
             Path source = inState.getPath().resolve(args[0]).normalize();
             Path target = inState.getPath().resolve(args[1]).normalize();

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 import ru.fizteh.fivt.students.ermolenko.shell.Executor;
 
-public class MultiFileHashMapExecutor extends Executor {
+public class MultiFileHashMapExecutor extends Executor<MultiFileHashMapState> {
 
     public MultiFileHashMapExecutor() {
 
@@ -19,6 +19,14 @@ public class MultiFileHashMapExecutor extends Executor {
         mapOfCmd.put(drop.getName(), drop);
         Command use = new CmdUse();
         mapOfCmd.put(use.getName(), use);
+
+        Command commit = new CmdCommit();
+        mapOfCmd.put(commit.getName(), commit);
+        Command rollback = new CmdRollback();
+        mapOfCmd.put(rollback.getName(), rollback);
+        Command size = new CmdSize();
+        mapOfCmd.put(size.getName(), size);
+
         Command exit = new MultiFileHashMapExit();
         mapOfCmd.put(exit.getName(), exit);
         Command get = new MultiFileHashMapGet();

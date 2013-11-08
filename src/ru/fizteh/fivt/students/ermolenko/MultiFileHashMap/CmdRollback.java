@@ -4,20 +4,17 @@ import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.IOException;
 
-public class MultiFileHashMapExit implements Command<MultiFileHashMapState> {
+public class CmdRollback implements Command<MultiFileHashMapState> {
 
     @Override
     public String getName() {
 
-        return "exit";
+        return "rollback";
     }
 
     @Override
     public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
 
-        if (inState.getCurrentTable() != null) {
-            inState.getCurrentTable().commit();
-        }
-        System.exit(0);
+        System.out.println(inState.getCurrentTable().rollback());
     }
 }
