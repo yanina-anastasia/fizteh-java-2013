@@ -9,7 +9,7 @@ import java.io.IOException;
 public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
-    public TableProvider create(String dir) {
+    public TableProvider create(String dir) throws IOException {
         if (dir == null) {
             throw new IllegalArgumentException("Dir cannot be null");
         }
