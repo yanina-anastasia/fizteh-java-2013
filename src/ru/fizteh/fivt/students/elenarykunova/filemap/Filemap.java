@@ -75,24 +75,29 @@ public class Filemap implements Table {
         return res;
     }
 
-    public void checkValue(Storeable value) throws ColumnFormatException {
-        int k = 0;
-        while (k < types.size() + 1) {
-            try {
-                value.getColumnAt(k);
-            } catch (IndexOutOfBoundsException e) {
-                if (k != types.size()) {
-                    throw new ColumnFormatException("number of columns mismatch");
-                }
-                break;
-            }
-            k++;
-        }
-        
+    public void checkValue(Storeable value) throws ColumnFormatException, IllegalArgumentException {
+                
         for (int i = 0; i < types.size(); i++) {
-            if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
-                throw new ColumnFormatException("types mismatch");
+            try {
+                if (value.getColumnAt(i) != null) {
+                    if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
+                        throw new ColumnFormatException("types mismatch");
+                    } else if (types.get(i).equals(String.class)) {
+                        String strValue = value.getStringAt(i);
+                        if (strValue.isEmpty() || strValue.trim().isEmpty()) {
+                            throw new IllegalArgumentException("value: empty string");
+                        }
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("number of columns mismatch");
             }
+        }
+        try {
+            value.getColumnAt(types.size());
+            throw new ColumnFormatException("number of columns mismatch");
+        } catch (IndexOutOfBoundsException e) {
+            //ok!
         }
     }
     
@@ -110,7 +115,9 @@ public class Filemap implements Table {
         try {
             checkValue(value);
         } catch (ColumnFormatException e1) {
-            throw new ColumnFormatException("put: ", e1);
+            throw new ColumnFormatException("put: " + e1.getMessage(), e1);
+        } catch (IllegalArgumentException e2) {
+            throw new IllegalArgumentException("put: " + e2.getMessage(), e2);            
         }
         Storeable res = updatedMap.put(key, value);
         return res;
