@@ -11,19 +11,18 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import java.text.ParseException;
-import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 @RunWith(Theories.class)
-public class TestTable extends FileManager {
+public class TestTable {
 
     DistributedTableProviderFactory factory;
     TableProvider provider;
     Table table;
     protected String validTableName = "default";
-    protected String validString = "<row><col> just simple valid key \n or \t value   </col></row>";
+    protected String validString = "<row><col>justSimpleValidKeyOrValue</col></row>";
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
