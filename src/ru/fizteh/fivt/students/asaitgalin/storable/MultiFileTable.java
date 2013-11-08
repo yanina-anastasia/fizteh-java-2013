@@ -121,7 +121,7 @@ public class MultiFileTable implements ExtendedTable {
                 st.getLongAt(index);
                 break;
             case "Byte":
-                st.getLongAt(index);
+                st.getByteAt(index);
                 break;
             case "Float":
                 st.getFloatAt(index);
