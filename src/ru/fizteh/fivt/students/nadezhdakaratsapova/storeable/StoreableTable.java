@@ -42,8 +42,8 @@ public class StoreableTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty()) || (value == null)) {
-            throw new IllegalArgumentException("Not correct k14-+ey or value");
+        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.contains(" "))) {
+            throw new IllegalArgumentException("Not correct key or value");
         }
         return dataTable.put(key, value);
     }
