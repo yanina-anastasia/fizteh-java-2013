@@ -95,7 +95,7 @@ public class TableManager implements TableProvider {
                         try {
                             TableData tableDat = new TableData(tables[i], this);
                             currentFileMap.readerFile(tableDat);
-                           // currentFileMap.setAside();
+                            currentFileMap.setAside();
                         } catch (DataFormatException e) {
                             throw new IllegalArgumentException(e.getMessage(), e);
                         } catch (ParseException e) {

@@ -102,11 +102,7 @@ public class FileMap {
     }
 
     private void writerFile(TableData table) throws Exception {
-        if (table == null) {
-            throw new IllegalArgumentException("Table is null");
-        }
         RandomAccessFile fileDataBase = null;
-        String stringValue;
         Exception e = new Exception("Writing error");
         try {
             fileDataBase = new RandomAccessFile(file, "rw");
@@ -125,17 +121,17 @@ public class FileMap {
 
             long currentPosition = 0;
             for (String key: fileMap.keySet()) {
-                stringValue = table.manager.serialize(table, fileMap.get(key));
-                fileDataBase.write(stringValue.getBytes("UTF8")); // выписали значение
+                String value = table.manager.serialize(table, fileMap.get(key));
+                fileDataBase.write(value.getBytes("UTF8"));
                 currentPosition  = fileDataBase.getFilePointer();
-                currentOffsetOfValue = currentPosition - stringValue.getBytes("UTF8").length;
+                currentOffsetOfValue = currentPosition - value.getBytes("UTF8").length;
                 fileDataBase.seek(offsets.get(key));
                 Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
                 fileDataBase.writeInt(lastOffsetInt);
                 fileDataBase.seek(currentPosition);
             }
         } catch (Exception exp) {
-             e = exp;
+            e = exp;
         } finally {
             try {
                 if (fileDataBase != null) {
@@ -343,7 +339,7 @@ public class FileMap {
                 throw new IllegalArgumentException("Reading error", e);
             }
         }
-        return fileMap.size();
+        return fileMapInitial.size();
     }
 
 }
