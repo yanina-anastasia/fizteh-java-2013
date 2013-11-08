@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -35,7 +34,7 @@ public class FileMapTableProvider extends State implements TableProvider {
     }
 
     private void isBadName(String val) {
-        if (val == null || val == JSONObject.NULL || val.trim().isEmpty()) {
+        if (val == null || val.trim().isEmpty()) {
             throw new IllegalArgumentException("tablename " + val + " is null");
         }
         if (val.contains("\\") || val.contains("/") || val.contains(">") || val.contains("<")
@@ -249,14 +248,13 @@ public class FileMapTableProvider extends State implements TableProvider {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (value == null || value == JSONObject.NULL) {
+        if (value == null) {
             return null;
         }
         Object[] values = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values[i] = value.getColumnAt(i);
-            if (values[i] != null && values[i] != JSONObject.NULL
-                    && !values[i].getClass().equals(table.getColumnType(i))) {
+            if (values[i] != null && !values[i].getClass().equals(table.getColumnType(i))) {
                 throw new ColumnFormatException("Wrong column format");
             }
         }
