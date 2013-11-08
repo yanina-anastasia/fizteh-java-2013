@@ -12,6 +12,10 @@ public class StoreableCommands implements Storeable{
     StoreableCommands(List<Class<?>> types) {
         this.types = new ArrayList(types);
         values = new ArrayList(types.size());
+        Object empty = new Object();
+        for (int i = 0; i < types.size(); ++i) {
+            values.add(empty);
+        }
     }
     
     StoreableCommands(List<Object> values, List<Class<?>> types) throws IndexOutOfBoundsException, ColumnFormatException {
@@ -29,7 +33,7 @@ public class StoreableCommands implements Storeable{
         this.types = new ArrayList(types);
     }
     
-    private void isCorrectIndex(int columnIndex) {
+    private void isCorrectIndex(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= values.size()) {
             throw new IndexOutOfBoundsException();
         }
@@ -38,6 +42,10 @@ public class StoreableCommands implements Storeable{
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (value == null) {
+            values.add(columnIndex, null);
+            return;
+        }
         Class type = types.get(columnIndex);
         Class valueClass = value.getClass();
         if (!type.getSimpleName().equals(valueClass.getSimpleName())) {
