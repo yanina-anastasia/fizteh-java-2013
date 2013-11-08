@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.kislenko.storeable;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -76,7 +77,12 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        JSONArray array = new JSONArray(value);
+        JSONArray array;
+        try {
+            array = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException("Very strange string in input.", -1);
+        }
         if (array.length() != table.getColumnsCount()) {
             throw new ParseException("Incorrect count of columns in input.", Math.min(array.length(), table.getColumnsCount()));
         }
