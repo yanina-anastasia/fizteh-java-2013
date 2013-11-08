@@ -23,12 +23,7 @@ public class Main {
             fileMap.addCommand(new PutCommand(state));
             fileMap.addCommand(new RemoveCommand(state));
             fileMap.addCommand(new ExitCommand(state));
-            FileReader fileReader = new FileReader(dataFile, state.dataStorage);
-            while (fileReader.checkingLoadingConditions()) {
-                fileReader.getNextKey();
-            }
-            fileReader.putKeysToTable();
-            fileReader.closeResources();
+            state.dataStorage.load();
             if (args.length == 0) {
                 fileMap.interactiveMode();
             } else {
