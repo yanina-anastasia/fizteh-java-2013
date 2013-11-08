@@ -59,7 +59,7 @@ public class DirDataBase {
     int countChanges() {
         int numberOfChanges = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfChanges += fileArray[i].numberOfChangesCounter(table);
+            numberOfChanges += fileArray[i].numberOfChangesCounter(this.table);
         }
         return numberOfChanges;
     }
@@ -67,7 +67,7 @@ public class DirDataBase {
     int size() {
         int numberOfKeys = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfKeys += fileArray[i].size(table);
+            numberOfKeys += fileArray[i].size(this.table);
         }
         return numberOfKeys;
     }
@@ -76,14 +76,14 @@ public class DirDataBase {
         int numberOfChanges = 0;
 
         for (int i = 0; i < 16; ++i) {
-            int changesInFile = fileArray[i].numberOfChangesCounter(table);
+            int changesInFile = fileArray[i].numberOfChangesCounter(this.table);
             if (changesInFile != 0) {
                 try {
                     startWorking();
                 } catch (Exception e) {
                     throw new IllegalArgumentException(e.getMessage(), e);
                 }
-                fileArray[i].commit(table);
+                fileArray[i].commit(this.table);
                 numberOfChanges += changesInFile;
             }
         }
@@ -93,7 +93,7 @@ public class DirDataBase {
     int rollback() {
         int numberOfChanges = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfChanges += fileArray[i].rollback(table);
+            numberOfChanges += fileArray[i].rollback(this.table);
         }
         return numberOfChanges;
     }

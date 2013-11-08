@@ -95,7 +95,7 @@ public class TableManager implements TableProvider {
                         try {
                             TableData tableDat = new TableData(tables[i], this);
                             currentFileMap.readerFile(tableDat);
-                            currentFileMap.setAside();
+                           // currentFileMap.setAside();
                         } catch (DataFormatException e) {
                             throw new IllegalArgumentException(e.getMessage(), e);
                         } catch (ParseException e) {
@@ -154,13 +154,6 @@ public class TableManager implements TableProvider {
         if (nameTable.contains("\\") || nameTable.contains("/")
                 || nameTable.contains("\n") || nameTable.contains(".")) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
-        }
-        try {
-            this.cleaner();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
