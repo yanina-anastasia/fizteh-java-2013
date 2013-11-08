@@ -70,7 +70,7 @@ public class DataBase {
                 try {
                     closeDataFile();
                 } catch (Throwable e5) {
-                    //
+                    System.err.println("can't close file " + filePath);
                 }
             }
         }
@@ -249,7 +249,7 @@ public class DataBase {
             try {
                 closeDataFile();
             } catch (Throwable e5) {
-                //
+                System.err.println("can't close file " + filePath);
             }
         }
     }
