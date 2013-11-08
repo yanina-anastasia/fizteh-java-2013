@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableUtils;
@@ -34,8 +35,11 @@ public class FileMap implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) {
-        if (!isValidKey(key) || !isValidValue(value)) {
-            throw new IllegalArgumentException();
+        if (!isValidKey(key)) {
+            throw new IllegalArgumentException("Illegal key");
+        }
+        if (!isValidValue(value)) {
+            throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
         }
         Storeable result = getDirtyValue(key);
         diff.put(key, new Diff(DiffType.ADD, value));
