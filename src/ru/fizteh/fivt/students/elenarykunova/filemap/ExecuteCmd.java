@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.text.ParseException;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 
@@ -69,6 +70,9 @@ public class ExecuteCmd extends Shell {
                 }
                 try {
                     ans = mp.put(arg[1], mtp.deserialize(mp, input.substring(input.indexOf("["))));
+                } catch (ColumnFormatException e2) {
+                    System.err.println("wrong type (" + e2.getMessage() + ")");
+                    return ExitCode.ERR;
                 } catch (IllegalArgumentException e) {
                     System.err.println(e.getMessage());
                     return ExitCode.ERR;

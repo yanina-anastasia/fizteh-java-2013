@@ -61,20 +61,16 @@ public class Filemap implements Table {
 
     public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
-            throw new IllegalArgumentException("key is empty");
+            throw new IllegalArgumentException("get: key is empty");
         }
         if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("key has whitespaces");
+            throw new IllegalArgumentException("get: key has bad symbols");
         }
         Storeable res = updatedMap.get(key);
         return res;
     }
 
-    public boolean isCorrectValue(Storeable value) throws ColumnFormatException {
-        if (value == null) {
-            return false;
-        }
-        
+    public void checkValue(Storeable value) throws ColumnFormatException {
         int k = 0;
         while (k < types.size() + 1) {
             try {
@@ -90,27 +86,26 @@ public class Filemap implements Table {
         
         for (int i = 0; i < types.size(); i++) {
             if (!types.get(i).equals(value.getColumnAt(i).getClass())) {
-                return false;
+                throw new ColumnFormatException("types mismatch");
             }
         }
-        return true;
     }
     
     public Storeable put(String key, Storeable value)
-            throws IllegalArgumentException, ColumnFormatException {
+           throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
-            throw new IllegalArgumentException("key is empty");
+            throw new IllegalArgumentException("put: key is empty");
         }
         if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("key has bad symbols");
+            throw new IllegalArgumentException("put: key has bad symbols");
         }
-        if (!isCorrectValue(value)) {
-            throw new IllegalArgumentException("value is empty");
+        if (value == null) {
+            throw new IllegalArgumentException("put: value is empty");
         }
-        for (int i = 0; i < getColumnsCount(); i++) {
-            if (!getColumnType(i).equals(value.getColumnAt(i).getClass())) {
-                throw new ColumnFormatException("put: types mismatch");
-            }
+        try {
+            checkValue(value);
+        } catch (ColumnFormatException e1) {
+            throw new ColumnFormatException("put: ", e1);
         }
         Storeable res = updatedMap.put(key, value);
         return res;
@@ -118,10 +113,10 @@ public class Filemap implements Table {
 
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
-            throw new IllegalArgumentException("key is empty");
+            throw new IllegalArgumentException("remove: key is empty");
         }
         if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("key has whitespaces");
+            throw new IllegalArgumentException("remove: key has bad symbols");
         }
         Storeable res = updatedMap.put(key, null);
         return res;
