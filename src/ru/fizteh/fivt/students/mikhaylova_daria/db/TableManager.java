@@ -155,6 +155,13 @@ public class TableManager implements TableProvider {
                 || nameTable.contains("\n") || nameTable.contains(".")) {
             throw new IllegalArgumentException("wrong type (Name of directory contains wrong characters)");
         }
+        try {
+            this.cleaner();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);

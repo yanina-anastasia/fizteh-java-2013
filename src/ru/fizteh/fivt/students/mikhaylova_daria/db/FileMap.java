@@ -203,7 +203,7 @@ public class FileMap {
             try {
                 int lastOffset = offset;
                 String lastKey;
-                while (dataBase.getFilePointer() <= firstOffset) {
+                while (dataBase.getFilePointer() < firstOffset) {
                     lastKey = key;
                     key = readKey(dataBase);
                     lastOffset = offset;
@@ -222,7 +222,7 @@ public class FileMap {
             while (dataBase.getFilePointer() < dataBase.length()) {
                 int currentOffset = (int) dataBase.getFilePointer();
                 if (!offsetAndKeyMap.containsKey(currentOffset)) {
-                    throw new DataFormatException("Illegal key in file3 " + file.toPath().toString());
+                    throw new DataFormatException("Illegal key in file " + file.toPath().toString());
                 } else {
                     key = offsetAndKeyMap.get(currentOffset);
                     lengthOfValue = keyAndValueLength.get(key);
@@ -240,7 +240,7 @@ public class FileMap {
             return;
         } catch (EOFException e2) {
             e = e2;
-            throw new DataFormatException(file.getName());
+            throw new DataFormatException(file.toString());
         } finally {
             if (dataBase != null) {
                 try {
