@@ -16,7 +16,7 @@ public class Main {
         String path = System.getProperty("fizteh.db.dir");
         if ((path == null) || (!(new File(path)).isDirectory())) {
             System.err.println("Choose a directory!");
-            System.exit(1);
+            return false;
         }
         return true;
     }
