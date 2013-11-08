@@ -32,21 +32,22 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
 
     public MyTable(String name, File rootDir, ExtendProvider provider, List<Class<?>> columnType) throws IOException {
         super(name, rootDir);
-        this.columnType = columnType;
+        this.columnType = new ArrayList<>();
+        this.columnType.addAll(columnType);
         this.provider = provider;
     }
 
     private List<Class<?>> readSignature() throws IOException {
         Scanner  sc;
         try {
-            sc = new Scanner(new File(tableDirectory, "signature.tsv"));                
+            sc = new Scanner(new File(tableDirectory, "signature.tsv"));
         } catch (FileNotFoundException e) {
             throw new IOException(getName() + ": signature file not found");
         }
-        
+
         
         List<Class<?>> columns = new ArrayList<>();
-        
+
         while (sc.hasNextLine()) {
             columns.add(Utils.detectClass(sc.nextLine()));
         }

@@ -58,11 +58,8 @@ public class StoreableState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        Storeable oldVal = workingTable.get(key);
-        if (oldVal == null) {
-            return null;
-        }
-        return provider.serialize(workingTable, oldVal);
+
+        return provider.serialize(workingTable, workingTable.get(key));
     }
 
     @Override
@@ -70,11 +67,8 @@ public class StoreableState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        Storeable oldVal = workingTable.remove(key);
-        if (oldVal == null) {
-            return null;
-        }
-        return provider.serialize(workingTable, oldVal);    
+
+        return provider.serialize(workingTable, workingTable.remove(key));
     }
 
     @Override
@@ -88,16 +82,11 @@ public class StoreableState extends State implements MultiDbState {
         } catch (ParseException e) {
             throw new IOException("wrong type \'" + value + "\' is not xml string");
         }
-        Storeable oldVal;
         try {
-            oldVal = workingTable.put(key, val);
-            if (oldVal == null) {
-                return null;
-            }
+            return provider.serialize(workingTable, workingTable.put(key, val));
         } catch (ColumnFormatException e) {
           throw new IOException("wrong type " + e.getMessage());
         }
-        return provider.serialize(workingTable, oldVal);
     }
     
     @Override

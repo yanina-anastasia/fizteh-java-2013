@@ -15,7 +15,8 @@ public class StoreableMain {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-        Shell.startShell(args, st);
+        int status = Shell.startShell(args, st);
+        System.exit(status);
     }
 
 }

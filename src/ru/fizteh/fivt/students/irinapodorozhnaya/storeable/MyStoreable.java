@@ -56,7 +56,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
         
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Integer.class)) {
+        if (value != null && !value.getClass().equals(Integer.class)) {
             throw new ColumnFormatException();
         }
         return (Integer) value;
@@ -67,7 +67,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Long.class)) {
+        if (value != null && !value.getClass().equals(Long.class)) {
             throw new ColumnFormatException();
         }
         return (Long) value;
@@ -78,7 +78,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Byte.class)) {
+        if (value != null && !value.getClass().equals(Byte.class)) {
             throw new ColumnFormatException();
         }
         return (Byte) value;
@@ -89,7 +89,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Float.class)) {
+        if (value != null && !value.getClass().equals(Float.class)) {
             throw new ColumnFormatException();
         }
         return (Float) value;
@@ -100,7 +100,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Double.class)) {
+        if (value != null && !value.getClass().equals(Double.class)) {
             throw new ColumnFormatException();
         }
         return (Double) value;
@@ -111,7 +111,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(Boolean.class)) {
+        if (value != null && !value.getClass().equals(Boolean.class)) {
             throw new ColumnFormatException();
         }
         return (Boolean) value;
@@ -122,7 +122,7 @@ public class MyStoreable implements Storeable, Serializable {
             IndexOutOfBoundsException {
 
         Object value = values.get(columnIndex);
-        if (!value.getClass().equals(String.class)) {
+        if (value != null && !value.getClass().equals(String.class)) {
             throw new ColumnFormatException();
         }
         return (String) value;

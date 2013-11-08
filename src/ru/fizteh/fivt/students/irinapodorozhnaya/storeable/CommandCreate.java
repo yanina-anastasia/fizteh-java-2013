@@ -35,21 +35,24 @@ public class CommandCreate extends AbstractCommand {
         if (args.length < 3) {
             throw new IOException("create: too few arguments");
         }
-        int last = args.length - 1;
-        if (!args[2].startsWith("(") || !args[last].endsWith(")")) {
+
+        String first = args[2];
+        String last = args[args.length - 1];
+
+        if (!first.startsWith("(") || !last.endsWith(")")) {
             throw new IOException("create: Input not matchs \"create tablename (type1 ... typeN)\"");
         }
         
         List<Class<?>> columnType = new ArrayList<>();
         
-        args[2] = (args[2].length() > 1) ? args[2].substring(1) : null; 
-        args[last] = (args[last].length() > 1) ? args[last].substring(0, args[last].length() - 1) : null;
-    
-        for (int i = 2; i < args.length; ++i) {
-            if (args[i] != null) {
-               columnType.add(Utils.detectClass(args[i]));
-            }
-        }    
+        first = (first.length() > 1) ? first.substring(1) : null;
+        last = (last.length() > 1) ? last.substring(0, last.length() - 1) : null;
+
+        columnType.add(Utils.detectClass(first));
+        for (int i = 3; i < args.length - 1; ++i) {
+            columnType.add(Utils.detectClass(args[i]));
+        }
+        columnType.add(Utils.detectClass(last));
         return columnType;
     }
 }

@@ -14,6 +14,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactory;
 
 public class StoreableTest {
 
@@ -31,9 +32,10 @@ public class StoreableTest {
         columnTypes.add(Double.class);
         columnTypes.add(Byte.class);
         columnTypes.add(Long.class);
-        
-        provider = new MyTableProvider(new File(DATA_BASE));    
-        
+
+        new File(DATA_BASE).mkdirs();
+        provider = new MyTableProviderFactory().create(DATA_BASE);
+
         s = new MyStoreable(provider.createTable("table", columnTypes));               
         s.setColumnAt(0, 1);
         s.setColumnAt(1, false);

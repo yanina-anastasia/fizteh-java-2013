@@ -50,6 +50,7 @@ public class TableProviderFactoryTest {
         File file = new File(curDir, "non-existing-file");
         factory.create(file.getName());
     }
+
     @Test
     public void testCreateLegal() throws Exception {
         Assert.assertNotNull(factory.create(DATA_BASE_DIR));

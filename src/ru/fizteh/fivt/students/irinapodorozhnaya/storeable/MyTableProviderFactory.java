@@ -7,9 +7,9 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 
 public class MyTableProviderFactory implements TableProviderFactory {
-    
-    public static final String LEGAL_NAME = "[^:*?\"<>|]+";
-    
+
+    public static final String LEGAL_NAME = "[а-яА-Яa-zA-Z0-9/:.\\\\]+";
+
     @Override
     public ExtendProvider create(String dataBaseDir) throws IOException {
         if (dataBaseDir == null || dataBaseDir.trim().isEmpty() || !dataBaseDir.matches(LEGAL_NAME)) {

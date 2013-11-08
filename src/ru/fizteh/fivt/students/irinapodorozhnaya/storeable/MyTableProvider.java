@@ -25,7 +25,7 @@ public class MyTableProvider implements ExtendProvider {
 
     private final File dataBaseDir;
     private final Map<String, ExtendTable> tables = new HashMap<>();
-    private static final String STRING_NAME_FORMAT = "[^:*?\"<>|/\\\\]+";
+    private static final String STRING_NAME_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
     private final Set<String> takenTables = new HashSet<>();
     
     public MyTableProvider(File dataBaseDir) throws IOException {
@@ -63,22 +63,21 @@ public class MyTableProvider implements ExtendProvider {
             throw new IllegalArgumentException("table has illegal name");
         }
         
-        PrintStream signature = new PrintStream(new File(table, "signature.tsv"));
-        for (int i = 0; i < columnTypes.size(); ++i) {
-            Class<?> type = columnTypes.get(i);
-            if (type == null) {
-                signature.close();
-                throw new IllegalArgumentException("illegal column type");
+        try (PrintStream signature = new PrintStream(new File(table, "signature.tsv"))) {
+            for (int i = 0; i < columnTypes.size(); ++i) {
+                Class<?> type = columnTypes.get(i);
+                if (type == null) {
+                    signature.close();
+                    throw new IllegalArgumentException("illegal column type");
+                }
+                String toWrite = Utils.getPrimitiveTypeName(type.getSimpleName());
+                if (toWrite == null) {
+                    throw new IllegalArgumentException("illegal column type");
+                }
+                signature.println(toWrite);
             }
-            String toWrite = Utils.getPrimitiveTypeName(type.getSimpleName());
-            if (toWrite == null) {
-                signature.close();
-                throw new IllegalArgumentException("illegal column type");
-            }
-            signature.println(toWrite);
         }
-        signature.close();
-        
+
         tables.put(name, new MyTable(name, dataBaseDir, this, columnTypes));
         return tables.get(name);
     }
@@ -116,8 +115,7 @@ public class MyTableProvider implements ExtendProvider {
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         
         String res;
-        
-        try {            
+        try {
             res = XMLSerializer.serialize(table, value);
         } catch (XMLStreamException e) {
             throw new ColumnFormatException(e);

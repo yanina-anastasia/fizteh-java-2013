@@ -9,15 +9,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactory;
 
 public class TableTest {
 
 
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
+    private File f = new File(DATA_BASE_DIR);
     private Table testTable;
     private TableProvider provider;
     private List<Class<?>> columnType = new ArrayList<>();
@@ -26,7 +29,7 @@ public class TableTest {
     
     @Before
     public void setUp() throws Exception {
-        new File(DATA_BASE_DIR).mkdirs();
+        f.mkdirs();
         provider = new MyTableProviderFactory().create(DATA_BASE_DIR);
         columnType.add(Integer.class);
         columnType.add(Double.class);
@@ -42,7 +45,7 @@ public class TableTest {
     
     @After
     public void tearDown() throws Exception {
-        provider.removeTable("table");
+        CommandRemove.deleteRecursivly(f);
     }
 
     @Test
@@ -139,5 +142,41 @@ public class TableTest {
         Assert.assertEquals(testTable.rollback(), 2);
         Assert.assertNull(testTable.get("rollback3"));
         Assert.assertEquals(testTable.get("rollback1"), val1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void incorrectStoreableSize() throws Exception{
+        List<Object> list = new ArrayList<>();
+        columnType.add(String.class);
+        list.add(5);
+        list.add(4.0);
+        list.add("String");
+        Table t = provider.createTable("table2", columnType);
+        Storeable s = provider.createFor(t, list);
+        provider.removeTable("table2");
+        testTable.put("key", s);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void lessStoreableSize() throws Exception{
+        List<Object> list = new ArrayList<>();
+        columnType.remove(1);
+        list.add(5);
+        Table t = provider.createTable("table2", columnType);
+        Storeable s = provider.createFor(t, list);
+        provider.removeTable("table2");
+        testTable.put("key", s);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void incorrectStoreableType() throws Exception{
+        List<Object> list = new ArrayList<>();
+        columnType.set(1, String.class);
+        list.add(5);
+        list.add("String");
+        Table t = provider.createTable("table2", columnType);
+        Storeable s = provider.createFor(t, list);
+        provider.removeTable("table2");
+        testTable.put("key", s);
     }
 }
