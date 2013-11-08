@@ -100,7 +100,7 @@ public class DatabaseTable implements Table {
         }
         if (!tryToGetUnnecessaryColumn(value)) {                                  //
             throw new ColumnFormatException("Incorrect value to put.");           //
-        } /*                                                                        //
+        }                                                                        //
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 switch (formatColumnType(columnTypes.get(index))) {
@@ -114,7 +114,7 @@ public class DatabaseTable implements Table {
             } catch (ParseException e) {
                 throw new IllegalArgumentException(e);
             }
-        }    */
+        }
         /*
         for (int i = 0; i < getColumnsCount(); i++) {
             try {
