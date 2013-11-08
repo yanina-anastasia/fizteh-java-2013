@@ -71,16 +71,13 @@ public class StoreableDataValue implements Storeable {
         return (String) columnValues.get(columnIndex);
     }
 
-    public void checkColumnIndexValidity(int columnIndex) {
-        if (columnValues == null) {
-            throw new IndexOutOfBoundsException();
-        }
+    public void checkColumnIndexValidity(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex >= columnValues.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    public void checkClassEquivalence(int columnIndex, Class<?> cls) {
+    public void checkClassEquivalence(int columnIndex, Class<?> cls) throws ColumnFormatException {
         if (!cls.isAssignableFrom(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException("Invalid column type. It should be " + cls.getName());
         }
