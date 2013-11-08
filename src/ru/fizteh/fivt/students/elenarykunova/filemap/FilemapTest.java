@@ -16,8 +16,9 @@ public class FilemapTest {
     
     @Rule 
     public TemporaryFolder folder = new TemporaryFolder();
-    
-    @Before
+}    
+
+/*    @Before
     public void prepare() {
         File rootDir;
         try {
@@ -186,4 +187,4 @@ public class FilemapTest {
 
     }
 
-}
+}*/
