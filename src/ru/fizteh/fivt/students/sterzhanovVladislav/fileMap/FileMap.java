@@ -142,6 +142,11 @@ public class FileMap implements Table {
         name = dbName;
         db = new HashMap<String, Storeable>();
         diff = new HashMap<String, Diff>();
+        for (Class<?> type : classes) {
+            if (type == null) {
+                throw new IllegalArgumentException("Signature can not contain null class");
+            }
+        }
         this.columnTypes = classes;
     }
     

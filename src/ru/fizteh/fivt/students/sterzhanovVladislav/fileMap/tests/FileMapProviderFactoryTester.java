@@ -24,4 +24,9 @@ public class FileMapProviderFactoryTester {
     public void nullCreateTestShouldFail() throws IOException {
         TableProvider provider = factory.create(null);
     }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyCreateTestShouldFail() throws IOException {
+        TableProvider provider = factory.create("");
+    }
 }
