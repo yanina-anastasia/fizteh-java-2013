@@ -36,7 +36,7 @@ public class MultiFileHashMapCommands {
             returnValue[0] = value == null ? "new" : "overwrite\n" + value;
         }
 
-        Put(MyMultiHashMap parent, File root) {
+        public Put(MyMultiHashMap parent, File root) {
             super(3, parent, root);
         }
     }
@@ -69,7 +69,7 @@ public class MultiFileHashMapCommands {
             }
         }
 
-        Get(MyMultiHashMap parent, File root) {
+        public Get(MyMultiHashMap parent, File root) {
             super(2, parent, root);
         }
     }
@@ -91,7 +91,7 @@ public class MultiFileHashMapCommands {
             returnValue[0] = "using " + args[1];
         }
 
-        Use(MyMultiHashMap parent, File root) {
+        public Use(MyMultiHashMap parent, File root) {
             super(2, parent, root);
         }
     }
@@ -131,7 +131,7 @@ public class MultiFileHashMapCommands {
             returnValue[0] = "dropped";
         }
 
-        Drop(MyMultiHashMap parent, File root) {
+        public Drop(MyMultiHashMap parent, File root) {
             super(2, parent, root);
         }
     }
@@ -155,7 +155,7 @@ public class MultiFileHashMapCommands {
             returnValue[0] = "created";
         }
 
-        Create(MyMultiHashMap parent, File root) {
+        public Create(MyMultiHashMap parent, File root) {
             super(2, parent, root);
         }
     }
@@ -186,7 +186,7 @@ public class MultiFileHashMapCommands {
             }
         }
 
-        Remove(MyMultiHashMap parent, File root) {
+        public Remove(MyMultiHashMap parent, File root) {
             super(2, parent, root);
         }
     }
@@ -198,7 +198,7 @@ public class MultiFileHashMapCommands {
             System.exit(0);
         }
 
-        Exit(MyMultiHashMap parent, File root) {
+        public Exit(MyMultiHashMap parent, File root) {
             super(1, parent, root);
         }
     }
