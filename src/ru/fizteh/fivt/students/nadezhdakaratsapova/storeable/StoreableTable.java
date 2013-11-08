@@ -44,7 +44,7 @@ public class StoreableTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("\\s") || (key.split("\\s+")).length > 1)) {
+        if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("\\s+"))) {
             throw new IllegalArgumentException("Not correct key or value");
         }
         int signColumnsCount = getColumnsCount();
