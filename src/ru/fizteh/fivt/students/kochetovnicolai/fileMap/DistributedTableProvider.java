@@ -142,8 +142,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        loadTable(name);
-        if (tables.containsKey(name)) {
+        if (existsTable(name)) {
             return null;
         }
         File tableDirectory = new File(currentPath.getPath() + File.separator + name);
@@ -203,15 +202,6 @@ public class DistributedTableProvider implements TableProvider {
         return record;
     }
 
-    /**
-     * Преобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable}, соответствующий структуре таблицы.
-     *
-     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param value Строка, из которой нужно прочитать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @return Прочитанный {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     *
-     * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
-     */
     @Override
     public TableRecord deserialize(Table table, String value) throws ParseException {
         if (value == null) {
@@ -291,7 +281,11 @@ public class DistributedTableProvider implements TableProvider {
                     streamWriter.writeEmptyElement("null");
                 } else {
                     streamWriter.writeStartElement("col");
-                    streamWriter.writeCharacters(next.toString());
+                    String string = next.toString();
+                    if (string.equals("")) {
+                        throw new ColumnFormatException("value shouldn't be empty");
+                    }
+                    streamWriter.writeCharacters(string);
                     streamWriter.writeEndElement();
                 }
             }

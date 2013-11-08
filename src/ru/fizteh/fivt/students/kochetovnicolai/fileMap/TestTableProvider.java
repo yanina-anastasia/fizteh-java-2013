@@ -6,11 +6,13 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 @RunWith(Theories.class)
@@ -102,5 +104,72 @@ public class TestTableProvider {
         Assert.assertEquals("getTable should return null after remove", provider.getTable("abcd"), null);
         table = provider.createTable("abcd", type);
         Assert.assertTrue("createTable should return table after remove", table != null);
+    }
+
+    @Test
+    public void serializeAndDeserializeShouldWork() throws IOException, ParseException {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(Long.class);
+        types.add(Double.class);
+        types.add(Float.class);
+        types.add(Byte.class);
+        types.add(Boolean.class);
+        types.add(String.class);
+
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(42);
+        values.add(null);
+        values.add(3.1415926535897);
+        values.add(0.1234f);
+        values.add(Byte.parseByte("12"));
+        values.add(true);
+        values.add("abracadabra");
+
+        Table table = provider.createTable("AllStars", types);
+        StringBuilder builder = new StringBuilder("<row>");
+        Storeable storeable = provider.createFor(table);
+        for (int i = 0; i < values.size(); i++) {
+            storeable.setColumnAt(i, values.get(i));
+            if (values.get(i) != null) {
+                builder.append("<col>");
+                builder.append(values.get(i));
+                builder.append("</col>");
+            } else {
+                builder.append("<null/>");
+            }
+        }
+        builder.append("</row>");
+        String pattern = builder.toString();
+        String value = provider.serialize(table, storeable);
+        Assert.assertEquals("serialize should return '" + pattern + "' but it return '" + value + "'", value, pattern);
+        Assert.assertEquals("deserialize should return equals object", storeable, provider.deserialize(table, pattern));
+    }
+
+    @Test(expected = ParseException.class)
+    public void deserializeShouldFailWithLackOfArguments() throws IOException, ParseException {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        Table table = provider.createTable("table", types);
+        provider.deserialize(table, "<row><col>abcd></col></row>");
+    }
+
+    @Test(expected = ParseException.class)
+    public void deserializeShouldFailWithIncorrectValues() throws IOException, ParseException {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        Table table = provider.createTable("table", types);
+        provider.deserialize(table, "<row><col>3.14</col><col>abcd></col></row>");
+    }
+
+    @Test(expected = ParseException.class)
+    public void deserializeShouldFailWithExcessOfArguments() throws IOException, ParseException {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        Table table = provider.createTable("table", types);
+        provider.deserialize(table, "<row><col>42</col><col>abcd></col><null/></row>");
     }
 }
