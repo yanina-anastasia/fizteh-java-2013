@@ -3,7 +3,9 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.util.ArrayList;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -29,13 +31,11 @@ public class FileMapCommands extends AbstractCommands {
     
     public void create() throws Exception {
         if (lexems.length < 2) {
-            System.out.println("wrong type (incorrect nubmer of args)");
-            return;
+            throw new Exception("incorrect nubmer of args");
         }
         String[] temp = lexems[1].split("[ ]+", 2);
         if (temp.length < 2) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
+            throw new Exception("incorrect number of args");
         }
         String tableName = temp[0];
         String tempString = temp[1].trim();
@@ -82,7 +82,7 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println("created");
             }
         } catch (IllegalArgumentException e) {
-            System.out.println("wrong type (" + e.getMessage() + ")");
+            throw new Exception(e);
         }
     }
     
@@ -90,8 +90,7 @@ public class FileMapCommands extends AbstractCommands {
         String tableName = lexems[1];
         if (myTable != null) {
             if (myTable.getName().equals(tableName)) {
-                System.out.println("wrong type (this table is used)");
-                return;
+                throw new Exception(tableName + " is used");
             }
         }
         try {
@@ -100,7 +99,7 @@ public class FileMapCommands extends AbstractCommands {
         } catch (IllegalStateException e) {
             System.out.println(tableName + " not exists");
         } catch (IllegalArgumentException e) {
-            System.out.println("wrong type (" + e.getMessage() + ")");
+            throw new Exception(e);
         }
     }
         
@@ -124,7 +123,7 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println("using " + tableName);
             }
         } catch (Exception e) {
-            System.out.println("wrong type (incorrect table)");
+            throw new Exception(e);
         }
     }
 
@@ -151,12 +150,7 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse(); 
-        try {
-            checkTheNumbOfArgs(2, "put");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
+        checkTheNumbOfArgs(2, "put");
         try {
             Storeable curValue = myTableProvider.deserialize(myTable, lexems[1]);
             Storeable previousValue = myTable.put(lexems[0], curValue);
@@ -167,8 +161,8 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println("overwrite");
                 System.out.println(stringPreviousValue);
             }
-        } catch (Exception e) {
-            System.out.println(" wrong type (incorrect args: " + e.getMessage() + ")");
+        } catch (ParseException | ColumnFormatException e) {
+            System.out.println("wrong type (incorrect args: " + e.getMessage() + ")");
         }
     }
     
@@ -178,12 +172,7 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse();
-        try {
-            checkTheNumbOfArgs(1, "get");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
+        checkTheNumbOfArgs(1, "get");
         try {
             Storeable value = myTable.get(lexems[0]);
             if (value == null) {
@@ -193,7 +182,7 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println(myTableProvider.serialize(myTable, value));
             }
         } catch (IllegalArgumentException e) {
-            System.out.println("wrong type (incorrect argument)");
+            throw new Exception(e);
         }
     }
     
@@ -203,12 +192,7 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse();
-        try {
-            checkTheNumbOfArgs(1, "remove");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
+        checkTheNumbOfArgs(1, "remove");
         try {
             Storeable value = myTable.remove(lexems[0]);
             if (value == null) {
@@ -217,7 +201,7 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println("removed");
             }
         } catch (IllegalArgumentException e) {
-            System.out.println("wrong type (Incorrect argument)");
+            throw new Exception(e);
         }
     }
     
@@ -227,12 +211,7 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse();
-        try {
-            checkTheNumbOfArgs(0, "size");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
+        checkTheNumbOfArgs(0, "size");
         System.out.println(myTable.size());
     }
     
@@ -242,17 +221,8 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse();
-        try {
-            checkTheNumbOfArgs(0, "commit");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
-        try {
-            System.out.println(myTable.commit());
-        } catch (Exception e) {
-            System.out.println("wrong type (" + e.getMessage() + ")");
-        }
+        checkTheNumbOfArgs(0, "commit");
+        System.out.println(myTable.commit());
     }
     
     public void rollback() throws Exception {
@@ -261,17 +231,8 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         parse();
-        try {
-            checkTheNumbOfArgs(0, "rollback");
-        } catch (Exception e) {
-            System.out.println("wrong type (incorrect number of args)");
-            return;
-        }
-        try {
-            System.out.println(myTable.rollback());
-        } catch (Exception e) {
-            System.out.println("wrong type (" + e.getMessage() + ")");
-        }
+        checkTheNumbOfArgs(0, "rollback");
+        System.out.println(myTable.rollback());
     }
     
     public void exit() throws Exception {

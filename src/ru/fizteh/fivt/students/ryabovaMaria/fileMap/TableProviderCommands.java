@@ -211,7 +211,12 @@ public class TableProviderCommands implements TableProvider {
         }
         ArrayList<Object> values = new ArrayList(table.getColumnsCount());
         ArrayList<Class<?>> tableTypes = new ArrayList(table.getColumnsCount());
-        JSONArray array = new JSONArray(value);
+        JSONArray array = null;
+        try {
+            array = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
         if (array.length() != table.getColumnsCount()) {
             throw new ParseException("Illegal number of args", 0);
         }
