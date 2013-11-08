@@ -240,12 +240,16 @@ public class FileMapProvider implements TableProvider {
                 } else if (columnTypes.get(i) == Float.class) {
                     if (object.getClass() == Double.class) {
                         newList.setColumnAt(i, Float.valueOf(((Double) object).floatValue()));
+                    } else if (object.getClass() == Integer.class) {
+                        newList.setColumnAt(i, Float.valueOf(((Integer) object).floatValue()));
                     } else {
                         throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == Double.class) {
                     if (object.getClass() == Double.class) {
                         newList.setColumnAt(i, object);
+                    } else if (object.getClass() == Integer.class) {
+                        newList.setColumnAt(i, Float.valueOf(((Integer) object).floatValue()));
                     } else {
                         throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }

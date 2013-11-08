@@ -55,7 +55,7 @@ public class FileMapUnitTest {
 
     @Test(expected = IOException.class)
     public void notExistingDirectoryPassedShouldFail() throws IOException {
-        File file = new File(folder.getRoot(), "test");
+        File file = new File(folder.getRoot(), "test/hello");
         FileMapProviderFactory factory = new FileMapProviderFactory();
         factory.create(file.getCanonicalPath());
     }
@@ -428,7 +428,7 @@ public class FileMapUnitTest {
         Assert.assertEquals(provider.deserialize(table, provider.serialize(table, sample)), sample);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = ParseException.class)
     public void deserializeInvalidJSONShouldFail() throws IOException, ParseException {
         File testFolder = new File(folder.getRoot(), "test");
         testFolder.mkdir();
