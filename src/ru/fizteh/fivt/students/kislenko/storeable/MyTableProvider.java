@@ -29,6 +29,9 @@ public class MyTableProvider implements TableProvider {
         if (columnTypes == null) {
             throw new IllegalArgumentException("Incorrect column type list.");
         }
+        if (!name.matches("[A-Za-zА-Яа-я0-9]+")) {
+            throw new RuntimeException("Incorrect table name.");
+        }
         if (columnTypes.size() == 0) {
             throw new IllegalArgumentException("Empty signature.");
         }
