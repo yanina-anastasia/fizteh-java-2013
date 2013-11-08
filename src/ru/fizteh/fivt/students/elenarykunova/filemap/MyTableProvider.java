@@ -315,14 +315,20 @@ public class MyTableProvider implements TableProvider {
         }
         Object[] array = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
+            if (value.getColumnAt(i) != null
+                    && table.getColumnType(i).equals(
+                            value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException(value.getColumnAt(i).getClass()
                         + " serialize: types mismatch");
             }
             array[i] = value.getColumnAt(i);
         }
-        JSONArray json = new JSONArray(array);
-        return json.toString();
+        try {
+            JSONArray json = new JSONArray(array);
+            return json.toString();
+        } catch (JSONException e) {
+            throw new ColumnFormatException("can't make string from this Storeable");
+        }
     }
 
     @Override
