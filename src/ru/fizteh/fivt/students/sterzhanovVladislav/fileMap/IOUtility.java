@@ -38,7 +38,11 @@ public class IOUtility {
             if (!subdir.isDirectory() || !subdir.getName().matches("^([0-9]|[1][0-5])\\.dir$")) {
                 throw new IllegalStateException("Malformed database");
             }
-            for (File file : subdir.listFiles()) {
+            File[] listFiles = subdir.listFiles();
+            if (listFiles.length == 0) {
+                throw new IllegalStateException("Malformed database");
+            }
+            for (File file : listFiles) {
                 if (!file.isFile()) {
                     throw new IllegalStateException("Malformed database");
                 }
@@ -154,13 +158,13 @@ public class IOUtility {
         }
         Path signaturePath = Paths.get(rootDir.toString() + "/" + FileMapProvider.SIGNATURE_FILE_NAME);
         if (signaturePath == null) {
-            throw new IOException("Error: Directory does not exist");
+            throw new IOException("Error: signature does not exist");
         }
         List<Class<?>> signature = new ArrayList<Class<?>>();
         try {
             byte[] buf = Files.readAllBytes(signaturePath);
             String typeNamesList = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buf)).toString();
-            typeNamesList = typeNamesList.replaceAll("\n", " ");
+            typeNamesList = typeNamesList.replaceAll("\n", " ").trim();
             for (String typeName : typeNamesList.split(" +")) {
                 typeName = typeName.replaceAll("\n", " ");
                 if (!StoreableUtils.TYPENAMES.containsKey(typeName)) {
