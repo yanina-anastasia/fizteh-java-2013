@@ -145,12 +145,7 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable get(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
-        if (key.equals("")) {
-            throw new IllegalArgumentException("Key is empty");
-        }
+        checkKey(key);
         return tableIndexedData.get(key);
     }
 
@@ -167,14 +162,9 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
+        checkKey(key);
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
-        }
-        if (key.trim().equals("")) {
-            throw new IllegalArgumentException("Key or Value is empty");
         }
         Storeable oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
@@ -196,12 +186,7 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable remove(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
-        if (key.trim().equals("")) {
-            throw new IllegalArgumentException("Key is empty");
-        }
+        checkKey(key);
         Storeable oldValue = tableIndexedData.remove(key);
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
@@ -354,4 +339,17 @@ public class StoreableTable implements Table {
     public List<Class<?>> getColumnTypes() throws IndexOutOfBoundsException {
         return columnTypes;
     }
+
+    private void checkKey(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key is null");
+        }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Key is empty");
+        }
+        if (key.contains(" ") || key.contains("\t") || key.contains("\n")) {
+            throw new IllegalArgumentException("Kay contains whitespaces");
+        }
+    }
+
 }

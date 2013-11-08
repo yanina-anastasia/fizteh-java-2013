@@ -39,7 +39,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
             }
         } else {
             if (!rootDir.mkdirs()) {
-                throw new IllegalArgumentException("Can't create root directory");
+                throw new IllegalArgumentException("Can't create root directory: " + path);
             }
         }
         return new StoreableTableProvider(rootDir);
