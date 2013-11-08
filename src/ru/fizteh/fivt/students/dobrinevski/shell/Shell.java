@@ -58,8 +58,8 @@ public class Shell {
         }
         String[] args = command.trim().split("[\t ]+");
         Command buf = cmdMap.get(args[0]);
-        if(buf == "put") {
-            args = String[2];
+        if(args[0] == "put") {
+            args = new String[2];
             args[0] = "put";
             args[1] = command.substring(4);
         }
