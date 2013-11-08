@@ -130,27 +130,27 @@ public class SignatureController {
         return value;
     }
 
-    public Object checkColumnTypeValidity(Storeable value, int columnIndex, Class<?> columnType) {
-        Object ret = null;
+    public String convertStoreableFieldToString(Storeable value, int columnIndex, Class<?> columnType) {
+        String ret = null;
         if (value.getColumnAt(columnIndex) != null) {
             switch (columnType.getSimpleName()) {
                 case "Integer":
-                    ret = value.getIntAt(columnIndex);
+                    ret = value.getIntAt(columnIndex).toString();
                     break;
                 case "Long":
-                    ret = value.getLongAt(columnIndex);
+                    ret = value.getLongAt(columnIndex).toString();
                     break;
                 case "Byte":
-                    ret = value.getByteAt(columnIndex);
+                    ret = value.getByteAt(columnIndex).toString();
                     break;
                 case "Float":
-                    ret = value.getFloatAt(columnIndex);
+                    ret = value.getFloatAt(columnIndex).toString();
                     break;
                 case "Double":
-                    ret = value.getDoubleAt(columnIndex);
+                    ret = value.getDoubleAt(columnIndex).toString();
                     break;
                 case "Boolean":
-                    ret = value.getBooleanAt(columnIndex);
+                    ret = value.getBooleanAt(columnIndex).toString();
                     break;
                 case "String":
                     ret = value.getStringAt(columnIndex);
