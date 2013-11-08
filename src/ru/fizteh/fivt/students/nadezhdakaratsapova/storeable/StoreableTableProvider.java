@@ -31,6 +31,9 @@ public class StoreableTableProvider implements TableProvider {
             for (File f : tables) {
                 if (f.isDirectory()) {
                     List<Class<?>> columnTypes = signatureController.getSignature(f.getCanonicalFile());
+                    if (columnTypes == null) {
+                        throw new IOException("signature.tsv is not found");
+                    }
                     StoreableTable dataTable = new StoreableTable(f.getName(), workingDirectory, columnTypes, this);
                     dataBaseTables.put(f.getName(), dataTable);
                 }
