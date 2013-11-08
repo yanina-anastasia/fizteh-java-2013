@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 public class Shell {
     public PrintStream out = System.out;
-    public PrintStream err = System.err;
+    public PrintStream err = System.out;
     private Path workingDir;
     
     private HashMap<String, Command> cmdMap;
