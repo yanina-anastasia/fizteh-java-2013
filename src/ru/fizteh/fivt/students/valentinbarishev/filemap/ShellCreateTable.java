@@ -24,7 +24,7 @@ public class ShellCreateTable extends SimpleShellCommand {
                 System.out.println(getArg(1) + " exists");
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("wrong type (" + e.getMessage() + ")");
         }
     }
 
@@ -32,7 +32,7 @@ public class ShellCreateTable extends SimpleShellCommand {
     public boolean isMyCommand(final CommandString command) {
         if (name.equals(command.getArg(0))) {
             if (command.length() < numberOfArgs) {
-                throw new InvalidCommandException(" $ wrong type (" + name + " " + hint + ")");
+                throw new InvalidCommandException("wrong type (" + name + " " + hint + ")");
             }
             args = command;
             return true;

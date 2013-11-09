@@ -57,7 +57,7 @@ public class DbMain {
 
     private static void interactiveRun() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("$ ");
+        System.out.print(" $ ");
         while (true) {
             try {
                 if (!scanner.hasNextLine()) {
@@ -78,7 +78,7 @@ public class DbMain {
                     |RuntimeException e) {
                 System.err.println(e.getMessage());
             } finally {
-                System.out.print("$ ");
+                System.out.print(" $ ");
             }
         }
     }
