@@ -94,10 +94,7 @@ public class DatabaseTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
-        if (!checkAlienStoreable(value)) {
-            //System.out.println(value);
-            throw new ColumnFormatException("Alien storeable");
-        }
+        checkAlienStoreable(value);
         /*if (!tryToGetUnnecessaryColumn(value)) {                                  //
             throw new ColumnFormatException("Incorrect value to put.");           //
         }  */                                                                     //
@@ -368,7 +365,7 @@ public class DatabaseTable implements Table {
         }
     }
 
-    public boolean checkAlienStoreable(Storeable storeable) {
+    public void checkAlienStoreable(Storeable storeable) {
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 Object o = storeable.getColumnAt(index);
@@ -376,14 +373,10 @@ public class DatabaseTable implements Table {
                     continue;
                 }
                 if (!o.getClass().equals(getColumnType(index))) {
-                    System.out.println(String.format("expected: %s; actual: %s", getColumnType(index).getName(), o.getClass().getName()));
-                    System.out.println(storeable);
-                    return false;
+                    throw new ColumnFormatException("Alien storeable");
                 }
             } catch (IndexOutOfBoundsException e) {
-                System.out.println(String.format("index: %s; size: %d", e.getMessage(), getColumnsCount()));
-                System.out.println(storeable);
-                return false;
+                throw new ColumnFormatException("Alien storeable");
             }
         }
         int columnCount = 0;
@@ -397,7 +390,8 @@ public class DatabaseTable implements Table {
         {
         }
         if (columnCount != getColumnsCount())
-            return false;
-        return true;
+        {
+            throw new ColumnFormatException("Alien storeable");
+        }
     }
 }
