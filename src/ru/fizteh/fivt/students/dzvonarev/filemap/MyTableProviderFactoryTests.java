@@ -9,4 +9,5 @@ public class MyTableProviderFactoryTests {
         MyTableProviderFactory factory = new MyTableProviderFactory();
         factory.create(null);
     }
+
 }

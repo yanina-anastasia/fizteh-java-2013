@@ -21,8 +21,9 @@ public class MyTableProviderFactory implements TableProviderFactory {
         try {
             tableProvider = new MyTableProvider(dir);
         } catch (IOException e) {
-            System.out.println("can't read tables from " + dir);
+            throw new IllegalArgumentException("can't read tables from " + dir);
+        } finally {
+            return tableProvider;
         }
-        return tableProvider;
     }
 }

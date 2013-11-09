@@ -133,8 +133,12 @@ public class MyTable implements Table {
                 byte[] valueByte;
                 keyByte = new byte[keyLen];
                 valueByte = new byte[valueLen];
-                fileReader.readFully(keyByte, 0, keyLen);
-                fileReader.readFully(valueByte, 0, valueLen);
+                try {
+                    fileReader.readFully(keyByte, 0, keyLen);
+                    fileReader.readFully(valueByte, 0, valueLen);
+                } catch (OutOfMemoryError e) {
+                    throw new RuntimeException(e.getMessage() + " " + fileName + " : file is broken", e);
+                }
                 String key = new String(keyByte);
                 String value = new String(valueByte);
                 if (!keyIsValid(key, dir, file)) {
@@ -145,7 +149,7 @@ public class MyTable implements Table {
                 currFilePosition = fileReader.getFilePointer();
                 endOfFile = fileReader.length();
             }
-        } catch (OutOfMemoryError | IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage() + " " + fileName + " : file is broken", e);
         } finally {
             closeFile(fileReader);
@@ -167,7 +171,7 @@ public class MyTable implements Table {
             return true;
         }
         for (String currFile : files) {
-            if (new File(file.toString() + File.separator + currFile).isDirectory()) {
+            if (new File(file.toString(), currFile).isDirectory()) {
                 return false;
             }
             if (!currFile.matches("[0-9][.]dat|1[0-5][.]dat")) {
@@ -184,7 +188,7 @@ public class MyTable implements Table {
             return true;
         }
         for (String currFile : file) {
-            File newCurrFile = new File(path + File.separator + currFile);
+            File newCurrFile = new File(path, currFile);
             if (newCurrFile.isDirectory() && currFile.matches("[0-9][.]dir|1[0-5][.]dir")) {
                 if (!isFilesInDirValid(newCurrFile)) {
                     return false;

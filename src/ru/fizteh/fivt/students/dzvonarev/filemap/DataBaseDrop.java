@@ -28,5 +28,6 @@ public class DataBaseDrop implements CommandInterface {
         }
         String table = str.substring(spaceIndex + 1, str.length());
         tableProvider.removeTable(table);
+        System.out.println("dropped");
     }
 }

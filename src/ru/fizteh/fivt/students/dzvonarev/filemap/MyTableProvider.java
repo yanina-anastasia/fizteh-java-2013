@@ -132,12 +132,11 @@ public class MyTableProvider implements TableProvider {
                 myArgs.add(workingDirectory + File.separator + tableName);
                 myArgs.add("notFromShell");
                 shell.execute(myArgs);
-                System.out.println("dropped");
                 if ((currTable != null) && (currTable.equals(tableName))) {
                     currTable = null;
                 }
             } catch (IOException e) {
-                System.out.println("can't remove " + tableName);
+                throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
             }
         }
     }
