@@ -7,7 +7,7 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
-public class MyStoreable implements Storeable, Serializable {
+public class MyStoreable implements Storeable {
 
     private final List<Object> values;    
     private final Table table;
