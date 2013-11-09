@@ -14,14 +14,13 @@ import ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap.MultyFileMapTable
 public class MultyFileMapTableProviderTest {
 
       static MultyFileMapTableProvider provider;
-      MultyFileMapTableProvider providerTest;
       
       @BeforeClass
       public static void setUpBeforeClass() throws Exception {
-            String dir = "/home/olga/Documents/java/DB/testing";
+            String dir = System.getProperty("user.dir") + "db";
+            new File(dir).mkdir();
             provider = new MultyFileMapTableProvider(dir);
       }
-
       //
 
       @Test (expected = IllegalArgumentException.class)
@@ -70,5 +69,5 @@ public class MultyFileMapTableProviderTest {
             Assert.assertEquals(provider.getTable("3"), null);
       }
       
-
+      
 }
