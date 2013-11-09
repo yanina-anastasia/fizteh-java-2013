@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class Utils {
@@ -160,7 +159,7 @@ public class Utils {
 	}
 	
 	public static boolean testUTFSize(String word) {
-		return word.getBytes(StandardCharsets.UTF_8).length <= 10*10*10*10*10*10;
+		return 2 * word.length() <= 1000 * 1000;
 	}
 	
 	public static boolean testBadSymbols(String name) {
