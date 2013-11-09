@@ -17,7 +17,9 @@ public class MyTableTester {
 
     @Before
     public void init() throws IOException{
-        table = (new MyTableProvider(File.createTempFile("tmpp", null).toString())).createTable("Tested_Table");
+        File fl = Files.createTempDirectory("tmp").toFile();
+        fl.deleteOnExit();
+        table = (new MyTableProvider(fl.toString())).createTable("Tested_Table");
     }
 
     @Test
