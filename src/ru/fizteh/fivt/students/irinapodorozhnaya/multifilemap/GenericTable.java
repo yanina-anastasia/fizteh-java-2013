@@ -181,7 +181,7 @@ public abstract class GenericTable<ValueType> {
     }
 
     private void checkKey(String key ) throws IllegalArgumentException {
-        if (key == null || !key.matches("[^\\s]")) {
+        if (key == null || key.trim().isEmpty() || key.split("\\s+").length != 1) {
             throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }
     }
