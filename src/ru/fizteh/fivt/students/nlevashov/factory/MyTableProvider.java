@@ -50,12 +50,8 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
         if (!Files.exists(dbPath)) {
-            try {
-                if (!path.toFile().getCanonicalFile().mkdir()) {
-                    throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("TableProvider: " + e.getMessage());
+            if (!path.toFile().getCanonicalFile().mkdir()) {
+                throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
             }
         } else if (!Files.isDirectory(dbPath)) {
             throw new IllegalArgumentException("TableProvider.constructor: object with said path isn't a directory");
