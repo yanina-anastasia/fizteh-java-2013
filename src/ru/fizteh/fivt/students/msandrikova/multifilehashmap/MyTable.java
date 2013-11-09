@@ -63,7 +63,7 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String get(String key) throws IllegalArgumentException {
-		if(key == null) {
+		if(Utils.isEmpty(key)) {
 			throw new IllegalArgumentException("Key can not be null");
 		}
 		int ndirectory = Utils.getNDirectory(key);
@@ -77,7 +77,7 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String put(String key, String value) throws IllegalArgumentException {
-		if(key == null || value == null || key.isEmpty() || key.equals("\n") || value.equals("\n")) {
+		if(Utils.isEmpty(key) || Utils.isEmpty(value)) {
 			throw new IllegalArgumentException("Key and name can not be null or newline");
 		}
 		int ndirectory = Utils.getNDirectory(key);
@@ -101,7 +101,7 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String remove(String key) throws IllegalArgumentException {
-		if(key == null) {
+		if(Utils.isEmpty(key)) {
 			throw new IllegalArgumentException();
 		}
 		int ndirectory = Utils.getNDirectory(key);

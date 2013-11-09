@@ -9,8 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class Utils {
-
-	public Utils() {}
 	
 	public static void generateAnError(final String description, String commandName, boolean isInteractive) {
 		if(!commandName.equals("")){
@@ -167,6 +165,14 @@ public class Utils {
 	
 	public static boolean testBadSymbols(String name) {
 		return !name.contains("/") && !name.contains("\\");
+	}
+	
+	public static boolean isEmpty(String s) {
+		if(s == null || s.isEmpty() || s.equals("\n") || s.trim().isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 }
