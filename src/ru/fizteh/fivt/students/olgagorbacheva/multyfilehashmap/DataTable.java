@@ -58,7 +58,7 @@ public class DataTable implements Table {
       }
 
       public String put(String key, String value) {
-            if (key == null || value == null) {
+            if (key == null || key.equals("") || value.equals("") || value == null) {
                   throw new IllegalArgumentException(
                               "Неверное значение ключа или значения");
             }
