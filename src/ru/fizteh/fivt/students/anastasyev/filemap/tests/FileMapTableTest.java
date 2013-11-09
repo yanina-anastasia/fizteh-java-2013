@@ -22,25 +22,20 @@ public class FileMapTableTest {
     String value = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\"]";
 
     private boolean storeableEquals(Storeable first, Storeable second, Table table) {
-        if (first == null && second != null || first != null && second == null) {
-            return false;
-        }
         if (first == null && second == null) {
             return true;
+        }
+        if (first == null || second == null) {
+            return false;
         }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             Object val1 = first.getColumnAt(i);
             Object val2 = second.getColumnAt(i);
-            if (val1 == null && val2 == null) {
-                continue;
-            }
-            if (val1 == null && val2 != null) {
-                return false;
-            }
-            if (val1 != null && val2 == null) {
-                return false;
-            }
-            if (!val1.equals(val2)) {
+            if (val1 == null) {
+                if (val2 != null) {
+                    return false;
+                }
+            } else if (!val1.equals(val2)) {
                 return false;
             }
         }

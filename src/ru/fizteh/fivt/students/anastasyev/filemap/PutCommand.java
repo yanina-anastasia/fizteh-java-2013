@@ -9,7 +9,7 @@ public class PutCommand implements Command<FileMapTableProvider> {
     @Override
     public boolean exec(FileMapTableProvider provider, String[] command) {
         if (command.length < 3) {
-            System.err.println("put: Usage - put key value");
+            System.err.println("wrong type (Usage - put key value)");
             return false;
         }
         String arg1 = command[1];
