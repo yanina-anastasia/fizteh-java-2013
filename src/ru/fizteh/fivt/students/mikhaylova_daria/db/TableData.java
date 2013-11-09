@@ -36,7 +36,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException("Wrong type in " + i + " column: null type");
             }
             if (!types.containsKey(arg.get(i).getSimpleName())) {
-                 throw new IllegalArgumentException("Wrong type in " + i + " column: " + arg.get(i).getCanonicalName());
+                throw new IllegalArgumentException("Wrong type in " + i + " column: " + arg.get(i).getCanonicalName());
             }
             answer.add(types.get(arg.get(i).getSimpleName()));
         }
@@ -78,7 +78,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException("Creating \"signature.tsv\" error");
             }
         } catch (IOException e) {
-             throw new IOException(e.getMessage(), e);
+            throw new IOException(e.getMessage(), e);
         }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
@@ -175,6 +175,7 @@ public class TableData implements Table {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
+        // System.out.println("int: " + value.getIntAt(1));
         int i = 0;
         try {
             for (i = 0; i < getColumnsCount(); ++i) {
@@ -200,8 +201,6 @@ public class TableData implements Table {
                     value.getStringAt(i);
                 }
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ColumnFormatException(e.getMessage() + " index i = " + i + "val: " + value.getColumnAt(i), e);
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException(e.getMessage() + " index i = " + i + "val: " + value.getColumnAt(i), e);
         } catch (ClassCastException  e) {
@@ -312,7 +311,7 @@ public class TableData implements Table {
             throw new IndexOutOfBoundsException("Index " + columnIndex
                     + "does not exist. Number of columns is" + columnTypes.size());
         }
-         return columnTypes.get(columnIndex);
+        return columnTypes.get(columnIndex);
     }
 
 }
