@@ -80,15 +80,22 @@ public class MyTableProvider implements TableProvider {
         }
         String[] args = new String[2];
         args[1] = name;
+        Command drop;
         try {
             if (bTables.get(name) != null) {
-                new MultiFileHashMapCommands.Drop(bTables.get(name).baseHashMap, root).innerExecute(args);
+                drop = new MultiFileHashMapCommands.Drop(bTables.get(name).baseHashMap, root);
                 bTables.remove(name);
             } else {
-                new MultiFileHashMapCommands.Drop(new MyMultiHashMap(), root).innerExecute(args);
+                drop = new MultiFileHashMapCommands.Drop(new MyMultiHashMap(), root);
             }
+            drop.innerExecute(args);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+
+        if (drop.returnValue[0].lastIndexOf(" not exists") != -1) {
+            throw new IllegalStateException(name + "not exists");
+        }
     }
+}
 }
