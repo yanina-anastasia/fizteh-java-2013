@@ -38,6 +38,7 @@ public class FileMap {
         if (key.isEmpty()) {
             throw new IllegalArgumentException("key is empty");
         }
+        System.out.println(value.getIntAt(1) + "внутри FileMap.put");
         try {
             table.manager.serialize(table, value);
         } catch (Exception e) {
