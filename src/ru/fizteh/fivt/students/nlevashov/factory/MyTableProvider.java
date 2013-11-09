@@ -300,12 +300,13 @@ public class MyTableProvider implements TableProvider {
      * @param value {@link ru.fizteh.fivt.storage.structured.Storeable}, который нужно записать.
      * @return Строка с записанным значением.
      *
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
+     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в
+     *              {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
      */
     @Override
-    public String serialize(Table table, Storeable value) throws ColumnFormatException {    //И ЗДЕСЬ КОСТЫЛЬ, ПОДОБНЫЙ Table.put
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
         StringBuilder sb = new StringBuilder();
-        sb.append("<row>");
+        sb.append("<row>");                                                     //И ЗДЕСЬ КОСТЫЛЬ, ПОДОБНЫЙ Table.put
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             Class<?> c = table.getColumnType(i);
             if (c == null) {

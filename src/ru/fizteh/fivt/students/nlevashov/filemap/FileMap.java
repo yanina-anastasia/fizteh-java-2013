@@ -46,7 +46,6 @@ public class FileMap {
                     throw new IOException("wrong type (illegal type/types)");
             }
         }
-
         if (provider.createTable(tableName, classes) == null) {
             throw new IOException(tableName + " exists");
         } else {
@@ -174,8 +173,8 @@ public class FileMap {
                         }
                         switch (commandName) {
                             case "create": {
-                                System.out.println("|" + arguments + '|');
-                                if (!Pattern.compile("[^/:\\*\\?\"\\\\><\\|\\t\\n]+\\s\\([A-Za-z\\s]+\\)$").matcher(arguments).matches()) {
+                                if (!Pattern.compile("[^/:\\*\\?\"\\\\><\\|\\t\\n]+\\s\\([A-Za-z\\s]+\\)$")
+                                            .matcher(arguments).matches()) {
                                 //if (!Pattern.compile("([a-z]+)\\s\\([a-z\\s]+\\)").matcher(arguments).matches()) {
                                     throw new IOException("wrong type (create: wrong arguments)");
                                 }

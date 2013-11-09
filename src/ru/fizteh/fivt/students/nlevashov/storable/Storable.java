@@ -50,7 +50,8 @@ public class Storable implements Storeable {
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException - Попытка вставить неразрешенный тип или
      *                         тип хотя бы одного из значений не соответствует типу соответствующей ему колонки.
      */
-    public Storable(List<Class<?>> columnTypes, List<Object> columnValues) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Storable(List<Class<?>> columnTypes, List<Object> columnValues)
+            throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnTypes == null) {
             throw new ColumnFormatException("Storable.constructor: columnTypes is null");
         }
