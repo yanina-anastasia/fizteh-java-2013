@@ -66,7 +66,7 @@ public class ShellDatabaseHandler {
                         return -1;
                     }
                     if (args.size() < 2) {
-                        System.err.println("wrong type type not specified");
+                        System.out.println("wrong type type not specified");
                         return -1;
                     }
                     try {
@@ -88,8 +88,9 @@ public class ShellDatabaseHandler {
                             } else if (typeNames[i].equals("String")) {
                                 columnTypes.add(String.class);
                             } else {
-                                throw new RuntimeException(String.format("wrong type %s is not supported",
+                                System.out.println(String.format("wrong type %s is not supported",
                                         typeNames[i]));
+                                return -1;
                             }
                         }
                         Table table = database.createTable(args.get(0), columnTypes);
