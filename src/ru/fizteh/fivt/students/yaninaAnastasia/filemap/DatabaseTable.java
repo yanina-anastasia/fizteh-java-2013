@@ -386,11 +386,19 @@ public class DatabaseTable implements Table {
                 return false;
             }
         }
-        /*try {
-            storeable.getColumnAt(getColumnsCount());
-        } catch (IndexOutOfBoundsException e) {
-
-        }   */
+        int columnCount = 0;
+        try {
+            while(true)
+            {
+                storeable.getColumnAt(columnCount);
+                columnCount++;
+            }
+        } catch (IndexOutOfBoundsException e)
+        {
+            columnCount--;
+        }
+        if (columnCount != getColumnsCount())
+            return false;
         return true;
     }
 }
