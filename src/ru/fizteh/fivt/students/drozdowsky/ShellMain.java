@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky;
 
-import ru.fizteh.fivt.students.drozdowsky.Commands.ShellController;
+import ru.fizteh.fivt.students.drozdowsky.commands.ShellController;
 import ru.fizteh.fivt.students.drozdowsky.modes.ModeController;
 import ru.fizteh.fivt.students.drozdowsky.utils.Utils;
 

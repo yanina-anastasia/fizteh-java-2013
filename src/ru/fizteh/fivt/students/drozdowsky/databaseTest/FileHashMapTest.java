@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.drozdowsky.databaseTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ru.fizteh.fivt.students.drozdowsky.Commands.ShellController;
+import ru.fizteh.fivt.students.drozdowsky.commands.ShellController;
 import ru.fizteh.fivt.students.drozdowsky.database.FileHashMap;
 
 import java.io.File;
