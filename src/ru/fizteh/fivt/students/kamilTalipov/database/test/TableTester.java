@@ -102,6 +102,6 @@ public class TableTester {
         Assert.assertEquals(table.commit(), 0);
         table.put("fits", new TableRow(table, Arrays.asList(2, "hfello")));
         table.remove("fits");
-        Assert.assertEquals(table.rollback(), 0);
+        Assert.assertEquals(table.rollback(), 1);
     }
 }
