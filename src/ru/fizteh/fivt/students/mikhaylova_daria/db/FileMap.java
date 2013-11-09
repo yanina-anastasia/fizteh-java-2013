@@ -51,7 +51,6 @@ public class FileMap {
             } catch (Exception e) {
                 throw new RuntimeException("Reading error", e);
             }
-
         }
         return fileMap.put(key, value);
     }
