@@ -154,9 +154,8 @@ public class NewTable implements Table {
         int i = 0;
         try {
             for (i = 0; i < types.size(); ++i) {
-                if (!value.getColumnAt(i).getClass().equals(types.get(i))) {
-                    throw new ColumnFormatException("Storeable invalid in types excpected :" + value.getColumnAt(i)
-                            + "but has" + types.get(i));
+                if (value.getColumnAt(i) != null && !value.getColumnAt(i).getClass().equals(types.get(i))) {
+                    throw new ColumnFormatException("Storeable invalid in types");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
