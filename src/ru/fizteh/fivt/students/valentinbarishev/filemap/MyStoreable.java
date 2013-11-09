@@ -5,7 +5,6 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

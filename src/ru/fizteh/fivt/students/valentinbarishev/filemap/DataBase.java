@@ -46,7 +46,8 @@ public final class DataBase implements Table {
         }
     }
 
-    public DataBase(final String dbDirectory, final TableProvider newProvider, final List<Class<?>> newTypes) throws IOException {
+    public DataBase(final String dbDirectory, final TableProvider newProvider, final List<Class<?>> newTypes)
+                throws IOException {
         name = new File(dbDirectory).getName();
         dataBaseDirectory = dbDirectory;
         provider = newProvider;

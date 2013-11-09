@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MySignature {
-    static final String[] types = {"int", "long", "byte", "float", "double", "boolean", "String"};
-    static final Class<?>[] classes = {Integer.class, Long.class, Byte.class, Float.class,
+    static final String[] TYPES = {"int", "long", "byte", "float", "double", "boolean", "String"};
+    static final Class<?>[] CLASSES = {Integer.class, Long.class, Byte.class, Float.class,
                                        Double.class, Boolean.class, String.class};
 
 
@@ -33,9 +33,9 @@ public class MySignature {
 
         for (int i = 0; i < data.length; ++i) {
             boolean flag = false;
-            for (int j = 0; j < types.length; ++j) {
-                if (data[i].equals(types[j])) {
-                    result.add(classes[j]);
+            for (int j = 0; j < TYPES.length; ++j) {
+                if (data[i].equals(TYPES[j])) {
+                    result.add(CLASSES[j]);
                     flag = true;
                     break;
                 }
@@ -51,15 +51,15 @@ public class MySignature {
         PrintWriter output = new PrintWriter(new File(dir, "signature.tsv"));
         for (int i = 0; i < classesList.size(); ++i) {
             boolean flag = false;
-            for (int j = 0; j < classes.length; ++j) {
-                if (classes[j].equals(classesList.get(i))) {
-                    output.write(types[j]);
+            for (int j = 0; j < CLASSES.length; ++j) {
+                if (CLASSES[j].equals(classesList.get(i))) {
+                    output.write(TYPES[j]);
                     flag = true;
                     break;
                 }
             }
             if (!flag) {
-                throw new IllegalArgumentException("Bad types!");
+                throw new IllegalArgumentException("Bad TYPES!");
             }
             if (i + 1 != classesList.size()) {
                 output.write(" ");
@@ -77,10 +77,10 @@ public class MySignature {
             }
 
             boolean flag = false;
-            for (int j = 0; j < types.length; ++j) {
-                if (new String(s, i, types[j].length()).equals(types[j])) {
-                    result.add(classes[j]);
-                    i += types[j].length();
+            for (int j = 0; j < TYPES.length; ++j) {
+                if (new String(s, i, TYPES[j].length()).equals(TYPES[j])) {
+                    result.add(CLASSES[j]);
+                    i += TYPES[j].length();
                     flag = true;
                     break;
                 }

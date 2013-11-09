@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
