@@ -98,9 +98,9 @@ public class DatabaseTable implements Table {
             //System.out.println(value);
             throw new ColumnFormatException("Alien storeable");
         }
-        if (!tryToGetUnnecessaryColumn(value)) {                                  //
+        /*if (!tryToGetUnnecessaryColumn(value)) {                                  //
             throw new ColumnFormatException("Incorrect value to put.");           //
-        }                                                                       //
+        }   */                                                                    //
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 switch (formatColumnType(columnTypes.get(index))) {
@@ -386,7 +386,6 @@ public class DatabaseTable implements Table {
                 return false;
             }
         }
-        return true;/*
         boolean flag = true;
         try {
             storeable.getColumnAt(getColumnsCount());
@@ -394,6 +393,6 @@ public class DatabaseTable implements Table {
         } catch (IndexOutOfBoundsException e) {
             //
         }
-        return flag;   */
+        return flag;
     }
 }
