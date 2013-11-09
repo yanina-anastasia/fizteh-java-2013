@@ -381,6 +381,7 @@ public class MultiFileHashTable implements Table {
         }
 
         for (File dbFile : innerFiles) {
+            boolean wasRead = false;
             try (FileInputStream input = new FileInputStream(dbFile)) {
                 while (input.available() > 0) {
                     int keyLen = readInt(input);
@@ -402,10 +403,14 @@ public class MultiFileHashTable implements Table {
                         throw new IllegalArgumentException("Database file '" + dbFile.getAbsolutePath()
                                                             + "' have incorrect format");
                     }
+                    wasRead = true;
                 }
             } catch (IOException e) {
                 throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
                                             + "' have incorrect format");
+            }
+            if (!wasRead) {
+                throw new DatabaseException("Empty database file '" + dbFile.getAbsolutePath() + "'");
             }
         }
     }
