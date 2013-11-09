@@ -117,7 +117,7 @@ public class FileMapStoreable implements Storeable {
     }
 
     public boolean equals(Object obj) {
-        if (!obj.getClass().getName().equals(this.getClass().getName())) {
+        if (obj.getClass() != this.getClass()) {
             return false;
         }
         FileMapStoreable line = (FileMapStoreable) obj;

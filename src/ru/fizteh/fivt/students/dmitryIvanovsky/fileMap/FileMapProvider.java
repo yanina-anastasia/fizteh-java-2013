@@ -204,7 +204,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
 
         if (changeKey > 0) {
-            errPrint(String.format("%d unsaved changes", changeKey));
+            outPrint(String.format("%d unsaved changes", changeKey));
         } else {
             String nameTable = args[0];
             if (!setDirTable.contains(nameTable)) {
@@ -499,19 +499,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         return storeable;
     }
 
-    private void errPrint(String message) {
-        if (err) {
-            System.err.flush();
-            System.err.println(message);
-            System.err.flush();
-        }
-    }
-
     private void outPrint(String message) {
         if (out) {
-            //System.out.flush();
             System.out.println(message);
-            //System.out.flush();
         }
     }
 

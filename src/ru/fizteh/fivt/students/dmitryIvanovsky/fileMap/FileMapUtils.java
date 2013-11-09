@@ -175,12 +175,6 @@ public class FileMapUtils {
 
     static void errPrint(String message) {
         System.err.println(message);
-        System.err.flush();
+        //System.err.flush();
     }
-
-    static void outPrint(String message) {
-        System.out.println(message);
-        System.out.flush();
-    }
-
 }

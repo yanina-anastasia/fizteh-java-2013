@@ -415,23 +415,25 @@ public class FileMap implements Table {
                     if (columnType.get(index) == Integer.class) {
                         value.getIntAt(index);
                     }
-                    if (columnType.get(index) == Long.class) {
+                    else if (columnType.get(index) == Long.class) {
                         value.getLongAt(index);
                     }
-                    if (columnType.get(index) == Byte.class) {
+                    else if (columnType.get(index) == Byte.class) {
                         value.getByteAt(index);
                     }
-                    if (columnType.get(index) == Float.class) {
+                    else if (columnType.get(index) == Float.class) {
                         value.getFloatAt(index);
                     }
-                    if (columnType.get(index) == Double.class) {
+                    else if (columnType.get(index) == Double.class) {
                         value.getDoubleAt(index);
                     }
-                    if (columnType.get(index) == Boolean.class) {
+                    else if (columnType.get(index) == Boolean.class) {
                         value.getBooleanAt(index);
                     }
-                    if (columnType.get(index) == String.class) {
+                    else if (columnType.get(index) == String.class) {
                         value.getStringAt(index);
+                    } else {
+                        throw new ColumnFormatException("in ColumnType isn't provide type");
                     }
 
                     ++index;
