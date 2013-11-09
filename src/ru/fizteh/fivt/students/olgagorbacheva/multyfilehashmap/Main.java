@@ -34,6 +34,7 @@ public class Main {
                   
                   provider.writeToFile();
             } catch(IllegalArgumentException e) {
+                  System.err.println("Я выпал в Main");
                   System.err.println(e.getMessage());
                   System.exit(1);
             } catch (FileNotFoundException e) {

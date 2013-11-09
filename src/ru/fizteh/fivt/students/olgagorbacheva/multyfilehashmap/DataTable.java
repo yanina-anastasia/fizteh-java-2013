@@ -143,11 +143,10 @@ public class DataTable implements Table {
             return size;
       }
 
-      public void readFile() throws 
-                  IOException {
+      public void readFile() throws IOException {
             for (int i = 0; i < 16; i++) {
-                  File currentDir = new File(dataBaseDir,
-                              String.valueOf(i) + ".dir");
+                  File currentDir = new File(dataBaseDir, String.valueOf(i)
+                              + ".dir");
                   if (currentDir.exists() && currentDir.isDirectory()
                               && currentDir.canRead()) {
                         for (int j = 0; j < 16; j++) {
@@ -177,8 +176,7 @@ public class DataTable implements Table {
       }
 
       @SuppressWarnings("resource")
-      public void read(File dataBaseFile) throws 
-                  IOException{
+      public void read(File dataBaseFile) throws IOException {
             RandomAccessFile reader = new RandomAccessFile(dataBaseFile, "r");
             if (reader.length() == 0) {
                   return;
@@ -207,8 +205,7 @@ public class DataTable implements Table {
                                     || (!offsets.isEmpty() && offset <= offsets
                                                 .get(offsets.size() - 1))
                                     || (offset >= reader.length())) {
-                              throw new IOException(
-                                          "Неверное значение сдвигов");
+                              throw new IOException("Неверное значение сдвигов");
                         }
                         offsets.add(offset);
 
@@ -227,15 +224,14 @@ public class DataTable implements Table {
 
             for (int i = 0; i < keys.size(); ++i) {
                   if (!dataStorage.put(keys.get(i), values.get(i))) {
-                        throw new IOException(
-                                    "Значение ключа не уникально");
+                        throw new IOException("Значение ключа не уникально");
                   }
             }
             reader.close();
       }
 
-      public void writeFile() throws FileNotFoundException,
-                  IOException, FileMapException {
+      public void writeFile() throws FileNotFoundException, IOException,
+                  FileMapException {
 
             if (dataStorage.getSize() == 0) {
                   return;
@@ -257,8 +253,8 @@ public class DataTable implements Table {
             }
             for (int i = 0; i < 256; i++) {
                   if (dataBase.get(i).size() != 0) {
-                        File dir = new File(dataBaseDir,
-                                    String.valueOf(i / 16) + ".dir");
+                        File dir = new File(dataBaseDir, String.valueOf(i / 16)
+                                    + ".dir");
                         File file;
                         if (dir.exists()) {
                               if (!dir.isDirectory()) {
@@ -278,7 +274,8 @@ public class DataTable implements Table {
                         } else {
                               dir.mkdir();
                               if (!dir.exists()) {
-                                    throw new IOException("Проблема записи в базу данных");
+                                    throw new IOException(
+                                                "Проблема записи в базу данных");
                               }
                               file = new File(dir, String.valueOf(i % 16)
                                           + ".dat");

@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface Command{
       
-      public void execute(String args[], State state) throws IOException;            
+      public void execute(String args[], State state) throws IOException, IllegalArgumentException;            
       public String getName();           
       public int getArgNumber();                   
 

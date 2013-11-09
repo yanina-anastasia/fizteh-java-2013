@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.olgagorbacheva.filemap.FileMapException;
@@ -33,20 +32,15 @@ public class MultyFileMapTableProvider implements TableProvider {
                   }
             }
       }
-      
-      public void writeToFile() throws FileNotFoundException, IOException{
-            Iterator<Map.Entry<String, DataTable>> it = tables.entrySet().iterator();
-            while(it.hasNext()) {
+
+      public void writeToFile() throws FileNotFoundException, IOException {
+            Iterator<Map.Entry<String, DataTable>> it = tables.entrySet()
+                        .iterator();
+            while (it.hasNext()) {
                   Entry<String, DataTable> elem = it.next();
                   try {
-                        if (elem.getValue().sizeChangesCommit() != 0) {
-                              throw new IOException(
-                                          elem.getValue().sizeChangesCommit()
-                                                      + " unsaved changes");
-                        }
                         elem.getValue().writeFile();
-                  } catch (IOException
-                              | FileMapException e) {
+                  } catch (IOException | FileMapException e) {
                         System.err.println(e.getLocalizedMessage());
                   }
             }
@@ -62,8 +56,8 @@ public class MultyFileMapTableProvider implements TableProvider {
             }
             return tables.get(name);
       }
-      
-      public Table setTable (String name) {
+
+      public Table setTable(String name) {
             if (name == null || name.isEmpty()) {
                   currentDataBase = null;
             }
@@ -99,13 +93,13 @@ public class MultyFileMapTableProvider implements TableProvider {
       private void deleteFiles(File f) {
             if (f.isDirectory()) {
                   File[] incFiles = f.listFiles();
-                  for (File i: incFiles) {
+                  for (File i : incFiles) {
                         deleteFiles(i);
                   }
-            }            
+            }
             f.delete();
       }
-      
+
       public void removeTable(String name) {
             if (name == null || name.isEmpty()) {
                   throw new IllegalArgumentException(

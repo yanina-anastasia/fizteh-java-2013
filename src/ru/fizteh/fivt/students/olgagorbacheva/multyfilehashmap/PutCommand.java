@@ -15,6 +15,9 @@ public class PutCommand implements Command {
       }
 
       public void execute(String[] args, State state) {
+            if (provider.currentDataBase == null) {
+                  throw new IllegalArgumentException("Таблица не выбрана"); 
+            }
             String value = provider.currentDataBase.put(args[1], args[2]);
             if (value == null) {
                   System.out.println("new");

@@ -37,7 +37,7 @@ public class Shell{
                               flag = launch.execute(args, state);
                         }
                   }
-                  catch (IOException exp) {
+                  catch (IOException | IllegalArgumentException exp) {
                         System.err.println(exp.getLocalizedMessage());
                   }
             } while(flag);
