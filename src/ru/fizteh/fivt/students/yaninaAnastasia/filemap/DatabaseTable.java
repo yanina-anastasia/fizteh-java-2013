@@ -75,15 +75,6 @@ public class DatabaseTable implements Table {
         return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 
-    private boolean tryToGetUnnecessaryColumn(Storeable value) {
-        try {
-            value.getColumnAt(columnTypes.size() + 1);
-        } catch (IndexOutOfBoundsException e) {
-            return true;
-        }
-        return false;
-    }
-
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
@@ -95,9 +86,6 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         checkAlienStoreable(value);
-        /*if (!tryToGetUnnecessaryColumn(value)) {                                  //
-            throw new ColumnFormatException("Incorrect value to put.");           //
-        }  */                                                                    //
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 switch (formatColumnType(columnTypes.get(index))) {
