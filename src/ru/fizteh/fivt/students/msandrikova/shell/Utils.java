@@ -163,7 +163,7 @@ public class Utils {
 	}
 	
 	public static boolean testBadSymbols(String name) {
-		return !name.contains("/") && !name.contains("\\");
+		return name.matches("[A-Za-z0-9_]*");
 	}
 	
 	public static boolean isEmpty(String s) {
