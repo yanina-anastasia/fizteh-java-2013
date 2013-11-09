@@ -315,7 +315,7 @@ public class DatabaseTable implements Table {
         tempSet.addAll(modifiedData.keySet());
         tempSet.addAll(deletedKeys);
         for (String key : tempSet) {
-            if (modifiedData.containsKey(key) && compare(oldData.get(key), modifiedData.get(key))) {
+            if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get(key))) {
                 toRemove.add(key);
             }
         }
