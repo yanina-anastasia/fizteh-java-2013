@@ -19,9 +19,8 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
                 throw new IllegalArgumentException("The root directory should be a directory");
             }
             if (!dataDirectory.exists()) {
-                dataDirectory.getCanonicalFile().mkdir();
+                throw new IOException("The working directory is not exist");
             }
-
             StoreableTableProvider newStorage = new StoreableTableProvider(dataDirectory.getCanonicalFile());
             return newStorage;
         }
