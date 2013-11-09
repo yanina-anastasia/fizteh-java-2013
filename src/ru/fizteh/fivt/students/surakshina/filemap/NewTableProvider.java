@@ -128,7 +128,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
-            if (dir != null) {
+            if (dir.listFiles() != null && dir != null) {
                 if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                     for (File file : dir.listFiles()) {
                         if (checkNameOfFiles(file.getName()) && file.isFile()) {
