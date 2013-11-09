@@ -224,7 +224,26 @@ public class MyTable implements Table {
             throw new ColumnFormatException("Table.put: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
             try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
-                int i = 0;
+                Storeable temp = value;
+                for (int i = 0; i < getColumnsCount(); ++i) {
+                    Class<?> c = getColumnType(i);
+                    if (c == Integer.class) {
+                        temp.setColumnAt(i, Integer.valueOf(1));
+                    } else if (c == Long.class)  {
+                        temp.setColumnAt(i, Long.valueOf((long) 1));
+                    } else if (c == Byte.class) {
+                        temp.setColumnAt(i, Byte.valueOf((byte) 1));
+                    } else if (c == Float.class) {
+                        temp.setColumnAt(i, Float.valueOf((float) 1.5));
+                    } else if (c == Double.class) {
+                        temp.setColumnAt(i, Double.valueOf(1.5));
+                    } else if (c == Boolean.class) {
+                        temp.setColumnAt(i, Boolean.valueOf(true));
+                    } else {
+                        temp.setColumnAt(i, "abc");
+                    }
+                }
+            /*    int i = 0;
                 for (Class<?> t : types) {
                     if (value.getColumnAt(i) == null) {
                         //throw new ColumnFormatException("Table.put: it is impossible
@@ -233,7 +252,7 @@ public class MyTable implements Table {
                         throw new ColumnFormatException("Table.put: value has other columns");
                     }
                     ++i;
-                }
+                }*/
                 return map.put(key, value);
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");

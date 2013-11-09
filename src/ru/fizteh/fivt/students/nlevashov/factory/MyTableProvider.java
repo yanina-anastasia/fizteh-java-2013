@@ -113,7 +113,7 @@ public class MyTableProvider implements TableProvider {
                 || name.contains("/") || name.contains(":") || name.contains("*")
                 || name.contains("?") || name.contains("\"") || name.contains("\\")
                 || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+                || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.createTable: bad table name \"" + name + "\"");
         }
         if ((columnTypes == null) || (columnTypes.isEmpty())) {
@@ -189,7 +189,7 @@ public class MyTableProvider implements TableProvider {
                 || name.contains("/") || name.contains(":") || name.contains("*")
                 || name.contains("?") || name.contains("\"") || name.contains("\\")
                 || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+                || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
         if (tables.containsKey(name)) {
@@ -291,7 +291,7 @@ public class MyTableProvider implements TableProvider {
                         }
                         i++;
                         pos += token.length();
-                    } catch (NumberFormatException e) {
+                    } catch (ColumnFormatException e) {
                         throw new ParseException("TableProvider.deserialize: " + e.getMessage(), pos);
                     }
             }
@@ -316,12 +316,23 @@ public class MyTableProvider implements TableProvider {
             throw new ColumnFormatException("Table.put: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
             try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
+                Storeable temp = value;
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
-                    if (value.getColumnAt(i) == null) {
-                        //throw new ColumnFormatException("Table.put: it is impossible
-                        // to recognize value's column types");
-                    } else if (table.getColumnType(i) != value.getColumnAt(i).getClass()) {
-                        throw new ColumnFormatException("Table.put: value has other columns");
+                    Class<?> c = table.getColumnType(i);
+                    if (c == Integer.class) {
+                        temp.setColumnAt(i, Integer.valueOf(1));
+                    } else if (c == Long.class)  {
+                        temp.setColumnAt(i, Long.valueOf((long) 1));
+                    } else if (c == Byte.class) {
+                        temp.setColumnAt(i, Byte.valueOf((byte) 1));
+                    } else if (c == Float.class) {
+                        temp.setColumnAt(i, Float.valueOf((float) 1.5));
+                    } else if (c == Double.class) {
+                        temp.setColumnAt(i, Double.valueOf(1.5));
+                    } else if (c == Boolean.class) {
+                        temp.setColumnAt(i, Boolean.valueOf(true));
+                    } else {
+                        temp.setColumnAt(i, "abc");
                     }
                 }
             } catch (IndexOutOfBoundsException e1) {
@@ -330,7 +341,7 @@ public class MyTableProvider implements TableProvider {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<row>");                                                     //И ЗДЕСЬ КОСТЫЛЬ, ПОДОБНЫЙ Table.put
+        sb.append("<row>");
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             Class<?> c = table.getColumnType(i);
             if (c == null) {
