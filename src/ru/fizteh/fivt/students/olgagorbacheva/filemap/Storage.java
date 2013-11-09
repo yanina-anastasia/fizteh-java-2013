@@ -2,12 +2,15 @@ package ru.fizteh.fivt.students.olgagorbacheva.filemap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Storage {
       Map<String, String> storage;
+      Boolean commited;
 
       public Storage() {
             storage = new HashMap<String, String>();
+            commited = true;
       }
 
       public boolean put(String key, String value) {
@@ -43,6 +46,10 @@ public class Storage {
 
       public Map<String, String> getMap() {
             return storage;
+      }
+      
+      public Set<String> keySet() {
+            return storage.keySet();
       }
       
       public int getSize() {
