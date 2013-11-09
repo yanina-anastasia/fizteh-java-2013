@@ -130,31 +130,36 @@ public class DbState extends State {
         String value = "";
         String key2 = "";
         
-        do {  
-            position += key.getBytes().length + 5;
-            if (position < firstOffset) {   
-                key2 = getKeyFromFile(position);
-                endOffset = dbFile.readInt();
-                value = getValueFromFile(startOffset, endOffset);
-                
-            } else {
-                value = getValueFromFile(startOffset, (int) dbFile.length());
-            }
-            
-            if (key.getBytes().length > 0) {
-                if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
-                    dbFile.close();
-                    throw new IOException("wrong key in file");
+        try {
+            do {  
+                position += key.getBytes().length + 5;
+                if (position < firstOffset) {   
+                    key2 = getKeyFromFile(position);
+                    endOffset = dbFile.readInt();
+                    value = getValueFromFile(startOffset, endOffset);
+                    
+                } else {
+                    value = getValueFromFile(startOffset, (int) dbFile.length());
                 }
-                result++;
-                data.put(key, value);
-            }
+                
+                if (key.getBytes().length > 0) {
+                    if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
+                        dbFile.close();
+                        throw new IOException("wrong key in file");
+                    }
+                    result++;
+                    data.put(key, value);
+                }
+                
+                key = key2;
+                startOffset = endOffset;
+            } while (position <= firstOffset); 
             
-            key = key2;
-            startOffset = endOffset;
-        } while (position <= firstOffset); 
-        
-        initial = new HashMap<String, String>(data);
+            initial = new HashMap<String, String>(data);
+        } catch (IOException e) {
+            dbFile.close();
+            throw new RuntimeException("error when reading from file" , e);
+        }
         dbFile.close();
         return result;
     }
@@ -182,20 +187,25 @@ public class DbState extends State {
                 offset += s.getKey().getBytes("UTF-8").length + 5;
             } 
         }
-        
-        for (Map.Entry<String, String> s : data.entrySet()) {
-            if (s.getValue() != null) {
-                dbFile.seek(pos);
-                dbFile.write(s.getKey().getBytes("UTF-8"));
-                dbFile.write("\0".getBytes("UTF-8"));
-                dbFile.writeInt(offset);
-                pos = (int) dbFile.getFilePointer();
-                dbFile.seek(offset);
-                byte[] value = s.getValue().getBytes("UTF-8");
-                dbFile.write(value);
-                offset += value.length;
+        try {
+            for (Map.Entry<String, String> s : data.entrySet()) {
+                if (s.getValue() != null) {
+                    dbFile.seek(pos);
+                    dbFile.write(s.getKey().getBytes("UTF-8"));
+                    dbFile.write("\0".getBytes("UTF-8"));
+                    dbFile.writeInt(offset);
+                    pos = (int) dbFile.getFilePointer();
+                    dbFile.seek(offset);
+                    byte[] value = s.getValue().getBytes("UTF-8");
+                    dbFile.write(value);
+                    offset += value.length;
+                }
             }
+        } catch (IOException e) {
+            dbFile.close();
+            throw new RuntimeException("error when reading file");
         }
+        
         dbFile.close();
     }
     
