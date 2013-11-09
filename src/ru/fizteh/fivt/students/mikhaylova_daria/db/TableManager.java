@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -241,7 +240,6 @@ public class TableManager implements TableProvider {
                     row.appendChild(column);
                     if (table.getColumnType(i).equals(Integer.class)) {
                         valueStr = value.getIntAt(i).toString();
-                        System.out.println(value.getIntAt(1) + " ser");
                     }
                     if (table.getColumnType(i).equals(Long.class)) {
                         valueStr = value.getLongAt(i).toString();
@@ -281,6 +279,7 @@ public class TableManager implements TableProvider {
             throw new ColumnFormatException("wrong type (Wrong type of argument " + i
                     + " or " + numFormExc.getMessage() + ")");
         }
+
         try {       //проверяем, что в передаваемом storeable столбцов не больше, чем в сигнатуре таблицы
             value.getColumnAt(table.getColumnsCount());
             throw new ColumnFormatException("Wrong number of columns in value");
