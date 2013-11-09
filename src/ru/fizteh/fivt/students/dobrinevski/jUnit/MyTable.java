@@ -41,7 +41,7 @@ public class MyTable implements Table{
             throw new IllegalArgumentException("Illegal key");
         }
         try {
-            String[] buf = {"get", key, value};
+            String[] buf = {"put", key, value};
             Command put = new MultiFileHashMapCommands.Put(baseHashMap, root);
             put.innerExecute(buf);
             return put.returnValue.length == 1 ? null : put.returnValue[1];

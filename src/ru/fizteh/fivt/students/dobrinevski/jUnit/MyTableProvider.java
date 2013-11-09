@@ -35,10 +35,15 @@ public class MyTableProvider implements TableProvider {
         String[] args = new String[2];
         args[1] = name;
         try {
-            new MultiFileHashMapCommands.Use(newFileHashMap, root).innerExecute(args);
-            MyTable newTable = new MyTable(root, name, newFileHashMap);
-            bTables.put(name, newTable);
-            return newTable;
+            Command use = new MultiFileHashMapCommands.Use(newFileHashMap, root);
+            use.innerExecute(args);
+            if (use.returnValue[0].lastIndexOf(" not exists") != -1) {
+                return null;
+            } else {
+                MyTable newTable = new MyTable(root, name, newFileHashMap);
+                bTables.put(name, newTable);
+                return newTable;
+            }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -49,13 +54,17 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("Table name is null");
         }
         if (bTables.get(name) != null) {
-            return bTables.get(name);
+            return null;
         }
         MyMultiHashMap newFileHashMap = new MyMultiHashMap();
         String[] args = new String[2];
         args[1] = name;
         try {
-            new MultiFileHashMapCommands.Create(newFileHashMap, root).innerExecute(args);
+            Command create = new MultiFileHashMapCommands.Create(newFileHashMap, root);
+            create.innerExecute(args);
+            if (create.returnValue[0].lastIndexOf(" exists") != -1) {
+                return null;
+            }
             new MultiFileHashMapCommands.Use(newFileHashMap, root).innerExecute(args);
             MyTable newTable = new MyTable(root, name, newFileHashMap);
             bTables.put(name, newTable);
