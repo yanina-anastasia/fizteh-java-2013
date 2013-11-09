@@ -127,6 +127,12 @@ public class FileMapStoreable implements Storeable {
             }
         }
         for (int i = 0; i < line.column.size(); i++) {
+            if (line.getColumnAt(i) != null && this.getColumnAt(i) != null) {
+                if (!line.getColumnAt(i).equals(this.getColumnAt(i))) {
+                    return false;
+                }
+            }
+            /*
             if (columnType.get(i) == Integer.class) {
                 if (line.getIntAt(i) != null && this.getIntAt(i) != null) {
                     if (!line.getIntAt(i).equals(this.getIntAt(i))) {
@@ -175,7 +181,7 @@ public class FileMapStoreable implements Storeable {
                         return false;
                     }
                 }
-            }
+            }*/
         }
         return true;
     }
