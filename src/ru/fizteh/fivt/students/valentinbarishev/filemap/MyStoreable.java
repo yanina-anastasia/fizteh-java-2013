@@ -21,12 +21,13 @@ public class MyStoreable implements Storeable{
         }
 
         for (int i = 0; i < newValues.size(); ++i) {
-            if (newValues.get(i).getClass() != table.getColumnType(i)) {
+            Object value = castTypes(table.getColumnType(i), newValues.get(i));
+            if (value.getClass() != table.getColumnType(i)) {
                 throw new ColumnFormatException(newValues.get(i).toString() + " must be " + table.getColumnType(i)
                         + " but it is " + newValues.get(i).getClass());
             }
             types.add(table.getColumnType(i));
-            values.add(newValues.get(i));
+            values.add(value);
         }
     }
 
@@ -106,6 +107,42 @@ public class MyStoreable implements Storeable{
                 return new Long((int) value);
             }
             throw new ColumnFormatException("Wrong type: " + valueType + " insted of Long!");
+        }
+
+        if (type == Double.class) {
+            if (valueType == Integer.class) {
+                return new Double((int) value);
+            }
+            if (valueType == Byte.class) {
+                return new Double((byte) value);
+            }
+            if (valueType == Long.class) {
+                return new Double((long) value);
+            }
+            if (valueType == Float.class) {
+                return new Double((float) value);
+            }
+            throw new ColumnFormatException("Wrong type: " + valueType + "instead of Double");
+        }
+
+        if (type == Float.class) {
+            if (valueType == Integer.class) {
+                return new Float((int) value);
+            }
+            if (valueType == Byte.class) {
+                return new Float((byte) value);
+            }
+            if (valueType == Long.class) {
+                return new Float((long) value);
+            }
+            if (valueType == Float.class) {
+                return new Float((float) value);
+            }
+            throw new ColumnFormatException("Wrong type: " + valueType + "instead of Float");
+        }
+
+        if (type == String.class) {
+            return value.toString();
         }
 
         return value;

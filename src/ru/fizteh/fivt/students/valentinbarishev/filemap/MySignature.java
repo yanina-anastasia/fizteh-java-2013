@@ -23,7 +23,12 @@ public class MySignature {
             throw new IOException("Empty signature: " + file.getCanonicalPath());
         }
 
-        String[] data = input.next().split(" ");
+        StringBuilder builder = new StringBuilder();
+        while (input.hasNext()) {
+            builder.append(input.next()).append(" ");
+        }
+
+        String[] data = builder.toString().split(" ");
 
         List<Class<?>> result = new ArrayList<>();
 
@@ -78,7 +83,7 @@ public class MySignature {
 
             boolean flag = false;
             for (int j = 0; j < TYPES.length; ++j) {
-                if (new String(s, i, TYPES[j].length()).equals(TYPES[j])) {
+                if (new String(s, i, Math.min(TYPES[j].length(), str.length() - i)).equals(TYPES[j])) {
                     result.add(CLASSES[j]);
                     i += TYPES[j].length();
                     flag = true;
