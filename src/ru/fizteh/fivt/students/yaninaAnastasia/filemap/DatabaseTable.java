@@ -95,9 +95,9 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         checkAlienStoreable(value);
-        /*if (!tryToGetUnnecessaryColumn(value)) {                                  //
+        if (!tryToGetUnnecessaryColumn(value)) {                                  //
             throw new ColumnFormatException("Incorrect value to put.");           //
-        }  */                                                                     //
+        }                                                                      //
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
                 switch (formatColumnType(columnTypes.get(index))) {
@@ -378,20 +378,6 @@ public class DatabaseTable implements Table {
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("Alien storeable with less columns");
             }
-        }
-        int columnCount = 0;
-        try {
-            while(true)
-            {
-                storeable.getColumnAt(columnCount);
-                columnCount++;
-            }
-        } catch (Exception e)
-        {
-        }
-        if (columnCount != getColumnsCount())
-        {
-            throw new ColumnFormatException(String.format("Alien storeable with more columns: storeable %d columns; table %d columns", columnCount, getColumnsCount()));
         }
     }
 }
