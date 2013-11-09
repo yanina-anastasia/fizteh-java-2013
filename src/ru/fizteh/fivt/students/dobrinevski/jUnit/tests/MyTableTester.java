@@ -10,6 +10,7 @@ import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
 import java.lang.System;
 import java.io.IOException;
 import java.io.File;
+import java.nio.file.Files;
 
 
 public class MyTableTester {
