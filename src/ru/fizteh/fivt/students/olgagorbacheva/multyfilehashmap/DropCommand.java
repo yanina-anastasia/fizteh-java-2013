@@ -18,8 +18,10 @@ public class DropCommand implements Command {
             if (provider.getTable(args[1]) == null) {
                   System.out.println("tablename not exists");
             } else {
-                  if (provider.currentDataBase.getName().equals(args[1])) {
-                        provider.setTable(null);
+                  if (provider.currentDataBase != null) {
+                        if (args[1].equals(provider.currentDataBase.getName())) {
+                              provider.setTable(null);
+                        }
                   }
                   provider.removeTable(args[1]);
                   System.out.println("droped");

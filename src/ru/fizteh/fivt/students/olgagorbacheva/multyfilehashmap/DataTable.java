@@ -58,7 +58,7 @@ public class DataTable implements Table {
       }
 
       public String put(String key, String value) {
-            if (key == null || key.equals("") || value.equals("") || value == null) {
+            if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
                   throw new IllegalArgumentException(
                               "Неверное значение ключа или значения");
             }
@@ -116,7 +116,9 @@ public class DataTable implements Table {
                   Set<String> keys = newKeys.keySet();
                   for (String key : keys) {
                         size++;
-                        dataStorage.put(key, newKeys.get(key));
+                        if (!dataStorage.put(key, newKeys.get(key))) {
+                              dataStorage.set(key, newKeys.get(key));
+                        }
                   }
                   newKeys.clear();
             }
