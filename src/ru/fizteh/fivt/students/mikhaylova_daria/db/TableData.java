@@ -175,7 +175,6 @@ public class TableData implements Table {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
-        System.out.println("int: " + value.getColumnAt(1));
         int i = 0;
         try {
             for (i = 0; i < getColumnsCount(); ++i) {
