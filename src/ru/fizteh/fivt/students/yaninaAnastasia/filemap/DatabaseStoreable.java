@@ -36,23 +36,26 @@ public class DatabaseStoreable implements Storeable {
         return true;
     }
 
-    public void setColumnAt(int columnNum, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
+    public void indexOfBounds(int columnNum) {
         if (columnNum < 0 || columnNum >= classes.size()) {
             throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
         }
+    }
+
+    public void setColumnAt(int columnNum, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
+        indexOfBounds(columnNum);
         if (value != null) {
             isColumnTypeValid(columnNum, value);
             try {
-                if (value == null) {
-                    return;
-                }
-                switch (getColumnType(value.getClass())) {
-                    case "String":
-                        String stringValue = (String) value;
-                        if (stringValue.trim().isEmpty()) {
-                            throw new ParseException("Incorrect value: it can not be null", 0);
-                        }
-                        break;
+                //value == null
+                /*switch (getColumnType(value.getClass())) {
+                    case "String":   */
+                if (value.getClass() == String.class) {
+                    String stringValue = (String) value;
+                    if (stringValue.trim().isEmpty()) {
+                        throw new ParseException("Incorrect value: it can not be null", 0);
+                    }
+                    //break;
                 }
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Incorrect value");
@@ -62,64 +65,48 @@ public class DatabaseStoreable implements Storeable {
     }
 
     public Object getColumnAt(int columnNum) throws IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         return columns.get(columnNum);
     }
 
     public Integer getIntAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Integer.class);
         return (Integer) columns.get(columnNum);
     }
 
     public Long getLongAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Long.class);
         return (Long) columns.get(columnNum);
     }
 
     public Byte getByteAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Byte.class);
         return (Byte) columns.get(columnNum);
     }
 
     public Float getFloatAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Float.class);
         return (Float) columns.get(columnNum);
     }
 
     public Double getDoubleAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Double.class);
         return (Double) columns.get(columnNum);
     }
 
     public Boolean getBooleanAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, Boolean.class);
         return (Boolean) columns.get(columnNum);
     }
 
     public String getStringAt(int columnNum) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
-        }
+        indexOfBounds(columnNum);
         isColumnTypeValid(columnNum, String.class);
         return (String) columns.get(columnNum);
     }

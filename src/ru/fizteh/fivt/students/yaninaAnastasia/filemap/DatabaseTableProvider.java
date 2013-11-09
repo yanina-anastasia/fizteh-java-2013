@@ -169,8 +169,6 @@ public class DatabaseTableProvider implements TableProvider {
                 Object columnValue = deserializer.getNext(expectedType);
                 if (columnValue != null) {
                     //throw new IllegalArgumentException("Very bad");
-
-
                     switch (formatColumnType(expectedType)) {
                         case "String":
                             String stringValue = (String) columnValue;
@@ -422,7 +420,9 @@ public class DatabaseTableProvider implements TableProvider {
         }
     }
 
+
     public Class<?> parseColumnType(String columnType) {
+
         switch (columnType) {
             case "int":
                 return Integer.class;

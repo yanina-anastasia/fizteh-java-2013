@@ -34,10 +34,11 @@ public class CommandCreate extends Command {
         if (args.length != 2) {
             throw new IllegalArgumentException("Illegal arguments");
         }
-        if (!args[1].trim().contains("(") || !args[1].trim().contains(")")) {
+        String tempArg = args[1].trim();
+        if (!tempArg.contains("(") || !tempArg.contains(")")) {
             throw new IllegalArgumentException("Illegal description of column types");
         }
-        String columns = args[1].trim().substring(1);
+        String columns = tempArg.substring(1);
         columns = columns.substring(0, columns.length() - 1);
         String[] arrColumns = columns.split("\\s+");
         List<Class<?>> cols = new ArrayList<Class<?>>();
