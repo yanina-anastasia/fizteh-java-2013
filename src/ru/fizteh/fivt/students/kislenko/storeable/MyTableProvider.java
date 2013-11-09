@@ -37,13 +37,9 @@ public class MyTableProvider implements TableProvider {
             if (columnType == null) {
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
-            if (!columnType.isAssignableFrom(Integer.class) &&
-                    !columnType.isAssignableFrom(Long.class) &&
-                    !columnType.isAssignableFrom(Byte.class) &&
-                    !columnType.isAssignableFrom(Float.class) &&
-                    !columnType.isAssignableFrom(Double.class) &&
-                    !columnType.isAssignableFrom(Boolean.class) &&
-                    !columnType.isAssignableFrom(String.class)) {
+            if (columnType != Integer.class && columnType != Long.class && columnType != Byte.class &&
+                    columnType != Float.class && columnType != Double.class && columnType != Boolean.class &&
+                    columnType != String.class) {
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
         }
@@ -90,28 +86,22 @@ public class MyTableProvider implements TableProvider {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (array.get(i).equals(null)) {
                 values.add(null);
-            } else if (array.get(i).getClass().equals(Integer.class) &&
-                    table.getColumnType(i).isAssignableFrom(Integer.class)) {
+            } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
                 values.add(array.getInt(i));
-            } else if ((array.get(i).getClass().equals(Long.class) ||
-                    array.get(i).getClass().equals(Integer.class)) &&
-                    table.getColumnType(i).isAssignableFrom(Long.class)) {
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
+                    table.getColumnType(i) == Long.class) {
                 values.add(array.getLong(i));
-            } else if (array.get(i).getClass().equals(Integer.class) &&
-                    table.getColumnType(i).isAssignableFrom(Byte.class)) {
+            } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
                 values.add(a.byteValue());
-            } else if (array.get(i).getClass().equals(Double.class) &&
-                    table.getColumnType(i).isAssignableFrom(Float.class)) {
+            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
                 Double a = array.getDouble(i);
                 values.add(a.floatValue());
-            } else if (array.get(i).getClass().equals(Double.class) &&
-                    table.getColumnType(i).isAssignableFrom(Double.class)) {
+            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
                 values.add(array.getDouble(i));
-            } else if (array.get(i).getClass().equals(Boolean.class) &&
-                    table.getColumnType(i).isAssignableFrom(Boolean.class)) {
+            } else if (array.get(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
                 values.add(array.getBoolean(i));
-            } else if (array.get(i).getClass().equals(String.class) && table.getColumnType(i).isAssignableFrom(String.class)) {
+            } else if (array.get(i).getClass() == String.class && table.getColumnType(i) == String.class) {
                 values.add(array.getString(i));
             } else {
                 throw new ParseException("Incorrect value string.", -1);
