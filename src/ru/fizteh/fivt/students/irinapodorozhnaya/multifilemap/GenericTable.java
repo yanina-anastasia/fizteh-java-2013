@@ -33,9 +33,7 @@ public abstract class GenericTable<ValueType> {
     }
 
     public ValueType get(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("null argument");
-        }
+        checkKey(key);
         int nfile = Utils.getNumberOfFile(key);
         if (database.get(nfile) != null) {
             return database.get(nfile).get(key);
@@ -45,9 +43,7 @@ public abstract class GenericTable<ValueType> {
     }
 
     public ValueType remove(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("null argument");
-        }
+        checkKey(key);
         int nfile = Utils.getNumberOfFile(key);
         if (database.get(nfile) != null) {
             ValueType oldValue = database.get(nfile).remove(key);
@@ -66,8 +62,10 @@ public abstract class GenericTable<ValueType> {
     }
 
     public ValueType put(String key, ValueType value) {
-        if (key == null || value == null || key.trim().isEmpty() || key.split("\\s+").length != 1) {
-             throw new IllegalArgumentException("key or value null or empty or contain spaces");
+
+        checkKey(key);
+        if (value == null) {
+            throw new IllegalArgumentException("null value");
         }
 
         int nfile = Utils.getNumberOfFile(key);
@@ -180,6 +178,12 @@ public abstract class GenericTable<ValueType> {
             }
         }
         oldSize = size;
+    }
+
+    private void checkKey(String key ) throws IllegalArgumentException {
+        if (key == null || !key.matches("[^\\s+]")) {
+            throw new IllegalArgumentException("key or value null or empty or contain spaces");
+        }
     }
 }
 

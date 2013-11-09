@@ -40,7 +40,6 @@ public class TableTest {
         val1 = provider.createFor(testTable, values);
         values.set(0, 2);
         val2 = provider.createFor(testTable, values);
-        
     }
     
     @After
@@ -92,6 +91,16 @@ public class TableTest {
     public void testPut() throws Exception {
         Assert.assertNull(testTable.put("put", val1));
         Assert.assertEquals(testTable.put("put", val2), val1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutWhiteSpace() throws Exception {
+        testTable.put("put with space", val1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetWhiteSpace() throws Exception {
+        testTable.get("put with space");
     }
 
     @Test(expected = IllegalArgumentException.class)

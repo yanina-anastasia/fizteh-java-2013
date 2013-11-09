@@ -33,7 +33,10 @@ public class StoreableTest {
         columnTypes.add(Byte.class);
         columnTypes.add(Long.class);
 
-        new File(DATA_BASE).mkdirs();
+        File curDir = new File(DATA_BASE);
+        curDir.mkdirs();
+        curDir.deleteOnExit();
+
         provider = new MyTableProviderFactory().create(DATA_BASE);
         
         s = new MyStoreable(provider.createTable("table", columnTypes));               

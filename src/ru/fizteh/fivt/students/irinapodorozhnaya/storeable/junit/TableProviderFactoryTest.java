@@ -16,7 +16,7 @@ public class TableProviderFactoryTest {
     private TableProviderFactory factory;
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
     private final File curDir = new File(DATA_BASE_DIR);
-    
+
     @Before
     public void setUp() throws Exception {
         curDir.mkdirs();
