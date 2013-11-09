@@ -100,7 +100,7 @@ public class MultyFileMapTableProvider implements TableProvider {
             f.delete();
       }
 
-      public void removeTable(String name) {
+      public void removeTable(String name) throws IllegalArgumentException {
             if (name == null || name.isEmpty()) {
                   throw new IllegalArgumentException(
                               "Недопустимое название таблицы");
@@ -111,6 +111,9 @@ public class MultyFileMapTableProvider implements TableProvider {
             }
             if (!name.matches(TABLE_NAME)) {
                   throw new RuntimeException("Недопустимое имя файла");
+            }
+            if (tables.get(name) == null) {
+                  throw new RuntimeException("Данной таблицы не существует");
             }
             deleteFiles(tables.get(name).getWorkingDirectory());
             tables.remove(name);
