@@ -31,7 +31,12 @@ public class CommandCreate extends Command {
 
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
-        if (args.length != 2) {
+        if (args.length == 1) {
+            System.out.println("wrong type (table has no signature)");
+            return false;
+        }
+        if (args.length > 2 || args.length < 1) {
+            System.out.println("wrong type (table has no signature)");
             throw new IllegalArgumentException("Illegal arguments");
         }
         String tempArg = args[1].trim();
