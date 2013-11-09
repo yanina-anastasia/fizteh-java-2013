@@ -115,5 +115,4 @@ public class MyTableProvider implements TableProvider {
                 || name.contains("\n") || name.contains(" ")
                 || name.contains("|") || name.contains("\t"));
     }
-
 }

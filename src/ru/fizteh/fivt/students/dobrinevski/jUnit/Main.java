@@ -15,7 +15,7 @@ public class Main {
 
     static {
         try {
-            String way = System.getProperty("fiztex.db.dir");
+            String way = System.getProperty("fizteh.db.dir");
             if (way == null) {
                 throw new Exception("Illegal way");
             }

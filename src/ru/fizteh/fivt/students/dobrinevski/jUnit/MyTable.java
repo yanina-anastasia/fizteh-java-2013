@@ -23,7 +23,7 @@ public class MyTable implements Table{
     }
 
     public String get(String key) throws IllegalArgumentException {
-        if ((key == null)||(key == "")) {
+        if ((key == null) || (key.equals(""))) {
             throw new IllegalArgumentException("Illegal key");
         }
         if (!isValidKeyValueName(key)) {
@@ -40,10 +40,10 @@ public class MyTable implements Table{
     }
 
     public String put(String key, String value) {
-        if (((key == null)||(key == "")) || ((value == null)||(value == ""))) {
+        if (((key == null) || (key.equals(""))) || ((value == null) || (value.equals("")))) {
             throw new IllegalArgumentException("Illegal key");
         }
-        if ((!isValidKeyValueName(key))||(!isValidKeyValueName(value))) {
+        if ((!isValidKeyValueName(key)) || (!isValidKeyValueName(value))) {
             throw new IllegalArgumentException("Invalid name");
         }
         try {
@@ -57,7 +57,7 @@ public class MyTable implements Table{
     }
 
     public String remove(String key) {
-        if ((key == null)||(key == "")) {
+        if ((key == null) || (key.equals(""))) {
             throw new IllegalArgumentException("Illegal key");
         }
         if (!isValidKeyValueName(key)) {
@@ -74,7 +74,7 @@ public class MyTable implements Table{
         }
     }
 
-     public int size() {
+    public int size() {
         try {
             String[] buf = {"size"};
             Command size = new TransMultiFileHashMapCommands.Size(baseHashMap, root);
