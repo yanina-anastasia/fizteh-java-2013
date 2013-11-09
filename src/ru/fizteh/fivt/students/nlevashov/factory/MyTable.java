@@ -35,6 +35,7 @@ public class MyTable implements Table {
      * Конструктор. Открывает и читают базу.
      *
      * @param address Адрес таблицы.
+     * @param selfProvider Provider текущей таблицы
      *
      * @throws IOException - Ошибка при чтении
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException -
@@ -50,7 +51,7 @@ public class MyTable implements Table {
             StringBuilder sb = new StringBuilder();
             int c = i.read();
             while (c != -1) {
-                sb.append(c);
+                sb.append((char) c);
                 c = i.read();
             }
             s = sb.toString();
@@ -59,7 +60,7 @@ public class MyTable implements Table {
                     + e.getMessage() + "\"", e);
         }
 
-        List<Class<?>> types = new ArrayList<>();
+        types = new ArrayList<>();
         String[] tokens = s.trim().split(" ");
         for (int j = 0; j < tokens.length; ++j) {
             switch (tokens[j]) {

@@ -197,7 +197,7 @@ public class Storable implements Storeable {
         if ((columnIndex < 0) || (columnIndex >= values.size())) {
             throw new IndexOutOfBoundsException("Storable.get" + type.toString() + "At: Incorrect index");
         }
-        if ((values.get(columnIndex) != null) && (values.get(columnIndex) != type)) {
+        if ((values.get(columnIndex) != null) && (types.get(columnIndex) != type)) {
             throw new ColumnFormatException("Storable.get" + type.toString()
                                             + "At: The value type does not match the column type");
         }
