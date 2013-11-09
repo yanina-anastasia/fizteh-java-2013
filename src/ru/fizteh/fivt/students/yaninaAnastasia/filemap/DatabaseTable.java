@@ -391,9 +391,7 @@ public class DatabaseTable implements Table {
         }
         if (columnCount != getColumnsCount())
         {
-            System.out.println(columnCount);
-            System.out.println(getColumnsCount());
-            throw new ColumnFormatException("Alien storeable with more columns");
+            throw new ColumnFormatException(String.format("Alien storeable with more columns: storeable %d columns; table %d columns", columnCount, getColumnsCount()));
         }
     }
 }
