@@ -19,7 +19,7 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;;
 
 public class MyTableProvider implements ExtendProvider {
 
@@ -52,7 +52,7 @@ public class MyTableProvider implements ExtendProvider {
         
         checkCorrectName(name);
         if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("bad column list");
+            throw new IllegalArgumentException("table name is null or has illegal name");
         }
         
         File table = new File(dataBaseDir, name);

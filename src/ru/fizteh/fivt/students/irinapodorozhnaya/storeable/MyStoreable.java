@@ -1,35 +1,22 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.storeable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
-
-import javax.xml.stream.XMLStreamException;
 
 public class MyStoreable implements Storeable, Serializable {
 
     private final List<Object> values;    
     private final Table table;
-
+    
     public MyStoreable(Table table) {
         this.table = table;
         values = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values.add(null);
-        }
-    }
-
-    @Override
-    public String toString() {
-        try {
-            return XMLSerializer.serialize(table, this);
-        } catch (XMLStreamException e) {
-            return null;
         }
     }
 

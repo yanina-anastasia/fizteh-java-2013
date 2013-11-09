@@ -67,20 +67,28 @@ public class XMLSerializer {
         if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("row")) {
             throw new ParseException("", 0);
         }
-
-        int size = table.getColumnsCount();
-        while (i < size) {
+        
+        while (i < table.getColumnsCount()) {
+            
             reader.next();
-            if (reader.isStartElement() && reader.getName().getLocalPart().equals("col")) {
-                reader.next();
-                if (reader.isCharacters()) {
-                    String object = reader.getText();
-                    storeable.setColumnAt(i, getObject(object, table.getColumnType(i++).getSimpleName()));
+            if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("col")) {
+                    throw new ParseException("", 0);
+            }   
+            
+            reader.next();
+            if (reader.isStartElement()) {
+                if (reader.getName().getLocalPart().equals("null")) {
+                    reader.next();
+                    if (!reader.isEndElement()) {
+                        throw new ParseException("", 0);
+                    }
+                    storeable.setColumnAt(i++, null);
                 } else {
                     throw new ParseException("", 0);
                 }
-            } else if (reader.isStartElement() && reader.getName().getLocalPart().equals("null")) {
-                storeable.setColumnAt(i++, null);
+            } else if (reader.isCharacters()) {
+                String object = reader.getText();
+                storeable.setColumnAt(i, getObject(object, table.getColumnType(i++).getSimpleName()));
             } else {
                 throw new ParseException("", 0);
             }
@@ -88,14 +96,9 @@ public class XMLSerializer {
             reader.next();
             if (!reader.isEndElement()) {
                 throw new ParseException("", 0);
-            }
-
+            }    
         }
-        reader.next();
-        if (!reader.isEndElement()) {
-            throw new ParseException("", 0);
-        }
-
+        
         return storeable;
     }
     

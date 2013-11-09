@@ -40,7 +40,7 @@ public class Utils {
         } else if  (className.equals("Float")) {
             return "float";
         } else {
-            return null;
+            throw new IllegalArgumentException("wrong column type");
         }      
     }
     
