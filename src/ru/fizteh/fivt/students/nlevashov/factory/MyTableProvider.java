@@ -42,11 +42,11 @@ public class MyTableProvider implements TableProvider {
         tables = new HashMap<>();
         dbPath = path;
         String name = path.getFileName().toString();
-        if ((name == null) || name.trim().isEmpty()
-                || name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains("\"") || name.contains("\\")
-                || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {  //допилить!!!
+        //        || name.contains("/") || name.contains(":") || name.contains("*")
+        //        || name.contains("?") || name.contains("\"") || name.contains("\\")
+        //        || name.contains(">") || name.contains("<") || name.contains("|")
+        //        || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
         if (!Files.exists(dbPath)) {
@@ -81,11 +81,11 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table getTable(String name) {
-        if ((name == null) || name.trim().isEmpty()
-                || name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains("\"") || name.contains("\\")
-                || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
+        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
+        //        || name.contains("/") || name.contains(":") || name.contains("*")
+          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
+            //    || name.contains(">") || name.contains("<") || name.contains("|")
+              //  || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
             throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
         return tables.get(name);
@@ -105,11 +105,11 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if ((name == null) || name.trim().isEmpty()
-                || name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains("\"") || name.contains("\\")
-                || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
+        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
+        //        || name.contains("/") || name.contains(":") || name.contains("*")
+          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
+            //    || name.contains(">") || name.contains("<") || name.contains("|")
+              //  || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.createTable: bad table name \"" + name + "\"");
         }
         if ((columnTypes == null) || (columnTypes.isEmpty())) {
@@ -181,11 +181,11 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public void removeTable(String name) throws IOException {
-        if ((name == null) || name.trim().isEmpty()
-                || name.contains("/") || name.contains(":") || name.contains("*")
-                || name.contains("?") || name.contains("\"") || name.contains("\\")
-                || name.contains(">") || name.contains("<") || name.contains("|")
-                || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
+        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
+        //        || name.contains("/") || name.contains(":") || name.contains("*")
+          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
+            //    || name.contains(">") || name.contains("<") || name.contains("|")
+              //  || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
         if (tables.containsKey(name)) {

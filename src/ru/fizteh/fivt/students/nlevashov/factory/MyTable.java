@@ -192,8 +192,8 @@ public class MyTable implements Table {
      */
     @Override
     public Storeable get(String key) {
-        if ((key == null) || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Table.get: key is null");
+        if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
+            throw new IllegalArgumentException("Table.get: key is null or consists illegal symbol/symbols");
         }
         return map.get(key);
     }
@@ -212,8 +212,8 @@ public class MyTable implements Table {
      */
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if ((key == null) || key.trim().isEmpty() || key.contains(" ") || key.contains("\n")) {
-            throw new IllegalArgumentException("Table.put: key is null");
+        if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
+            throw new IllegalArgumentException("Table.put: key is null or consists illegal symbol/symbols");
         }
         if (value == null) {
             throw new IllegalArgumentException("Table.put: value is null");
@@ -262,8 +262,8 @@ public class MyTable implements Table {
      */
     @Override
     public Storeable remove(String key) {
-        if ((key == null) || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Table.remove: key is null");
+        if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
+            throw new IllegalArgumentException("Table.remove: key is null or consists illegal symbol/symbols");
         }
         return map.remove(key);
     }
