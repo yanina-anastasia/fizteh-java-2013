@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider
 
 public class MyTableProviderFactory implements TableProviderFactory {
 
-    public static final String LEGAL_NAME = "[а-яА-Яa-zA-Z0-9/:.\\\\]+";
+    public static final String LEGAL_NAME = "[^:*?\"<>|]+";
 
     @Override
     public ExtendProvider create(String dataBaseDir) throws IOException {
