@@ -2,10 +2,7 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap.tests;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.IOException;
@@ -111,5 +108,74 @@ public class MyTableTest {
         Assert.assertNull(table.put("simple", storeable));
         storeableEquals(table.get("simple"), storeable);
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableHasMoreLength() throws IOException {
+        List<Class<?>> types1 = new ArrayList<>();
+        types1.add(Long.class);
+        types1.add(Boolean.class);
+
+        Table table1 = provider.createTable("super1", types1);
+
+        List<Class<?>> types2 = new ArrayList<>();
+        types2.add(Long.class);
+        types2.add(Boolean.class);
+        types2.add(Byte.class);
+        Table table2 = provider.createTable("super2", types2);
+
+        Storeable storeable = provider.createFor(table1);
+
+        storeable.setColumnAt(0, (long) 123123123);
+        storeable.setColumnAt(1, true);
+
+        Assert.assertNull(table1.put("simple", storeable));
+        storeableEquals(table1.get("simple"), storeable);
+
+        storeable = provider.createFor(table2);
+
+        storeable.setColumnAt(0, 1);
+        storeable.setColumnAt(1, false);
+        storeable.setColumnAt(2, 1);
+
+        Assert.assertNull(table2.put("simple", storeable));
+        storeableEquals(table2.get("simple"), storeable);
+
+        table1.put("sdasd", storeable);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableHasLessLength() throws IOException {
+        List<Class<?>> types1 = new ArrayList<>();
+        types1.add(Long.class);
+        types1.add(Boolean.class);
+
+        Table table1 = provider.createTable("super1", types1);
+
+        List<Class<?>> types2 = new ArrayList<>();
+        types2.add(Long.class);
+        types2.add(Boolean.class);
+        types2.add(Byte.class);
+        Table table2 = provider.createTable("super2", types2);
+
+        Storeable storeable = provider.createFor(table1);
+
+        storeable.setColumnAt(0, (long) 123123123);
+        storeable.setColumnAt(1, true);
+
+        Assert.assertNull(table1.put("simple", storeable));
+        storeableEquals(table1.get("simple"), storeable);
+
+        Storeable storeable2 = provider.createFor(table2);
+
+        storeable2.setColumnAt(0, 1);
+        storeable2.setColumnAt(1, false);
+        storeable2.setColumnAt(2, 1);
+
+        Assert.assertNull(table2.put("simple", storeable2));
+        storeableEquals(table2.get("simple"), storeable2);
+
+        table2.put("sdasd", storeable);
+    }
+
 
 }

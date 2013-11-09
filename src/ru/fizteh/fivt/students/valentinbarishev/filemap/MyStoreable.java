@@ -51,6 +51,10 @@ public class MyStoreable implements Storeable{
     }
 
     Object castTypes(Class<?> type, Object value) {
+        if (value == null) {
+            return null;
+        }
+
         Class<?> valueType = value.getClass();
 
         if (type == Integer.class) {
@@ -109,7 +113,7 @@ public class MyStoreable implements Storeable{
 
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (value == JSONObject.NULL) {
+        if (value == JSONObject.NULL || value == null) {
             value = null;
         }
         checkBounds(columnIndex);
