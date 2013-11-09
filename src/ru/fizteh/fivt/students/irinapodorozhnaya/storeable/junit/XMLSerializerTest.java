@@ -16,6 +16,8 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
 public class XMLSerializerTest {
@@ -25,24 +27,15 @@ public class XMLSerializerTest {
     private List<Class<?>> columnTypes;
     private String desirialized = "<row><col>Hello</col><col>5</col></row>";
     private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
-<<<<<<< HEAD
     private File f = new File(DATA_BASE_DIR);
 
     private ExtendProvider provider;
     private ExtendTable table;
-    
+
     @Before
     public void setUp() throws Exception {
         f.mkdirs();
         provider = new MyTableProvider(f);
-=======
-    private TableProvider provider; 
-    private Table table;
-    
-    @Before
-    public void setUp() throws Exception {
-        provider = new MyTableProvider(new File(DATA_BASE_DIR));
->>>>>>> parent of de0eded... fix serializer
         columnTypes = new ArrayList<>();
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
