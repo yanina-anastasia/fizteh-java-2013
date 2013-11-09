@@ -143,8 +143,8 @@ public class DataTable implements Table {
             return size;
       }
 
-      public void readFile() throws FileNotFoundException,
-                  IOException, FileMapException {
+      public void readFile() throws 
+                  IOException {
             for (int i = 0; i < 16; i++) {
                   File currentDir = new File(dataBaseDir,
                               String.valueOf(i) + ".dir");
@@ -160,7 +160,7 @@ public class DataTable implements Table {
                                     if (currentFile.exists()
                                                 && !(currentFile.isFile() && currentDir
                                                             .canRead())) {
-                                          throw new FileMapException(
+                                          throw new IOException(
                                                       "База данных неподходящего формата");
                                     }
                               }
@@ -169,7 +169,7 @@ public class DataTable implements Table {
                         if (currentDir.exists()
                                     && !(currentDir.isDirectory() && currentDir
                                                 .canRead())) {
-                              throw new FileMapException(
+                              throw new IOException(
                                           "База данных неподходящего формата");
                         }
                   }
@@ -177,8 +177,8 @@ public class DataTable implements Table {
       }
 
       @SuppressWarnings("resource")
-      public void read(File dataBaseFile) throws FileNotFoundException,
-                  IOException, FileMapException {
+      public void read(File dataBaseFile) throws 
+                  IOException{
             RandomAccessFile reader = new RandomAccessFile(dataBaseFile, "r");
             if (reader.length() == 0) {
                   return;
@@ -207,14 +207,14 @@ public class DataTable implements Table {
                                     || (!offsets.isEmpty() && offset <= offsets
                                                 .get(offsets.size() - 1))
                                     || (offset >= reader.length())) {
-                              throw new FileMapException(
+                              throw new IOException(
                                           "Неверное значение сдвигов");
                         }
                         offsets.add(offset);
 
                   } while (reader.getFilePointer() != offsets.get(0));
             } catch (EOFException e) {
-                  throw new FileMapException("Файл законнчен раньше времени");
+                  throw new IOException("Файл законнчен раньше времени");
             }
 
             offsets.add((int) reader.length());
@@ -227,7 +227,7 @@ public class DataTable implements Table {
 
             for (int i = 0; i < keys.size(); ++i) {
                   if (!dataStorage.put(keys.get(i), values.get(i))) {
-                        throw new FileMapException(
+                        throw new IOException(
                                     "Значение ключа не уникально");
                   }
             }

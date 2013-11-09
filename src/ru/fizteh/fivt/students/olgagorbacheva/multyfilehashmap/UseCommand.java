@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.olgagorbacheva.filemap.FileMapException;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Command;
 
@@ -17,7 +16,7 @@ public class UseCommand implements Command {
             this.provider = provider;
       }
 
-      public void execute(String[] args, State state) throws IOException, FileMapException {
+      public void execute(String[] args, State state) throws IOException{
             if (provider.currentDataBase != null
                         && provider.currentDataBase.sizeChangesCommit() != 0) {
                   throw new IOException(
