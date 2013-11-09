@@ -371,9 +371,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                     mySystem.rm(new String[]{pathDb.resolve(name).toString()});
                 }
             } catch (Exception e) {
-                IllegalArgumentException ex = new IllegalArgumentException();
-                ex.addSuppressed(e);
-                throw ex;
+                //IllegalArgumentException ex = new IllegalArgumentException();
+                //ex.addSuppressed(e);
+                //throw ex;
             }
         } else {
             throw new IllegalStateException();

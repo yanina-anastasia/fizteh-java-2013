@@ -11,9 +11,9 @@ public class FileMapUtils {
         if (key == null) {
             throw new IllegalArgumentException("key or value is clear");
         }
-        /*if (key.trim().isEmpty()) {
+        if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("only spaces");
-        }
+        }/*
         if (key.contains(" ") || key.contains("\t")) {
             throw new IllegalArgumentException("spaces can't be in key");
         }
