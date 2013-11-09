@@ -16,6 +16,9 @@ public class GetCommand implements Command{
       }
 
       public void execute(String[] args, State state) {
+            if (provider.currentDataBase == null) {
+                  throw new IllegalArgumentException("Таблица не выбрана"); 
+            }
             String value = provider.currentDataBase.get(args[1]);
             if (value == null) {
                   System.out.println("not found");

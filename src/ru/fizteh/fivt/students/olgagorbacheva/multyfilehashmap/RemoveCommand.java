@@ -15,6 +15,9 @@ public class RemoveCommand implements Command {
       }
 
       public void execute(String[] args, State state) {
+            if (provider.currentDataBase == null) {
+                  throw new IllegalArgumentException("Таблица не выбрана"); 
+            }
             if (provider.currentDataBase.remove(args[1]) == null) {
                   System.out.println("not found");
             } else {

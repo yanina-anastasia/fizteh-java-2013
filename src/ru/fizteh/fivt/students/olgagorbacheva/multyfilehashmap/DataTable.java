@@ -47,23 +47,25 @@ public class DataTable implements Table {
             if (value != null) {
                   return value;
             } else {
-                  value = dataStorage.get(key);
+                  String dataStorageValue = dataStorage.get(key);
                   if (removedKeys.get(key) != null) {
                         return null;
                   } else {
-                        return value;
+                        return dataStorageValue;
                   }
             }
       }
 
       public String put(String key, String value) {
-            if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
+            if (key == null || value == null || key.trim().equals("")
+                        || value.trim().equals("")) {
                   throw new IllegalArgumentException(
                               "Неверное значение ключа или значения");
             }
             if (dataStorage.get(key) == null && newKeys.get(key) == null
                         || removedKeys.get(key) != null) {
-                  if (removedKeys.get(key) != null && removedKeys.get(key) != value) {
+                  if (removedKeys.get(key) != null
+                              && removedKeys.get(key) != value) {
                         removedKeys.remove(key);
                   } else {
                         newKeys.put(key, value);
@@ -116,7 +118,9 @@ public class DataTable implements Table {
             if (newKeys.getSize() != 0) {
                   Set<String> keys = newKeys.keySet();
                   for (String key : keys) {
-                        size++;
+                        if (!newKeys.get(key).equals(dataStorage.get(key))) {
+                              size++;
+                        }
                         if (!dataStorage.put(key, newKeys.get(key))) {
                               dataStorage.set(key, newKeys.get(key));
                         }
@@ -139,7 +143,14 @@ public class DataTable implements Table {
 
       public int rollback() {
             int size = 0;
-            size += newKeys.getSize();
+            if (newKeys.getSize() != 0) {
+                  Set<String> keys = newKeys.keySet();
+                  for (String key : keys) {
+                        if (!newKeys.get(key).equals(dataStorage.get(key))) {
+                              size++;
+                        }
+                  }
+            }
             newKeys.clear();
             size += removedKeys.getSize();
             removedKeys.clear();
