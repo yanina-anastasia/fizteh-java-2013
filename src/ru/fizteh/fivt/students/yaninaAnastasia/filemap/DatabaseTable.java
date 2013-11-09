@@ -395,7 +395,6 @@ public class DatabaseTable implements Table {
             }
         } catch (IndexOutOfBoundsException e)
         {
-            columnCount--;
         }
         if (columnCount != getColumnsCount())
             return false;
