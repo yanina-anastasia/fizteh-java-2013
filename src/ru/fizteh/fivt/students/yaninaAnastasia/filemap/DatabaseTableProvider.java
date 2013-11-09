@@ -227,9 +227,9 @@ public class DatabaseTableProvider implements TableProvider {
             columns.add(table.getColumnType(i));
         }
         DatabaseStoreable row = new DatabaseStoreable(columns);
-        for (int index = 0; index < table.getColumnsCount(); ++index) {
+        /*for (int index = 0; index < table.getColumnsCount(); ++index) {
             row.addColumn(table.getColumnType(index));
-        }
+        }  */
         return row;
     }
 
