@@ -376,6 +376,10 @@ public class MultiFileHashTable implements Table {
 
     private void readData(File dbDir) throws DatabaseException, FileNotFoundException {
         File[] innerFiles = dbDir.listFiles();
+        if (innerFiles.length == 0) {
+            throw new DatabaseException("Empty database dir '" + dbDir.getAbsolutePath() + "'");
+        }
+
         for (File dbFile : innerFiles) {
             try (FileInputStream input = new FileInputStream(dbFile)) {
                 while (input.available() > 0) {
