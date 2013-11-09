@@ -59,7 +59,8 @@ public class Storable implements Storeable {
             throw new ColumnFormatException("Storable.constructor: columnTypes is null");
         }
         if (columnTypes.size() != columnValues.size()) {
-            throw new IndexOutOfBoundsException("Storable.constructor: columnTypes and columnValues have different size");
+            throw new IndexOutOfBoundsException("Storable.constructor: "
+                                              + "columnTypes and columnValues have different size");
         }
         int i = 0;
         for (Class<?> c : columnTypes)  {
@@ -67,8 +68,8 @@ public class Storable implements Storeable {
                                      && (c != Double.class) && (c != Boolean.class) && (c != String.class)) {
                 throw new ColumnFormatException("Storable.constructor: Illegal type \"" + c.toString() + "\"");
             } else if (c != columnValues.get(i).getClass()) {
-                throw new ColumnFormatException("Storable.constructor: " +
-                        "The value type does not match the column type at " + i + " position");
+                throw new ColumnFormatException("Storable.constructor: "
+                                              + "The value type does not match the column type at " + i + " position");
             }
             ++i;
         }

@@ -305,6 +305,24 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        try {
+            value.getColumnAt(table.getColumnsCount());
+            throw new ColumnFormatException("Table.put: value has other number of columns");
+        } catch (IndexOutOfBoundsException e) {
+            try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
+                for (int i = 0; i < table.getColumnsCount(); ++i) {
+                    if (value.getColumnAt(i) == null) {
+                        //throw new ColumnFormatException("Table.put: it is impossible
+                        // to recognize value's column types");
+                    } else if (table.getColumnType(i) != value.getColumnAt(i).getClass()) {
+                        throw new ColumnFormatException("Table.put: value has other columns");
+                    }
+                }
+            } catch (IndexOutOfBoundsException e1) {
+                throw new ColumnFormatException("Table.put: value has other number of columns");
+            }
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("<row>");                                                     //И ЗДЕСЬ КОСТЫЛЬ, ПОДОБНЫЙ Table.put
         for (int i = 0; i < table.getColumnsCount(); ++i) {

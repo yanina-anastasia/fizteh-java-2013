@@ -227,7 +227,8 @@ public class MyTable implements Table {
                 int i = 0;
                 for (Class<?> t : types) {
                     if (value.getColumnAt(i) == null) {
-                        //throw new ColumnFormatException("Table.put: it is impossible to recognize value's column types");
+                        //throw new ColumnFormatException("Table.put: it is impossible
+                        // to recognize value's column types");
                     } else if (t != value.getColumnAt(i).getClass()) {
                         throw new ColumnFormatException("Table.put: value has other columns");
                     }
