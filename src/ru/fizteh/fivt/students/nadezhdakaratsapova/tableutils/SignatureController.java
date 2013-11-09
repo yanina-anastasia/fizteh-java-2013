@@ -4,10 +4,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTable;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -173,4 +170,44 @@ public class SignatureController {
         }
         return types;
     }
+
+    public String getPrimitive(Class<?> cls) {
+        String primitiveType = null;
+        switch (cls.getSimpleName()) {
+            case "Integer":
+                primitiveType = "int";
+                break;
+            case "Long":
+                primitiveType = "long";
+                break;
+            case "Byte":
+                primitiveType = "byte";
+                break;
+            case "Float":
+                primitiveType = "float";
+                break;
+            case "Double":
+                primitiveType = "double";
+                break;
+            case "Boolean":
+                primitiveType = "boolean";
+                break;
+            case "String":
+                primitiveType = "String";
+                break;
+            default:
+                throw new IllegalArgumentException("Not allowed type of signature");
+
+        }
+        return primitiveType;
+    }
+
+    public void writeSignatureToFile(File file, List<Class<?>> columnTypes) throws IOException {
+        DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
+        for (Class<?> cls : columnTypes) {
+            outputStream.writeChars(getPrimitive(cls) + " ");
+        }
+        outputStream.close();
+    }
+
 }

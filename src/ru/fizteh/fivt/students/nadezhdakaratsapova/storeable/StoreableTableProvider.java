@@ -96,6 +96,9 @@ public class StoreableTableProvider implements TableProvider {
             newTableFile.mkdir();
             StoreableTable newTable = new StoreableTable(name, workingDirectory, columnTypes, this);
             dataBaseTables.put(name, newTable);
+            File sign = new File(newTableFile, "signature.tsv");
+            sign.createNewFile();
+            signatureController.writeSignatureToFile(sign, columnTypes);
             return newTable;
         }
     }
@@ -131,57 +134,56 @@ public class StoreableTableProvider implements TableProvider {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
             Storeable ret = createFor(table);
             int columnCounter = 0;
-            while (xmlReader.hasNext()) {
+            if (xmlReader.hasNext()) {
                 int startNode = xmlReader.next();
                 if (!(startNode == XMLStreamConstants.START_ELEMENT) || !(xmlReader.getName().getLocalPart().equals("row"))) {
                     throw new ParseException("there is a mistake in getting first tag. <row> is expected", 0);
                 } else {
-                    if (xmlReader.hasNext()) {
-                        int node = xmlReader.next();
-                        if (node == XMLStreamConstants.END_ELEMENT) {
-                            if (xmlReader.hasNext()) {
-                                throw new ParseException("Not managed to convert xml value. The end tag is expected", 0);
-                            }
-                        } else {
-                            if ((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) {
-                                if (xmlReader.hasNext()) {
-                                    if (xmlReader.hasText()) {
-                                        xmlReader.next();
-                                        String parseValue = xmlReader.getText();
-                                        ret.setColumnAt(columnCounter, signatureController.convertStringToAnotherObject(parseValue, curDataBaseStorage.getColumnType(columnCounter)));
-                                        ++columnCounter;
+                    while (xmlReader.hasNext()) {
+                        if (xmlReader.hasNext()) {
+                            int node = xmlReader.next();
+                            if (node == XMLStreamConstants.END_ELEMENT) {
+                                break;
+                            } else {
+                                if ((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) {
+                                    if (xmlReader.hasNext()) {
+                                        node = xmlReader.next();
+                                        if (node == XMLStreamConstants.CHARACTERS) {
+                                            String parseValue = xmlReader.getText();
+                                            ret.setColumnAt(columnCounter, signatureController.convertStringToAnotherObject(parseValue, curDataBaseStorage.getColumnType(columnCounter)));
+                                            ++columnCounter;
+                                        }
+
                                     } else {
                                         throw new ParseException("Not managed to convert xml value. The text is expected", 0);
                                     }
-                                } else {
-                                    throw new ParseException("Not managed to convert xml value. The text is expected", 0);
-                                }
 
-                                if (xmlReader.hasNext()) {
-                                    node = xmlReader.next();
+                                    if (xmlReader.hasNext()) {
+                                        node = xmlReader.next();
+                                        if (node != XMLStreamConstants.END_ELEMENT) {
+                                            throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                        }
+                                    } else {
+                                        throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                    }
+
+                                } else {
+                                    if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
+                                        throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
+                                    }
+                                    if (xmlReader.hasNext()) {
+                                        node = xmlReader.next();
+                                    } else {
+                                        throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                    }
                                     if (node != XMLStreamConstants.END_ELEMENT) {
                                         throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
                                     }
-                                } else {
-                                    throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
-                                }
-
-                            } else {
-                                if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
-                                    throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
-                                }
-                                if (xmlReader.hasNext()) {
-                                    node = xmlReader.next();
-                                } else {
-                                    throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
-                                }
-                                if (node != XMLStreamConstants.END_ELEMENT) {
-                                    throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
                                 }
                             }
+                        } else {
+                            throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
                         }
-                    } else {
-                        throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
                     }
                 }
             }
