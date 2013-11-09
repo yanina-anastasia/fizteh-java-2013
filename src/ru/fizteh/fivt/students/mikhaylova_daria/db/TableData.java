@@ -179,7 +179,7 @@ public class TableData implements Table {
         try {
             for (int i = 0; i < getColumnsCount(); ++i) {
                 if (getColumnType(i).equals(Integer.class)) {
-                    value.getIntAt(i);
+                    System.out.println(value.getIntAt(i)+ " " + i);
                 }
                 if (getColumnType(i).equals(Long.class)) {
                     value.getLongAt(i);
