@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,17 +13,18 @@ import org.junit.Test;
 
 import org.junit.rules.TemporaryFolder;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
 
 public class MyTableProviderTest {
 
     private File notExistingFile;
     private File existingFile;
     private File existingDir;
-    
+    private List<Class<?>> justList;
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-    
+
     @Before
     public void prepare() {
         try {
@@ -34,48 +37,54 @@ public class MyTableProviderTest {
         } catch (IOException e1) {
             System.err.println("can't make tests");
         }
-        notExistingFile = new File(existingDir.getParent() + File.separator + "notExistingPath");
+        notExistingFile = new File(existingDir.getParent() + File.separator
+                + "notExistingPath");
+        justList = new ArrayList<Class<?>>(3);
+        justList.add(Integer.class);
+        justList.add(String.class);
+        justList.add(Long.class);
     }
-    
-    @Test (expected = IllegalArgumentException.class)
-    public void testInizializeNull() {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInitializeNull() {
         MyTableProvider prov = new MyTableProvider(null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void testInizializeEmpty() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testInitializeEmpty() {
         MyTableProvider prov = new MyTableProvider("");
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void testInizializeNl() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testInitializeNl() {
         MyTableProvider prov = new MyTableProvider("                       ");
     }
-        
-/*    @Test
-    public void testInizialize() {
+
+    @Test
+    public void testInitialize() {
         MyTableProvider prov;
         try {
             prov = new MyTableProvider(existingDir.getAbsolutePath());
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
-        
+
         try {
             prov = new MyTableProvider(notExistingFile.getAbsolutePath());
-            assertTrue(notExistingFile.exists() && notExistingFile.isDirectory());
+            assertTrue(notExistingFile.exists()
+                    && notExistingFile.isDirectory());
         } catch (IllegalArgumentException e1) {
-            //ok
+            // ok
         } catch (Exception e2) {
             fail("initialize notExistingDir: expected IllegalArgumentException");
         }
-                
+
         if (existingFile.isFile()) {
             try {
                 prov = new MyTableProvider(existingFile.getAbsolutePath());
                 fail("initialize TableProvider with file: expected IllegalArgumentException");
             } catch (IllegalArgumentException e1) {
-                //ok
+                // ok
             } catch (Exception e2) {
                 fail("initialize TableProvider with file: expected IllegalArgumentException");
             }
@@ -101,21 +110,24 @@ public class MyTableProviderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableNull() {
+    public void testCreateTableNull() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
-        prov.createTable(null);
+        prov.createTable(null, justList);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableEmpty() {
+    public void testCreateTableEmpty() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
-        prov.createTable("");
+        prov.createTable("", justList);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableNl() {
+    public void testCreateTableNl() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
-        prov.createTable("                  ");
+        prov.createTable("                  ", justList);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -133,9 +145,9 @@ public class MyTableProviderTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRemoveTableNl() {
         MyTableProvider prov = new MyTableProvider();
-        prov.createTable("                   ");
+        prov.removeTable("                   ");
     }
-    
+
     @Test(expected = RuntimeException.class)
     public void testGetTableBadSymbol() {
         MyTableProvider prov = new MyTableProvider();
@@ -143,9 +155,10 @@ public class MyTableProviderTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testCreateTableBadSymbol() {
+    public void testCreateTableBadSymbol() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
-        prov.createTable("/aaaa");
+        prov.createTable("/aaaa", justList);
     }
 
     @Test(expected = RuntimeException.class)
@@ -172,29 +185,30 @@ public class MyTableProviderTest {
         } catch (IllegalArgumentException e1) {
             fail("Everything is Ok!");
         } catch (RuntimeException e) {
-            //ok, shit happens, fileMap could throw exception
+            // ok, shit happens, fileMap could throw exception
         }
-                
+
         if (existingFile.isFile()) {
             try {
                 Table res2 = prov.getTable("existingPath");
                 assertNull(res2);
             } catch (RuntimeException e) {
-                //ok, shit happens, fileMap could throw exception
+                // ok, shit happens, fileMap could throw exception
             }
         }
         if (existingDir.isDirectory()) {
             try {
                 Table res2 = prov.getTable("existingDirPath");
-                assertNotNull(res2);            
+                assertNotNull(res2);
             } catch (RuntimeException e) {
-                //ok, shit happens, fileMap could throw exception
+                // ok, shit happens, fileMap could throw exception
             }
         }
     }
 
     @Test
-    public void testCreateTable() {
+    public void testCreateTable() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         try {
             prov.getTable("anyPath");
@@ -209,28 +223,36 @@ public class MyTableProviderTest {
         } catch (Exception e1) {
             fail("RootDir is correct, shouldn't fail");
         }
-        
+
         try {
-            Table res = prov.createTable("notExistingPath");
+            Table res = prov.createTable("notExistingPath", justList);
             assertNotNull(res);
-            assertTrue(notExistingFile.exists() && notExistingFile.isDirectory());
+            assertTrue(notExistingFile.exists()
+                    && notExistingFile.isDirectory());
         } catch (RuntimeException e1) {
             // what a pity: couldn't create this file
         }
-                
+
         if (existingFile.isFile()) {
             try {
-                prov.createTable("existingPath");
+                prov.createTable("existingPath", justList);
                 fail("file with this name exists: shouldn't be able to create table");
             } catch (RuntimeException e1) {
-                //ok
+                // ok
             } catch (Exception e2) {
                 fail("file with this name exists: expected RuntimeException");
             }
         }
         if (existingDir.isDirectory()) {
-            Table res2 = prov.createTable("existingDirPath");
-            assertNull(res2);            
+            File infoFile = new File(existingDir, "signature.tsv");
+            if (!infoFile.exists()) {
+                try {
+                    Table res2 = prov.createTable("existingDirPath", justList);
+                    fail("expected IllegalArgumentException");
+                } catch (IllegalArgumentException e) {
+                    //
+                }
+            }
         }
     }
 
@@ -245,24 +267,24 @@ public class MyTableProviderTest {
         } catch (Exception e1) {
             fail("null RootDir :expected RuntimeException");
         }
-        
+
         prov = new MyTableProvider(existingDir.getParent());
-                        
+
         try {
             prov.removeTable(notExistingFile.getName());
             fail("remove notExistingTable: expected IllegalStateException");
         } catch (IllegalStateException e1) {
-            //ok
+            // ok
         } catch (Exception e2) {
             fail("remove notExistingTable: expected IllegalStateException");
         }
-                
+
         if (existingFile.isFile()) {
             try {
                 prov.removeTable("existingPath");
                 fail("remove not table: expected IllegalStateException");
             } catch (IllegalStateException e1) {
-                //ok
+                // ok
             } catch (Exception e2) {
                 fail("remove not table: expected IllegalStateException");
             }
@@ -272,23 +294,24 @@ public class MyTableProviderTest {
                 prov.removeTable("existingDirPath");
                 assertTrue(!existingDir.exists());
             } catch (RuntimeException e1) {
-                //ok, can't delete, shit happens.
-            }   
+                // ok, can't delete, shit happens.
+            }
         }
     }
-    
+
     @Test
-    public void testCreateGetRemove() {
+    public void testCreateGetRemove() throws IllegalArgumentException,
+            RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider(existingDir.getParent());
         String name = "newTable";
-        Table createRes = prov.createTable(name);
+        Table createRes = prov.createTable(name, justList);
         Table getRes = prov.getTable(name);
         if (createRes != getRes) {
             fail("table from get should be the same as from create");
         }
-        Table createAgain = prov.createTable(name);
+        Table createAgain = prov.createTable(name, justList);
         assertNull(createAgain);
         prov.removeTable(name);
         assertNull(prov.getTable(name));
-    }*/
+    }
 }

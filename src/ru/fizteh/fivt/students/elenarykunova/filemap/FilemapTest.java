@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class FilemapTest {
@@ -106,14 +107,11 @@ public class FilemapTest {
         Storeable val2 = prov.deserialize(table, valStr2);
         assertNotNull(table.put("key", val2));
         
-//        String valStrGet = prov.serialize(table, table.get("key"));
         assertNotEquals(table.get("key"), val1);
         
-//        String valStrPut = prov.serialize(table, table.put("key", val1)); 
         assertEquals(table.put("key", val1), val2);
         assertNull(table.get("other_key"));
         
-//        String valStrRemove = prov.serialize(table, table.remove("key"));
         assertEquals(table.remove("key"), val1);
         
         assertNull(table.get("key"));
@@ -123,21 +121,18 @@ public class FilemapTest {
     public void testPutGetRemoveCyrillic() throws IllegalArgumentException, ParseException {
         String valStr1 = "[1, 1.5, значение1]";
         Storeable val1 = prov.deserialize(table, valStr1);
-        assertNull(table.put("key", val1));
+        assertNull(table.put("ключ", val1));
         
         String valStr2 = "[1, 1.5, значение2]";
         Storeable val2 = prov.deserialize(table, valStr2);
         assertNotNull(table.put("ключ", val2));
         
-        String valStrGet = prov.serialize(table, table.get("ключ"));
-        assertNotEquals(valStrGet, valStr1);
+        assertNotEquals(table.get("ключ"), val1);
         
-        String valStrPut = prov.serialize(table, table.put("ключ", val1)); 
-        assertEquals(valStrPut, valStr2);
+        assertEquals(table.put("ключ", val1), val2);
         assertNull(table.get("другой_ключ"));
         
-        String valStrRemove = prov.serialize(table, table.remove("ключ"));
-        assertEquals(valStrRemove, valStr1);
+        assertEquals(table.remove("ключ"), val1);
         
         assertNull(table.get("ключ"));
     }
@@ -155,9 +150,7 @@ public class FilemapTest {
         assertEquals(table.size(), sz);
         assertEquals(table.rollback(), 0);
         for (int i = 0; i < sz; i++) {
-            String valStr = "[" + Integer.toString(i + 1) + ", 2.3, value_commit]";
-            String removeVal = prov.serialize(table, table.remove(Integer.toString(i)));
-            assertEquals(removeVal, valStr);
+            table.remove(Integer.toString(i));
         }        
         assertEquals(table.size(), 0);
         assertEquals(table.rollback(), sz);
@@ -175,16 +168,14 @@ public class FilemapTest {
         
         String valStr2 = "[4, 2, val2]";
         Storeable val2 = prov.deserialize(table, valStr2);
-        String valPut = prov.serialize(table, table.put("11", val2)); 
-        assertEquals(valPut, valStr1);
+        table.put("11", val2);
         table.put("11", val1);
         assertEquals(table.rollback(), 0);
         
         table.remove("11");
         assertEquals(table.rollback(), 1);
         
-        String valGet = prov.serialize(table, table.get("11")); 
-        assertEquals(valGet, valStr1);
+        assertNotNull(table.get("11"));
         
         String valStrInit = "[0, 0.3, a]";
         Storeable valInit = prov.deserialize(table, valStrInit);
@@ -222,8 +213,7 @@ public class FilemapTest {
         
         String valStr2 = "[4, 2, val2]";
         Storeable val2 = prov.deserialize(table, valStr2);
-        String valPut = prov.serialize(table, table.put("11", val2)); 
-        assertEquals(valPut, valStr1);
+        assertEquals(table.put("11", val2), val1);
 
         String valStrNew = "[0, 0.3, a]";
         Storeable valNew = prov.deserialize(table, valStrNew);
@@ -257,4 +247,42 @@ public class FilemapTest {
         assertEquals(0, table.commit());
 
     }
+    
+    @Test (expected = ColumnFormatException.class)
+    public void putBigStoreable() throws IllegalArgumentException, RuntimeException, IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>(4);
+        columnTypes.add(Integer.class);
+        columnTypes.add(Double.class);
+        columnTypes.add(String.class);
+        columnTypes.add(Integer.class);
+        Filemap big = (Filemap) prov.createTable("big", columnTypes);
+        Storeable bigger = prov.createFor(big);
+        table.put("key1", bigger);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void putSmallStoreable() throws IllegalArgumentException, RuntimeException, IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>(2);
+        columnTypes.add(Integer.class);
+        columnTypes.add(Double.class);
+        Filemap small = (Filemap) prov.createTable("small", columnTypes);
+        Storeable smaller = prov.createFor(small);
+        table.put("key2", smaller);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void putBadStoreable() throws IllegalArgumentException, RuntimeException, IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>(3);
+        columnTypes.add(0, Boolean.class);
+        columnTypes.add(1, Long.class);
+        columnTypes.add(2, Float.class);
+        List<Object> values = new ArrayList<Object>(3);
+        values.add(0, true);
+        values.add(1, 1200000000);
+        values.add(1.323333333);
+        Filemap bad = (Filemap) prov.createTable("bad", columnTypes);
+        Storeable badStoreable = prov.createFor(bad, values);
+        table.put("key3", badStoreable);
+    }
+
 }

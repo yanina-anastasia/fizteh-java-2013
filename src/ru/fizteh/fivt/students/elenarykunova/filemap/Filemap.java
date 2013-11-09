@@ -88,8 +88,7 @@ public class Filemap implements Table {
                         throw new ColumnFormatException(
                                 "types mismatch: expected " + types.get(i)
                                         + " but was "
-                                        + resCast.getClass()
-                                        + value.getStringAt(i));
+                                        + resCast.getClass());
                     } else if (types.get(i).equals(String.class)) {
                         String strValue = value.getStringAt(i);
                         if (strValue.isEmpty() || strValue.trim().isEmpty()) {

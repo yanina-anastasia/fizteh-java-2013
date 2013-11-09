@@ -18,10 +18,6 @@ public class MyStoreable implements Storeable {
             myValues.add(null);
         }
     }
-
-//    public int getSize() {
- //       return myValues.size();
-//    }
     
     public MyStoreable(Table table, List<?> values)
             throws IndexOutOfBoundsException, ColumnFormatException {
