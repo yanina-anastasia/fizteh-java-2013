@@ -28,7 +28,7 @@ public class CommandUse extends DataBaseCommand {
                 System.out.println(name + " not exists");
                 return;
             }
-        } catch (RuntimeException e) {
+        } catch (IllegalStateException e) {
             state.printError(e.getMessage());
             return;
         }

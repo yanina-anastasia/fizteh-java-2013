@@ -73,7 +73,7 @@ public class NewTable implements Table {
     public HashMap<String, String> returnMap() {
         HashMap<String, String> map = new HashMap<>();
         for (String key : dataMap.keySet()) {
-            map.put(key, JSONSerializer.serialize(provider.getTable(name), dataMap.get(key).getCommitedValue()));
+            map.put(key, JSONSerializer.serialize(this, dataMap.get(key).getCommitedValue()));
         }
         return map;
     }
@@ -110,7 +110,7 @@ public class NewTable implements Table {
         if (count != 0) {
             try {
                 if (provider.getCurrentTableFile() != null) {
-                    provider.saveChanges(provider.getCurrentTableFile());
+                    provider.saveChanges(this);
                 }
             } catch (IOException e) {
                 throw new IOException(e.getMessage(), e);
@@ -154,19 +154,20 @@ public class NewTable implements Table {
         int i = 0;
         try {
             for (i = 0; i < types.size(); ++i) {
-                if (!value.getColumnAt(i).equals(types.get(i))) {
-                    throw new ColumnFormatException("Storeable invalid");
+                if (!value.getColumnAt(i).getClass().equals(types.get(i))) {
+                    throw new ColumnFormatException("Storeable invalid in types excpected :" + value.getColumnAt(i)
+                            + "but has" + types.get(i));
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException("Storeable invalid");
+            throw new ColumnFormatException("Storeable invalid in index");
         }
         try {
             value.getColumnAt(i);
         } catch (IndexOutOfBoundsException e) {
             return;
         }
-        throw new ColumnFormatException("Storeable invalid");
+        throw new ColumnFormatException("Storeable invalid out of range");
 
     }
 

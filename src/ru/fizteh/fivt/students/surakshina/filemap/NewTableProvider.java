@@ -120,25 +120,15 @@ public class NewTableProvider implements TableProvider {
                 table.loadCommitedValues(load(tableFile));
             }
         } catch (IOException | ParseException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage(), e);
         }
         return table;
     }
 
-    /*
-     * private HashMap<String, String> load(File tableFile) throws IOException {
-     * HashMap<String, String> map = new HashMap<String, String>(); for (File
-     * dir : tableFile.listFiles()) { if
-     * (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) { for
-     * (File file : dir.listFiles()) { if (checkNameOfFiles(file.getName()) &&
-     * file.isFile()) { if (file.length() != 0) {
-     * map.putAll(ReadDataBase.loadFile(file)); } } } } } return map; }
-     */
-
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
-            if (dir.listFiles().length != 0) {
+            if (dir != null) {
                 if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                     for (File file : dir.listFiles()) {
                         if (checkNameOfFiles(file.getName()) && file.isFile()) {
@@ -170,19 +160,17 @@ public class NewTableProvider implements TableProvider {
      * NewTable(name, this)); return tables.get(name); } }
      */
 
-    public void saveChanges(File tableFile) throws IOException {
-        NewTable table = tables.get(tableFile.getName());
-        HashMap<File, HashMap<String, String>> files = makeFiles(tableFile);
+    public void saveChanges(NewTable table) throws IOException {
+        HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTable(table.getName());
         for (File file : files.keySet()) {
             WriteInDataBase.saveFile(file, files.get(file));
         }
-
+        tables.put(table.getName(), table);
     }
 
-    private HashMap<File, HashMap<String, String>> makeFiles(File tableFile) {
+    private HashMap<File, HashMap<String, String>> makeFiles(NewTable table) {
         HashMap<File, HashMap<String, String>> files = new HashMap<File, HashMap<String, String>>();
-        NewTable table = tables.get(tableFile.getName());
         HashMap<String, String> map = table.returnMap();
         for (String key : map.keySet()) {
             File file = getFile(key);
