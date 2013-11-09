@@ -98,7 +98,7 @@ public class DatabaseTable implements Table {
             //System.out.println(value);
             throw new ColumnFormatException("Alien storeable");
         }
-        if (!tryToGetUnnecessaryColumn(value)) {                                  //
+        if (tryToGetUnnecessaryColumn(value)) {                                  //
             throw new ColumnFormatException("Incorrect value to put.");           //
         }                                                                       //
         for (int index = 0; index < getColumnsCount(); ++index) {
