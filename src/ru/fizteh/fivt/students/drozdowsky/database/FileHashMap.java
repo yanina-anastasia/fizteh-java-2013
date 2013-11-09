@@ -188,18 +188,14 @@ public class FileHashMap implements Table {
                         filePath.createNewFile();
                     } catch (IOException ignored) { }
                     if (base[i][j].getKeys().size() == 0) {
-                        if (!filePath.delete()) {
-                            throw new SecurityException();
-                        } else {
-                            base[i][j].write(filePath);
-                        }
+                        filePath.delete();
+                    } else {
+                        base[i][j].write(filePath);
                     }
                 }
             }
             if (dirPath.exists()) {
-                if (!dirPath.delete()) {
-                    throw new SecurityException();
-                }
+                dirPath.delete();
             }
         }
     }
