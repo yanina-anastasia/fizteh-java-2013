@@ -32,8 +32,14 @@ public class MultiFileHashMapCommands {
             parent.parseFile(dbFile, nDirectory, nFile);
 
             String value = parent.dataBase.get(nDirectory * 16 + nFile).put(args[1], args[2]);
-            returnValue = new String[1];
-            returnValue[0] = value == null ? "new" : "overwrite\n" + value;
+            if (value == null) {
+                returnValue = new String[1];
+                returnValue[0] = "new";
+            } else {
+                returnValue = new String[2];
+                returnValue[0] = "overwrite";
+                returnValue[1] = value;
+            }
         }
 
         public Put(MyMultiHashMap parent, File root) {
