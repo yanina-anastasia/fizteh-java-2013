@@ -116,7 +116,7 @@ public class MyTableProvider implements TableProvider {
                 || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
             throw new IllegalArgumentException("TableProvider.createTable: bad table name \"" + name + "\"");
         }
-        if (columnTypes == null) {
+        if ((columnTypes == null) || (columnTypes.isEmpty())) {
             throw new IllegalArgumentException("TableProvider.createTable: columnTypes is null");
         }
         for (Class<?> c : columnTypes)  {
