@@ -1,27 +1,29 @@
 package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 
+
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Command;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
 
-public class CreateCommand implements Command {
+public class GetCommand implements Command{
 
-      private String name = "create";
+      private String name = "get";
       private final int argNumber = 1;
       
       MultyFileMapTableProvider provider;
-      
-      public CreateCommand(MultyFileMapTableProvider provider) {
+
+      public GetCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }
 
       public void execute(String[] args, State state) {
-            if (provider.createTable(args[1]) == null) {
-                  System.out.println(args[1] + " exists");
+            String value = provider.currentDataBase.get(args[1]);
+            if (value == null) {
+                  System.out.println("not found");
             } else {
-                  System.out.println("created");
+                  System.out.println("found" + "\n" + value);
             }
       }
-
+ 
       public String getName() {
             return name;
       }

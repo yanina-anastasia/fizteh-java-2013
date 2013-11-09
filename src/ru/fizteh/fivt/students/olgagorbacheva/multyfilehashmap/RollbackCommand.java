@@ -3,23 +3,19 @@ package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Command;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
 
-public class CreateCommand implements Command {
+public class RollbackCommand implements Command {
 
-      private String name = "create";
-      private final int argNumber = 1;
+      private String name = "rollback";
+      private final int argNumber = 0;
       
       MultyFileMapTableProvider provider;
       
-      public CreateCommand(MultyFileMapTableProvider provider) {
+      public RollbackCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }
 
       public void execute(String[] args, State state) {
-            if (provider.createTable(args[1]) == null) {
-                  System.out.println(args[1] + " exists");
-            } else {
-                  System.out.println("created");
-            }
+            System.out.println(provider.currentDataBase.rollback());
       }
 
       public String getName() {

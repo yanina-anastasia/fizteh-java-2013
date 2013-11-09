@@ -3,23 +3,24 @@ package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Command;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
 
-public class CreateCommand implements Command {
+public class RemoveCommand implements Command {
 
-      private String name = "create";
+      private String name = "remove";
       private final int argNumber = 1;
       
       MultyFileMapTableProvider provider;
-      
-      public CreateCommand(MultyFileMapTableProvider provider) {
+
+      public RemoveCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }
 
       public void execute(String[] args, State state) {
-            if (provider.createTable(args[1]) == null) {
-                  System.out.println(args[1] + " exists");
+            if (provider.currentDataBase.remove(args[1]) == null) {
+                  System.out.println("not found");
             } else {
-                  System.out.println("created");
+                  System.out.println("removed");
             }
+            
       }
 
       public String getName() {
@@ -29,4 +30,5 @@ public class CreateCommand implements Command {
       public int getArgNumber() {
             return argNumber;
       }
+
 }
