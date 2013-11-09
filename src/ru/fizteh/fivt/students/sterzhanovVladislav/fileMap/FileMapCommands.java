@@ -94,7 +94,7 @@ public class FileMapCommands {
         @Override
         public void innerExecute(String[] args) throws Exception {
             if (args.length < 3) {
-                throw new IllegalArgumentException("wrong type (Unable to handle " + (args.length - 1) + " arguments)");
+                throw new IllegalArgumentException("wrong type ( )");
             }
             List<Class<?>> typeList = new ArrayList<Class<?>>();
             for (int i = 2; i < args.length; ++i) {
