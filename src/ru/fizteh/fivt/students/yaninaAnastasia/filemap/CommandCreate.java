@@ -25,7 +25,7 @@ public class CommandCreate extends Command {
             case "String":
                 return String.class;
             default:
-                return null;
+                throw new IllegalArgumentException("Unknown format");
         }
     }
 
