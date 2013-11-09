@@ -72,8 +72,8 @@ public class DataTable implements Table {
             } else {
                   if (newKeys.get(key) == null) {
                         String oldValue = dataStorage.get(key);
-                        if (oldValue != value) {
-                              newKeys.set(key, value);
+                        if (!oldValue.equals(value)) {
+                              newKeys.put(key, value);
                         }
                         return oldValue;
                   }
@@ -277,6 +277,9 @@ public class DataTable implements Table {
                               }
                         } else {
                               dir.mkdir();
+                              if (!dir.exists()) {
+                                    throw new IOException("Проблема записи в базу данных");
+                              }
                               file = new File(dir, String.valueOf(i % 16)
                                           + ".dat");
                               file.createNewFile();

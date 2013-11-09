@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 
 import java.io.File;
 
-import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 
 
 public class State {
@@ -12,7 +11,7 @@ public class State {
       
       public State(File file) {
             dataBaseFile = file;
-            dataBase = new DataTable(file.getName());
+            dataBase = new DataTable(file.getName(), file);
       }
 
       public File getDataBaseFile() {
