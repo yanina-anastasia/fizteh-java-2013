@@ -393,7 +393,7 @@ public class DatabaseTable implements Table {
                 storeable.getColumnAt(columnCount);
                 columnCount++;
             }
-        } catch (IndexOutOfBoundsException e)
+        } catch (Exception e)
         {
         }
         if (columnCount != getColumnsCount())
