@@ -175,7 +175,7 @@ public class TableData implements Table {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
-        System.out.println("int: " + value.getIntAt(1));
+       // System.out.println("int: " + value.getIntAt(1));
         try {
             for (int i = 0; i < getColumnsCount(); ++i) {
                 if (getColumnType(i).equals(Integer.class)) {
@@ -201,6 +201,8 @@ public class TableData implements Table {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException(e.getMessage(), e);
+        } catch (ClassCastException  e) {
             throw new ColumnFormatException(e.getMessage(), e);
         }
 
