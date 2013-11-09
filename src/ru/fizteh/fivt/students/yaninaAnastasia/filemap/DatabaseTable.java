@@ -103,6 +103,10 @@ public class DatabaseTable implements Table {
                 switch (formatColumnType(columnTypes.get(index))) {
                     case "String":
                         String stringValue = (String) value.getColumnAt(index);
+                        if (stringValue == null)
+                        {
+                            continue;
+                        }
                         if (checkStringCorrect(stringValue)) {
                             throw new ParseException("value cannot be null", 0);
                         }
