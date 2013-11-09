@@ -95,7 +95,7 @@ public class FileMap {
                 }
 
             } catch (Exception e) {
-                throw new Exception(arguments[0] + ": " + e.getMessage());
+                throw new Exception(e.getMessage());
             }
         }
         
@@ -224,7 +224,7 @@ public class FileMap {
                 }
                 
             } catch (Exception e) {
-                throw new Exception(arguments[0] + ": " + e.getMessage());
+                throw new Exception(e.getMessage());
             }
         }
     }
