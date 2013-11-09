@@ -64,8 +64,10 @@ public class DataTable implements Table {
             }
             if (dataStorage.get(key) == null && newKeys.get(key) == null
                         || removedKeys.get(key) != null) {
-                  if (removedKeys.get(key) != null
-                              && removedKeys.get(key) != value) {
+                  if (removedKeys.get(key) != null) {
+                        if (removedKeys.get(key) != value) {
+                              newKeys.put(key, value);
+                        }
                         removedKeys.remove(key);
                   } else {
                         newKeys.put(key, value);
@@ -92,6 +94,9 @@ public class DataTable implements Table {
             String value = newKeys.get(key);
             if (value != null) {
                   newKeys.remove(key);
+                  if (dataStorage.get(key) != null) {
+                        removedKeys.put(key, dataStorage.get(key));
+                  }
                   return value;
             } else {
                   String valueFromDataStorage = dataStorage.get(key);
