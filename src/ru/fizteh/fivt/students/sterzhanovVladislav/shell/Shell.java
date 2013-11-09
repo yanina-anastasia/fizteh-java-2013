@@ -92,7 +92,7 @@ public class Shell {
     
     private void maybePrintPrompt(boolean doPrintPrompt) {
         if (doPrintPrompt) {
-            out.print(" $ ");
+            out.print("$ ");
         }
     }
     
