@@ -16,6 +16,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 
 public class XMLSerializer {
+
     private XMLSerializer() {}
 
     public static String serialize(Table table, Storeable s) throws XMLStreamException {
@@ -29,20 +30,19 @@ public class XMLSerializer {
         try {
             writer.writeStartElement("row");
             for (int i = 0; i < table.getColumnsCount(); ++i) {
-                writer.writeStartElement("col");
+
                 Object element = s.getColumnAt(i);
                 if (element == null) {
-                    writer.writeStartElement("null");
-                    writer.writeEndElement();
-            
+                    writer.writeEmptyElement("null");
                 } else {
+                    writer.writeStartElement("col");
                     if (element.getClass() != table.getColumnType(i)) {
                         throw new ColumnFormatException("col " + i + " has " + element.getClass()
                                                 + " instead of " + table.getColumnType(i));
                     }
                     writer.writeCharacters(element.toString());
+                    writer.writeEndElement();
                 }
-                writer.writeEndElement();
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("different row size");
@@ -52,7 +52,7 @@ public class XMLSerializer {
         return result.toString();            
     }
     
-    public static Storeable deserialize(Table table, String s) 
+    public static Storeable deserialize(Table table, String s)
                   throws XMLStreamException, ParseException {
         
         if (s == null) {
@@ -67,28 +67,20 @@ public class XMLSerializer {
         if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("row")) {
             throw new ParseException("", 0);
         }
-        
-        while (i < table.getColumnsCount()) {
-            
+
+        int size = table.getColumnsCount();
+        while (i < size) {
             reader.next();
-            if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("col")) {
-                    throw new ParseException("", 0);
-            }   
-            
-            reader.next();
-            if (reader.isStartElement()) {
-                if (reader.getName().getLocalPart().equals("null")) {
-                    reader.next();
-                    if (!reader.isEndElement()) {
-                        throw new ParseException("", 0);
-                    }
-                    storeable.setColumnAt(i++, null);
+            if (reader.isStartElement() && reader.getName().getLocalPart().equals("col")) {
+                reader.next();
+                if (reader.isCharacters()) {
+                    String object = reader.getText();
+                    storeable.setColumnAt(i, getObject(object, table.getColumnType(i++).getSimpleName()));
                 } else {
                     throw new ParseException("", 0);
                 }
-            } else if (reader.isCharacters()) {
-                String object = reader.getText();
-                storeable.setColumnAt(i, getObject(object, table.getColumnType(i++).getSimpleName()));
+            } else if (reader.isStartElement() && reader.getName().getLocalPart().equals("null")) {
+                storeable.setColumnAt(i++, null);
             } else {
                 throw new ParseException("", 0);
             }
@@ -96,9 +88,14 @@ public class XMLSerializer {
             reader.next();
             if (!reader.isEndElement()) {
                 throw new ParseException("", 0);
-            }    
+            }
+
         }
-        
+        reader.next();
+        if (!reader.isEndElement()) {
+            throw new ParseException("", 0);
+        }
+
         return storeable;
     }
     

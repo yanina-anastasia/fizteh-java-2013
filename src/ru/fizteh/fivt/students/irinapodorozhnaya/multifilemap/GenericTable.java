@@ -66,7 +66,7 @@ public abstract class GenericTable<ValueType> {
     }
 
     public ValueType put(String key, ValueType value) {
-        if (key == null || value == null || key.trim().isEmpty() || key.trim().matches("\\s+")) {
+        if (key == null || value == null || key.trim().isEmpty() || key.split("\\s+").length != 1) {
              throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }
 

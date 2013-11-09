@@ -19,7 +19,7 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
 public class MyTableProvider implements ExtendProvider {
 
@@ -52,7 +52,7 @@ public class MyTableProvider implements ExtendProvider {
         
         checkCorrectName(name);
         if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("table name is null or has illegal name");
+            throw new IllegalArgumentException("bad column list");
         }
         
         File table = new File(dataBaseDir, name);
@@ -105,7 +105,6 @@ public class MyTableProvider implements ExtendProvider {
         try {
             res = XMLSerializer.deserialize(table, value);
         } catch (XMLStreamException e) {
-
             throw new ParseException(e.getMessage(), 0);
         }
         return res;
@@ -115,7 +114,7 @@ public class MyTableProvider implements ExtendProvider {
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         
         String res;
-        try {
+        try {            
             res = XMLSerializer.serialize(table, value);
         } catch (XMLStreamException e) {
             throw new ColumnFormatException(e);

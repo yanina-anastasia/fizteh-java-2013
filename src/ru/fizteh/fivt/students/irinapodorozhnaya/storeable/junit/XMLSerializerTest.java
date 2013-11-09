@@ -31,7 +31,7 @@ public class XMLSerializerTest {
 
     private ExtendProvider provider;
     private ExtendTable table;
-
+    
     @Before
     public void setUp() throws Exception {
         f.mkdirs();
@@ -81,5 +81,17 @@ public class XMLSerializerTest {
         s.setColumnAt(1, 5);
         columnTypes.add(Byte.class);
         XMLSerializer.serialize(table, s);
-    }    
+    }
+
+    @Test
+    public void serializeWithNull() {
+        Storeable s = provider.createFor(table);
+        Assert.assertEquals(provider.serialize(table, s), "<row><null/><null/></row>");
+    }
+
+    @Test
+    public void deserializeWithNull() throws Exception {
+        Storeable s = provider.createFor(table);
+        Assert.assertEquals(provider.deserialize(table, "<row><null/><null/></row>"), s);
+    }
 }
