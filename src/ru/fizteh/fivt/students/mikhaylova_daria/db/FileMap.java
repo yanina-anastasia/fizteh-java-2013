@@ -169,102 +169,12 @@ public class FileMap {
         }
     }
 
-//    void readerFile(TableData table) throws IOException, DataFormatException, ParseException {
-//        if (table == null) {
-//            throw new IllegalArgumentException("Table is null");
-//        }
-//        Exception e = new Exception("Reading error");
-//        Storeable storeableValue;
-//        RandomAccessFile dataBase = null;
-//        String key1;
-//        try {
-//            dataBase = new RandomAccessFile(file, "r");
-//            HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
-//            HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
-//            String key = readKey(dataBase);
-//            byte b = key.getBytes()[0];
-//            if (b < 0) {
-//                b *= (-1);
-//            }
-//            if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-//                throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
-//            }
-//            if (keyAndValueLength.containsKey(key)) {
-//                throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
-//            }
-//            Integer offset = 0;
-//            try {
-//                offset = dataBase.readInt();
-//            } catch (EOFException e1) {
-//                throw new DataFormatException(file.getName());
-//            }
-//            offsetAndKeyMap.put(offset, key);
-//            final int firstOffset = offset;
-//            try {
-//                int lastOffset = offset;
-//                String lastKey;
-//                while (dataBase.getFilePointer() < firstOffset) {
-//                    lastKey = key;
-//                    key = readKey(dataBase);
-//                    lastOffset = offset;
-//                    offset = dataBase.readInt();
-//                    offsetAndKeyMap.put(offset, key);
-//                    keyAndValueLength.put(lastKey, offset - lastOffset);
-//                    if (keyAndValueLength.containsKey(key)) {
-//                        throw new DataFormatException(file.getName() + ": " + key + ": The key is already contained");
-//                    }
-//                }
-//                keyAndValueLength.put(key, (int) dataBase.length() - offset);
-//            } catch (EOFException e1) {
-//                throw new DataFormatException(file.getName());
-//            }
-//            int lengthOfValue = 0;
-//            while (dataBase.getFilePointer() < dataBase.length()) {
-//                int currentOffset = (int) dataBase.getFilePointer();
-//                if (!offsetAndKeyMap.containsKey(currentOffset)) {
-//                    throw new DataFormatException("Illegal key in file " + file.toPath().toString());
-//                } else {
-//                    key = offsetAndKeyMap.get(currentOffset);
-//                    lengthOfValue = keyAndValueLength.get(key);
-//                }
-//                byte[] valueInBytes = new byte[lengthOfValue];
-//                for (int i = 0; i < lengthOfValue; ++i) {
-//                    valueInBytes[i] = dataBase.readByte();
-//                }
-//                String value = new String(valueInBytes, "UTF8");
-//                storeableValue = table.manager.deserialize(table, value);
-//                fileMap.put(key, storeableValue);
-//            }
-//        } catch (FileNotFoundException e1) {
-//            e = e1;
-//            return;
-//        } catch (EOFException e2) {
-//            e = e2;
-//            throw new DataFormatException(file.toString());
-//        } finally {
-//            if (dataBase != null) {
-//                try {
-//                    dataBase.close();
-//                } catch (Throwable th) {
-//                    e.addSuppressed(th);
-//                }
-//            }
-//        }
-//        fileMapInitial.clear();
-//        for (String key: fileMap.keySet()) {
-//            fileMapInitial.put(key, fileMap.get(key));
-//        }
-//        size = fileMap.size();
-//        isLoaded = true;
-//    }
-//
-
-
     void readerFile(TableData table) throws IOException, DataFormatException, ParseException {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
         Exception e = new Exception("Reading error");
+        Storeable storeableValue;
         RandomAccessFile dataBase = null;
         String key1;
         try {
@@ -277,10 +187,10 @@ public class FileMap {
                 b *= (-1);
             }
             if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
             }
             if (keyAndValueLength.containsKey(key)) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
             }
             Integer offset = 0;
             try {
@@ -322,17 +232,15 @@ public class FileMap {
                     valueInBytes[i] = dataBase.readByte();
                 }
                 String value = new String(valueInBytes, "UTF8");
-                Storeable valueSt = table.manager.deserialize(table, value);
-                fileMap.put(key, valueSt);
+                storeableValue = table.manager.deserialize(table, value);
+                fileMap.put(key, storeableValue);
             }
         } catch (FileNotFoundException e1) {
             e = e1;
             return;
         } catch (EOFException e2) {
             e = e2;
-            throw new DataFormatException(file.getName());
-        } catch (Exception exp) {
-            e = exp;
+            throw new DataFormatException(file.toString());
         } finally {
             if (dataBase != null) {
                 try {
@@ -349,6 +257,7 @@ public class FileMap {
         size = fileMap.size();
         isLoaded = true;
     }
+
 
     private String readKey(RandomAccessFile dateBase) throws IOException, DataFormatException {
         Vector<Byte> keyBuilder = new Vector<Byte>();
