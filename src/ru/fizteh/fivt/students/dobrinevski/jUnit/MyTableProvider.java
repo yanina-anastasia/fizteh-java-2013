@@ -31,17 +31,20 @@ public class MyTableProvider implements TableProvider {
         if (bTables.get(name) != null) {
             return bTables.get(name);
         }
+        if (!isValidFileName(name)) {
+            throw new IllegalArgumentException("Invalid name");
+        }
         MyMultiHashMap newFileHashMap = new MyMultiHashMap();
         String[] args = new String[2];
         args[1] = name;
         try {
             Command use = new MultiFileHashMapCommands.Use(newFileHashMap, root);
             use.innerExecute(args);
+            MyTable newTable = new MyTable(root, name, newFileHashMap);
+            bTables.put(name, newTable);
             if (use.returnValue[0].lastIndexOf(" not exists") != -1) {
                 return null;
             } else {
-                MyTable newTable = new MyTable(root, name, newFileHashMap);
-                bTables.put(name, newTable);
                 return newTable;
             }
         } catch (Exception e) {
@@ -55,6 +58,9 @@ public class MyTableProvider implements TableProvider {
         }
         if (bTables.get(name) != null) {
             return null;
+        }
+        if (!isValidFileName(name)) {
+            throw new IllegalArgumentException("Invalid name");
         }
         MyMultiHashMap newFileHashMap = new MyMultiHashMap();
         String[] args = new String[2];
@@ -78,6 +84,9 @@ public class MyTableProvider implements TableProvider {
         if ((name == null) || (name.equals(""))) {
             throw new IllegalArgumentException("Table name is null");
         }
+        if (!isValidFileName(name)) {
+            throw new IllegalArgumentException("Invalid name");
+        }
         String[] args = new String[2];
         args[1] = name;
         Command drop;
@@ -97,4 +106,14 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalStateException(name + "not exists");
         }
     }
+
+    private static boolean isValidFileName(String name) {
+        return !(name.contains("\\") || name.contains("/")
+                || name.contains(":") || name.contains("*")
+                || name.contains("?") || name.contains("\"")
+                || name.contains("<") || name.contains(">")
+                || name.contains("\n") || name.contains(" ")
+                || name.contains("|") || name.contains("\t"));
+    }
+
 }
