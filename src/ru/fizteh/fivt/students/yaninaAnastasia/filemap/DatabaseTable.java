@@ -373,10 +373,10 @@ public class DatabaseTable implements Table {
                     continue;
                 }
                 if (!o.getClass().equals(getColumnType(index))) {
-                    throw new ColumnFormatException("Alien storeable");
+                    throw new ColumnFormatException("Alien storeable with incompatible types");
                 }
             } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException("Alien storeable");
+                throw new ColumnFormatException("Alien storeable with less columns");
             }
         }
         int columnCount = 0;
@@ -391,7 +391,7 @@ public class DatabaseTable implements Table {
         }
         if (columnCount != getColumnsCount())
         {
-            throw new ColumnFormatException("Alien storeable");
+            throw new ColumnFormatException("Alien storeable with more columns");
         }
     }
 }
