@@ -7,13 +7,15 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTable;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
 
+import java.lang.System;
+
 
 public class MyTableTester {
     public static Table table;
 
     @Before
     public void init() {
-        table = new MyTable("Tested_Table");
+        table = (new MyTableProvider(System.getProperty("fizteh.db.dir"))).createTable("Tested_Table");
     }
 
     @Test
