@@ -91,13 +91,14 @@ public class DataTable implements Table {
             String value = newKeys.get(key);
             if (value != null) {
                   newKeys.remove(key);
+                  return value;
             } else {
-                  value = dataStorage.get(key);
-                  if (value != null) {
+                  String valueFromDataStorage = dataStorage.get(key);
+                  if (valueFromDataStorage != null) {
                         removedKeys.add(key);
                   }
+                  return valueFromDataStorage;
             }
-            return value;
       }
 
       public int size() {
