@@ -47,7 +47,7 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        if (key.trim().isEmpty() || key.split("\\s").length > 1) {
+        if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.containsKey(key)) {
@@ -61,7 +61,7 @@ public class MyTable implements Table {
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if (key.trim().isEmpty() || key.split("\\s").length > 1) {
+        if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to put.");
         }
         try {
@@ -95,7 +95,7 @@ public class MyTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        if (key.trim().isEmpty() || key.split("\\s+").length > 1) {
+        if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
