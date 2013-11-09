@@ -259,7 +259,7 @@ public class FileMap {
 //    }
 //
 
-    void readerFile(TableData table) throws IOException, DataFormatException, ColumnFormatException {
+    void readerFile(TableData table) throws IOException, DataFormatException, ParseException {
         Exception e = new Exception("Reading error");
         RandomAccessFile dataBase = null;
         String key1;
