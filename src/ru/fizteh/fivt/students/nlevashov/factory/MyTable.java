@@ -218,7 +218,7 @@ public class MyTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Table.put: value is null");
         }
-        /*
+
         try {
             value.getColumnAt(types.size());
             throw new ColumnFormatException("Table.put: value has other number of columns");
@@ -227,7 +227,7 @@ public class MyTable implements Table {
                 int i = 0;
                 for (Class<?> t : types) {
                     if (value.getColumnAt(i) == null) {
-                        throw new ColumnFormatException("Table.put: it is impossible to recognize value's column types");
+                        //throw new ColumnFormatException("Table.put: it is impossible to recognize value's column types");
                     } else if (t != value.getColumnAt(i).getClass()) {
                         throw new ColumnFormatException("Table.put: value has other columns");
                     }
@@ -237,9 +237,9 @@ public class MyTable implements Table {
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
             }
-        }  */
+        }
         //это без проверки на вшивость не верно:
-        return map.put(key, value);
+        //return map.put(key, value);
     }
 
     /**
