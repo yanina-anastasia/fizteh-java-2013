@@ -37,7 +37,7 @@ public class Shell{
                               flag = launch.execute(args, state);
                         }
                   }
-                  catch (IOException | ShellException exp) {
+                  catch (IOException exp) {
                         System.err.println(exp.getLocalizedMessage());
                   }
             } while(flag);
@@ -52,7 +52,7 @@ public class Shell{
                         launch.execute(args, state);
                   }
             }
-            catch (IOException | ShellException exp) {
+            catch (IOException  exp) {
                   System.err.println(exp.getLocalizedMessage());
                   System.exit(-1);
             }

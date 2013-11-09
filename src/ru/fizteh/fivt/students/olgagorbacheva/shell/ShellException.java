@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.olgagorbacheva.shell;
 
-public class ShellException extends Exception {
+import java.io.IOException;
+
+public class ShellException extends IOException {
       /**
        * 
        */
