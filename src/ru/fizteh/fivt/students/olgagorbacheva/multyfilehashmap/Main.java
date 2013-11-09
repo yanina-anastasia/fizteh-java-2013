@@ -13,8 +13,11 @@ public class Main {
        * @param args
        */
       public static void main(String[] args) {
+            if (System.getProperty("fizteh.db.dir") == null) {
+                  System.exit(1);
+            }
             String dir = System.getProperty("fizteh.db.dir");
-            Shell multyFileHashMap = new Shell(new State());
+            Shell multyFileHashMap = new Shell(new State(System.getProperty("fizteh.db.dir")));
             MultyFileMapTableProviderFactory providerFactory = new MultyFileMapTableProviderFactory();
             MultyFileMapTableProvider provider;
             try {
