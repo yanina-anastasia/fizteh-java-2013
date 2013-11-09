@@ -8,14 +8,15 @@ import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTable;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
 
 import java.lang.System;
+import java.io.IOException;
 
 
 public class MyTableTester {
     public static Table table;
 
     @Before
-    public void init() {
-        table = (new MyTableProvider(System.getProperty("user.dir"))).createTable("Tested_Table");
+    public void init() throws IOException{
+        table = (new MyTableProvider(File.createTempFile("tmp", "sf").toString())).createTable("Tested_Table");
     }
 
     @Test
