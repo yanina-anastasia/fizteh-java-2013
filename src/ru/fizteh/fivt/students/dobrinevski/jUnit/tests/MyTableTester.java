@@ -29,7 +29,7 @@ public class MyTableTester {
     }
 
     @Test
-    public void ValueWithSpasesGiven() {
+    public void valueWithSpasesGiven() {
         table.put("key", " v a l u e ");
     }
 
@@ -59,7 +59,7 @@ public class MyTableTester {
     }
 
     @Test
-    public void BasicCommitTest() {
+    public void basicCommitTest() {
         table.put("key", "value");
         assertEquals(table.get("key"), "value");
         assertEquals(table.size(), 1);
