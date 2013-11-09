@@ -236,12 +236,12 @@ public class TableManager implements TableProvider {
             Element row = doc.createElement("row");
             doc.appendChild(row);
             for (i = 0; i < table.getColumnsCount(); ++i) {
-                System.out.println(value.getIntAt(1) + " ser");
                 if (!(value.getColumnAt(i) == null)) {
                     Element column = doc.createElement("col");
                     row.appendChild(column);
                     if (table.getColumnType(i).equals(Integer.class)) {
                         valueStr = value.getIntAt(i).toString();
+                        System.out.println(value.getIntAt(1) + " ser");
                     }
                     if (table.getColumnType(i).equals(Long.class)) {
                         valueStr = value.getLongAt(i).toString();
