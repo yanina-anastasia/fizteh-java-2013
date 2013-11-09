@@ -13,7 +13,7 @@ public class MyTableTester {
 
     @Before
     public void init() {
-        table = (new MyTableProvider(System.getProperty("user.dir"))).createTable("Tested_Table");
+        table = new MyTable("Tested_Table");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class MyTableTester {
     }
 
     @Test
-    public void SingulaTest() {
+    public void singulaTest() {
         table.put("key", "value");
         table.remove("key");
         assertEquals(table.commit(), 0);
@@ -91,5 +91,4 @@ public class MyTableTester {
         table.put("key", "value1");
         assertEquals(table.put("key", "value2"), "value1");
     }
-
 }
