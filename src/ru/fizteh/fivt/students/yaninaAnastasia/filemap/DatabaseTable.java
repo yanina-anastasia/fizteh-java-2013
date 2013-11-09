@@ -389,9 +389,8 @@ public class DatabaseTable implements Table {
         boolean flag = true;
         try {
             storeable.getColumnAt(getColumnsCount());
-            flag = false;
         } catch (IndexOutOfBoundsException e) {
-            //
+            flag = false;
         }
         return flag;
     }
