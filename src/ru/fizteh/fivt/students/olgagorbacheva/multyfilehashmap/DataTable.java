@@ -95,10 +95,11 @@ public class DataTable implements Table {
                   return value;
             } else {
                   String valueFromDataStorage = dataStorage.get(key);
-                  if (valueFromDataStorage != null) {
+                  if (valueFromDataStorage != null && removedKeys.get(key) == null) {
                         removedKeys.put(key, valueFromDataStorage);
+                        return valueFromDataStorage;
                   }
-                  return valueFromDataStorage;
+                  return null;
             }
       }
 
