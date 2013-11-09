@@ -12,21 +12,22 @@ public class WorkWithJSON {
         try {
             value.getColumnAt(table.getColumnsCount());
             throw new ColumnFormatException("Too many columns!");
-        } finally {
-            JSONArray array = new JSONArray();
-            for (int i = 0; i < table.getColumnsCount(); ++i) {
-                try {
-                    if (value.getColumnAt(i) == null || value.getColumnAt(i).getClass() == table.getColumnType(i)) {
-                        array.put(value.getColumnAt(i));
-                    } else {
-                        throw new ColumnFormatException("Column " + i + " has wrong type!");
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    throw new ColumnFormatException("Too few columns!");
+        } catch (IndexOutOfBoundsException e) {
+        }
+
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            try {
+                if (value.getColumnAt(i) == null || value.getColumnAt(i).getClass() == table.getColumnType(i)) {
+                    array.put(value.getColumnAt(i));
+                } else {
+                    throw new ColumnFormatException("Column " + i + " has wrong type!");
                 }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Too few columns!");
             }
-            return array.toString();
-            }
+        }
+        return array.toString();
     }
 
     public static Storeable deserialize(Table table, String value) {
