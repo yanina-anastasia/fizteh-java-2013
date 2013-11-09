@@ -180,9 +180,7 @@ public class FileHashMap implements Table {
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
             File dirPath = new File(db.getAbsolutePath() + File.separator + Integer.toString(i) + ".dir");
-            if (!dirPath.mkdir()) {
-                throw new SecurityException();
-            }
+            dirPath.mkdir();
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + File.separator + Integer.toString(j) + ".dat");
