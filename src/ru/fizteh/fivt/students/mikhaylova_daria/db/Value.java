@@ -71,6 +71,7 @@ public class Value implements Storeable {
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Integer integer = null;
+        System.out.println(value.get(columnIndex));
         if (value.get(columnIndex) != null) {
             integer = (Integer) value.get(columnIndex);
         }
