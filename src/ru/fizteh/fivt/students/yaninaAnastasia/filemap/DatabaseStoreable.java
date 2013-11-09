@@ -18,7 +18,13 @@ public class DatabaseStoreable implements Storeable {
         }
     }
 
-    /*public boolean equals(Object obj) {
+    @Override
+    public int hashCode() {
+        return this.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
         Storeable st = (Storeable) obj;
         for (int i = 0; i < columns.size(); i++) {
             Object value1 = this.getColumnAt(i);
@@ -34,7 +40,7 @@ public class DatabaseStoreable implements Storeable {
             }
         }
         return true;
-    }    */
+    }
 
     public void indexOfBounds(int columnNum) {
         if (columnNum < 0 || columnNum >= classes.size()) {
