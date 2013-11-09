@@ -15,7 +15,7 @@ public class MyTableTester {
 
     @Before
     public void init() {
-        table = (new MyTableProvider(System.getProperty("fizteh.db.dir"))).createTable("Tested_Table");
+        table = (new MyTableProvider(System.getProperty("user.dir"))).createTable("Tested_Table");
     }
 
     @Test
