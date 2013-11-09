@@ -74,7 +74,7 @@ public class Value implements Storeable {
         if (value.get(columnIndex) != null) {
             System.out.println(value.get(columnIndex));
             integer = (Integer) value.get(columnIndex);
-            System.out.println(integer + "\n");
+            System.out.println(integer + " " + value.get(columnIndex) + "\n");
         }
         return integer;
     }
