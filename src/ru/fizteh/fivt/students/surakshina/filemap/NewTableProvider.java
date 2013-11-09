@@ -128,7 +128,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
-            if (dir != null) {
+            if (dir.listFiles() != null) {
                 if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                     for (File file : dir.listFiles()) {
                         if (checkNameOfFiles(file.getName()) && file.isFile()) {
@@ -153,12 +153,6 @@ public class NewTableProvider implements TableProvider {
         }
     }
 
-    /*
-     * @Override public Table createTable(String name) { checkTableName(name);
-     * if (tables.get(name) != null) { return null; } else { File table = new
-     * File(workingDirectory, name); table.mkdir(); tables.put(name, new
-     * NewTable(name, this)); return tables.get(name); } }
-     */
 
     public void saveChanges(NewTable table) throws IOException {
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
