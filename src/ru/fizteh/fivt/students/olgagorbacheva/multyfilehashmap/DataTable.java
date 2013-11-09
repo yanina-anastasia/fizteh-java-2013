@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.olgagorbacheva.filemap.FileMapException;
@@ -21,7 +20,7 @@ public class DataTable implements Table {
       private String dataBaseName;
       private Storage dataStorage;
       private Storage newKeys;
-      private Set<String> removedKeys;
+      private Storage removedKeys;
       private File dataBaseDir;
 
       public DataTable(String name, File directory) {
@@ -29,7 +28,7 @@ public class DataTable implements Table {
             dataBaseDir = directory;
             dataStorage = new Storage();
             newKeys = new Storage();
-            removedKeys = new TreeSet<String>();
+            removedKeys = new Storage();
       }
 
       public File getWorkingDirectory() {
@@ -49,7 +48,7 @@ public class DataTable implements Table {
                   return value;
             } else {
                   value = dataStorage.get(key);
-                  if (removedKeys.contains(key)) {
+                  if (removedKeys.get(key) != null) {
                         return null;
                   } else {
                         return value;
@@ -63,8 +62,8 @@ public class DataTable implements Table {
                               "Неверное значение ключа или значения");
             }
             if (dataStorage.get(key) == null && newKeys.get(key) == null
-                        || removedKeys.contains(key)) {
-                  if (removedKeys.contains(key)) {
+                        || removedKeys.get(key) != null) {
+                  if (removedKeys.get(key) != null && removedKeys.get(key) != value) {
                         removedKeys.remove(key);
                   } else {
                         newKeys.put(key, value);
@@ -95,14 +94,14 @@ public class DataTable implements Table {
             } else {
                   String valueFromDataStorage = dataStorage.get(key);
                   if (valueFromDataStorage != null) {
-                        removedKeys.add(key);
+                        removedKeys.put(key, valueFromDataStorage);
                   }
                   return valueFromDataStorage;
             }
       }
 
       public int size() {
-            int size = dataStorage.getSize() - removedKeys.size();
+            int size = dataStorage.getSize() - removedKeys.getSize();
             Set<String> keys = newKeys.keySet();
             for (String key : keys) {
                   if (dataStorage.get(key) == null) {
@@ -124,8 +123,8 @@ public class DataTable implements Table {
                   }
                   newKeys.clear();
             }
-            if (!removedKeys.isEmpty()) {
-                  for (String key : removedKeys) {
+            if (removedKeys.getSize() != 0) {
+                  for (String key : removedKeys.keySet()) {
                         size++;
                         dataStorage.remove(key);
                   }
@@ -135,14 +134,14 @@ public class DataTable implements Table {
       }
 
       public int sizeChangesCommit() {
-            return removedKeys.size() + newKeys.getSize();
+            return removedKeys.getSize() + newKeys.getSize();
       }
 
       public int rollback() {
             int size = 0;
             size += newKeys.getSize();
             newKeys.clear();
-            size += removedKeys.size();
+            size += removedKeys.getSize();
             removedKeys.clear();
             return size;
       }
