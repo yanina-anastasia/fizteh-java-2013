@@ -6,10 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTable;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTableProvider;
 
 import java.io.*;
@@ -129,6 +127,22 @@ public class StoreableTableTest {
         dataTable.remove("7");
         Assert.assertEquals(dataTable.rollback(), 1);
 
+    }
+
+    @Test
+    public void getColumnsCountTest() throws Exception {
+        Assert.assertEquals(dataTable.getColumnsCount(), types.size());
+    }
+
+    @Test
+    public void getValidColumnType() throws Exception {
+        Assert.assertEquals(dataTable.getColumnType(0), Integer.class);
+        Assert.assertEquals(dataTable.getColumnType(1), String.class);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getNotExistingColumnTypeShouldFail() {
+        dataTable.getColumnType(35);
     }
 
 }
