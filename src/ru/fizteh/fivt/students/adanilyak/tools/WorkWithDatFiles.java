@@ -43,7 +43,8 @@ public class WorkWithDatFiles {
         dataBaseFileReader.close();
     }
 
-    public static void readIntoStoreableMap(File dataBaseFile, Map<String, Storeable> map, Table table, TableProvider provider) throws IOException, ParseException {
+    public static void readIntoStoreableMap(File dataBaseFile, Map<String, Storeable> map, Table table,
+                                            TableProvider provider) throws IOException, ParseException {
         RandomAccessFile dataBaseFileReader = new RandomAccessFile(dataBaseFile, "rw");
         long lenght = dataBaseFile.length();
         byte[] buffer;

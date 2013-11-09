@@ -9,6 +9,6 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
  */
 public class StoreableRun {
     public static void main(String[] args) {
-       GenericShell myShell = new StoreableShell(args);
+        GenericShell myShell = new StoreableShell(args);
     }
 }

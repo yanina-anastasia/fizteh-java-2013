@@ -5,8 +5,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
@@ -34,7 +34,7 @@ public class StoreableTableProviderUnitTest {
     }
 
     @After
-    public void tearDownTestObject() throws IOException{
+    public void tearDownTestObject() throws IOException {
         DeleteDirectory.rm(sandBoxDirectory);
     }
 
@@ -46,7 +46,8 @@ public class StoreableTableProviderUnitTest {
     @Test
     public void createTableTest() throws IOException {
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
 
         Assert.assertNotNull(testProvider.createTable("testTable1", typesTestListOne));
         Assert.assertNull(testProvider.createTable("testTable1", typesTestListOne));
@@ -70,18 +71,19 @@ public class StoreableTableProviderUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createNullTableNullListTest() throws IOException{
+    public void createNullTableNullListTest() throws IOException {
         testProvider.createTable(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createEmptyTableTest() throws IOException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
         testProvider.createTable("", typesTestListTwo);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createNlTableTest() throws  IOException {
+    public void createNlTableTest() throws IOException {
         List<Class<?>> typesTestListThree = WorkWithStoreableDataBase.createListOfTypesFromString("String boolean");
         testProvider.createTable("    ", typesTestListThree);
     }
@@ -103,7 +105,8 @@ public class StoreableTableProviderUnitTest {
         Assert.assertNull(testProvider.getTable("тестоваяНесуществующаяТаблица4"));
 
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
 
         testProvider.createTable("testTable5", typesTestListOne);
         Assert.assertNotNull(testProvider.getTable("testTable5"));
@@ -141,12 +144,13 @@ public class StoreableTableProviderUnitTest {
      */
 
     @Test
-    public void removeTableTest() throws  IOException {
+    public void removeTableTest() throws IOException {
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
 
         testProvider.createTable("testTable7", typesTestListOne);
-        testProvider.createTable("тестоваяТаблица8",typesTestListTwo);
+        testProvider.createTable("тестоваяТаблица8", typesTestListTwo);
 
         testProvider.removeTable("testTable7");
         Assert.assertNull(testProvider.getTable("testTable7"));
@@ -187,33 +191,38 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = ParseException.class)
     public void deserializeNullStringTest() throws IOException, ParseException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable10", typesTestListOne);
         testProvider.deserialize(testTable, null);
     }
 
     @Test(expected = ParseException.class)
     public void deserializeEmptyStringTest() throws IOException, ParseException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable11", typesTestListTwo);
         testProvider.deserialize(testTable, "");
     }
 
     @Test
     public void deserializeStringJSON1Test() throws IOException, ParseException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable12", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
         valuesToMakeStoreable.add(2);
         valuesToMakeStoreable.add(3);
         Storeable testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable);
-        Assert.assertTrue(CountingTools.equals(testTable, testProvider.deserialize(testTable, "{\"0\":1, \"1\":2, \"2\":3}"), testStoreable));
+        Assert.assertTrue(CountingTools.equals(testTable,
+                testProvider.deserialize(testTable, "{\"0\":1, \"1\":2, \"2\":3}"), testStoreable));
     }
 
     @Test
     public void deserializeStringWithNullFieldJSON2Test() throws IOException, ParseException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable13", typesTestListTwo);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -221,7 +230,8 @@ public class StoreableTableProviderUnitTest {
         valuesToMakeStoreable.add(false);
         valuesToMakeStoreable.add(null);
         Storeable testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable);
-        Assert.assertTrue(CountingTools.equals(testTable, testProvider.deserialize(testTable, "{\"0\":1, \"1\":2.0432, \"2\":false, \"3\":null}"), testStoreable));
+        Assert.assertTrue(CountingTools.equals(testTable, testProvider.
+                deserialize(testTable, "{\"0\":1, \"1\":2.0432, \"2\":false, \"3\":null}"), testStoreable));
     }
 
     /**
@@ -238,10 +248,12 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void serializeEmptyStorableTest() throws IOException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable15", typesTestListTwo);
         Storeable testStorable = testProvider.createFor(testTable);
-        Assert.assertTrue((testProvider.serialize(testTable, testStorable)).equals("{\"0\":null, \"1\":null, \"2\":null, \"3\":null}"));
+        Assert.assertTrue((testProvider.serialize(testTable, testStorable)).
+                equals("{\"0\":null, \"1\":null, \"2\":null, \"3\":null}"));
     }
 
     @Test

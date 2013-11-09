@@ -16,9 +16,9 @@ import java.util.regex.Pattern;
  * Time: 13:48
  */
 public class StoreableCmdParseAndExecute {
-    public static List<String> intoCommandsAndArgs(String cmd, String delimetr) {
+    public static List<String> splitByDelimiter(String cmd, String delimiter) {
         cmd.trim();
-        String[] tokens = cmd.split(delimetr);
+        String[] tokens = cmd.split(delimiter);
         List<String> result = new ArrayList<>();
         for (int i = 0; i < tokens.length; i++) {
             if (!tokens[i].equals("") && !tokens[i].matches("\\s+")) {
@@ -28,9 +28,9 @@ public class StoreableCmdParseAndExecute {
         return result;
     }
 
-    public static void execute(String cmdWithArgs, Map<String, Cmd> cmdList) throws IOException {
+    public static List<String> parseIt(String input, Map<String, Cmd> cmdList) {
         List<String> cmdAndArgs = new ArrayList<>();
-        Scanner cmdScanner = new Scanner(cmdWithArgs);
+        Scanner cmdScanner = new Scanner(input);
         cmdAndArgs.add(cmdScanner.next());
         try {
             String commandName = cmdAndArgs.get(0);
@@ -65,21 +65,29 @@ public class StoreableCmdParseAndExecute {
                     break;
                 default:
                     if (cmdScanner.hasNext()) {
-                        cmdAndArgs.addAll(intoCommandsAndArgs(cmdScanner.nextLine(), " "));
+                        cmdAndArgs.addAll(splitByDelimiter(cmdScanner.nextLine(), " "));
                     }
                     if (cmdAndArgs.size() != command.getAmArgs() + 1) {
                         throw new IOException("wrong type (wrong amount of arguments)");
                     }
             }
-            command.work(cmdAndArgs);
         } catch (IOException | NoSuchElementException exc) {
-            System.err.println(/**cmdAndArgs + ": " +*/ exc.getMessage());
+            System.err.println(/**cmdAndArgs + ": " +*/exc.getMessage());
         } finally {
             cmdScanner.close();
         }
+        return cmdAndArgs;
     }
 
-    public static Storeable putStringIntoStoreable(String inputValues, Table table, TableProvider provider) throws IOException {
+    public static void execute(String input, Map<String, Cmd> cmdList) throws IOException {
+        List<String> cmdAndArgs = parseIt(input, cmdList);
+        String commandName = cmdAndArgs.get(0);
+        Cmd command = cmdList.get(commandName);
+        command.work(cmdAndArgs);
+    }
+
+    public static Storeable putStringIntoStoreable(String inputValues, Table table, TableProvider provider)
+            throws IOException {
         List<Object> valuesToPut = new ArrayList<>();
         String[] valuesAfterParse = inputValues.split(",");
         Integer i = 0;
@@ -94,22 +102,22 @@ public class StoreableCmdParseAndExecute {
                 }
                 switch (type.getCanonicalName()) {
                     case "java.lang.Integer":
-                        valuesToPut.add(new Integer(Integer.parseInt(value)));
+                        valuesToPut.add(Integer.parseInt(value));
                         break;
                     case "java.lang.Long":
-                        valuesToPut.add(new Long(Long.parseLong(value)));
+                        valuesToPut.add(Long.parseLong(value));
                         break;
                     case "java.lang.Byte":
-                        valuesToPut.add(new Byte(Byte.parseByte(value)));
+                        valuesToPut.add(Byte.parseByte(value));
                         break;
                     case "java.lang.Float":
-                        valuesToPut.add(new Float(Float.parseFloat(value)));
+                        valuesToPut.add(Float.parseFloat(value));
                         break;
                     case "java.lang.Double":
-                        valuesToPut.add(new Double(Double.parseDouble(value)));
+                        valuesToPut.add(Double.parseDouble(value));
                         break;
                     case "java.lang.Boolean":
-                        valuesToPut.add(new Boolean(Boolean.parseBoolean(value)));
+                        valuesToPut.add(Boolean.parseBoolean(value));
                         break;
                     case "java.lang.String":
                         valuesToPut.add(value);
@@ -129,7 +137,9 @@ public class StoreableCmdParseAndExecute {
         StringBuilder result = new StringBuilder("[");
         for (Integer i = 0; i < jsonOut.length(); ++i) {
             if (table.getColumnType(i) == String.class) {
-                result.append("\"" + jsonOut.get(i.toString()) + "\"");
+                result.append("\"");
+                result.append(jsonOut.get(i.toString()));
+                result.append("\"");
             } else {
                 result.append(jsonOut.get(i.toString()));
             }

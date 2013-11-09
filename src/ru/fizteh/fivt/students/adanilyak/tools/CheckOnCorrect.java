@@ -2,11 +2,8 @@ package ru.fizteh.fivt.students.adanilyak.tools;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableRow;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * User: Alexander

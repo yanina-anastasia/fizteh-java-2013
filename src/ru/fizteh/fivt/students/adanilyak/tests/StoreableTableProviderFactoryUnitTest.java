@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProviderFactory;
 
 import java.io.IOException;

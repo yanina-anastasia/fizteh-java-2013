@@ -17,7 +17,7 @@ public class MultiFileCmdParseAndExecute {
     public static List<String> intoCommandsAndArgs(String cmd, String delimetr) {
         cmd.trim();
         String[] tokens = cmd.split(delimetr);
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList();
         for (int i = 0; i < tokens.length; i++) {
             if (!tokens[i].equals("") && !tokens[i].matches("\\s+")) {
                 result.add(tokens[i]);

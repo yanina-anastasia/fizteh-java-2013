@@ -12,7 +12,8 @@ import java.util.Set;
  * Time: 5:03
  */
 public class CountingTools {
-    public static int correctCountingOfChanges(Map<String, String> data, Map<String, String> changes, Set<String> removedKeys) {
+    public static int correctCountingOfChanges(Map<String, String> data,
+                                               Map<String, String> changes, Set<String> removedKeys) {
         int result = 0;
         int notNeedToRewrite = 0;
         for (String key : removedKeys) {
@@ -48,7 +49,8 @@ public class CountingTools {
         return true;
     }
 
-    public static int correctCountingOfChangesInStoreable(Table table, Map<String, Storeable> data, Map<String, Storeable> changes, Set<String> removedKeys) {
+    public static int correctCountingOfChangesInStoreable(Table table, Map<String, Storeable> data,
+                                                          Map<String, Storeable> changes, Set<String> removedKeys) {
         int result = 0;
         int notNeedToRewrite = 0;
         for (String key : removedKeys) {

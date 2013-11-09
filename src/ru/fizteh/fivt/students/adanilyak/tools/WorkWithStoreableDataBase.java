@@ -15,7 +15,8 @@ import java.util.*;
  * Time: 0:49
  */
 public class WorkWithStoreableDataBase {
-    private static void makeUpParsedMap(Map<String, String>[][] mapReadyForWrite, Map<String, Storeable> dataBase, Table table, TableProvider provider) {
+    private static void makeUpParsedMap(Map<String, String>[][] mapReadyForWrite, Map<String, Storeable> dataBase,
+                                        Table table, TableProvider provider) {
         for (String key : dataBase.keySet()) {
             int hashCode = key.hashCode();
             hashCode *= Integer.signum(hashCode);
@@ -41,7 +42,8 @@ public class WorkWithStoreableDataBase {
         }
     }
 
-    public static void writeIntoFiles(File dataBaseDirectory, Map<String, Storeable> dataBase, Table table, TableProvider provider) throws IOException {
+    public static void writeIntoFiles(File dataBaseDirectory, Map<String, Storeable> dataBase,
+                                      Table table, TableProvider provider) throws IOException {
         Map<String, String>[][] mapReadyForWrite = new Map[16][16];
         makeUpParsedMap(mapReadyForWrite, dataBase, table, provider);
 
@@ -119,7 +121,8 @@ public class WorkWithStoreableDataBase {
         }
     }
 
-    public static void readIntoDataBase(final File dataBaseDirectory, Map<String, Storeable> map, StoreableTable table, TableProvider provider) throws IOException, ParseException {
+    public static void readIntoDataBase(final File dataBaseDirectory, Map<String, Storeable> map, StoreableTable table,
+                                        TableProvider provider) throws IOException, ParseException {
         if (!dataBaseDirectory.exists() || dataBaseDirectory.isFile()) {
             throw new IOException(dataBaseDirectory + ": not directory or not exist");
         }
@@ -211,7 +214,7 @@ public class WorkWithStoreableDataBase {
 
     public static List<Class<?>> createListOfTypesFromString(String stringTypes) throws IOException {
         List<Class<?>> result = new ArrayList<>();
-        List<String> types = StoreableCmdParseAndExecute.intoCommandsAndArgs(stringTypes, " ");
+        List<String> types = StoreableCmdParseAndExecute.splitByDelimiter(stringTypes, " ");
         for (String type : types) {
             switch (type) {
                 case "int":

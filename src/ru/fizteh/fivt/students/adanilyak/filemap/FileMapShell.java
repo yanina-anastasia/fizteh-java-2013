@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.adanilyak.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.adanilyak.commands.*;
+import ru.fizteh.fivt.students.adanilyak.commands.CmdExit;
+import ru.fizteh.fivt.students.adanilyak.commands.CmdGet;
+import ru.fizteh.fivt.students.adanilyak.commands.CmdPut;
+import ru.fizteh.fivt.students.adanilyak.commands.CmdRemove;
 import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericCmdList;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;

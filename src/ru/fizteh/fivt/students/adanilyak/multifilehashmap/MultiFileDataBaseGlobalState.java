@@ -4,6 +4,8 @@ import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.filemap.FileMapGlobalState;
 
+import java.util.List;
+
 /**
  * User: Alexander
  * Date: 21.10.13
@@ -12,6 +14,9 @@ import ru.fizteh.fivt.students.adanilyak.filemap.FileMapGlobalState;
 public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
     private TableProvider currentTableManager = null;
     public boolean autoCommitOnExit;
+
+    public MultiFileDataBaseGlobalState() {
+    }
 
     public MultiFileDataBaseGlobalState(TableProvider tableManager) {
         currentTableManager = tableManager;
@@ -34,11 +39,19 @@ public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
         currentTable = currentTableManager.getTable(useTableAsCurrentName);
     }
 
+    public int amountOfChanges() {
+        return ((MultiFileTable) currentTable).getAmountOfChanges();
+    }
+
     /**
      * Operations with current table manager
      */
 
-    public Table getTable(String tableName) {
+    public boolean isTableExist(String tableName) {
+        return (getMultiFileTable(tableName) != null);
+    }
+
+    public Table getMultiFileTable(String tableName) {
         return currentTableManager.getTable(tableName);
     }
 
@@ -51,7 +64,13 @@ public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
         currentTableManager.removeTable(tableName);
     }
 
-    public Table createTable(String tableName) {
-        return currentTableManager.createTable(tableName);
+    public void createTable(List<String> args) {
+        String useTableName = args.get(1);
+        if (getMultiFileTable(useTableName) != null) {
+            System.err.println(useTableName + " exists");
+        } else {
+            currentTableManager.createTable(useTableName);
+            System.out.println("created");
+        }
     }
 }

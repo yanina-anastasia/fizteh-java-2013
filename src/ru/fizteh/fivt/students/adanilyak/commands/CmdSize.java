@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,15 +13,10 @@ import java.util.List;
 public class CmdSize implements Cmd {
     private final String name = "size";
     private final int amArgs = 0;
-    private StoreableDataBaseGlobalState storeableWorkState = null;
-    private MultiFileDataBaseGlobalState multifileWorkState = null;
-
-    public CmdSize(StoreableDataBaseGlobalState dataBaseState) {
-        storeableWorkState = dataBaseState;
-    }
+    private MultiFileDataBaseGlobalState workState = null;
 
     public CmdSize(MultiFileDataBaseGlobalState dataBaseState) {
-        multifileWorkState = dataBaseState;
+        workState = dataBaseState;
     }
 
     @Override
@@ -37,18 +31,10 @@ public class CmdSize implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (multifileWorkState == null) {
-            if (storeableWorkState.currentTable != null) {
-                System.out.println(storeableWorkState.currentTable.size());
-            } else {
-                System.out.println("no table");
-            }
+        if (workState.currentTable != null) {
+            System.out.println(workState.currentTable.size());
         } else {
-            if (multifileWorkState.currentTable != null) {
-                System.out.println(multifileWorkState.currentTable.size());
-            } else {
-                System.out.println("no table");
-            }
+            System.out.println("no table");
         }
     }
 }

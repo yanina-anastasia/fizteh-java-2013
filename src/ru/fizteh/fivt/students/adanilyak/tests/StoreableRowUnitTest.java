@@ -31,9 +31,12 @@ public class StoreableRowUnitTest {
     @Before
     public void setUpTestObject() throws IOException {
         tableProvider = new StoreableTableProvider(sandBoxDirectory);
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int long byte float double boolean String");
+        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
+                createListOfTypesFromString("int long byte float double boolean String");
         testTable = tableProvider.createTable("testTable22", typesTestListOne);
-        testStoreable = StoreableCmdParseAndExecute.putStringIntoStoreable("0, 3000000000, 0, 0.123, 1.7976931348623157E308, true, \"Hello World\"", testTable, tableProvider);
+        testStoreable = StoreableCmdParseAndExecute.
+                putStringIntoStoreable("0, 3000000000, 0, 0.123, 1.7976931348623157E308, true," +
+                        " \"Hello World\"", testTable, tableProvider);
     }
 
     @After

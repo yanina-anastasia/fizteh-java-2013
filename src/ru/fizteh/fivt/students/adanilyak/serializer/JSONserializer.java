@@ -29,7 +29,8 @@ public class JSONserializer {
                         result.setColumnAt(i, null);
                     }
                 } catch (ColumnFormatException | IndexOutOfBoundsException exc) {
-                    throw new ParseException("JSONserializer: deserialize: can not set column at, type mismatch or out of bounds", 0);
+                    throw new ParseException("JSONserializer: deserialize: can not set column at," +
+                            " type mismatch or out of bounds", 0);
                 }
             }
         } catch (JSONException exc) {

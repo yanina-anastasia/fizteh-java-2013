@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.adanilyak.commands;
 
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
-import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileTable;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableDataBaseGlobalState;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,15 +13,10 @@ import java.util.List;
 public class CmdUse implements Cmd {
     private final String name = "use";
     private final int amArgs = 1;
-    private StoreableDataBaseGlobalState storeableWorkState = null;
-    private MultiFileDataBaseGlobalState multifileWorkState = null;
-
-    public CmdUse(StoreableDataBaseGlobalState dataBaseState) {
-        storeableWorkState = dataBaseState;
-    }
+    private MultiFileDataBaseGlobalState workState = null;
 
     public CmdUse(MultiFileDataBaseGlobalState dataBaseState) {
-        multifileWorkState = dataBaseState;
+        workState = dataBaseState;
     }
 
     @Override
@@ -39,36 +31,19 @@ public class CmdUse implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (multifileWorkState == null) {
-            String useTableName = args.get(1);
-            if (storeableWorkState.getTable(useTableName) == null) {
-                System.err.println(useTableName + " not exists");
-            } else {
-                if (storeableWorkState.getCurrentTable() != null) {
-                    int amChanges = ((StoreableTable) storeableWorkState.currentTable).getAmountOfChanges();
-                    if (amChanges != 0) {
-                        System.err.println(amChanges + " unsaved changes");
-                        return;
-                    }
-                }
-                storeableWorkState.setCurrentTable(useTableName);
-                System.out.println("using " + useTableName);
-            }
+        String useTableName = args.get(1);
+        if (!workState.isTableExist(useTableName)) {
+            System.err.println(useTableName + " not exists");
         } else {
-            String useTableName = args.get(1);
-            if (multifileWorkState.getTable(useTableName) == null) {
-                System.err.println(useTableName + " not exists");
-            } else {
-                if (multifileWorkState.getCurrentTable() != null) {
-                    int amChanges = ((MultiFileTable)multifileWorkState.currentTable).getAmountOfChanges();
-                    if (amChanges != 0) {
-                        System.err.println(amChanges + " unsaved changes");
-                        return;
-                    }
+            if (workState.getCurrentTable() != null) {
+                int amChanges = workState.amountOfChanges();
+                if (amChanges != 0) {
+                    System.err.println(amChanges + " unsaved changes");
+                    return;
                 }
-                multifileWorkState.setCurrentTable(useTableName);
-                System.out.println("using " + useTableName);
             }
+            workState.setCurrentTable(useTableName);
+            System.out.println("using " + useTableName);
         }
     }
 }

@@ -30,13 +30,15 @@ public class StoreableRow implements Storeable {
         types = new ArrayList<>();
         row = new ArrayList<>();
         if (givenTable.getColumnsCount() != givenValues.size()) {
-            throw new IndexOutOfBoundsException("storeable row: size of value-list not equals to amount of columns in table");
+            throw new IndexOutOfBoundsException("storeable row: " +
+                    "size of value-list not equals to amount of columns in table");
         }
 
         for (int i = 0; i < givenValues.size(); ++i) {
             if (givenValues.get(i) != null) {
                 if (givenTable.getColumnType(i) != givenValues.get(i).getClass()) {
-                    throw new ColumnFormatException("storeable row: types in value-list and in table's columns conflict");
+                    throw new ColumnFormatException("storeable row: " +
+                            "types in value-list and in table's columns conflict");
                 }
             }
             types.add(givenTable.getColumnType(i));
