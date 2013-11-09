@@ -66,7 +66,7 @@ public class ShellDatabaseHandler {
                         return -1;
                     }
                     if (args.size() < 2) {
-                        System.err.println("create: Too few arguments");
+                        System.err.println("wrong type type not specified");
                         return -1;
                     }
                     try {
@@ -88,7 +88,8 @@ public class ShellDatabaseHandler {
                             } else if (typeNames[i].equals("String")) {
                                 columnTypes.add(String.class);
                             } else {
-                                throw new RuntimeException(String.format("wrong type %s is not supported", typeNames[i]));
+                                throw new RuntimeException(String.format("wrong type %s is not supported",
+                                        typeNames[i]));
                             }
                         }
                         Table table = database.createTable(args.get(0), columnTypes);

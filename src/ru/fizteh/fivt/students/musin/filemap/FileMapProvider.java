@@ -217,7 +217,8 @@ public class FileMapProvider implements TableProvider {
                     if (object.getClass() == Integer.class) {
                         newList.setColumnAt(i, object);
                     } else {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == Long.class) {
                     if (object.getClass() == Long.class) {
@@ -225,17 +226,20 @@ public class FileMapProvider implements TableProvider {
                     } else if (object.getClass() == Integer.class) {
                         newList.setColumnAt(i, Long.valueOf(((Integer) object).longValue()));
                     } else {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == Byte.class) {
                     if (object.getClass() == Integer.class) {
                         Integer number = (Integer) object;
                         if (number > Byte.MAX_VALUE || number < Byte.MIN_VALUE) {
-                            throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                            throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                    columnTypes.get(i).toString(), object.getClass().toString()), i);
                         }
                         newList.setColumnAt(i, Byte.valueOf(number.byteValue()));
                     } else {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == Float.class) {
                     if (object.getClass() == Double.class) {
@@ -243,7 +247,8 @@ public class FileMapProvider implements TableProvider {
                     } else if (object.getClass() == Integer.class) {
                         newList.setColumnAt(i, Float.valueOf(((Integer) object).floatValue()));
                     } else {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == Double.class) {
                     if (object.getClass() == Double.class) {
@@ -251,11 +256,13 @@ public class FileMapProvider implements TableProvider {
                     } else if (object.getClass() == Integer.class) {
                         newList.setColumnAt(i, Float.valueOf(((Integer) object).floatValue()));
                     } else {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
                 } else if (columnTypes.get(i) == String.class) {
                     if (object.getClass() != String.class) {
-                        throw new ParseException(String.format("Type mismatch: %s expected, %s found", columnTypes.get(i).toString(), object.getClass().toString()), i);
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
                     } else {
                         newList.setColumnAt(i, object);
                     }
@@ -275,7 +282,8 @@ public class FileMapProvider implements TableProvider {
         for (int i = 0; i < columnCount; i++) {
             objects[i] = value.getColumnAt(i);
             if (objects[i] != null && objects[i].getClass() != table.getColumnType(i)) {
-                throw new ColumnFormatException(String.format("Wrong format: %s expected, %s found", table.getColumnType(i).toString(), objects[i].getClass().toString()));
+                throw new ColumnFormatException(String.format("Wrong format: %s expected, %s found",
+                        table.getColumnType(i).toString(), objects[i].getClass().toString()));
             }
         }
         JSONArray array = new JSONArray(objects);

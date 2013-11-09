@@ -296,7 +296,8 @@ public class MultiFileMap implements Table {
                     if (map[dir][file].empty()) {
                         if (db.exists()) {
                             if (!db.delete()) {
-                                throw new RuntimeException(String.format("Can't delete file %s", db.getCanonicalPath()));
+                                throw new RuntimeException(String.format("Can't delete file %s",
+                                        db.getCanonicalPath()));
                             }
                         }
                     } else {
@@ -309,7 +310,8 @@ public class MultiFileMap implements Table {
                 }
                 if (directory.listFiles().length == 0) {
                     if (!directory.delete()) {
-                        throw new RuntimeException(String.format("Can't delete directory %s", directory.getCanonicalPath()));
+                        throw new RuntimeException(String.format("Can't delete directory %s",
+                                directory.getCanonicalPath()));
                     }
                 }
             }
@@ -451,7 +453,8 @@ public class MultiFileMap implements Table {
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex >= getColumnsCount() || columnIndex < 0) {
-            throw new IndexOutOfBoundsException(String.format("Index out of bounds: array size %d, found %d", columnTypes.size(), columnIndex));
+            throw new IndexOutOfBoundsException(String.format("Index out of bounds: array size %d, found %d",
+                    columnTypes.size(), columnIndex));
         }
         return columnTypes.get(columnIndex);
     }
