@@ -22,7 +22,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
             if (!dataDirectory.isDirectory()) {
                 throw new IllegalArgumentException("The root directory should be a directory");
             }
-            StoreableTableProvider newStorage = new StoreableTableProvider(dataDirectory.getCanonicalFile());
+            StoreableTableProvider newStorage = new StoreableTableProvider(new File(dir));
             return newStorage;
         }
     }
