@@ -25,7 +25,7 @@ public class MyTableTester {
 
     @Test
     public void getNameTest() {
-        assertEquals(table.getName(), "Tested Table");
+        assertEquals(table.getName(), "Tested_Table");
     }
 
     @Test(expected = IllegalArgumentException.class)

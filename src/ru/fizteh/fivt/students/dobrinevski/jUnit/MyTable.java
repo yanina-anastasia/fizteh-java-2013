@@ -26,7 +26,7 @@ public class MyTable implements Table{
         if ((key == null) || (key.equals(""))) {
             throw new IllegalArgumentException("Illegal key");
         }
-        if (!isValidKeyValueName(key)) {
+        if (!isValidKeyValueName(key) || key.contains("\t")) {
             throw new IllegalArgumentException("Invalid name");
         }
         try {
@@ -43,7 +43,7 @@ public class MyTable implements Table{
         if (((key == null) || (key.equals(""))) || ((value == null) || (value.equals("")))) {
             throw new IllegalArgumentException("Illegal key");
         }
-        if ((!isValidKeyValueName(key)) || (!isValidKeyValueName(value))) {
+        if ((!isValidKeyValueName(key)) || (!isValidKeyValueName(value)) || key.contains("\t")) {
             throw new IllegalArgumentException("Invalid name");
         }
         try {
@@ -60,7 +60,7 @@ public class MyTable implements Table{
         if ((key == null) || (key.equals(""))) {
             throw new IllegalArgumentException("Illegal key");
         }
-        if (!isValidKeyValueName(key)) {
+        if (!isValidKeyValueName(key) || key.contains("\t")) {
             throw new IllegalArgumentException("Invalid name");
         }
         try {
