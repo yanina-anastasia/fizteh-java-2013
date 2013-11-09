@@ -113,7 +113,7 @@ public class MultyFileMapTableProvider implements TableProvider {
                   throw new RuntimeException("Недопустимое имя файла");
             }
             if (tables.get(name) == null) {
-                  throw new RuntimeException("Данной таблицы не существует");
+                  throw new IllegalArgumentException("Данной таблицы не существует");
             }
             deleteFiles(tables.get(name).getWorkingDirectory());
             tables.remove(name);
