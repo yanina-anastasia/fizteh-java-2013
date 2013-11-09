@@ -26,7 +26,7 @@ public class TransMultiFileHashMapCommands {
                         String str = hMap.dataBase.get(i * 16 + j).get(pair.getKey());
                         if (str != null) {
                             nOldValues--;
-                            if (str != pair.getValue()) {
+                            if (!str.equals(pair.getValue())) {
                                 changes++;
                             }
                         } else {
