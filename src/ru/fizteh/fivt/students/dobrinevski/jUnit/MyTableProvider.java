@@ -98,4 +98,3 @@ public class MyTableProvider implements TableProvider {
         }
     }
 }
-}
