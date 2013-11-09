@@ -64,9 +64,10 @@ public class DataTable implements Table {
             }
             if (dataStorage.get(key) == null && newKeys.get(key) == null
                         || removedKeys.contains(key)) {
-                  newKeys.put(key, value);
                   if (removedKeys.contains(key)) {
                         removedKeys.remove(key);
+                  } else {
+                        newKeys.put(key, value);
                   }
                   return null;
             } else {
