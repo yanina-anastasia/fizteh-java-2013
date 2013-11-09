@@ -13,9 +13,8 @@ public class Context {
     }
 
     public int getChanges() {
-       //TODO
         if (table != null) {
-       //     return ((DataBase) table).getNewKeys();
+            return ((DataBase) table).getNewKeys();
         }
         return 0;
     }

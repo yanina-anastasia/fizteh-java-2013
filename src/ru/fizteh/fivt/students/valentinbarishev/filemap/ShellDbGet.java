@@ -19,12 +19,12 @@ public class ShellDbGet extends SimpleShellCommand {
             System.out.println("no table");
             return;
         }
-        Storeable str = context.table.get(getArg(1));
-        if (str == null) {
+        Storeable storeable = context.table.get(getArg(1));
+        if (storeable == null) {
             System.out.println("not found");
         } else {
             System.out.println("found");
-            System.out.println(str);
+            System.out.println(context.provider.serialize(context.table, storeable));
         }
     }
 }

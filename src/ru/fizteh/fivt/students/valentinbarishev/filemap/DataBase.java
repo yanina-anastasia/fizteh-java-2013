@@ -2,11 +2,13 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+
 
 public final class DataBase implements Table {
 
@@ -253,5 +255,9 @@ public final class DataBase implements Table {
             throw new IndexOutOfBoundsException("getColumnType: IOOBE");
         }
         return types.get(columnIndex);
+    }
+
+    public Storeable putStoreable(String keyStr, String valueStr) throws ParseException {
+        return put(keyStr, provider.deserialize(this, valueStr));
     }
 }

@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import ru.fizteh.fivt.students.valentinbarishev.shell.CommandString;
+import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 import java.io.IOException;
@@ -16,7 +18,7 @@ public class ShellCreateTable extends SimpleShellCommand {
 
     public void run() {
         try {
-            if (context.provider.createTable(getArg(1), null) != null) {
+            if (context.provider.createTable(getArg(1), MySignature.getTypes(getSpacedArg(2))) != null) {
                 System.out.println("created");
             } else {
                 System.out.println(getArg(1) + " exists");
@@ -24,5 +26,17 @@ public class ShellCreateTable extends SimpleShellCommand {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isMyCommand(final CommandString command) {
+        if (name.equals(command.getArg(0))) {
+            if (command.length() < numberOfArgs) {
+                throw new InvalidCommandException(name + " " + hint);
+            }
+            args = command;
+            return true;
+        }
+        return false;
     }
 }

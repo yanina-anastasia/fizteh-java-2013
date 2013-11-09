@@ -40,7 +40,7 @@ public final class DataBaseTable implements TableProvider {
         checkName(tableName);
         String fullPath = tableDir + File.separator + tableName;
 
-        if (columnTypes == null) {
+        if (columnTypes == null || columnTypes.size() == 0) {
             throw new IllegalArgumentException("Invalid column types: null!");
         }
 

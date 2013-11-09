@@ -59,4 +59,11 @@ public class MyTableProviderTest {
         Assert.assertNull(provider.getTable("simple"));
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testEmptyTypes() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+
+        Table table = provider.createTable("simple", types);
+    }
+
 }

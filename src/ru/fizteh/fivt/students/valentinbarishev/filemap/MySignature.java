@@ -67,4 +67,24 @@ public class MySignature {
         }
         output.close();
     }
+
+    public static List<Class<?>> getTypes(final String str) throws IOException {
+        List<Class<?>> result = new ArrayList<>();
+        byte[] s = str.getBytes();
+        for (int i = 0; i < str.length(); ++i) {
+            if (s[i] == ' ' || s[i] == '(' || s[i] == ')') {
+                continue;
+            }
+
+            for (int j = 0; j < types.length; ++j) {
+                if (new String(s, i, types[i].length()).equals(types[i])) {
+                    result.add(classes[i]);
+                    continue;
+                }
+            }
+
+            throw new IOException("Cannot read type! position: " + i);
+        }
+        return result;
+    }
 }

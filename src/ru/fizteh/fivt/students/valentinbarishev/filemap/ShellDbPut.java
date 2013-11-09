@@ -5,6 +5,9 @@ import ru.fizteh.fivt.students.valentinbarishev.shell.CommandString;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 public final class ShellDbPut  extends SimpleShellCommand {
     private Context context;
 
@@ -21,12 +24,16 @@ public final class ShellDbPut  extends SimpleShellCommand {
             System.out.println("no table");
             return;
         }
-        Storeable str = context.table.put(getArg(1), null);
-        if (str == null) {
-            System.out.println("new");
-        } else {
-            System.out.println("overwrite");
-            System.out.println(str);
+        try {
+            Storeable storeable = ((DataBase) context.table).putStoreable(getArg(1), getSpacedArg(2));
+            if (storeable == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(context.provider.serialize(context.table, storeable));
+            }
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
         }
     }
 
