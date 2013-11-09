@@ -187,9 +187,7 @@ public class FileHashMap implements Table {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + File.separator + Integer.toString(j) + ".dat");
                     try {
-                        if (!filePath.createNewFile()) {
-                            throw new SecurityException();
-                        }
+                        filePath.createNewFile();
                     } catch (IOException ignored) { }
                     if (base[i][j].getKeys().size() == 0) {
                         if (!filePath.delete()) {
