@@ -76,14 +76,19 @@ public class MySignature {
                 continue;
             }
 
+            boolean flag = false;
             for (int j = 0; j < types.length; ++j) {
-                if (new String(s, i, types[i].length()).equals(types[i])) {
-                    result.add(classes[i]);
-                    continue;
+                if (new String(s, i, types[j].length()).equals(types[j])) {
+                    result.add(classes[j]);
+                    i += types[j].length();
+                    flag = true;
+                    break;
                 }
             }
 
-            throw new IOException("Cannot read type! position: " + i);
+            if (!flag) {
+                throw new IOException("Cannot read type! position: " + i);
+            }
         }
         return result;
     }

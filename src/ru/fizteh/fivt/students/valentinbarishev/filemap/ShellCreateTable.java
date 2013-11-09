@@ -12,7 +12,7 @@ public class ShellCreateTable extends SimpleShellCommand {
     public ShellCreateTable(Context newContext) {
         context = newContext;
         setName("create");
-        setNumberOfArgs(2);
+        setNumberOfArgs(3);
         setHint("usage: create <table name>");
     }
 
