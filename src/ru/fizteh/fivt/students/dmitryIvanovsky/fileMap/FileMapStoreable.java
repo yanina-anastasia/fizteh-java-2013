@@ -9,7 +9,7 @@ import java.util.List;
 public class FileMapStoreable implements Storeable {
 
     private List<Object> column = new ArrayList<>();
-    private List<Class<?>> columnType = new ArrayList<>();
+    private List<Class<?>> columnType;
 
     FileMapStoreable(List<Class<?>> columnType) {
         this.columnType = columnType;
@@ -51,49 +51,49 @@ public class FileMapStoreable implements Storeable {
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Integer.class);
-        return (Integer) column.get(columnIndex);
+        return Integer.class.cast(column.get(columnIndex));
     }
 
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Long.class);
-        return (Long) column.get(columnIndex);
+        return Long.class.cast(column.get(columnIndex));
     }
 
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Byte.class);
-        return (Byte) column.get(columnIndex);
+        return Byte.class.cast(column.get(columnIndex));
     }
 
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Float.class);
-        return (Float) column.get(columnIndex);
+        return Float.class.cast(column.get(columnIndex));
     }
 
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Double.class);
-        return (Double) column.get(columnIndex);
+        return Double.class.cast(column.get(columnIndex));
     }
 
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, Boolean.class);
-        return (Boolean) column.get(columnIndex);
+        return Boolean.class.cast(column.get(columnIndex));
     }
 
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndexBounds(columnIndex);
         checkColumnFormat(columnIndex, String.class);
-        return (String) column.get(columnIndex);
+        return String.class.cast(column.get(columnIndex));
     }
 
     public String messageEqualsType(List<Class<?>> list) {
@@ -109,7 +109,11 @@ public class FileMapStoreable implements Storeable {
     }
 
     public int hashCode() {
-        return 0;
+        int hash = 0;
+        for (Object col : column) {
+            hash = hash * 17 + col.hashCode();
+        }
+        return hash;
     }
 
     public boolean equals(Object obj) {

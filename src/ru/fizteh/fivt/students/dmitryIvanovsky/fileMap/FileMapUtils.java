@@ -12,14 +12,8 @@ public class FileMapUtils {
             throw new IllegalArgumentException("key or value is clear");
         }
         if (key.trim().isEmpty()) {
-            throw new IllegalArgumentException("only spaces");
-        }/*
-        if (key.contains(" ") || key.contains("\t")) {
-            throw new IllegalArgumentException("spaces can't be in key");
+            throw new IllegalArgumentException("key cant' be empty");
         }
-        if (key.contains("\n")) {
-            throw new IllegalArgumentException("newline in key or value");
-        }*/
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("key isn't correct");
         }
@@ -91,7 +85,7 @@ public class FileMapUtils {
         if (columnType == String.class) {
             return storeable.getStringAt(columnIndex);
         }
-        throw new ColumnFormatException("wrong column format");
+        throw new ColumnFormatException(String.format("wrong column %s", storeable.getIntAt(columnIndex).toString()));
     }
 
     public static Object parseValue(String s, Class<?> classType) {
