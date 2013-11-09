@@ -13,7 +13,7 @@ public class ShellCreateTable extends SimpleShellCommand {
         context = newContext;
         setName("create");
         setNumberOfArgs(3);
-        setHint("usage: create <table name>");
+        setHint("usage: create <table name> (<type1 type2 type3 ...>)");
     }
 
     public void run() {
@@ -32,7 +32,7 @@ public class ShellCreateTable extends SimpleShellCommand {
     public boolean isMyCommand(final CommandString command) {
         if (name.equals(command.getArg(0))) {
             if (command.length() < numberOfArgs) {
-                throw new InvalidCommandException("wrong type (no types) " + name + " " + hint);
+                throw new InvalidCommandException(" $ wrong type (" + name + " " + hint + ")");
             }
             args = command;
             return true;
