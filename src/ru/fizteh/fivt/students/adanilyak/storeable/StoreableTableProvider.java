@@ -71,7 +71,7 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public void removeTable(String tableName) {
         if (!CheckOnCorrect.goodName(tableName)) {
-            throw new IllegalArgumentException("Bad table name");
+            throw new IllegalArgumentException("remove table: name is bad");
         }
 
         if (allTablesMap.get(tableName) == null) {

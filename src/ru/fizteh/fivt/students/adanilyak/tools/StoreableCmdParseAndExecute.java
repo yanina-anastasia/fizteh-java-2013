@@ -35,7 +35,7 @@ public class StoreableCmdParseAndExecute {
         try {
             String commandName = cmdAndArgs.get(0);
             if (!cmdList.containsKey(commandName)) {
-                throw new NoSuchElementException("Unknown command");
+                throw new NoSuchElementException("wrong type (unknown command)");
             }
 
             Cmd command = cmdList.get(commandName);
@@ -45,10 +45,10 @@ public class StoreableCmdParseAndExecute {
                         cmdAndArgs.add(cmdScanner.next());
                         cmdAndArgs.add(cmdScanner.findInLine(Pattern.compile("\\[.+\\]")).replaceAll("[\\]\\[]", ""));
                     } catch (NullPointerException exc) {
-                        throw new IOException("execute put: bad arguments");
+                        throw new IOException("wrong type (execute put: bad arguments)");
                     }
                     if (cmdScanner.hasNext()) {
-                        throw new IOException("Wrong amount of arguments");
+                        throw new IOException("wrong type (put: wrong amount of arguments)");
                     }
 
                     break;
@@ -57,10 +57,10 @@ public class StoreableCmdParseAndExecute {
                         cmdAndArgs.add(cmdScanner.next());
                         cmdAndArgs.add(cmdScanner.findInLine(Pattern.compile("\\(.+\\)")).replaceAll("[\\(|\\)]", ""));
                     } catch (NullPointerException exc) {
-                        throw new IOException("execute create: bad arguments");
+                        throw new IOException("wrong type (execute create: bad arguments)");
                     }
                     if (cmdScanner.hasNext()) {
-                        throw new IOException("Wrong amount of arguments");
+                        throw new IOException("wrong type (create: wrong amount of arguments");
                     }
                     break;
                 default:
@@ -68,12 +68,12 @@ public class StoreableCmdParseAndExecute {
                         cmdAndArgs.addAll(intoCommandsAndArgs(cmdScanner.nextLine(), " "));
                     }
                     if (cmdAndArgs.size() != command.getAmArgs() + 1) {
-                        throw new IOException("Wrong amount of arguments");
+                        throw new IOException("wrong type (wrong amount of arguments)");
                     }
             }
             command.work(cmdAndArgs);
         } catch (IOException | NoSuchElementException exc) {
-            System.err.println(cmdAndArgs + ": " + exc.getMessage());
+            System.err.println(/**cmdAndArgs + ": " +*/ exc.getMessage());
         } finally {
             cmdScanner.close();
         }
