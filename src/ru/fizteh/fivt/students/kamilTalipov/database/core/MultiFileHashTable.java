@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.kamilTalipov.database.core;
 
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
@@ -119,7 +120,7 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Value must be not null");
         }
         if (!StoreableUtils.isCorrectStoreable(value, this)) {
-            throw new IllegalArgumentException("Storeable incorrect value");
+            throw new ColumnFormatException("Storeable incorrect value");
         }
 
         Storeable oldValue = table.put(key, value);
