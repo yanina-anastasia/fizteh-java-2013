@@ -70,7 +70,7 @@ public class FileMap {
 
                 String[] parsedArguments = arguments[1].split("\\s+", 2);
                 if (parsedArguments.length != 2) {
-                    throw new IllegalArgumentException("wrong type (lalala)");
+                    throw new IllegalArgumentException("wrong type ( )");
                 }
                 
                 String tableName = parsedArguments[0];
