@@ -201,12 +201,10 @@ public class TableData implements Table {
                     value.getStringAt(i);
                 }
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ColumnFormatException(e.getMessage() + " index i = " + i + "val: " + value.getColumnAt(i), e);
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException(e.getMessage() + " index i = " + i + "val: " + value.getColumnAt(i), e);
+            throw new ColumnFormatException(e.getMessage() + " index i = " + i, e);
         } catch (ClassCastException  e) {
-            throw new ColumnFormatException(e.getMessage() + " index i = " + i + "val: " + value.getColumnAt(i), e);
+            throw new ColumnFormatException(e.getMessage() + " index i = " + i, e);
         }
 
         byte b = key.getBytes()[0];
