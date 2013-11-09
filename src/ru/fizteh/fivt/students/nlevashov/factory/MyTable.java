@@ -212,7 +212,7 @@ public class MyTable implements Table {
      */
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if ((key == null) || key.trim().isEmpty()) {
+        if ((key == null) || key.trim().isEmpty() || (key.indexOf(' ') != -1) || (key.indexOf('\n') != -1)) {
             throw new IllegalArgumentException("Table.put: key is null");
         }
         if (value == null) {

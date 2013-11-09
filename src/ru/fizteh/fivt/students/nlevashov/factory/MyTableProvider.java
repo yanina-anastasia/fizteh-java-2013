@@ -217,6 +217,12 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (table == null) {
+            throw new IllegalArgumentException("TableProvider.deserialize: table is null");
+        }
+        if ((value == null) || (value.isEmpty()) || (value.indexOf('\n') != -1)) {
+            throw new IllegalArgumentException("TableProvider.deserialize: bad value");
+        }
         Storeable s = createFor(table);
         StringTokenizer tokenParser = new StringTokenizer(value, "<>");
         int i = 0;
