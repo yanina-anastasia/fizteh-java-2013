@@ -13,6 +13,10 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     private MultiFileHashTable activeTable;
 
     public HashDatabase(String databaseDirectory) throws IOException, DatabaseException {
+        if (databaseDirectory == null) {
+            throw new IllegalArgumentException("Database directory path must be not null");
+        }
+
         File databaseDir = new File(databaseDirectory);
         if (!databaseDir.exists()) {
             System.err.println("Database directory path not exist: try to create");
