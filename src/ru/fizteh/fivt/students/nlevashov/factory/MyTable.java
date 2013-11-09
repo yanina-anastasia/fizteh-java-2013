@@ -212,7 +212,7 @@ public class MyTable implements Table {
      */
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if ((key == null) || key.trim().isEmpty() || (key.indexOf(' ') != -1) || (key.indexOf('\n') != -1)) {
+        if ((key == null) || key.trim().isEmpty() || key.contains(" ") || key.contains("\n")) {
             throw new IllegalArgumentException("Table.put: key is null");
         }
         if (value == null) {
@@ -243,16 +243,6 @@ public class MyTable implements Table {
                         temp.setColumnAt(i, "abc");
                     }
                 }
-            /*    int i = 0;
-                for (Class<?> t : types) {
-                    if (value.getColumnAt(i) == null) {
-                        //throw new ColumnFormatException("Table.put: it is impossible
-                        // to recognize value's column types");
-                    } else if (t != value.getColumnAt(i).getClass()) {
-                        throw new ColumnFormatException("Table.put: value has other columns");
-                    }
-                    ++i;
-                }*/
                 return map.put(key, value);
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
