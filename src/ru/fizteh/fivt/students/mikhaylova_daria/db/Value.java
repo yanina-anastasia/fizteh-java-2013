@@ -67,7 +67,7 @@ public class Value implements Storeable {
             throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Integer.class)) {
-            throw new ColumnFormatException("Type og this column is"
+            throw new ColumnFormatException("Type of this column is"
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Integer integer = null;
@@ -85,7 +85,7 @@ public class Value implements Storeable {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Long.class)) {
-            throw new ColumnFormatException("Type og this column is "
+            throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Long val = null;
@@ -100,7 +100,7 @@ public class Value implements Storeable {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Byte.class)) {
-            throw new ColumnFormatException("Type og this column is "
+            throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Byte val = null;
@@ -115,7 +115,7 @@ public class Value implements Storeable {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!table.getColumnType(columnIndex).equals(Float.class)) {
-            throw new ColumnFormatException("Type og this column is "
+            throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Float val = null;

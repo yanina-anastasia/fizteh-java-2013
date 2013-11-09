@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
-import org.junit.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
