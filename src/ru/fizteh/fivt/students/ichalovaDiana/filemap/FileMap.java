@@ -65,12 +65,12 @@ public class FileMap {
             try {
 
                 if (arguments.length != ARG_NUM) {
-                    throw new IllegalArgumentException("Illegal number of arguments");
+                    throw new IllegalArgumentException("wrong type (Illegal number of arguments)");
                 }
 
                 String[] parsedArguments = arguments[1].split("\\s+", 2);
                 if (parsedArguments.length != 2) {
-                    throw new IllegalArgumentException("Illegal number of arguments");
+                    throw new IllegalArgumentException("wrong type (Illegal number of arguments)");
                 }
                 
                 String tableName = parsedArguments[0];
