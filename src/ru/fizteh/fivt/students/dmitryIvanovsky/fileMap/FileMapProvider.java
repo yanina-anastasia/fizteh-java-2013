@@ -365,15 +365,18 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (setDirTable.contains(name)) {
             setDirTable.remove(name);
             mapFileMap.remove(name);
-            dbData.setDrop();
+            if (dbData != null) {
+                dbData.setDrop();
+            }
             try {
-                if (!dbData.isDrop()) {
-                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
-                }
+                //dbData.closeTable();
+                //if (!dbData.isDrop()) {
+                mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                //}
             } catch (Exception e) {
-                //IllegalArgumentException ex = new IllegalArgumentException();
-                //ex.addSuppressed(e);
-                //throw ex;
+                IllegalArgumentException ex = new IllegalArgumentException();
+                ex.addSuppressed(e);
+                throw ex;
             }
         } else {
             throw new IllegalStateException();
