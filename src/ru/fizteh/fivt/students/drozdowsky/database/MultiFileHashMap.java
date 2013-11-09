@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.drozdowsky.database;
 
-import ru.fizteh.fivt.students.drozdowsky.Commands.ShellController;
+import ru.fizteh.fivt.students.drozdowsky.commands.ShellController;
 import ru.fizteh.fivt.students.drozdowsky.PathController;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.drozdowsky.utils.Utils;

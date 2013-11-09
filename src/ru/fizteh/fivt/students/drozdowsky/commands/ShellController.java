@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.сommands;
+package ru.fizteh.fivt.students.drozdowsky.commands;
 
 import ru.fizteh.fivt.students.drozdowsky.PathController;
 
