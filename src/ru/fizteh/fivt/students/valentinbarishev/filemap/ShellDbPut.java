@@ -33,7 +33,7 @@ public final class ShellDbPut  extends SimpleShellCommand {
                 System.out.println(context.provider.serialize(context.table, storeable));
             }
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            System.out.println("wrong type (" + e.getMessage() + ")");
         }
     }
 

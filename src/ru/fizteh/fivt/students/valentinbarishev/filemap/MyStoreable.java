@@ -14,15 +14,16 @@ public class MyStoreable implements Storeable{
 
     public MyStoreable(Table table, List<?> newValues) {
         if (newValues == null) {
-            throw new IndexOutOfBoundsException("MyStoreable: list of values cannot be null");
+            throw new IndexOutOfBoundsException("list of values cannot be null");
         }
         if (newValues.size() != table.getColumnsCount()) {
-            throw new IndexOutOfBoundsException("MyStoreable: invalid number of values");
+            throw new IndexOutOfBoundsException("invalid number of values");
         }
 
         for (int i = 0; i < newValues.size(); ++i) {
             if (newValues.get(i).getClass() != table.getColumnType(i)) {
-                throw new ColumnFormatException("MyStoreable: invalid type of value!");
+                throw new ColumnFormatException(newValues.get(i).toString() + " must be " + table.getColumnType(i)
+                        + " but it is " + newValues.get(i).getClass());
             }
             types.add(table.getColumnType(i));
             values.add(newValues.get(i));
@@ -39,7 +40,7 @@ public class MyStoreable implements Storeable{
 
     void checkBounds(int index) {
         if (index < 0 || index >= types.size()) {
-            throw new IndexOutOfBoundsException("MyStoreable: index out of bounds!");
+            throw new IndexOutOfBoundsException("index out of bounds!");
         }
     }
 

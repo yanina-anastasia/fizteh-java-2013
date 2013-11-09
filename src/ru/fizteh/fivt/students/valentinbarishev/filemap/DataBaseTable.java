@@ -113,8 +113,10 @@ public final class DataBaseTable implements TableProvider {
         Storeable storeable;
         try {
             storeable = createFor(table, values);
-        } catch (IndexOutOfBoundsException|ColumnFormatException e) {
-            throw new ParseException("Wrong input " + value, 0);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ParseException("Invalud number of arguments!", 0);
+        } catch (ColumnFormatException e) {
+            throw new ParseException(e.getMessage(), 0);
         }
 
         return storeable;
