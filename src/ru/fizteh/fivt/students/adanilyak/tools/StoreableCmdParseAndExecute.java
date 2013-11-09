@@ -28,7 +28,7 @@ public class StoreableCmdParseAndExecute {
         return result;
     }
 
-    public static List<String> parseIt(String input, Map<String, Cmd> cmdList) {
+    public static List<String> parseIt(String input, Map<String, Cmd> cmdList) throws IOException{
         List<String> cmdAndArgs = new ArrayList<>();
         Scanner cmdScanner = new Scanner(input);
         cmdAndArgs.add(cmdScanner.next());
@@ -71,19 +71,21 @@ public class StoreableCmdParseAndExecute {
                         throw new IOException("wrong type (wrong amount of arguments)");
                     }
             }
-        } catch (IOException | NoSuchElementException exc) {
-            System.err.println(/**cmdAndArgs + ": " +*/exc.getMessage());
         } finally {
             cmdScanner.close();
         }
         return cmdAndArgs;
     }
 
-    public static void execute(String input, Map<String, Cmd> cmdList) throws IOException {
-        List<String> cmdAndArgs = parseIt(input, cmdList);
-        String commandName = cmdAndArgs.get(0);
-        Cmd command = cmdList.get(commandName);
-        command.work(cmdAndArgs);
+    public static void execute(String input, Map<String, Cmd> cmdList) {
+        try {
+            List<String> cmdAndArgs = parseIt(input, cmdList);
+            String commandName = cmdAndArgs.get(0);
+            Cmd command = cmdList.get(commandName);
+            command.work(cmdAndArgs);
+        } catch (IOException exc) {
+            System.err.println(/**cmdAndArgs + ": " +*/exc.getMessage());
+        }
     }
 
     public static Storeable putStringIntoStoreable(String inputValues, Table table, TableProvider provider)

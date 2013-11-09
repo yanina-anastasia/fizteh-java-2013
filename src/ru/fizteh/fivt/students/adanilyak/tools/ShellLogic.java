@@ -89,7 +89,7 @@ public class ShellLogic {
             err.flush();
             // ---
 
-            out.print(" $ ");
+            out.print("$ ");
             String inputLine = inputStream.nextLine();
             try {
                 List<String> commandWithArgs = parseCmdAndArgs(inputLine, parserAndExecutor);
