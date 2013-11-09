@@ -168,7 +168,6 @@ public class DatabaseTableProvider implements TableProvider {
                 Class<?> expectedType = table.getColumnType(index);
                 Object columnValue = deserializer.getNext(expectedType);
                 if (columnValue != null) {
-                    //throw new IllegalArgumentException("Very bad");
                     switch (formatColumnType(expectedType)) {
                         case "String":
                             String stringValue = (String) columnValue;
@@ -227,9 +226,6 @@ public class DatabaseTableProvider implements TableProvider {
             columns.add(table.getColumnType(i));
         }
         DatabaseStoreable row = new DatabaseStoreable(columns);
-        /*for (int index = 0; index < table.getColumnsCount(); ++index) {
-            row.addColumn(table.getColumnType(index));
-        }  */
         return row;
     }
 
@@ -420,9 +416,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
     }
 
-
     public Class<?> parseColumnType(String columnType) {
-
         switch (columnType) {
             case "int":
                 return Integer.class;

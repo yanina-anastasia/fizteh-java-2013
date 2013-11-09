@@ -53,9 +53,6 @@ public class DatabaseStoreable implements Storeable {
         if (value != null) {
             isColumnTypeValid(columnNum, value);
             try {
-                //value == null
-                /*switch (getColumnType(value.getClass())) {
-                    case "String":   */
                 if (value.getClass() == String.class) {
                     String stringValue = (String) value;
                     if (stringValue.trim().isEmpty()) {
@@ -156,26 +153,5 @@ public class DatabaseStoreable implements Storeable {
             }
         }
         return builder.toString();
-    }
-
-    public String getColumnType(Class<?> type) {
-        switch (type.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                return null;
-        }
     }
 }

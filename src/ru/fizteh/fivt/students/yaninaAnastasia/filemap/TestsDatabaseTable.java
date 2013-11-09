@@ -23,14 +23,14 @@ public class TestsDatabaseTable {
 
     @Before
     public void beforeTest() {
-        List<Class<?>> columnTypes = new ArrayList<Class<?>>() {{
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>() { {
             add(Integer.class);
-        }};
-        List<Class<?>> columnMultiTypes = new ArrayList<Class<?>>() {{
+        } };
+        List<Class<?>> columnMultiTypes = new ArrayList<Class<?>>() { {
             add(Integer.class);
             add(String.class);
             add(Double.class);
-        }};
+        } };
         factory = new DatabaseTableProviderFactory();
         try {
             provider = factory.create(folder.getRoot().getPath());
@@ -69,10 +69,9 @@ public class TestsDatabaseTable {
     }
 
     @Test
-    public void testPutWithNulls() throws Exception
-    {
+    public void testPutWithNulls() throws Exception {
         table.put("brandnewrandomkey", provider.deserialize(table, "<row><col><null></null></col></row>"));
-        List<Object> values = new ArrayList<Object>(){{add(null);}};
+        List<Object> values = new ArrayList<Object>() { { add(null); } };
         Storeable st = provider.createFor(table, values);
         table.put("SADASDASD", st);
     }
@@ -91,16 +90,6 @@ public class TestsDatabaseTable {
     public void testKeyWithWhiteSpaces() {
         table.put("key key key", makeStoreable(5));
     }
-
-    // alien falls with it?
-    /*@Test(expected = IllegalArgumentException.class)
-    public void testValueWrongStoreable() {
-        try {
-            table.put("key", provider.deserialize(table, "<row><col>Five</col></row>"));
-        } catch (ParseException e) {
-            //
-        }
-    }    */
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullValue() {

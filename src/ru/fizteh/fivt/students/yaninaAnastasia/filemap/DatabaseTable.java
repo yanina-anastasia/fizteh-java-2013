@@ -91,8 +91,7 @@ public class DatabaseTable implements Table {
                 switch (formatColumnType(columnTypes.get(index))) {
                     case "String":
                         String stringValue = (String) value.getColumnAt(index);
-                        if (stringValue == null)
-                        {
+                        if (stringValue == null) {
                             continue;
                         }
                         if (checkStringCorrect(stringValue)) {
@@ -104,24 +103,6 @@ public class DatabaseTable implements Table {
                 throw new IllegalArgumentException(e);
             }
         }
-        /*
-        for (int i = 0; i < getColumnsCount(); i++) {
-            try {
-                if (value.getColumnAt(i) == null) {
-                    continue;
-                }
-                switch (formatColumnType(columnTypes.get(i))) {
-                    case "String":
-                        String stringValue = (String) value.getColumnAt(i);
-                        if (stringValue.trim().isEmpty()) {
-                            throw new ParseException("Value cannot be empty", 0);
-                        }
-                        break;
-                }
-            } catch (ParseException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }  */
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
@@ -373,8 +354,7 @@ public class DatabaseTable implements Table {
         }
         try {
             storeable.getColumnAt(getColumnsCount());
-        } catch (IndexOutOfBoundsException e)
-        {
+        } catch (IndexOutOfBoundsException e) {
             return;
         }
         throw new ColumnFormatException("Alien storeable with more columns");
