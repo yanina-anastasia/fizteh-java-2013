@@ -367,7 +367,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             mapFileMap.remove(name);
             dbData.setDrop();
             try {
-                mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                if (!dbData.isDrop()) {
+                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                }
             } catch (Exception e) {
                 IllegalArgumentException ex = new IllegalArgumentException();
                 ex.addSuppressed(e);

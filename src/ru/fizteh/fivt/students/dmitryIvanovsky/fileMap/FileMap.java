@@ -485,6 +485,10 @@ public class FileMap implements Table {
         tableDrop = true;
     }
 
+    public Boolean isDrop() {
+        return tableDrop;
+    }
+
     public Storeable get(String key) {
         checkArg(key);
 

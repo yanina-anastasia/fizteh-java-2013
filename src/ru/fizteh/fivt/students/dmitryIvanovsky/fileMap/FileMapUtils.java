@@ -11,7 +11,7 @@ public class FileMapUtils {
         if (key == null) {
             throw new IllegalArgumentException("key or value is clear");
         }
-        if (key.trim().isEmpty()) {
+        /*if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("only spaces");
         }
         if (key.contains(" ") || key.contains("\t")) {
@@ -19,7 +19,7 @@ public class FileMapUtils {
         }
         if (key.contains("\n")) {
             throw new IllegalArgumentException("newline in key or value");
-        }
+        }*/
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("key isn't correct");
         }
