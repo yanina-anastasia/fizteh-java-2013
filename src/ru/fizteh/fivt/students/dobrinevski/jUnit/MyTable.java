@@ -26,6 +26,9 @@ public class MyTable implements Table{
         if ((key == null)||(key == "")) {
             throw new IllegalArgumentException("Illegal key");
         }
+        if (!isValidKeyValueName(key)) {
+            throw new IllegalArgumentException("Invalid name");
+        }
         try {
             String[] buf = {"get", key};
             Command get = new MultiFileHashMapCommands.Get(baseHashMap, root);
@@ -40,6 +43,9 @@ public class MyTable implements Table{
         if (((key == null)||(key == "")) || ((value == null)||(value == ""))) {
             throw new IllegalArgumentException("Illegal key");
         }
+        if ((!isValidKeyValueName(key))||(!isValidKeyValueName(value))) {
+            throw new IllegalArgumentException("Invalid name");
+        }
         try {
             String[] buf = {"put", key, value};
             Command put = new MultiFileHashMapCommands.Put(baseHashMap, root);
@@ -53,6 +59,9 @@ public class MyTable implements Table{
     public String remove(String key) {
         if ((key == null)||(key == "")) {
             throw new IllegalArgumentException("Illegal key");
+        }
+        if (!isValidKeyValueName(key)) {
+            throw new IllegalArgumentException("Invalid name");
         }
         try {
             String[] buf = {"get", key};
@@ -96,5 +105,9 @@ public class MyTable implements Table{
         } catch (Exception e) {
             throw new RuntimeException("Bad Table");
         }
+    }
+
+    private static boolean isValidKeyValueName(String name) {
+        return !(name.contains("\n"));
     }
 }
