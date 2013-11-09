@@ -66,7 +66,7 @@ public class ShellDatabaseHandler {
                         return -1;
                     }
                     if (args.size() < 2) {
-                        System.out.println("wrong type type not specified");
+                        System.out.println("wrong type (type not specified)");
                         return -1;
                     }
                     try {
@@ -88,7 +88,7 @@ public class ShellDatabaseHandler {
                             } else if (typeNames[i].equals("String")) {
                                 columnTypes.add(String.class);
                             } else {
-                                System.out.println(String.format("wrong type %s is not supported",
+                                System.out.println(String.format("wrong type (%s is not supported)",
                                         typeNames[i]));
                                 return -1;
                             }
@@ -242,9 +242,9 @@ public class ShellDatabaseHandler {
                             System.out.printf("overwrite\n%s\n", database.serialize(current, value));
                         }
                     } catch (ColumnFormatException e) {
-                        System.out.printf("wrong type %s\n", e.getMessage());
+                        System.out.printf("wrong type (%s)\n", e.getMessage());
                     } catch (ParseException e) {
-                        System.out.printf("wrong type %s\n", e.getMessage());
+                        System.out.printf("wrong type (%s)\n", e.getMessage());
                     } catch (Exception e) {
                         printException(e);
                         return -1;
