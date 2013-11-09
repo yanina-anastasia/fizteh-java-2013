@@ -176,8 +176,9 @@ public class TableData implements Table {
             throw new IllegalArgumentException("value is null");
         }
        // System.out.println("int: " + value.getIntAt(1));
+        int i = 0;
         try {
-            for (int i = 0; i < getColumnsCount(); ++i) {
+            for (i = 0; i < getColumnsCount(); ++i) {
                 if (getColumnType(i).equals(Integer.class)) {
                     value.getIntAt(i);
                 }
@@ -201,9 +202,9 @@ public class TableData implements Table {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException(e.getMessage(), e);
+            throw new ColumnFormatException(e.getMessage() + " index i = " + i, e);
         } catch (ClassCastException  e) {
-            throw new ColumnFormatException(e.getMessage(), e);
+            throw new ColumnFormatException(e.getMessage() + " index i = " + i, e);
         }
 
         byte b = key.getBytes()[0];
