@@ -164,6 +164,7 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         JSONArray jsonArray = new JSONArray();
+        checkTableRow(table, (TableRow) value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("Type mismatch");
@@ -235,6 +236,12 @@ public class StoreableTableProvider implements TableProvider {
 
     public File getRoot() {
         return rootDir;
+    }
+
+    private void checkTableRow(Table table, TableRow value) {
+        if (table.getColumnsCount() != value.getColumsCount()) {
+            throw new ColumnFormatException("Wrong number of colums to serialize");
+        }
     }
 
 }

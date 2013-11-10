@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,6 +133,32 @@ public class StoreableTableProviderTest {
         StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
         Assert.assertNotNull(tableProvider);
         tableProvider.createTable("//a", classes);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testAlienStoreableWithMoreColumns() throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        classes.add(String.class);
+        List<Class<?>> wrongClasses = new ArrayList<>();
+        wrongClasses.add(String.class);
+        wrongClasses.add(Float.class);
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        Table testTable = tableProvider.createTable("abcdef", classes);
+        tableProvider.serialize(testTable, new TableRow(wrongClasses));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testAlienStoreableWithLessColumns() throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        classes.add(String.class);
+        classes.add(Float.class);
+        List<Class<?>> wrongClasses = new ArrayList<>();
+        wrongClasses.add(String.class);
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        Table testTable = tableProvider.createTable("abcdef", classes);
+        tableProvider.serialize(testTable, new TableRow(wrongClasses));
     }
 
 }

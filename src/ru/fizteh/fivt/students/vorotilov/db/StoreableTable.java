@@ -331,10 +331,13 @@ public class StoreableTable implements Table {
      */
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
+            throw new IndexOutOfBoundsException();
+        }
         return columnTypes.get(columnIndex);
     }
 
-    public List<Class<?>> getColumnTypes() throws IndexOutOfBoundsException {
+    public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
 

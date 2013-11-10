@@ -65,7 +65,7 @@ public class StoreableTableTest {
         currentTable.put("  ", tableRow);
     }
 
-    @Test(expected = ColumnFormatException.class)
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testAlienStoreableWithMoreColumns() throws IOException {
         List<Class<?>> classes = new ArrayList<>();
         classes.add(String.class);
@@ -83,7 +83,7 @@ public class StoreableTableTest {
         currentTable.put("newKey", tableRow);
     }
 
-    @Test(expected = ColumnFormatException.class)
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testAlienStoreableWithLessColumns() throws IOException {
         List<Class<?>> classes = new ArrayList<>();
         classes.add(String.class);

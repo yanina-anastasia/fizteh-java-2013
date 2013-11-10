@@ -172,7 +172,7 @@ public class TableRow implements Storeable {
 
     private void checkBounds(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= classes.size()) {
-            throw new ColumnFormatException();
+            throw new IndexOutOfBoundsException();
         }
     }
 
@@ -183,31 +183,42 @@ public class TableRow implements Storeable {
         }
     }
 
+    public int getColumsCount() {
+        return classes.size();
+    }
+
     @Override
-    public String toString() {
+    public String toString() throws ColumnFormatException {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < classes.size(); ++i) {
             switch (classes.get(i).getName()) {
                 case "java.lang.Integer":
-                    stringBuilder.append(getIntAt(i) + " ");
+                    stringBuilder.append(getIntAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.Long":
-                    stringBuilder.append(getLongAt(i) + " ");
+                    stringBuilder.append(getLongAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.Byte":
-                    stringBuilder.append(getByteAt(i) + " ");
+                    stringBuilder.append(getByteAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.Float":
-                    stringBuilder.append(getFloatAt(i) + " ");
+                    stringBuilder.append(getFloatAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.Double":
-                    stringBuilder.append(getDoubleAt(i) + " ");
+                    stringBuilder.append(getDoubleAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.Boolean":
-                    stringBuilder.append(getBooleanAt(i) + " ");
+                    stringBuilder.append(getBooleanAt(i));
+                    stringBuilder.append(" ");
                     break;
                 case "java.lang.String":
-                    stringBuilder.append(getStringAt(i) + " ");
+                    stringBuilder.append(getStringAt(i));
+                    stringBuilder.append(" ");
                     break;
                 default:
                     throw new ColumnFormatException("Uknonwn column type: " + classes.get(i).getName());

@@ -142,7 +142,7 @@ public class SignatureFile {
 
     public static List<Object> parseValues(StoreableTable currentTable, String input) throws ColumnFormatException {
         List<Class<?>> classes = currentTable.getColumnTypes();
-        ArrayList<Object> values = new ArrayList<>(classes.size());
+        List<Object> values = new ArrayList<>(classes.size());
         String[] splittedInput = input.split("\\s+");
         if (splittedInput.length != classes.size()) {
             throw new ColumnFormatException("Parsed values has different size from expected");
