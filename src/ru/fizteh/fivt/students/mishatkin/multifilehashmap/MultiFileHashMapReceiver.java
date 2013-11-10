@@ -29,8 +29,11 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	public MultiFileHashMapReceiver(PrintStream out, boolean interactiveMode, String dbDirectory) {
 		super(out, interactiveMode);
+		if (dbDirectory == null) {
+			throw new IllegalArgumentException();
+		}
 		File dbDirectoryFile = new File(dbDirectory);
-		if (dbDirectory == null || !dbDirectoryFile.exists() || !dbDirectoryFile.isDirectory()) {
+		if (!dbDirectoryFile.exists() || !dbDirectoryFile.isDirectory()) {
 			throw new IllegalArgumentException();
 		}
 		this.dbDirectory = dbDirectory;
