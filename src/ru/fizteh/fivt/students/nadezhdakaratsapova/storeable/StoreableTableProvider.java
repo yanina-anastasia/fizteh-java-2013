@@ -150,7 +150,7 @@ public class StoreableTableProvider implements TableProvider {
                                         node = xmlReader.next();
                                         if (node == XMLStreamConstants.CHARACTERS) {
                                             String parseValue = xmlReader.getText();
-                                            ret.setColumnAt(columnCounter, signatureController.convertStringToAnotherObject(parseValue, curDataBaseStorage.getColumnType(columnCounter)));
+                                            ret.setColumnAt(columnCounter, signatureController.convertStringToAnotherObject(parseValue, table.getColumnType(columnCounter)));
                                             ++columnCounter;
                                         }
 
@@ -222,9 +222,10 @@ public class StoreableTableProvider implements TableProvider {
             xmlWriter.flush();
             xmlWriter.close();
             return stringWriter.toString();
-        } catch (XMLStreamException e) {
+        } catch (XMLStreamException e1) {
             throw new ColumnFormatException("Programme's mistake in getting the xmlStreamWriter");
         }
+
     }
 
     public Storeable createFor(Table table) {
@@ -237,6 +238,9 @@ public class StoreableTableProvider implements TableProvider {
         }
         Storeable storeable = createFor(table);
         int columnsCount = table.getColumnsCount();
+        if (columnsCount != values.size()) {
+            throw new IndexOutOfBoundsException("Not valid count of values");
+        }
         for (int i = 0; i < columnsCount; ++i) {
             storeable.setColumnAt(i, values.get(i));
         }

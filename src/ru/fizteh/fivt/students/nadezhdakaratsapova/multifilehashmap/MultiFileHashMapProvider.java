@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class MultiFileHashMapProvider implements TableProvider {
     }
 
 
-    public DataTable setCurTable(String newTable) throws IOException {
+    public DataTable setCurTable(String newTable) throws IOException, ParseException {
         DataTable dataTable = null;
         if (!dataBaseTables.isEmpty()) {
             dataTable = dataBaseTables.get(newTable);

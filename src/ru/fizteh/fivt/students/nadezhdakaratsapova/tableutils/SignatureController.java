@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTable;
@@ -210,4 +211,34 @@ public class SignatureController {
         outputStream.close();
     }
 
+    public void checkValueForTable(int columnIndex, Table table, Storeable value) throws IndexOutOfBoundsException, ColumnFormatException {
+        if (value.getColumnAt(columnIndex) != null) {
+            switch (table.getColumnType(columnIndex).getSimpleName()) {
+                case "Integer":
+                    value.getIntAt(columnIndex);
+                    break;
+                case "Long":
+                    value.getLongAt(columnIndex);
+                    break;
+                case "Byte":
+                    value.getByteAt(columnIndex);
+                    break;
+                case "Float":
+                    value.getFloatAt(columnIndex);
+                    break;
+                case "Double":
+                    value.getDoubleAt(columnIndex);
+                    break;
+                case "Boolean":
+                    value.getBooleanAt(columnIndex);
+                    break;
+                case "String":
+                    value.getStringAt(columnIndex);
+                    break;
+                default:
+                    throw new ColumnFormatException("Not allowed type of signature");
+            }
+        }
+    }
 }
+

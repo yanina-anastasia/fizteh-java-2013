@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.StringMethods;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 
 public class Main {
@@ -40,6 +41,9 @@ public class Main {
         } catch (IOException e) {
             System.err.println("not managed to create file");
             System.exit(1);
+        } catch (ParseException e) {
+            System.err.println(e.getMessage());
+            System.exit(2);
         }
     }
 }

@@ -4,14 +4,13 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileReader;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileWriter;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.SignatureController;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.StoreableValueConverter;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.ValueConverter;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ public class StoreableTable implements Table {
     private StoreableTableProvider tableProvider;
     private UniversalDataTable<Storeable> dataTable;
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+    private ValueConverter valueConverter;
 
     public StoreableTable() throws IOException {
         dataTable = new UniversalDataTable<Storeable>();
@@ -35,7 +35,8 @@ public class StoreableTable implements Table {
     }
 
     public StoreableTable(String name, File dir, List<Class<?>> types, StoreableTableProvider provider) {
-        dataTable = new UniversalDataTable<Storeable>(name, dir);
+        valueConverter = new StoreableValueConverter(tableProvider, this);
+        dataTable = new UniversalDataTable<Storeable>(name, dir, valueConverter);
         columnTypes = types;
         tableProvider = provider;
 
@@ -53,37 +54,11 @@ public class StoreableTable implements Table {
         int i;
         for (i = 0; i < signColumnsCount; ++i) {
             try {
-                if (value.getColumnAt(i) != null) {
-                    switch (getColumnType(i).getSimpleName()) {
-                        case "Integer":
-                            value.getIntAt(i);
-                            break;
-                        case "Long":
-                            value.getLongAt(i);
-                            break;
-                        case "Byte":
-                            value.getByteAt(i);
-                            break;
-                        case "Float":
-                            value.getFloatAt(i);
-                            break;
-                        case "Double":
-                            value.getDoubleAt(i);
-                            break;
-                        case "Boolean":
-                            value.getBooleanAt(i);
-                            break;
-                        case "String":
-                            value.getStringAt(i);
-                            break;
-                        default:
-                            throw new ColumnFormatException("Not allowed type of signature");
-                    }
-                }
+                SignatureController signatureController = new SignatureController();
+                signatureController.checkValueForTable(i, this, value);
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException(e.getMessage());
             }
-
         }
         try {
             value.getColumnAt(i);
@@ -143,127 +118,11 @@ public class StoreableTable implements Table {
     }
 
     public void load() throws IOException, ParseException {
-        File curTable = new File(dataTable.getWorkingDirectory(), dataTable.getName());
-        curTable = curTable.getCanonicalFile();
-        File[] dirs = curTable.listFiles();
-        if (dirs.length > DIR_COUNT) {
-            throw new IOException("The table includes more than " + DIR_COUNT + " directories");
-        }
-        for (File d : dirs) {
-            if (!d.isDirectory() && (!d.getName().equals("signature.tsv"))) {
-                throw new IOException(dataTable.getName() + " should include only directories");
-            }
-            if (!d.getName().equals("signature.tsv")) {
-                File[] files = d.listFiles();
-                if ((files.length - 1) > FILE_COUNT) {
-                    throw new IOException("The directory includes more than " + FILE_COUNT + " files");
-                }
-                String dirName = d.getName();
-                char firstChar = dirName.charAt(0);
-                char secondChar;
-                int dirNumber;
-                if (dirName.length() > 1) {
-                    secondChar = dirName.charAt(1);
-                } else {
-                    throw new IllegalArgumentException("Not allowed name of directory in table");
-                }
-                if (Character.isDigit(firstChar)) {
-                    if (Character.isDigit(secondChar)) {
-                        dirNumber = Integer.parseInt(dirName.substring(0, 2));
-                    } else {
-                        dirNumber = Integer.parseInt(dirName.substring(0, 1));
-                    }
-                } else {
-                    throw new IllegalArgumentException("Not allowed name of directory in table");
-                }
-                if (!dirName.equals(new String(dirNumber + ".dir"))) {
-                    throw new IllegalArgumentException("Not allowed name of directory in table");
-                }
-                for (File f : files) {
-                    if (!f.isFile()) {
-                        throw new IOException("Unexpected directory");
-                    }
-                    String fileName = f.getName();
-                    char firstFileChar = fileName.charAt(0);
-                    char secondFileChar;
-                    int fileNumber;
-                    if (fileName.length() > 1) {
-                        secondFileChar = fileName.charAt(1);
-                    } else {
-                        throw new IllegalArgumentException("Not allowed name of file in table");
-                    }
-                    if (Character.isDigit(firstFileChar)) {
-                        if (Character.isDigit(secondFileChar)) {
-                            fileNumber = Integer.parseInt(fileName.substring(0, 2));
-                        } else {
-                            fileNumber = Integer.parseInt(fileName.substring(0, 1));
-                        }
-                    } else {
-                        throw new IllegalArgumentException("Not allowed name of file in table");
-                    }
-                    if (!fileName.equals(new String(fileNumber + ".dat"))) {
-                        throw new IllegalArgumentException("Not allowed name of file in table");
-                    }
-                    FileReader fileReader = new FileReader(f, this.dataTable);
-                    while (fileReader.checkingLoadingConditions()) {
-                        String key = fileReader.getNextKey();
-                        int hashByte = Math.abs(key.getBytes()[0]);
-                        int ndirectory = hashByte % DIR_COUNT;
-                        int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
-                        if (ndirectory != dirNumber) {
-                            throw new IllegalArgumentException("Wrong key in " + dirName);
-                        }
-                        if (fileNumber != nfile) {
-                            throw new IllegalArgumentException("Wrong key in" + fileName);
-                        }
-                    }
-                    fileReader.putStoreableValueToTable(tableProvider.deserialize(this, fileReader.getNextValue()));
-                    fileReader.closeResources();
-                }
-            }
-        }
+        dataTable.load();
     }
 
     public void writeToDataBase() throws IOException {
-        dataTable.rollback();
-        Set<String> keys = dataTable.getKeys();
-        if (!keys.isEmpty()) {
-            for (int i = 0; i < DIR_COUNT; ++i) {
-                File dir = new File(new File(dataTable.getWorkingDirectory(), dataTable.getName()), new String(i + ".dir"));
-                for (int j = 0; j < FILE_COUNT; ++j) {
-                    DataTable keysToFile = new DataTable();
-                    File file = new File(dir, new String(j + ".dat"));
-                    for (String key : keys) {
-                        int hashByte = Math.abs(key.getBytes()[0]);
-                        int ndirectory = hashByte % DIR_COUNT;
-                        int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
-                        if ((ndirectory == i) && (nfile == j)) {
-                            if (!dir.getCanonicalFile().exists()) {
-                                dir.getCanonicalFile().mkdir();
-                            }
-
-                            if (!file.getCanonicalFile().exists()) {
-                                file.getCanonicalFile().createNewFile();
-                            }
-                            keysToFile.put(key, tableProvider.serialize(this, dataTable.get(key)));
-                            keysToFile.commit();
-                        }
-                    }
-
-                    if (!keysToFile.isEmpty()) {
-                        FileWriter fileWriter = new FileWriter();
-                        fileWriter.writeDataToFile(file.getCanonicalFile(), keysToFile);
-                    } else {
-                        if (file.getCanonicalFile().exists()) {
-                            file.getCanonicalFile().delete();
-                        }
-                    }
-                }
-                if (dir.getCanonicalFile().listFiles() == null) {
-                    dir.delete();
-                }
-            }
-        }
+        dataTable.writeToDataBase();
         File sign = new File(getWorkingDirectory(), "signature.tsv");
         sign.createNewFile();
         SignatureController signatureController = new SignatureController();

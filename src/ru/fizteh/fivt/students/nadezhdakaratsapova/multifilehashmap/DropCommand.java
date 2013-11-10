@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 
 
 import java.io.IOException;
+import java.text.ParseException;
 
 public class DropCommand implements Command {
     MultiFileHashMapProvider curState;
@@ -20,7 +21,11 @@ public class DropCommand implements Command {
     public void execute(String[] args) throws IOException {
         curState.removeTable(args[1]);
         if (curState.curDataBaseStorage != null && args[1].equals(curState.curDataBaseStorage.getName())) {
-            curState.setCurTable(null);
+            try {
+                curState.setCurTable(null);
+            } catch (ParseException e) {
+                throw new IOException(e.getMessage());
+            }
         }
         System.out.println("dropped");
     }

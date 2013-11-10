@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileReader {
+public class FileReader<ValueType> {
 
     public static final int MAX_FILE_SIZE = 1024 * 1024;
     public static final int SEPARATOR_SIZE = 1;
@@ -107,7 +107,7 @@ public class FileReader {
         return new String(b, StandardCharsets.UTF_8);
     }
 
-    public void putStringValueToTable(String value) {
+    public void putValueToTable(ValueType value) {
         dataTable.put(keysToMap.get(curValue), value);
         if (curValue == offsets.size()) {
             dataTable.commit();
@@ -115,12 +115,12 @@ public class FileReader {
         ++curValue;
     }
 
-    public void putStoreableValueToTable(Storeable value) {
+    /*public void putStoreableValueToTable(Storeable value) {
         dataTable.put(keysToMap.get(curValue), value);
         ++curValue;
-    }
+    }*/
 
-    public void putKeysToTable() throws IOException {
+   /* public void putKeysToTable() throws IOException {
         long fileLength = dataFile.length();
         int j = 0;
         if (!offsets.isEmpty()) {
@@ -142,7 +142,7 @@ public class FileReader {
             dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
         }
         dataTable.commit();
-    }
+    }   */
 
     public void closeResources() throws IOException {
         if (curPos > 0) {
