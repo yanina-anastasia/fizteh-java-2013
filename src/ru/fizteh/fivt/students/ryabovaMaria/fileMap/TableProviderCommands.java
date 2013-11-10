@@ -298,7 +298,7 @@ public class TableProviderCommands implements TableProvider {
         if (value == null) {
             return null;
         }
-        int count = -1;
+        /*int count = -1;
         while (true) {
             ++count;
             try {
@@ -309,7 +309,7 @@ public class TableProviderCommands implements TableProvider {
         }
         if (count != table.getColumnsCount()) {
             throw new ColumnFormatException("incorrect number of columns");
-        }
+        }*/
         JSONArray text = null;
         try {
             text = new JSONArray();
@@ -356,11 +356,17 @@ public class TableProviderCommands implements TableProvider {
                 throw new ColumnFormatException(e.getMessage());
             }
         }
+        int i = table.getColumnsCount();
         try {
-            return text.toString();
+            value.getColumnAt(i);
         } catch (Exception e) {
-            throw new ColumnFormatException(e.getMessage());
+            try {
+                return text.toString();
+            } catch (Exception ex) {
+                throw new ColumnFormatException(ex.getMessage());
+            }
         }
+        throw new ColumnFormatException("incorrect number of columns");
     }
 
     private List<Class<?>> getTypeList(Table table) {
