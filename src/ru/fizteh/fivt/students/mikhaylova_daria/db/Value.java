@@ -31,12 +31,14 @@ public class Value implements Storeable {
 
 
     Value(Table table) {
+        System.out.println(this.toString());
+
         types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(normType(table.getColumnType(i).getSimpleName()));
         }
         value = new ArrayList<>(types.size());
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
+        for (int i = 0; i < types.size(); ++i) {
             if (types.get(i) == null) {
                 throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
@@ -67,6 +69,7 @@ public class Value implements Storeable {
                     }
                 }
             }
+            System.out.println(value.get(i).toString() + i);
         }
     }
 
