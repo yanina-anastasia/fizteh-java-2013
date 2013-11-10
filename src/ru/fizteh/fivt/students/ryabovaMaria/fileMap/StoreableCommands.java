@@ -23,10 +23,12 @@ public class StoreableCommands implements Storeable{
             throw new IndexOutOfBoundsException("incorrect number of elements");
         }
         for (int i = 0; i < types.size(); ++i) {
-            Class type = types.get(i);
-            Class value = values.get(i).getClass();
-            if (!type.getSimpleName().equals(value.getSimpleName())) {
-                throw new ColumnFormatException("wrong type");
+            if (values.get(i) != null) {
+                Class type = types.get(i);
+                Class value = values.get(i).getClass();
+                if (!type.getSimpleName().equals(value.getSimpleName())) {
+                    throw new ColumnFormatException("wrong type");
+                }
             }
         }
         this.values = new ArrayList(values);

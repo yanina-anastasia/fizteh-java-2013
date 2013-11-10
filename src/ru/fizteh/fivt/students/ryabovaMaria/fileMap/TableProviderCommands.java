@@ -220,13 +220,9 @@ public class TableProviderCommands implements TableProvider {
             return null;
         }
         ArrayList<Object> values = null;
+        ArrayList<Class<?>> tableTypes = null;
         try {    
             values = new ArrayList(table.getColumnsCount());
-        } catch (Exception e) {
-            throw new ParseException(e.getMessage(), 0);
-        }
-        ArrayList<Class<?>> tableTypes = null;
-        try {
             tableTypes = new ArrayList(table.getColumnsCount());
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0);
@@ -249,7 +245,8 @@ public class TableProviderCommands implements TableProvider {
             }
             tableTypes.add(type);
             try {
-                if (array.get(i) == null) {
+                String className = array.get(i).getClass().getSimpleName().toString();
+                if (className.equals("Null")) {
                     values.add(null);
                 } else {
                     switch (type.getSimpleName()) {
