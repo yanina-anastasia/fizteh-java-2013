@@ -77,7 +77,7 @@ public class Value implements Storeable {
         if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        System.out.println(columnIndex + " " + value);
+        System.out.println(columnIndex + " (" + value + ")");
         if (!(value == null)) {
             if (normType(value.getClass().getSimpleName()) == null) {
                 throw new ColumnFormatException("This type is not supposed: " + value.getClass().getCanonicalName());
