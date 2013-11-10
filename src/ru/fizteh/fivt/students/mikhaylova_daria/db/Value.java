@@ -33,37 +33,33 @@ public class Value implements Storeable {
     Value(Table table) {
         types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            types.add(table.getColumnType(i));
+            types.add(normType(table.getColumnType(i).getSimpleName()));
         }
-        value = new ArrayList<>(table.getColumnsCount());
+        value = new ArrayList<>(types.size());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (table.getColumnType(i) == null) {
+            if (types.get(i) == null) {
                 throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
-            if (normType(table.getColumnType(i).getSimpleName()) == null) {
-                throw new IllegalArgumentException("wrong type (bad Table: " + table.getColumnType(i)
-                        + " are not supported))");
-            }
-            if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
+            if (types.get(i).equals(Integer.class)) {
                 value.add(i, Integer.MIN_VALUE);
             } else {
-                if (normType(table.getColumnType(i).getSimpleName()).equals(Long.class)) {
+                if (types.get(i).equals(Long.class)) {
                     value.add(i, Long.MIN_VALUE);
                 } else {
-                    if (normType(table.getColumnType(i).getSimpleName()).equals(Byte.class)) {
+                    if (types.get(i).equals(Byte.class)) {
                         value.add(i, Byte.MIN_VALUE);
                     } else {
-                        if (normType(table.getColumnType(i).getSimpleName()).equals(Float.class)) {
+                        if (types.get(i).equals(Float.class)) {
                             value.add(i, Float.MIN_VALUE);
                         } else {
-                            if (normType(table.getColumnType(i).getSimpleName()).equals(Double.class)) {
+                            if (types.get(i).equals(Double.class)) {
                                 value.add(i, Double.MIN_VALUE);
                             } else {
-                                if (normType(table.getColumnType(i).getSimpleName()).equals(Boolean.class)) {
-                                    value.add(i, true);
-                                }  else {
-                                    if (table.getColumnType(i).equals(String.class)) {
-                                        value.add(i, "default");
+                                if (types.get(i).equals(String.class)) {
+                                    value.add(i, "default");
+                                } else {
+                                    if (types.get(i).equals(Boolean.class)) {
+                                        value.add(i, true);
                                     }
                                 }
                             }
