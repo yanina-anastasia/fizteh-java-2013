@@ -43,7 +43,7 @@ public class NewTableProvider implements TableProvider {
         providerTypes.put("String", String.class);
         providerTypesNames.put(String.class, "String");
         for (File file : workingDirectory.listFiles()) {
-            if (file.isDirectory()) {
+            if (checkTableName(file.getName()) && file.isDirectory() && file.listFiles().length != 0) {
                 tables.put(file.getName(), new NewTable(file.getName(), this));
             }
         }
@@ -111,16 +111,18 @@ public class NewTableProvider implements TableProvider {
 
     @Override
     public Table getTable(String name) {
-        checkTableName(name);
+        if (!checkTableName(name)) {
+            throw new IllegalArgumentException("Incorrect table name");
+        }
         NewTable table = tables.get(name);
         File tableFile = new File(workingDirectory, name);
-        try {
-            if (table != null && tableFile != null) {
-                currentTable = table;
+        if (table != null && tableFile != null) {
+            currentTable = table;
+            try {
                 table.loadCommitedValues(load(tableFile));
+            } catch (IOException | ParseException e) {
+                // ok
             }
-        } catch (IOException | ParseException e) {
-            throw new IllegalStateException(e.getMessage(), e);
         }
         return table;
     }
@@ -128,29 +130,23 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
-            if (dir.listFiles() != null && dir != null) {
-                if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
-                    for (File file : dir.listFiles()) {
-                        if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                            if (file.length() != 0) {
-                                map.putAll(ReadDataBase.loadFile(file, currentTable));
-                            } else {
-                                throw new IOException("empty file");
-                            }
+            if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
+                for (File file : dir.listFiles()) {
+                    if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                        if (file.length() != 0) {
+                            map.putAll(ReadDataBase.loadFile(file, currentTable));
                         }
                     }
                 }
-            } else {
-                throw new IOException("empty dir");
             }
+
         }
         return map;
     }
 
-    private void checkTableName(String name) {
-        if ((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-яА-Я]+"))) {
-            throw new IllegalArgumentException("Incorrect table name");
-        }
+    private boolean checkTableName(String name) {
+        return !((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-яА-Я]+")));
+
     }
 
     public void saveChanges(NewTable table) throws IOException {
@@ -177,7 +173,9 @@ public class NewTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) {
-        checkTableName(name);
+        if (!checkTableName(name)) {
+            throw new IllegalArgumentException("Incorrect table name");
+        }
         NewTable table = tables.remove(name);
         File tableFile = new File(workingDirectory, name);
         if (table == null) {
@@ -198,7 +196,9 @@ public class NewTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        checkTableName(name);
+        if (!checkTableName(name)) {
+            throw new IllegalArgumentException("Incorrect table name");
+        }
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
             throw new IllegalArgumentException("Incorrect column name");
         }

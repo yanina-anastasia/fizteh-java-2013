@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
 import ru.fizteh.fivt.students.surakshina.shell.Command;
 import ru.fizteh.fivt.students.surakshina.shell.Shell;
 
@@ -28,19 +27,7 @@ public class DataBaseMain {
         Shell shell = new Shell(state, commands);
         shell.startWork(args);
     }
-
-    /*
-     * public static Set<Command> tableCommands(TableState state) { Set<Command>
-     * tableCommands = new HashSet<Command>(); tableCommands.add(new
-     * CommandCommit(state)); tableCommands.add(new CommandRollback(state));
-     * tableCommands.add(new CommandGet(state)); tableCommands.add(new
-     * CommandPut(state)); tableCommands.add(new CommandRemove(state));
-     * tableCommands.add(new CommandExitSave(state)); tableCommands.add(new
-     * CommandUse(state)); tableCommands.add(new CommandCreate(state));
-     * tableCommands.add(new CommandDrop(state)); return tableCommands;
-     * 
-     * }
-     */
+    
     public static Set<Command> tableCommands(TableState state) {
         Set<Command> tableCommands = new HashSet<Command>();
         tableCommands.add(new CommandCommit(state));
