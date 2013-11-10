@@ -87,7 +87,7 @@ public class Value implements Storeable {
                         + " but expected "  + types.get(columnIndex));
             }
         }
-        this.values.add(columnIndex, value);
+        this.values.set(columnIndex, value);
     }
 
 
