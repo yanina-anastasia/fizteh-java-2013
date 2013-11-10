@@ -36,7 +36,7 @@ public class StoreableCommands implements Storeable{
     }
     
     private void isCorrectIndex(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex < 0 || columnIndex >= values.size()) {
+        if (columnIndex < 0 || columnIndex >= types.size()) {
             throw new IndexOutOfBoundsException();
         }
     }
