@@ -75,7 +75,7 @@ public class TableDirectory implements TableProviderInterface {
 			throw new IllegalArgumentException();
 		}
 		for (int i = 0; i < columnTypes.size(); i++) {
-			if (!allowedTypes.containsValue(columnTypes.get(i))) {
+			if (getNameByType(columnTypes.get(i)) == null) {
 				throw new IllegalArgumentException();
 			}
 		}
@@ -172,10 +172,10 @@ public class TableDirectory implements TableProviderInterface {
 					case "byte":
 						struct.setColumnAt(i, Byte.parseByte(innerContent));
 						break;
-					case "Double":
+					case "double":
 						struct.setColumnAt(i, Double.parseDouble(innerContent));
 						break;
-					case "Boolean":
+					case "boolean":
 						struct.setColumnAt(i, Boolean.parseBoolean(innerContent));
 						break;
 					case "String":
