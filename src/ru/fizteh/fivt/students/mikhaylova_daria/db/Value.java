@@ -37,8 +37,8 @@ public class Value implements Storeable {
                 throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
             if (normType(table.getColumnType(i).getName()) == null) {
-                throw new IllegalArgumentException("wrong type (bad Table: " +
-                        "the table contains types, which are not supported))");
+                throw new IllegalArgumentException("wrong type (bad Table: " + table.getColumnType(i) +
+                        " are not supported))");
             }
             if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
                 value.add(0);
