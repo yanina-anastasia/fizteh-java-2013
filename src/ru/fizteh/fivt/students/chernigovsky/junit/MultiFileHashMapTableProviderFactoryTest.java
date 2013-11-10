@@ -2,12 +2,12 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 
 import org.junit.*;
 
-public class MyTableProviderFactoryTest {
-    private MyTableProviderFactory tableProviderFactory;
+public class MultiFileHashMapTableProviderFactoryTest {
+    private MultiFileHashMapTableProviderFactory tableProviderFactory;
 
     @Before
     public void setUp() {
-        tableProviderFactory = new MyTableProviderFactory();
+        tableProviderFactory = new MultiFileHashMapTableProviderFactory();
     }
 
     @Test(expected = IllegalArgumentException.class)

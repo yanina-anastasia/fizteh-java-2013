@@ -4,13 +4,13 @@ import org.junit.*;
 
 import java.io.File;
 
-public class MyTableProviderTest {
+public class MultiFileHashMapTableProviderTest {
     private ExtendedTableProvider tableProvider;
     File dbDirectory = new File("./myCoolDatabase");
 
     @Before
     public void setUp() {
-        tableProvider = new MyTableProvider(dbDirectory, false);
+        tableProvider = new MultiFileHashMapTableProvider(dbDirectory, false);
     }
 
     @Test(expected = IllegalArgumentException.class)

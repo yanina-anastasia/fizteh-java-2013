@@ -23,7 +23,7 @@ public class Main {
             System.exit(1);
         }
 
-        ExtendedTableProvider tableProvider = new MyTableProvider(dbDirectory, true);
+        ExtendedTableProvider tableProvider = new MultiFileHashMapTableProvider(dbDirectory, true);
         State state = new State(null, tableProvider);
 
         commandMap.put("put", new CommandPut());

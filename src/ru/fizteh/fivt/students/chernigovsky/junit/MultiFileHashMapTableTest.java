@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUti
 import java.io.File;
 import java.io.IOException;
 
-public class MyTableTest {
+public class MultiFileHashMapTableTest {
     private ExtendedTable table;
     private ExtendedTableProvider tableProvider;
     File dbDirectory = new File("./myCoolDatabase");
@@ -22,7 +22,7 @@ public class MyTableTest {
         }
         dbDirectory.mkdir();
 
-        tableProvider = new MyTableProvider(dbDirectory, false);
+        tableProvider = new MultiFileHashMapTableProvider(dbDirectory, false);
         table = tableProvider.createTable("testTable");
     }
 

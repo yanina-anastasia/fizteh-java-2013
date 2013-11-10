@@ -4,9 +4,6 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import ru.fizteh.fivt.students.chernigovsky.filemap.State;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
 
 public class MultiFileHashMapUtils {
 

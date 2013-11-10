@@ -7,19 +7,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MyTableProvider implements ExtendedTableProvider {
+public class MultiFileHashMapTableProvider implements ExtendedTableProvider {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
     private HashMap<String, ExtendedTable> tableHashMap;
     private File dbDirectory;
     boolean autoCommit;
 
-    public MyTableProvider(File newDbDirectory, boolean flag) {
+    public MultiFileHashMapTableProvider(File newDbDirectory, boolean flag) {
         dbDirectory = newDbDirectory;
         autoCommit = flag;
         tableHashMap = new HashMap<String, ExtendedTable>();
         if (dbDirectory != null) {
             for (String string : dbDirectory.list()) {
-                ExtendedTable newTable = new MyTable(string, flag);
+                ExtendedTable newTable = new MultiFileHashMapTable(string, flag);
                 tableHashMap.put(string, newTable);
                 try {
                     MultiFileHashMapUtils.readTable(new State(newTable, this));
@@ -76,7 +76,7 @@ public class MyTableProvider implements ExtendedTableProvider {
             throw new IllegalArgumentException("directory making error");
         }
 
-        MyTable newTable = new MyTable(name, autoCommit);
+        MultiFileHashMapTable newTable = new MultiFileHashMapTable(name, autoCommit);
 
         tableHashMap.put(name, newTable);
         return newTable;
