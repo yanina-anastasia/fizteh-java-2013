@@ -66,7 +66,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             throw new IllegalArgumentException("provider, create: columnTypes are null or empty");
         }
         for (Class<?> cl : columnTypes) {
-            if (cl == null || MultiFileTableUtils.getColumnTypeString(cl) == null) {
+            if (cl == null || MultiFileTableTypes.getNameByClass(cl) == null) {
                 throw new IllegalArgumentException("provider, create: invalid column type");
             }
         }

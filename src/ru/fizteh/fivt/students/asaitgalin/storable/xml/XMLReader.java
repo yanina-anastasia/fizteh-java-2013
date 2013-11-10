@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.asaitgalin.storable.xml;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableTypes;
 import ru.fizteh.fivt.students.asaitgalin.storable.MultiFileTableUtils;
 
 import javax.xml.stream.XMLInputFactory;
@@ -39,7 +40,11 @@ public class XMLReader {
                 throw new ParseException(PARSE_ERROR, 0);
             }
             if (reader.next() == XMLStreamConstants.CHARACTERS) {
-                retValue = getValue(reader.getText(), type);
+                try {
+                    retValue = MultiFileTableTypes.parseValueWithClass(reader.getText(), type);
+                } catch (NumberFormatException nfe) {
+                    throw new ColumnFormatException(nfe);
+                }
             } else {
                 if (reader.getName().getLocalPart().equals("null")) {
                     // skip null tag
@@ -73,40 +78,6 @@ public class XMLReader {
         } catch (XMLStreamException e) {
             throw new ParseException("xmlreader: stream error, msg: " + e.getMessage(), 0);
         }
-    }
-
-    private Object getValue(String s, Class<?> type) throws ColumnFormatException {
-        Object value;
-        try {
-            switch (MultiFileTableUtils.getColumnTypeString(type)) {
-                case "int":
-                    value = Integer.parseInt(s);
-                    break;
-                case "long":
-                    value = Long.parseLong(s);
-                    break;
-                case "byte":
-                    value = Byte.parseByte(s);
-                    break;
-                case "float":
-                    value = Float.parseFloat(s);
-                    break;
-                case "double":
-                    value = Double.parseDouble(s);
-                    break;
-                case "boolean":
-                    value = Boolean.parseBoolean(s);
-                    break;
-                case "String":
-                    value = s;
-                    break;
-                default:
-                    throw new RuntimeException("xmlreader: invalid column type");
-            }
-        } catch (NumberFormatException nfe) {
-            throw new ColumnFormatException(nfe);
-        }
-        return value;
     }
 
 }

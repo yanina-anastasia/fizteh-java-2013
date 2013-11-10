@@ -18,6 +18,9 @@ public class CommandTable {
             Command cmd = table.get(commandName);
             if (cmd != null) {
                 String[] cmdArgs = cmd.parseCommandLine(s);
+                if (cmdArgs == null) {
+                    throw new IOException(cmd.getName() + ": error while parsing command");
+                }
                 if (cmdArgs.length - 1 != cmd.getArgsCount()) {
                     throw new IOException(cmd.getName() + ": wrong argument count");
                 }

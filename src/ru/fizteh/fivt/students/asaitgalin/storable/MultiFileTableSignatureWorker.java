@@ -27,7 +27,7 @@ public class MultiFileTableSignatureWorker {
         }
         String[] types = scanner.nextLine().split("\\s");
         for (String s : types) {
-            if (!MultiFileTableUtils.isValidType(s)) {
+            if (MultiFileTableTypes.getClassByName(s) == null) {
                 throw new BadSignatureFileException("bad signature.tsv");
             }
         }
@@ -42,7 +42,7 @@ public class MultiFileTableSignatureWorker {
             BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
             List<String> types = new ArrayList<>();
             for (Class<?> cl : columnTypes) {
-                types.add(MultiFileTableUtils.getColumnTypeString(cl));
+                types.add(MultiFileTableTypes.getNameByClass(cl));
             }
             writer.write(StringUtils.join(types, " "));
             writer.close();
