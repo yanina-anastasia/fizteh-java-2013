@@ -9,7 +9,6 @@ import ru.fizteh.fivt.students.eltyshev.shell.commands.Command;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.HelpCommand;
 import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseTableProviderFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
