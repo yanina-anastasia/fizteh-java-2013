@@ -83,7 +83,7 @@ public class Shell {
                 System.exit(0);
             }
         } catch (IllegalArgumentException e) {
-            System.err.println("Error: illegal arguments");
+            System.err.println(e.getMessage());
             return false;
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,8 +101,11 @@ public class Shell {
                 String input = scan.nextLine();
                 String[] commandArray = input.split(";");
                 for (final String command : commandArray) {
-                    if (!processCommand(command)) {
-                        System.getProperty("line.separator");
+                    try {
+                        if (!processCommand(command)) {
+                        }
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
                 System.out.print("$ ");
@@ -114,6 +117,8 @@ public class Shell {
                 System.exit(0);
             } catch (IOException r) {
                 System.exit(1);
+            } catch (IllegalArgumentException f) {
+                System.err.println(f.getMessage());
             }
             System.exit(1);
         }

@@ -8,12 +8,10 @@ public class CommandGet extends Command {
     public boolean exec(String[] args, State curState) throws IOException {
         DBState myState = DBState.class.cast(curState);
         if (myState.table == null) {
-            System.err.println("no table");
-            return false;
+            throw new IllegalArgumentException("no table");
         }
         if (args.length != 1) {
-            System.err.println("Invalid arguments");
-            return false;
+            throw new IllegalArgumentException("Illegal arguments");
         }
         String value = myState.table.get(args[0]);
         if (value == null) {

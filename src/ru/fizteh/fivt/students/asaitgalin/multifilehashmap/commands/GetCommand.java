@@ -1,16 +1,15 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTable;
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableState;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class GetCommand implements Command {
-    MultiFileTableProvider provider;
+    private  MultiFileTableState state;
 
-    public GetCommand(MultiFileTableProvider provider) {
-        this.provider = provider;
+    public GetCommand(MultiFileTableState state) {
+        this.state = state;
     }
 
     @Override
@@ -20,11 +19,10 @@ public class GetCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        MultiFileTable table = provider.getCurrentTable();
-        if (table == null) {
+       if (state.currentTable == null) {
             System.out.println("no table");
         } else {
-            String value =  table.get(args[1]);
+            String value =  state.currentTable.get(args[1]);
             if (value != null) {
                 System.out.println("found");
                 System.out.println(value);

@@ -1,35 +1,30 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-public class GetCommand implements Command {
+public class GetCommand extends DatabaseCommand {
 
-   private final Table table;
-
-   public GetCommand (Table table) {
-       this.table = table;
-   }
+    public GetCommand (DatabaseState state) {
+        super (state);
+        this.name = "get";
+        this.argsCount = 1;
+    }
 
     @Override
     public void execute (String[] args) {
-        String key = args [0];
-        String result = table.get (key);
+        String key = args[0];
+        if (state.getTable () == null) {
+            state.getIoStreams ().out.println ("no table");
+            return;
+        }
+        String result = state.getTable ().get (key);
         if (result == null) {
-            System.out.println ("not found");
+            state.getIoStreams ().out.println ("not found");
         } else {
-            System.out.println ("found");
-            System.out.println (result);
+            state.getIoStreams ().out.println ("found");
+            state.getIoStreams ().out.println (result);
         }
     }
 
-    @Override
-    public String getName () {
-        return "get";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 1;
-    }
 }

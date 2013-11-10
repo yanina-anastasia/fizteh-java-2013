@@ -2,18 +2,8 @@ package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandCreate implements Executable {
+public class TableCommandCreate extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "create";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
-    }
 
     @Override
     public boolean execute(String[] args) {
@@ -31,6 +21,7 @@ public class TableCommandCreate implements Executable {
     }
 
     public TableCommandCreate(TableManager tableManager) {
+        super("create", 2);
         manager = tableManager;
     }
 }

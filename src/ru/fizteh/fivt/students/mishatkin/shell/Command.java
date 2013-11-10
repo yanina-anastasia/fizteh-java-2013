@@ -5,10 +5,11 @@ package ru.fizteh.fivt.students.mishatkin.shell;
  *
  */
 
-public interface Command {
+public interface Command<Receiver extends CommandReceiver> {
 	public String getName();
 	public int getArgumentsCount();
 	public void setArguments(String[] arguments);
+	public void setReceiver(Receiver receiver);
 	public void execute() throws ShellException;
 }
 

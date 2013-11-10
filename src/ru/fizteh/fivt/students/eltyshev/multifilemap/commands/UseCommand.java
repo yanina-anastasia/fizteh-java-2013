@@ -19,19 +19,23 @@ public class UseCommand extends AbstractCommand<MultifileMapShellState> {
         if (parameters.size() < 1) {
             throw new IllegalArgumentException("argument missing");
         }
-        Table oldTable = shellState.table;
+        Table newTable = null;
         try {
-            shellState.table = shellState.tableProvider.getTable(parameters.get(0));
+            newTable = shellState.tableProvider.getTable(parameters.get(0));
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return;
-        } catch (IllegalStateException e) {
-            System.err.println(e.getMessage());
+        }
+
+        if (newTable == null) {
+            System.out.println(String.format("%s not exists", parameters.get(0)));
             return;
         }
-        if (oldTable != null) {
-            oldTable.commit();
+
+        if (shellState.table != null) {
+            shellState.table.commit();
         }
+        shellState.table = newTable;
         System.out.println(String.format("using %s", shellState.table.getName()));
     }
 }

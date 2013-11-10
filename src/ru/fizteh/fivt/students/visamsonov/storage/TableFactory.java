@@ -1,11 +1,11 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
-import ru.fizteh.fivt.storage.strings.*;
+import java.io.File;
 
-public class TableFactory implements TableProviderFactory {
+public class TableFactory implements TableProviderFactoryInterface {
 
-	public TableProvider create (String dir) {
-		if (dir == null) {
+	public TableProviderInterface create (String dir) {
+		if (dir == null || dir.trim().isEmpty() || !(new File(dir).isDirectory())) {
 			throw new IllegalArgumentException();
 		}
 		return new TableDirectory(dir);

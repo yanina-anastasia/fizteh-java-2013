@@ -20,7 +20,7 @@ public class DbPackageInput extends PackageInput {
             tempValue.delete(0, autoParsed[0].length());
             tempValue = new StringBuilder(tempValue.toString().trim());
             tempValue.delete(0, autoParsed[1].length());
-            parsedInput[3] = tempValue.toString().trim();
+            parsedInput[2] = tempValue.toString().trim();
             return parsedInput;
         } else {
             return autoParsed;

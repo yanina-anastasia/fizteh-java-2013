@@ -46,11 +46,16 @@ public class MultifileMapMain {
         commands.add(command);
 
         shell.setCommands(commands);
-        String databaseDirectory = System.getProperty("fizteh.db.dir");
-        MultifileMapShellState shellState = new MultifileMapShellState();
-        DatabaseFactory factory = new DatabaseFactory();
-        shellState.tableProvider = factory.create(databaseDirectory);
-        shell.setShellState(shellState);
+        try {
+            String databaseDirectory = System.getProperty("fizteh.db.dir");
+            MultifileMapShellState shellState = new MultifileMapShellState();
+            DatabaseFactory factory = new DatabaseFactory();
+            shellState.tableProvider = factory.create(databaseDirectory);
+            shell.setShellState(shellState);
+        } catch (IllegalArgumentException e) {
+            System.err.println("error: " + e.getMessage());
+            System.exit(-1);
+        }
         shell.start();
     }
 }

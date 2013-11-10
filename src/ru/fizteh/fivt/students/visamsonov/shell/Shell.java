@@ -4,12 +4,12 @@ import java.util.Scanner;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Shell {
+public class Shell<T> {
 	
 	private final Map<String, Command> commandList = new HashMap<String, Command>();
-	private final ShellState state;
+	private final T state;
 
-	public Shell (ShellState state) {
+	public Shell (T state) {
 		this.state = state;
 	}
 

@@ -1,36 +1,31 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
+public class PutCommand extends DatabaseCommand {
 
-
-public class PutCommand implements Command {
-    Table table;
-    public PutCommand (Table table) {
-        this.table = table;
+    public PutCommand (DatabaseState state) {
+        super (state);
+        this.name = "put";
+        this.argsCount = 2;
     }
 
     @Override
     public void execute (String[] args) {
-        String key = args [0];
-        String value = args [1];
-        String result = table.put (key, value);
+        String key = args[0];
+        String value = args[1];
+        if (state.getTable () == null) {
+            state.getIoStreams ().out.println ("no table");
+            return;
+        }
+        String result = state.getTable ().put (key, value);
         if (result == null) {
-            System.out.println ("new");
+            state.getIoStreams ().out.println ("new");
         } else {
-            System.out.println ("overwrite");
-            System.out.println (result);
+            state.getIoStreams ().out.println ("overwrite");
+            state.getIoStreams ().out.println (result);
         }
     }
 
-    @Override
-    public String getName () {
-        return "put";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 2;
-    }
 }

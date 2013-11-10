@@ -1,15 +1,15 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap.commands;
 
-import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableProvider;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.MultiFileTableState;
 import ru.fizteh.fivt.students.asaitgalin.shell.Command;
 
 import java.io.IOException;
 
 public class CreateCommand implements Command {
-    private MultiFileTableProvider provider;
+    private MultiFileTableState state;
 
-    public CreateCommand(MultiFileTableProvider provider) {
-        this.provider = provider;
+    public CreateCommand(MultiFileTableState state) {
+        this.state = state;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class CreateCommand implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        if (provider.createTable(args[1]) == null) {
+        if (state.provider.createTable(args[1]) == null) {
             System.out.println(args[1] + " exists");
         } else {
             System.out.println("created");

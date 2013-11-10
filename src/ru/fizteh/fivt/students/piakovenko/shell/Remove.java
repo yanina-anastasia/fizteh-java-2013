@@ -14,7 +14,7 @@ public class Remove implements Commands {
     private final String name = "rm";
     private CurrentStatus currentStatus;
 
-    private void removeRecursively (File f) throws MyException, IOException{
+    public static void removeRecursively (File f) throws MyException, IOException{
         if (!f.isDirectory()) {
             if (!f.delete()) {
                 throw new MyException(new Exception("Error! Unable to delete file - " + f.getCanonicalPath()));
@@ -31,6 +31,10 @@ public class Remove implements Commands {
 
     public Remove(CurrentStatus cs) {
         currentStatus = cs;
+    }
+
+    public void changeCurrentStatus (Object obj){
+        currentStatus = (CurrentStatus)obj;
     }
 
     public String getName() {

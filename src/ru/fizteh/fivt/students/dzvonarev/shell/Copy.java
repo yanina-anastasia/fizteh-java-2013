@@ -5,8 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Vector;
 
-public class Copy {
+public class Copy implements CommandInterface {
 
     private static void copyFileUsingChannel(File source, File dest) throws IOException {
         FileChannel sourceChannel;
@@ -51,7 +52,7 @@ public class Copy {
     }
 
     private static boolean isFileToFolder(String source, String destination) throws IOException {
-        if (destination.equals(Main.getCurrentDirectory())) {
+        if (destination.equals(Shell.getCurrentDirectory())) {
             throw new IOException("cp: can't copy file " + source);
         }
         if (new File(source).isFile()) {
@@ -59,7 +60,10 @@ public class Copy {
             String toChannel = destination;
             File newFile = new File(destination);
             if (!(new File((new File(destination)).getParent())).exists()) {
-                Mkdir.makeDir(" " + (new File(destination)).getParent(), 0);
+                Mkdir mkdir = new Mkdir();
+                Vector<String> args = new Vector<String>();
+                args.add(" " + (new File(destination)).getParent());
+                mkdir.execute(args);
             }
             if (new File(destination).exists() && (new File(destination)).isDirectory()) {
                 newFile = new File(destination + File.separator + fileName);
@@ -82,7 +86,10 @@ public class Copy {
     private static boolean isFolderToFolder(String source, String destination) throws IOException {
         if (new File(source).isDirectory()) {
             if (!(new File(destination)).exists()) {
-                Mkdir.makeDir(" " + destination, 0);
+                Mkdir mkdir = new Mkdir();
+                Vector<String> args = new Vector<String>();
+                args.add(" " + destination);
+                mkdir.execute(args);
             }
             if (destination.contains(source)) {    // if parent into child
                 throw new IOException("cp: can't copy " + source);
@@ -102,20 +109,25 @@ public class Copy {
         return ((new File(source).isDirectory()) && (new File(destination).isFile()));
     }
 
-    public static void copyObject(String expr, int spaceIndex) throws IOException {
+    public void execute(Vector<String> args) throws IOException {
+        String expr = args.elementAt(0);
+        int spaceIndex = expr.indexOf(' ', 0);
+        while (expr.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
+            ++spaceIndex;
+        }
         int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
         if (newSpaceIndex == -1) {
             throw new IOException("cp: wrong parameters");
         }
         int index = newSpaceIndex;
+        String source = Shell.getAbsPath(expr.substring(spaceIndex + 1, index));
         while (expr.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
             ++newSpaceIndex;
         }
         if (expr.indexOf(' ', newSpaceIndex + 1) != -1) {
             throw new IOException("cp: wrong parameters");
         }
-        String source = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, index));
-        String destination = DoCommand.getAbsPath(expr.substring(newSpaceIndex + 1, expr.length()));
+        String destination = Shell.getAbsPath(expr.substring(newSpaceIndex + 1, expr.length()));
         if (destination.equals(source)) {
             throw new IOException("cp: can't copy file " + source);
         }

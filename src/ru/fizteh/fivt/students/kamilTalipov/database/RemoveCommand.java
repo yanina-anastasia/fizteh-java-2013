@@ -16,11 +16,15 @@ public class RemoveCommand extends SimpleCommand {
                                                 + " but " + args.length + " got");
         }
 
-        String value = database.remove(args[0]);
-        if (value == null) {
-            System.out.println("not found");
-        }  else {
-            System.out.println("removed");
+        try {
+            String value = database.remove(args[0]);
+            if (value == null) {
+                System.out.println("not found");
+            }  else {
+                System.out.println("removed");
+            }
+        } catch (NoTableSelectedException e) {
+            System.err.println("no table");
         }
     }
 
