@@ -31,8 +31,6 @@ public class Value implements Storeable {
 
 
     Value(Table table) {
-        System.out.println(this.toString());
-
         types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(normType(table.getColumnType(i).getSimpleName()));
@@ -69,7 +67,6 @@ public class Value implements Storeable {
                     }
                 }
             }
-            System.out.println(values.get(i).toString() + " " + i);
         }
     }
 
@@ -77,7 +74,6 @@ public class Value implements Storeable {
         if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        System.out.println(columnIndex + " (" + value + ")");
         if (!(value == null)) {
             if (normType(value.getClass().getSimpleName()) == null) {
                 throw new ColumnFormatException("This type is not supposed: " + value.getClass().getCanonicalName());
@@ -109,7 +105,6 @@ public class Value implements Storeable {
         }
         Integer integer = null;
         if (values.get(columnIndex) != null) {
-            System.out.println(columnIndex);
             integer = (Integer) values.get(columnIndex);
         }
         return integer;
