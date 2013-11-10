@@ -28,6 +28,9 @@ public class TableRow implements Storeable {
 
     TableRow(List<Class<?>> classes, List<Object> columns) {
         this.classes = classes;
+        if (classes.size() != columns.size()) {
+            throw new ColumnFormatException("Number of colums and data are different");
+        }
         for (int i = 0; i < classes.size(); ++i) {
             if (!columns.get(i).getClass().equals(classes.get(i))) {
                 throw new ColumnFormatException("Can't init Storeable column: incorrect type");
@@ -48,9 +51,6 @@ public class TableRow implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
-        if (value == null) {
-            throw new ColumnFormatException("Stored data can't be null");
-        }
         checkType(columnIndex, value.getClass());
         if (value instanceof String) {
             if (((String) value).trim().equals("")) {
@@ -172,13 +172,13 @@ public class TableRow implements Storeable {
 
     private void checkBounds(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= classes.size()) {
-            throw new ColumnFormatException();
+            throw new IndexOutOfBoundsException();
         }
     }
 
     private void checkType(int columnIndex, Class<?> value) {
         if (!value.equals(classes.get(columnIndex))) {
-            throw new ColumnFormatException("Wrong column type. was: "
+            throw new ColumnFormatException("Wrong column type! was: "
                     + value.toString() + "; expected: " + classes.get(columnIndex));
         }
     }

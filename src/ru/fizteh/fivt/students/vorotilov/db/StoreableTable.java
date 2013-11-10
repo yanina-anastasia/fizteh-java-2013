@@ -345,7 +345,8 @@ public class StoreableTable implements Table {
         if (key.equals("")) {
             throw new IllegalArgumentException("Key is empty");
         }
-        if (key.contains(" ") || key.contains("\t") || key.contains("\n")) {
+        if (key.contains(" ") || key.contains("\t") || key.contains("\n")
+                || key.contains("\\x0B") || key.contains("\f") || key.contains("\r")) {
             throw new IllegalArgumentException("Kay contains whitespaces");
         }
     }

@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.vorotilov.db;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
+import java.io.File;
 import java.io.IOException;
 
 public class StoreableTableProviderFactoryTest {
@@ -30,7 +31,7 @@ public class StoreableTableProviderFactoryTest {
     @Test(expected = IOException.class)
     public void createProviderUnavailableShouldFail() throws IOException {
         StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
-        tableProviderFactory.create("\\root\\abc");
+        tableProviderFactory.create(File.separator + "root" + File.separator + "abc");
     }
 
 }
