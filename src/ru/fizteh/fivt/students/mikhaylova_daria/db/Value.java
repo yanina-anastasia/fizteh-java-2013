@@ -69,7 +69,7 @@ public class Value implements Storeable {
                     }
                 }
             }
-            System.out.println(value.get(i).toString() + i);
+            System.out.println(value.get(i).toString() + " " + i);
         }
     }
 
@@ -98,7 +98,7 @@ public class Value implements Storeable {
     }
 
 
-    public Integer getIntAt(final int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
@@ -108,6 +108,7 @@ public class Value implements Storeable {
         }
         Integer integer = null;
         if (value.get(columnIndex) != null) {
+            System.out.println(columnIndex);
             integer = (Integer) value.get(columnIndex);
         }
         return integer;
