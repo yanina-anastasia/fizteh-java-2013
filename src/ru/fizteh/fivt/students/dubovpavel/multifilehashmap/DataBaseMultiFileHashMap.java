@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
-    private final int dirsCount = 16;
-    private final int chunksCount = 16;
+    private static final int dirsCount = 16;
+    private static final int chunksCount = 16;
     private File root;
 
     public DataBaseMultiFileHashMap(File path) {
@@ -30,7 +30,12 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
     }
 
     private Distribution<Integer, Integer> getDistribution(String key) {
-        int hashcode = Math.abs(key.hashCode());
+        int key_hash = key.hashCode(), hashcode;
+        if(key_hash == Integer.MIN_VALUE) {
+            hashcode = 0;
+        } else {
+            hashcode = Math.abs(key_hash);
+        }
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         return new Distribution<Integer, Integer>(ndirectory, nfile);
@@ -40,7 +45,7 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
     public void open() throws DataBaseException {
         boolean allReadSuccessfully = true;
         HashMap<String, String> chunksCollector = new HashMap<>();
-        String exceptionMessage = "";
+        StringBuilder exceptionMessage = new StringBuilder();
         for(int i = 0; i < dirsCount; i++) {
             File sub = generateChunksDir(i);
             if(sub.isDirectory()) {
@@ -61,7 +66,7 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
                             chunksCollector.putAll(dict);
                         } catch(DataBaseException e) {
                             allReadSuccessfully = false;
-                            exceptionMessage += String.format("\nChunk (%d, %d): %s", i, j, e.getMessage());
+                            exceptionMessage.append(String.format("%nChunk (%d, %d): %s", i, j, e.getMessage()));
                         }
                     }
                 }
@@ -69,7 +74,7 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
         }
         dict = chunksCollector;
         if(!allReadSuccessfully) {
-            throw new DataBaseException(exceptionMessage);
+            throw new DataBaseException(exceptionMessage.toString());
         }
     }
     @Override

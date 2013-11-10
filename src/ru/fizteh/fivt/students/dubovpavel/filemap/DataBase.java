@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataBase implements DataBaseHandler<String, String> {
     protected File savingEndPoint;
-    protected final String charset = "UTF-8";
-    protected final int MAXLENGTH = 1 << 20;
+    protected static final Charset charset = StandardCharsets.UTF_8;
+    protected static final int MAXLENGTH = 1 << 20;
     protected HashMap<String, String> dict = new HashMap<String, String>();
 
     private void checkValid() {

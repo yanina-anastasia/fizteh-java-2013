@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 import java.io.File;
 
 public class PerformerMove extends PerformerShell {
-    private class PerformerMoveException extends Exception {
+    private static class PerformerMoveException extends Exception {
         public PerformerMoveException(String msg) {
             super(msg);
         }

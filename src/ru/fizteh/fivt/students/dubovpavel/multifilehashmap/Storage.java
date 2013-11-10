@@ -13,7 +13,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     private File dir;
     protected HashMap<String, DB> storage;
     private DB cursor;
-    private DispatcherMultiFileHashMap dispatcher;
+    private Dispatcher dispatcher;
     private DataBaseBuilder<FileRepresentativeDataBase> builder;
 
     public void save() throws StorageException {
@@ -26,14 +26,14 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         }
     }
 
-    public Storage(String path, DispatcherMultiFileHashMap dispatcherMultiFileHashMap, DataBaseBuilder<FileRepresentativeDataBase> dataBaseBuilder) {
+    public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<FileRepresentativeDataBase> dataBaseBuilder) {
         builder = dataBaseBuilder;
         storage = new HashMap<>();
-        dispatcher = dispatcherMultiFileHashMap;
+        this.dispatcher = dispatcher;
         dir = new File(path);
         cursor = null;
         if(!dir.isDirectory()) {
-            dispatcherMultiFileHashMap.callbackWriter(Dispatcher.MessageType.WARNING,
+            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("Storage loading: '%s' is not a directory. Empty storage applied", dir.getPath()));
         } else {
             for(File folder: dir.listFiles()) {
@@ -43,7 +43,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
                     try {
                         dataBase.open();
                     } catch(DataBaseHandler.DataBaseException e) {
-                        dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                        this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                 String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
                     }
                     storage.put(folder.getName(), dataBase);

@@ -15,7 +15,7 @@ public class PerformerGet<D extends Dispatcher & DataBaseAccessible<String, Stri
         if(value == null) {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "not found");
         } else {
-            dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, String.format("found\n%s", value));
+            dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, String.format("found%n%s", value));
         }
     }
 }

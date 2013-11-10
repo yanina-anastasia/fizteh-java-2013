@@ -4,13 +4,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 
 import java.io.File;
 
 public class TableTest {
     private WrappedMindfulDataBaseMultiFileHashMap db;
-    private DispatcherMultiFileHashMap dispatcher;
+    private Dispatcher dispatcher;
     private File path;
 
     private void cleanRecursively(File pointer) {
@@ -19,7 +19,7 @@ public class TableTest {
                 cleanRecursively(sub);
             }
         }
-        pointer.delete();
+        assert(pointer.delete() == true);
     }
 
     @Before
@@ -27,10 +27,10 @@ public class TableTest {
         String homeDir = System.getProperty("user.home");
         path = new File(homeDir, "sandbox/strings");
         cleanRecursively(path);
-        path.mkdirs();
-        dispatcher = new DispatcherMultiFileHashMap(false, false, path.getPath(), null);
+        assert(path.mkdirs() == true);
+        dispatcher = new Dispatcher(false);
         File tablePath = new File(path, "tableName");
-        tablePath.mkdir();
+        assert(tablePath.mkdir() == true);
         db = new WrappedMindfulDataBaseMultiFileHashMap(tablePath, dispatcher);
     }
 

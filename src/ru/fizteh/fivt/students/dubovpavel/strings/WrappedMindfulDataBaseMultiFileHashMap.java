@@ -2,16 +2,15 @@ package ru.fizteh.fivt.students.dubovpavel.strings;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
 
 import java.io.File;
 
 public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMultiFileHashMap implements Table {
-    DispatcherMultiFileHashMap dispatcher;
+    Dispatcher dispatcher;
 
-    public WrappedMindfulDataBaseMultiFileHashMap(File path, DispatcherMultiFileHashMap dispatcherMultiFileHashMap) {
+    public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher) {
         super(path);
-        dispatcher = dispatcherMultiFileHashMap;
+        this.dispatcher = dispatcher;
     }
     @Override
     public String get(String key) {

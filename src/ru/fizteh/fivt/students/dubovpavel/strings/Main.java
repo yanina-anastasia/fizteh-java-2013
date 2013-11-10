@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.dubovpavel.filemap.performers.PerformerHalt;
 import ru.fizteh.fivt.students.dubovpavel.filemap.performers.PerformerPut;
 import ru.fizteh.fivt.students.dubovpavel.filemap.performers.PerformerRemove;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMapBuilder;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageBuilder;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.performers.PerformerCreate;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.performers.PerformerDrop;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.performers.PerformerExit;
@@ -18,8 +19,10 @@ import ru.fizteh.fivt.students.dubovpavel.strings.performers.PerformerUse;
 public class Main {
     public static void main(String[] args) {
         DispatcherMultiFileHashMapBuilder dispatcherMultiFileHashMapBuilder = new DispatcherMultiFileHashMapBuilder();
-        dispatcherMultiFileHashMapBuilder.setRepoPath("fizteh.db.dir");
-        dispatcherMultiFileHashMapBuilder.setDataBaseBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        StorageBuilder storageBuilder = new StorageBuilder();
+        storageBuilder.setDataBaseBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        storageBuilder.setPath(true, "fizteh.db.dir");
+        dispatcherMultiFileHashMapBuilder.setStorageBuilder(storageBuilder);
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerGet()));
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerPut()));
         dispatcherMultiFileHashMapBuilder.addPerformer(new PerformerSafeDataBaseOperationWrapper(new PerformerRemove()));

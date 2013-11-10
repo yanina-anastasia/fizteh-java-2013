@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.dubovpavel.executor;
 import java.util.ArrayList;
 
 public class Parser {
-    public class IncorrectSyntaxException extends Exception {
+    public static class IncorrectSyntaxException extends Exception {
         public IncorrectSyntaxException(String message) {
             super(message);
         }

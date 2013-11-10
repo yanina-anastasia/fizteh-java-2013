@@ -2,8 +2,8 @@ package ru.fizteh.fivt.students.dubovpavel.strings;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageBuilder;
 
 import java.io.File;
 
@@ -19,10 +19,11 @@ public class TableProviderStorageExtendedFactory implements TableProviderFactory
         if(!corresponding.isDirectory()) {
             throw new RuntimeException();
         }
-        DispatcherMultiFileHashMap dispatcher = new DispatcherMultiFileHashMap(false, false, dir, new WrappedMindfulDataBaseMultiFileHashMapBuilder());
-        WrappedMindfulDataBaseMultiFileHashMapBuilder builder = new WrappedMindfulDataBaseMultiFileHashMapBuilder();
-        builder.setDispatcher(dispatcher);
-        Storage<WrappedMindfulDataBaseMultiFileHashMap> storage = new Storage<>(dir, dispatcher, builder);
-        return new TableProviderStorageExtended(storage);
+        StorageBuilder storageBuilder = new StorageBuilder();
+        storageBuilder.setPath(false, dir);
+        storageBuilder.setDataBaseBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        Dispatcher dummy = new Dispatcher(false);
+        storageBuilder.setDispatcher(dummy);
+        return new TableProviderStorageExtended(storageBuilder.construct());
     }
 }

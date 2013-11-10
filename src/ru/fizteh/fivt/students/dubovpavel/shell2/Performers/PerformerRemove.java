@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.PerformerException;
 import java.io.File;
 
 public class PerformerRemove extends PerformerShell {
-    public class PerformerRemoveException extends Exception {
+    public static class PerformerRemoveException extends Exception {
         public PerformerRemoveException(String file) {
             super(file);
         }

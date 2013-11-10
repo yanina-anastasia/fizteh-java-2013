@@ -16,7 +16,7 @@ public class PerformerPut<D extends Dispatcher & DataBaseAccessible<String, Stri
         if(old == null) {
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "new");
         } else {
-            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING, String.format("overwrite\n%s", old));
+            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING, String.format("overwrite%n%s", old));
         }
     }
 }

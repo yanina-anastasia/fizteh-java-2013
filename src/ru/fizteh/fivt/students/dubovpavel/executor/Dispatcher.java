@@ -10,7 +10,7 @@ public class Dispatcher {
     private boolean forwarding;
     protected boolean shutdown;
 
-    public class DispatcherException extends Exception {
+    public static class DispatcherException extends Exception {
         public DispatcherException(String msg) {
             super(msg);
         }
@@ -22,7 +22,7 @@ public class Dispatcher {
         ERROR
     }
 
-    protected String getInitProperty(String key) throws DispatcherException {
+    public String getInitProperty(String key) throws DispatcherException {
         String value = System.getProperty(key);
         if(value == null) {
             shutdown = true;
@@ -46,10 +46,10 @@ public class Dispatcher {
 
     public String callbackWriter(MessageType type, String msg) {
         PrintStream stream = null;
-        if(type == MessageType.ERROR) {
-            stream = System.err;
-        } else if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
+        if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
             stream = System.out;
+        } else {
+            stream = System.err;
         }
         stream.println(msg);
         return msg;

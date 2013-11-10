@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
+import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DataBaseBuilder;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 
 public class WrappedMindfulDataBaseMultiFileHashMapBuilder extends DataBaseBuilder<FileRepresentativeDataBase> {
-    DispatcherMultiFileHashMap dispatcher;
-    public void setDispatcher(DispatcherMultiFileHashMap dispatcherMultiFileHashMap) {
-        dispatcher = dispatcherMultiFileHashMap;
+    Dispatcher dispatcher;
+    public void setDispatcher(Dispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     public WrappedMindfulDataBaseMultiFileHashMap construct() {
