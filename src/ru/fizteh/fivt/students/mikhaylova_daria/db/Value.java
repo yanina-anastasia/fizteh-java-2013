@@ -109,7 +109,7 @@ public class Value implements Storeable {
         Integer integer = null;
         if (value.get(columnIndex) != null) {
             System.out.println(columnIndex);
-            integer = (Integer) value.get(columnIndex + 1);
+            integer = (Integer) value.get(columnIndex);
         }
         return integer;
     }
