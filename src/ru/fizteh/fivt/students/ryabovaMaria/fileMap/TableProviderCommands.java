@@ -311,22 +311,26 @@ public class TableProviderCommands implements TableProvider {
             } catch (Exception e) {
                 throw new ColumnFormatException(e.getMessage());
             }
-            System.out.println(type.getClass().getSimpleName().toString());
             Object current = null;
             try {
                 switch (type.getSimpleName()) {
+                    case "int" :
                     case "Integer" :
                         current = value.getIntAt(i);
                         break;
+                    case "byte":
                     case "Byte" :
                         current = value.getByteAt(i);
                         break;
+                    case "float" :
                     case "Float" :
                         current = value.getFloatAt(i);
                         break;
+                    case "double" :
                     case "Double" :
                         current = value.getDoubleAt(i);
                         break;
+                    case "boolean" :
                     case "Boolean" :
                         current = value.getBooleanAt(i);
                         break;
@@ -355,7 +359,7 @@ public class TableProviderCommands implements TableProvider {
                 throw new ColumnFormatException(ex.getMessage());
             }
         }
-        throw new IllegalArgumentException("incorrect number of columns");
+        throw new ColumnFormatException("incorrect number of columns");
     }
 
     private List<Class<?>> getTypeList(Table table) {
