@@ -53,7 +53,7 @@ public class StoreableCommands implements Storeable{
         if (!type.getSimpleName().equals(valueClass.getSimpleName())) {
             throw new ColumnFormatException();
         } else {
-            values.add(columnIndex, value);
+            values.set(columnIndex, value);
         }
     }
 
