@@ -33,6 +33,12 @@ public class Value implements Storeable {
         this.table = table;
         value = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (table.getColumnType(i) == null) {
+                throw new RuntimeException("wrong type (bad Table)");
+            }
+            if (normType(table.getColumnType(i).getName()) == null) {
+                throw new RuntimeException("wrong type (bad Table)");
+            }
             if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
                 value.add(0);
             } else {
@@ -53,8 +59,6 @@ public class Value implements Storeable {
                                 }  else {
                                     if (table.getColumnType(i).equals(String.class)) {
                                         value.add("default");
-                                    } else {
-                                        throw new RuntimeException("bad Table");
                                     }
                                 }
                             }
@@ -64,8 +68,6 @@ public class Value implements Storeable {
             }
         }
     }
-
-
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {
@@ -102,6 +104,7 @@ public class Value implements Storeable {
         }
         Integer integer = null;
         if (value.get(columnIndex) != null) {
+            System.out.println(value.get(columnIndex));
             integer = (Integer) value.get(columnIndex);
         }
         return integer;

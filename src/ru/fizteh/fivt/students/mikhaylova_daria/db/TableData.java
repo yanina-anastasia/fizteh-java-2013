@@ -15,7 +15,7 @@ public class TableData implements Table {
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
 
-    private ArrayList<Class<?>> normList(List<Class<?>> arg) {
+    private static ArrayList<Class<?>> normList(List<Class<?>> arg) {
         HashMap<String, Class<?>> types = new HashMap<>();
         types.put("Integer", Integer.class);
         types.put("Long", Long.class);
@@ -201,9 +201,9 @@ public class TableData implements Table {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException("wrong type ( " + e.getMessage() + " index i = " + i + ")", e);
+            throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + ")", e);
         } catch (ClassCastException  e) {
-            throw new ColumnFormatException("wrong type ( " + e.getMessage() + " index i = " + i + ")", e);
+            throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + ")", e);
         }
 
         byte b = key.getBytes()[0];
