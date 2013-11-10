@@ -96,7 +96,7 @@ public class Shell {
 
     public void interActive() {
         Scanner scan = new Scanner(System.in);
-        System.out.print(" $ ");
+        System.out.print("$ ");
         try {
             while (scan.hasNextLine()) {
                 String input = scan.nextLine();
@@ -109,7 +109,7 @@ public class Shell {
                         System.out.println(e.getMessage());
                     }
                 }
-                System.out.print(" $ ");
+                System.out.print("$ ");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage() + e.getCause());

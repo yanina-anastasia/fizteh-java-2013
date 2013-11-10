@@ -58,7 +58,6 @@ public class DatabaseStoreable implements Storeable {
                     if (stringValue.trim().isEmpty()) {
                         throw new ParseException("Incorrect value: it can not be null", 0);
                     }
-                    //break;
                 }
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Incorrect value");

@@ -69,7 +69,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         for (final Class<?> columnType : columnTypes) {
-            if (columnType == null || formatColumnType(columnType) == null) {
+            if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
                 throw new IllegalArgumentException("unknown column type");
             }
         }
@@ -83,7 +83,7 @@ public class DatabaseTableProvider implements TableProvider {
             BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
             List<String> formattedColumnTypes = new ArrayList<String>();
             for (final Class<?> columnType : columnTypes) {
-                formattedColumnTypes.add(formatColumnType(columnType));
+                formattedColumnTypes.add(ColumnTypes.fromTypeToName(columnType));
             }
             StringBuilder sb = new StringBuilder();
             boolean first = true;
@@ -168,7 +168,7 @@ public class DatabaseTableProvider implements TableProvider {
                 Class<?> expectedType = table.getColumnType(index);
                 Object columnValue = deserializer.getNext(expectedType);
                 if (columnValue != null) {
-                    switch (formatColumnType(expectedType)) {
+                    switch (ColumnTypes.fromTypeToName(expectedType)) {
                         case "String":
                             String stringValue = (String) columnValue;
                             if (stringValue.trim().isEmpty()) {
@@ -288,7 +288,7 @@ public class DatabaseTableProvider implements TableProvider {
             }
             List<Class<?>> columnTypes = new ArrayList<Class<?>>();
             for (final String columnType : signature.split("\\s")) {
-                Class<?> type = parseColumnType(columnType);
+                Class<?> type = ColumnTypes.fromNameToType(columnType);
                 if (type == null) {
                     throw new IllegalArgumentException("unknown type");
                 }
@@ -413,48 +413,6 @@ public class DatabaseTableProvider implements TableProvider {
             tableBuilder.put(nextKey, putValue);
         } else {
             throw new IllegalArgumentException("File has incorrect format");
-        }
-    }
-
-    public Class<?> parseColumnType(String columnType) {
-        switch (columnType) {
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "byte":
-                return Byte.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            case "boolean":
-                return Boolean.class;
-            case "String":
-                return String.class;
-            default:
-                return null;
-        }
-    }
-
-    public static String formatColumnType(Class<?> columnType) {
-        switch (columnType.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                return null;
         }
     }
 }

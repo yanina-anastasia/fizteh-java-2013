@@ -31,7 +31,7 @@ public class DatabaseTable implements Table {
         provider = providerRef;
         uncommittedChanges = 0;
         for (final Class<?> columnType : columnTypes) {
-            if (columnType == null || formatColumnType(columnType) == null) {
+            if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
                 throw new IllegalArgumentException("unknown column type");
             }
         }
@@ -88,7 +88,7 @@ public class DatabaseTable implements Table {
         checkAlienStoreable(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
-                switch (formatColumnType(columnTypes.get(index))) {
+                switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
                     case "String":
                         String stringValue = (String) value.getColumnAt(index);
                         if (stringValue == null) {
@@ -315,27 +315,6 @@ public class DatabaseTable implements Table {
 
     public int getColumnsCount() {
         return columnTypes.size();
-    }
-
-    public static String formatColumnType(Class<?> columnType) {
-        switch (columnType.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                return null;
-        }
     }
 
     public void checkAlienStoreable(Storeable storeable) {

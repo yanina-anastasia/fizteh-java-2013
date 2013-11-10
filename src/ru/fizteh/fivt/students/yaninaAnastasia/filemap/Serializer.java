@@ -32,7 +32,7 @@ public class Serializer implements Closeable {
                 if (value == null) {
                     return;
                 }
-                switch (typeGetter(value.getClass())) {
+                switch (ColumnTypes.fromTypeToName(value.getClass())) {
                     case "String":
                         String str = (String) value;
                         if (str.trim().isEmpty()) {
@@ -59,26 +59,5 @@ public class Serializer implements Closeable {
 
     public String getRepresentation() {
         return stringWriter.getBuffer().toString();
-    }
-
-    public String typeGetter(Class<?> columnType) {
-        switch (columnType.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                return null;
-        }
     }
 }

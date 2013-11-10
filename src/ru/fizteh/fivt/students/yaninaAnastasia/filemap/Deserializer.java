@@ -46,7 +46,7 @@ public class Deserializer {
             }
             nodeType = reader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
-                value = parseObject(reader.getText(), expectedType);
+                value = ColumnTypes.parsingValue(reader.getText(), expectedType);
             } else {
                 if (!reader.getName().getLocalPart().equals("null")) {
                     throw new ParseException("Incorrect XML format", 0);
@@ -76,37 +76,5 @@ public class Deserializer {
         } catch (XMLStreamException e) {
             throw new IOException("Error with deserializing");
         }
-    }
-
-    public static Object parseObject(String arg, Class<?> expectedType) throws ColumnFormatException {
-        Object value = null;
-        try {
-            switch (expectedType.getName()) {
-                case "java.lang.Integer":
-                    value = Integer.parseInt(arg);
-                    break;
-                case "java.lang.Long":
-                    value = Long.parseLong(arg);
-                    break;
-                case "java.lang.Byte":
-                    value = Byte.parseByte(arg);
-                    break;
-                case "java.lang.Float":
-                    value = Float.parseFloat(arg);
-                    break;
-                case "java.lang.Double":
-                    value = Double.parseDouble(arg);
-                    break;
-                case "java.lang.Boolean":
-                    value = Boolean.parseBoolean(arg);
-                    break;
-                case "java.lang.String":
-                    value = arg;
-                    break;
-            }
-        } catch (NumberFormatException e) {
-            throw new ColumnFormatException(e);
-        }
-        return value;
     }
 }
