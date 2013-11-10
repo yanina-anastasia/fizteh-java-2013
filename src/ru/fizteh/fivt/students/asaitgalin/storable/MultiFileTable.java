@@ -150,7 +150,7 @@ public class MultiFileTable implements ExtendedTable {
                 st.getColumnAt(counter);
                 throw new ColumnFormatException("table: wrong storable columns");
             } catch (IndexOutOfBoundsException e) {
-                //
+                // Check if st has more columns. If we caught this, it means that it has the same columns count.
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("table: wrong storable columns");
