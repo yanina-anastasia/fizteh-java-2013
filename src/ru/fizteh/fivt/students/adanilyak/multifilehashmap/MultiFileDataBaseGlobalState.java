@@ -12,7 +12,7 @@ import java.util.List;
  * Time: 14:24
  */
 public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
-    private TableProvider currentTableManager;
+    private TableProvider currentTableManager = null;
     public boolean autoCommitOnExit;
 
     public MultiFileDataBaseGlobalState() {

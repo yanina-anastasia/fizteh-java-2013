@@ -43,26 +43,38 @@ public class WorkWithDatFiles {
         dataBaseFileReader.close();
     }
 
+    private static boolean checkKeyPlacement(int indexDir, int indexDat, String key) {
+        int hashCode = key.hashCode();
+        hashCode *= Integer.signum(hashCode);
+        int dir = hashCode % 16;
+        int dat = hashCode / 16 % 16;
+        return (dir == indexDir && dat == indexDat);
+    }
+
     public static void readIntoStoreableMap(File dataBaseFile, Map<String, Storeable> map, Table table,
-                                            TableProvider provider) throws IOException, ParseException {
+                                            TableProvider provider, int indexDir, int indexDat) throws IOException, ParseException {
         RandomAccessFile dataBaseFileReader = new RandomAccessFile(dataBaseFile, "rw");
-        long lenght = dataBaseFile.length();
+        long length = dataBaseFile.length();
         byte[] buffer;
 
-        while (lenght > 0) {
-            int keyLenght = dataBaseFileReader.readInt();
-            lenght -= 4;
-            int valueLenght = dataBaseFileReader.readInt();
-            lenght -= 4;
+        while (length > 0) {
+            int keyLength = dataBaseFileReader.readInt();
+            length -= 4;
+            int valueLength = dataBaseFileReader.readInt();
+            length -= 4;
 
-            buffer = new byte[keyLenght];
+            buffer = new byte[keyLength];
             dataBaseFileReader.readFully(buffer);
-            lenght -= buffer.length;
+            length -= buffer.length;
             String key = new String(buffer, StandardCharsets.UTF_8);
 
-            buffer = new byte[valueLenght];
+            if (!checkKeyPlacement(indexDir, indexDat, key)) {
+                throw new IOException("wrong key placement");
+            }
+
+            buffer = new byte[valueLength];
             dataBaseFileReader.readFully(buffer);
-            lenght -= buffer.length;
+            length -= buffer.length;
             String value = new String(buffer, StandardCharsets.UTF_8);
 
             map.put(key, provider.deserialize(table, value));

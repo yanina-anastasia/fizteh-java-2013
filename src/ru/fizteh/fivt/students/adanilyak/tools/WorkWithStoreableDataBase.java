@@ -158,7 +158,7 @@ public class WorkWithStoreableDataBase {
                     throw new IOException(fileIndexDat.toString() + ": is empty");
                 }
 
-                WorkWithDatFiles.readIntoStoreableMap(fileIndexDat, map, table, provider);
+                WorkWithDatFiles.readIntoStoreableMap(fileIndexDat, map, table, provider, index, fileIndex);
             }
         }
 

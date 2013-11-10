@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class StoreableDataBaseGlobalState extends MultiFileDataBaseGlobalState {
     public Table currentTable = null;
-    public TableProvider currentTableManager;
+    public TableProvider currentTableManager = null;
     public boolean autoCommitOnExit;
 
     public StoreableDataBaseGlobalState(TableProvider tableManager) {
