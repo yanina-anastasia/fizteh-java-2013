@@ -34,7 +34,7 @@ public class TableProviderImplementation implements TableProvider {
     };
 
     private boolean isAllowedNameForTable(String tableName) {
-        if (tableName == null) {
+        if (tableName == null || tableName.trim().length() == 0) {
             return false;
         }
         boolean containDisallowedCharacter = tableName.contains("\\") || tableName.contains("/")
@@ -96,9 +96,19 @@ public class TableProviderImplementation implements TableProvider {
         if (!isAllowedNameForTable(name)) {
             throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
         }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("columnTypes is null");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("columnTypes is empty");
+        }
+
         for (Class<?> currentType : columnTypes) {
             boolean isAllowed = false;
             for (Class<?> type : ALLOWED_TYPES) {
+                if (type == null) {
+                    throw new ColumnFormatException("null type");
+                }
                 if (currentType.equals(type)) {
                     isAllowed = true;
                 }

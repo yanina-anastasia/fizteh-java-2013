@@ -21,6 +21,9 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         if (path == null) {
             throw new IllegalArgumentException("Null path");
         }
+        if (path.isEmpty()) {
+            throw new IOException("lol what");
+        }
         TableProvider toReturn;
         try {
             toReturn = new TableProviderImplementation(Paths.get(path));
