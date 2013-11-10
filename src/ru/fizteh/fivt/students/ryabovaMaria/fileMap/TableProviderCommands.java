@@ -316,32 +316,56 @@ public class TableProviderCommands implements TableProvider {
                 switch (type.getSimpleName()) {
                     case "int" :
                     case "Integer" :
-                        current = value.getIntAt(i);
+                        try {
+                            current = value.getIntAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("Integer " + i);
+                        }
                         break;
                     case "byte":
                     case "Byte" :
-                        current = value.getByteAt(i);
+                        try {
+                            current = value.getByteAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("Byte " + i);
+                        }
                         break;
                     case "float" :
                     case "Float" :
-                        current = value.getFloatAt(i);
+                        try {
+                            current = value.getFloatAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("Float " + i);
+                        }
                         break;
                     case "double" :
                     case "Double" :
-                        current = value.getDoubleAt(i);
+                        try {
+                            current = value.getDoubleAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("Double " + i);
+                        }
                         break;
                     case "boolean" :
                     case "Boolean" :
-                        current = value.getBooleanAt(i);
+                        try {
+                            current = value.getBooleanAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("Boolean " + i);
+                        }
                         break;
                     case "String" :
-                        current = value.getStringAt(i);
+                        try {
+                            current = value.getStringAt(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            throw new Exception("String " + i);
+                        }
                         break;
                     default :
-                        throw new Exception();
+                        throw new Exception("illegal value type");
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("illegal value type");
+                throw new ColumnFormatException(e.getMessage());
             }
             try {
                 text.put(current);
