@@ -9,6 +9,7 @@ import java.util.HashMap;
 public class Value implements Storeable {
 
     private ArrayList<Object> value;
+    private ArrayList<Class<?>> types;
     private Table table;
 
     private static Class<?> normType(String arg) {
@@ -29,8 +30,9 @@ public class Value implements Storeable {
         return types.get(arg);
     }
 
+
     Value(Table table) {
-        this.table = table;
+        this.table = new TableData(table);
         value = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (table.getColumnType(i) == null) {
@@ -89,22 +91,23 @@ public class Value implements Storeable {
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {
-            throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
+            throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
         return value.get(columnIndex);
     }
 
 
-    public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Integer getIntAt(final int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {
-            throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
+            throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
         if (!this.table.getColumnType(columnIndex).equals(Integer.class)) {
-            throw new ColumnFormatException("Type of this column is"
+            throw new ColumnFormatException("Type of this column is "
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Integer integer = null;
         if (value.get(columnIndex) != null) {
+            System.out.println(value.get(columnIndex).getClass());
             integer = (Integer) value.get(columnIndex);
         }
         return integer;
