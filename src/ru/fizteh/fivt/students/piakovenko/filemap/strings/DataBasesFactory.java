@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.piakovenko.filemap;
+package ru.fizteh.fivt.students.piakovenko.filemap.strings;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;

@@ -1,9 +1,6 @@
-package ru.fizteh.fivt.students.piakovenko.filemap;
+package ru.fizteh.fivt.students.piakovenko.filemap.storable;
 
-import ru.fizteh.fivt.students.piakovenko.filemap.DataBase;
-import ru.fizteh.fivt.students.piakovenko.shell.Shell;
-
-import java.io.File;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,6 +18,9 @@ public class Start {
                 dbf.create(System.getProperty("fizteh.db.dir"));
                 dbf.start(args);
             } catch (IllegalArgumentException e) {
+                System.err.println("Error! " + e.getMessage());
+                System.exit(1);
+            } catch (IOException e) {
                 System.err.println("Error! " + e.getMessage());
                 System.exit(1);
             }

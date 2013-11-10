@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBasesCommander;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
 import java.io.IOException;
@@ -13,9 +14,9 @@ import java.io.IOException;
  */
 public class Use implements Commands {
     private final String name = "use";
-    private DataBasesCommander dbc = null;
+    private GlobalFileMapState dbc = null;
 
-    public Use (DataBasesCommander t) {
+    public Use (GlobalFileMapState t) {
         dbc = t;
     }
 

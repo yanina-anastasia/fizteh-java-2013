@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
 
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.io.IOException;
  */
 public class Get implements Commands {
     private final String name = "get";
-    private DataBase db;
+    private GlobalFileMapState db;
 
-    public Get (DataBase dataBase) {
+    public Get (GlobalFileMapState dataBase) {
         db = dataBase;
     }
 
@@ -25,7 +26,7 @@ public class Get implements Commands {
     }
 
     public void perform(String[] args) throws IOException {
-        if (db == null) {
+        if (!db.isValidTable()) {
             System.out.println("no table");
             return;
         }

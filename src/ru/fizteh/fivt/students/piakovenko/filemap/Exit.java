@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
 import java.io.IOException;
@@ -13,13 +14,13 @@ import java.io.IOException;
  */
 public class Exit implements Commands {
     private final String name = "exit";
-    private DataBase db;
+    private GlobalFileMapState db;
 
     public String getName() {
         return name;
     }
 
-    public Exit (DataBase dataBase) {
+    public Exit (GlobalFileMapState dataBase) {
         db = dataBase;
     }
 
@@ -27,11 +28,11 @@ public class Exit implements Commands {
         if (s.length != 1) {
             throw new IOException("Wrong arguments! Usage ~ exit");
         }
-        if (db == null) {
+        if (!db.isValidTable()) {
             System.exit(0);
         }
         try {
-            db.saveDataBase();
+            db.saveTable();
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);

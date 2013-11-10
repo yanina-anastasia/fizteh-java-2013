@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.piakovenko.filemap;
+package ru.fizteh.fivt.students.piakovenko.filemap.strings;
 
 import java.util.HashMap;
 import java.util.Map;

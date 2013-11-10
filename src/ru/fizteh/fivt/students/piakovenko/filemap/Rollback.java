@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
 import java.io.IOException;
@@ -13,9 +14,9 @@ import java.io.IOException;
  */
 public class Rollback implements Commands {
     private final String name = "rollback";
-    private DataBase db;
+    private GlobalFileMapState db;
 
-    public Rollback (DataBase dataBase) {
+    public Rollback (GlobalFileMapState dataBase) {
         db = dataBase;
     }
 
@@ -24,7 +25,7 @@ public class Rollback implements Commands {
     }
 
     public void perform(String[] args) throws IOException {
-        if (db == null) {
+        if (!db.isValidTable()) {
             System.out.println("no table");
             return;
         }

@@ -1,8 +1,12 @@
-package ru.fizteh.fivt.students.piakovenko.filemap;
+package ru.fizteh.fivt.students.piakovenko.filemap.strings;
 
 
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.piakovenko.filemap.Exit;
+import ru.fizteh.fivt.students.piakovenko.filemap.Get;
+import ru.fizteh.fivt.students.piakovenko.filemap.GlobalFileMapState;
+import ru.fizteh.fivt.students.piakovenko.filemap.Put;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 import ru.fizteh.fivt.students.piakovenko.shell.Remove;
 
@@ -11,6 +15,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.lang.Math;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -255,11 +260,11 @@ public class DataBase implements Table {
         return name;
     }
 
-    public void initialize () {
-        shell.addCommand(new Exit(this));
-        shell.addCommand(new Put(this));
-        shell.addCommand(new Get(this));
-        shell.addCommand(new ru.fizteh.fivt.students.piakovenko.filemap.Remove(this));
+    public void initialize (GlobalFileMapState state) {
+        shell.addCommand(new Exit(state));
+        shell.addCommand(new Put(state));
+        shell.addCommand(new Get(state));
+        shell.addCommand(new ru.fizteh.fivt.students.piakovenko.filemap.Remove(state));
         try {
             load();
         } catch (IOException e) {

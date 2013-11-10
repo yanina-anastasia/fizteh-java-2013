@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
 import java.io.IOException;
@@ -13,9 +15,9 @@ import java.io.IOException;
  */
 public class Commit implements Commands {
     private final String name = "commit";
-    private DataBase db = null;
+    private GlobalFileMapState db = null;
 
-    public Commit (DataBase t) {
+    public Commit (GlobalFileMapState t) {
         db = t;
     }
 
@@ -28,6 +30,11 @@ public class Commit implements Commands {
         if (args.length != 1) {
             throw new IOException("Wrong number of arguments! Usage: commit");
         }
+        if (!db.isValidTable()) {
+            System.out.println("no table");
+            return;
+        }
         db.commit();
     }
+
 }
