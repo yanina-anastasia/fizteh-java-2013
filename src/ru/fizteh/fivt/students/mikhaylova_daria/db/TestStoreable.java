@@ -180,4 +180,9 @@ public class TestStoreable {
         byte b = 1;
         st.setColumnAt(1, b);
     }
+
+    @Test
+    public void test() {
+
+    }
 }

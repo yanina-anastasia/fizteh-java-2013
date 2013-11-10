@@ -225,6 +225,11 @@ public class TableManager implements TableProvider {
         if (value == null) {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
+        try {       //проверяем, что в передаваемом storeable столбцов не больше, чем в сигнатуре таблицы
+            value.getColumnAt(table.getColumnsCount());
+            throw new ColumnFormatException("Wrong number of columns in value");
+        } catch (IndexOutOfBoundsException e) {
+        }
         int i = 0;
         String xmlString;
         try {
@@ -280,11 +285,6 @@ public class TableManager implements TableProvider {
                     + " or " + numFormExc.getMessage() + ")");
         }
 
-        try {       //проверяем, что в передаваемом storeable столбцов не больше, чем в сигнатуре таблицы
-            value.getColumnAt(table.getColumnsCount());
-            throw new ColumnFormatException("Wrong number of columns in value");
-        } catch (IndexOutOfBoundsException e) {
-        }
         return xmlString;
     }
 

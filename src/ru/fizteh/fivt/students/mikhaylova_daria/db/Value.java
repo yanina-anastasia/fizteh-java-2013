@@ -11,15 +11,7 @@ public class Value implements Storeable {
     private ArrayList<Object> value;
     private Table table;
 
-    Value(Table table) {
-        this.table = table;
-        value = new ArrayList<>(table.getColumnsCount());
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            value.add(new Object());
-        }
-    }
-
-    private Class<?> normType(String arg) {
+    private static Class<?> normType(String arg) {
         HashMap<String, Class<?>> types = new HashMap<>();
         types.put("Integer", Integer.class);
         types.put("Long", Long.class);
@@ -36,6 +28,44 @@ public class Value implements Storeable {
         types.put("boolean", Boolean.class);
         return types.get(arg);
     }
+
+    Value(Table table) {
+        this.table = table;
+        value = new ArrayList<>(table.getColumnsCount());
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
+                value.add(0);
+            } else {
+                if (normType(table.getColumnType(i).getSimpleName()).equals(Long.class)) {
+                    value.add(0L);
+                } else {
+                    if (normType(table.getColumnType(i).getSimpleName()).equals(Byte.class)) {
+                        value.add(Byte.MIN_VALUE);
+                    } else {
+                        if (normType(table.getColumnType(i).getSimpleName()).equals(Float.class)) {
+                            value.add(0f);
+                        } else {
+                            if (normType(table.getColumnType(i).getSimpleName()).equals(Double.class)) {
+                                value.add(0.0);
+                            } else {
+                                if (normType(table.getColumnType(i).getSimpleName()).equals(Boolean.class)) {
+                                    value.add(true);
+                                }  else {
+                                    if (table.getColumnType(i).equals(String.class)) {
+                                        value.add("default");
+                                    } else {
+                                        throw new RuntimeException("bad Table");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table.getColumnsCount() <= columnIndex) {
