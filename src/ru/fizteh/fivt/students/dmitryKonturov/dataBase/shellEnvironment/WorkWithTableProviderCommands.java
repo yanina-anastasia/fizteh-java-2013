@@ -78,21 +78,25 @@ public class WorkWithTableProviderCommands {
 
         @Override
         public void execute(String[] args, ShellInfo info) throws ShellException {
-            if (args.length != 1) {
+            if (args.length < 1) {
+                throw new ShellException(getName(), "Not enough arguments");
+            }
+
+            if (args.length > 1) {
+                throw new ShellException(getName(), "Too many arguments");
+            }
+
+            String[] splitedArgs = args[0].split("\\s", 2);
+            if (splitedArgs.length != 2) {
                 throw new ShellException(getName(), "Bad arguments");
             }
 
-            String[] args1 = args[0].split("\\s", 2);
-            if (args1.length != 2) {
-                throw new ShellException(getName(), "Bad arguments");
-            }
-
-            String tableName = args1[0].trim();
+            String tableName = splitedArgs[0].trim();
             if (tableName.length() == 0) {
                 throw new ShellException(getName(), "No table name");
             }
 
-            List<Class<?>> types = getListTypes(args[1].trim());
+            List<Class<?>> types = getListTypes(splitedArgs[1].trim());
 
             TableProvider provider = (TableProvider) info.getProperty("TableProvider");
             if (provider == null) {

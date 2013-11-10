@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellCommand;
+import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellEmulator;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellInfo;
 
@@ -85,7 +86,7 @@ public class WorkWithChosenTableCommands {
                     printOut(toWrite);
                 }
             } catch (Exception e) {
-                printOut(String.format("wrong type + ( %s )", e.toString()));
+                printOut(String.format("wrong type ( %s )", ShellEmulator.getNiceMessage(e)));
             }
         }
     }
@@ -118,7 +119,7 @@ public class WorkWithChosenTableCommands {
             try {
                 Storeable value = table.get(realArgs[0]);
                 if (value == null) {
-                    printOut("not foound");
+                    printOut("not found");
                 } else {
                     printOut("found " + provider.serialize(table, value));
                 }
@@ -172,11 +173,8 @@ public class WorkWithChosenTableCommands {
 
         @Override
         public void execute(String[] args, ShellInfo info) throws ShellException {
-            String[] realArgs = new String[1];
-            try {
-                checkAndGetArguments(args, 0, realArgs);
-            } catch (Exception e) {
-                throw new ShellException(getName(), e);
+            if (args.length > 0) {
+                throw new ShellException("Too many arguments");
             }
 
             Table table = (Table) info.getProperty("CurrentTable");
@@ -201,11 +199,8 @@ public class WorkWithChosenTableCommands {
 
         @Override
         public void execute(String[] args, ShellInfo info) throws ShellException {
-            String[] realArgs = new String[1];
-            try {
-                checkAndGetArguments(args, 0, realArgs);
-            } catch (Exception e) {
-                throw new ShellException(getName(), e);
+            if (args.length > 0) {
+                throw new ShellException("Too many arguments");
             }
 
             Table table = (Table) info.getProperty("CurrentTable");
@@ -230,11 +225,8 @@ public class WorkWithChosenTableCommands {
 
         @Override
         public void execute(String[] args, ShellInfo info) throws ShellException {
-            String[] realArgs = new String[1];
-            try {
-                checkAndGetArguments(args, 0, realArgs);
-            } catch (Exception e) {
-                throw new ShellException(getName(), e);
+            if (args.length > 0) {
+                throw new ShellException("Too many arguments");
             }
 
             Table table = (Table) info.getProperty("CurrentTable");

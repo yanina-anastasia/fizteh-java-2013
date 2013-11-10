@@ -77,7 +77,7 @@ public class TableImplementation implements Table {
 
     private boolean isTableStoreableEqual(Storeable first, Storeable second) {
         if (first == null || second == null) {
-            throw new NullPointerException();
+            return first == null && second == null;
         }
         boolean result = true;
         for (int i = 0; i < columnsCount; ++i) {
@@ -110,11 +110,15 @@ public class TableImplementation implements Table {
         return changesNum;
     }
 
-    @Override
-    public String getName() {
-        if (tableProvider.getTable(tableName) != this) {
+    private void checkTableState() {
+        if (!tableProvider.isProviderLoading() && tableProvider.getTable(tableName) != this) {
             throw new IllegalStateException("Table was removed");
         }
+    }
+
+    @Override
+    public String getName() {
+        checkTableState();
         return tableName;
     }
 
@@ -123,9 +127,7 @@ public class TableImplementation implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Empty key");
         }
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         if (currentChangesMap.containsKey(key)) {
             return currentChangesMap.get(key);
         } else {
@@ -144,9 +146,8 @@ public class TableImplementation implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Empty value");
         }
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+
+        checkTableState();
 
         StoreableUtils.checkStoreableBelongsToTable(this, value);
 
@@ -164,9 +165,7 @@ public class TableImplementation implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Empty key");
         }
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         Storeable toReturn = get(key);
         currentChangesMap.put(key, null);
         return toReturn;
@@ -174,9 +173,7 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         int tableSize = savedMap.size();
         for (Map.Entry<String, Storeable> entry : currentChangesMap.entrySet()) {
             String key = entry.getKey();
@@ -197,9 +194,7 @@ public class TableImplementation implements Table {
 
     @Override
     public int commit() throws IOException {
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         int changesNumber = 0;
         for (Map.Entry<String, Storeable> entry : currentChangesMap.entrySet()) {
             String key = entry.getKey();
@@ -241,9 +236,7 @@ public class TableImplementation implements Table {
 
     @Override
     public int rollback() {
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
 
         int toReturn = getUnsavedChangesCount();
         currentChangesMap.clear();
@@ -252,17 +245,13 @@ public class TableImplementation implements Table {
 
     @Override
     public int getColumnsCount() {
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         return columnsCount;
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (tableProvider.getTable(tableName) != this) {
-            throw new IllegalStateException("Table was removed");
-        }
+        checkTableState();
         if (columnIndex < 0) {
             throw new IndexOutOfBoundsException("Negative index");
         }

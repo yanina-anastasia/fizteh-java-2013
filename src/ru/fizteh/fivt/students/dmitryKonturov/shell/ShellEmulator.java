@@ -64,8 +64,31 @@ public abstract class ShellEmulator {
         try {
             currentCommand.execute(arguments, shellInfo);
         } catch (Exception e) {
-            throw new ShellException("Command " + commandName + " failed: ", e);
+            throw new ShellException("Command " + commandName + " failed", e);
         }
+    }
+
+    private static StringBuilder getNiceMessageBuilder(Throwable e) {
+        StringBuilder builder = new StringBuilder();
+        String message = e.getMessage();
+        if (message != null) {
+            builder.append(message);
+        }
+        if (e.getCause() != null) {
+            StringBuilder nextThrowable = getNiceMessageBuilder(e.getCause());
+            if (nextThrowable.length() > 0) {
+                if (builder.length() > 0) {
+                    builder.append(": ");
+                }
+                builder.append(nextThrowable);
+            }
+        }
+
+        return builder;
+    }
+
+    public static String getNiceMessage(Throwable e) {
+        return getNiceMessageBuilder(e).toString();
     }
 
     private void executeQuery(String query) throws ShellException {
@@ -100,9 +123,10 @@ public abstract class ShellEmulator {
             try {
                 executeQuery(query);
             } catch (ShellException sh) {
-                System.err.println(sh.toString());
+                System.err.println("Shell: " + getNiceMessage(sh));
+                sh.printStackTrace(System.err);
             } catch (Exception e) {
-                System.err.println("Unhandled exception: " + e.toString());
+                System.err.println("Shell: Unhandled exception: " + getNiceMessage(e));
             } finally {
                 printGreeting();
             }

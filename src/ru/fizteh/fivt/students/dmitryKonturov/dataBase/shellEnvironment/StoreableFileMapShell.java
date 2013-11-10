@@ -58,6 +58,8 @@ public class StoreableFileMapShell extends ShellEmulator {
                     if (unsavedChanges > 0) {
                         throw new ShellException(String.format("%d unsaved changes", unsavedChanges));
                     }
+                } catch (ShellException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new ShellException(getName(), e);
                 }

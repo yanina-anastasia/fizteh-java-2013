@@ -21,6 +21,7 @@ import java.util.Map;
 public class TableProviderImplementation implements TableProvider {
 
     private final Path workspace;
+    private boolean isLoading = false;
     private Map<String, Table> existingTables;
     static final Class[] ALLOWED_TYPES = new Class[]{
             Integer.class,
@@ -48,6 +49,7 @@ public class TableProviderImplementation implements TableProvider {
         workspace = path;
         CheckDatabasesWorkspace.checkWorkspace(workspace);
         existingTables = new HashMap<>();
+        isLoading = true;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
             for (Path entry : stream) {
                 String tableName = entry.toFile().getName();
@@ -59,10 +61,15 @@ public class TableProviderImplementation implements TableProvider {
         } catch (Exception e) {
             throw new DatabaseException("Fail to load existing base", e);
         }
+        isLoading = false;
     }
 
     Path getWorkspace() {
         return workspace;
+    }
+
+    boolean isProviderLoading() {
+        return isLoading;
     }
 
     @Override
