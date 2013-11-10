@@ -53,7 +53,7 @@ public class Serializer implements Closeable {
             streamWriter.writeEndElement();
             streamWriter.flush();
         } catch (XMLStreamException e) {
-            throw new IOException("Error with serializing: " + e.getMessage());
+            throw new IOException("Error with serializing : " + e.getMessage());
         }
     }
 
