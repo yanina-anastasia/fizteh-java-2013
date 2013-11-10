@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class Value implements Storeable {
 
-    private ArrayList<Object> value;
+    private ArrayList<Object> values;
     private ArrayList<Class<?>> types;
 
     private static Class<?> normType(String arg) {
@@ -37,31 +37,31 @@ public class Value implements Storeable {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(normType(table.getColumnType(i).getSimpleName()));
         }
-        value = new ArrayList<>(types.size());
+        values = new ArrayList<>(types.size());
         for (int i = 0; i < types.size(); ++i) {
             if (types.get(i) == null) {
                 throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
             if (types.get(i).equals(Integer.class)) {
-                value.add(i, Integer.MIN_VALUE);
+                values.add(i, Integer.MIN_VALUE);
             } else {
                 if (types.get(i).equals(Long.class)) {
-                    value.add(i, Long.MIN_VALUE);
+                    values.add(i, Long.MIN_VALUE);
                 } else {
                     if (types.get(i).equals(Byte.class)) {
-                        value.add(i, Byte.MIN_VALUE);
+                        values.add(i, Byte.MIN_VALUE);
                     } else {
                         if (types.get(i).equals(Float.class)) {
-                            value.add(i, Float.MIN_VALUE);
+                            values.add(i, Float.MIN_VALUE);
                         } else {
                             if (types.get(i).equals(Double.class)) {
-                                value.add(i, Double.MIN_VALUE);
+                                values.add(i, Double.MIN_VALUE);
                             } else {
                                 if (types.get(i).equals(String.class)) {
-                                    value.add(i, "default");
+                                    values.add(i, "default");
                                 } else {
                                     if (types.get(i).equals(Boolean.class)) {
-                                        value.add(i, true);
+                                        values.add(i, true);
                                     }
                                 }
                             }
@@ -69,7 +69,7 @@ public class Value implements Storeable {
                     }
                 }
             }
-            System.out.println(value.get(i).toString() + " " + i);
+            System.out.println(values.get(i).toString() + " " + i);
         }
     }
 
@@ -77,6 +77,7 @@ public class Value implements Storeable {
         if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
+        System.out.println(columnIndex + " " + value);
         if (!(value == null)) {
             if (normType(value.getClass().getSimpleName()) == null) {
                 throw new ColumnFormatException("This type is not supposed: " + value.getClass().getCanonicalName());
@@ -86,7 +87,7 @@ public class Value implements Storeable {
                         + " but expected "  + types.get(columnIndex));
             }
         }
-        this.value.add(columnIndex, value);
+        this.values.add(columnIndex, value);
     }
 
 
@@ -94,7 +95,7 @@ public class Value implements Storeable {
         if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
-        return value.get(columnIndex);
+        return values.get(columnIndex);
     }
 
 
@@ -107,9 +108,9 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Integer integer = null;
-        if (value.get(columnIndex) != null) {
+        if (values.get(columnIndex) != null) {
             System.out.println(columnIndex);
-            integer = (Integer) value.get(columnIndex);
+            integer = (Integer) values.get(columnIndex);
         }
         return integer;
     }
@@ -124,8 +125,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Long val = null;
-        if (value.get(columnIndex) != null) {
-            val = (Long) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (Long) values.get(columnIndex);
         }
         return val;
     }
@@ -139,8 +140,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Byte val = null;
-        if (value.get(columnIndex) != null) {
-            val = (Byte) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (Byte) values.get(columnIndex);
         }
         return val;
     }
@@ -154,8 +155,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Float val = null;
-        if (value.get(columnIndex) != null) {
-            val = (Float) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (Float) values.get(columnIndex);
         }
         return val;
     }
@@ -169,8 +170,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Double val = null;
-        if (value.get(columnIndex) != null) {
-            val = (Double) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (Double) values.get(columnIndex);
         }
         return val;
     }
@@ -184,8 +185,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         Boolean val = null;
-        if (value.get(columnIndex) != null) {
-            val = (Boolean) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (Boolean) values.get(columnIndex);
         }
         return val;
     }
@@ -199,8 +200,8 @@ public class Value implements Storeable {
                     + types.get(columnIndex).getCanonicalName());
         }
         String val = null;
-        if (value.get(columnIndex) != null) {
-            val = (String) value.get(columnIndex);
+        if (values.get(columnIndex) != null) {
+            val = (String) values.get(columnIndex);
         }
         return val;
     }
