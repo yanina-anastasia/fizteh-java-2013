@@ -196,7 +196,7 @@ public class TableData implements Table {
         }
         int i = 0;
         try {
-            for (; i < getColumnsCount(); ++i) {
+            for (; i < getColumnsCount();) {
                 if (normType(getColumnType(i).getSimpleName()) == null) {
                     throw new IllegalArgumentException("wrong type (The table contains "
                             + "unsupported type:" + getColumnType(i));
@@ -228,6 +228,7 @@ public class TableData implements Table {
                         }
                     }
                 }
+                ++i;
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + ")", e);
