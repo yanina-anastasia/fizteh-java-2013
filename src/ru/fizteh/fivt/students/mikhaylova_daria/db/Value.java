@@ -41,19 +41,19 @@ public class Value implements Storeable {
                         + " are not supported))");
             }
             if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
-                value.add(new Integer(0));
+                value.add(Integer.MIN_VALUE);
             } else {
                 if (normType(table.getColumnType(i).getSimpleName()).equals(Long.class)) {
-                    value.add(0L);
+                    value.add(Long.MIN_VALUE);
                 } else {
                     if (normType(table.getColumnType(i).getSimpleName()).equals(Byte.class)) {
                         value.add(Byte.MIN_VALUE);
                     } else {
                         if (normType(table.getColumnType(i).getSimpleName()).equals(Float.class)) {
-                            value.add(0f);
+                            value.add(Float.MIN_VALUE);
                         } else {
                             if (normType(table.getColumnType(i).getSimpleName()).equals(Double.class)) {
-                                value.add(0.0);
+                                value.add(Double.MIN_VALUE);
                             } else {
                                 if (normType(table.getColumnType(i).getSimpleName()).equals(Boolean.class)) {
                                     value.add(true);

@@ -43,6 +43,25 @@ public class TableData implements Table {
         return answer;
     }
 
+
+    private static Class<?> normType(String arg) {
+        HashMap<String, Class<?>> types = new HashMap<>();
+        types.put("Integer", Integer.class);
+        types.put("Long", Long.class);
+        types.put("Double", Double.class);
+        types.put("Float", Float.class);
+        types.put("Boolean", Boolean.class);
+        types.put("Byte", Byte.class);
+        types.put("byte", Byte.class);
+        types.put("String", String.class);
+        types.put("int", Integer.class);
+        types.put("long", Long.class);
+        types.put("double", Double.class);
+        types.put("float", Float.class);
+        types.put("boolean", Boolean.class);
+        return types.get(arg);
+    }
+
     TableData(File tableFile, List<Class<?>> columnTypes, TableManager manager) throws IOException {
         if (columnTypes == null) {
             throw new IllegalArgumentException("list of column's types is null");
@@ -177,27 +196,37 @@ public class TableData implements Table {
         }
         int i = 0;
         try {
-            for (i = 0; i < getColumnsCount(); ++i) {
-                if (getColumnType(i).equals(Integer.class)) {
+            for (; i < getColumnsCount(); ++i) {
+                if (normType(getColumnType(i).getSimpleName()) == null) {
+                    throw new IllegalArgumentException("wrong type (The table contains "
+                            + "unsupported type:" + getColumnType(i));
+                }
+                if (normType(getColumnType(i).getSimpleName()).equals(Integer.class)) {
                     value.getIntAt(i);
-                }
-                if (getColumnType(i).equals(Long.class)) {
-                    value.getLongAt(i);
-                }
-                if (getColumnType(i).equals(Byte.class)) {
-                    value.getByteAt(i);
-                }
-                if (getColumnType(i).equals(Float.class)) {
-                    value.getFloatAt(i);
-                }
-                if (getColumnType(i).equals(Double.class)) {
-                    value.getDoubleAt(i);
-                }
-                if (getColumnType(i).equals(Boolean.class)) {
-                    value.getBooleanAt(i);
-                }
-                if (getColumnType(i).equals(String.class)) {
-                    value.getStringAt(i);
+                } else {
+                    if (normType(getColumnType(i).getSimpleName()).equals(Long.class)) {
+                        value.getLongAt(i);
+                    } else {
+                        if (normType(getColumnType(i).getSimpleName()).equals(Byte.class)) {
+                            value.getByteAt(i);
+                        } else {
+                            if (normType(getColumnType(i).getSimpleName()).equals(Float.class)) {
+                                value.getFloatAt(i);
+                            } else {
+                                if (normType(getColumnType(i).getSimpleName()).equals(Double.class)) {
+                                    value.getDoubleAt(i);
+                                } else {
+                                    if (normType(getColumnType(i).getSimpleName()).equals(Boolean.class)) {
+                                        value.getBooleanAt(i);
+                                    } else {
+                                        if (normType(getColumnType(i).getSimpleName()).equals(String.class)) {
+                                            value.getStringAt(i);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } catch (IndexOutOfBoundsException e) {
