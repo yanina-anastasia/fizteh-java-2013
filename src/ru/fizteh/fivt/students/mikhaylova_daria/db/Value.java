@@ -10,7 +10,6 @@ public class Value implements Storeable {
 
     private ArrayList<Object> value;
     private ArrayList<Class<?>> types;
-    private Table table;
 
     private static Class<?> normType(String arg) {
         HashMap<String, Class<?>> types = new HashMap<>();
@@ -32,7 +31,10 @@ public class Value implements Storeable {
 
 
     Value(Table table) {
-        this.table = new TableData(table);
+        types = new ArrayList<Class<?>>();
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            types.add(table.getColumnType(i));
+        }
         value = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (table.getColumnType(i) == null) {
@@ -73,16 +75,16 @@ public class Value implements Storeable {
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
         if (!(value == null)) {
             if (normType(value.getClass().getSimpleName()) == null) {
                 throw new ColumnFormatException("This type is not supposed: " + value.getClass().getCanonicalName());
             }
-            if (!value.getClass().equals(table.getColumnType(columnIndex))) {
+            if (!value.getClass().equals(types.get(columnIndex))) {
                 throw new ColumnFormatException("Wrong type of value: " + value.getClass()
-                        + " but expected "  + table.getColumnType(columnIndex));
+                        + " but expected "  + types.get(columnIndex));
             }
         }
         this.value.add(columnIndex, value);
@@ -90,7 +92,7 @@ public class Value implements Storeable {
 
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
         return value.get(columnIndex);
@@ -98,16 +100,15 @@ public class Value implements Storeable {
 
 
     public Integer getIntAt(final int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column: " + columnIndex);
         }
-        if (!this.table.getColumnType(columnIndex).equals(Integer.class)) {
+        if (!types.get(columnIndex).equals(Integer.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Integer integer = null;
         if (value.get(columnIndex) != null) {
-            System.out.println(value.get(columnIndex).getClass());
             integer = (Integer) value.get(columnIndex);
         }
         return integer;
@@ -115,12 +116,12 @@ public class Value implements Storeable {
 
 
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Long.class)) {
+        if (!types.get(columnIndex).equals(Long.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Long val = null;
         if (value.get(columnIndex) != null) {
@@ -130,12 +131,12 @@ public class Value implements Storeable {
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Byte.class)) {
+        if (!types.get(columnIndex).equals(Byte.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Byte val = null;
         if (value.get(columnIndex) != null) {
@@ -145,12 +146,12 @@ public class Value implements Storeable {
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Float.class)) {
+        if (!types.get(columnIndex).equals(Float.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Float val = null;
         if (value.get(columnIndex) != null) {
@@ -160,12 +161,12 @@ public class Value implements Storeable {
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Double.class)) {
+        if (!types.get(columnIndex).equals(Double.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Double val = null;
         if (value.get(columnIndex) != null) {
@@ -175,12 +176,12 @@ public class Value implements Storeable {
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Boolean.class)) {
+        if (!types.get(columnIndex).equals(Boolean.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         Boolean val = null;
         if (value.get(columnIndex) != null) {
@@ -190,12 +191,12 @@ public class Value implements Storeable {
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table.getColumnsCount() <= columnIndex) {
+        if (types.size() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column " + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(String.class)) {
+        if (!types.get(columnIndex).equals(String.class)) {
             throw new ColumnFormatException("Type of this column is "
-                    + table.getColumnType(columnIndex).getCanonicalName());
+                    + types.get(columnIndex).getCanonicalName());
         }
         String val = null;
         if (value.get(columnIndex) != null) {

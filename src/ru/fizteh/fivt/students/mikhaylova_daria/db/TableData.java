@@ -177,13 +177,6 @@ public class TableData implements Table {
 
     }
 
-    TableData(Table other) {
-        this.columnTypes = new ArrayList<Class<?>>();
-        for (int i = 0; i < other.getColumnsCount(); ++i) {
-            this.columnTypes.add(other.getColumnType(i));
-        }
-    }
-
     public String getName() {
         return tableFile.getName();
     }
