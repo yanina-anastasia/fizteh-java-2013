@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.eltyshev.storable.database;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.MultifileMapUtils;
 import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
+import ru.fizteh.fivt.students.eltyshev.storable.TypesFormatter;
 import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlDeserializer;
 import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlSerializer;
 
@@ -199,8 +200,8 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-        for (final String columnType : signature.split("\\s")) {
-            Class<?> type = StoreableUtils.parseColumnType(columnType);
+        for (final String columnType : signature.split("\\s+")) {
+            Class<?> type = TypesFormatter.getTypeByName(columnType);
             if (type == null) {
                 throw new IllegalArgumentException("unknown type");
             }
@@ -224,9 +225,10 @@ public class DatabaseTableProvider implements TableProvider {
 
     private void checkColumnTypes(List<Class<?>> columnTypes) {
         for (final Class<?> columnType : columnTypes) {
-            if (columnType == null || StoreableUtils.formatColumnType(columnType) == null) {
+            if (columnType == null) {
                 throw new IllegalArgumentException("unknown column type");
             }
+            TypesFormatter.getSimpleName(columnType);
         }
     }
 

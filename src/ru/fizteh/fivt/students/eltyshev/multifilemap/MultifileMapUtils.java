@@ -7,6 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MultifileMapUtils {
+    private static final Pattern DIR_PATTERN = Pattern.compile("([^\\.]+).dir");
+    private static final Pattern FILE_PATTERN = Pattern.compile("([^\\.]+).dat");
+
+
     public static void deleteFile(File fileToDelete) {
         if (!fileToDelete.exists()) {
             return;
@@ -21,8 +25,7 @@ public class MultifileMapUtils {
 
     public static int parseCurrentBucketNumber(File bucket) {
         String name = bucket.getName();
-        Pattern pattern = Pattern.compile("([^\\.]+).dir");
-        Matcher matcher = pattern.matcher(name);
+        Matcher matcher = DIR_PATTERN.matcher(name);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(1));
         }
@@ -32,8 +35,7 @@ public class MultifileMapUtils {
     public static int parseCurrentFileNumber(File file)
     {
         String name = file.getName();
-        Pattern pattern = Pattern.compile("([^\\.]+).dat");
-        Matcher matcher = pattern.matcher(name);
+        Matcher matcher = FILE_PATTERN.matcher(name);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(1));
         }

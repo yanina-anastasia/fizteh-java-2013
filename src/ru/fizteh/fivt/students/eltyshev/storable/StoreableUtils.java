@@ -12,54 +12,12 @@ import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlDeserializer;
 
 public class StoreableUtils {
 
-    public static Class<?> parseColumnType(String columnType) {
-        switch (columnType) {
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "byte":
-                return Byte.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            case "boolean":
-                return Boolean.class;
-            case "String":
-                return String.class;
-            default:
-                return null;
-        }
-    }
-
-    public static String formatColumnType(Class<?> columnType) {
-        switch (columnType.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                return null;
-        }
-    }
-
     public static List<Object> parseValues(List<String> valuesRepresentation, Table table) throws ColumnFormatException {
         // values start from index 1
         List<Object> values = new ArrayList<>(valuesRepresentation.size() - 1);
 
         for (int index = 1; index < valuesRepresentation.size(); ++index) {
-            Object value = XmlDeserializer.parseValue(valuesRepresentation.get(index), table.getColumnType(index - 1));
+            Object value = TypesFormatter.parseByClass(valuesRepresentation.get(index), table.getColumnType(index - 1));
             values.add(value);
         }
         return values;
@@ -96,7 +54,7 @@ public class StoreableUtils {
 
         TableInfo info = new TableInfo(tableName);
         for (final String columnType : columnTypes) {
-            info.addColumn(parseColumnType(columnType));
+            info.addColumn(TypesFormatter.getTypeByName(columnType));
         }
 
         return info;
@@ -105,7 +63,7 @@ public class StoreableUtils {
     public static List<String> formatColumnTypes(List<Class<?>> columnTypes) {
         List<String> formattedColumnTypes = new ArrayList<String>();
         for (final Class<?> columnType : columnTypes) {
-            formattedColumnTypes.add(formatColumnType(columnType));
+            formattedColumnTypes.add(TypesFormatter.getSimpleName(columnType));
         }
         return formattedColumnTypes;
     }
@@ -115,7 +73,7 @@ public class StoreableUtils {
             return;
         }
 
-        switch (formatColumnType(type)) {
+        switch (TypesFormatter.getSimpleName(type)) {
             case "String":
                 String stringValue = (String) value;
                 if (checkStringCorrect(stringValue)) {

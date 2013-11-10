@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.eltyshev.storable.xml;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.students.eltyshev.storable.TypesFormatter;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -46,7 +47,7 @@ public class XmlDeserializer {
             }
             nodeType = xmlReader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
-                value = parseValue(xmlReader.getText(), expectedType);
+                value = TypesFormatter.parseByClass(xmlReader.getText(), expectedType);
             } else {
                 if (!xmlReader.getName().getLocalPart().equals("null")) {
                     throw new ParseException("incorrect xml", 0);
@@ -76,37 +77,5 @@ public class XmlDeserializer {
         } catch (XMLStreamException e) {
             throw new IOException("error while deserializing: " + e.getMessage());
         }
-    }
-
-    public static Object parseValue(String valueRepresentation, Class<?> expectedType) throws ColumnFormatException {
-        Object value = null;
-        try {
-            switch (expectedType.getName()) {
-                case "java.lang.Integer":
-                    value = Integer.parseInt(valueRepresentation);
-                    break;
-                case "java.lang.Long":
-                    value = Long.parseLong(valueRepresentation);
-                    break;
-                case "java.lang.Byte":
-                    value = Byte.parseByte(valueRepresentation);
-                    break;
-                case "java.lang.Float":
-                    value = Float.parseFloat(valueRepresentation);
-                    break;
-                case "java.lang.Double":
-                    value = Double.parseDouble(valueRepresentation);
-                    break;
-                case "java.lang.Boolean":
-                    value = Boolean.parseBoolean(valueRepresentation);
-                    break;
-                case "java.lang.String":
-                    value = valueRepresentation;
-                    break;
-            }
-        } catch (NumberFormatException e) {
-            throw new ColumnFormatException(e);
-        }
-        return value;
     }
 }
