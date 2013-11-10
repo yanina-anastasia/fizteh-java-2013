@@ -301,6 +301,13 @@ public class TableProviderCommands implements TableProvider {
         if (value == null) {
             return null;
         }
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            try {
+                value.getColumnAt(i);
+            } catch (Exception e) {
+                throw new ColumnFormatException("Illegal format");
+            }
+        }
         JSONArray text = null;
         try {
             text = new JSONArray();
