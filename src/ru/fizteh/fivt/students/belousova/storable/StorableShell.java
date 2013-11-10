@@ -1,6 +1,10 @@
 package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.students.belousova.filemap.CommandExit;
+import ru.fizteh.fivt.students.belousova.filemap.CommandGet;
+import ru.fizteh.fivt.students.belousova.filemap.CommandPut;
+import ru.fizteh.fivt.students.belousova.filemap.CommandRemove;
+import ru.fizteh.fivt.students.belousova.multifilehashmap.*;
 import ru.fizteh.fivt.students.belousova.shell.Command;
 import ru.fizteh.fivt.students.belousova.utils.ShellUtils;
 
@@ -10,7 +14,7 @@ import java.util.Map;
 public class StorableShell {
     private Map<String, Command> commandList = new HashMap<>();
 
-    public void run(String[] args, StorableShellState state) {
+    public void run(String[] args, StorableState state) {
         makeCommandList(state);
         if (args.length == 0) {
             ShellUtils.interactiveMode(System.in, commandList);
@@ -19,7 +23,7 @@ public class StorableShell {
         }
     }
 
-    private void makeCommandList(StorableShellState state) {
+    private void makeCommandList(StorableState state) {
         addCommand(new CommandCreate(state));
         addCommand(new CommandDrop(state));
         addCommand(new CommandUse(state));

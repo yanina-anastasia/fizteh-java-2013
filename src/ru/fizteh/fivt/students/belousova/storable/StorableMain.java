@@ -8,8 +8,8 @@ public class StorableMain {
         String dir = System.getProperty("fizteh.db.dir");
         StorableTableProviderFactory tableProviderFactory = new StorableTableProviderFactory();
         try {
-            StorableShellState storableShellState = new StorableShellState(null, tableProviderFactory.create(dir));
-            shell.run(args, storableShellState);
+            StorableState storableState = new StorableState(tableProviderFactory.create(dir), null);
+            shell.run(args, storableState);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);

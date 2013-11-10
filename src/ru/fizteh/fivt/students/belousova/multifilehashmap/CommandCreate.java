@@ -18,8 +18,9 @@ public class CommandCreate implements Command {
 
     @Override
     public void execute(String[] args) throws IOException {
-        if (state.createTable(args[1]) == null) {
-            System.out.println(args[1] + " exists");
+        String key = args[1];
+        if (!state.createTable(key)) {
+            System.out.println(key + " exists");
         } else {
             System.out.println("created");
         }

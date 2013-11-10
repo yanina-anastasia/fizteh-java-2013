@@ -7,6 +7,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.belousova.storable.GetColumnTypeStorable;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableLine;
 import ru.fizteh.fivt.students.belousova.storable.StorableTableProvider;
+import ru.fizteh.fivt.students.belousova.storable.TypesEnum;
 
 import javax.xml.stream.*;
 import java.io.*;
@@ -34,7 +35,11 @@ public class StorableUtils {
                 while (position != file.length()) {
                     String type = readType(dis);
                     position += type.getBytes(StandardCharsets.UTF_8).length + 1;
-                    Class<?> classType = convertStringToClass(type);
+                    TypesEnum typesEnum = TypesEnum.getBySignature(type);
+                    if (typesEnum == null) {
+                        throw new IOException("read error");
+                    }
+                    Class<?> classType = typesEnum.getClazz();
                     columnTypes.add(classType);
                 }
             } finally {
@@ -42,27 +47,6 @@ public class StorableUtils {
             }
         } catch (IOException e) {
             throw new IOException("read error", e);
-        }
-    }
-
-    public static Class<?> convertStringToClass(String s) throws IOException {
-        switch (s) {
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "byte":
-                return Byte.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            case "boolean":
-                return Boolean.class;
-            case "String":
-                return String.class;
-            default:
-                throw new IOException("type has wrong format");
         }
     }
 
@@ -105,12 +89,17 @@ public class StorableUtils {
         OutputStream os = new FileOutputStream(signatureFile);
         BufferedOutputStream bos = new BufferedOutputStream(os, 4096);
         DataOutputStream dos = new DataOutputStream(bos);
+
         try {
             for (Class<?> type : columnTypes) {
                 if (type == null) {
                     throw new IllegalArgumentException("wrong column type");
                 }
-                String typeString = convertClassToString(type);
+                TypesEnum typesEnum = TypesEnum.getByClass(type);
+                if (typesEnum == null) {
+                    throw new IOException("write error");
+                }
+                String typeString = TypesEnum.getByClass(type).getSignature();
                 dos.write(typeString.getBytes(StandardCharsets.UTF_8));
                 dos.write(' ');
             }
@@ -119,30 +108,9 @@ public class StorableUtils {
         }
     }
 
-    private static String convertClassToString(Class<?> type) throws IOException {
-        switch (type.getName()) {
-            case "java.lang.Integer":
-                return "int";
-            case "java.lang.Long":
-                return "long";
-            case "java.lang.Byte":
-                return "byte";
-            case "java.lang.Float":
-                return "float";
-            case "java.lang.Double":
-                return "double";
-            case "java.lang.Boolean":
-                return "boolean";
-            case "java.lang.String":
-                return "String";
-            default:
-                throw new IOException("write error");
-        }
-    }
-
-    public static StorableTableLine readStorableValue(String s, List<Class<?>> columnTypes) throws ParseException {
+    public static StorableTableLine readStorableValue(String s, Table table) throws ParseException {
         XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-        StorableTableLine line = new StorableTableLine(columnTypes);
+        StorableTableLine line = new StorableTableLine(table);
         try {
             XMLStreamReader reader = inputFactory.createXMLStreamReader(new StringReader(s));
             try {
@@ -164,31 +132,19 @@ public class StorableUtils {
                             break;
                         }
                     }
-
+                    if (reader.isEndElement()) {
+                        continue;
+                    }
                     if (reader.next() == XMLStreamConstants.CHARACTERS) {
                         String text = reader.getText();
-                        line.setColumnAt(columnIndex, parseValue(text, columnTypes.get(columnIndex)));
+                        line.setColumnAt(columnIndex, parseValue(text, table.getColumnType(columnIndex)));
                     } else {
-                        reader.next();
-                        if (reader.getName().getLocalPart().equals("null")) {
-                            if (!reader.isStartElement()) {
-                                throw new ParseException("invalid xml format",
-                                        reader.getLocation().getCharacterOffset());
-                            }
-                            reader.next();
-                            if (!reader.isEndElement() || !reader.getName().getLocalPart().equals("null")) {
-                                throw new ParseException("invalid xml format",
-                                        reader.getLocation().getCharacterOffset());
-                            }
-                            reader.next();
-                            if (!reader.isEndElement() || !reader.getName().getLocalPart().equals("col")) {
-                                throw new ParseException("invalid xml format",
-                                        reader.getLocation().getCharacterOffset());
-                            }
-                        } else if (!reader.getName().getLocalPart().equals("row") || !reader.isEndElement()) {
+                        reader.nextTag();
+                        if (!reader.getLocalName().equals("null")) {
                             throw new ParseException("invalid xml format",
-                                    reader.getLocation().getCharacterOffset());
+                                        reader.getLocation().getCharacterOffset());
                         }
+                        reader.nextTag();
                     }
                     columnIndex++;
                 }

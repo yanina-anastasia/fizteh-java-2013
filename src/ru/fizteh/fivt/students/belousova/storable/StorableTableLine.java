@@ -2,17 +2,18 @@ package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StorableTableLine implements GetColumnTypeStorable {
     private List<Object> columns = new ArrayList<>();
-    private List<Class<?>> columnTypes = new ArrayList<>();
+    private Table table;
 
-    public StorableTableLine(List<Class<?>> columnTypes) {
-        this.columnTypes = columnTypes;
-        for (Class<?> c : columnTypes) {
+    public StorableTableLine(Table table) {
+        this.table = table;
+        for (int i = 0; i < table.getColumnsCount(); i++) {
             columns.add(null);
         }
     }
@@ -24,7 +25,7 @@ public class StorableTableLine implements GetColumnTypeStorable {
     }
 
     private void checkColumnFormat(int columnIndex, Class<?> valueClass) {
-        if (!valueClass.equals(columnTypes.get(columnIndex))) {
+        if (!valueClass.equals(table.getColumnType(columnIndex))) {
             throw new ColumnFormatException("wrong column format");
         }
     }
@@ -97,69 +98,16 @@ public class StorableTableLine implements GetColumnTypeStorable {
             return false;
         }
         StorableTableLine line = (StorableTableLine) obj;
-        for (int i = 0; i < line.columnTypes.size(); i++) {
-            if (!line.columnTypes.get(i).getName().equals(columnTypes.get(i).getName())) {
+        for (int i = 0; i < line.table.getColumnsCount(); i++) {
+            if (!line.table.getColumnType(i).equals(table.getColumnType(i))) {
                 return false;
             }
         }
-        for (int i = 0; i < line.columns.size(); i++) {
-            switch (columnTypes.get(i).getName()) {
-                case "java.lang.Integer":
-                    if (line.getIntAt(i) != null && this.getIntAt(i) != null) {
-                        if (!line.getIntAt(i).equals(this.getIntAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.Long":
-                    if (line.getLongAt(i) != null && this.getLongAt(i) != null) {
-                        if (!line.getLongAt(i).equals(this.getLongAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.Byte":
-                    if (line.getByteAt(i) != null && this.getByteAt(i) != null) {
-                        if (!line.getByteAt(i).equals(this.getByteAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.Float":
-                    if (line.getFloatAt(i) != null && this.getFloatAt(i) != null) {
-                        if (!line.getFloatAt(i).equals(this.getFloatAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.Double":
-                    if (line.getDoubleAt(i) != null && this.getDoubleAt(i) != null) {
-                        if (!line.getDoubleAt(i).equals(this.getDoubleAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.Boolean":
-                    if (line.getBooleanAt(i) != null && this.getBooleanAt(i) != null) {
-                        if (!line.getBooleanAt(i).equals(this.getBooleanAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-                case "java.lang.String":
-                    if (line.getStringAt(i) != null && this.getStringAt(i) != null) {
-                        if (!line.getStringAt(i).equals(this.getStringAt(i))) {
-                            return false;
-                        }
-                    }
-                    break;
-            }
-        }
-        return true;
+        return line.columns.equals(columns);
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        return columnTypes.get(columnIndex);
+        return table.getColumnType(columnIndex);
     }
 }
