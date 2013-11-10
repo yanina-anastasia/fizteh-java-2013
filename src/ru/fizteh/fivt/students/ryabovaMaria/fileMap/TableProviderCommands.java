@@ -193,7 +193,7 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalArgumentException("bad tablename");
         }
         types = columnTypes;
-        isCorrectColumnTypes((ArrayList) columnTypes);
+        isCorrectColumnTypes(new ArrayList(columnTypes));
         isCorrectArgument(name);
         if (tableDir.exists()) {
             return null;
