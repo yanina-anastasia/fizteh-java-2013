@@ -306,7 +306,7 @@ public class TableProviderCommands implements TableProvider {
             ++count;
             try {
                 value.getColumnAt(count);
-            } catch (IndexOutOfBoundsException e) {
+            } catch (Exception e) {
                 break;
             }
         }
