@@ -45,7 +45,7 @@ public class StoreableCommands implements Storeable{
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
         if (value == null) {
-            values.add(columnIndex, null);
+            values.set(columnIndex, null);
             return;
         }
         Class type = types.get(columnIndex);
