@@ -31,7 +31,7 @@ public class CmdRemove implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
+        if (workState.getCurrentTable() != null) {
             String key = args.get(1);
             String result = workState.remove(key);
             if (result == null) {

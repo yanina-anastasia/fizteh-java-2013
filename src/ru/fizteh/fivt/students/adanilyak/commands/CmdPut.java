@@ -31,7 +31,7 @@ public class CmdPut implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
+        if (workState.getCurrentTable() != null) {
             String key = args.get(1);
             String value = args.get(2);
             String result = workState.put(key, value);

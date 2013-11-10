@@ -31,8 +31,8 @@ public class CmdRollback implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            System.out.println(workState.currentTable.rollback());
+        if (workState.getCurrentTable() != null) {
+            System.out.println(workState.rollback());
         } else {
             System.out.println("no table");
         }

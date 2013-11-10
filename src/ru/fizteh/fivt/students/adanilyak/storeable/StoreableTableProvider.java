@@ -101,7 +101,6 @@ public class StoreableTableProvider implements TableProvider {
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
         }
-
         if (!CheckOnCorrect.goodStoreable(value, columnTypes)) {
             throw new ColumnFormatException("storeable table provider: serialize: bad value");
         }

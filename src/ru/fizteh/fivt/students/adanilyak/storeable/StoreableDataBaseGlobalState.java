@@ -4,10 +4,10 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.multifilehashmap.MultiFileDataBaseGlobalState;
-import ru.fizteh.fivt.students.adanilyak.tools.StoreableCmdParseAndExecute;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class StoreableDataBaseGlobalState extends MultiFileDataBaseGlobalState {
     public Table currentTable = null;
-    public TableProvider currentTableManager = null;
+    public TableProvider currentTableManager;
     public boolean autoCommitOnExit;
 
     public StoreableDataBaseGlobalState(TableProvider tableManager) {
@@ -48,12 +48,16 @@ public class StoreableDataBaseGlobalState extends MultiFileDataBaseGlobalState {
     public String put(String key, String value) {
         Storeable toPut = null;
         try {
-            toPut = StoreableCmdParseAndExecute.putStringIntoStoreable(value, currentTable, currentTableManager);
-        } catch (IOException exc) {
+            toPut = currentTableManager.deserialize(currentTable, value);
+        } catch (ParseException exc) {
             System.err.println("storeable data base global state: making storeable problems");
         }
         Storeable resultStoreable = currentTable.put(key, toPut);
-        return StoreableCmdParseAndExecute.outPutToUser(resultStoreable, currentTable, currentTableManager);
+        if (resultStoreable == null) {
+            return null;
+        } else {
+            return currentTableManager.serialize(currentTable, resultStoreable);
+        }
     }
 
     @Override
@@ -62,8 +66,33 @@ public class StoreableDataBaseGlobalState extends MultiFileDataBaseGlobalState {
         if (toRemove == null) {
             return null;
         } else {
-            return StoreableCmdParseAndExecute.outPutToUser(toRemove, currentTable, currentTableManager);
+            return currentTableManager.serialize(currentTable, toRemove);
         }
+    }
+
+    @Override
+    public String get(String key) {
+        Storeable toGet = currentTable.get(key);
+        if (toGet == null) {
+            return null;
+        } else {
+            return currentTableManager.serialize(currentTable, toGet);
+        }
+    }
+
+    @Override
+    public int commit() throws IOException {
+        return currentTable.commit();
+    }
+
+    @Override
+    public int rollback() {
+        return currentTable.rollback();
+    }
+
+    @Override
+    public int size() {
+        return currentTable.size();
     }
 
     @Override
@@ -101,7 +130,7 @@ public class StoreableDataBaseGlobalState extends MultiFileDataBaseGlobalState {
     @Override
     public void createTable(List<String> args) {
         String useTableName = args.get(1);
-        if (getMultiFileTable(useTableName) != null) {
+        if (getStoreableTable(useTableName) != null) {
             System.err.println(useTableName + " exists");
         } else {
             try {

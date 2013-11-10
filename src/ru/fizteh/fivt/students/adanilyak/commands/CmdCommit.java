@@ -31,8 +31,8 @@ public class CmdCommit implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            System.out.println(workState.currentTable.commit());
+        if (workState.getCurrentTable() != null) {
+            System.out.println(workState.commit());
         } else {
             System.out.println("no table");
         }

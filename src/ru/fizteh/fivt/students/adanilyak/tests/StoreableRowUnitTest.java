@@ -10,11 +10,11 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
-import ru.fizteh.fivt.students.adanilyak.tools.StoreableCmdParseAndExecute;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -29,14 +29,13 @@ public class StoreableRowUnitTest {
     File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
 
     @Before
-    public void setUpTestObject() throws IOException {
+    public void setUpTestObject() throws IOException, ParseException {
         tableProvider = new StoreableTableProvider(sandBoxDirectory);
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
                 createListOfTypesFromString("int long byte float double boolean String");
         testTable = tableProvider.createTable("testTable22", typesTestListOne);
-        testStoreable = StoreableCmdParseAndExecute.
-                putStringIntoStoreable("0, 3000000000, 0, 0.123, 1.7976931348623157E308, true," +
-                        " \"Hello World\"", testTable, tableProvider);
+        testStoreable = tableProvider.deserialize(testTable,
+                "[0, 3000000000, 0, 0.123, 1.7976931348623157E308, true, \"Hello World\"]");
     }
 
     @After
@@ -218,6 +217,6 @@ public class StoreableRowUnitTest {
 
     @Test
     public void getStringAtTest() {
-        Assert.assertEquals("\"Hello World\"", testStoreable.getStringAt(6));
+        Assert.assertEquals("Hello World", testStoreable.getStringAt(6));
     }
 }

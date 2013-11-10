@@ -216,7 +216,7 @@ public class StoreableTableProviderUnitTest {
         valuesToMakeStoreable.add(3);
         Storeable testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable);
         Assert.assertTrue(CountingTools.equals(testTable,
-                testProvider.deserialize(testTable, "{\"0\":1, \"1\":2, \"2\":3}"), testStoreable));
+                testProvider.deserialize(testTable, "[1, 2, 3]"), testStoreable));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class StoreableTableProviderUnitTest {
         valuesToMakeStoreable.add(null);
         Storeable testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable);
         Assert.assertTrue(CountingTools.equals(testTable, testProvider.
-                deserialize(testTable, "{\"0\":1, \"1\":2.0432, \"2\":false, \"3\":null}"), testStoreable));
+                deserialize(testTable, "[1,2.0432,false,null]"), testStoreable));
     }
 
     /**
@@ -253,7 +253,7 @@ public class StoreableTableProviderUnitTest {
         Table testTable = testProvider.createTable("testTable15", typesTestListTwo);
         Storeable testStorable = testProvider.createFor(testTable);
         Assert.assertTrue((testProvider.serialize(testTable, testStorable)).
-                equals("{\"0\":null, \"1\":null, \"2\":null, \"3\":null}"));
+                equals("[null,null,null,null]"));
     }
 
     @Test
@@ -265,7 +265,7 @@ public class StoreableTableProviderUnitTest {
         valuesToMakeStoreable.add(null);
         valuesToMakeStoreable.add(3);
         Storeable testStorable = testProvider.createFor(testTable, valuesToMakeStoreable);
-        Assert.assertTrue((testProvider.serialize(testTable, testStorable)).equals("{\"0\":1, \"1\":null, \"2\":3}"));
+        Assert.assertTrue((testProvider.serialize(testTable, testStorable)).equals("[1,null,3]"));
     }
 
     /**
@@ -277,7 +277,7 @@ public class StoreableTableProviderUnitTest {
     public void createForWithOneParameterTest() throws IOException {
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable17", typesTestListOne);
-        Storeable testStoreable = null;
+        Storeable testStoreable;
         Assert.assertNotNull(testStoreable = testProvider.createFor(testTable));
         Assert.assertNull(testStoreable.getColumnAt(1));
     }

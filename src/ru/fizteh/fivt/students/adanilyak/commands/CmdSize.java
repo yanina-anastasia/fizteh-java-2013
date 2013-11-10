@@ -31,8 +31,8 @@ public class CmdSize implements Cmd {
 
     @Override
     public void work(List<String> args) throws IOException {
-        if (workState.currentTable != null) {
-            System.out.println(workState.currentTable.size());
+        if (workState.getCurrentTable() != null) {
+            System.out.println(workState.size());
         } else {
             System.out.println("no table");
         }

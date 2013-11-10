@@ -1,9 +1,5 @@
 package ru.fizteh.fivt.students.adanilyak.tools;
 
-import org.json.JSONObject;
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.commands.Cmd;
 
 import java.io.IOException;
@@ -28,7 +24,7 @@ public class StoreableCmdParseAndExecute {
         return result;
     }
 
-    public static List<String> parseIt(String input, Map<String, Cmd> cmdList) throws IOException{
+    public static List<String> parseIt(String input, Map<String, Cmd> cmdList) throws IOException {
         List<String> cmdAndArgs = new ArrayList<>();
         Scanner cmdScanner = new Scanner(input);
         cmdAndArgs.add(cmdScanner.next());
@@ -43,7 +39,7 @@ public class StoreableCmdParseAndExecute {
                 case "put":
                     try {
                         cmdAndArgs.add(cmdScanner.next());
-                        cmdAndArgs.add(cmdScanner.findInLine(Pattern.compile("\\[.+\\]")).replaceAll("[\\]\\[]", ""));
+                        cmdAndArgs.add(cmdScanner.findInLine(Pattern.compile("\\[.+\\]")));
                     } catch (NullPointerException exc) {
                         throw new IOException("wrong type (execute put: bad arguments)");
                     }
@@ -86,70 +82,5 @@ public class StoreableCmdParseAndExecute {
         } catch (IOException exc) {
             System.err.println(/**cmdAndArgs + ": " +*/exc.getMessage());
         }
-    }
-
-    public static Storeable putStringIntoStoreable(String inputValues, Table table, TableProvider provider)
-            throws IOException {
-        List<Object> valuesToPut = new ArrayList<>();
-        String[] valuesAfterParse = inputValues.split(",");
-        Integer i = 0;
-        for (String value : valuesAfterParse) {
-            if (value.equals("null")) {
-                valuesToPut.add(null);
-            } else {
-                Class<?> type = table.getColumnType(i);
-                value = value.trim();
-                if (value.isEmpty()) {
-                    throw new IOException("put storeable creation: bad arguments");
-                }
-                switch (type.getCanonicalName()) {
-                    case "java.lang.Integer":
-                        valuesToPut.add(Integer.parseInt(value));
-                        break;
-                    case "java.lang.Long":
-                        valuesToPut.add(Long.parseLong(value));
-                        break;
-                    case "java.lang.Byte":
-                        valuesToPut.add(Byte.parseByte(value));
-                        break;
-                    case "java.lang.Float":
-                        valuesToPut.add(Float.parseFloat(value));
-                        break;
-                    case "java.lang.Double":
-                        valuesToPut.add(Double.parseDouble(value));
-                        break;
-                    case "java.lang.Boolean":
-                        valuesToPut.add(Boolean.parseBoolean(value));
-                        break;
-                    case "java.lang.String":
-                        valuesToPut.add(value);
-                        break;
-                    default:
-                        throw new IOException("put storeable creation: something went wrong");
-                }
-            }
-            ++i;
-        }
-        return provider.createFor(table, valuesToPut);
-    }
-
-    public static String outPutToUser(Storeable storeable, Table table, TableProvider provider) {
-        String jsonStringOut = provider.serialize(table, storeable);
-        JSONObject jsonOut = new JSONObject(jsonStringOut);
-        StringBuilder result = new StringBuilder("[");
-        for (Integer i = 0; i < jsonOut.length(); ++i) {
-            if (table.getColumnType(i) == String.class) {
-                result.append("\"");
-                result.append(jsonOut.get(i.toString()));
-                result.append("\"");
-            } else {
-                result.append(jsonOut.get(i.toString()));
-            }
-            if (i != jsonOut.length() - 1) {
-                result.append(", ");
-            }
-        }
-        result.append("]");
-        return result.toString();
     }
 }

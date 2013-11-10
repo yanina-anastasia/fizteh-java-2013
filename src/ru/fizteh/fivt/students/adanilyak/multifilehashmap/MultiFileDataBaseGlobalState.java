@@ -12,7 +12,7 @@ import java.util.List;
  * Time: 14:24
  */
 public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
-    private TableProvider currentTableManager = null;
+    private TableProvider currentTableManager;
     public boolean autoCommitOnExit;
 
     public MultiFileDataBaseGlobalState() {
@@ -26,14 +26,6 @@ public class MultiFileDataBaseGlobalState extends FileMapGlobalState {
     /**
      * Operations with current table
      */
-
-    public String getCurrentTable() {
-        if (currentTable == null) {
-            return null;
-        } else {
-            return currentTable.getName();
-        }
-    }
 
     public void setCurrentTable(String useTableAsCurrentName) {
         currentTable = currentTableManager.getTable(useTableAsCurrentName);
