@@ -10,10 +10,11 @@ public class MyTableProviderFactory implements TableProviderFactory {
     
     @Override
     public TableProvider create(String dir) throws IOException {
-        if (dir == null) {
+        if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Bad directory");
         }
         curDir = new File(dir);
+        
         if (!curDir.exists()) {
             throw new IOException("Directory doesn't exists");
         }
