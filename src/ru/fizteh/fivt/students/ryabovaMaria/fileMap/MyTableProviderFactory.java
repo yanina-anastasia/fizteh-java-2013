@@ -15,7 +15,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
         }
         curDir = new File(dir);
         if (!curDir.exists()) {
-            throw new IllegalArgumentException("Directory doesn't exists");
+            throw new IOException("Directory doesn't exists");
         }
         if (!curDir.isDirectory()) {
             throw new IllegalArgumentException("Argument is not a directory");
