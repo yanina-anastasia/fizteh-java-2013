@@ -349,7 +349,7 @@ public class TableProviderCommands implements TableProvider {
                 throw new ColumnFormatException(e.getMessage());
             }
         }
-        int i = table.getColumnsCount() + 1;
+        int i = table.getColumnsCount();
         try {
             value.getColumnAt(i);
         } catch (Exception e) {
@@ -359,7 +359,7 @@ public class TableProviderCommands implements TableProvider {
                 throw new ColumnFormatException(ex.getMessage());
             }
         }
-        throw new ColumnFormatException("incorrect number of columns " + value.getColumnAt(i).toString());
+        throw new ColumnFormatException("incorrect number of columns");
     }
 
     private List<Class<?>> getTypeList(Table table) {
