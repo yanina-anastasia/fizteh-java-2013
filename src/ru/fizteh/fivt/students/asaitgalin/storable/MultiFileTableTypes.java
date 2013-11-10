@@ -72,6 +72,9 @@ public enum MultiFileTableTypes {
 
     public static String getNameByClass(Class<?> clazz) {
         MultiFileTableTypes types = classToType.get(clazz);
+        if (types == null) {
+            throw new IllegalArgumentException("types: unknown type class");
+        }
         return types.name;
     }
 
@@ -80,13 +83,16 @@ public enum MultiFileTableTypes {
     public static Object parseValueWithClass(String s, Class<?> expectedClass) {
         MultiFileTableTypes types = classToType.get(expectedClass);
         if (types == null) {
-            throw new IllegalArgumentException("parser: unknown type");
+            throw new IllegalArgumentException("types: unknown type");
         }
         return types.parseValue(s);
     }
 
     public static Class<?> getClassByName(String name) {
         MultiFileTableTypes types = nameToType.get(name);
+        if (types == null) {
+            throw new IllegalArgumentException("types: unknown type name");
+        }
         return types.clazz;
     }
 
