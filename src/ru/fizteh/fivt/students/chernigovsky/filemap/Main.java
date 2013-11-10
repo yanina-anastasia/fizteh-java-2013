@@ -69,7 +69,7 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, State state) {
+    /*private static void interactiveMode(Map<String, Command> commandMap, State state) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
@@ -102,6 +102,48 @@ public class Main {
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
                 System.exit(1);
+            }
+            System.exit(0);
+        }
+    }*/
+
+    private static void interactiveMode(Map<String, Command> commandMap, State state) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("$ ");
+        while (scanner.hasNextLine()){
+            String string = scanner.nextLine();
+            try {
+                parseCommands(string, commandMap, state);
+            } catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            } catch (ExitException ex) {
+                if (state.getCurrentTable() != null) {
+                    try {
+                        FileMapUtils.writeTable(state);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
+                }
+                System.exit(0);
+            }
+            System.out.print("$ ");
+        }
+    }
+
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state) {
+        try {
+            parseCommands(commands, commandMap, state);
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        } catch (ExitException ex) {
+            if (state.getCurrentTable() != null) {
+                try {
+                    FileMapUtils.writeTable(state);
+                } catch (IOException exc) {
+                    System.err.println(exc.getMessage());
+                    System.exit(1);
+                }
             }
             System.exit(0);
         }
