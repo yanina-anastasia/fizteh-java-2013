@@ -83,8 +83,7 @@ public class StoreableUtils {
         }
     }
 
-    public static boolean checkStringCorrect(String string)
-    {
+    public static boolean checkStringCorrect(String string) {
         return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 }

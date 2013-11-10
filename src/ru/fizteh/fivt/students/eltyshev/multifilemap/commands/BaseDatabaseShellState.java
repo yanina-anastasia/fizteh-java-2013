@@ -6,7 +6,10 @@ import java.io.IOException;
 
 public interface BaseDatabaseShellState<Table, Key, Value> extends BaseFileMapShellState<Table, Key, Value> {
     public Table useTable(String name);
+
     public void dropTable(String name) throws IOException;
+
     public Table createTable(String parameters);
+
     public String getActiveTableName();
 }

@@ -12,8 +12,7 @@ public class CommitCommand<State extends BaseFileMapShellState> extends Abstract
         if (CommandParser.getParametersCount(params) > 0) {
             throw new IllegalArgumentException("too many parameters");
         }
-        if (state.getTable() == null)
-        {
+        if (state.getTable() == null) {
             System.err.println("no table");
             return;
         }

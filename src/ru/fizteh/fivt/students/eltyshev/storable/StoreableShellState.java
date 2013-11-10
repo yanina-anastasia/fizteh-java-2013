@@ -26,7 +26,7 @@ public class StoreableShellState implements BaseDatabaseShellState<Table, String
     }
 
     @Override
-    public void dropTable(String name) throws IOException{
+    public void dropTable(String name) throws IOException {
         provider.removeTable(name);
     }
 
