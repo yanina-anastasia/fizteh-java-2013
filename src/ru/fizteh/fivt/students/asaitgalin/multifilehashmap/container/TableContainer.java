@@ -43,78 +43,62 @@ public class TableContainer<ValueType> {
     }
 
     public ValueType containerGetValue(String key) {
-        Diff value = currentTable.get(key);
-        if (value != null) {
-            return value.newValue;
+        Diff diff = currentTable.get(key);
+        if (diff != null) {
+            return diff.newValue;
         }
         return originalTable.get(key);
     }
 
     public ValueType containerPutValue(String key, ValueType value) {
-        ValueType oldValue = null;
-        if (currentTable.containsKey(key)) {
-            oldValue = currentTable.get(key).newValue;
-        }
-        if (oldValue == null) {
-            ++changesCount;
-            oldValue = originalTable.get(key);
-        }
-        if (oldValue == null) {
-            ++actualSize;
-        }
-        if (currentTable.containsKey(key)) {
-            currentTable.get(key).newValue = value;
+        ValueType oldValue;
+        Diff diff = currentTable.get(key);
+        if (diff != null) {
+            oldValue = diff.newValue;
+            diff.newValue = value;
         } else {
-            currentTable.put(key, new Diff(originalTable.get(key), value));
+            oldValue = originalTable.get(key);
+            if (oldValue == null) {
+                ++actualSize;
+            }
+            currentTable.put(key, new Diff(oldValue, value));
+            ++changesCount;
         }
         return oldValue;
     }
 
     public ValueType containerRemoveValue(String key) {
         ValueType oldValue;
-        if (containerGetValue(key) == null) {
-            return null;
-        }
-        if (currentTable.containsKey(key)) {
-            Diff diff = currentTable.get(key);
+        Diff diff = currentTable.get(key);
+        if (diff != null) {
             if (diff.oldValue == null) {
                 --changesCount;
             } else {
                 ++changesCount;
             }
             oldValue = diff.newValue;
-            diff.newValue = null;
+            if (diff.oldValue == null) {
+                currentTable.remove(key);
+            } else {
+                diff.newValue = null;
+            }
+            --actualSize;
         } else {
             oldValue = originalTable.get(key);
             if (oldValue != null) {
                 currentTable.put(key, new Diff(oldValue, null));
+                --actualSize;
+                ++changesCount;
             }
-        }
-        if (oldValue != null) {
-            --actualSize;
         }
         return oldValue;
     }
 
-    public int containerRollback() {
+    public int containerCommit() throws IOException {
         int count = 0;
         for (String key : currentTable.keySet()) {
             Diff diff = currentTable.get(key);
-            if (diffHasChanges(diff.oldValue, diff.newValue)) {
-                ++count;
-            }
-        }
-        currentTable.clear();
-        changesCount = 0;
-        actualSize = originalTable.size();
-        return count;
-    }
-
-    public int containerCommit() {
-        int count = 0;
-        for (String key : currentTable.keySet()) {
-            Diff diff = currentTable.get(key);
-            if (diffHasChanges(diff.oldValue, diff.newValue)) {
+            if (diffHasChanges(diff)) {
                 if (diff.newValue == null) {
                     originalTable.remove(key);
                 } else {
@@ -126,12 +110,28 @@ public class TableContainer<ValueType> {
         currentTable.clear();
         changesCount = 0;
         actualSize = originalTable.size();
-        try {
-            containerSave();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        containerSave();
         return count;
+    }
+
+    public int containerRollback() {
+        int count = 0;
+        for (String key : currentTable.keySet()) {
+            if (diffHasChanges(currentTable.get(key))) {
+                ++count;
+            }
+        }
+        currentTable.clear();
+        changesCount = 0;
+        actualSize = originalTable.size();
+        return count;
+    }
+
+    private boolean diffHasChanges(Diff diff) {
+       if (diff.newValue == null || diff.oldValue == null) {
+           return true;
+       }
+       return !diff.oldValue.equals(diff.newValue);
     }
 
     public void containerSave() throws IOException {
@@ -203,16 +203,6 @@ public class TableContainer<ValueType> {
 
     private int getKeyFile(String key) {
         return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
-    }
-
-    private boolean diffHasChanges(ValueType oldValue, ValueType newValue) {
-        if (oldValue == null && newValue == null) {
-            return false;
-        }
-        if (oldValue == null || newValue == null) {
-            return true;
-        }
-        return !newValue.equals(oldValue);
     }
 
 }

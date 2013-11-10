@@ -61,7 +61,11 @@ public class MultiFileTable implements ChangesCountingTable {
 
     @Override
     public int commit() {
-        return container.containerCommit();
+        try {
+            return container.containerCommit();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
 
     @Override
