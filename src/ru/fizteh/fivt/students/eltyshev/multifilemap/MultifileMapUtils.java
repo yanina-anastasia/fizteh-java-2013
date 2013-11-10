@@ -61,4 +61,14 @@ public class MultifileMapUtils {
             throw new IllegalArgumentException("invalid key placement");
         }
     }
+
+    public static String parseTableName(String params)
+    {
+        int index = params.indexOf(' ');
+        if (index == -1)
+        {
+            return params;
+        }
+        return params.substring(0, index);
+    }
 }

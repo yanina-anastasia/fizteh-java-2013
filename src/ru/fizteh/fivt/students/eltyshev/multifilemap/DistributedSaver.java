@@ -39,6 +39,7 @@ public class DistributedSaver {
 
             if (isBucketEmpty) {
                 MultifileMapUtils.deleteFile(bucketDirectory);
+                continue;
             }
 
             for (int fileNumber = 0; fileNumber < FILES_PER_DIR; ++fileNumber) {

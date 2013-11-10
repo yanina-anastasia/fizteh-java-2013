@@ -25,6 +25,7 @@ public class DistributedLoader {
 
 
             for (final File file : bucket.listFiles()) {
+                builder.setCurrentFile(file);
                 FilemapReader.loadFromFile(file.getAbsolutePath(), builder);
             }
         }
