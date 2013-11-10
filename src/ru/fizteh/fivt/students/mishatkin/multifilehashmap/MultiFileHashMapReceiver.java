@@ -21,13 +21,16 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	private String dbDirectory;
 
+	private static final String VALID_TABLE_NAME_REG_EXP = "[a-zA-Z-_]+";
+
 	Map<String, MultiFileHashMapTableReceiver> allTables = new HashMap<>();
 
 	protected MultiFileHashMapTableReceiver table;	//	the one that is in use
 
 	public MultiFileHashMapReceiver(PrintStream out, boolean interactiveMode, String dbDirectory) {
 		super(out, interactiveMode);
-		if (dbDirectory == null || !new File(dbDirectory).exists()) {
+		File dbDirectoryFile = new File(dbDirectory);
+		if (dbDirectory == null || !dbDirectoryFile.exists() || !dbDirectoryFile.isDirectory()) {
 			throw new IllegalArgumentException();
 		}
 		this.dbDirectory = dbDirectory;
@@ -198,7 +201,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 //	TableProvider methods
 	@Override
 	public Table getTable(String name) {
-		if (name == null) {
+		if (name == null || !name.matches(VALID_TABLE_NAME_REG_EXP)) {
 			throw new IllegalArgumentException();
 		}
 		File possibleFile = new File(name);
@@ -216,7 +219,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	@Override
 	public Table createTable(String name) {
-		if (name == null) {
+		if (name == null || !name.matches(VALID_TABLE_NAME_REG_EXP)) {
 			throw new IllegalArgumentException();
 		}
 		if (getTable(name) != null) {
@@ -233,7 +236,7 @@ public class MultiFileHashMapReceiver extends ShellReceiver
 
 	@Override
 	public void removeTable(String name) {
-		if (name == null) {
+		if (name == null || !name.matches(VALID_TABLE_NAME_REG_EXP)) {
 			throw new IllegalArgumentException();
 		}
 		try {

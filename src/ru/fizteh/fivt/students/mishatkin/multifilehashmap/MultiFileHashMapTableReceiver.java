@@ -75,8 +75,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 		if (tableFiles.get(indexInFilesList) == null) {
 			String directoryName = String.valueOf(directoryIndex) + ".dir";
 			String fileName = String.valueOf(fileIndex) + ".dat";
-			File directory = null;
-			directory = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
+			File directory = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
 			try {
 				directory = directory.getCanonicalFile();
 			} catch (IOException e) {
@@ -147,7 +146,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 	//	Table methods
 	@Override
 	public String get(String key) {
-		if (key == null) {
+		if (key == null || key.equals("")) {
 			throw new IllegalArgumentException();
 		}
 		try {
@@ -160,7 +159,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 
 	@Override
 	public String put(String key, String value) {
-		if (key == null || value == null) {
+		if (key == null || value == null || key.equals("") || value.equals("")) {
 			throw new IllegalArgumentException();
 		}
 		try {
@@ -173,7 +172,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 
 	@Override
 	public String remove(String key) {
-		if (key == null) {
+		if (key == null || key.equals("")) {
 			throw new IllegalArgumentException();
 		}
 		try {

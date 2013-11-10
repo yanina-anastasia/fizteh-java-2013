@@ -28,7 +28,7 @@ public class MultiFileHashMapReceiverTest extends SandboxTest {
 		targetTableProvider.createTable(null);
 	}
 
-	@Test
+	@Test (expected = IllegalArgumentException.class)
 	public void testCreatableName() throws Exception {
 		targetTableProvider.createTable("<>.......   weqw()-+");
 	}
@@ -62,7 +62,7 @@ public class MultiFileHashMapReceiverTest extends SandboxTest {
 
 	@Test
 	public void testCreatableNameOfUnexistedTableGet() throws Exception {
-		Assert.assertNull(targetTableProvider.getTable("<>.......   weqw()-+"));
+		Assert.assertNull(targetTableProvider.getTable("qwidb"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
