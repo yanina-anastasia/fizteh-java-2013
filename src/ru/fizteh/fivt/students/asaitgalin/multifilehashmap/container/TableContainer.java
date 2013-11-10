@@ -82,14 +82,15 @@ public class TableContainer<ValueType> {
             } else {
                 diff.newValue = null;
             }
-            --actualSize;
         } else {
             oldValue = originalTable.get(key);
             if (oldValue != null) {
                 currentTable.put(key, new Diff(oldValue, null));
-                --actualSize;
                 ++changesCount;
             }
+        }
+        if (oldValue != null) {
+            --actualSize;
         }
         return oldValue;
     }
