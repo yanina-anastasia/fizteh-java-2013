@@ -1,7 +1,9 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dataBase;
 
+import ru.fizteh.fivt.students.dmitryKonturov.dataBase.shellEnvironment.StoreableFileMapShell;
 import ru.fizteh.fivt.students.dmitryKonturov.shell.ShellException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -14,12 +16,12 @@ public class FileMap {
             System.exit(1);
         }
 
-        MultiFileMapShell shell = null;
+        StoreableFileMapShell shell = null;
         try {
             Path dbDirPath = Paths.get(dbDir);
-            shell = new MultiFileMapShell(dbDirPath);
-        } catch (DatabaseException e) {
-            System.err.println(e.toString());
+            shell = new StoreableFileMapShell(dbDirPath);
+        } catch (IOException e) {
+            System.err.println("Unable to launch shell:  " + e.toString());
             System.exit(1);
         } catch (Exception e) {
             System.err.println("Wrong property");
@@ -41,6 +43,5 @@ public class FileMap {
         } else {
             shell.interactiveMode();
         }
-
     }
 }

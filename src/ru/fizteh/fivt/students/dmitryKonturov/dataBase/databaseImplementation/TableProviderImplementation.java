@@ -6,9 +6,12 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryKonturov.dataBase.DatabaseException;
 import ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils.CheckDatabasesWorkspace;
+import ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils.JsonUtils;
 import ru.fizteh.fivt.students.dmitryKonturov.dataBase.utils.MultiFileMapLoaderWriter;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -45,6 +48,17 @@ public class TableProviderImplementation implements TableProvider {
         workspace = path;
         CheckDatabasesWorkspace.checkWorkspace(workspace);
         existingTables = new HashMap<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path entry : stream) {
+                String tableName = entry.toFile().getName();
+                TableImplementation currentTable = new TableImplementation(tableName, this);
+                existingTables.put(tableName, currentTable);
+            }
+        } catch (IOException e) {
+            throw new IOException("Fail to load existing base", e);
+        } catch (Exception e) {
+            throw new DatabaseException("Fail to load existing base", e);
+        }
     }
 
     Path getWorkspace() {
@@ -138,8 +152,7 @@ public class TableProviderImplementation implements TableProvider {
      */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        //todo
-        return null;
+        return JsonUtils.deserialize(this, table, value);
     }
 
     /**
@@ -153,8 +166,7 @@ public class TableProviderImplementation implements TableProvider {
      */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        //todo
-        return null;
+        return JsonUtils.serialize(table, value);
     }
 
     /**

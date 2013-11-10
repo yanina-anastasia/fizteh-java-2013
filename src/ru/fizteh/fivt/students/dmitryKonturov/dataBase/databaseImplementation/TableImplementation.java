@@ -24,8 +24,6 @@ public class TableImplementation implements Table {
 
     /**
      * loads database from its folder
-     * @param tableName
-     * @param tableProvider
      */
     TableImplementation(String tableName, TableProviderImplementation tableProvider) throws IOException,
             DatabaseException {
@@ -88,6 +86,28 @@ public class TableImplementation implements Table {
             }
         }
         return result;
+    }
+
+    public int getUnsavedChangesCount() {
+        int changesNum = 0;
+        for (Map.Entry<String, Storeable> entry : currentChangesMap.entrySet()) {
+            String key = entry.getKey();
+            Storeable value = entry.getValue();
+            Storeable savedValue = savedMap.get(key);
+            if (value == null) {
+                if (savedValue != null) {
+                    ++changesNum;
+                }
+            } else {
+                if (savedValue == null) {
+                    ++changesNum;
+                } else if (!isTableStoreableEqual(value, savedValue)) { // must be true
+                    ++changesNum;
+                }
+            }
+
+        }
+        return changesNum;
     }
 
     @Override
@@ -224,26 +244,10 @@ public class TableImplementation implements Table {
         if (tableProvider.getTable(tableName) != this) {
             throw new IllegalStateException("Table was removed");
         }
-        int changesNum = 0;
-        for (Map.Entry<String, Storeable> entry : currentChangesMap.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            Storeable savedValue = savedMap.get(key);
-            if (value == null) {
-                if (savedValue != null) {
-                    ++changesNum;
-                }
-            } else {
-                if (savedValue == null) {
-                    ++changesNum;
-                } else if (!isTableStoreableEqual(value, savedValue)) { // must be true
-                    ++changesNum;
-                }
-            }
 
-        }
+        int toReturn = getUnsavedChangesCount();
         currentChangesMap.clear();
-        return changesNum;
+        return toReturn;
     }
 
     @Override

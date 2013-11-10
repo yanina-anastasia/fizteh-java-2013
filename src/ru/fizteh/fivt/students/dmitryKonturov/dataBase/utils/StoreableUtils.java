@@ -43,6 +43,14 @@ public class StoreableUtils {
         mappedClass.put(String.class, "String");
     }
 
+    public static Class<?> getClassByString(String name) {
+        return mappedType.get(name);
+    }
+
+    public static String getStringByClass(Class<?> type) {
+        return mappedClass.get(type);
+    }
+
     public static String getSignatureFileName() {
         return SIGNATURE_FILE_NAME;
     }
@@ -82,8 +90,7 @@ public class StoreableUtils {
         }
     }
 
-    public static void checkStoreableBelongsToTable(Table table, Storeable storeable) throws IllegalArgumentException,
-                ColumnFormatException {
+    public static void checkStoreableBelongsToTable(Table table, Storeable storeable) throws IllegalArgumentException {
 
        if (table == null) {
            throw new IllegalArgumentException("Table is null");
@@ -120,7 +127,7 @@ public class StoreableUtils {
             scanner.useDelimiter("\\s+");
             while (scanner.hasNext()) {
                 String currentType = scanner.next();
-                Class<?> classType = mappedType.get(currentType);
+                Class<?> classType = getClassByString(currentType);
                 if (classType == null) {
                     throw new DatabaseException("Type " + currentType + " not supported");
                 }
@@ -142,7 +149,11 @@ public class StoreableUtils {
         }
         try (BufferedWriter output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             for (Class<?> type : types) {
-                output.write(mappedClass.get(type));
+                String typeName = getStringByClass(type);
+                if (typeName == null) {
+                    throw new DatabaseException("Not supported type");
+                }
+                output.write(typeName);
             }
         } catch (IOException e) {
             throw new IOException("Cannot save signature file", e);

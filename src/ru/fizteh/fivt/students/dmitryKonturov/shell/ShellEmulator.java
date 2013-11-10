@@ -6,16 +6,11 @@ import java.util.StringTokenizer;
 
 public abstract class ShellEmulator {
 
-    public interface ShellCommand {
-        String getName();
-
-        void execute(String[] args) throws ShellException;
-    }
-
     private HashMap<String, ShellCommand> mapCommand = new HashMap<>();
+    private final ShellInfo shellInfo;
 
-    protected void clearCommandList() {
-        mapCommand.clear();
+    protected ShellEmulator(ShellInfo info) {
+        shellInfo = info;
     }
 
     protected void addToCommandList(ShellCommand[] commandList) {
@@ -23,10 +18,6 @@ public abstract class ShellEmulator {
         for (ShellCommand command : commandList) {
             mapCommand.put(command.getName(), command);
         }
-    }
-
-    protected void justBeforeExecutingAction(String commandName) {
-
     }
 
     protected String getGreetingString() {
@@ -70,8 +61,11 @@ public abstract class ShellEmulator {
             throw new ShellException(commandName, "No such command");
         }
 
-        justBeforeExecutingAction(commandName);
-        currentCommand.execute(arguments);
+        try {
+            currentCommand.execute(arguments, shellInfo);
+        } catch (Exception e) {
+            throw new ShellException("Command " + commandName + " failed: ", e);
+        }
     }
 
     private void executeQuery(String query) throws ShellException {
