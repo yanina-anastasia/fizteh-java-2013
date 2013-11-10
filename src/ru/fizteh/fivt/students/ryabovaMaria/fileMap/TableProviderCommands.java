@@ -312,36 +312,32 @@ public class TableProviderCommands implements TableProvider {
                 throw new ColumnFormatException(e.getMessage());
             }
             Object current = null;
-            try {
-                switch (type.getSimpleName()) {
-                    case "int" :
-                    case "Integer" :
-                        current = value.getIntAt(i);
-                        break;
-                    case "byte":
-                    case "Byte" :
-                        current = value.getByteAt(i);
-                        break;
-                    case "float" :
-                    case "Float" :
-                        current = value.getFloatAt(i);
-                        break;
-                    case "double" :
-                    case "Double" :
-                        current = value.getDoubleAt(i);
-                        break;
-                    case "boolean" :
-                    case "Boolean" :
-                        current = value.getBooleanAt(i);
-                        break;
-                    case "String" :
-                        current = value.getStringAt(i);
-                        break;
-                    default :
-                        throw new Exception(value.getColumnAt(i).getClass().getName());
-                }
-            } catch (Exception e) {
-                throw new ColumnFormatException(e.getMessage());
+            switch (type.getSimpleName()) {
+                case "int" :
+                case "Integer" :
+                    current = value.getIntAt(i);
+                    break;
+                case "byte":
+                case "Byte" :
+                    current = value.getByteAt(i);
+                    break;
+                case "float" :
+                case "Float" :
+                    current = value.getFloatAt(i);
+                    break;
+                case "double" :
+                case "Double" :
+                    current = value.getDoubleAt(i);
+                    break;
+                case "boolean" :
+                case "Boolean" :
+                    current = value.getBooleanAt(i);
+                    break;
+                case "String" :
+                    current = value.getStringAt(i);
+                    break;
+                default :
+                    throw new ColumnFormatException(value.getColumnAt(i).getClass().getName());
             }
             try {
                 text.put(current);
