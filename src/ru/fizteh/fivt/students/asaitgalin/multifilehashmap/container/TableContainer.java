@@ -58,11 +58,11 @@ public class TableContainer<ValueType> {
             diff.newValue = value;
         } else {
             oldValue = originalTable.get(key);
-            if (oldValue == null) {
-                ++actualSize;
-            }
             currentTable.put(key, new Diff(oldValue, value));
             ++changesCount;
+        }
+        if (oldValue == null) {
+            ++actualSize;
         }
         return oldValue;
     }
