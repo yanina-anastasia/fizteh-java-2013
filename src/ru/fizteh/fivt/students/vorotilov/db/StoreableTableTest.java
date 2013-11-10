@@ -80,7 +80,25 @@ public class StoreableTableTest {
         TableRow tableRow = new TableRow(wrongClasses);
         tableRow.setColumnAt(0, "value");
         tableRow.setColumnAt(1, 3.14);
-        currentTable.put("  ", tableRow);
+        currentTable.put("newKey", tableRow);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testAlienStoreableWithLessColumns() throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        classes.add(String.class);
+        classes.add(String.class);
+        StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+        StoreableTableProvider tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        StoreableTable currentTable;
+        String currentTableName = "TestTable";
+        currentTable = tableProvider.createTable(currentTableName, classes);
+        List<Class<?>> wrongClasses = new ArrayList<>();
+        classes.add(String.class);
+        TableRow tableRow = new TableRow(wrongClasses);
+        tableRow.setColumnAt(0, "value");
+        tableRow.setColumnAt(1, "3.14");
+        currentTable.put("newKey", tableRow);
     }
 
     @Test(expected = IllegalArgumentException.class)
