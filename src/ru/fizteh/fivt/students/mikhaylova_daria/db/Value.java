@@ -37,11 +37,11 @@ public class Value implements Storeable {
                 throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
             if (normType(table.getColumnType(i).getSimpleName()) == null) {
-                throw new IllegalArgumentException("wrong type (bad Table: " + table.getColumnType(i) +
-                        " are not supported))");
+                throw new IllegalArgumentException("wrong type (bad Table: " + table.getColumnType(i)
+                        + " are not supported))");
             }
             if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
-                value.add(0);
+                value.add(new Integer(0));
             } else {
                 if (normType(table.getColumnType(i).getSimpleName()).equals(Long.class)) {
                     value.add(0L);
@@ -99,13 +99,12 @@ public class Value implements Storeable {
         if (table.getColumnsCount() <= columnIndex) {
             throw new IndexOutOfBoundsException("Wrong index of column" + columnIndex);
         }
-        if (!table.getColumnType(columnIndex).equals(Integer.class)) {
+        if (!this.table.getColumnType(columnIndex).equals(Integer.class)) {
             throw new ColumnFormatException("Type of this column is"
                     + table.getColumnType(columnIndex).getCanonicalName());
         }
         Integer integer = null;
         if (value.get(columnIndex) != null) {
-            System.out.println(value.get(columnIndex));
             integer = (Integer) value.get(columnIndex);
         }
         return integer;

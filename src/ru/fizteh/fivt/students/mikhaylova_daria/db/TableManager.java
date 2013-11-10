@@ -391,7 +391,7 @@ public class TableManager implements TableProvider {
             throw new IllegalArgumentException("wrong type (values list is empty)");
         }
         if (table.getColumnsCount() != values.size()) {
-            throw new IndexOutOfBoundsException("Different size of list values and types");
+            throw new IndexOutOfBoundsException("wrong type (Different size of list values and types)");
         }
         Storeable created = new Value(table);
         try {
