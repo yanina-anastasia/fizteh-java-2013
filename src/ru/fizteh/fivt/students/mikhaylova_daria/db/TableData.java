@@ -232,7 +232,9 @@ public class TableData implements Table {
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + ")", e);
         } catch (ClassCastException  e) {
-            throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + ")", e);
+            throw new ColumnFormatException("wrong type (" + e.getMessage() + " index i = " + i + "::"
+                    + value.getColumnAt(i) + ")", e);
+
         }
 
         byte b = key.getBytes()[0];
