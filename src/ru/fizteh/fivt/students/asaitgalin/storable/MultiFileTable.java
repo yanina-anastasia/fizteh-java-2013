@@ -17,14 +17,10 @@ public class MultiFileTable implements ExtendedTable {
     private TableContainer<Storeable> container;
 
     private String name;
-    private File tableDir;
-    private TableProvider provider;
     private List<Class<?>> columnTypes;
 
     public MultiFileTable(File tableDir, String name, TableProvider provider) {
         this.name = name;
-        this.tableDir = tableDir;
-        this.provider = provider;
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
         columnTypes = worker.readColumnTypes();
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
@@ -33,8 +29,6 @@ public class MultiFileTable implements ExtendedTable {
 
     public MultiFileTable(File tableDir, String name, TableProvider provider, List<Class<?>> columnTypes) {
         this.name = name;
-        this.tableDir = tableDir;
-        this.provider = provider;
         this.columnTypes = columnTypes;
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
