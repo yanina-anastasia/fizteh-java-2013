@@ -338,7 +338,7 @@ public class TableProviderCommands implements TableProvider {
                         current = value.getStringAt(i);
                         break;
                     default :
-                        throw new Exception(value.getColumnAt(i).toString());
+                        throw new Exception(value.getColumnAt(i).getClass().getName());
                 }
             } catch (Exception e) {
                 throw new ColumnFormatException(e.getMessage());
