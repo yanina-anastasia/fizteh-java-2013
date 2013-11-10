@@ -9,11 +9,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class DatabaseRow implements Storeable {
-    List<Class<?>> classes = new ArrayList<>();
+    final List<Class<?>> classes = new ArrayList<>();
     List<Object> columns = new ArrayList<>();
 
     public DatabaseRow(List<Class<?>> classes) {
-        this.classes = classes;
+        this.classes.addAll(classes);
 
         for (int index = 0; index < classes.size(); ++index) {
             columns.add(null);
