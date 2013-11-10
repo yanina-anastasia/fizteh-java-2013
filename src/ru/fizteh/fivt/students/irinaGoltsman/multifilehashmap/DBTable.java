@@ -1,26 +1,60 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 
 public class DBTable implements Table {
 
     private File tableDirectory;
-    private HashMap<String, String> tableOfChanges = new HashMap<>();
-    private HashMap<String, String> originalTable = new HashMap<>();
+    private HashMap<String, Storeable> tableOfChanges = new HashMap<>();
+    private HashMap<String, Storeable> originalTable = new HashMap<>();
     private Set<String> removedKeys = new HashSet<>();
+    private List<Class<?>> columnTypes;
+    private TableProvider tableProvider;
 
-    public DBTable(File inputTableDirectory) throws IOException {
+    public DBTable(File inputTableDirectory, TableProvider provider, List<Class<?>> types)
+            throws IOException, ParseException {
         tableDirectory = inputTableDirectory;
-        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, originalTable);
+        tableProvider = provider;
+        columnTypes = types;
+        HashMap<String, String> tmpTable = new HashMap<>();
+        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
         if (returnCOde != Code.OK) {
             throw new IOException("Error while reading table: " + this.getName());
+        }
+        List<String> keys = new ArrayList<>(tmpTable.keySet());
+        List<String> values = new ArrayList<>(tmpTable.values());
+        for (int i = 0; i < values.size(); i++) {
+            Storeable rowValue = tableProvider.deserialize(this, values.get(i));
+            originalTable.put(keys.get(i), rowValue);
+
+        }
+    }
+
+    public DBTable(File inputTableDirectory, TableProvider provider)
+            throws IOException, ParseException {
+        tableDirectory = inputTableDirectory;
+        tableProvider = provider;
+        columnTypes = FileManager.readTableSignature(tableDirectory);
+        HashMap<String, String> tmpTable = new HashMap<>();
+        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
+        if (returnCOde != Code.OK) {
+            throw new IOException("Error while reading table: " + this.getName());
+        }
+        List<String> keys = new ArrayList<>(tmpTable.keySet());
+        List<String> values = new ArrayList<>(tmpTable.values());
+        for (int i = 0; i < values.size(); i++) {
+            Storeable rowValue = tableProvider.deserialize(this, values.get(i));
+            originalTable.put(keys.get(i), rowValue);
+
         }
     }
 
@@ -30,11 +64,11 @@ public class DBTable implements Table {
     }
 
     @Override
-    public String get(String key) {
+    public Storeable get(String key) {
         if (key == null) {
             throw new IllegalArgumentException("remove: key is null");
         }
-        String value = tableOfChanges.get(key);
+        Storeable value = tableOfChanges.get(key);
         if (value == null) {
             if (removedKeys.contains(key)) {
                 return null;
@@ -44,16 +78,34 @@ public class DBTable implements Table {
         return value;
     }
 
+    //Проверяет соответствие типов в переданном Storeable с типами таблицы
+    private void checkEqualityTypes(Storeable storeable) throws ColumnFormatException {
+        for (int numberOfType = 0; numberOfType < columnTypes.size(); numberOfType++) {
+            Object type;
+            try {
+                type = storeable.getColumnAt(numberOfType);
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("table put: types of storeable mismatch");
+            }
+            if (type != null) {
+                if (!columnTypes.get(numberOfType).equals(type.getClass())) {
+                    throw new ColumnFormatException("table put: types of storeable mismatch");
+                }
+            }
+        }
+    }
+
     @Override
-    public String put(String key, String value) {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (value == null || key == null) {
             throw new IllegalArgumentException("put: key or value is null");
         }
-        if (key.trim().isEmpty() || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("put: key or value is empty");
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("put: key is empty");
         }
-        String originalValue = originalTable.get(key);
-        String oldValue = tableOfChanges.put(key, value);
+        checkEqualityTypes(value);
+        Storeable originalValue = originalTable.get(key);
+        Storeable oldValue = tableOfChanges.put(key, value);
         //Значит здесь впервые происходит перезаписывание старого значения.
         if (!removedKeys.contains(key) && oldValue == null) {
             oldValue = originalValue;
@@ -65,11 +117,11 @@ public class DBTable implements Table {
     }
 
     @Override
-    public String remove(String key) {
+    public Storeable remove(String key) {
         if (key == null) {
-            throw new IllegalArgumentException("remove: key is null");
+            throw new IllegalArgumentException("table remove: key is null");
         }
-        String value = tableOfChanges.get(key);
+        Storeable value = tableOfChanges.get(key);
         if (value == null) {
             if (!removedKeys.contains(key)) {
                 value = originalTable.get(key);
@@ -93,17 +145,20 @@ public class DBTable implements Table {
 
     //@return Количество сохранённых ключей.
     @Override
-    public int commit() {
+    public int commit() throws IOException {
         int count = countTheNumberOfChanges();
         for (String delString : removedKeys) {
             originalTable.remove(delString);
         }
         originalTable.putAll(tableOfChanges);
-        try {
-            FileManager.writeTableOnDisk(tableDirectory, originalTable);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        List<String> keys = new ArrayList<>(originalTable.keySet());
+        List<Storeable> values = new ArrayList<>(originalTable.values());
+        HashMap<String, String> serializedTable = new HashMap();
+        for (int i = 0; i < values.size(); i++) {
+            String serializedValue = tableProvider.serialize(this, values.get(i));
+            serializedTable.put(keys.get(i), serializedValue);
         }
+        FileManager.writeTableOnDisk(tableDirectory, serializedTable);
         tableOfChanges.clear();
         removedKeys.clear();
         return count;
@@ -117,12 +172,25 @@ public class DBTable implements Table {
         return count;
     }
 
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
+            throw new IndexOutOfBoundsException("invalid column index: " + columnIndex);
+        }
+        return columnTypes.get(columnIndex);
+    }
+
     public int countTheNumberOfChanges() {
         int countOfChanges = 0;
         for (String currentKey : removedKeys) {
             if (tableOfChanges.containsKey(currentKey)) {
-                String currentValue = tableOfChanges.get(currentKey);
-                if (originalTable.get(currentKey).equals(currentValue)) {
+                Storeable currentValue = tableOfChanges.get(currentKey);
+                if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
                     continue;
                 }
             }
@@ -134,5 +202,11 @@ public class DBTable implements Table {
             }
         }
         return countOfChanges;
+    }
+
+    private boolean checkStoreableForEquality(Storeable first, Storeable second) {
+        String string1 = tableProvider.serialize(this, first);
+        String string2 = tableProvider.serialize(this, second);
+        return string1.equals(string2);
     }
 }

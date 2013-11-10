@@ -1,9 +1,15 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.tools.ColumnTypes;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class FileManager {
 
@@ -250,5 +256,44 @@ public class FileManager {
             }
             cleanEmptyDir(dir);
         }
+    }
+
+    public static List<Class<?>> readTableSignature(File tableDirectory) throws IOException {
+        if (!tableDirectory.exists()) {
+            throw new IllegalArgumentException("not existed table");
+        }
+        File signature = new File(tableDirectory, "signature.tsv");
+        if (!signature.exists()) {
+            throw new IOException("signature file not exist: " + signature.getCanonicalPath());
+        }
+        Scanner scan = new Scanner(signature);
+        if (!scan.hasNext()) {
+            throw new IOException("empty signature: " + signature.getCanonicalPath());
+        }
+        String[] types = scan.next().split(" ");
+        ColumnTypes columnTypes = new ColumnTypes();
+        List<Class<?>> listOfTypes = columnTypes.convertArrayOfStringsToListOfClasses(types);
+        scan.close();
+        return listOfTypes;
+    }
+
+    public static void writeSignature(File tableDirectory, List<String> columnTypes) throws IOException {
+        if (!tableDirectory.exists()) {
+            throw new IllegalArgumentException("not existed table");
+        }
+        if (columnTypes == null || columnTypes.size() == 0) {
+            throw new IllegalArgumentException("null or empty list of column types");
+        }
+        File signature = new File(tableDirectory, "signature.tsv");
+        if (!signature.createNewFile()) {
+            throw new IOException("failed to create new signature.tsv: probably a file with such name already exists");
+        }
+        RandomAccessFile signatureFile = new RandomAccessFile(signature, "rw");
+        for (String type : columnTypes) {
+            //TODO: роверь работу signatureFile.writeUTF(type)
+            signatureFile.writeUTF(type);
+            signatureFile.write(' ');
+        }
+        signatureFile.close();
     }
 }

@@ -1,12 +1,22 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTable;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.tools.ColumnTypes;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.*;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataBase {
     private static TableProvider currentTableProvider = null;
     private static Table currentTable = null;
+    private static List<Class<?>> currentColumnTypes = new ArrayList<>();
 
     public DataBase(TableProvider curTableProvider) {
         currentTableProvider = curTableProvider;
@@ -21,9 +31,9 @@ public class DataBase {
     }
 
     public static Code use(String[] args) {
-        //TODO: тут нужно проверять, есть ли незакомиченные изменения и выводить сообщение об ошибки, если они есть
-        if (currentTable != null) {
-            realCommit();
+        int countOfChanges = ((DBTable) currentTable).countTheNumberOfChanges();
+        if (countOfChanges != 0) {
+            System.out.println(countOfChanges + "unsaved changes");
         }
         String inputTableName = args[1];
         Table tmpTable = currentTableProvider.getTable(inputTableName);
@@ -41,10 +51,17 @@ public class DataBase {
             return Code.ERROR;
         }
         String key = args[1];
-        String value = currentTable.get(key);
+        Storeable value = currentTable.get(key);
+        String serializedValue = "";
+        try {
+            serializedValue = currentTableProvider.serialize(currentTable, value);
+        } catch (ColumnFormatException e) {
+            System.out.println(String.format("wrong type (%s)", e.getMessage()));
+            return Code.OK;
+        }
         if (value != null) {
             System.out.println("found");
-            System.out.println(value);
+            System.out.println(serializedValue);
         } else {
             System.out.println("not found");
         }
@@ -57,12 +74,17 @@ public class DataBase {
         }
         String key = args[1];
         String value = args[2];
-        String oldValue = currentTable.put(key, value);
-        if (oldValue != null) {
-            System.out.println("overwrite");
-            System.out.println(oldValue);
-        } else {
-            System.out.println("new");
+        try {
+            Storeable deserializedValue = currentTableProvider.deserialize(currentTable, value);
+            Storeable oldValue = currentTable.put(key, deserializedValue);
+            if (oldValue != null) {
+                System.out.println("overwrite");
+                System.out.println(oldValue);
+            } else {
+                System.out.println("new");
+            }
+        } catch (ParseException e) {
+            System.out.println(String.format("wrong type (%s)", e.getMessage()));
         }
         return Code.OK;
     }
@@ -72,7 +94,7 @@ public class DataBase {
             return Code.ERROR;
         }
         String key = args[1];
-        String removedValue = currentTable.remove(key);
+        Storeable removedValue = currentTable.remove(key);
         if (removedValue != null) {
             System.out.println("removed");
             return Code.OK;
@@ -82,7 +104,7 @@ public class DataBase {
         }
     }
 
-    public static int realCommit() {
+    private static int realCommit() throws IOException {
         if (currentTable == null) {
             return -1;
         }
@@ -90,7 +112,12 @@ public class DataBase {
     }
 
     public static Code commit() {
-        int numberOfRecordsWasChanged = realCommit();
+        int numberOfRecordsWasChanged = 0;
+        try {
+            numberOfRecordsWasChanged = realCommit();
+        } catch (IOException e) {
+            return Code.ERROR;
+        }
         if (numberOfRecordsWasChanged == -1) {
             return Code.ERROR;
         }
@@ -100,10 +127,22 @@ public class DataBase {
 
     public static Code createTable(String[] args) {
         String nameTable = args[1];
+        String typesList = args[2];
+        ColumnTypes ct = new ColumnTypes();
+        List<Class<?>> types = new ArrayList<>();
+        try {
+            types = ct.parseColumnTypes(typesList);
+        } catch (ParseException e) {
+            System.out.println(String.format("wrong type (%s)", e.getMessage()));
+            return Code.ERROR;
+        }
         Table newTable = null;
         try {
-            newTable = currentTableProvider.createTable(nameTable);
+            newTable = currentTableProvider.createTable(nameTable, types);
         } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+            return Code.ERROR;
+        } catch (IOException e) {
             System.out.println(e.getMessage());
             return Code.ERROR;
         }
@@ -123,6 +162,10 @@ public class DataBase {
         try {
             currentTableProvider.removeTable(nameTable);
         } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+            return Code.ERROR;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
             return Code.ERROR;
         }
         System.out.println("dropped");
@@ -130,7 +173,9 @@ public class DataBase {
     }
 
     public static Code closeDB() {
-        if (realCommit() == -1) {
+        try {
+            realCommit();
+        } catch (IOException e) {
             return Code.ERROR;
         }
         return Code.OK;

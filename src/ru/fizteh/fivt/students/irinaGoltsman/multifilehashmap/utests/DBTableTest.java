@@ -3,21 +3,29 @@ package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.utests;
 import org.junit.*;
 
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTable;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBStoreable;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
 
-import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBTableTest {
     private static Table table;
+    private static TableProvider tableProvider;
+    private List<Class<?>> columnTypes = new ArrayList<>();
     @Rule
     public TemporaryFolder rootDBDirectory = new TemporaryFolder();
 
     @Before
-    public void createTable() throws IOException {
-        File newTable = rootDBDirectory.newFolder("testTable");
-        table = new DBTable(newTable);
+    public void createTable() throws IOException, ParseException {
+        columnTypes.add(Integer.class);
+        tableProvider = new DBTableProvider(rootDBDirectory.newFolder());
+        table = tableProvider.createTable("testTable", columnTypes);
     }
 
     @Test
@@ -37,13 +45,19 @@ public class DBTableTest {
 
     @Test
     public void putNewKey() {
-        Assert.assertNull(table.put("newTestKey", "newValue"));
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Storeable row = new DBStoreable(types);
+        Assert.assertNull(table.put("newTestKey", row));
         table.remove("newTestKey");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void putNullKey() {
-        table.put(null, "value");
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Storeable row = new DBStoreable(types);
+        table.put(null, row);
     }
 
     @Test
@@ -58,10 +72,13 @@ public class DBTableTest {
 
     @Test
     public void sizeWork() {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Storeable row = new DBStoreable(types);
         Assert.assertEquals(0, table.size());
-        table.put("1", "1");
-        table.put("2", "2");
-        table.put("3", "3");
+        table.put("1", row);
+        table.put("2", row);
+        table.put("3", row);
         Assert.assertEquals(3, table.size());
         table.remove("1");
         Assert.assertEquals(2, table.size());
@@ -71,10 +88,13 @@ public class DBTableTest {
     }
 
     @Test
-    public void commitWork() {
-        table.put("1", "1");
-        table.put("2", "2");
-        table.put("3", "3");
+    public void commitWork() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Storeable row = new DBStoreable(types);
+        table.put("1", row);
+        table.put("2", row);
+        table.put("3", row);
         Assert.assertEquals(3, table.commit());
         table.remove("1");
         table.remove("2");
@@ -84,12 +104,15 @@ public class DBTableTest {
 
     @Test
     public void rollBackWork() {
-        table.put("new1", "1");
-        table.put("new2", "2");
-        table.put("new3", "3");
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        Storeable row = new DBStoreable(types);
+        table.put("new1", row);
+        table.put("new2", row);
+        table.put("new3", row);
         Assert.assertEquals(3, table.rollback());
         Assert.assertEquals(0, table.rollback());
-        String oldValue = table.put("new1", "1");
+        Storeable oldValue = table.put("new1", row);
         Assert.assertNull(oldValue);
     }
 }

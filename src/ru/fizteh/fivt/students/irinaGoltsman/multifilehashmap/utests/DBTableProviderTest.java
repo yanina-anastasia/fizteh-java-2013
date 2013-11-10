@@ -1,31 +1,26 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.utests;
 
 import org.junit.*;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
 
-import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
-import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
-
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBTableProviderTest {
-    private static Path rootDBDirectory;
     private static TableProvider provider;
-
-    @BeforeClass
-    public static void createDataBase() throws IOException {
-        rootDBDirectory = Files.createTempDirectory(Paths.get(System.getProperty("user.dir")), null);
-    }
+    @Rule
+    public TemporaryFolder rootDBDirectory = new TemporaryFolder();
 
     @Before
-    public void createTableProvider() throws IOException {
-        provider = new DBTableProvider(rootDBDirectory.toFile());
+    public void createTableProvider() throws IOException, ParseException {
+        provider = new DBTableProvider(rootDBDirectory.newFolder());
     }
 
+    /*
     @AfterClass
     public static void deleteDataBase() throws IOException {
         MapOfCommands cm = new MapOfCommands();
@@ -35,6 +30,7 @@ public class DBTableProviderTest {
         cm.commandProcessing("cd .");
         cm.commandProcessing("rm " + rootDBDirectory.toString());
     }
+    */
 
     //-------Tests for getTable
     @Test(expected = IllegalArgumentException.class)
@@ -53,43 +49,56 @@ public class DBTableProviderTest {
     }
 
     @Test
-    public void getTableRecallShouldReturnTheSameTable() {
-        provider.createTable("tmp");
+    public void getTableRecallShouldReturnTheSameTable() throws IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
+        provider.createTable("tmp", columnTypes);
         Assert.assertEquals(provider.getTable("tmp"), provider.getTable("tmp"));
         provider.removeTable("tmp");
     }
 
     //------Tests for createTable
     @Test
-    public void createTableForExistingTableReturnsNull() {
-        provider.createTable("tmp");
-        Assert.assertNull(provider.createTable("tmp"));
+    public void createTableForExistingTableReturnsNull() throws IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
+        provider.createTable("tmp", columnTypes);
+        Assert.assertNull(provider.createTable("tmp", columnTypes));
         provider.removeTable("tmp");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createTableErrorTableName() {
-        provider.createTable("\\htke4*&&/..");
+    public void createTableErrorTableName() throws IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
+        provider.createTable("//\0", columnTypes);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createTableNullTableName() {
-        provider.createTable(null);
+    public void createTableNullTableName() throws IOException {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
+        provider.createTable(null, columnTypes);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createTableNullColumnTypes() throws IOException {
+        provider.createTable("tmp", null);
     }
 
     //-------Tests for removeTable
     @Test(expected = IllegalArgumentException.class)
-    public void removeTableNullNameTable() {
+    public void removeTableNullNameTable() throws IOException {
         provider.removeTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void removeTableErrorTableName() {
-        provider.removeTable("\\htke4*&&/..");
+    public void removeTableErrorTableName() throws IOException {
+        provider.removeTable("//\0");
     }
 
     @Test(expected = IllegalStateException.class)
-    public void removeTableNotExistingTable() {
+    public void removeTableNotExistingTable() throws IOException {
         provider.removeTable("newNotExistingTable");
     }
 }

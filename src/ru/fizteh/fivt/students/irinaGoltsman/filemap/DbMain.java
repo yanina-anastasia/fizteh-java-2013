@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProviderFactory;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;

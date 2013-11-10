@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.storage.structured.*;
 
 import java.io.File;
 
