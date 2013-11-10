@@ -19,10 +19,18 @@ public class StructuredStorage implements StructuredTableInterface {
 		provider = prov;
 		File signatureFile = new File(dir, "signature.tsv");
 		if (signatureFile.isFile()) {
-			String[] types = new Scanner(signatureFile).nextLine().trim().split("\\s+");
+			Scanner scanner = new Scanner(signatureFile);
+			if (!scanner.hasNextLine()) {
+				throw new IOException("empty signature.tsv");
+			}
+			String[] types = scanner.nextLine().trim().split("\\s+");
 			columnTypes = new ArrayList(types.length);
 			for (int i = 0; i < types.length; i++) {
-				columnTypes.add(provider.getTypeByName(types[i]));
+				Class<?> type = provider.getTypeByName(types[i]);
+				if (type == null) {
+					throw new IOException("invalid signature.tsv");
+				}
+				columnTypes.add(type);
 			}
 		}
 		else if (colTypes == null || signatureFile.exists()) {

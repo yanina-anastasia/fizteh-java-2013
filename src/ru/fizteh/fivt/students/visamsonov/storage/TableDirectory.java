@@ -5,6 +5,13 @@ import java.util.Map;
 import java.util.List;
 import java.io.*;
 import java.text.ParseException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -125,49 +132,65 @@ public class TableDirectory implements TableProviderInterface {
 			return null;
 		}
 		value = value.trim();
-		if (value.startsWith("<row>") && value.endsWith("</row>")) {
-			value = value.substring(5, value.length() - 6);
-		}
-		else {
-			throw new ParseException("not a valid XML", 0);
-		}
 		Storeable struct = createFor(table);
-		for (int i = 0; value.length() > 0; i++) {
-			if (value.startsWith("<null/>")) {
-				continue;
+		try {
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			builder.setErrorHandler(new ErrorHandler() {
+				public void fatalError (SAXParseException exception) throws SAXException {}
+				public void error (SAXParseException exception) throws SAXException {}
+				public void warning (SAXParseException exception) throws SAXException {}
+			});
+			Document document = builder.parse(new InputSource(new StringReader(value)));
+			document.getDocumentElement().normalize();
+			if (!document.getDocumentElement().getNodeName().equals("row")) {
+				throw new ParseException("not a valid format", 0);
 			}
-			int closeTag = value.indexOf("</col>");
-			if (!value.startsWith("<col>") || closeTag == -1) {
-				throw new ParseException("no matching close tag", 0);
+			NodeList nodes = document.getDocumentElement().getChildNodes();
+			if (nodes.getLength() != table.getColumnsCount()) {
+				throw new ParseException("invalid number of columns", 0);
 			}
-			String innerContent = value.substring(5, closeTag);
-			String type = getNameByType(table.getColumnType(i));
-			switch (type) {
-				case "int":
-					struct.setColumnAt(i, Integer.parseInt(innerContent));
-					break;
-				case "long":
-					struct.setColumnAt(i, Long.parseLong(innerContent));
-					break;
-				case "float":
-					struct.setColumnAt(i, Float.parseFloat(innerContent));
-					break;
-				case "byte":
-					struct.setColumnAt(i, Byte.parseByte(innerContent));
-					break;
-				case "Double":
-					struct.setColumnAt(i, Double.parseDouble(innerContent));
-					break;
-				case "Boolean":
-					struct.setColumnAt(i, Boolean.parseBoolean(innerContent));
-					break;
-				case "String":
-					struct.setColumnAt(i, innerContent);
-					break;
-				default:
-					throw new ParseException("unknown type", 0);
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node node = nodes.item(i);
+				if (node.getNodeName().equals("null")) {
+					continue;
+				}
+				if (!node.getNodeName().equals("col")) {
+					throw new ParseException("not a valid format", 0);
+				}
+				String innerContent = node.getTextContent();
+				String type = getNameByType(table.getColumnType(i));
+				switch (type) {
+					case "int":
+						struct.setColumnAt(i, Integer.parseInt(innerContent));
+						break;
+					case "long":
+						struct.setColumnAt(i, Long.parseLong(innerContent));
+						break;
+					case "float":
+						struct.setColumnAt(i, Float.parseFloat(innerContent));
+						break;
+					case "byte":
+						struct.setColumnAt(i, Byte.parseByte(innerContent));
+						break;
+					case "Double":
+						struct.setColumnAt(i, Double.parseDouble(innerContent));
+						break;
+					case "Boolean":
+						struct.setColumnAt(i, Boolean.parseBoolean(innerContent));
+						break;
+					case "String":
+						struct.setColumnAt(i, innerContent);
+						break;
+					default:
+						throw new ParseException("unknown type", 0);
+				}
 			}
-			value = value.substring(closeTag + 6);
+		}
+		catch (SAXException | IOException | ParserConfigurationException | NumberFormatException e) {
+			throw new ParseException(e.getMessage(), 0);
+		}
+		catch (ParseException e) {
+			throw e;
 		}
 		return struct;
 	}
