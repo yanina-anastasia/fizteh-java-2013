@@ -338,10 +338,10 @@ public class TableProviderCommands implements TableProvider {
                         current = value.getStringAt(i);
                         break;
                     default :
-                        throw new Exception();
+                        throw new Exception(value.getColumnAt(i).toString());
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("Illegal type of column");
+                throw new ColumnFormatException(e.getMessage());
             }
             try {
                 text.put(current);
