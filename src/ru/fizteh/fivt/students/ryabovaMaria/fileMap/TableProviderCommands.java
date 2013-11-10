@@ -167,6 +167,9 @@ public class TableProviderCommands implements TableProvider {
     }
 
     private void isCorrectColumnTypes(ArrayList<Class<?>> columnTypes) {
+        if (columnTypes.size() <= 0) {
+            throw new IllegalArgumentException("Empty columns type");
+        }
         for (int i = 0; i < columnTypes.size(); ++i) {
             if (columnTypes.get(i) == null) {
                 throw new IllegalArgumentException("Illegal types");
@@ -191,6 +194,9 @@ public class TableProviderCommands implements TableProvider {
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if (name == null) {
             throw new IllegalArgumentException("bad tablename");
+        }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Bad column types");
         }
         types = columnTypes;
         isCorrectColumnTypes(new ArrayList(columnTypes));
