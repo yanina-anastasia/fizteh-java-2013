@@ -34,10 +34,11 @@ public class Value implements Storeable {
         value = new ArrayList<>(table.getColumnsCount());
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (table.getColumnType(i) == null) {
-                throw new RuntimeException("wrong type (bad Table)");
+                throw new IllegalArgumentException("wrong type (bad Table: the table contains null type)");
             }
             if (normType(table.getColumnType(i).getName()) == null) {
-                throw new RuntimeException("wrong type (bad Table)");
+                throw new IllegalArgumentException("wrong type (bad Table: " +
+                        "the table contains types, which are not supported))");
             }
             if (normType(table.getColumnType(i).getSimpleName()).equals(Integer.class)) {
                 value.add(0);
