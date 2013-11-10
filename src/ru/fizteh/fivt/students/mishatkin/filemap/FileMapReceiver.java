@@ -16,7 +16,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	private File dbFileOwningDirectory;
 	private Map<String, String> dictionary = new HashMap<>();
 
-	private Map<String, String> originalDictionaryPart = new HashMap<>();
+	private Map<String, String> removedDictionaryPart = new HashMap<>();
 	private Map<String, String> unstagedDictionaryPart = new HashMap<>();
 
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -84,42 +84,40 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		}
 	}
 
+	private String getValueForKey(String key) {
+		String value = null;
+		if (removedDictionaryPart.get(key) == null) {
+			value = dictionary.get(key);
+			if (value == null) {
+				value = unstagedDictionaryPart.get(key);
+			}
+		}
+		return value;
+	}
+
 	@Override
 	public String putCommand(String key, String value) {
-		String oldValue = dictionary.get(key);
+		String oldValue = getValueForKey(key);
+		removedDictionaryPart.remove(key);
+		if (!value.equals(oldValue)) {
+			unstagedDictionaryPart.put(key, value);
+		}
 		if (oldValue != null) {
-			if (value.equals(originalDictionaryPart.get(key))) {
-				originalDictionaryPart.remove(key);
-			} else {
-				if (unstagedDictionaryPart.get(key) == null) {
-					originalDictionaryPart.put(key, oldValue);
-				} else {
-					unstagedDictionaryPart.put(key, value);
-				}
-			}
 			println("overwrite");
 			println(oldValue);
 		} else {
-			unstagedDictionaryPart.put(key, value);
 			println("new");
 		}
-		dictionary.put(key, value);
 		return oldValue;
 	}
 
 	@Override
 	public String removeCommand(String key) {
-		String oldValue = dictionary.get(key);
-		String retValue = dictionary.remove(key);
+		String retValue = getValueForKey(key);
+		if (unstagedDictionaryPart.remove(key) == null && retValue != null && !retValue.equals("")) {
+			removedDictionaryPart.put(key, retValue);
+		}
 		if (retValue != null) {
-			if (originalDictionaryPart.get(key) == null) {
-				unstagedDictionaryPart.remove(key);
-				if (oldValue != null) {
-					originalDictionaryPart.put(key, oldValue);
-				}
-			} else {
-				originalDictionaryPart.remove(key);
-			}
 			println("removed");
 		} else {
 			println("not found");
@@ -129,7 +127,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	@Override
 	public String getCommand(String key) {
-		String value = dictionary.get(key);
+		String value = getValueForKey(key);
 		if (value != null) {
 			println("found");
 			println(value);
@@ -198,24 +196,27 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	}
 
 	public int getUnstagedChangesCount() {
-		int match = 0;
-		for (String key : originalDictionaryPart.keySet()) {
-			if (dictionary.get(key) != null && dictionary.get(key).equals(originalDictionaryPart.get(key))) {
-				++match;
-			}
-		}
-		return originalDictionaryPart.size() + unstagedDictionaryPart.size() - match;
+		return removedDictionaryPart.size() + unstagedDictionaryPart.size();
 	}
 
 	public int size() {
-		return dictionary.size();
+		if (dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() < 0) {
+			System.err.println("OMFG!!1!111111 Das ist impossible !!11");
+		}
+		return dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size();
 	}
 
 	public int commit() throws ShellException {
 		int retValue = getUnstagedChangesCount();
+		for (String key : removedDictionaryPart.keySet()) {
+			dictionary.remove(key);
+		}
+		for (String key : unstagedDictionaryPart.keySet()) {
+			dictionary.put(key, unstagedDictionaryPart.get(key));
+		}
 		writeChangesToFile();
-		originalDictionaryPart.clear();
 		unstagedDictionaryPart.clear();
+		removedDictionaryPart.clear();
 		return retValue;
 	}
 
@@ -224,11 +225,8 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		for (String key : unstagedDictionaryPart.keySet()) {
 			dictionary.remove(key);
 		}
-		for (String key : originalDictionaryPart.keySet()) {
-			dictionary.put(key, originalDictionaryPart.get(key));
-		}
-		originalDictionaryPart.clear();
 		unstagedDictionaryPart.clear();
+		removedDictionaryPart.clear();
 		return retValue;
 	}
 }
