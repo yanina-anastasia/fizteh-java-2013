@@ -351,22 +351,21 @@ public class FileMapTable implements Table {
 
     @Override
     public int rollback() throws RuntimeException {
-        /*int changesCount = changesCount();
+        int changesCount = changesCount();
         for (String key : changedKeys.keySet()) {
-            if (changedKeys.get(key).getOnDisk() == null) {
+            Value value = changedKeys.get(key);
+            if (value.getOnDisk() == null) {
                 getMyState(key.hashCode()).remove(key);
+                if (value.value != null) {
+                    --size;
+                }
             } else {
-                getMyState(key.hashCode()).put(key, changedKeys.get(key).getOnDisk());
+                getMyState(key.hashCode()).put(key, value.getOnDisk());
+                if (value.value == null) {
+                    ++size;
+                }
             }
         }
-        changedKeys.clear();
-        return changesCount;  */
-        try {
-            readTable();
-        } catch (IOException | ParseException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        int changesCount = changesCount();
         changedKeys.clear();
         return changesCount;
     }
