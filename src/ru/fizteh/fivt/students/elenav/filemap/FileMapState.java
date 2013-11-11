@@ -9,10 +9,11 @@ import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Set;
 
-import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
-public class FileMapState extends MonoMultiAbstractState {
+public class FileMapState extends FilesystemState {
 
 	public HashMap<String, String> map = new HashMap<>();
 	
@@ -42,6 +43,43 @@ public class FileMapState extends MonoMultiAbstractState {
 	@Override
 	public String remove(String key) {
 		return map.remove(key);
-	}                                                                                                                                                                        
+	}
+
+	@Override
+	public int commit() {
+		System.err.println("Command can't be executed");
+		return 0;
+	}
+
+	@Override
+	public int rollback() {
+		System.err.println("Command can't be executed");
+		return 0;
+	}
+
+	@Override
+	public int size() {
+		System.err.println("Command can't be executed");
+		return 0;
+	}
+
+	@Override
+	public int getNumberOfChanges() {
+		System.err.println("Command can't be executed");
+		return 0;
+	}
+
+	@Override
+	public void read() {
+		System.err.println("Command can't be executed");
+		
+	}
+
+	@Override
+	public Storeable put(String string, Storeable string2) {
+		System.err.println("Command can't be executed");
+		return null;
+	}
+                                                                                                                                                                 
 
 }

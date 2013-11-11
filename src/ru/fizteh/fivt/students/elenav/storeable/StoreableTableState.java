@@ -1,35 +1,78 @@
-package ru.fizteh.fivt.students.elenav.multifilemap;
+package ru.fizteh.fivt.students.elenav.storeable;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import javax.xml.stream.XMLStreamException;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
+import ru.fizteh.fivt.students.elenav.utils.Functions;
 import ru.fizteh.fivt.students.elenav.utils.Reader;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
-public class MultiFileMapState extends FilesystemState implements Table {
-	
+public class StoreableTableState extends FilesystemState implements Table {
+
 	private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
-	private final HashMap<String, String> startMap = new HashMap<>();
-	public final HashMap<String, String> map = new HashMap<>();
+    
+	private List<Class<?>> columnTypes = new ArrayList<>();
+	private final HashMap<String, Storeable> startMap = new HashMap<>();
+	public final HashMap<String, Storeable> map = new HashMap<>();
 	private int numberOfChanges = 0;
 	
-	public MultiFileMapState(String n, File wd, PrintStream s) {
-		super(n, wd, s);
+	public StoreableTableState(String n, File wd, PrintStream out, StoreableTableProvider provider2) {
+		super(n, wd, out);
+		provider = provider2;
+		try {
+			if (wd != null) {
+				getColumnTypes();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
+	private void getColumnTypes() throws IOException {
+		File f = new File(getWorkingDirectory(), "signature.tsv");
+		if (!f.exists()) {
+			throw new IOException("can't get " + getName() + "'s signature: file doesn't exist");
+		}
+		
+		Scanner sc = new Scanner(f);
+		StringBuilder sb = new StringBuilder();
+		while (sc.hasNextLine()) {
+			sb.append(sc.nextLine());
+			sb.append(" ");
+		}
+		String monoString = sb.toString(); 
+		monoString = monoString.trim();
+		String[] types = monoString.split("\\s+");
+		for (String type : types) {
+			columnTypes.add(Functions.getClassFromString(type));
+		}
+		
+		sc.close();
+		if (columnTypes.isEmpty()) {
+			throw new IOException(getName() + " has empty signature");
+		} 
+	}
+
 	@Override
-	public String get(String key) {
+	public Storeable get(String key) {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get null key");
 		}
@@ -37,12 +80,18 @@ public class MultiFileMapState extends FilesystemState implements Table {
 	} 
 
 	@Override
-	public String put(String key, String value) {
-		if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
+	public Storeable put(String key, Storeable value1) throws ColumnFormatException {
+		if (key == null || value1 == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't put null key or(and) value");
 		}
-		String currentValue = map.put(key, value);
-		String oldValue = startMap.get(key);
+		Storeable value;
+		try {
+			value = Deserializer.run(this, Serializer.run(this, value1));
+		} catch (ParseException | XMLStreamException e) {
+			throw new ColumnFormatException(e);
+		}
+		Storeable currentValue = map.put(key, value);
+		Storeable oldValue = startMap.get(key);
 		if (currentValue == null) {
 			if (oldValue == null)
 				setNumberOfChanges(getNumberOfChanges() + 1);
@@ -65,12 +114,12 @@ public class MultiFileMapState extends FilesystemState implements Table {
 	}
 	
 	@Override
-	public String remove(String key) {
+	public Storeable remove(String key) {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't remove null key");
 		}
-		String oldValue = startMap.get(key);
-		String value = map.remove(key);
+		Storeable oldValue = startMap.get(key);
+		Storeable value = map.remove(key);
 		if (value != null) {
 			if (oldValue == null) {
 				setNumberOfChanges(getNumberOfChanges() - 1);
@@ -110,14 +159,17 @@ public class MultiFileMapState extends FilesystemState implements Table {
 		numberOfChanges = 0;
 		return result;
 	}
+	
 
 	public int getNumberOfChanges() {
 		return numberOfChanges;
 	}
+	
 
 	public void setNumberOfChanges(int numberOfChanges) {
 		this.numberOfChanges = numberOfChanges;
 	}
+	
 	
 
 	private int getDir(String key) throws IOException {
@@ -134,6 +186,7 @@ public class MultiFileMapState extends FilesystemState implements Table {
 		}
 		return ndirectory;
 	}
+	
 
 	private int getFile(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
@@ -147,8 +200,9 @@ public class MultiFileMapState extends FilesystemState implements Table {
 			}
 		}
 		return nfile;
-	}
-	
+	}	
+
+	@Override
 	public void read() throws IOException {
 		map.clear();
 		File[] dirs = getWorkingDirectory().listFiles();
@@ -157,7 +211,11 @@ public class MultiFileMapState extends FilesystemState implements Table {
 				File[] files = file.listFiles();
 				if (files != null) {
 					for (File f : files) {
-						Reader.readFile(f, map);
+						try {
+							Reader.readFile(f, this);
+						} catch (ParseException e) {
+							throw new IOException("can't deserialize");
+						}
 						f.delete();
 					}
 				}
@@ -173,7 +231,7 @@ public class MultiFileMapState extends FilesystemState implements Table {
 		if (getWorkingDirectory() != null) {
 			for (int i = 0; i < DIR_COUNT; ++i) {
 				for (int j = 0; j < FILES_PER_DIR; ++j) {
-					Map<String, String> toWriteInCurFile = new HashMap<>();
+					Map<String, Storeable> toWriteInCurFile = new HashMap<>();
 			
 					for (String key : map.keySet()) {
 						if (getDir(key) == i && getFile(key) == j) {
@@ -185,9 +243,13 @@ public class MultiFileMapState extends FilesystemState implements Table {
 						File dir = new File(getWorkingDirectory(), i + ".dir"); 
 						File out = new File(dir, j + ".dat");
 						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-						Set<Entry<String, String>> set = toWriteInCurFile.entrySet();
-						for (Entry<String, String> element : set) {
-							Writer.writePair(element.getKey(), element.getValue(), s);
+						Set<Entry<String, Storeable>> set = toWriteInCurFile.entrySet();
+						for (Entry<String, Storeable> element : set) {
+							try {
+								Writer.writePair(element.getKey(), Serializer.run(this, element.getValue()), s);
+							} catch (XMLStreamException e) {
+								throw new IOException(e);
+							}
 						}
 						s.close();
 					}
@@ -197,9 +259,19 @@ public class MultiFileMapState extends FilesystemState implements Table {
 	}
 
 	@Override
-	public Storeable put(String string, Storeable string2) {
-		System.err.println("Command can't be executed");
-		return null;
+	public int getColumnsCount() {
+		return columnTypes.size();
 	}
-	
+
+	@Override
+	public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+		return columnTypes.get(columnIndex);
+	}
+
+	@Override
+	public String put(String key, String value) throws XMLStreamException, ParseException {
+		Storeable storeable = Deserializer.run(this, value);
+		return Serializer.run(this, put(key, storeable));
+	}
+
 }

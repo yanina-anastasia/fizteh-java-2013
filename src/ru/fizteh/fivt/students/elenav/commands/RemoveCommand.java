@@ -1,24 +1,22 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
-import java.io.PrintStream;
-
-import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class RemoveCommand extends AbstractCommand {
 
-	public RemoveCommand(MonoMultiAbstractState s) {
+	public RemoveCommand(FilesystemState s) {
 		super(s, "remove", 1);
 	}
 
-	public void execute(String[] args, PrintStream s) {
-		MonoMultiAbstractState currentState = (MonoMultiAbstractState) getState();
-		if (currentState.getWorkingDirectory() == null) {
+	public void execute(String[] args) {
+		FilesystemState table = getState();
+		String key = args[1];
+		if (table.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
-			String result = currentState.remove(args[1]);
-			if (result != null) {
+			if (table.get(key) != null) {
 				getState().getStream().println("removed");
-				getState().getStream().println(result);
+				getState().getStream().println(table.remove(key));
 			}
 			else {
 				getState().getStream().println("not found");
