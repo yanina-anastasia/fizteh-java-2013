@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Shell;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
-import ru.fizteh.fivt.students.olgagorbacheva.shell.ExitCommand;
 
 public class Main {
 
@@ -29,7 +28,6 @@ public class Main {
                   multyFileHashMap.addCommand(new CreateCommand(provider));
                   multyFileHashMap.addCommand(new DropCommand(provider));
                   multyFileHashMap.addCommand(new PutCommand(provider));
-                  multyFileHashMap.addCommand(new ExitCommand());
                   multyFileHashMap.addCommand(new SizeCommand(provider));
                   multyFileHashMap.addCommand(new UseCommand(provider));
 
