@@ -123,4 +123,15 @@ public class TableTester {
         table.remove("test");
         Assert.assertEquals(table.rollback(), 0);
     }
+
+    @Test
+    public void removePutTest() throws IOException {
+        Assert.assertEquals(table.size(), 0);
+        Storeable storeable = new TableRow(table, Arrays.asList(222, "gell"));
+        table.put("test", storeable);
+        table.commit();
+        table.remove("test");
+        table.put("test", storeable);
+        Assert.assertEquals(table.rollback(), 0);
+    }
 }
