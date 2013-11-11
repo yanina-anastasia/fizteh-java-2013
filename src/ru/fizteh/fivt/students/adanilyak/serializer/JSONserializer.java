@@ -7,7 +7,6 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.adanilyak.tools.Pair;
 
 import java.text.ParseException;
 
@@ -21,39 +20,27 @@ public class JSONserializer {
         if (input.get(index) == JSONObject.NULL) {
             return null;
         }
-        Pair tableClassInputClass = new Pair(table.getColumnType(index), input.get(index).getClass());
-        Object result;
-        switch (tableClassInputClass.toString()) {
-            case "class java.lang.Integer, class java.lang.Integer":
-                result = input.getInt(index);
-                break;
-            case "class java.lang.Long, class java.lang.Integer":
-                result = input.getLong(index);
-                break;
-            case "class java.lang.Long, class java.lang.Long":
-                result = input.getLong(index);
-                break;
-            case "class java.lang.Byte, class java.lang.Integer":
-                Integer tempInt = input.getInt(index);
-                result = tempInt.byteValue();
-                break;
-            case "class java.lang.Float, class java.lang.Double":
-                Double tempDbl = input.getDouble(index);
-                result = tempDbl.floatValue();
-                break;
-            case "class java.lang.Double, class java.lang.Double":
-                result = input.getDouble(index);
-                break;
-            case "class java.lang.Boolean, class java.lang.Boolean":
-                result = input.getBoolean(index);
-                break;
-            case "class java.lang.String, class java.lang.String":
-                result = input.getString(index);
-                break;
-            default:
-                throw new ColumnFormatException("type mismatch");
+        if (input.get(index).getClass() == Integer.class && table.getColumnType(index) == Integer.class) {
+            return input.getInt(index);
+        } else if (input.get(index).getClass() == Long.class && table.getColumnType(index) == Long.class) {
+            return input.getLong(index);
+        } else if (input.get(index).getClass() == Integer.class && table.getColumnType(index) == Long.class) {
+            return input.getLong(index);
+        } else if (input.get(index).getClass() == Integer.class && table.getColumnType(index) == Byte.class) {
+            Integer tempInt = input.getInt(index);
+            return tempInt.byteValue();
+        } else if (input.get(index).getClass() == Double.class && table.getColumnType(index) == Float.class) {
+            Double tempDbl = input.getDouble(index);
+            return tempDbl.floatValue();
+        } else if (input.get(index).getClass() == Double.class && table.getColumnType(index) == Double.class) {
+            return input.getDouble(index);
+        } else if (input.get(index).getClass() == Boolean.class && table.getColumnType(index) == Boolean.class) {
+            return input.getBoolean(index);
+        } else if (input.get(index).getClass() == String.class && table.getColumnType(index) == String.class) {
+            return input.getString(index);
+        } else {
+            throw new ColumnFormatException("type mismatch");
         }
-        return result;
     }
 
 
