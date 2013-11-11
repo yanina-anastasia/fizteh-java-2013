@@ -203,7 +203,13 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 		if (dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() < 0) {
 			System.err.println("OMFG!!1!111111 Das ist impossible !!11");
 		}
-		return dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size();
+		int matchesCount = 0;
+		for (String key : unstagedDictionaryPart.keySet()) {
+			if (dictionary.get(key) != null) {
+				++matchesCount;
+			}
+		}
+		return dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() - matchesCount;
 	}
 
 	public int commit() throws ShellException {
