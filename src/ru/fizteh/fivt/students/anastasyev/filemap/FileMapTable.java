@@ -351,6 +351,7 @@ public class FileMapTable implements Table {
 
     @Override
     public int rollback() throws RuntimeException {
+        int changesCount = changesCount();
         for (String key : changedKeys.keySet()) {
             if (changedKeys.get(key).getOnDisk() == null) {
                 getMyState(key.hashCode()).remove(key);
@@ -358,7 +359,6 @@ public class FileMapTable implements Table {
                 getMyState(key.hashCode()).put(key, changedKeys.get(key).getOnDisk());
             }
         }
-        int changesCount = changesCount();
         changedKeys.clear();
         return changesCount;
     }

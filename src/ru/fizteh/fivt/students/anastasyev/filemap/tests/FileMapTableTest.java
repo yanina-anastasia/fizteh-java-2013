@@ -226,6 +226,8 @@ public class FileMapTableTest {
         assertNull(table.put("key3", value3Storeable));
 
         assertEquals(table.rollback(), 2);
+        assertEquals(table.rollback(), 0);
+        assertEquals(table.commit(), 0);
 
         assertNull(table.put("key1", value1Storeable));
         assertNull(table.put("key2", value2Storeable));
