@@ -87,9 +87,9 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	private String getValueForKey(String key) {
 		String value = null;
 		if (removedDictionaryPart.get(key) == null) {
-			value = dictionary.get(key);
+			value = unstagedDictionaryPart.get(key);
 			if (value == null) {
-				value = unstagedDictionaryPart.get(key);
+				value = dictionary.get(key);
 			}
 		}
 		return value;
