@@ -159,7 +159,7 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 
 	@Override
 	public String put(String key, String value) {
-		if (key == null || value == null || key.equals("") || value.equals("")) {
+		if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
 			throw new IllegalArgumentException();
 		}
 		try {
