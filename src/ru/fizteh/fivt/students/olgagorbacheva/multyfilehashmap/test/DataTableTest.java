@@ -3,14 +3,11 @@ package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap.test;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ru.fizteh.fivt.students.olgagorbacheva.filemap.FileMapException;
 import ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap.DataTable;
 
 public class DataTableTest {
@@ -19,9 +16,9 @@ public class DataTableTest {
       
       @BeforeClass
       public static void setUpBeforeClass() throws Exception {
-            String dir = System.getProperty("user.dir") + "db";
-            new File(dir).mkdir();
-            test = new DataTable("testing", new File(dir));
+            String dir = System.getProperty("user.dir");
+            new File(dir, "db").mkdir();
+            test = new DataTable("testing", new File(dir, "db"));
       }
      
 
