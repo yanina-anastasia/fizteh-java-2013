@@ -8,31 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandCreate extends Command {
-    public Class<?> parseColumnType(String columnType) {
-        switch (columnType) {
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "byte":
-                return Byte.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            case "boolean":
-                return Boolean.class;
-            case "String":
-                return String.class;
-            default:
-                throw new IllegalArgumentException("Unknown format");
-        }
-    }
-
     public boolean exec(String[] args, State curState) throws IOException {
         MultiDBState myState = MultiDBState.class.cast(curState);
         if (args.length == 1) {
-            System.out.println("wrong type (table has no signature)");
+            System.out.println("wrong type ( )");
             return false;
         }
         if (args.length > 2 || args.length < 1) {
@@ -48,7 +27,7 @@ public class CommandCreate extends Command {
         String[] arrColumns = columns.split("\\s+");
         List<Class<?>> cols = new ArrayList<Class<?>>();
         for (int i = 0; i < arrColumns.length; i++) {
-            cols.add(parseColumnType(arrColumns[i]));
+            cols.add(ColumnTypes.fromNameToType(arrColumns[i]));
         }
         String path = myState.getProperty(myState);
         if (myState.database.tables.containsKey(args[0])) {
