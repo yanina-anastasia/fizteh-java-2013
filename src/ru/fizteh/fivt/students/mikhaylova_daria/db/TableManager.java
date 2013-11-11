@@ -37,7 +37,7 @@ public class TableManager implements TableProvider {
         }
         mainDir = new File(nameMainDir);
         if (!mainDir.exists()) {
-            System.out.println("$");
+            System.out.println(" $ ");
             throw new IOException("wrong type (" + nameMainDir + " doesn't exist)");
         }
         if (!mainDir.isDirectory()) {
