@@ -22,7 +22,11 @@ public class CreateCommand implements Command<FileMapTableProvider> {
 
     @Override
     public boolean exec(FileMapTableProvider provider, String[] command) {
-        if (command.length <= 2) {
+        if (command.length == 1) {
+            System.err.println("wrong type (table name expected)");
+            return false;
+        }
+        if (command.length == 2) {
             System.err.println("wrong type (table columns types expected)");
             return false;
         }

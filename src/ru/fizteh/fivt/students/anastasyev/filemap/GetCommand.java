@@ -3,8 +3,6 @@ package ru.fizteh.fivt.students.anastasyev.filemap;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.anastasyev.shell.Command;
 
-import java.io.IOException;
-
 public class GetCommand implements Command<FileMapTableProvider> {
     @Override
     public boolean exec(FileMapTableProvider provider, String[] command) {
@@ -18,13 +16,7 @@ public class GetCommand implements Command<FileMapTableProvider> {
                 System.out.println("no table");
                 return false;
             }
-            FileMap db = null;
-            try {
-                db = currTable.getMyState(command[1].hashCode());
-            } catch (IOException e) {
-                System.err.println("wrong type (" + e.getMessage() + ")");
-                return false;
-            }
+            FileMap db = currTable.getMyState(command[1].hashCode());
             if (db == null) {
                 System.out.println("not found");
                 return true;

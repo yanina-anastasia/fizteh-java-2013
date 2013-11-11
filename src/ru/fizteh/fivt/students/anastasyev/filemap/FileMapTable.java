@@ -73,7 +73,7 @@ public class FileMapTable implements Table {
         }
     }
 
-    public FileMap getMyState(int hashCode) throws IOException {
+    public FileMap getMyState(int hashCode) {
         int absHash = Math.abs(hashCode);
         return mapsTable[absHash % 16][absHash / 16 % 16];
     }
@@ -351,10 +351,12 @@ public class FileMapTable implements Table {
 
     @Override
     public int rollback() throws RuntimeException {
-        try {
-            readTable();
-        } catch (IOException | ParseException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        for (String key : changedKeys.keySet()) {
+            if (changedKeys.get(key).getOnDisk() == null) {
+                getMyState(key.hashCode()).remove(key);
+            } else {
+                getMyState(key.hashCode()).put(key, changedKeys.get(key).getOnDisk());
+            }
         }
         int changesCount = changesCount();
         changedKeys.clear();

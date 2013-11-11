@@ -225,13 +225,20 @@ public class FileMapTableTest {
         assertTrue(storeableEquals(table.remove("key2"), value2Storeable, table));
         assertNull(table.put("key3", value3Storeable));
 
-        assertEquals(table.commit(), 2);
+        assertEquals(table.rollback(), 2);
+
+        assertNull(table.put("key1", value1Storeable));
+        assertNull(table.put("key2", value2Storeable));
+        assertNull(table.put("key3", value3Storeable));
+
+        assertEquals(table.commit(), 3);
 
         assertTrue(storeableEquals(table.remove("key1"), value1Storeable, table));
         assertNull(table.put("key4", valueStoreable));
-        assertEquals(table.put("key3", newValueStoreable), value3Storeable);
-        assertEquals(table.remove("key4"), valueStoreable);
+        assertTrue(storeableEquals(table.put("key3", newValueStoreable), value3Storeable, table));
+        assertTrue(storeableEquals(table.remove("key4"), valueStoreable, table));
         assertNull(table.get("key1"));
+        assertNull(table.get("key4"));
 
         assertEquals(table.rollback(), 2);
         assertTrue(storeableEquals(table.get("key1"), value1Storeable, table));

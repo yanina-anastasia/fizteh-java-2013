@@ -59,7 +59,7 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Long.class) {
                     row.add(put);
                 } else if (put.getClass() == Integer.class) {
-                    row.add(((Integer) put).longValue());
+                    row.add(Integer.class.cast(put).longValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -67,7 +67,7 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Byte.class) {
                     row.add(put);
                 } else if (put.getClass() == Integer.class) {
-                    Integer number = (Integer) put;
+                    Integer number = Integer.class.cast(put);
                     if (number > Byte.MAX_VALUE || number < Byte.MIN_VALUE) {
                         throw new ColumnFormatException("Column type is not equal giving value type");
                     }
@@ -79,9 +79,9 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Float.class) {
                     row.add(put);
                 } else if (put.getClass() == Double.class) {
-                    row.add(((Double) put).floatValue());
+                    row.add(Double.class.cast(put).floatValue());
                 } else if (put.getClass() == Integer.class) {
-                    row.add(((Integer) put).floatValue());
+                    row.add(Integer.class.cast(put).floatValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -89,9 +89,9 @@ public class MyStoreable implements Storeable {
                 if (put.getClass() == Double.class) {
                     row.add(put);
                 } else if (put.getClass() == Float.class) {
-                    row.add(((Float) put).doubleValue());
+                    row.add(Float.class.cast(put).doubleValue());
                 } else if (put.getClass() == Integer.class) {
-                    row.add(((Integer) put).doubleValue());
+                    row.add(Integer.class.cast(put).doubleValue());
                 } else {
                     throw new ColumnFormatException("Column type is not equal giving value type");
                 }
@@ -125,30 +125,30 @@ public class MyStoreable implements Storeable {
     }
 
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Integer) getAt(columnIndex, Integer.class);
+        return Integer.class.cast(getAt(columnIndex, Integer.class));
     }
 
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Long) getAt(columnIndex, Long.class);
+        return Long.class.cast(getAt(columnIndex, Long.class));
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Byte) getAt(columnIndex, Byte.class);
+        return Byte.class.cast(getAt(columnIndex, Byte.class));
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Float) getAt(columnIndex, Float.class);
+        return Float.class.cast(getAt(columnIndex, Float.class));
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Double) getAt(columnIndex, Double.class);
+        return Double.class.cast(getAt(columnIndex, Double.class));
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (Boolean) getAt(columnIndex, Boolean.class);
+        return Boolean.class.cast(getAt(columnIndex, Boolean.class));
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        return (String) getAt(columnIndex, String.class);
+        return String.class.cast(getAt(columnIndex, String.class));
     }
 }
