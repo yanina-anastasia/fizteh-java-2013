@@ -215,7 +215,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
-        if (deleteTable.equals(currentFileMapTable)) {
+        if (name.equals(currentFileMapTable)) {
             currentFileMapTable = null;
         }
     }
