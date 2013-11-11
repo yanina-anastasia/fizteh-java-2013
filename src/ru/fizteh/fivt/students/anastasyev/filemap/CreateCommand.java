@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class CreateCommand implements Command<FileMapTableProvider> {
     private ArrayList<Class<?>> parseTypes(String allTypes, FileMapTableProvider provider) throws IOException {
         ArrayList<Class<?>> columnTypes = new ArrayList<Class<?>>();
-        String[] types = allTypes.split(" ");
+        String[] types = allTypes.split("\\s+");
         for (String type : types) {
             Class<?> classType = provider.getClassName(type);
             if (classType == null) {
@@ -31,6 +31,10 @@ public class CreateCommand implements Command<FileMapTableProvider> {
             return false;
         }
         try {
+            if (command[1].startsWith("(")) {
+                System.err.println("wrong type (table name expected)");
+                return false;
+            }
             ArrayList<Class<?>> classes = parseTypes(command[2].substring(1, command[2].length() - 1), provider);
             Table res = provider.createTable(command[1], classes);
             if (res == null) {
