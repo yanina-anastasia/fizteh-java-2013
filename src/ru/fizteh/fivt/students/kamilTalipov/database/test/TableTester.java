@@ -38,7 +38,7 @@ public class TableTester {
     }
 
     @Test
-    public void putGetCommitTest() {
+    public void putGetCommitTest() throws IOException {
         Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
         table.put("123", storeable);
         Assert.assertEquals(table.get("123").toString(), storeable.toString());
@@ -59,7 +59,7 @@ public class TableTester {
         Storeable storeable = new TableRow(table, Arrays.asList(42, "don't panic"));
         table.put("answer", storeable);
         Assert.assertEquals(table.remove("answer").toString(), storeable.toString());
-        Assert.assertEquals(table.rollback(), 1);
+        Assert.assertEquals(table.rollback(), 0);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TableTester {
     }
 
     @Test
-    public void commitRollbackTest() {
+    public void commitRollbackTest() throws IOException {
         Assert.assertEquals(table.commit(), 0);
         Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
         Assert.assertEquals(table.put("fits", storeable), null);
@@ -103,5 +103,24 @@ public class TableTester {
         table.put("fits", new TableRow(table, Arrays.asList(2, "hfello")));
         table.remove("fits");
         Assert.assertEquals(table.rollback(), 1);
+    }
+
+    @Test
+    public void commitRollbackTest2() throws IOException {
+        Assert.assertEquals(table.commit(), 0);
+        Assert.assertEquals(table.size(), 0);
+        Storeable storeable = new TableRow(table, Arrays.asList(222, "gell"));
+        Storeable storeable2 = new TableRow(table, Arrays.asList(202, "ffll"));
+        Assert.assertEquals(table.put("fsss", storeable), null);
+        Assert.assertEquals(table.put("fsss", storeable2), storeable);
+        Assert.assertEquals(table.remove("fsss"), storeable2);
+        Assert.assertEquals(table.rollback(), 0);
+    }
+
+    @Test
+    public void commitRollbackTest3() {
+        Assert.assertEquals(table.size(), 0);
+        table.remove("test");
+        Assert.assertEquals(table.rollback(), 0);
     }
 }

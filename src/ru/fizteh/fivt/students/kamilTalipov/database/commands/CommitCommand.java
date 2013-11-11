@@ -5,6 +5,8 @@ import ru.fizteh.fivt.students.kamilTalipov.database.core.TransactionDatabase;
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
+import java.io.IOException;
+
 public class CommitCommand extends SimpleCommand {
     private final TransactionDatabase database;
 
@@ -24,6 +26,8 @@ public class CommitCommand extends SimpleCommand {
             System.out.println(database.commit());
         } catch (NoTableSelectedException e) {
             System.err.println("no table");
+        } catch (IOException e) {
+            System.err.println("io error");
         }
     }
 }

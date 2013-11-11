@@ -108,7 +108,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     }
 
     @Override
-    public int commit() throws NoTableSelectedException {
+    public int commit() throws NoTableSelectedException, IOException {
         if (activeTable == null) {
             throw new NoTableSelectedException("HashDatabase: No table selected");
         }

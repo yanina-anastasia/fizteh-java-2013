@@ -145,7 +145,9 @@ public class MultiFileHashTable implements Table {
 
         Storeable oldValue = table.remove(key);
         if (!oldValues.containsKey(key)) {
-            oldValues.put(key, oldValue);
+            if (oldValue != null) {
+                oldValues.put(key, oldValue);
+            }
         } else if (oldValues.get(key) == null) {
             oldValues.remove(key);
         }
@@ -164,9 +166,18 @@ public class MultiFileHashTable implements Table {
     }
 
     @Override
-    public int commit() {
+    public int commit() throws IOException {
         int changes = oldValues.size();
         oldValues.clear();
+
+        try {
+            writeTable();
+        } catch (DatabaseException e) {
+            IOException exception = new IOException("Database io error");
+            exception.addSuppressed(e);
+            throw exception;
+        }
+
         return changes;
     }
 
