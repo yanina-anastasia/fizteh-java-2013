@@ -115,35 +115,6 @@ public class FileReader<ValueType> {
         ++curValue;
     }
 
-    /*public void putStoreableValueToTable(Storeable value) {
-        dataTable.put(keysToMap.get(curValue), value);
-        ++curValue;
-    }*/
-
-   /* public void putKeysToTable() throws IOException {
-        long fileLength = dataFile.length();
-        int j = 0;
-        if (!offsets.isEmpty()) {
-            int offsetsSize = offsets.size();
-            while (j < offsetsSize) {
-                byte[] b = new byte[offsets.get(j)];
-                inStream.read(b, 0, offsets.get(j));
-                dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
-                curPos += offsets.get(j);
-                ++j;
-            }
-        }
-        if (curPos < fileLength) {
-            int lastOffset = (int) (fileLength - curPos);
-            byte[] b = new byte[lastOffset];
-            for (int k = 0; curPos < fileLength; ++k, ++curPos) {
-                b[k] = inStream.readByte();
-            }
-            dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
-        }
-        dataTable.commit();
-    }   */
-
     public void closeResources() throws IOException {
         if (curPos > 0) {
             inStream.close();
