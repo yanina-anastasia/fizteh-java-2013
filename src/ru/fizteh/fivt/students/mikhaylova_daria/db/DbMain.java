@@ -16,6 +16,7 @@ public class DbMain {
     public static void main(String[] arg) {
         String workingDirectoryName = System.getProperty("fizteh.db.dir");
         if (workingDirectoryName == null) {
+            System.out.println("$");
             System.err.println("wrong type (Bad property)");
             System.exit(1);
         }
@@ -41,13 +42,15 @@ public class DbMain {
             try {
                 Parser.parser(arg, DbMain.class, commandsList);
             } catch (RuntimeException e) {
+                System.out.println("$");
                 System.err.println(e.getMessage());
                 System.exit(1);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("$");
                 System.err.println(e.getMessage());
             }
         } catch (RuntimeException e) {
+            System.out.println("$");
             System.err.println(e.getMessage());
             System.exit(1);
         }

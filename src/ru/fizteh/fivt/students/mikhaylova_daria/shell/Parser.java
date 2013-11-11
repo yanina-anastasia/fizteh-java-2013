@@ -40,6 +40,7 @@ public class Parser {
                 if (!commands.containsKey(command[0])) {
                     System.err.println("Bad command");
                     if (pack) {
+                        System.out.println("$");
                         System.exit(1);
                     }
                 } else {
@@ -50,14 +51,17 @@ public class Parser {
                     try {
                         currentMethod.invoke(obj, (Object) command);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         System.err.println(e.getCause().getMessage());
                         if (pack) {
+                            System.out.println("$");
                             System.exit(1);
                         }
                     }
                 } catch (Exception e) {
                     System.err.println("parser: " + command[0] + ": " + "not found");
                     if (pack) {
+                        System.out.println("$");
                         System.exit(1);
                     }
                 }
