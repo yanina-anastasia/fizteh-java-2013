@@ -1,22 +1,21 @@
-package ru.fizteh.fivt.students.baldindima.filemap;
+package ru.fizteh.fivt.students.baldindima.junit;
 
-import java.io.File;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 
 public class ShellDbCreateTable extends ShellIsItCommand {
-    private DataBaseTable dataBaseTable;
+    private Context context;
 
-    public ShellDbCreateTable(final DataBaseTable dBaseTable) {
-        dataBaseTable = dBaseTable;
-        setName("create");
+    public ShellDbCreateTable(Context nContext) {
+        context = nContext;
+    	setName("create");
         setNumberOfArgs(2);
 
     }
 
     public void run() throws IOException {
-        if (dataBaseTable.createTable(arguments[1])) {
+        if (context.provider.createTable(arguments[1]) != null) {
             System.out.println("created");
 
         } else {

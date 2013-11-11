@@ -1,9 +1,12 @@
-package ru.fizteh.fivt.students.baldindima.filemap;
+package ru.fizteh.fivt.students.baldindima.junit;
 
 import java.io.File;
+
+import ru.fizteh.fivt.storage.strings.Table;
+
 import java.io.IOException;
 
-public class DataBase {
+public class DataBase implements Table {
     private String dataBaseDirectory;
     private DataBaseFile[] files;
 
@@ -127,11 +130,11 @@ public class DataBase {
                 if (!(files[i * 16 + j].getCurrentTable().isEmpty())) {
                     files[i * 16 + j].write();
                 } else {
-                	File file = new File(getFullName(i, j));
-                	if (file.exists()){
-                		if (!file.delete())
-                			throw new IOException("Cannot delete a file");
-                	}
+                    File file = new File(getFullName(i, j));
+                    if (file.exists()) {
+                        if (!file.delete())
+                            throw new IOException("Cannot delete a file");
+                    }
                 }
             }
             deleteEmptyDirectory(Integer.toString(i) + ".dir");
@@ -139,13 +142,16 @@ public class DataBase {
     }
 
     public String get(String keyString) {
-    	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        checkString(keyString);
+        int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.get(keyString);
     }
 
     public String put(String keyString, String valueString) {
+        checkString(keyString);
+        checkString(valueString);
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
@@ -153,10 +159,63 @@ public class DataBase {
     }
 
     public String remove(String keyString) {
-    	int nDir = Math.abs(keyString.getBytes()[0]) % 16;
+        checkString(keyString);
+        int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
         return file.remove(keyString);
+    }
+
+    public int countCommits() {
+        int count = 0;
+        for (int i = 0; i < 256; ++i) {
+            count += files[i].countCommits();
+        }
+        return count;
+    }
+
+    public int commit() {
+        int count = 0;
+        for (int i = 0; i < 256; ++i) {
+            count += files[i].countCommits();
+            try {
+                files[i].commit();
+            } catch (IOException e) {
+                throw new RuntimeException("cannot do commit");
+            }
+        }
+        return count;
+    }
+
+    public int rollback() {
+        int count = 0;
+        for (int i = 0; i < 256; ++i) {
+            count += files[i].countCommits();
+            try {
+                files[i].rollback();
+            } catch (IOException e) {
+                throw new RuntimeException("cannot do rollback");
+            }
+        }
+        return count;
+    }
+
+    public int size() {
+        int count = 0;
+        for (int i = 0; i < 256; ++i) {
+            count += files[i].countSize();
+        }
+        return count;
+    }
+
+    public String getName() {
+        return new File(dataBaseDirectory).getName();
+    }
+
+    private void checkString(String str) {
+        if ((str == null) || (str.trim().length() == 0)) {
+            throw new IllegalArgumentException("Wrong key!");
+        }
     }
 
 

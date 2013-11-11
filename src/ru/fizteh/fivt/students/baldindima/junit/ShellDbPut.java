@@ -1,21 +1,21 @@
-package ru.fizteh.fivt.students.baldindima.filemap;
+package ru.fizteh.fivt.students.baldindima.junit;
 
 import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 
 public class ShellDbPut extends ShellIsItCommand {
-	private DataBaseTable dataBaseTable;
-	public ShellDbPut(final DataBaseTable dBaseTable){
+	private Context context;
+	public ShellDbPut(Context nContext){
 		setName("put");
 		setNumberOfArgs(3);
-		dataBaseTable = dBaseTable;
+		context = nContext;
 	}
 	
 	public void run(){
-		if (!dataBaseTable.exists()){
+		if (context.table == null){
 			System.out.println("no table");
 			return;
 		}
-		String newString = dataBaseTable.put(arguments[1], arguments[2]);
+		String newString = context.table.put(arguments[1], arguments[2]);
 		if (newString == null){
 			System.out.println("new");
 		} else {
