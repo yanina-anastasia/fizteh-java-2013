@@ -38,10 +38,9 @@ public class Parser {
             if (command[0].length() != 0) {
                 Method currentMethod = null;
                 if (!commands.containsKey(command[0])) {
-                    System.out.println(" $ ");
+                    System.out.print(" $ ");
                     System.err.println("Bad command");
                     if (pack) {
-                        System.out.println(" $ ");
                         System.exit(1);
                     }
                 } else {
@@ -52,18 +51,16 @@ public class Parser {
                     try {
                         currentMethod.invoke(obj, (Object) command);
                     } catch (Exception e) {
-                        System.out.println(" $ ");
+                        System.out.print(" $ ");
                         System.err.println(e.getCause().getMessage());
                         if (pack) {
-                            System.out.println(" $ ");
                             System.exit(1);
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println(" $ ");
+                    System.out.print(" $ ");
                     System.err.println("parser: " + command[0] + ": " + "not found");
                     if (pack) {
-                        System.out.println(" $ ");
                         System.exit(1);
                     }
                 }
