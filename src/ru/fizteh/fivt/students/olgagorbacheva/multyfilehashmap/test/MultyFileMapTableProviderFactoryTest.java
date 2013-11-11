@@ -45,8 +45,8 @@ public class MultyFileMapTableProviderFactoryTest {
       
       @Test
       public void createTableProvider() {
-            String dir = System.getProperty("user.dir") + "db";
-            new File(dir).mkdir();
+            String dir = System.getProperty("user.dir");
+            new File(dir, "db").mkdir();
             factory.create(dir);
       }
 
