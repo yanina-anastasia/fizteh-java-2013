@@ -164,7 +164,7 @@ public class DbMain {
 
     public static void put(String[] command) throws Exception {
         if (currentTable == null) {
-            System.out.println(" $ no table");
+            System.out.println("no table");
             return;
         }
         if (command.length != 2) {
