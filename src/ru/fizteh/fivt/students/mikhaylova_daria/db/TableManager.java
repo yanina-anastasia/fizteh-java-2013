@@ -43,7 +43,7 @@ public class TableManager implements TableProvider {
             throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
         }
         try {
-           // cleaner();
+            cleaner();
         } catch (Exception e) {
             throw new IOException("wrong type (" + e.getMessage() + ")", e);
         }
