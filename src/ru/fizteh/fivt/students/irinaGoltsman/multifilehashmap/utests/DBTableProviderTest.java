@@ -74,6 +74,14 @@ public class DBTableProviderTest {
         provider.createTable("tmp", null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void createTableWithNullColumnTypeShouldFail() throws IOException {
+        List<Class<?>> columnTypes = new ArrayList<>();
+        columnTypes.add(Integer.class);
+        columnTypes.add(null);
+        provider.createTable("tmp", columnTypes);
+    }
+
     //-------Tests for removeTable
     @Test(expected = IllegalArgumentException.class)
     public void removeTableNullNameTable() throws IOException {
