@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
@@ -12,28 +11,30 @@ public class UseCommand extends Command {
 	}
 
 	@Override
-	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+	public void execute(String[] argumentsList, Shell shell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		Table currentTable = null;
+		ChangesCountingTable currentTable = null;
+		String name = argumentsList[1];
 		
 		try {
-			currentTable = myShell.getState().getTableProvider().getTable(argumentsList[1]);
+			currentTable = shell.getState().tableProvider.getTable(name);
 		} catch (IllegalArgumentException e) {
-			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError(e.getMessage(), this.getName(), shell.getIsInteractive());
 			return;
 		}
 		
 		if(currentTable == null) {
-			System.out.println(argumentsList[1] + " not exists");
+			System.out.println(name + " not exists");
 		} else {
-			if(myShell.getState().getCurrentTable() != null) {
-				myShell.getState().getCurrentTable().commit();
+			if(shell.getState().currentTable != null && shell.getState().currentTable.unsavedChangesCount() != 0) {
+				Utils.generateAnError(shell.getState().currentTable.unsavedChangesCount() + " unsaved changes", this.getName(), shell.getIsInteractive());
+				return;
 			}
-			myShell.getState().setCurrentTable(currentTable);
-			System.out.println("using " + argumentsList[1]);
+			shell.getState().currentTable = currentTable;
+			System.out.println("using " + name);
 		}
 	}
 
