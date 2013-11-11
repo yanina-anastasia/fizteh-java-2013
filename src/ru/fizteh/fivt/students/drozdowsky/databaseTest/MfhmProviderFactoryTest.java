@@ -16,8 +16,11 @@ public class MfhmProviderFactoryTest {
     @Before
     public void setUp() {
         factory = new MfhmProviderFactory();
-        String workingDir = System.getProperty("user.dir");
-        databaseDir = new File(workingDir + "/" + "test");
+        String workingDir = System.getProperty("user.dir") + "/" + "test";
+        while (new File(workingDir).exists()) {
+            workingDir = workingDir + "1";
+        }
+        databaseDir = new File(workingDir);
         databaseDir.mkdir();
     }
 

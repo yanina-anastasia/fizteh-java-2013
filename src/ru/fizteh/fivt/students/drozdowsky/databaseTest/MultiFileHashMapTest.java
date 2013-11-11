@@ -19,6 +19,9 @@ public class MultiFileHashMapTest {
     @Before
     public void setUp() {
         String workingDir = System.getProperty("user.dir") + "/" + "test";
+        while (new File(workingDir).exists()) {
+            workingDir = workingDir + "1";
+        }
         databaseDir = new File(workingDir);
         databaseDir.mkdir();
         provider = new MultiFileHashMap(workingDir);

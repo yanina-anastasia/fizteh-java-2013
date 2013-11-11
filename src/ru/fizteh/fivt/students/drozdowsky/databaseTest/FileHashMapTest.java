@@ -18,6 +18,9 @@ public class FileHashMapTest {
     @Before
     public void setUp() {
         String workingDir = System.getProperty("user.dir") + "/" + "test";
+        while (new File(workingDir).exists()) {
+            workingDir = workingDir + "1";
+        }
         databaseDir = new File(workingDir);
         databaseDir.mkdir();
         table = new FileHashMap(databaseDir);
