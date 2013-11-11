@@ -12,7 +12,7 @@ public class Parser {
         String inputString;
         while (flag) {
             if (arg.length == 0) {
-                System.out.print("$ ");
+                System.out.print(" $ ");
                 if (input.hasNextLine()) {
                     inputString = input.nextLine();
                     commandString = inputString.split("[;]");
@@ -40,7 +40,7 @@ public class Parser {
                 if (!commands.containsKey(command[0])) {
                     System.err.println("Bad command");
                     if (pack) {
-                        System.out.println("$");
+                        System.out.println(" $ ");
                         System.exit(1);
                     }
                 } else {
@@ -51,16 +51,17 @@ public class Parser {
                     try {
                         currentMethod.invoke(obj, (Object) command);
                     } catch (Exception e) {
+                        System.out.println(" $ ");
                         System.err.println(e.getCause().getMessage());
                         if (pack) {
-                            System.out.println("$");
+                            System.out.println(" $ ");
                             System.exit(1);
                         }
                     }
                 } catch (Exception e) {
                     System.err.println("parser: " + command[0] + ": " + "not found");
                     if (pack) {
-                        System.out.println("$");
+                        System.out.println(" $ ");
                         System.exit(1);
                     }
                 }
