@@ -9,10 +9,10 @@ import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 			context = nContext;
 			setName("exit");
 			setNumberOfArgs(1);
-			
 		}
 		public void run(){
 			
+			context.table.commit();
 			if (context.getChanges() == 0) {
 	            throw new ExitException();
 	        } else {
