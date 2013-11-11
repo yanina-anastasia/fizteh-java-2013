@@ -14,8 +14,7 @@ public class MultiFileHashMapPutCommand extends AbstractCommand<MultiFileHashMap
         MultiFileHashMapTable curTable = state.getCurTable();
 
         if (curTable == null) {
-            System.out.println("no table");
-            throw new IOException("ERROR: not existing table");
+            throw new IOException("no table");
         } else {
             String putEntry = curTable.put(input[0], input[1]);
 

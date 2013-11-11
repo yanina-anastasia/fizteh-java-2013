@@ -14,10 +14,11 @@ public class MultiFileHashMapRemoveCommand extends AbstractCommand<MultiFileHash
         MultiFileHashMapTable curTable = state.getCurTable();
 
         if (curTable == null) {
-            System.out.println("no table");
-            throw new IOException("ERROR: not existing table");
+            throw new IOException("no table");
         } else {
-            if (curTable.remove(input[0]) == null) {
+            String removedValue = curTable.remove(input[0]);
+
+            if (removedValue == null) {
                 System.out.println("not found");
             } else {
                 System.out.println("removed");

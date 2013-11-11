@@ -39,4 +39,8 @@ public class MultiFileHashMapState {
     public void removeTable(String curTableName) throws IOException {
         tables.removeTable(curTableName);
     }
+
+    public MultiFileHashMapTableProvider getTables() {
+        return tables;
+    }
 }

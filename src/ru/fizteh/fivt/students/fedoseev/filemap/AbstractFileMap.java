@@ -26,10 +26,6 @@ public class AbstractFileMap extends AbstractFrame<FileMapState> {
         return content;
     }
 
-    public static void setContent(Map<String, String> map) {
-        content = map;
-    }
-
     @Override
     public Map<String, AbstractCommand> getCommands() {
         final FileMapPutCommand PUT = new FileMapPutCommand();

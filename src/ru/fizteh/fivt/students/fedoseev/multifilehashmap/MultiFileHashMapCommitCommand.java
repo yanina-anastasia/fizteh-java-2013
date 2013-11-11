@@ -14,8 +14,7 @@ public class MultiFileHashMapCommitCommand extends AbstractCommand<MultiFileHash
         MultiFileHashMapTable curTable = state.getCurTable();
 
         if (curTable == null) {
-            System.out.println("no table");
-            throw new IOException("ERROR: not existing table");
+            throw new IOException("no table");
         } else {
             System.out.println(curTable.commit());
         }

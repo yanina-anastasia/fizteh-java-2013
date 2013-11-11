@@ -11,13 +11,12 @@ public class MultiFileHashMapSizeCommand extends AbstractCommand<MultiFileHashMa
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        MultiFileHashMapTable table = state.getCurTable();
+        MultiFileHashMapTable curTable = state.getCurTable();
 
-        if (table == null) {
-            System.out.println("no table");
-            throw new IOException("ERROR: not existing table");
+        if (curTable == null) {
+            throw new IOException("no table");
         } else {
-            System.out.println(table.size());
+            System.out.println(curTable.size());
         }
     }
 }

@@ -14,8 +14,7 @@ public class MultiFileHashMapGetCommand extends AbstractCommand<MultiFileHashMap
         MultiFileHashMapTable curTable = state.getCurTable();
 
         if (curTable == null) {
-            System.out.println("no table");
-            throw new IOException("ERROR: not existing table");
+            throw new IOException("no table");
         } else {
             String gotValue = curTable.get(input[0]);
 

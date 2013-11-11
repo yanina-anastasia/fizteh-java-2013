@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
-import java.io.File;
 import java.io.IOException;
 
 public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMapState> {
@@ -20,17 +19,21 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
         }
 
         MultiFileHashMapTable curTable = state.getCurTable();
-        File newDir = state.getCurDir().toPath().resolve(tableName).toFile();
+        int changesNumber = curTable.getDiffSize();
 
-        if (newDir.exists()) {
+        if (changesNumber != 0) {
+            throw new IOException(changesNumber + " unsaved changes");
+        }
+
+        if (state.getTables().getDatabaseTables().containsKey(tableName)) {
             AbstractMultiFileHashMap.saveTable(curTable);
 
-            if (curTable != null) {
-                curTable.clearContentAndDiff();
-            }
+            curTable.clearContentAndDiff();
 
-            state.setCurTable(input[0]);
-            AbstractMultiFileHashMap.readTableOff(state.getCurTable());
+            curTable = state.getCurTable();
+
+            state.setCurTable(tableName);
+            AbstractMultiFileHashMap.readTableOff(curTable);
 
             System.out.println("using " + tableName);
         } else {

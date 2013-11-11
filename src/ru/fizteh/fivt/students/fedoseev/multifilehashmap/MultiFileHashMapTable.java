@@ -187,6 +187,10 @@ public class MultiFileHashMapTable implements Table {
         return tableSize;
     }
 
+    public int getDiffSize() {
+        return diff.size();
+    }
+
     public Map<String, String> getMapContent() {
         return content;
     }

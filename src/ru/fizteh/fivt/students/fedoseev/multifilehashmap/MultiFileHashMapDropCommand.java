@@ -13,7 +13,8 @@ public class MultiFileHashMapDropCommand extends AbstractCommand<MultiFileHashMa
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
         String tableName = input[0];
-        File curTableDir = state.getCurDir().toPath().resolve(tableName).toFile();
+        File curTableDir = new File(state.getCurDir(), tableName);
+        MultiFileHashMapTable curTable = state.getCurTable();
 
         if (curTableDir.exists()) {
             if (curTableDir.listFiles() != null) {
@@ -28,9 +29,8 @@ public class MultiFileHashMapDropCommand extends AbstractCommand<MultiFileHashMa
                 }
             }
 
-            if (state.getCurTable() != null &&
-                    tableName.equals(state.getCurTable().getCurTableDir().getName().toString())) {
-                state.getCurTable().clearContentAndDiff();
+            if (curTable != null && tableName.equals(curTable.getCurTableDir().getName())) {
+                curTable.clearContentAndDiff();
                 state.setCurTable(null);
             }
 

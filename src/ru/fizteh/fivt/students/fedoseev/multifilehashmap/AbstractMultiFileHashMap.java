@@ -96,7 +96,7 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         curTable.setUsedDirs();
 
         for (int i = 0; i < curTable.getDirsNumber(); i++) {
-            directories[i] = curTable.getCurTableDir().toPath().resolve(i + ".dir").toFile();
+            directories[i] = new File(curTable.getCurTableDir(), i + ".dir");
 
             if (!directories[i].exists() && curTable.getBoolUsedDirs()[i]) {
                 directories[i].mkdirs();
@@ -110,9 +110,9 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
 
             for (int j = 0; j < curTable.getDirFilesNumber(); j++) {
                 if (curTable.getBoolUsedFiles()[i][j]) {
-                    File curFile = new
-                            File(curTable.getCurTableDir().toPath()
-                            .resolve(i + ".dir").resolve(j + ".dat").toFile().toString());
+                    File curFile = new File(
+                            curTable.getCurTableDir().toPath().resolve(i + ".dir").toFile(), j + ".dat"
+                    );
 
                     int numb = curTable.getDirsNumber() * i + j;
                     files.put(numb, curFile);
