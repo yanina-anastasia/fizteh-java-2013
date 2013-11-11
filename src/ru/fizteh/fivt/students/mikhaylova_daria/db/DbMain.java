@@ -144,7 +144,7 @@ public class DbMain {
         String nameDir = command[1].trim();
         TableData buf = mainManager.getTable(nameDir);
         if (buf == null) {
-            System.out.println(nameDir + " not exists1");
+            System.out.println(nameDir + " not exists");
         } else {
             if (currentTable != null) {
                 int numberOfChanges = currentTable.countChanges();
@@ -164,7 +164,7 @@ public class DbMain {
 
     public static void put(String[] command) throws Exception {
         if (currentTable == null) {
-            System.out.println("no table");
+            System.out.println(" $ no table");
             return;
         }
         if (command.length != 2) {
