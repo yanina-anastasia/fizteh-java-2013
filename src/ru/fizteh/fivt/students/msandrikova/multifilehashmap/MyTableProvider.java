@@ -33,7 +33,7 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
-					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "getTable", false);
+					throw new IllegalArgumentException("File with name '" + name + "' must be directory.");
 				}
 			}
 		}
@@ -45,24 +45,17 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
-		if(this.mapOfTables.get(name) != null){
+		if(this.mapOfTables.get(name) != null) {
 			return null;
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		try {
-			if(!tablePath.getCanonicalFile().getName().equals(name)) {
-				throw new IllegalArgumentException("Incorrect name for table: \"" + name + "\".");
-			}
-		} catch (IOException e) {
-			Utils.generateAnError("Can not work with file " + name, "create", false);
-		}
 		if(tablePath.exists()) {
 			if(tablePath.isDirectory()) {
 				ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 				this.mapOfTables.put(name, newTable);
-				return null;
+				return newTable;
 			} else {
-				Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "create", false);
+				throw new IllegalArgumentException("File with name '" + name + "' must be directory.");
 			}
 		}
 		ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);

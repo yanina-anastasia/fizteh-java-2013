@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Scanner;
 
 public class Utils {
 	
@@ -163,15 +166,56 @@ public class Utils {
 	}
 	
 	public static boolean testBadSymbols(String name) {
-		return name.matches("[A-Za-z0-9_]*");
+		return name.matches("[à-ÿÀ-ßA-Za-z0-9_]*");
 	}
 	
 	public static boolean isEmpty(String s) {
-		if(s == null || s.isEmpty() || s.equals("\n") || s.trim().isEmpty()) {
+		if(s == null || s.equals("\n") || s.trim().isEmpty()) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
+	public static List<Class<?>> getClassTypes(File f) throws IOException {
+		File signature = new File(f, "signature.tsv");
+		if(!signature.exists()) {
+			throw new IOException("Signature file does not exist.");
+		}
+		Scanner reader = new Scanner(new FileInputStream(signature));
+		if(!reader.hasNextLine()) {
+			throw new IOException("Signature file is empty.");
+		}
+		List<Class<?>> answer = new ArrayList<Class<?>>();
+		String[] columnTypes = reader.nextLine().split("\\s");
+		for(String columnType : columnTypes) {
+			switch(columnType) {
+			case "int":
+				answer.add(Integer.class);
+				break;
+			case "long":
+				answer.add(Long.class);
+				break;
+			case "byte":
+				answer.add(Byte.class);
+				break;
+			case "float":
+				answer.add(Float.class);
+				break;
+			case "double":
+				answer.add(Double.class);
+				break;
+			case "boolean":
+				answer.add(Boolean.class);
+				break;
+			case "string":
+				answer.add(String.class);
+				break;
+			default:
+				throw new IOException("Incorrect signature file.");
+			}
+		}
+		reader.close();
+		return answer;
+	}
 }
