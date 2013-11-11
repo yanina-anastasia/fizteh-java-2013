@@ -24,7 +24,8 @@ public class DBStoreable implements Storeable {
     }
 
     private void checkEqualityTypes(int columnIndex, Class<?> type) {
-        if (!columnTypes.get(columnIndex).getClass().equals(type)) {
+        String rightType = columnTypes.get(columnIndex).getSimpleName();
+        if (!rightType.equals(type.getSimpleName())) {
             throw new ColumnFormatException("type mismatch");
         }
     }
