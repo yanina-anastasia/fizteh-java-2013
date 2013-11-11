@@ -56,10 +56,13 @@ public class ColumnTypes {
 
     public void checkTypes(List<Class<?>> types) {
         for (Class<?> type : types) {
+            if (type == null) {
+                throw new IllegalArgumentException("null type");
+            }
             String typeName = type.getSimpleName();
             String typeAsString = typeMatchingClassString.get(typeName);
             if (typeAsString == null) {
-                throw new IllegalArgumentException(String.format("wrong type (not valid type: %s)", type.toString()));
+                throw new IllegalArgumentException("not valid type:" + type.toString());
             }
         }
     }

@@ -20,18 +20,6 @@ public class DBTableProviderTest {
         provider = new DBTableProvider(rootDBDirectory.newFolder());
     }
 
-    /*
-    @AfterClass
-    public static void deleteDataBase() throws IOException {
-        MapOfCommands cm = new MapOfCommands();
-        cm.addCommand(new ShellCommands.Remove());
-        cm.addCommand(new ShellCommands.ChangeDirectory());
-        cm.commandProcessing("cd " + rootDBDirectory.toString());
-        cm.commandProcessing("cd .");
-        cm.commandProcessing("rm " + rootDBDirectory.toString());
-    }
-    */
-
     //-------Tests for getTable
     @Test(expected = IllegalArgumentException.class)
     public void getTableNullTableName() {
@@ -45,7 +33,7 @@ public class DBTableProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void getTableErrorTableName() {
-        provider.getTable("\\htke4*&&/..");
+        provider.getTable("//\0");
     }
 
     @Test
