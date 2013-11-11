@@ -51,7 +51,6 @@ public class Parser {
                     try {
                         currentMethod.invoke(obj, (Object) command);
                     } catch (Exception e) {
-                        e.printStackTrace();
                         System.err.println(e.getCause().getMessage());
                         if (pack) {
                             System.out.println("$");

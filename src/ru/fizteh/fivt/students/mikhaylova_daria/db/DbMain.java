@@ -143,7 +143,7 @@ public class DbMain {
         String nameDir = command[1].trim();
         TableData buf = mainManager.getTable(nameDir);
         if (buf == null) {
-            System.out.println(nameDir + " not exists");
+            System.out.println(nameDir + " not exists1");
         } else {
             if (currentTable != null) {
                 int numberOfChanges = currentTable.countChanges();
