@@ -30,5 +30,5 @@ public abstract class Command {
 		return true;
 	}
 	
-	public abstract void execute(String[] argumentsList, Shell myShell);
+	public abstract void execute(String[] argumentsList, Shell shell);
 }

@@ -1,35 +1,27 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
-import ru.fizteh.fivt.students.fedoseev.filemap.FileMapRemoveCommand;
-import ru.fizteh.fivt.students.fedoseev.filemap.FileMapState;
 
 import java.io.IOException;
 
 public class MultiFileHashMapRemoveCommand extends AbstractCommand<MultiFileHashMapState> {
-    private FileMapRemoveCommand remove;
-
     public MultiFileHashMapRemoveCommand() {
         super("remove", 1);
-
-        remove = new FileMapRemoveCommand();
     }
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        MultiFileHashMapTable table = state.getCurTable();
+        MultiFileHashMapTable curTable = state.getCurTable();
 
-        if (table == null) {
+        if (curTable == null) {
             System.out.println("no table");
+            throw new IOException("ERROR: not existing table");
         } else {
-            AbstractMultiFileHashMap.readTable(table);
-
-            AbstractFileMap.setContent(table.getMapContent());
-
-            remove.execute(input, new FileMapState());
-
-            table.setMapContent(AbstractFileMap.getContent());
+            if (curTable.remove(input[0]) == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("removed");
+            }
         }
     }
 }

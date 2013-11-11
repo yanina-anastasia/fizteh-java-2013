@@ -7,8 +7,13 @@ import ru.fizteh.fivt.students.vlmazlov.shell.UserInterruptionException;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
 import ru.fizteh.fivt.students.vlmazlov.shell.Command;
 import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.GetCommand;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.PutCommand;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.RemoveCommand;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseReader;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseWriter;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseState;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.FileMapProvider;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
@@ -16,19 +21,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class Main {
-	public static void main(String[] args) {
-		FileMap fileMap = new FileMap(); 
-
-		 if (System.getProperty("fizteh.db.dir") == null) {
-			System.err.println("Directory not specified");
+	public static void main(String[] args) { 
+		FileMapState state = null;
+		FileMap fileMap = null;
+		try {
+			fileMap = new FileMap("table", true);
+			state = new FileMapState(fileMap);
+		} catch (IllegalArgumentException ex) {
+			System.err.println(ex.getMessage());
 			System.exit(1);
-		 }
+		}
 
 		try {
-			DataBaseReader.readFileMap(new File(System.getProperty("fizteh.db.dir")), 
-				new File(System.getProperty("fizteh.db.dir"), "db.dat"), fileMap);
+			DataBaseReader.readFileMap(System.getProperty("fizteh.db.dir"), "db.dat", fileMap);
 		} catch (IOException ex) {
-			System.err.println("Unable to retrieve entries from file" + ex.getMessage());
+			System.err.println("Unable to retrieve entries from file: " + ex.getMessage());
 			System.exit(2);
 		} catch (ValidityCheckFailedException ex) {
 			System.err.println("Validity check failed: " + ex.getMessage());
@@ -40,7 +47,7 @@ public class Main {
 			new RemoveCommand(), new ExitCommand()
 		};
 
-		Shell<FileMap> shell = new Shell<FileMap>(commands, fileMap);
+		Shell<FileMapState> shell = new Shell<FileMapState>(commands, state);
 
 		try {
 			shell.process(args);

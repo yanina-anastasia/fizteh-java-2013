@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
 import ru.fizteh.fivt.students.vlmazlov.shell.QuietCloser;
 import java.io.File;
-import java.util.Iterator;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
@@ -14,11 +13,13 @@ public class DataBaseWriter {
 	private static final int FILES_QUANTITY = 16;
 	private static final int DIRECTORIES_QUANTITY = 16;
 
-	public static void writeMultiTableDataBase(MultiTableDataBase multiTableDataBase) throws IOException, ValidityCheckFailedException {
+	public static void writeMultiTableDataBase(FileMapProvider multiTableDataBase) throws IOException, ValidityCheckFailedException {
 
-		File root = multiTableDataBase.getRoot();
+		String rootPath = multiTableDataBase.getRoot();
 
-		ValidityChecker.checkMultiTableRoot(root);
+		ValidityChecker.checkMultiTableRoot(rootPath);
+
+		File root = new File(rootPath);
 
 		for (File entry : root.listFiles()) {
 			
@@ -27,6 +28,9 @@ public class DataBaseWriter {
 			if (curTable == null) {
 				throw new IOException(entry.getName() + " doesn't match any database");
 			}
+
+			//Autocommit is performed before writing
+			curTable.commit();
 
 			writeMultiFileMap(curTable, entry);
 		}
@@ -41,6 +45,13 @@ public class DataBaseWriter {
 			[Math.abs(entry.getKey().getBytes()[0]) / FILES_QUANTITY % FILES_QUANTITY].put(entry.getKey(), entry.getValue());
 		}
 
+		//only commited changes will be written to the disc
+		for (int i = 0;i < tableParts.length;++i) {
+			for (int j = 0;j < tableParts[i].length;++j) {
+				tableParts[i][j].commit();
+			}
+		}
+
 	}
 
 	public static void writeMultiFileMap(FileMap fileMap, File root) throws IOException, ValidityCheckFailedException {
@@ -50,7 +61,7 @@ public class DataBaseWriter {
 		FileMap[][] tableParts = new FileMap[DIRECTORIES_QUANTITY][FILES_QUANTITY];
 		for (int i = 0;i < tableParts.length;++i) {
 			for (int j = 0;j < tableParts[i].length;++j) {
-				tableParts[i][j] = new FileMap();
+				tableParts[i][j] = new FileMap(null);
 			}
 		}
 
@@ -67,7 +78,7 @@ public class DataBaseWriter {
 			}
 			
 			for (int j = 0;j < FILES_QUANTITY;++j) {
-				writeFileMap(directory, new File(directory, 		j + ".dat"), tableParts[i][j]);
+				writeFileMap(directory, new File(directory, j + ".dat"), tableParts[i][j]);
 			}
 		}
 

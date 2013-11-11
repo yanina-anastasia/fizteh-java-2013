@@ -7,28 +7,23 @@ import ru.fizteh.fivt.students.vlmazlov.shell.Command;
 import ru.fizteh.fivt.students.vlmazlov.shell.UserInterruptionException;
 import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
 import java.io.IOException;
-import java.io.FileNotFoundException;
-import ru.fizteh.fivt.students.vlmazlov.filemap.GetCommand;
-import ru.fizteh.fivt.students.vlmazlov.filemap.PutCommand;
-import ru.fizteh.fivt.students.vlmazlov.filemap.RemoveCommand;
+import java.io.FileNotFoundException;		
 
 public class Main {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 
-		MultiTableDataBase multiTableDataBase = null;
+		DataBaseState state = null;
+		FileMapProviderFactory factory = new FileMapProviderFactory();
 
 		try {
-			multiTableDataBase = new MultiTableDataBase(System.getProperty("fizteh.db.dir"));
-		} catch (FileNotFoundException ex) {
+			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
+		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
-		} catch (ValidityCheckFailedException ex) {
-			System.err.println("Validity check failed: " + ex.getMessage());
-			System.exit(2);
 		}
 
 		try {
-			DataBaseReader.readMultiTableDataBase(multiTableDataBase);
+			DataBaseReader.readMultiTableDataBase((FileMapProvider)state.getProvider());
 		} catch (IOException ex) {
 			System.err.println("Unable to retrieve database: " + ex.getMessage());
 			System.exit(3);
@@ -41,10 +36,11 @@ public class Main {
 			new GetCommand(), new PutCommand(), 
 			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateCommand(),
-			new DropCommand()
+			new DropCommand(), new CommitCommand(),
+			new RollBackCommand()
 		};
 
-		Shell<MultiTableDataBase> shell = new Shell<MultiTableDataBase>(commands, multiTableDataBase);
+		Shell<DataBaseState> shell = new Shell<DataBaseState>(commands, state);
 
 		try {
 			shell.process(args);
@@ -52,19 +48,22 @@ public class Main {
 			System.err.println(ex.getMessage());
 			System.exit(5);
 		} catch (CommandFailException ex) {
-			System.err.println("error while processing command: " + ex.getMessage());
+			System.err.println(ex.getMessage());
 			System.exit(6);
+		} catch (IllegalArgumentException ex) {
+			System.err.println(ex.getMessage());
+			System.exit(7);
 		} catch (UserInterruptionException ex) {
 		}
 
 		try {
-			DataBaseWriter.writeMultiTableDataBase(multiTableDataBase);
+			DataBaseWriter.writeMultiTableDataBase((FileMapProvider)state.getProvider());
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
-			System.exit(7);
+			System.exit(8);
 		} catch (ValidityCheckFailedException ex) {
 			System.err.println("Validity check failed: " + ex.getMessage());
-			System.exit(8);
+			System.exit(9);
 		}
 	}
 }

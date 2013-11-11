@@ -4,11 +4,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 
 public class Get extends BasicFileMapCommand {
-	public Get(FileMapState currentFileMapState) {
-		super(currentFileMapState);
+	public Get(BasicState currentState) {
+		super(currentState);
 	}	
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = fileMapState.getCurrentFileMap(arguments[0]).getCurrentTable().get(arguments[0]);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException { 
+		String value = currentState.getUsedTable().get(arguments[0]);
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("not found");
 		} else {
