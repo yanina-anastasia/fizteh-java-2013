@@ -2,12 +2,12 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import org.junit.*;
 
-public class FileMapProviderFactoryTest {
-	private FileMapProviderFactory factory;
+public class StringTableProviderFactoryTest {
+	private StringTableProviderFactory factory;
 
 	@Before
 	public void setUp() {
-		factory = new FileMapProviderFactory();
+		factory = new StringTableProviderFactory();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

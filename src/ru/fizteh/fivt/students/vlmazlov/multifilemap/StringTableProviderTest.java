@@ -2,15 +2,18 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import org.junit.*;
 import ru.fizteh.fivt.storage.strings.Table;
+import java.io.File;
+import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 
-public class FileMapProviderTest {
-	private FileMapProvider provider;
-	private final String root = System.getProperty("fizteh.db.dir");
+public class StringTableProviderTest {
+	private StringTableProvider provider;
+	private final String root = "StringTableProviderTest";
 
 	@Before
 	public void setUp() {
 		try {
-			provider = new FileMapProvider(root, false);
+			File tempDir = FileUtils.createTempDir(root, null);
+			provider = new StringTableProvider(tempDir.getPath(), false);
 		} catch (ValidityCheckFailedException ex) {
 			Assert.fail("validity check failed: " + ex.getMessage());
 		}

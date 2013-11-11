@@ -1,17 +1,16 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
 
-public class DataBaseState {
-	private DiffCountingTable activeTable;
-	private final DiffCountingTableProvider provider;
+public class DataBaseState<V, T extends GenericTable<V>> {
+	private GenericTable<V> activeTable;
+	private final GenericTableProvider<V, T> provider;
 
 	protected DataBaseState() {
 		provider = null;
 	}
 
-	public DataBaseState(DiffCountingTableProvider provider) {
+	public DataBaseState(GenericTableProvider<V, T> provider) {
 		if (provider == null) {
 			throw new IllegalArgumentException();
 		}
@@ -19,15 +18,15 @@ public class DataBaseState {
 		this.provider = provider;
 	}
 
-	public DiffCountingTable getActiveTable() {
+	public GenericTable<V> getActiveTable() {
 		return activeTable;
 	}
 
-	public void setActiveTable(DiffCountingTable newActiveTable) {
+	public void setActiveTable(GenericTable<V> newActiveTable) {
 		activeTable = newActiveTable;
 	}
 
-	public DiffCountingTableProvider getProvider() {
+	public GenericTableProvider<V, T> getProvider() {
 		return provider;
 	}
 }

@@ -15,12 +15,18 @@ public class GetCommand extends AbstractDataBaseCommand {
 		}
 
 		String key = args[0];
-		String value = state.getActiveTable().get(key);
+		Object value = null;
+		try {
+			value = state.getActiveTable().get(key);
+		} catch (IllegalArgumentException ex) {
+			displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
+			return;
+		}
 
 		if (value == null) {
 			displayMessage("not found" + SEPARATOR, out);
 		} else {
-			displayMessage("found" + SEPARATOR + value + SEPARATOR, out);
+			displayMessage("found" + SEPARATOR + state.getProvider().serialize(state.getActiveTable(), value) + SEPARATOR, out);
 		}
 	}
 }
