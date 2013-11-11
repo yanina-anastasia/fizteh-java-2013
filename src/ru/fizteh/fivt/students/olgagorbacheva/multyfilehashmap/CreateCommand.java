@@ -7,9 +7,9 @@ public class CreateCommand implements Command {
 
       private String name = "create";
       private final int argNumber = 1;
-      
+
       MultyFileMapTableProvider provider;
-      
+
       public CreateCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }

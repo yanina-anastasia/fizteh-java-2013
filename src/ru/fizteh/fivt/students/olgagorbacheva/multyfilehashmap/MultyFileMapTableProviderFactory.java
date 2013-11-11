@@ -4,7 +4,7 @@ import java.io.File;
 
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
-public class MultyFileMapTableProviderFactory implements TableProviderFactory  {
+public class MultyFileMapTableProviderFactory implements TableProviderFactory {
 
       @Override
       public MultyFileMapTableProvider create(String dir) throws IllegalArgumentException {

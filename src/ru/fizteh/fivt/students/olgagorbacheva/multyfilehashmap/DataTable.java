@@ -8,6 +8,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,13 +58,10 @@ public class DataTable implements Table {
       }
 
       public String put(String key, String value) {
-            if (key == null || value == null || key.trim().equals("")
-                        || value.trim().equals("")) {
-                  throw new IllegalArgumentException(
-                              "Неверное значение ключа или значения");
+            if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
+                  throw new IllegalArgumentException("Неверное значение ключа или значения");
             }
-            if (dataStorage.get(key) == null && newKeys.get(key) == null
-                        || removedKeys.get(key) != null) {
+            if (dataStorage.get(key) == null && newKeys.get(key) == null || removedKeys.get(key) != null) {
                   if (removedKeys.get(key) != null) {
                         if (removedKeys.get(key) != value) {
                               newKeys.put(key, value);
@@ -165,31 +163,21 @@ public class DataTable implements Table {
 
       public void readFile() throws IOException {
             for (int i = 0; i < 16; i++) {
-                  File currentDir = new File(dataBaseDir, String.valueOf(i)
-                              + ".dir");
-                  if (currentDir.exists() && currentDir.isDirectory()
-                              && currentDir.canRead()) {
+                  File currentDir = new File(dataBaseDir, String.valueOf(i) + ".dir");
+                  if (currentDir.exists() && currentDir.isDirectory() && currentDir.canRead()) {
                         for (int j = 0; j < 16; j++) {
-                              File currentFile = new File(currentDir,
-                                          String.valueOf(j) + ".dat");
-                              if (currentFile.exists() && currentFile.isFile()
-                                          && currentDir.canRead()) {
+                              File currentFile = new File(currentDir, String.valueOf(j) + ".dat");
+                              if (currentFile.exists() && currentFile.isFile() && currentDir.canRead()) {
                                     read(currentFile);
                               } else {
-                                    if (currentFile.exists()
-                                                && !(currentFile.isFile() && currentDir
-                                                            .canRead())) {
-                                          throw new IOException(
-                                                      "База данных неподходящего формата");
+                                    if (currentFile.exists() && !(currentFile.isFile() && currentDir.canRead())) {
+                                          throw new IOException("База данных неподходящего формата");
                                     }
                               }
                         }
                   } else {
-                        if (currentDir.exists()
-                                    && !(currentDir.isDirectory() && currentDir
-                                                .canRead())) {
-                              throw new IOException(
-                                          "База данных неподходящего формата");
+                        if (currentDir.exists() && !(currentDir.isDirectory() && currentDir.canRead())) {
+                              throw new IOException("База данных неподходящего формата");
                         }
                   }
             }
@@ -202,13 +190,13 @@ public class DataTable implements Table {
                   return;
             }
 
-            ArrayList<Integer> offsets = new ArrayList<Integer>();
-            ArrayList<String> keys = new ArrayList<String>();
-            ArrayList<String> values = new ArrayList<String>();
+            List<Integer> offsets = new ArrayList<Integer>();
+            List<String> keys = new ArrayList<String>();
+            List<String> values = new ArrayList<String>();
 
             try {
                   do {
-                        ArrayList<Byte> keySymbols = new ArrayList<Byte>();
+                        List<Byte> keySymbols = new ArrayList<Byte>();
                         byte b = reader.readByte();
                         while (b != 0) {
                               keySymbols.add(b);
@@ -221,9 +209,7 @@ public class DataTable implements Table {
                         keys.add(new String(bytes, "UTF-8"));
 
                         int offset = reader.readInt();
-                        if ((offset <= 0)
-                                    || (!offsets.isEmpty() && offset <= offsets
-                                                .get(offsets.size() - 1))
+                        if ((offset <= 0) || (!offsets.isEmpty() && offset <= offsets.get(offsets.size() - 1))
                                     || (offset >= reader.length())) {
                               throw new IOException("Неверное значение сдвигов");
                         }
@@ -250,19 +236,17 @@ public class DataTable implements Table {
             reader.close();
       }
 
-      public void writeFile() throws FileNotFoundException, IOException,
-                  FileMapException {
+      public void writeFile() throws FileNotFoundException, IOException, FileMapException {
 
             if (dataStorage.getSize() == 0) {
                   return;
             }
 
-            ArrayList<Map<String, String>> dataBase = new ArrayList<Map<String, String>>();
-            Iterator<Map.Entry<String, String>> it = dataStorage.getMap()
-                        .entrySet().iterator();
+            Map<Integer, Map<String, String>> dataBase = new HashMap<Integer, Map<String, String>>();
+            Iterator<Map.Entry<String, String>> it = dataStorage.getMap().entrySet().iterator();
 
             for (int i = 0; i < 256; i++) {
-                  dataBase.add(new HashMap<String, String>());
+                  dataBase.put(i, new HashMap<String, String>());
             }
             while (it.hasNext()) {
                   Map.Entry<String, String> elem = it.next();
@@ -273,20 +257,16 @@ public class DataTable implements Table {
             }
             for (int i = 0; i < 256; i++) {
                   if (dataBase.get(i).size() != 0) {
-                        File dir = new File(dataBaseDir, String.valueOf(i / 16)
-                                    + ".dir");
+                        File dir = new File(dataBaseDir, String.valueOf(i / 16) + ".dir");
                         File file;
                         if (dir.exists()) {
                               if (!dir.isDirectory()) {
-                                    throw new FileMapException(
-                                                "База данных неподходящего формата");
+                                    throw new FileMapException("База данных неподходящего формата");
                               }
-                              file = new File(dir, String.valueOf(i % 16)
-                                          + ".dat");
+                              file = new File(dir, String.valueOf(i % 16) + ".dat");
                               if (file.exists()) {
                                     if (!file.isFile()) {
-                                          throw new FileMapException(
-                                                      "База данных неподходящего формата");
+                                          throw new FileMapException("База данных неподходящего формата");
                                     }
                               } else {
                                     file.createNewFile();
@@ -294,11 +274,9 @@ public class DataTable implements Table {
                         } else {
                               dir.mkdir();
                               if (!dir.exists()) {
-                                    throw new IOException(
-                                                "Проблема записи в базу данных");
+                                    throw new IOException("Проблема записи в базу данных");
                               }
-                              file = new File(dir, String.valueOf(i % 16)
-                                          + ".dat");
+                              file = new File(dir, String.valueOf(i % 16) + ".dat");
                               file.createNewFile();
                         }
                         write(file, dataBase.get(i));
@@ -307,16 +285,14 @@ public class DataTable implements Table {
             dataStorage.clear();
       }
 
-      public void write(File dataBaseFile, Map<String, String> storage)
-                  throws FileNotFoundException, IOException {
+      public void write(File dataBaseFile, Map<String, String> storage) throws FileNotFoundException, IOException {
             RandomAccessFile writer = new RandomAccessFile(dataBaseFile, "rw");
             writer.setLength(0);
 
             Integer offset = countOffset(storage);
-            ArrayList<String> values = new ArrayList<String>();
+            List<String> values = new ArrayList<String>();
 
-            Iterator<Map.Entry<String, String>> it = storage.entrySet()
-                        .iterator();
+            Iterator<Map.Entry<String, String>> it = storage.entrySet().iterator();
 
             while (it.hasNext()) {
                   Map.Entry<String, String> elem = it.next();
@@ -333,11 +309,9 @@ public class DataTable implements Table {
             writer.close();
       }
 
-      private Integer countOffset(Map<String, String> storage)
-                  throws IOException {
+      private Integer countOffset(Map<String, String> storage) throws IOException {
             Integer curOffset = 0;
-            Iterator<Map.Entry<String, String>> it = storage.entrySet()
-                        .iterator();
+            Iterator<Map.Entry<String, String>> it = storage.entrySet().iterator();
             while (it.hasNext()) {
                   curOffset += it.next().getKey().getBytes("UTF-8").length + 1 + 4;
             }

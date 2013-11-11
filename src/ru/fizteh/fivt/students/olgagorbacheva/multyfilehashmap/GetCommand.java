@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.olgagorbacheva.multyfilehashmap;
 
-
 import ru.fizteh.fivt.students.olgagorbacheva.shell.Command;
 import ru.fizteh.fivt.students.olgagorbacheva.shell.State;
 
-public class GetCommand implements Command{
+public class GetCommand implements Command {
 
       private String name = "get";
       private final int argNumber = 1;
-      
+
       MultyFileMapTableProvider provider;
 
       public GetCommand(MultyFileMapTableProvider provider) {
@@ -17,7 +16,7 @@ public class GetCommand implements Command{
 
       public void execute(String[] args, State state) {
             if (provider.currentDataBase == null) {
-                  throw new IllegalArgumentException("Таблица не выбрана"); 
+                  throw new IllegalArgumentException("Таблица не выбрана");
             }
             String value = provider.currentDataBase.get(args[1]);
             if (value == null) {
@@ -26,7 +25,7 @@ public class GetCommand implements Command{
                   System.out.println("found" + "\n" + value);
             }
       }
- 
+
       public String getName() {
             return name;
       }

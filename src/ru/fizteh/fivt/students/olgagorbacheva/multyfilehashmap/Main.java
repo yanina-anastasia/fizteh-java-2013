@@ -32,9 +32,9 @@ public class Main {
                   multyFileHashMap.addCommand(new UseCommand(provider));
 
                   multyFileHashMap.execute(args);
-                  
+
                   provider.writeToFile();
-            } catch(IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                   System.err.println("Я выпал в Main");
                   System.err.println(e.getMessage());
                   System.exit(1);

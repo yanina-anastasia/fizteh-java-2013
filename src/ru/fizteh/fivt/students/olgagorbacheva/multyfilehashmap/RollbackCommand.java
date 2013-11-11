@@ -7,9 +7,9 @@ public class RollbackCommand implements Command {
 
       private String name = "rollback";
       private final int argNumber = 0;
-      
+
       MultyFileMapTableProvider provider;
-      
+
       public RollbackCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }

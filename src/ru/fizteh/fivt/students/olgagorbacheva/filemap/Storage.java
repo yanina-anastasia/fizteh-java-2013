@@ -47,21 +47,21 @@ public class Storage {
       public Map<String, String> getMap() {
             return storage;
       }
-      
+
       public Set<String> keySet() {
             return storage.keySet();
       }
-      
+
       public int getSize() {
             return storage.size();
       }
-      
+
       public void clear() {
             storage.clear();
       }
-      
-//      public ... getKeys() {
-//            return storage.
-//      }
+
+      // public ... getKeys() {
+      // return storage.
+      // }
 
 }

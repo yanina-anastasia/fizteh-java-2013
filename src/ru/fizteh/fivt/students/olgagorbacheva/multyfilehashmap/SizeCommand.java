@@ -16,7 +16,7 @@ public class SizeCommand implements Command {
 
       public void execute(String[] args, State state) {
             if (provider.currentDataBase == null) {
-                  throw new IllegalArgumentException("Таблица не выбрана"); 
+                  throw new IllegalArgumentException("Таблица не выбрана");
             }
             System.out.println(provider.currentDataBase.size());
       }
@@ -30,4 +30,3 @@ public class SizeCommand implements Command {
       }
 
 }
-

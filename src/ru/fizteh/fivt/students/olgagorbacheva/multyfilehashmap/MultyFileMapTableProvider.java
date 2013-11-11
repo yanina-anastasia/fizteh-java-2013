@@ -25,8 +25,7 @@ public class MultyFileMapTableProvider implements TableProvider {
             if (tableList.length != 0) {
                   for (File f : tableList) {
                         if (f.isDirectory()) {
-                              DataTable dataTable = new DataTable(f.getName(),
-                                          f);
+                              DataTable dataTable = new DataTable(f.getName(), f);
                               tables.put(f.getName(), dataTable);
                         }
                   }
@@ -34,8 +33,7 @@ public class MultyFileMapTableProvider implements TableProvider {
       }
 
       public void writeToFile() throws FileNotFoundException, IOException {
-            Iterator<Map.Entry<String, DataTable>> it = tables.entrySet()
-                        .iterator();
+            Iterator<Map.Entry<String, DataTable>> it = tables.entrySet().iterator();
             while (it.hasNext()) {
                   Entry<String, DataTable> elem = it.next();
                   try {
@@ -48,8 +46,7 @@ public class MultyFileMapTableProvider implements TableProvider {
 
       public Table getTable(String name) {
             if (name == null || name.isEmpty()) {
-                  throw new IllegalArgumentException(
-                              "Недопустимое название таблицы");
+                  throw new IllegalArgumentException("Недопустимое название таблицы");
             }
             if (!name.matches(TABLE_NAME)) {
                   throw new RuntimeException("Недопустимое имя файла");
@@ -71,8 +68,7 @@ public class MultyFileMapTableProvider implements TableProvider {
 
       public Table createTable(String name) {
             if (name == null || name.isEmpty()) {
-                  throw new IllegalArgumentException(
-                              "Недопустимое название таблицы");
+                  throw new IllegalArgumentException("Недопустимое название таблицы");
             }
             if (!name.matches(TABLE_NAME)) {
                   throw new RuntimeException("Недопустимое имя файла");
@@ -82,8 +78,7 @@ public class MultyFileMapTableProvider implements TableProvider {
             }
             File f = new File(directory, name);
             if (!f.mkdir()) {
-                  throw new IllegalArgumentException(
-                              "Создание директории невозможно");
+                  throw new IllegalArgumentException("Создание директории невозможно");
             }
             DataTable newTable = new DataTable(name, f);
             tables.put(name, newTable);
@@ -102,8 +97,7 @@ public class MultyFileMapTableProvider implements TableProvider {
 
       public void removeTable(String name) throws IllegalArgumentException {
             if (name == null || name.isEmpty()) {
-                  throw new IllegalArgumentException(
-                              "Недопустимое название таблицы");
+                  throw new IllegalArgumentException("Недопустимое название таблицы");
             }
             if (!name.matches(TABLE_NAME)) {
                   throw new IllegalArgumentException("Недопустимое имя файла");

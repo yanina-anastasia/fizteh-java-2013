@@ -7,16 +7,16 @@ public class CommitCommand implements Command {
 
       private String name = "commit";
       private final int argNumber = 0;
-      
+
       MultyFileMapTableProvider provider;
-      
+
       public CommitCommand(MultyFileMapTableProvider provider) {
             this.provider = provider;
       }
 
       public void execute(String[] args, State state) {
             if (provider.currentDataBase == null) {
-                  throw new IllegalArgumentException("Таблица не выбрана"); 
+                  throw new IllegalArgumentException("Таблица не выбрана");
             }
             System.out.println(provider.currentDataBase.commit());
       }

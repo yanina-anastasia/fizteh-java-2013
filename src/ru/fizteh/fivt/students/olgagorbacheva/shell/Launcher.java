@@ -19,6 +19,9 @@ public class Launcher {
             if (args.length == 0) {
                   return true;
             }
+            if (args[0].equals("exit")) {
+                  return false;
+            }
             Command com = commandsMap.get(args[0]);
             if (com == null) {
                   throw new IOException(args[0] + ": нет такой комманды!");
@@ -37,9 +40,6 @@ public class Launcher {
 
             com.execute(args, state);
 
-            if (args[0].equals("exit")) {
-                  return false;
-            } else
-                  return true;
+            return true;
       }
 }

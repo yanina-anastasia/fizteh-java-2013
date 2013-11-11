@@ -16,12 +16,9 @@ public class UseCommand implements Command {
             this.provider = provider;
       }
 
-      public void execute(String[] args, State state) throws IOException{
-            if (provider.currentDataBase != null
-                        && provider.currentDataBase.sizeChangesCommit() != 0) {
-                  throw new IOException(
-                              provider.currentDataBase.sizeChangesCommit()
-                                          + " unsaved changes");
+      public void execute(String[] args, State state) throws IOException {
+            if (provider.currentDataBase != null && provider.currentDataBase.sizeChangesCommit() != 0) {
+                  throw new IOException(provider.currentDataBase.sizeChangesCommit() + " unsaved changes");
             }
             if (provider.setTable(args[1]) == null) {
                   System.out.println(args[1] + " not exist");
@@ -31,7 +28,7 @@ public class UseCommand implements Command {
                   }
                   System.out.println("using " + args[1]);
             }
-          
+
       }
 
       public String getName() {

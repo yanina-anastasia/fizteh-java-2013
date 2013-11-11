@@ -19,32 +19,32 @@ public class MultyFileMapTableProviderFactoryTest {
       }
 
       @Test (expected = IllegalArgumentException.class)
-      public void test1() {
+      public void createTableProviderInBadDirectory() {
             factory.create("/dev");
       }
       
       @Test (expected = IllegalArgumentException.class)
-      public void test2() {
+      public void createTableProviderInNotExistingDirectory() {
             factory.create("/home/olga/ololo");
       }
       
       @Test (expected = IllegalArgumentException.class)
-      public void test3() {
+      public void createNullNameTableProvider() {
             factory.create(null);
       }
       
       @Test (expected = IllegalArgumentException.class)
-      public void test4() {
+      public void createNlNameTableProvider() {
             factory.create("");
       }
       
       @Test (expected = IllegalArgumentException.class)
-      public void test5() {
+      public void createNlNameTableProvider2() {
             factory.create("              ");
       }
       
       @Test
-      public void test6() {
+      public void createTableProvider() {
             String dir = System.getProperty("user.dir") + "db";
             new File(dir).mkdir();
             factory.create(dir);
