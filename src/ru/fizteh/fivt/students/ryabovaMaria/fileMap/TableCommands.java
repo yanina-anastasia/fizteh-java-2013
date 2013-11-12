@@ -194,7 +194,7 @@ public class TableCommands implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) {
-        if (value == null || key == null || key.isEmpty()) {
+        if (value == null || key == null || key.isEmpty() || key.matches(".*\\s.*")) {
             throw new IllegalArgumentException("Bad args");
         }
         try {
