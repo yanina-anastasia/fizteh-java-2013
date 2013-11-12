@@ -4,12 +4,9 @@ public class ExitCommand implements Command  {
       private String name = "exit";
       private final int argNumber = 0;
       
-      public ExitCommand() {
-            
-      }
       
       public void execute(String args[], State state) {
- //           System.out.println("exit");
+            System.out.println("exit");
       }
       
       public String getName() {
