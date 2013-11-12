@@ -241,6 +241,13 @@ public class FileMapProvider implements TableProvider {
                         throw new ParseException(String.format("Type mismatch: %s expected, %s found",
                                 columnTypes.get(i).toString(), object.getClass().toString()), i);
                     }
+                } else if (columnTypes.get(i) == Boolean.class) {
+                    if (object.getClass() == Boolean.class) {
+                        newList.setColumnAt(i, object);
+                    } else {
+                        throw new ParseException(String.format("Type mismatch: %s expected, %s found",
+                                columnTypes.get(i).toString(), object.getClass().toString()), i);
+                    }
                 } else if (columnTypes.get(i) == Float.class) {
                     if (object.getClass() == Double.class) {
                         newList.setColumnAt(i, Float.valueOf(((Double) object).floatValue()));
