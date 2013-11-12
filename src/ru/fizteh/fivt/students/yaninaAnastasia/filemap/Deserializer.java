@@ -66,7 +66,7 @@ public class Deserializer {
     public void close() throws IOException, ParseException {
         try {
             int nodeType = reader.next();
-            if (nodeType != XMLStreamConstants.END_ELEMENT && nodeType != XMLStreamConstants.END_DOCUMENT) {
+            if (!reader.isEndElement() /*&& nodeType != XMLStreamConstants.END_DOCUMENT*/) {
                 throw new ParseException("Incorrect XML format5", 0);
             }
         } catch (XMLStreamException e) {
