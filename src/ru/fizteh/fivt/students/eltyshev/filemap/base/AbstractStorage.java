@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractStorage<Key, Value> {
     class TransactionChanges {
@@ -25,8 +27,7 @@ public abstract class AbstractStorage<Key, Value> {
             }
         }
 
-        public int applyChanges()
-        {
+        public int applyChanges() {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
                 ValueDifference diff = modifiedData.get(key);
@@ -42,8 +43,7 @@ public abstract class AbstractStorage<Key, Value> {
             return recordsChanged;
         }
 
-        public int countChanges()
-        {
+        public int countChanges() {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
                 ValueDifference diff = modifiedData.get(key);
@@ -97,6 +97,8 @@ public abstract class AbstractStorage<Key, Value> {
             return key1.equals(key2);
         }
     }
+
+    private final Lock transactionLock = new ReentrantLock(true);
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
@@ -181,17 +183,22 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public int storageCommit() {
-        int recordsCommitted = transactionChanges.get().applyChanges();
-        transactionChanges.get().clear();
-
         try {
-            save();
-        } catch (IOException e) {
-            System.err.println("storageCommit: " + e.getMessage());
-            return 0;
-        }
+            transactionLock.lock();
+            int recordsCommitted = transactionChanges.get().applyChanges();
+            transactionChanges.get().clear();
 
-        return recordsCommitted;
+            try {
+                save();
+            } catch (IOException e) {
+                System.err.println("storageCommit: " + e.getMessage());
+                return 0;
+            }
+
+            return recordsCommitted;
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     public int storageRollback() {

@@ -8,9 +8,8 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.students.eltyshev.parallel.database.ThreadSafeDatabaseTableProviderFactory;
+import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseTableProviderFactory;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class ThreadSafeTableTest {
 
     @Before
     public void setUp() throws Exception {
-        TableProviderFactory factory = new ThreadSafeDatabaseTableProviderFactory();
+        TableProviderFactory factory = new DatabaseTableProviderFactory();
         provider = factory.create(DATABASE_DIRECTORY);
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         columnTypes.add(String.class);
@@ -74,8 +73,7 @@ public class ThreadSafeTableTest {
             Storeable value1 = makeStoreable(index);
             Storeable value2 = currentTable.get(key);
             //System.out.println(String.format("expected: %s, actual: %s thread: %d", value1.toString(), value2.toString(), Thread.currentThread().getId()));
-            if (value1 == null || value2 == null)
-            {
+            if (value1 == null || value2 == null) {
                 System.out.println("BOOOM");
             }
             if (value1.equals(value2)) {

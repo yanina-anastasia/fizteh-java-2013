@@ -1,13 +1,15 @@
 package ru.fizteh.fivt.students.eltyshev.storable.database;
 
-import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 public class DatabaseTableProviderFactory implements TableProviderFactory {
+
     @Override
-    public TableProvider create(String directory) throws IOException {
+    public synchronized TableProvider create(String directory) throws IOException {
         if (directory == null) {
             throw new IllegalArgumentException("directory cannot be null");
         }

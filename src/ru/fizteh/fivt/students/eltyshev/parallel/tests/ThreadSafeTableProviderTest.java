@@ -5,9 +5,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.eltyshev.parallel.database.ThreadSafeDatabaseTableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.students.eltyshev.storable.database.DatabaseTableProviderFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class ThreadSafeTableProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        TableProviderFactory factory = new ThreadSafeDatabaseTableProviderFactory();
+        TableProviderFactory factory = new DatabaseTableProviderFactory();
         provider = factory.create(DATABASE_DIRECTORY);
     }
 
