@@ -21,7 +21,7 @@ public class Deserializer {
 		int i = 0;
 		reader.next();
 		if (!reader.isStartElement() || !reader.getName().getLocalPart().equals("row")) {
-			throw new ParseException("parse error1", i);
+			throw new ParseException("parse error: expected <row>", i);
 		}
 		
 		while(i < table.getColumnsCount()) {
@@ -33,14 +33,14 @@ public class Deserializer {
 					st.setColumnAt(i, Functions.getClass(smth, table.getColumnType(i).getSimpleName()));
 					++i;
 				} else {
-					throw new ParseException("parse error2", i);
+					throw new ParseException("parse error: empty value", i);
 				}  
 			} else {
 				if (reader.isStartElement() && reader.getName().getLocalPart().equals("null")) {
 					st.setColumnAt(i, null);
 					++i;
 				} else {
-					throw new ParseException("", i);
+					throw new ParseException("parse exception: expected next element", i);
 				}
 			}
 			reader.next();
@@ -52,7 +52,7 @@ public class Deserializer {
 
 		reader.next();
 		if (!reader.isEndElement()) {
-			throw new ParseException("parse error4", 0);
+			throw new ParseException("last element not found", i);
 		}
 		
 		return st;

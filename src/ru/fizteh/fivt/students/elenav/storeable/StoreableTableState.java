@@ -46,7 +46,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		}
 	}
 	
-	private void getColumnTypes() throws IOException {
+	public void getColumnTypes() throws IOException {
 		File f = new File(getWorkingDirectory(), "signature.tsv");
 		if (!f.exists()) {
 			throw new IOException("can't get " + getName() + "'s signature: file doesn't exist");
@@ -69,6 +69,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (columnTypes.isEmpty()) {
 			throw new IOException(getName() + " has empty signature");
 		} 
+
 	}
 
 	@Override
@@ -136,8 +137,6 @@ public class StoreableTableState extends FilesystemState implements Table {
 		}
 			
 	}
-
-
 
 	@Override
 	public Storeable remove(String key) {
@@ -300,8 +299,11 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	@Override
 	public String put(String key, String value) throws XMLStreamException, ParseException {
-		Storeable storeable = Deserializer.run(this, value);
-		return Serializer.run(this, put(key, storeable));
+		Storeable storeable = put(key, Deserializer.run(this, value));
+		if (storeable == null) {
+			return null;
+		}
+		return Serializer.run(this, storeable);
 	}
 
 }

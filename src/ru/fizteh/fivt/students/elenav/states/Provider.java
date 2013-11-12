@@ -18,6 +18,7 @@ public interface Provider {
 
 	StoreableTableState createTable(String string, List<Class<?>> identifyTypes)  throws IOException;
 
-	
+	void use(FilesystemState table) throws IOException;
+
 	
 }

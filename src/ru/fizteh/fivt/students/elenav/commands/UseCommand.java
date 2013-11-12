@@ -28,12 +28,13 @@ public class UseCommand extends AbstractCommand {
 	
 	private void useTable(String name) throws IOException {
 		FilesystemState table = getState();
-		File f = new File(getState().provider.getWorkingDirectory(), name);
+		File f = new File(table.provider.getWorkingDirectory(), name);
 		if (!f.exists()) {
 			getState().getStream().println(name + " not exists");
 		} else {
 			if (getState().getWorkingDirectory() == null || getState().getName() != null && !name.equals(getState().getName())) {
 				table.setWorkingDirectory(f);
+				table.provider.use(table);
 				table.read();
 				getState().getStream().println("using " + name);
 			}

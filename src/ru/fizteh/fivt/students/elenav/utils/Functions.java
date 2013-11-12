@@ -64,32 +64,22 @@ public class Functions {
 	
 	public static Object getClass(String value, String type) throws ParseException {
 		try {
-			switch (type) {
-			
-			case "Integer": 
+			if (type.equals("Integer")) { 
 				return Integer.parseInt(value);
-				
-			case "Long": 
+			} else if (type.equals("Long")) { 
 				return Long.parseLong(value);
-				
-			case "Byte":
+			} else if (type.equals("Byte")) {
 				return Byte.parseByte(value);
-				
-			case "Float": 
+			} else if (type.equals("Float")) { 
 				return Float.parseFloat(value);
-				
-			case "Double": 
+			} else if (type.equals("Double")) {
 				return Double.parseDouble(value);
-				
-			case "Boolean": 
+			} else if (type.equals("Boolean")) { 
 				return Boolean.parseBoolean(value);
-				
-			case "String": 
+			} else if (type.equals("String")) { 
 				return value;
-				
-			default: 
-				throw new ParseException("parse error", 0);
-				
+			} else {
+				throw new ParseException("invalide type of object: " + type, 0);
 			}
 		} catch (NumberFormatException e) {
 			throw new ParseException("parse error", 0);

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.states.Provider;
 import ru.fizteh.fivt.students.elenav.storeable.StoreableTableState;
 import ru.fizteh.fivt.students.elenav.utils.Functions;
@@ -108,6 +109,11 @@ public class MultiFileMapProvider implements TableProvider, Provider {
 	public StoreableTableState createTable(String string, List<Class<?>> identifyTypes) {
 		System.err.print("Command can't be executed");
 		return null;
+	}
+
+	@Override
+	public void use(FilesystemState s) throws IOException {
+		
 	}
 
 }

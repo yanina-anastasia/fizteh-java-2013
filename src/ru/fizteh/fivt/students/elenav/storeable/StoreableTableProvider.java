@@ -183,5 +183,11 @@ public class StoreableTableProvider implements TableProvider, Provider {
 		return null;
 	}
 
+	@Override
+	public void use(FilesystemState table) throws IOException {
+		StoreableTableState.class.cast(table).getColumnTypes();
+		
+	}
+
 	
 }
