@@ -10,7 +10,7 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 15:10
  */
-public class WorkWithMFHM {
+public class WorkWithDirs {
 
     private static void makeUpParsedMap(Map<String, String>[][] mapReadyForWrite, Map<String, String> dataBase) {
         for (String key : dataBase.keySet()) {
@@ -20,7 +20,7 @@ public class WorkWithMFHM {
             int indexDat = hashCode / 16 % 16;
 
             if (mapReadyForWrite[indexDir][indexDat] == null) {
-                mapReadyForWrite[indexDir][indexDat] = new HashMap<String, String>();
+                mapReadyForWrite[indexDir][indexDat] = new HashMap<>();
             }
             mapReadyForWrite[indexDir][indexDat].put(key, dataBase.get(key));
         }

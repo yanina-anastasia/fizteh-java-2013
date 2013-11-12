@@ -4,14 +4,13 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * User: Alexander
  * Date: 21.10.13
  * Time: 13:27
  */
-public class TableManagerCreator implements TableProviderFactory {
+public class MultiFileTableProviderFactory implements TableProviderFactory {
     @Override
     public TableProvider create(String directoryWithTables) {
         if (directoryWithTables == null || directoryWithTables.trim().isEmpty()) {
@@ -20,7 +19,7 @@ public class TableManagerCreator implements TableProviderFactory {
 
         TableProvider tableManager = null;
         File file = new File(directoryWithTables);
-        tableManager = new TableManager(file);
+        tableManager = new MultiFileTableProvider(file);
         return tableManager;
 
     }

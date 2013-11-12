@@ -1,6 +1,6 @@
-package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
+package ru.fizteh.fivt.students.adanilyak.storeable;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.commands.*;
 import ru.fizteh.fivt.students.adanilyak.tools.ShellLogic;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericCmdList;
@@ -8,22 +8,22 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 
 /**
  * User: Alexander
- * Date: 21.10.13
- * Time: 16:40
+ * Date: 03.11.13
+ * Time: 20:19
  */
-public class MultiFileHashMapShell extends GenericShell {
-    private final Integer PARSER_AND_EXECUTOR = 1;
+public class StoreableShell extends GenericShell {
+    private final Integer PARSER_AND_EXECUTOR = 2;
 
-    public MultiFileHashMapShell(String[] args) {
+    public StoreableShell(String args[]) {
         String workingDirectory = System.getProperty("fizteh.db.dir");
         if (workingDirectory == null) {
             System.err.println("Data Base directory is not set");
             System.exit(3);
         }
         try {
-            MultiFileTableProviderFactory multiFileTableProviderFactory = new MultiFileTableProviderFactory();
-            TableProvider tableManager = multiFileTableProviderFactory.create(workingDirectory);
-            MultiFileDataBaseGlobalState state = new MultiFileDataBaseGlobalState(tableManager);
+            StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
+            TableProvider tableProvider = tableProviderFactory.create(workingDirectory);
+            StoreableDataBaseGlobalState state = new StoreableDataBaseGlobalState(tableProvider);
             runShell(args, makeUpCmdList(state));
         } catch (Exception exc) {
             System.err.println(exc.getMessage());
@@ -39,7 +39,7 @@ public class MultiFileHashMapShell extends GenericShell {
         }
     }
 
-    public GenericCmdList makeUpCmdList(MultiFileDataBaseGlobalState state) {
+    public GenericCmdList makeUpCmdList(StoreableDataBaseGlobalState state) {
         GenericCmdList stockShellCmdList = new GenericCmdList();
         stockShellCmdList.addCommand(new CmdPut(state));
         stockShellCmdList.addCommand(new CmdGet(state));

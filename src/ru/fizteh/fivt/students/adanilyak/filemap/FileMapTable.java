@@ -1,10 +1,9 @@
-package ru.fizteh.fivt.students.adanilyak.modernfilemap;
+package ru.fizteh.fivt.students.adanilyak.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDatFiles;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +13,12 @@ import java.util.Map;
  * Date: 21.10.13
  * Time: 1:05
  */
-public class SingleTable implements Table {
+public class FileMapTable implements Table {
     private Map<String, String> dataBaseStorage;
     private File dataBaseDatFile;
 
-    public SingleTable(File datFile) throws IOException {
-        dataBaseStorage = new HashMap<String, String>();
+    public FileMapTable(File datFile) throws IOException {
+        dataBaseStorage = new HashMap<>();
         dataBaseDatFile = datFile;
         try {
             WorkWithDatFiles.readIntoMap(dataBaseDatFile, dataBaseStorage);
@@ -80,10 +79,6 @@ public class SingleTable implements Table {
         /*
          not supported function
           */
-    }
-
-    public void testPrint() {
-        System.out.println(dataBaseStorage);
     }
 
     public int exit() {

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.multifilehashmap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
-import ru.fizteh.fivt.students.adanilyak.tools.WorkWithMFHM;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkWithDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,17 +17,17 @@ import java.util.Set;
  * Date: 21.10.13
  * Time: 13:26
  */
-public class TableStorage implements Table {
+public class MultiFileTable implements Table {
     private File tableStorageDirectory;
     private Map<String, String> data = new HashMap<String, String>();
     private Map<String, String> changes = new HashMap<String, String>();
     private Set<String> removedKeys = new HashSet<String>();
     private int amountOfChanges = 0;
 
-    public TableStorage(File dataDirectory) {
+    public MultiFileTable(File dataDirectory) {
         tableStorageDirectory = dataDirectory;
         try {
-            WorkWithMFHM.readIntoDataBase(tableStorageDirectory, data);
+            WorkWithDirs.readIntoDataBase(tableStorageDirectory, data);
         } catch (IOException exc) {
             throw new IllegalArgumentException("Read from file failed", exc);
         }
@@ -111,7 +111,7 @@ public class TableStorage implements Table {
         }
         data.putAll(changes);
         try {
-            WorkWithMFHM.writeIntoFiles(tableStorageDirectory, data);
+            WorkWithDirs.writeIntoFiles(tableStorageDirectory, data);
         } catch (Exception exc) {
             System.err.println("commit: " + exc.getMessage());
         }
