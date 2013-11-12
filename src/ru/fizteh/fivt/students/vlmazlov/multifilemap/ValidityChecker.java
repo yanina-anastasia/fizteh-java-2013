@@ -49,8 +49,8 @@ public class ValidityChecker {
 	   	throw new ValidityCheckFailedException("Passed storeable has too many columns");
     }
 
-	public static void checkMultiFileStorageName(File toCheck, int maxValue) throws ValidityCheckFailedException {
-		if (!toCheck.getName().matches("\\d\\d?.d((ir)|(at))")) {
+    public static void checkMultiFileStorageDir(File toCheck, int maxValue) throws ValidityCheckFailedException {
+    	if (!toCheck.getName().matches("\\d\\d?.dir")) {
 			throw new ValidityCheckFailedException(toCheck.getPath() + " is not a valid name");
 		}
 
@@ -58,6 +58,26 @@ public class ValidityChecker {
 	
 		if ((Integer.parseInt(tokens[0]) >= maxValue) && (Integer.parseInt(tokens[0]) < 0)) {
 			throw new ValidityCheckFailedException(toCheck.getPath() + " is not a valid name");
+		}
+
+		if (toCheck.listFiles().length == 0) {
+			throw new ValidityCheckFailedException(toCheck.getPath() + " is empty");
+		}
+    }
+
+	public static void checkMultiFileStorageFile(File toCheck, int maxValue) throws ValidityCheckFailedException {
+		if (!toCheck.getName().matches("\\d\\d?.dat")) {
+			throw new ValidityCheckFailedException(toCheck.getPath() + " is not a valid name");
+		}
+
+		String[] tokens = toCheck.getName().split("\\.");
+	
+		if ((Integer.parseInt(tokens[0]) >= maxValue) && (Integer.parseInt(tokens[0]) < 0)) {
+			throw new ValidityCheckFailedException(toCheck.getPath() + " is not a valid name");
+		}
+
+		if (toCheck.length() == 0) {
+			throw new ValidityCheckFailedException(toCheck.getPath() + " is empty");
 		}
 	}
 
@@ -128,7 +148,7 @@ public class ValidityChecker {
 
 		if (!signatureSeen) {
 			throw new ValidityCheckFailedException("Table signature not specified or specified incorrectly"); 
-		} 
+		}
 	}
 
 	public static void checkMultiTableRoot(File root) throws ValidityCheckFailedException {

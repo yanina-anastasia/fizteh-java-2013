@@ -52,10 +52,10 @@ public class ProviderReader {
                 continue;
             }
 
-            ValidityChecker.checkMultiFileStorageName(directory, DIRECTORIES_QUANTITY);
+            ValidityChecker.checkMultiFileStorageDir(directory, DIRECTORIES_QUANTITY);
 
             for (File file : directory.listFiles()) {
-                ValidityChecker.checkMultiFileStorageName(file, FILES_QUANTITY);
+                ValidityChecker.checkMultiFileStorageFile(file, FILES_QUANTITY);
 
                 TableReader.readTable(directory, file, tableParts.get(getNum(directory)).get(getNum(file)), provider);
 
