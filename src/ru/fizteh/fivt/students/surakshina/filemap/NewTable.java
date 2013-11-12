@@ -57,7 +57,7 @@ public class NewTable implements Table {
     }
 
     private void checkName(String name) {
-        if (name == null || name.trim().isEmpty() || name.contains(" ") || name.contains("\t")
+        if (name == null || name.trim().isEmpty() || name.split("\\s").length > 1 || name.contains("\t")
                 || name.contains(System.lineSeparator()) || name.contains("[") || name.contains("]")) {
             throw new IllegalArgumentException("wrong type (incorrect key)");
         }
