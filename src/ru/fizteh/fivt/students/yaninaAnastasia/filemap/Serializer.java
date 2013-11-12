@@ -24,14 +24,10 @@ public class Serializer implements Closeable {
 
     public void write(Object value) throws IOException, ParseException {
         try {
-            streamWriter.writeStartElement("col");
             if (value == null) {
-                streamWriter.writeStartElement("null");
-                streamWriter.writeEndElement();
+                streamWriter.writeEmptyElement("null");
             } else {
-                if (value == null) {
-                    return;
-                }
+                streamWriter.writeStartElement("col");
                 switch (ColumnTypes.fromTypeToName(value.getClass())) {
                     case "String":
                         String str = (String) value;
@@ -41,8 +37,8 @@ public class Serializer implements Closeable {
                         break;
                 }
                 streamWriter.writeCharacters(value.toString());
+                streamWriter.writeEndElement();
             }
-            streamWriter.writeEndElement();
         } catch (XMLStreamException e) {
             throw new IOException("Error with serializing: " + e.getMessage());
         }
