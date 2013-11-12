@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.msandrikova.filemap;
 
+import java.text.ParseException;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
@@ -24,12 +27,29 @@ public class PutCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().currentTable == null && shell.getState().isMultiFileHashMap) {
+		if(shell.getState().currentTable == null && (shell.getState().isMultiFileHashMap || shell.getState().isStoreable)) {
 			System.out.println("no table");
 			return;
 		}
 		
-		String oldValue = shell.getState().currentTable.put(key, value);
+		String oldValue = null;
+		
+		if(!shell.getState().isStoreable) {
+			oldValue = shell.getState().currentTable.put(key, value);
+		} else {
+			Storeable storeableValue = null;
+			try {
+				storeableValue = shell.getState().storeableTableProvider.deserialize(shell.getState().currentStoreableTable, value);
+			} catch (ParseException e) {
+				System.out.println("wrong type (" + e.getMessage() + ")");
+			}
+			try {
+				oldValue = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, 
+						shell.getState().currentStoreableTable.put(key, storeableValue));
+			} catch (IllegalArgumentException e) {
+				System.out.println("wrong type (" + e.getMessage() + ")");
+			}
+		}
 
 		if(oldValue == null) {
 			System.out.println("new");
