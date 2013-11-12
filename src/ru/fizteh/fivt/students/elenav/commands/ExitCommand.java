@@ -9,6 +9,7 @@ public class ExitCommand extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) {
+		getState().commit();
 		throw new ExitException();
 	}
 }
