@@ -38,6 +38,9 @@ public class DBTable implements Table {
                             dirFile.getName(), tableDir.getName()));
                 } else {
                     File[] listFilesInsideDir = dirFile.listFiles();
+                    if (listFilesInsideDir.length == 0){
+                        throw new IOException("empty dir " + dirFile.getName());
+                    }
                     for (File datFiles : listFilesInsideDir) {
                         if (!datFiles.getName().matches("(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.dat")) {
                             throw new IOException(String.format("illegal name of file %s inside dir %s inside table %s",
