@@ -365,7 +365,7 @@ public class TableProviderCommands implements TableProvider {
                         throw new Exception("illegal value type");
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("column " + i + " " + type.getSimpleName().toString() + " " + value.getColumnAt(i));
+                throw new ColumnFormatException("column " + i + " " + type.getSimpleName().toString());
             }
             try {
                 text.put(current);

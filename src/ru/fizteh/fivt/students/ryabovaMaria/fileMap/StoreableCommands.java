@@ -2,6 +2,8 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
@@ -12,9 +14,13 @@ public class StoreableCommands implements Storeable{
     StoreableCommands(List<Class<?>> types) {
         this.types = new ArrayList(types);
         values = new ArrayList(types.size());
-        Object empty = new Object();
         for (int i = 0; i < types.size(); ++i) {
-            values.add(empty);
+            Class type = types.get(i);
+            try {
+                values.add(type.getConstructor());
+            } catch (NoSuchMethodException | SecurityException ex) {
+                throw new IllegalArgumentException("Illegal type of column");
+            }
         }
     }
     
