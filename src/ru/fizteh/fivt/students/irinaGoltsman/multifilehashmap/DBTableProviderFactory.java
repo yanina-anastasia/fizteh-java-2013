@@ -6,10 +6,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class DBTableProviderFactory implements TableProviderFactory {
-
     public TableProvider create(String rootDir) throws IOException {
-        if (rootDir == null) {
-            throw new IllegalArgumentException("Directory name can not be null");
+        if (rootDir == null || rootDir.trim().isEmpty() || !rootDir.matches("[A-Za-zА-Яа-я0-9]+")) {
+            throw new IllegalArgumentException("wrong directory name");
         }
         TableProvider newTableProvider = null;
         File file = new File(rootDir);
