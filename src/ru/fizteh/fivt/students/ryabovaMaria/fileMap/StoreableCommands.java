@@ -50,7 +50,9 @@ public class StoreableCommands implements Storeable{
         }
         Class type = types.get(columnIndex);
         Class valueClass = value.getClass();
-        if (!type.getSimpleName().equals(valueClass.getSimpleName())) {
+        String typeClassName = type.getSimpleName().toString().toUpperCase();
+        String valueClassName = valueClass.getSimpleName().toString().toUpperCase();
+        if (!typeClassName.equals(valueClassName)) {
             throw new ColumnFormatException();
         } else {
             values.set(columnIndex, value);
