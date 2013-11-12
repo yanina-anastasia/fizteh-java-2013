@@ -70,7 +70,7 @@ public class TestsDatabaseTable {
 
     @Test
     public void testPutWithNulls() throws Exception {
-        table.put("brandnewrandomkey", provider.deserialize(table, "<row><col><null></null></col></row>"));
+        table.put("brandnewrandomkey", provider.deserialize(table, "<row><null></null></row>"));
         List<Object> values = new ArrayList<Object>() { { add(null); } };
         Storeable st = provider.createFor(table, values);
         table.put("SADASDASD", st);
@@ -253,6 +253,12 @@ public class TestsDatabaseTable {
         Assert.assertEquals(multiColumnTable.getColumnType(0), Integer.class);
         Assert.assertEquals(multiColumnTable.getColumnType(1), String.class);
         Assert.assertEquals(multiColumnTable.getColumnType(2), Double.class);
+    }
+
+    @Test
+    public void testShortNull()  throws Exception
+    {
+        table.put("key", provider.deserialize(table, "<row><null/></row>"));
     }
 
     @Test

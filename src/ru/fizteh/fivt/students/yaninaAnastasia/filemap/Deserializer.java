@@ -41,21 +41,20 @@ public class Deserializer {
         Object value = null;
         try {
             int nodeType = reader.next();
+            if (nodeType == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("null"))
+            {
+                return null;
+            }
             if (nodeType != XMLStreamConstants.START_ELEMENT || !reader.getName().getLocalPart().equals("col")) {
                 throw new ParseException("Incorrect XML format", 0);
             }
             nodeType = reader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
                 value = ColumnTypes.parsingValue(reader.getText(), expectedType);
-            } else {
-                if (!reader.getName().getLocalPart().equals("null")) {
-                    throw new ParseException("Incorrect XML format", 0);
-                }
-                value = null;
-                nodeType = reader.next();
-                if (nodeType != XMLStreamConstants.END_ELEMENT) {
-                    throw new ParseException("Incorrect XML format", 0);
-                }
+            }
+            else
+            {
+                throw new ParseException("Incorrect XML format", 0);
             }
             nodeType = reader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT) {
