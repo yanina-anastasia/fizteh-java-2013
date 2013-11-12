@@ -313,7 +313,7 @@ public class TableProviderCommands implements TableProvider {
             }
             Object current = null;
             try {
-                switch (type.getSimpleName()) {
+                switch (type.getSimpleName().toString()) {
                     case "int" :
                     case "Integer" :
                         try {
