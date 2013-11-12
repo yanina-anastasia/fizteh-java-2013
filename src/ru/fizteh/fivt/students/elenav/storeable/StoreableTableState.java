@@ -115,17 +115,23 @@ public class StoreableTableState extends FilesystemState implements Table {
 	}
 	
 	private void checkStoreable(Storeable s) {
+		int i = 0;
 		try {
-			int i = 0;
 			for (; i < columnTypes.size(); ++i) {
 				if (s.getColumnAt(i) != null && !columnTypes.get(i).isAssignableFrom(s.getColumnAt(i).getClass())) {
 					throw new ColumnFormatException("column types are not similar");
 				}
 			}
-			s.getColumnAt(i);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ColumnFormatException("size is not similar");
 		}
+		try {
+			s.getColumnAt(i);
+			throw new ColumnFormatException("size is not similar");
+		} catch (IndexOutOfBoundsException e) {
+			// do nothing
+		}
+		
 		
 	}
 
