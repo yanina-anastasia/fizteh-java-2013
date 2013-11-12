@@ -101,7 +101,7 @@ public class StoreableUtils {
        int columnCount = table.getColumnsCount();
        for (int i = 0; i < columnCount; ++i) {
            try {
-               if (storeable.getColumnAt(i) == null) {
+                if (storeable.getColumnAt(i) == null) {
                    continue;
                }
                Class<?> storeableClass = storeable.getColumnAt(i).getClass();

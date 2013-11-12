@@ -81,8 +81,12 @@ public class TableImplementation implements Table {
         }
         boolean result = true;
         for (int i = 0; i < columnsCount; ++i) {
-            if (!first.getColumnAt(i).equals(second.getColumnAt(i))) {
-                result = false;
+            Object firstObject = first.getColumnAt(i);
+            Object secondObject = second.getColumnAt(i);
+            if (firstObject == null) {
+                result &= (secondObject == null);
+            } else {
+                result &= secondObject != null && firstObject.equals(secondObject);
             }
         }
         return result;
@@ -140,8 +144,8 @@ public class TableImplementation implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Empty key");
         }
-        if (key.contains(" ")) {
-            throw new IllegalArgumentException("Key shouldn't contain whitespaces");
+        if (key.contains(" ") || key.trim().length() == 0) {
+            throw new IllegalArgumentException("Key shouldn't contain whitespaces and be non-empty");
         }
         if (value == null) {
             throw new IllegalArgumentException("Empty value");
