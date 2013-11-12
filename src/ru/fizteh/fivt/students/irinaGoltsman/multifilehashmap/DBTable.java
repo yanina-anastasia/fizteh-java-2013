@@ -103,6 +103,9 @@ public class DBTable implements Table {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("put: key is empty");
         }
+        if (key.contains(" ") || key.contains("\t") || key.contains("\n")) {
+            throw new IllegalArgumentException("put: key contains white space");
+        }
         checkEqualityTypes(value);
         Storeable originalValue = originalTable.get(key);
         Storeable oldValue = tableOfChanges.put(key, value);
