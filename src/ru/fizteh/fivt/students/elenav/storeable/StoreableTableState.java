@@ -81,7 +81,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	@Override
 	public Storeable put(String key, Storeable value1) throws ColumnFormatException {
-		if (key == null || value1 == null || key.trim().isEmpty() || key.contains(" ")) {
+		if (key == null || value1 == null || key.trim().isEmpty() || key.contains("\\s+")) {
 			throw new IllegalArgumentException("can't put null key or(and) value");
 		}
 		checkStoreable(value1);
