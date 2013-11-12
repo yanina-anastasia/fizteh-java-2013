@@ -114,7 +114,7 @@ public class FileMapCommands extends AbstractCommands {
             throw new Exception("incorrect nubmer of args");
         }
         String tableName = lexems[1];
-        if (myTable != null) {
+        if (usingTable == true) {
             Class c = myTable.getClass();
             Method makeCommand = c.getMethod("countChanges", boolean.class);
             int counted = (int) makeCommand.invoke(myTable, false);
@@ -124,10 +124,10 @@ public class FileMapCommands extends AbstractCommands {
             }
         }
         try {
-            myTable = myTableProvider.getTable(tableName);
-            if (myTable == null) {
+            if (myTableProvider.getTable(tableName) == null) {
                 System.out.println(tableName + " not exists");
             } else {
+                myTable = myTableProvider.getTable(tableName);
                 usingTable = true;
                 System.out.println("using " + tableName);
             }
@@ -245,15 +245,6 @@ public class FileMapCommands extends AbstractCommands {
     }
     
     public void exit() throws Exception {
-        if (myTable != null) {
-            Class c = myTable.getClass();
-            Method makeCommand = c.getMethod("countChanges", boolean.class);
-            int counted = (int) makeCommand.invoke(myTable, false);
-            if (counted != 0) {
-                System.out.println(counted + " unsaved changes");
-                return;
-            }
-        }
         System.exit(0);
     }
 }
