@@ -312,9 +312,9 @@ public class Calculator {
                     if (a > 0 ? b > Integer.MAX_VALUE / a
                             || b < Integer.MIN_VALUE / a
                             : (a < -1 ? b > Integer.MIN_VALUE / a
-                                || b < Integer.MAX_VALUE / a
-                                : a == -1
-                                    && b == Integer.MIN_VALUE)) {
+                            || b < Integer.MAX_VALUE / a
+                            : a == -1
+                            && b == Integer.MIN_VALUE)) {
                         System.err.print("Integer overflow by multiplying the numbers "
                                 + Integer.toString(a, 17) + " and " + Integer.toString(b, 17));
                         System.exit(1);

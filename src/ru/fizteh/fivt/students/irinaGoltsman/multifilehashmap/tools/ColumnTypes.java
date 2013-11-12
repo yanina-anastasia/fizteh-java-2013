@@ -73,7 +73,7 @@ public class ColumnTypes {
         }
         inputTypes = inputTypes.substring(1, inputTypes.length() - 1);
         try {
-            List<Class<?>> types = convertArrayOfStringsToListOfClasses(inputTypes.split(" "));
+            List<Class<?>> types = convertArrayOfStringsToListOfClasses(inputTypes.split("\\s"));
             return types;
         } catch (ColumnFormatException e) {
             throw new ParseException(e.getMessage(), 0);
