@@ -78,6 +78,8 @@ public class MultiFileHashTable implements Table {
             throw new DatabaseException("Couldn't open table '" + tableName + "'");
         }
 
+        writeSignatureFile();
+
         table = new HashMap<>();
         oldValues = new HashMap<>();
         readTable();
