@@ -5,7 +5,7 @@ import org.junit.*;
 import java.io.File;
 
 public class MultiFileHashMapTableProviderTest {
-    private ExtendedTableProvider tableProvider;
+    private ExtendedMultiFileHashMapTableProvider tableProvider;
     File dbDirectory = new File("./myCoolDatabase");
 
     @Before
@@ -40,9 +40,9 @@ public class MultiFileHashMapTableProviderTest {
 
     @Test
     public void getCreatedTable() {
-        ExtendedTable created = tableProvider.createTable("testGet");
-        ExtendedTable firstGet = tableProvider.getTable("testGet");
-        ExtendedTable secondGet = tableProvider.getTable("testGet");
+        ExtendedMultiFileHashMapTable created = tableProvider.createTable("testGet");
+        ExtendedMultiFileHashMapTable firstGet = tableProvider.getTable("testGet");
+        ExtendedMultiFileHashMapTable secondGet = tableProvider.getTable("testGet");
         Assert.assertSame("getting should returns the same table as create", created, firstGet);
         Assert.assertSame("getting the same table twice should return the same", firstGet, secondGet);
         tableProvider.removeTable("testGet");

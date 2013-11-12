@@ -9,8 +9,8 @@ public abstract class AbstractTable<ValueType> {
     private HashMap<String, ValueType> newEntries;
     private HashMap<String, ValueType> changedEntries;
     private HashMap<String, ValueType> removedEntries;
-    boolean autoCommit;
-    String tableName;
+    private boolean autoCommit;
+    private String tableName;
 
     public Set<Map.Entry<String, ValueType>> getEntrySet() {
         return hashMap.entrySet();

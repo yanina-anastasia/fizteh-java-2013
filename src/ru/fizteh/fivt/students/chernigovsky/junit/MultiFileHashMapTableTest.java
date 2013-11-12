@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class MultiFileHashMapTableTest {
-    private ExtendedTable table;
-    private ExtendedTableProvider tableProvider;
+    private ExtendedMultiFileHashMapTable table;
+    private ExtendedMultiFileHashMapTableProvider tableProvider;
     File dbDirectory = new File("./myCoolDatabase");
 
     @Before

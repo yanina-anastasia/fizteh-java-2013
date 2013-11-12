@@ -1,9 +1,8 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.*;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTable;
 import ru.fizteh.fivt.students.chernigovsky.junit.MultiFileHashMapTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.MultiFileHashMapTableProvider;
 
 import java.io.*;
 import java.util.HashMap;
@@ -29,8 +28,8 @@ public class Main {
             }
         }
 
-        ExtendedTableProvider myTableProvider = new MultiFileHashMapTableProvider(tableDirectory, true);
-        ExtendedTable myTable = new MultiFileHashMapTable("db.dat", true);
+        ExtendedMultiFileHashMapTableProvider myTableProvider = new MultiFileHashMapTableProvider(tableDirectory, true);
+        ExtendedMultiFileHashMapTable myTable = new MultiFileHashMapTable("db.dat", true);
         State state = new State(myTable, myTableProvider);
 
         try {

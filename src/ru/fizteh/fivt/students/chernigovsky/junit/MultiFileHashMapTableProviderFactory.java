@@ -12,7 +12,7 @@ public class MultiFileHashMapTableProviderFactory implements TableProviderFactor
      * @return Объект для работы с базой данных.
      * @throws IllegalArgumentException Если значение директории null или имеет недопустимое значение.
      */
-    public ExtendedTableProvider create(String dir) {
+    public ExtendedMultiFileHashMapTableProvider create(String dir) {
         if (dir == null) {
             throw new IllegalArgumentException("dir is null");
         }

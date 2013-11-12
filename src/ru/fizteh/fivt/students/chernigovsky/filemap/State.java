@@ -1,26 +1,26 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTableProvider;
 
 public class State {
-    private ExtendedTable currentTable;
-    private ExtendedTableProvider currentTableProvider;
+    private ExtendedMultiFileHashMapTable currentTable;
+    private ExtendedMultiFileHashMapTableProvider currentTableProvider;
 
-    public State(ExtendedTable newTable, ExtendedTableProvider newTableProvider) {
+    public State(ExtendedMultiFileHashMapTable newTable, ExtendedMultiFileHashMapTableProvider newTableProvider) {
         currentTable = newTable;
         currentTableProvider = newTableProvider;
     }
 
-    public ExtendedTable getCurrentTable() {
+    public ExtendedMultiFileHashMapTable getCurrentTable() {
         return currentTable;
     }
 
-    public void changeCurrentTable(ExtendedTable newCurrentTable) {
+    public void changeCurrentTable(ExtendedMultiFileHashMapTable newCurrentTable) {
         currentTable = newCurrentTable;
     }
 
-    public ExtendedTableProvider getCurrentTableProvider() {
+    public ExtendedMultiFileHashMapTableProvider getCurrentTableProvider() {
         return currentTableProvider;
     }
 

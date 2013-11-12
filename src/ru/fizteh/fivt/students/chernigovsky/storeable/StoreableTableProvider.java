@@ -1,0 +1,168 @@
+package ru.fizteh.fivt.students.chernigovsky.storeable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.chernigovsky.junit.AbstractTableProvider;
+
+import java.io.*;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+public class StoreableTableProvider extends AbstractTableProvider<ExtendedStoreableTable> implements ExtendedStoreableTableProvider {
+    public StoreableTableProvider(File newDbDirectory, boolean flag) {
+        super(newDbDirectory, flag);
+        if (newDbDirectory != null) {
+            for (String string : newDbDirectory.list()) {
+                ExtendedStoreableTable newTable = new StoreableTable(string, flag, null);
+                tableHashMap.put(string, newTable);
+                /*try {
+                    MultiFileHashMapUtils.readTable(new State(newTable, this));
+                } catch (IOException ex) {
+                    throw new RuntimeException();
+                }*/
+            }
+        }
+    }
+
+    /**
+     * Создаёт таблицу с указанным названием.
+     *
+     * @param name Название таблицы.
+     * @return Объект, представляющий таблицу. Если таблица уже существует, возвращает null.
+     * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
+     */
+    public ExtendedStoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+    if (name == null) {
+            throw new IllegalArgumentException("name is null");
+        }
+        if (!name.matches(TABLE_NAME_FORMAT)) {
+            throw new IllegalArgumentException("wrong table name");
+        }
+
+        if (tableHashMap.get(name) != null) {
+            return null;
+        }
+
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("columnTypes is null");
+        }
+
+        if (columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("ColumnTypes list is empty");
+        }
+
+        File tableDirectory = new File(getDbDirectory(), name);
+        if (!tableDirectory.mkdir()) {
+            throw new IllegalArgumentException("directory making error");
+        }
+
+        File signature = new File(tableDirectory, "signature.tsv");
+        if (!signature.createNewFile()) {
+            throw new IllegalArgumentException("signature making error");
+        }
+
+        FileOutputStream fileOutputStream = new FileOutputStream(signature);
+        fileOutputStream.getChannel().truncate(0); // Clear file
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+        DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
+        try {
+            for (Class<?> type : columnTypes) {
+                if (type == null) {
+                    throw new IllegalArgumentException("wrong column type");
+                }
+                TypeEnum typesEnum = TypeEnum.getByClass(type);
+                if (typesEnum == null) {
+                    throw new IOException("write error");
+                }
+                String typeString = TypeEnum.getByClass(type).getSignature();
+                dataOutputStream.write(typeString.getBytes("UTF_8"));
+                dataOutputStream.write(' ');
+            }
+
+        } finally {
+            dataOutputStream.close();
+        }
+
+        ExtendedStoreableTable newTable = new StoreableTable(name, autoCommit, columnTypes);
+
+        tableHashMap.put(name, newTable);
+        return newTable;
+    }
+
+    /**
+     * Преобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable}, соответствующий структуре таблицы.
+     *
+     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     * @param value Строка, из которой нужно прочитать {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     * @return Прочитанный {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     *
+     * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
+     */
+    public MyStoreable deserialize(Table table, String value) throws ParseException {
+        JSONArray array;
+        try {
+            array = new JSONArray(value);
+        } catch (JSONException ex) {
+            throw new ParseException("JSONArray create error", -1);
+        }
+
+        if (array.length() == table.getColumnsCount()) {
+            throw new ParseException("incorrect value", -1);
+        }
+
+        for (int i = 0; i < array.length(); ++i) {
+            //TypeEnum.
+        }
+
+        return null;
+    }
+
+    /**
+     * Преобразовывает объект {@link ru.fizteh.fivt.storage.structured.Storeable} в строку.
+     *
+     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     * @param value {@link ru.fizteh.fivt.storage.structured.Storeable}, который нужно записать.
+     * @return Строка с записанным значением.
+     *
+     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
+     */
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        return null;
+    }
+
+    /**
+     * Создает новый пустой {@link ru.fizteh.fivt.storage.structured.Storeable} для указанной таблицы.
+     *
+     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     * @return Пустой {@link ru.fizteh.fivt.storage.structured.Storeable}, нацеленный на использование с этой таблицей.
+     */
+    public MyStoreable createFor(Table table) {
+        return new MyStoreable(table);
+    }
+
+    /**
+     * Создает новый {@link ru.fizteh.fivt.storage.structured.Storeable} для указанной таблицы, подставляя туда переданные значения.
+     *
+     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
+     * @param values Список значений, которыми нужно проинициализировать поля Storeable.
+     * @return {@link ru.fizteh.fivt.storage.structured.Storeable}, проинициализированный переданными значениями.
+     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа переданного значения и колонки.
+     * @throws IndexOutOfBoundsException При несоответствии числа переданных значений и числа колонок.
+     */
+    public MyStoreable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table.getColumnsCount() != values.size()) {
+            throw new IndexOutOfBoundsException("invalid values count");
+        }
+
+        MyStoreable storeable = new MyStoreable(table);
+        for (int i = 0; i < values.size(); ++i) {
+            storeable.setColumnAt(i, values.get(i));
+        }
+
+        return storeable;
+    }
+}
