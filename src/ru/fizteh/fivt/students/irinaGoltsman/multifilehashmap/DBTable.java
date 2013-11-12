@@ -103,7 +103,7 @@ public class DBTable implements Table {
         if (key.trim().isEmpty()) {
             throw new IllegalArgumentException("put: key is empty");
         }
-        if (key.contains(" ") || key.contains("\t") || key.contains("\n")) {
+        if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("put: key contains white space");
         }
         checkEqualityTypes(value);
