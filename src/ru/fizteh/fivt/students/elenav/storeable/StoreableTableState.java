@@ -75,13 +75,6 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	}
 
-	@Override
-	public Storeable get(String key) {
-		if (key == null || key.trim().isEmpty()) {
-			throw new IllegalArgumentException("can't get null key");
-		}
-		return map.get(key);
-	} 
 
 	@Override
 	public Storeable put(String key, Storeable value1) throws ColumnFormatException {
@@ -158,6 +151,16 @@ public class StoreableTableState extends FilesystemState implements Table {
 			}
 		}
 		return value;
+	}
+	
+	@Override 
+	public String removeKey(String key) {
+		try {
+			return Serializer.run(this, remove(key));
+		} catch (XMLStreamException e) {
+			System.err.println("can't serialize to remove key: "+key);
+		}
+		return null;
 	}
 
 	@Override
@@ -349,5 +352,24 @@ public class StoreableTableState extends FilesystemState implements Table {
 		}
 		return Serializer.run(this, storeable);
 	}
+	
+	@Override
+	public Storeable get(String key) {
+		if (key == null || key.trim().isEmpty()) {
+			throw new IllegalArgumentException("can't get null key");
+		}
+		return map.get(key);
+	} 
+	
+	@Override
+	public String getValue(String key) {
+		try {
+			return Serializer.run(this, get(key));
+		} catch (XMLStreamException e) {
+			System.err.println("can't serialize "+key+"'s value to get it");
+			System.exit(1);
+		}
+		return null;
+	} 
 
 }

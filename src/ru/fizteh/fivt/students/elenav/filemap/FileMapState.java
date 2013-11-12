@@ -30,9 +30,13 @@ public class FileMapState extends FilesystemState {
 		s.close();
 	}
 
-	@Override
 	public String get(String key) {
 		return map.get(key);
+	}
+	
+	@Override
+	public String getValue(String key) {
+		return get(key);
 	}
 
 	@Override
@@ -40,9 +44,13 @@ public class FileMapState extends FilesystemState {
 		return map.put(key, value);
 	}
 
-	@Override
 	public String remove(String key) {
 		return map.remove(key);
+	}
+	
+	@Override
+	public String removeKey(String key) {
+		return remove(key);
 	}
 
 	@Override

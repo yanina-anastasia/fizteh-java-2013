@@ -110,16 +110,13 @@ public abstract class FilesystemState {
 		return commands;
 	}
 
-	
 	public abstract int commit();
-
-	public abstract Object get(String string);
 
 	public abstract String put(String string, String string2) throws XMLStreamException, ParseException;
 	
 	public abstract Storeable put(String string, Storeable string2);
 
-	public abstract Object remove(String string);
+	public abstract String removeKey(String string);
 
 	public abstract int rollback();
 
@@ -132,5 +129,7 @@ public abstract class FilesystemState {
 	public void setName(String n) {
 		name = n;
 	}
+
+	public abstract String getValue(String key);
 	
 }

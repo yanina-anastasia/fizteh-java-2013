@@ -14,9 +14,9 @@ public class RemoveCommand extends AbstractCommand {
 		if (table.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
-			if (table.get(key) != null) {
+			if (table.getValue(key) != null) {
 				getState().getStream().println("removed");
-				getState().getStream().println(table.remove(key));
+				getState().getStream().println(table.removeKey(key));
 			}
 			else {
 				getState().getStream().println("not found");

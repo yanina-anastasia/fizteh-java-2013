@@ -18,7 +18,7 @@ public class PutCommand extends AbstractCommand {
 			getState().getStream().println("no table");
 		} else {
 			try {
-				if (table.get(args[1]) != null) {
+				if (table.getValue(args[1]) != null) {
 					getState().getStream().println("overwrite");
 					getState().getStream().println(table.put(args[1], args[2]));
 				}

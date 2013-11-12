@@ -40,22 +40,30 @@ public class ShellState extends FilesystemState implements ShellFace {
 		return 0;
 	}
 
-	@Override
-	public Object get(String string) {
+	public String get(String string) {
 		System.err.print("Command can't be executed");
 		return null;
 	}
 
+	@Override
+	public String getValue(String string) {
+		return get(string);
+	}
+	
 	@Override
 	public String put(String string, String string2) {
 		System.err.print("Command can't be executed");
 		return null;
 	}
 
-	@Override
 	public String remove(String string) {
 		System.err.print("Command can't be executed");
 		return null;
+	}
+	
+	@Override
+	public String removeKey(String string) {
+		return remove(string);
 	}
 
 	@Override

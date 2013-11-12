@@ -13,9 +13,9 @@ public class GetCommand extends AbstractCommand {
 		if (table.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
 		} else {
-			if (table.get(key) != null) {
+			if (table.getValue(key) != null) {
 				getState().getStream().println("found");
-				getState().getStream().println(table.get(key));
+				getState().getStream().println(table.getValue(key));
 			} else {
 				getState().getStream().println("not found");
 			}

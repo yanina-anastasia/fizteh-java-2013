@@ -35,6 +35,11 @@ public class MultiFileMapState extends FilesystemState implements Table {
 		}
 		return map.get(key);
 	} 
+	
+	@Override
+	public String getValue(String key) {
+		return get(key);
+	} 
 
 	@Override
 	public String put(String key, String value) {
@@ -81,6 +86,11 @@ public class MultiFileMapState extends FilesystemState implements Table {
 			}
 		}
 		return value;
+	}
+	
+	@Override
+	public String removeKey(String key) {
+		return remove(key);
 	}
 
 	@Override
