@@ -51,6 +51,7 @@ public class ThreadSafeTableProviderTest {
                     createTableAndCount();
                 }
             }));
+            threads.get(threadNumber).start();
         }
         createTableAndCount();
         for (Thread thread : threads) {
