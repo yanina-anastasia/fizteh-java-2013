@@ -20,8 +20,42 @@ public class DBTable implements Table {
     private List<Class<?>> columnTypes;
     private TableProvider tableProvider;
 
+    private void checkTableDir(File tableDir) throws IOException {
+        if (!tableDir.exists()) {
+            throw new IOException(String.format("DBTable: table dir %s does not exist", tableDir));
+        }
+        File[] listFiles = tableDir.listFiles();
+        if (listFiles == null) {
+            throw new IOException(String.format("DBTable: file %s is not a dir", tableDir));
+        }
+        if (listFiles.length == 0) {
+            throw new IOException("empty dir");
+        }
+        for (File dirFile : listFiles) {
+            if (dirFile.isDirectory()) {
+                if (!dirFile.getName().matches("dir(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)")) {
+                    throw new IOException(String.format("illegal name of dir %s inside table %s",
+                            dirFile.getName(), tableDir.getName()));
+                } else {
+                    File[] listFilesInsideDir = dirFile.listFiles();
+                    for (File datFiles : listFilesInsideDir) {
+                        if (!datFiles.getName().matches("(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.dat")) {
+                            throw new IOException(String.format("illegal name of file %s inside dir %s inside table %s",
+                                    datFiles.getName(), dirFile.getName(), tableDir.getName()));
+                        }
+                    }
+                }
+            } else {
+                if (!dirFile.getName().equals("signature.tsv")) {
+                    throw new IOException("illegal file " + dirFile.getName());
+                }
+            }
+        }
+    }
+
     public DBTable(File inputTableDirectory, TableProvider provider, List<Class<?>> types)
             throws IOException {
+        checkTableDir(inputTableDirectory);
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
         columnTypes = types;
@@ -44,14 +78,9 @@ public class DBTable implements Table {
 
     public DBTable(File inputTableDirectory, TableProvider provider)
             throws IOException {
+        checkTableDir(inputTableDirectory);
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
-        if (!inputTableDirectory.exists()) {
-            throw new IllegalArgumentException("DBTable: table dir does not exist");
-        }
-        if (inputTableDirectory.listFiles().length == 0) {
-            throw new IOException("empty dir");
-        }
         columnTypes = FileManager.readTableSignature(tableDirectory);
         HashMap<String, String> tmpTable = new HashMap<>();
         Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
