@@ -157,7 +157,11 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
             signature.add(columnType);
         }
 
-        scanner.close();
+        try {
+            scanner.close();
+        } finally {
+            System.err.println("Unable to close scanner");
+        }
         //В итоге заменил на другой, см. ProviderReadre.readMultiTable
         ///Костыль!!!!!!!!!!!!!!
         /*if (signatureFile.delete()) {
