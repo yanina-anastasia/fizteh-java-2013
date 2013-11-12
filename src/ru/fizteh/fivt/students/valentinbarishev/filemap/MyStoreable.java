@@ -22,7 +22,7 @@ public class MyStoreable implements Storeable{
 
         for (int i = 0; i < newValues.size(); ++i) {
             Object value = castTypes(table.getColumnType(i), newValues.get(i));
-            if (value.getClass() != table.getColumnType(i)) {
+            if (value != null && value.getClass() != table.getColumnType(i)) {
                 throw new ColumnFormatException(newValues.get(i).toString() + " must be " + table.getColumnType(i)
                         + " but it is " + newValues.get(i).getClass());
             }
@@ -57,7 +57,7 @@ public class MyStoreable implements Storeable{
         }
 
         Class<?> valueType = value.getClass();
-        if (valueType == JSONObject.NULL || JSONObject.NULL == value) {
+        if (valueType == JSONObject.NULL.getClass() || JSONObject.NULL == value) {
             return null;
         }
 
@@ -96,7 +96,7 @@ public class MyStoreable implements Storeable{
                     throw new ColumnFormatException("Too big number for byte type: " + value.toString());
                 }
             }
-            throw new ColumnFormatException("Wrong type: " + valueType + " insted of Byte!");
+            throw new ColumnFormatException("Wrong type: " + valueType + " instead of Byte!");
         }
 
         if (type == Long.class) {
@@ -109,7 +109,7 @@ public class MyStoreable implements Storeable{
             if (valueType == Integer.class) {
                 return new Long((int) value);
             }
-            throw new ColumnFormatException("Wrong type: " + valueType + " insted of Long!");
+            throw new ColumnFormatException("Wrong type: " + valueType + " instead of Long!");
         }
 
         if (type == Double.class) {
