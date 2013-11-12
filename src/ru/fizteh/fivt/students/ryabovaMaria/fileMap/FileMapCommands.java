@@ -187,8 +187,9 @@ public class FileMapCommands extends AbstractCommands {
             if (value == null) {
                 System.out.println("not found");
             } else {
+                String valueString = myTableProvider.serialize(myTable, value);
                 System.out.println("found");
-                System.out.println(myTableProvider.serialize(myTable, value));
+                System.out.println(valueString);
             }
         } catch (IllegalArgumentException e) {
             throw new Exception(e);
