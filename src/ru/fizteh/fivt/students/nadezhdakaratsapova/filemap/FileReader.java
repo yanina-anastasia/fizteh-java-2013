@@ -102,7 +102,6 @@ public class FileReader<ValueType> {
         }
         byte[] b = new byte[offsets.get(curValue)];
         inStream.read(b, 0, offsets.get(curValue));
-        //dataTable.put(keysToMap.get(curValue), new String(b, StandardCharsets.UTF_8));
         curPos += offsets.get(curValue);
         return new String(b, StandardCharsets.UTF_8);
     }

@@ -187,6 +187,7 @@ public class UniversalDataTable<ValueType> {
     }
 
     public void load() throws IOException, ParseException {
+        //System.out.println("blabla");
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();

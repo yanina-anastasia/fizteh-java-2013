@@ -122,7 +122,7 @@ public class StoreableTable implements Table {
 
     public void writeToDataBase() throws IOException {
         dataTable.writeToDataBase();
-        File sign = new File(getWorkingDirectory(), "signature.tsv");
+        File sign = new File(new File(getWorkingDirectory(), dataTable.getName()), "signature.tsv");
         sign.createNewFile();
         SignatureController signatureController = new SignatureController();
         signatureController.writeSignatureToFile(sign, columnTypes);

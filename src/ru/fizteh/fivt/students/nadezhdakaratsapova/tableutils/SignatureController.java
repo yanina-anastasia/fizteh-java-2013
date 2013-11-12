@@ -21,55 +21,56 @@ public class SignatureController {
                 if (!f.isFile()) {
                     throw new IllegalArgumentException(SIGNATURE_FILE_NAME + " should be a directory");
                 }
-            }
-            DataInputStream inStream = new DataInputStream(new FileInputStream(f));
-            long fileLength = f.length();
-            if (fileLength == 0) {
-                throw new IllegalArgumentException(SIGNATURE_FILE_NAME + " is empty");
-            }
-            int curPos = 0;
-            byte curByte;
-            List<Byte> type = new ArrayList<Byte>();
-            types = new ArrayList<Class<?>>();
-            while (curPos < fileLength) {
-                while ((curPos < fileLength) && ((curByte = inStream.readByte()) != ' ')) {
-                    type.add(curByte);
+
+                DataInputStream inStream = new DataInputStream(new FileInputStream(f));
+                long fileLength = f.length();
+                if (fileLength == 0) {
+                    throw new IllegalArgumentException(SIGNATURE_FILE_NAME + " is empty");
+                }
+                int curPos = 0;
+                byte curByte;
+                List<Byte> type = new ArrayList<Byte>();
+                types = new ArrayList<Class<?>>();
+                while (curPos < fileLength) {
+                    while ((curPos < fileLength) && ((curByte = inStream.readByte()) != ' ')) {
+                        type.add(curByte);
+                        ++curPos;
+                    }
+                    int arraySize = type.size();
+                    byte[] typeInBytes = new byte[arraySize];
+                    for (int j = 0; j < arraySize; ++j) {
+                        typeInBytes[j] = type.get(j);
+                    }
+                    String typeToReturn = new String(typeInBytes, StandardCharsets.UTF_8);
+                    type.clear();
+                    switch (typeToReturn) {
+                        case "int":
+                            types.add(Integer.class);
+                            break;
+                        case "long":
+                            types.add(Long.class);
+                            break;
+                        case "byte":
+                            types.add(Byte.class);
+                            break;
+                        case "float":
+                            types.add(Float.class);
+                            break;
+                        case "double":
+                            types.add(Double.class);
+                            break;
+                        case "boolean":
+                            types.add(Boolean.class);
+                            break;
+                        case "String":
+                            types.add(String.class);
+                            break;
+                        default:
+                            System.out.println(typeToReturn);
+                            throw new IllegalArgumentException("not allowable type of value in " + SIGNATURE_FILE_NAME);
+                    }
                     ++curPos;
                 }
-                int arraySize = type.size();
-                byte[] typeInBytes = new byte[arraySize];
-                for (int j = 0; j < arraySize; ++j) {
-                    typeInBytes[j] = type.get(j);
-                }
-                String typeToReturn = new String(typeInBytes, StandardCharsets.UTF_8);
-                type.clear();
-                switch (typeToReturn) {
-                    case "int":
-                        types.add(Integer.class);
-                        break;
-                    case "long":
-                        types.add(Long.class);
-                        break;
-                    case "byte":
-                        types.add(Byte.class);
-                        break;
-                    case "float":
-                        types.add(Float.class);
-                        break;
-                    case "double":
-                        types.add(Double.class);
-                        break;
-                    case "boolean":
-                        types.add(Boolean.class);
-                        break;
-                    case "String":
-                        types.add(String.class);
-                        break;
-                    default:
-                        System.out.println(typeToReturn);
-                        throw new IllegalArgumentException("not allowable type of value in " + SIGNATURE_FILE_NAME);
-                }
-                ++curPos;
             }
         }
 
@@ -125,6 +126,8 @@ public class SignatureController {
                     throw new IllegalArgumentException("Not allowed type of signature");
             }
         } catch (NumberFormatException e) {
+            System.out.println(cls);
+            System.out.println(s);
             throw new IllegalArgumentException("The column required for another type of value");
         }
         return value;

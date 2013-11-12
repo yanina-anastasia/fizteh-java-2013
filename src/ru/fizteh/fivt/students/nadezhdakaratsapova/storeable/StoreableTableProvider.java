@@ -132,6 +132,7 @@ public class StoreableTableProvider implements TableProvider {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
             Storeable ret = createFor(table);
             int columnCounter = 0;
+            int node = 0;
             if (xmlReader.hasNext()) {
                 int startNode = xmlReader.next();
                 if (!(startNode == XMLStreamConstants.START_ELEMENT) || !(xmlReader.getName().getLocalPart().equals("row"))) {
@@ -139,11 +140,11 @@ public class StoreableTableProvider implements TableProvider {
                 } else {
                     while (xmlReader.hasNext()) {
                         if (xmlReader.hasNext()) {
-                            int node = xmlReader.next();
+                            node = xmlReader.next();
                             if (node == XMLStreamConstants.END_ELEMENT) {
                                 break;
                             } else {
-                                if (((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) || ((node == XMLStreamConstants.END_ELEMENT) && (xmlReader.getName().getLocalPart().equals("null")))) {
+                                if ((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) {
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node == XMLStreamConstants.CHARACTERS) {
@@ -169,12 +170,13 @@ public class StoreableTableProvider implements TableProvider {
                                     if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
                                         throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
                                     }
-                                   /* if (xmlReader.hasNext()) {
+                                    ++columnCounter;
+                                    if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node != XMLStreamConstants.END_ELEMENT) {
                                             throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
                                         }
-                                    }  */
+                                    }
                                 }
                             }
                         } else {
@@ -182,6 +184,9 @@ public class StoreableTableProvider implements TableProvider {
                         }
                     }
                 }
+            }
+            if (node != XMLStreamConstants.END_ELEMENT) {
+                throw new ParseException("XML document structures must start and end within the same entity", 0);
             }
             xmlReader.close();
             return ret;
@@ -204,15 +209,17 @@ public class StoreableTableProvider implements TableProvider {
             xmlWriter.writeStartElement("row");
             int columnCount = table.getColumnsCount();
             for (int i = 0; i < columnCount; ++i) {
-                xmlWriter.writeStartElement("col");
+
                 String s = signatureController.convertStoreableFieldToString(value, i, table.getColumnType(i));
                 if (s == null) {
                     xmlWriter.writeStartElement("null");
-                    // xmlWriter.writeEndElement();
+                    xmlWriter.writeEndElement();
                 } else {
+                    xmlWriter.writeStartElement("col");
                     xmlWriter.writeCharacters(s);
+                    xmlWriter.writeEndElement();
                 }
-                xmlWriter.writeEndElement();
+
             }
             xmlWriter.writeEndElement();
             xmlWriter.flush();
@@ -243,9 +250,6 @@ public class StoreableTableProvider implements TableProvider {
         return storeable;
     }
 
-    public Table getCurTable() {
-        return curDataBaseStorage;
-    }
 }
 
 
