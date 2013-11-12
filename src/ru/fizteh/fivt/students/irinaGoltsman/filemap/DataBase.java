@@ -31,9 +31,12 @@ public class DataBase {
     }
 
     public static Code use(String[] args) {
-        int countOfChanges = ((DBTable) currentTable).countTheNumberOfChanges();
-        if (countOfChanges != 0) {
-            System.out.println(countOfChanges + "unsaved changes");
+        if (currentTable != null) {
+            int countOfChanges = ((DBTable) currentTable).countTheNumberOfChanges();
+            if (countOfChanges != 0) {
+                System.out.println(countOfChanges + "unsaved changes");
+                return Code.OK;
+            }
         }
         String inputTableName = args[1];
         Table tmpTable = currentTableProvider.getTable(inputTableName);
