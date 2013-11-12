@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.msandrikova.storeable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +11,12 @@ import java.util.Map;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTableProvider implements ChangesCountingTableProvider {
+public class StoreableTableProvider implements TableProvider {
 	private File currentDirectory;
-	private Map<String, ChangesCountingTable> mapOfTables = new HashMap<String, ChangesCountingTable>(); 
+	private Map<String, Table> mapOfTables = new HashMap<String, Table>(); 
 	
 
 	public StoreableTableProvider(File dir) throws IllegalArgumentException, IOException {
@@ -28,10 +30,10 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		} else {
 			for(File f : dir.listFiles()) {
 				if(f.isDirectory()){
-					ChangesCountingTable newTable = null;
+					Table newTable = null;
 					try {
 						List<Class<?>> columnTypes = Utils.getClassTypes(f);
-						newTable = new StoreableTable(this.currentDirectory, f.getName(), columnTypes);
+						newTable = new StoreableTable(this.currentDirectory, f.getName(), columnTypes, this);
 					} catch (IOException e) {
 						throw e;
 					}
@@ -61,14 +63,14 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 			throw e;
 		}
 		
-		ChangesCountingTable removedTable = this.mapOfTables.remove(name);
-		removedTable.setDeleted();
+		Table removedTable = this.mapOfTables.remove(name);
 	}
 
 	@Override
 	public Storeable deserialize(Table table, String value) throws ParseException {
+		Storeable row = this.createFor(table);
 		
-		return null;
+		return row;
 	}
 
 	@Override
@@ -79,19 +81,24 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public Storeable createFor(Table table) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+		for(int i = 0; i < table.getColumnsCount(); ++i) {
+			columnTypes.add(table.getColumnType(i));
+		}
+		return new TableRow(columnTypes);
 	}
 
 	@Override
-	public Storeable createFor(Table table, List<?> values)
-			throws ColumnFormatException, IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		return null;
+	public Storeable createFor(Table table, List<?> values) throws IndexOutOfBoundsException {
+		Storeable row = this.createFor(table);
+		for(int i = 0; i < table.getColumnsCount(); ++i) {
+			row.setColumnAt(i, values.get(i));
+		}
+		return row;
 	}
 
 	@Override
-	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
+	public Table getTable(String name) throws IllegalArgumentException {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
@@ -103,16 +110,16 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 	}
 
 	@Override
-	public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+	public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
 		if(this.mapOfTables.get(name) != null) {
 			return null;
 		}
-		ChangesCountingTable newTable = null;
+		Table newTable = null;
 		try {
-			newTable = new StoreableTable(this.currentDirectory, name, columnTypes);
+			newTable = new StoreableTable(this.currentDirectory, name, columnTypes, this);
 		} catch (IOException e) {
 			throw e;
 		}

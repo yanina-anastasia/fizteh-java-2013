@@ -162,7 +162,7 @@ public class Utils {
 	}
 	
 	public static boolean testUTFSize(String word) {
-		return 2 * word.length() <= 1000 * 1000;
+		return word.length() <= 1000 * 1000;
 	}
 	
 	public static boolean testBadSymbols(String name) {
@@ -177,6 +177,7 @@ public class Utils {
 		}
 	}
 	
+	
 	public static List<Class<?>> getClassTypes(File f) throws IOException {
 		File signature = new File(f, "signature.tsv");
 		if(!signature.exists()) {
@@ -184,6 +185,7 @@ public class Utils {
 		}
 		Scanner reader = new Scanner(new FileInputStream(signature));
 		if(!reader.hasNextLine()) {
+			reader.close();
 			throw new IOException("Signature file is empty.");
 		}
 		List<Class<?>> answer = new ArrayList<Class<?>>();
