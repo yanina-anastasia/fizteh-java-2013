@@ -159,7 +159,7 @@ public class MyStoreable implements Storeable{
 
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (value == null || value.getClass() == JSONObject.NULL) {
+        if (value == null || value == JSONObject.NULL) {
             value = null;
         }
         checkBounds(columnIndex);
