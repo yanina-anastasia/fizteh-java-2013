@@ -322,6 +322,10 @@ public class TableProviderCommands implements TableProvider {
                             throw new Exception("Integer " + i);
                         }
                         break;
+                    case "long" :
+                    case "Long" :
+                        current = value.getLongAt(i);
+                        break;
                     case "byte":
                     case "Byte" :
                         try {
