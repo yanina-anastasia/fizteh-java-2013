@@ -29,7 +29,7 @@ public class PutCommand implements Command {
                     System.out.println("new");
                 } else {
                     System.out.println("overwrite");
-                    System.out.println(value);
+                    System.out.println(curState.serialize(curState.curDataBaseStorage, value));
                 }
             } catch (ParseException e) {
                 System.err.println("put command: " + e.getMessage());
