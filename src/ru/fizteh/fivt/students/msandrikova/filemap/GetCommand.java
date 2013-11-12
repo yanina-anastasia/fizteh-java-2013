@@ -16,11 +16,20 @@ public class GetCommand extends Command {
 		}
 		
 		String key = argumentsList[1];
-		if(shell.getState().currentTable == null && shell.getState().isMultiFileHashMap) {
+		if(shell.getState().currentTable == null && (shell.getState().isMultiFileHashMap || shell.getState().isStoreable)) {
 			System.out.println("no table");
 			return;
 		}
-		String value = shell.getState().currentTable.get(key);
+		String value = null;
+		if(!shell.getState().isStoreable) {
+			value = shell.getState().currentTable.get(key);
+		} else {
+			try {
+				value = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.get(key));
+			} catch (IllegalArgumentException e) {
+				System.out.println("wrong type (" + e.getMessage() + ")");
+			}
+		}
 		
 		if(value == null){
 			System.out.println("not found");
