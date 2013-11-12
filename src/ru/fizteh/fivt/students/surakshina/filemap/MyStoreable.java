@@ -32,7 +32,7 @@ public class MyStoreable implements Storeable {
     @Override
     public boolean equals(Object obj) {
         if (this != null && obj == null) {
-            return true;
+            return false;
         }
         if (obj.getClass() != this.getClass()) {
             return false;

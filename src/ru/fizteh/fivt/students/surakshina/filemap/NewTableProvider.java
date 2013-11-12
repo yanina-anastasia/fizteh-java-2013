@@ -45,23 +45,7 @@ public class NewTableProvider implements TableProvider {
         for (File file : workingDirectory.listFiles()) {
             if (checkTableName(file.getName())) {
                 if (file.isDirectory()) {
-                    if (file.listFiles().length != 0) {
-                        if (this.checkSignature(new File(workingDirectory, file.getName()))) {
-                            for (File directory : file.listFiles()) {
-                                if (checkNameOfDataBaseDirectory(directory.getName()) && directory.isDirectory()
-                                        && directory.listFiles().length != 0) {
-                                    tables.put(file.getName(), new NewTable(file.getName(), this));
-                                } else {
-                                    throw new IOException("empty dir");
-                                }
-                            }
-
-                        } else {
-                            throw new IOException("no signature");
-                        }
-                    } else {
-                        throw new IOException("no signature");
-                    }
+                    tables.put(file.getName(), new NewTable(file.getName(), this));
                 } else {
                     throw new IllegalArgumentException("not a directory");
                 }
@@ -99,7 +83,7 @@ public class NewTableProvider implements TableProvider {
     }
 
     private boolean checkNameOfDataBaseDirectory(String dir) {
-        return (dir.matches("(([0-9])|(1[0-5]))\\.dir") || dir.equals("signature.tsv"));
+        return (dir.matches("(([0-9])|(1[0-5]))\\.dir"));
     }
 
     private boolean checkNameOfFiles(String file) {
@@ -147,17 +131,6 @@ public class NewTableProvider implements TableProvider {
             }
         }
         return table;
-    }
-
-    private boolean checkSignature(File tableFile) {
-        if (tableFile.listFiles().length != 0) {
-            for (int i = 0; i < tableFile.listFiles().length; ++i) {
-                if (tableFile.listFiles()[i].getName().equals("signature.tsv")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {

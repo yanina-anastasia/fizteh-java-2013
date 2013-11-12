@@ -19,16 +19,43 @@ public class NewTable implements Table {
     private ArrayList<Class<?>> types;
 
     public NewTable(String newName, NewTableProvider newProvider) throws IOException {
+        File file = new File(newProvider.getCurrentDirectory(), newName);
+        if (file.listFiles().length != 0) {
+            for (File directory : file.listFiles()) {
+                if (directory.getName().equals("signature.tsv")) {
+                    continue;
+                }
+                if (!checkNameOfDataBaseDirectory(directory.getName()) || !directory.isDirectory()
+                        || directory.listFiles().length == 0) {
+                    throw new IOException("empty dir");
+                }
+            }
+
+        } else {
+            throw new IOException("no signature");
+        }
         name = newName;
         provider = newProvider;
         types = readSignature();
     }
 
+    private boolean checkNameOfDataBaseDirectory(String dir) {
+        return (dir.matches("(([0-9])|(1[0-5]))\\.dir"));
+    }
+
+    private boolean checkNameOfFiles(String file) {
+        return file.matches("(([0-9])|(1[0-5]))\\.dat");
+    }
+
     private ArrayList<Class<?>> readSignature() throws IOException {
         ArrayList<Class<?>> list = new ArrayList<Class<?>>();
         try {
-            FileInputStream stream = new FileInputStream(new File(provider.getCurrentDirectory() + File.separator
-                    + this.name + File.separator + "signature.tsv"));
+            File sign = new File(provider.getCurrentDirectory() + File.separator + this.name + File.separator
+                    + "signature.tsv");
+            if (!sign.exists()) {
+                throw new IOException("Signature does not exist");
+            }
+            FileInputStream stream = new FileInputStream(sign);
             Scanner scanner = new Scanner(stream);
             int i = 0;
             while (scanner.hasNext()) {
