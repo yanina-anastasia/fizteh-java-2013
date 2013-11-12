@@ -28,12 +28,11 @@ public class CommandUse extends DataBaseCommand {
                 System.out.println(name + " not exists");
                 return;
             }
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | IllegalArgumentException e) {
             state.printError(e.getMessage());
             return;
         }
         state.getTableProvider().setCurrentTable((NewTable) table);
         System.out.println("using " + name);
     }
-
 }

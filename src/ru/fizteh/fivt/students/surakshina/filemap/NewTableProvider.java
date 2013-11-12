@@ -127,7 +127,7 @@ public class NewTableProvider implements TableProvider {
             try {
                 table.loadCommitedValues(load(tableFile));
             } catch (IOException | ParseException e) {
-                // ok
+                throw new IllegalArgumentException("Wrong key");
             }
         }
         return table;
