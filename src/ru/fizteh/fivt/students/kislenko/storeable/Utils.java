@@ -122,6 +122,9 @@ public class Utils {
         Set<String> keySet = table.getMap().keySet();
         for (String s : keySet) {
             TwoLayeredString key = new TwoLayeredString(s);
+            if (table.get(key.getKey()) == null) {
+                continue;
+            }
             String value = table.getProvider().serialize(table, table.get(key.getKey()));
             datafiles.get(getHash(key)).writeInt(key.getKey().getBytes(StandardCharsets.UTF_8).length);
             datafiles.get(getHash(key)).writeInt(value.getBytes(StandardCharsets.UTF_8).length);
