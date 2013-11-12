@@ -82,6 +82,8 @@ public class JsonUtils {
                         result.setColumnAt(i, Long.valueOf(object.toString()));
                     } else if (table.getColumnType(i) == Float.class) {
                         result.setColumnAt(i, Float.valueOf(object.toString()));
+                    } else if (table.getColumnType(i) == Byte.class) {
+                        result.setColumnAt(i, Byte.valueOf(object.toString()));
                     } else {
                         result.setColumnAt(i, table.getColumnType(i).cast(object));
                     }
