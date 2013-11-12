@@ -194,7 +194,7 @@ public class TableCommands implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) {
-        if (value == null || key == null) {
+        if (value == null || key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Bad args");
         }
         try {
@@ -205,7 +205,7 @@ public class TableCommands implements Table {
             Storeable answer = tableProvider.deserialize(this, lastValue);
             return answer;
         } catch (ParseException | NullPointerException e) {
-            return null;
+            throw new IllegalArgumentException("incorrect args");
         }
     }
 
