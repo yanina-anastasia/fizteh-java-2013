@@ -134,6 +134,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             args = myParsing(args);
             String key = args[0];
             String value = args[1];
+            if (value.contains("<null>")) {
+                dbData.putTypeNull(key, true);
+            } else {
+                dbData.putTypeNull(key, false);
+            }
             Storeable res = dbData.put(key, deserialize(dbData, value));
             if (res == null) {
                 outPrint("new");
@@ -153,15 +158,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             if (res == null) {
                 outPrint("not found");
             } else {
-                //System.err.println("found\r\n" + serialize(dbData, res));
-                //outPrint("found\r\n" + serialize(dbData, res));
-                //System.out.flush();
                 String s = serialize(dbData, res);
+                if (dbData.getTypeNull(key)) {
+                    s = s.replaceAll("<null/>", "<null></null>");
+                }
                 outPrint("found");
-                //outPrint("\n");
-                //System.out.flush();
                 outPrint(s);
-                //System.out.flush();
             }
         }
     }
@@ -393,6 +395,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
             XMLInputFactory inputFactory = XMLInputFactory.newFactory();
             Storeable line = new FileMapStoreable(columnTypes);
+
             try {
                 XMLStreamReader reader = inputFactory.createXMLStreamReader(new StringReader(value));
                 try {
@@ -407,7 +410,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                     while (reader.hasNext()) {
                         reader.nextTag();
                         if (!reader.getLocalName().equals("col")) {
-                            //System.out.println(reader.getLocalName());
                             if (!reader.getLocalName().equals("null") && !reader.isEndElement()) {
                                 throw new ParseException("invalid xml", reader.getLocation().getCharacterOffset());
                             }
@@ -416,10 +418,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                             }
                         }
                         String text = reader.getElementText();
+
                         if (text.isEmpty()) {
-                            line.setColumnAt(columnIndex, null);
+                            if (reader.getLocalName().equals("null")) {
+                                line.setColumnAt(columnIndex, null);
+                            }
                         } else {
-                            //System.out.println("123" + text);
                             if (!text.equals("null")) {
                                 line.setColumnAt(columnIndex, parseValue(text, columnTypes.get(columnIndex)));
                             }
@@ -457,9 +461,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 writer.writeStartElement("row");
                 for (int i = 0; i < columnType.size(); i++) {
                     if (value.getColumnAt(i) == null) {
-                        //writer.writeEmptyElement("null");
-                        writer.writeStartElement("null");
-                        writer.writeEndElement();
+                       //  writer.writeStartElement("null");
+                       // writer.writeEndElement();
+                       writer.writeEmptyElement("null");
                     } else {
                         writer.writeStartElement("col");
                         writer.writeCharacters(getStringFromElement(value, i, columnType.get(i)));

@@ -37,6 +37,7 @@ public class FileMap implements Table {
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
     String s1 = "";
+    Map<String, Boolean> typeNull;
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
@@ -44,6 +45,7 @@ public class FileMap implements Table {
         this.changeTable = new HashMap<>();
         this.parent = parent;
         this.tableData = new HashMap<>();
+        this.typeNull = new HashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -385,6 +387,18 @@ public class FileMap implements Table {
         return changeTable.size();
     }
 
+    public void putTypeNull(String key, Boolean type) {
+        typeNull.put(key, type);
+    }
+
+    public Boolean getTypeNull(String key) {
+        if (typeNull.containsKey(key) && tableData.containsKey(key)) {
+            return typeNull.get(key);
+        } else {
+            return false;
+        }
+    }
+
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkArg(key);
         if (value == null) {
@@ -414,23 +428,17 @@ public class FileMap implements Table {
                 try {
                     if (columnType.get(index) == Integer.class) {
                         value.getIntAt(index);
-                    }
-                    else if (columnType.get(index) == Long.class) {
+                    } else if (columnType.get(index) == Long.class) {
                         value.getLongAt(index);
-                    }
-                    else if (columnType.get(index) == Byte.class) {
+                    } else if (columnType.get(index) == Byte.class) {
                         value.getByteAt(index);
-                    }
-                    else if (columnType.get(index) == Float.class) {
+                    } else if (columnType.get(index) == Float.class) {
                         value.getFloatAt(index);
-                    }
-                    else if (columnType.get(index) == Double.class) {
+                    } else if (columnType.get(index) == Double.class) {
                         value.getDoubleAt(index);
-                    }
-                    else if (columnType.get(index) == Boolean.class) {
+                    } else if (columnType.get(index) == Boolean.class) {
                         value.getBooleanAt(index);
-                    }
-                    else if (columnType.get(index) == String.class) {
+                    } else if (columnType.get(index) == String.class) {
                         value.getStringAt(index);
                     } else {
                         throw new ColumnFormatException("in ColumnType isn't provide type");
