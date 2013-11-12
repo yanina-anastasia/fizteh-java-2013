@@ -150,6 +150,7 @@ public class DataBase {
             System.out.println("created");
             return Code.OK;
         } else {
+            System.out.println(nameTable + " exists");
             return Code.ERROR;
         }
     }
