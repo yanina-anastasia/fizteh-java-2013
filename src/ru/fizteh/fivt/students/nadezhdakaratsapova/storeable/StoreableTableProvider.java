@@ -143,7 +143,7 @@ public class StoreableTableProvider implements TableProvider {
                             if (node == XMLStreamConstants.END_ELEMENT) {
                                 break;
                             } else {
-                                if ((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) {
+                                if (((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) || ((node == XMLStreamConstants.END_ELEMENT) && (xmlReader.getName().getLocalPart().equals("null")))) {
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node == XMLStreamConstants.CHARACTERS) {
@@ -169,15 +169,12 @@ public class StoreableTableProvider implements TableProvider {
                                     if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
                                         throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
                                     }
-                                    /*
-                                    if (xmlReader.hasNext()) {
+                                   /* if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
-                                    } else {
-                                        throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
-                                    }
-                                    if (node != XMLStreamConstants.END_ELEMENT) {
-                                        throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
-                                    }*/
+                                        if (node != XMLStreamConstants.END_ELEMENT) {
+                                            throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                        }
+                                    }  */
                                 }
                             }
                         } else {
