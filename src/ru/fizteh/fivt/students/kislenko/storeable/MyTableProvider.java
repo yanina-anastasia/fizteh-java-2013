@@ -95,10 +95,10 @@ public class MyTableProvider implements TableProvider {
                 values.add(array.getLong(i));
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
-                values.add(a.byteValue());     /*
+                values.add(a.byteValue());
             } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
                 Double a = array.getDouble(i);
-                values.add(a.floatValue());
+                values.add(a.floatValue());    /*
             } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
                 values.add(array.getDouble(i));
             } else if (array.get(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
