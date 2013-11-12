@@ -16,11 +16,12 @@ public class CommandDrop extends Command {
             System.out.println(args[0] + " not exists");
             return false;
         }
-        myState.database.removeTable(args[0]);
-        if (args[0].equals(myState.curTableName)) {
+        if (args[0].equals(myState.table.getName())) {
             myState.table = null;
             myState.table.putName("");
         }
+        myState.database.removeTable(args[0]);
+
         System.out.println("dropped");
         return true;
     }
