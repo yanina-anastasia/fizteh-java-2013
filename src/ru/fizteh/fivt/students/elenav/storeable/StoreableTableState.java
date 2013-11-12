@@ -118,7 +118,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		try {
 			int i = 0;
 			for (; i < columnTypes.size(); ++i) {
-				if (!columnTypes.get(i).isAssignableFrom(s.getColumnAt(i).getClass())) {
+				if (s.getColumnAt(i) != null && !columnTypes.get(i).isAssignableFrom(s.getColumnAt(i).getClass())) {
 					throw new ColumnFormatException("column types are not similar");
 				}
 			}
