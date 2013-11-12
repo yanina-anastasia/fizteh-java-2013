@@ -16,11 +16,8 @@ public class StoreableCommands implements Storeable{
         values = new ArrayList(types.size());
         for (int i = 0; i < types.size(); ++i) {
             Class type = types.get(i);
-            try {
-                values.add(type.getConstructor());
-            } catch (NoSuchMethodException | SecurityException ex) {
-                throw new IllegalArgumentException("Illegal type of column");
-            }
+            Object empty = null;
+            values.add(empty);
         }
     }
     
@@ -74,6 +71,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Integer result = (Integer) getColumnAt(columnIndex);
             return result;
@@ -85,6 +85,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Long result = (Long) getColumnAt(columnIndex);
             return result;
@@ -96,6 +99,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Byte result = (Byte) getColumnAt(columnIndex);
             return result;
@@ -107,6 +113,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Float result = (Float) getColumnAt(columnIndex);
             return result;
@@ -118,6 +127,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Double result = (Double) getColumnAt(columnIndex);
             return result;
@@ -129,6 +141,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             Boolean result = (Boolean) getColumnAt(columnIndex);
             return result;
@@ -140,6 +155,9 @@ public class StoreableCommands implements Storeable{
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         isCorrectIndex(columnIndex);
+        if (values.get(columnIndex) == null) {
+            return null;
+        }
         try {
             String result = (String) getColumnAt(columnIndex);
             return result;
