@@ -25,6 +25,9 @@ public class FileMapCommands extends AbstractCommands {
             System.exit(1);
         }
         File currentDirectory = new File(propertyString);
+        if (!currentDirectory.exists()) {
+            currentDirectory.mkdir();
+        }
         myTableProviderFactory = new MyTableProviderFactory();
         myTableProvider = myTableProviderFactory.create(currentDirectory.toString());
     }
