@@ -287,7 +287,10 @@ public class StoreableTable implements Table {
 	}
 
 	@Override
-	public Storeable get(String key) throws IllegalArgumentException {
+	public Storeable get(String key) throws IllegalArgumentException, IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		if(Utils.isEmpty(key)) {
 			throw new IllegalArgumentException("Key can not be null");
 		}
@@ -295,7 +298,10 @@ public class StoreableTable implements Table {
 	}
 
 	@Override
-	public Storeable put(String key, Storeable value) throws ColumnFormatException, IllegalArgumentException {
+	public Storeable put(String key, Storeable value) throws ColumnFormatException, IllegalArgumentException, IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		if(Utils.isEmpty(key) || value == null) {
 			throw new IllegalArgumentException("Key and name can not be null or newline");
 		}
@@ -306,7 +312,10 @@ public class StoreableTable implements Table {
 	}
 
 	@Override
-	public Storeable remove(String key) throws IllegalArgumentException {
+	public Storeable remove(String key) throws IllegalArgumentException, IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		if(Utils.isEmpty(key)) {
 			throw new IllegalArgumentException("Key can not be null");
 		}
@@ -314,12 +323,18 @@ public class StoreableTable implements Table {
 	}
 
 	@Override
-	public int size() {
+	public int size() throws IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		return this.newDatabase.size();
 	}
 
 	@Override
-	public int commit() throws IOException {
+	public int commit() throws IOException, IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		int changesCount = this.countChanges();
 		this.write();
 		this.originalDatabase = this.newDatabase;
@@ -327,7 +342,10 @@ public class StoreableTable implements Table {
 	}
 
 	@Override
-	public int rollback() {
+	public int rollback() throws IllegalStateException {
+		if(this.tableProvider.getTable(this.name) == null) {
+			throw new IllegalStateException("Table was removed.");
+		}
 		int changesCount = this.countChanges();
 		this.newDatabase = this.originalDatabase;
 		return changesCount;
