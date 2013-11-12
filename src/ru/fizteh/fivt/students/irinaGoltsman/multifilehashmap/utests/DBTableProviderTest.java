@@ -97,4 +97,6 @@ public class DBTableProviderTest {
     public void removeTableNotExistingTable() throws IOException {
         provider.removeTable("newNotExistingTable");
     }
+
+
 }

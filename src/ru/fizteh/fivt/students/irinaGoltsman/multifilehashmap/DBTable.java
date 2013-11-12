@@ -99,6 +99,12 @@ public class DBTable implements Table {
                 }
             }
         }
+        try {  //Проверка на то, что число колонок в storeable не больше допустимого
+            storeable.getColumnAt(columnTypes.size());
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
+        throw new ColumnFormatException("storeable has more columns then must have");
     }
 
     @Override
