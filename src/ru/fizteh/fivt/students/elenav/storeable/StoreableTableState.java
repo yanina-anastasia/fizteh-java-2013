@@ -280,7 +280,8 @@ public class StoreableTableState extends FilesystemState implements Table {
 				String key = new String(tempKey, StandardCharsets.UTF_8);
 				
 				if (!in.getName().equals(getFile(key)) || !in.getParentFile().getName().equals(getDir(key))) {
-					throw new IOException("wrong key placement");
+					throw new IOException("wrong key "+key+" placement,expected: "+getFile(key)+" "
+									+getDir(key)+" but: "+ in.getCanonicalPath());
 				}
 				
 				byte[] tempValue = new byte[valueLength];
