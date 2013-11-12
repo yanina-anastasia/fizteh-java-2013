@@ -31,7 +31,7 @@ public abstract class AbstractStorage<Key, Value> {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
                 ValueDifference diff = modifiedData.get(key);
-                if (!compareKeys(diff.oldValue, diff.newValue)) {
+                if (!FileMapUtils.compareKeys(diff.oldValue, diff.newValue)) {
                     if (diff.newValue == null) {
                         oldData.remove(key);
                     } else {
@@ -47,7 +47,7 @@ public abstract class AbstractStorage<Key, Value> {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
                 ValueDifference diff = modifiedData.get(key);
-                if (!compareKeys(diff.oldValue, diff.newValue)) {
+                if (!FileMapUtils.compareKeys(diff.oldValue, diff.newValue)) {
                     recordsChanged += 1;
                 }
             }
@@ -85,16 +85,6 @@ public abstract class AbstractStorage<Key, Value> {
             modifiedData.clear();
             size = 0;
             uncommittedChanges = 0;
-        }
-
-        private boolean compareKeys(Object key1, Object key2) {
-            if (key1 == null && key2 == null) {
-                return true;
-            }
-            if (key1 == null || key2 == null) {
-                return false;
-            }
-            return key1.equals(key2);
         }
     }
 

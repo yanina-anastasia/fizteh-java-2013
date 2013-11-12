@@ -18,6 +18,7 @@ public class ThreadSafeTableProviderFactoryTest {
                     createProvider();
                 }
             });
+            thread.start();
         }
         createProvider();
     }
