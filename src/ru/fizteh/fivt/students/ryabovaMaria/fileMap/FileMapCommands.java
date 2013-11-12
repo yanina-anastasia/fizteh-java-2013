@@ -36,7 +36,7 @@ public class FileMapCommands extends AbstractCommands {
         if (lexems.length < 2) {
             throw new Exception("incorrect nubmer of args");
         }
-        String[] temp = lexems[1].split("[ ]+", 2);
+        String[] temp = lexems[1].split("[ \t]+", 2);
         if (temp.length < 2) {
             throw new Exception("incorrect number of args");
         }
@@ -48,7 +48,7 @@ public class FileMapCommands extends AbstractCommands {
             return;
         }
         tempString = temp[1];
-        temp = tempString.split("[ ]+");
+        temp = tempString.split("[ \t]+");
         ArrayList<Class<?>> types = new ArrayList();
         for (int i = 0; i < temp.length; ++i) {
             switch (temp[i].trim()) {
