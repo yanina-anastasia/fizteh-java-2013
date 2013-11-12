@@ -22,6 +22,7 @@ public class CreateCommand extends SimpleCommand {
         }
 
         ArrayList<Class<?>> types = new ArrayList<>();
+        clearBrackets(args);
         for (int i = 1; i < args.length; ++i) {
             switch (args[i]) {
                 case "Integer":
@@ -57,6 +58,9 @@ public class CreateCommand extends SimpleCommand {
                     types.add(String.class);
                     break;
 
+                case "":
+                    break;
+
                 default:
                     System.err.println("Unsupported type " + args[i]);
                     return;
@@ -68,5 +72,10 @@ public class CreateCommand extends SimpleCommand {
         }  else {
             System.out.println(args[0] + " exists");
         }
+    }
+
+    private void clearBrackets(String[] args) {
+        args[1] = args[1].replaceFirst("\\(", "");
+        args[args.length - 1] = args[args.length - 1].replaceFirst("\\)", "");
     }
 }
