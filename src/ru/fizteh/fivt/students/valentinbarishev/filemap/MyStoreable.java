@@ -122,6 +122,9 @@ public class MyStoreable implements Storeable{
             if (valueType == Float.class) {
                 return new Double((float) value);
             }
+            if (valueType == Double.class) {
+                return value;
+            }
             throw new ColumnFormatException("Wrong type: " + valueType + " instead of Double");
         }
 
@@ -137,6 +140,9 @@ public class MyStoreable implements Storeable{
             }
             if (valueType == Double.class) {
                 return new Float((double) value);
+            }
+            if (value == Float.class) {
+                return value;
             }
             throw new ColumnFormatException("Wrong type: " + valueType + " instead of Float");
         }
