@@ -49,9 +49,9 @@ public class StoreableTableProvider implements TableProvider {
                     if (curDataBaseStorage != null) {
                         curDataBaseStorage.writeToDataBase();
                     }
-                    curDataBaseStorage = dataTable;
                 }
             }
+            curDataBaseStorage = dataTable;
             return dataTable;
         } catch (ParseException e) {
             throw new IOException(e.getMessage());
