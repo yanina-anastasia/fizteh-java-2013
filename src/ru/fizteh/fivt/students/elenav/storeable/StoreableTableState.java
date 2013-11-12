@@ -134,8 +134,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		} catch (IndexOutOfBoundsException e) {
 			// do nothing
 		}
-		
-		
+			
 	}
 
 
