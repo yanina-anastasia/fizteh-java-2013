@@ -75,7 +75,7 @@ public class StructuredTableDirectory implements StructuredTableProviderInterfac
 			throw new IllegalArgumentException();
 		}
 		for (int i = 0; i < columnTypes.size(); i++) {
-			if (getNameByType(columnTypes.get(i)) == null) {
+			if (columnTypes.get(i) == null || getNameByType(columnTypes.get(i)) == null) {
 				throw new IllegalArgumentException();
 			}
 		}
@@ -214,6 +214,11 @@ public class StructuredTableDirectory implements StructuredTableProviderInterfac
 		catch (IndexOutOfBoundsException e) {
 			throw new ColumnFormatException(e);
 		}
+		try {
+			value.getColumnAt(table.getColumnsCount());
+			throw new ColumnFormatException();
+		}
+		catch (IndexOutOfBoundsException e) {}
 		result += "</row>";
 		return result;
 	}
