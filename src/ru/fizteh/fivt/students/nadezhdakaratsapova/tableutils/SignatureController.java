@@ -42,6 +42,7 @@ public class SignatureController {
                     typeInBytes[j] = type.get(j);
                 }
                 String typeToReturn = new String(typeInBytes, StandardCharsets.UTF_8);
+                type.clear();
                 switch (typeToReturn) {
                     case "int":
                         types.add(Integer.class);
@@ -65,6 +66,7 @@ public class SignatureController {
                         types.add(String.class);
                         break;
                     default:
+                        System.out.println(typeToReturn);
                         throw new IllegalArgumentException("not allowable type of value in " + SIGNATURE_FILE_NAME);
                 }
                 ++curPos;
@@ -239,7 +241,8 @@ public class SignatureController {
     public void writeSignatureToFile(File file, List<Class<?>> columnTypes) throws IOException {
         DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
         for (Class<?> cls : columnTypes) {
-            outputStream.writeChars(getPrimitive(cls) + " ");
+            outputStream.write((getPrimitive(cls) + ' ').getBytes(StandardCharsets.UTF_8));
+
         }
         outputStream.close();
     }
