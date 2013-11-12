@@ -229,12 +229,15 @@ public class StoreableTableState extends FilesystemState implements Table {
 		map.clear();
 		File[] dirs = getWorkingDirectory().listFiles();
 		if (dirs != null) {
+			if (dirs.length == 0) {
+				throw new IOException("can't read files: empty table " + getName());
+			}
 			for (File file : dirs) {
 				File[] files = file.listFiles();
-				if (files.length == 0) {
-					throw new IOException("can't read files: empty dir " + file.getName());
-				}
 				if (files != null) {
+					if (files.length == 0) {
+						throw new IOException("can't read files: empty dir " + file.getName());
+					}
 					for (File f : files) {
 						if (f.length() == 0) {
 							throw new IOException("can't read files: empty file " + f.getName());
