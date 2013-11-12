@@ -5,7 +5,7 @@ public class ParseValue {
         StringBuilder str = new StringBuilder(input);
         str = str.deleteCharAt(0);
         str = str.deleteCharAt(str.length() - 1);
-        String[] result = str.toString().split(" ");
+        String[] result = str.toString().split("\\s+");
         return result;
     }
 }
