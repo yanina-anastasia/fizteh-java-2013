@@ -312,8 +312,6 @@ public class FileMap {
                     System.out.println("no table");
                     return;
                 }
-                
-                System.out.println('A');
 
                 int changesNumber = table.commit();
                 
