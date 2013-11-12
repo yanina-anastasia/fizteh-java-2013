@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.kamilTalipov.database.utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -25,11 +26,8 @@ public class JsonUtils {
             throw new ColumnFormatException("Incorrect storeable");
         }
 
-        StringBuilder result = new StringBuilder("{");
+        StringBuilder result = new StringBuilder("[");
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            result.append("\"");
-            result.append(i);
-            result.append("\": ");
             if (value.getColumnAt(i) != null) {
                 result.append(value.getColumnAt(i).toString());
             } else {
@@ -39,7 +37,7 @@ public class JsonUtils {
             if (i != table.getColumnsCount() - 1) {
                 result.append(", ");
             }  else {
-                result.append("}");
+                result.append("]");
             }
         }
 
@@ -59,25 +57,18 @@ public class JsonUtils {
             return null;
         }
 
-        JSONObject json;
+        JSONArray values;
         try {
-            json = new JSONObject(value);
+            values = new JSONArray(value);
         } catch (JSONException e) {
             ParseException exception = new ParseException("JSON: incorrect format", 0);
             exception.addSuppressed(e);
             throw exception;
         }
         Storeable result = provider.createFor(table);
-        for (int i = 0; i < json.length(); ++i) {
+        for (int i = 0; i < values.length(); ++i) {
             try {
-                Object object;
-                try {
-                    object = json.get(Integer.toString(i));
-                } catch (JSONException e) {
-                    ParseException exception = new ParseException("JSON: incorrect format", i);
-                    exception.addSuppressed(e);
-                    throw exception;
-                }
+                Object object = values.get(i);
                 if (object == JSONObject.NULL) {
                     result.setColumnAt(i, null);
                 } else {
