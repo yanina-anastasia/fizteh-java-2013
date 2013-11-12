@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -68,14 +71,56 @@ public class StoreableTableProvider implements TableProvider {
 	@Override
 	public Storeable deserialize(Table table, String value) throws ParseException {
 		Storeable row = this.createFor(table);
-		
+		JSONArray valueJSON = null;
+		try {
+			valueJSON = new JSONArray(value);
+		} catch (JSONException e) {
+			throw new ParseException(e.getMessage(), 0);
+		}
+		if(valueJSON.length() != table.getColumnsCount()) {
+			throw new ParseException("Incorrect column count, expected " + table.getColumnsCount() + ".", 0);
+		}
+		Object o = null;
+		for(int i = 0; i < table.getColumnsCount(); ++i) {
+			try {
+				o = valueJSON.get(i);
+			} catch (JSONException e) {
+				o = null;
+			}
+			if(table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
+				o = (Byte) o;
+			}
+			if(table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
+				o = (Float) o;
+			}
+			try {
+				row.setColumnAt(i, o);
+			} catch (ColumnFormatException e) {
+				throw new ParseException(e.getMessage(), 0);
+			}
+		}
 		return row;
 	}
 
+
 	@Override
 	public String serialize(Table table, Storeable value) throws ColumnFormatException {
-		// TODO Auto-generated method stub
-		return null;
+		JSONArray valueJSON = new JSONArray();
+		Object o = null;
+		for(int i = 0; i < table.getColumnsCount(); ++i) {
+			o = value.getColumnAt(i);
+			if(!o.getClass().equals(table.getColumnType(i))) {
+				throw new ColumnFormatException("Incorrect column type.");
+			}
+			if(table.getColumnType(i).equals(Byte.class)) {
+				o = (Integer) o;
+			}
+			if(table.getColumnType(i).equals(Float.class)) {
+				o = (Double) o;
+			}
+			valueJSON.put(o);
+		}
+		return valueJSON.toString();
 	}
 
 	@Override
