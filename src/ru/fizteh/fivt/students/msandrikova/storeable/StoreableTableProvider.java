@@ -105,6 +105,9 @@ public class StoreableTableProvider implements TableProvider {
 
 	@Override
 	public String serialize(Table table, Storeable value) throws ColumnFormatException {
+		if(value == null) {
+			return null;
+		}
 		JSONArray valueJSON = new JSONArray();
 		Object o = null;
 		for(int i = 0; i < table.getColumnsCount(); ++i) {

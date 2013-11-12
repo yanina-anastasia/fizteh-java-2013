@@ -16,13 +16,22 @@ public class RemoveCommand extends Command {
 			return;
 		}
 		
+		
 		String key = argumentsList[1];
-		if(shell.getState().currentTable == null && shell.getState().isMultiFileHashMap) {
+		if(shell.getState().currentTable == null && (shell.getState().isMultiFileHashMap || shell.getState().isStoreable)) {
 			System.out.println("no table");
 			return;
 		}
-		String oldValue = shell.getState().currentTable.remove(key);
-		
+		String oldValue = null;
+		if(!shell.getState().isStoreable) {
+			oldValue = shell.getState().currentTable.remove(key);
+		} else {
+			try {
+				oldValue = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.remove(key));
+			} catch (IllegalArgumentException e) {
+				System.out.println("wrong type (" + e.getMessage() + ")");
+			}
+		}
 
 		if(oldValue == null){
 			System.out.println("not found");
