@@ -33,7 +33,7 @@ public class DBTable implements Table {
         }
         for (File dirFile : listFiles) {
             if (dirFile.isDirectory()) {
-                if (!dirFile.getName().matches("dir(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)")) {
+                if (!dirFile.getName().matches("(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.dir")) {
                     throw new IOException(String.format("illegal name of dir %s inside table %s",
                             dirFile.getName(), tableDir.getName()));
                 } else {
