@@ -25,7 +25,7 @@ public class GetCommand implements Command {
                 System.out.println("not found");
             } else {
                 System.out.println("found");
-                System.out.println(value);
+                System.out.println(curState.serialize(curState.curDataBaseStorage, value));
             }
         } else {
             System.out.println("no table");
