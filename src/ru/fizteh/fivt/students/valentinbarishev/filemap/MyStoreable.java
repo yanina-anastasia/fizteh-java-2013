@@ -52,7 +52,7 @@ public class MyStoreable implements Storeable{
     }
 
     Object castTypes(Class<?> type, Object value) {
-        if (value == null) {
+        if (value == null || value == JSONObject.NULL) {
             return null;
         }
 
