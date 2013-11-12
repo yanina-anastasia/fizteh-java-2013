@@ -35,11 +35,10 @@ public class StoreableTable implements Table {
     }
 
     public StoreableTable(String name, File dir, List<Class<?>> types, StoreableTableProvider provider) {
+        tableProvider = provider;
         valueConverter = new StoreableValueConverter(tableProvider, this);
         dataTable = new UniversalDataTable<Storeable>(name, dir, valueConverter);
         columnTypes = types;
-        tableProvider = provider;
-
     }
 
     public String getName() {
@@ -48,7 +47,7 @@ public class StoreableTable implements Table {
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("(.*\\s+.*)+"))) {
-            throw new IllegalArgumentException("put: not correct key or value");
+            throw new IllegalArgumentException("pot correct key or value");
         }
         int signColumnsCount = getColumnsCount();
         int i;
