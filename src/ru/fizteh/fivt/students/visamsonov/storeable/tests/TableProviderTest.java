@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.visamsonov.tests;
+package ru.fizteh.fivt.students.visamsonov.storeable.tests;
 
 import org.junit.*;
 import java.io.File;

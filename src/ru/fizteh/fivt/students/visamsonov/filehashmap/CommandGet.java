@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.filehashmap;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
-public class CommandRemove extends CommandAbstract<ShellState> {
+public class CommandGet extends CommandAbstract<ShellState> {
 
-	public CommandRemove () {
-		super("remove");
+	public CommandGet () {
+		super("get");
 	}
 	
 	public boolean evaluate (ShellState state, String args) {
@@ -16,12 +16,12 @@ public class CommandRemove extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		Object value = state.database.remove(args);
+		String value = state.database.get(args);
 		if (value != null) {
-			getOutStream().printf("removed\n");
+			getOutStream().printf("found\n%s\n", value);
 		}
 		else {
-			getErrStream().println("not found");
+			getOutStream().println("not found");
 		}
 		return true;
 	}

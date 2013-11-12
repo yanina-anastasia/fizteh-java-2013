@@ -12,10 +12,10 @@ import ru.fizteh.fivt.students.visamsonov.util.StringUtils;
 public class StructuredStorage implements StructuredTableInterface {
 
 	private final List<Class<?>> columnTypes;
-	private final TableDirectory provider;
+	private final StructuredTableDirectory provider;
 	private final TableInterface stringStorage;
 
-	public StructuredStorage (String dir, String tableName, List<Class<?>> colTypes, TableDirectory prov) throws IOException {
+	public StructuredStorage (String dir, String tableName, List<Class<?>> colTypes, StructuredTableDirectory prov) throws IOException {
 		provider = prov;
 		File signatureFile = new File(dir, "signature.tsv");
 		if (signatureFile.isFile()) {

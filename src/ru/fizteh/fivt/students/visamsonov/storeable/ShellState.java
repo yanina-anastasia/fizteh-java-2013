@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.storeable;
 
 import ru.fizteh.fivt.storage.strings.*;
 import ru.fizteh.fivt.students.visamsonov.storage.*;
@@ -7,10 +7,10 @@ import java.io.*;
 public class ShellState {
 
 	public StructuredTableInterface database;
-	public final TableProviderInterface tableProvider;
+	public final StructuredTableProviderInterface tableProvider;
 
 	public ShellState () throws IOException {
-		TableProviderFactoryInterface factory = new TableFactory();
+		StructuredTableProviderFactoryInterface factory = new StructuredTableFactory();
 		String directory = System.getProperty("fizteh.db.dir");
 		try {
 			tableProvider = factory.create(directory);

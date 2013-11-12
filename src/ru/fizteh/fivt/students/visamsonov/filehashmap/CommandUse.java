@@ -1,8 +1,7 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.filehashmap;
 
-import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
-import ru.fizteh.fivt.students.visamsonov.storage.*;
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
 public class CommandUse extends CommandAbstract<ShellState> {
 
@@ -15,14 +14,13 @@ public class CommandUse extends CommandAbstract<ShellState> {
 			return false;
 		}
 		try {
-			StructuredTableInterface switchTable = state.tableProvider.getTable(args);
+			Table switchTable = state.tableProvider.getTable(args);
 			if (switchTable == null) {
 				getErrStream().println(args + " not exists");
 				return false;
 			}
-			if (state.database != null && state.database.unsavedChanges() > 0) {
-				getErrStream().println(state.database.unsavedChanges() + " unsaved changes");
-				return false;
+			if (state.database != null) {
+				state.database.commit();
 			}
 			state.database = switchTable;
 		}

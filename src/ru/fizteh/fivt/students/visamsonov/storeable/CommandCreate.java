@@ -1,7 +1,7 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.storeable;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
-import ru.fizteh.fivt.students.visamsonov.storage.TableDirectory;
+import ru.fizteh.fivt.students.visamsonov.storage.StructuredTableDirectory;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 		}
 		List<Class<?>> types = new ArrayList<Class<?>>();
 		for (int i = 0; i < argsList.size(); i++) {
-			Class<?> type = TableDirectory.getTypeByName(argsList.get(i));
+			Class<?> type = StructuredTableDirectory.getTypeByName(argsList.get(i));
 			if (type == null) {
 				wrongType();
 				return false;

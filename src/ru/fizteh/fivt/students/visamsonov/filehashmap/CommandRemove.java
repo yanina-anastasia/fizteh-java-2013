@@ -1,12 +1,11 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.filehashmap;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
-import ru.fizteh.fivt.storage.structured.Storeable;
 
-public class CommandGet extends CommandAbstract<ShellState> {
+public class CommandRemove extends CommandAbstract<ShellState> {
 
-	public CommandGet () {
-		super("get");
+	public CommandRemove () {
+		super("remove");
 	}
 	
 	public boolean evaluate (ShellState state, String args) {
@@ -17,9 +16,9 @@ public class CommandGet extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		Storeable value = state.database.get(args);
+		String value = state.database.remove(args);
 		if (value != null) {
-			getOutStream().printf("found\n%s\n", state.tableProvider.serialize(state.database, value));
+			getOutStream().printf("removed\n");
 		}
 		else {
 			getOutStream().println("not found");

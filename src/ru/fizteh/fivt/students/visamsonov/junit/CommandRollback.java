@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.junit;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
-public class CommandSize extends CommandAbstract<ShellState> {
+public class CommandRollback extends CommandAbstract<ShellState> {
 
-	public CommandSize () {
-		super("size");
+	public CommandRollback () {
+		super("rollback");
 	}
 
 	public boolean evaluate (ShellState state, String args) {
@@ -16,7 +16,7 @@ public class CommandSize extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		getOutStream().println(state.database.size());
+		getOutStream().println(state.database.rollback());
 		return true;
 	}
 }
