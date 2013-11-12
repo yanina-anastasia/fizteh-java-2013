@@ -28,7 +28,7 @@ public class DBTableProvider implements TableProvider {
             }
         }
         if (!rootDirectory.isDirectory()) {
-            throw new IOException(rootDirectory.getName() + ": not a directory");
+            throw new IllegalArgumentException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
         for (File tableFile : rootDirectoryOfTables.listFiles()) {
