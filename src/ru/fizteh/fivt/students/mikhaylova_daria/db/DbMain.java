@@ -135,6 +135,7 @@ public class DbMain {
         } catch (IOException e) {
             System.out.println("wrong type (Reading/writing error" + e.getMessage() + ")");
         }
+        System.out.println("dropped");
     }
 
     public void use(String[] command) throws IOException {
