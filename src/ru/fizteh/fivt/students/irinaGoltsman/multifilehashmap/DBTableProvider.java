@@ -21,7 +21,7 @@ public class DBTableProvider implements TableProvider {
     private File rootDirectoryOfTables;
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
-    public DBTableProvider(File rootDirectory) throws IOException, ParseException {
+    public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
             if (!rootDirectory.mkdir()) {
                 throw new IOException(rootDirectory.getName() + ": not exist and can't be created");

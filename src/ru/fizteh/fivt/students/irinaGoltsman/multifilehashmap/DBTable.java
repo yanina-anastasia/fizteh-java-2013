@@ -21,7 +21,7 @@ public class DBTable implements Table {
     private TableProvider tableProvider;
 
     public DBTable(File inputTableDirectory, TableProvider provider, List<Class<?>> types)
-            throws IOException, ParseException {
+            throws IOException {
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
         columnTypes = types;
@@ -33,14 +33,17 @@ public class DBTable implements Table {
         List<String> keys = new ArrayList<>(tmpTable.keySet());
         List<String> values = new ArrayList<>(tmpTable.values());
         for (int i = 0; i < values.size(); i++) {
-            Storeable rowValue = tableProvider.deserialize(this, values.get(i));
-            originalTable.put(keys.get(i), rowValue);
-
+            try {
+                Storeable rowValue = tableProvider.deserialize(this, values.get(i));
+                originalTable.put(keys.get(i), rowValue);
+            } catch (ParseException e) {
+                throw new IOException(e);
+            }
         }
     }
 
     public DBTable(File inputTableDirectory, TableProvider provider)
-            throws IOException, ParseException {
+            throws IOException {
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
         columnTypes = FileManager.readTableSignature(tableDirectory);
@@ -52,9 +55,12 @@ public class DBTable implements Table {
         List<String> keys = new ArrayList<>(tmpTable.keySet());
         List<String> values = new ArrayList<>(tmpTable.values());
         for (int i = 0; i < values.size(); i++) {
-            Storeable rowValue = tableProvider.deserialize(this, values.get(i));
-            originalTable.put(keys.get(i), rowValue);
-
+            try {
+                Storeable rowValue = tableProvider.deserialize(this, values.get(i));
+                originalTable.put(keys.get(i), rowValue);
+            } catch (ParseException e) {
+                throw new IOException(e);
+            }
         }
     }
 
