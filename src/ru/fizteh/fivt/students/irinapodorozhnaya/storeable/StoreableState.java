@@ -76,15 +76,10 @@ public class StoreableState extends State implements MultiDbState {
         if (workingTable == null) {
             throw new IOException("no table");
         }
-        Storeable val;
         try {
-            val = provider.deserialize(workingTable, value);
-        } catch (ParseException e) {
-            throw new IOException("wrong type \'" + value + "\' is not xml string");
-        }
-        try {
+            Storeable val = provider.deserialize(workingTable, value);
             return provider.serialize(workingTable, workingTable.put(key, val));
-        } catch (ColumnFormatException e) {
+        } catch (ColumnFormatException | ParseException e) {
           throw new IOException("wrong type " + e.getMessage());
         }
     }
@@ -98,17 +93,28 @@ public class StoreableState extends State implements MultiDbState {
     }
 
     @Override
-    public int getCurrentTableSize() {
-        return workingTable.size();
+    public int getCurrentTableSize() throws IOException {
+        if (workingTable != null) {
+            return workingTable.size();
+        } else {
+            throw new IOException("no table");
+        }
     }
 
     @Override
-    public int rollBack() {
-        return workingTable.rollback();
+    public int rollBack() throws IOException {
+        if (workingTable != null) {
+            return workingTable.rollback();
+        } else {
+            throw new IOException("no table");
+        }
     }
     
     @Override
     public void drop(String name) throws IOException {
+        if (provider.getTable(name) == workingTable) {
+            workingTable = null;
+        }
         provider.removeTable(name);
     }
 
@@ -133,12 +139,12 @@ public class StoreableState extends State implements MultiDbState {
             if (workingTable != null) {
                 int n = workingTable.getChangedValuesNumber();
                 if (n != 0) {
-                    throw new IOException(n + " unsaved changed");
+                    throw new IOException(n + " unsaved changes");
                 }
             }
             this.workingTable = table;
         } catch (IllegalArgumentException e) {
-            throw new IOException("empty dir");
+            throw new IOException("illegal table name");
         }
     }
 }

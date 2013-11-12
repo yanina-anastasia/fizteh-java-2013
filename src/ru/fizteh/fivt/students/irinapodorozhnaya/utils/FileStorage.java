@@ -90,7 +90,11 @@ public class FileStorage {
 	}
 	
 	public static void commitDiff(File file, Map<String, String> data) throws IOException {
-		
+
+        if (data == null) {
+            file.delete();
+            return;
+        }
 		File tmp = new File(file.getName() + '~');
 		tmp.createNewFile();
 		RandomAccessFile tmpR = new RandomAccessFile(tmp, "rw");

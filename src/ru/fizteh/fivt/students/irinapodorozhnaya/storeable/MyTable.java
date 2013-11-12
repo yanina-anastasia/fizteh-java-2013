@@ -17,7 +17,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.GenericTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Types;
 
 public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     
@@ -38,20 +38,18 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     }
 
     private List<Class<?>> readSignature() throws IOException {
-        Scanner  sc;
-        try {
-            sc = new Scanner(new File(tableDirectory, "signature.tsv"));
+
+        List<Class<?>> columns = new ArrayList<>();
+
+
+        try (Scanner sc = new Scanner(new File(tableDirectory, "signature.tsv"))) {
+            while (sc.hasNext()) {
+                columns.add(Types.getTypeByName(sc.next()));
+            }
         } catch (FileNotFoundException e) {
             throw new IOException(getName() + ": signature file not found");
         }
 
-        
-        List<Class<?>> columns = new ArrayList<>();
-
-        while (sc.hasNextLine()) {
-            columns.add(Utils.detectClass(sc.nextLine()));
-        }
-        sc.close();
         if (columns.isEmpty()) {
             throw new IOException("empty signature");
         }
@@ -70,14 +68,13 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         try {
             for (int i = 0; i < sizeColumn; ++i) {
                 Object valueI = value.getColumnAt(i);
-                if (valueI != null && !valueI.getClass().equals(columnType.get(i))) {
-                        throw new ColumnFormatException(i + " column has incorrect format");
+                if (valueI != null && valueI.getClass() != columnType.get(i)) {
+                    throw new ColumnFormatException(i + " column has incorrect format");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
             throw new ColumnFormatException("alien Storeable");
         }
-
 
         try {
             value.getColumnAt(sizeColumn);
@@ -99,6 +96,9 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
 
     @Override
     protected Map<String, String> serialize(Map<String, Storeable> values) {
+        if (values == null) {
+            return null;
+        }
         Map<String, String> value = new HashMap<>();
         Set<Entry<String, Storeable>> t = values.entrySet();
         for (Entry<String, Storeable> k: t) {
@@ -109,6 +109,9 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
 
     @Override
     protected Map<String, Storeable> deserialize(Map<String, String> values) throws IOException {
+        if (values == null) {
+            return null;
+        }
         Map<String, Storeable> value = new HashMap<>();
         Set<Entry<String, String>> t = values.entrySet();
         for (Entry<String, String> k: t) {
