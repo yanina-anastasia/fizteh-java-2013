@@ -4,15 +4,13 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.SignatureController;
 
 import javax.xml.stream.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,16 +70,16 @@ public class StoreableTableProvider implements TableProvider {
 
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalArgumentException {
         if ((name == null) || (name.isEmpty())) {
-            throw new IllegalArgumentException("The table has not allowed name");
+            throw new IllegalArgumentException("create: the table has not allowed name");
         }
         if (!name.matches(TABLE_NAME)) {
-            throw new RuntimeException("Not correct file name");
+            throw new RuntimeException("create: not correct file name");
         }
         if (columnTypes == null) {
-            throw new IllegalArgumentException("the null column type is not allowed");
+            throw new IllegalArgumentException("create: the null column type is not allowed");
         }
         if (columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("Not correct types");
+            throw new IllegalArgumentException("create: not correct types");
         }
         signatureController.checkSignatureValidity(columnTypes);
         if (dataBaseTables.get(name) != null) {
@@ -91,7 +89,7 @@ public class StoreableTableProvider implements TableProvider {
             try {
                 newTableFile = newTableFile.getCanonicalFile();
             } catch (IOException e) {
-                throw new IllegalArgumentException("Programme's mistake in getting canonical file");
+                throw new IllegalArgumentException("create: programme's mistake in getting canonical file");
             }
             newTableFile.mkdir();
             StoreableTable newTable = new StoreableTable(name, workingDirectory, columnTypes, this);
@@ -247,6 +245,9 @@ public class StoreableTableProvider implements TableProvider {
         return storeable;
     }
 
+    public Table getCurTable() {
+        return curDataBaseStorage;
+    }
 }
 
 

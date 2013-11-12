@@ -39,7 +39,7 @@ public class PutCommand implements Command {
         }
     }
 
-    public int getArgsCount() {
-        return 2;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 2);
     }
 }

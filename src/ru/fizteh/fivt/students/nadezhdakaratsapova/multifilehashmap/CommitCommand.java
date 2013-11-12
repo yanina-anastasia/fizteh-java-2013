@@ -20,7 +20,7 @@ public class CommitCommand implements Command {
         System.out.println(curState.curDataBaseStorage.commit());
     }
 
-    public int getArgsCount() {
-        return 0;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 0);
     }
 }

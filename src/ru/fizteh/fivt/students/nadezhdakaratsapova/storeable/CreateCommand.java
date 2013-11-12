@@ -18,14 +18,14 @@ public class CreateCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        if (curState.createTable(args[1], SignatureController.getColumnTypes(curState.curDataBaseStorage)) == null) {
+        if (curState.createTable(args[1], SignatureController.getSignatureFromArgs(args)) == null) {
             System.out.println(args[1] + " exists");
         } else {
             System.out.println("created");
         }
     }
 
-    public int getArgsCount() {
-        return 1;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount > 2);
     }
 }

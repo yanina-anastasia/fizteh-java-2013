@@ -20,7 +20,7 @@ public class SizeCommand implements Command {
         System.out.println(curState.curDataBaseStorage.size());
     }
 
-    public int getArgsCount() {
-        return 0;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 0);
     }
 }

@@ -203,6 +203,39 @@ public class SignatureController {
         return primitiveType;
     }
 
+    private Class<?> getClassFromPrimitive(String primitiveType) {
+        Class<?> cls = null;
+        if (primitiveType != null) {
+            switch (primitiveType) {
+                case "int":
+                    cls = Integer.class;
+                    break;
+                case "long":
+                    cls = Long.class;
+                    break;
+                case "byte":
+                    cls = Byte.class;
+                    break;
+                case "float":
+                    cls = Float.class;
+                    break;
+                case "double":
+                    cls = Double.class;
+                    break;
+                case "boolean":
+                    cls = Boolean.class;
+                    break;
+                case "String":
+                    cls = String.class;
+                    break;
+                default:
+                    throw new IllegalArgumentException("not allowable type of value in " + SIGNATURE_FILE_NAME);
+
+            }
+        }
+        return cls;
+    }
+
     public void writeSignatureToFile(File file, List<Class<?>> columnTypes) throws IOException {
         DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
         for (Class<?> cls : columnTypes) {
@@ -239,6 +272,38 @@ public class SignatureController {
                     throw new ColumnFormatException("Not allowed type of signature");
             }
         }
+    }
+
+    public static List<Class<?>> getSignatureFromArgs(String args[]) throws IOException {
+        SignatureController signatureController = new SignatureController();
+        int argsCount = args.length;
+        if ((args[2].charAt(0) != '(') || (args[argsCount - 1].charAt(args[argsCount - 1].length() - 1) != ')')) {
+            throw new IOException("The wrong type of command arguments. They should be in brackets");
+        }
+        List<Class<?>> types = new ArrayList<>();
+        String firstType;
+        if ((argsCount - 1) == 1) {
+            firstType = new String(args[2].substring(1, args[1].length() - 2));
+            types.add(signatureController.getClassFromPrimitive(firstType.trim()));
+            return types;
+        }
+        String lastType = null;
+        if (args[argsCount - 1].length() == 1) {
+            if (args[argsCount - 1] != ")") {
+                throw new IOException("The wrong type of command arguments. They should be in brackets");
+            }
+        } else {
+            lastType = new String(args[argsCount - 1].substring(0, args[argsCount - 1].length() - 1));
+        }
+        firstType = new String(args[2].substring(1));
+        types.add(signatureController.getClassFromPrimitive(firstType.trim()));
+        for (int i = 3; i < argsCount - 1; ++i) {
+            types.add(signatureController.getClassFromPrimitive(args[i].trim()));
+        }
+        if (lastType != null) {
+            types.add(signatureController.getClassFromPrimitive(lastType.trim()));
+        }
+        return types;
     }
 }
 

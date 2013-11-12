@@ -24,8 +24,8 @@ public class DropCommand implements Command {
         System.out.println("dropped");
     }
 
-    public int getArgsCount() {
-        return 1;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 1);
     }
 
 }

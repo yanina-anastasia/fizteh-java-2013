@@ -32,7 +32,7 @@ public class GetCommand implements Command {
         }
     }
 
-    public int getArgsCount() {
-        return 1;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 2);
     }
 }
