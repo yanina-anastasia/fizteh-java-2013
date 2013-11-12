@@ -10,7 +10,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 public class MyStoreable implements Storeable {
 
 	private List<Object> listValues = new ArrayList<>();
-	private List<Class<?>> listTypes = new ArrayList<>();
+	public List<Class<?>> listTypes = new ArrayList<>();
 	
 	public MyStoreable(Table t) {
 		int n = t.getColumnsCount();
@@ -21,6 +21,12 @@ public class MyStoreable implements Storeable {
 		for (int i = 0; i < n; ++i) {
 			listValues.add(null);
 		}
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		MyStoreable st = (MyStoreable) o;
+		return st.listTypes.equals(listTypes) && st.listValues.equals(listValues);
 	}
 
 	public MyStoreable(List<Class<?>> classes) {
@@ -73,7 +79,6 @@ public class MyStoreable implements Storeable {
 		}
 	}
 	
-
 	@Override
 	public Long getLongAt(int columnIndex) throws ColumnFormatException,
 			IndexOutOfBoundsException {
@@ -85,7 +90,6 @@ public class MyStoreable implements Storeable {
 		}
 	}
 	
-
 	@Override
 	public Byte getByteAt(int columnIndex) throws ColumnFormatException,
 			IndexOutOfBoundsException {
@@ -97,7 +101,6 @@ public class MyStoreable implements Storeable {
 		}
 	}
 
-	
 	@Override
 	public Float getFloatAt(int columnIndex) throws ColumnFormatException,
 			IndexOutOfBoundsException {
@@ -131,7 +134,6 @@ public class MyStoreable implements Storeable {
 		}
 	}
 	
-
 	@Override
 	public String getStringAt(int columnIndex) throws ColumnFormatException,
 			IndexOutOfBoundsException {

@@ -84,6 +84,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (key == null || value1 == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't put null key or(and) value");
 		}
+		checkStoreable(value1);
 		Storeable value;
 		try {
 			value = Deserializer.run(this, Serializer.run(this, value1));
@@ -113,6 +114,23 @@ public class StoreableTableState extends FilesystemState implements Table {
 		return currentValue;
 	}
 	
+	private void checkStoreable(Storeable s) {
+		try {
+			int i = 0;
+			for (; i < columnTypes.size(); ++i) {
+				if (!columnTypes.get(i).isAssignableFrom(s.getColumnAt(i).getClass())) {
+					throw new ColumnFormatException("column types are not similar");
+				}
+			}
+			s.getColumnAt(i);
+		} catch (IndexOutOfBoundsException e) {
+			throw new ColumnFormatException("size is not similar");
+		}
+		
+	}
+
+
+
 	@Override
 	public Storeable remove(String key) {
 		if (key == null || key.trim().isEmpty()) {
@@ -159,12 +177,10 @@ public class StoreableTableState extends FilesystemState implements Table {
 		numberOfChanges = 0;
 		return result;
 	}
-	
 
 	public int getNumberOfChanges() {
 		return numberOfChanges;
 	}
-	
 
 	public void setNumberOfChanges(int numberOfChanges) {
 		this.numberOfChanges = numberOfChanges;

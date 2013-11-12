@@ -9,6 +9,7 @@ import javax.xml.stream.XMLInputFactory;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class Deserializer {
 	
@@ -29,7 +30,7 @@ public class Deserializer {
 				reader.next();
 				if (reader.isCharacters()) {
 					String smth = reader.getText();
-					st.setColumnAt(i, getClass(smth, table.getColumnType(i).getSimpleName()));
+					st.setColumnAt(i, Functions.getClass(smth, table.getColumnType(i).getSimpleName()));
 					++i;
 				} else {
 					throw new ParseException("parse error", i);
@@ -56,40 +57,6 @@ public class Deserializer {
 		
 		return st;
 		
-	}
-
-	private static Object getClass(String value, String type) throws ParseException {
-		try {
-			switch (type) {
-			
-			case "Integer": 
-				return Integer.parseInt(value);
-				
-			case "Long": 
-				return Long.parseLong(value);
-				
-			case "Byte":
-				return Byte.parseByte(value);
-				
-			case "Float": 
-				return Float.parseFloat(value);
-				
-			case "Double": 
-				return Double.parseDouble(value);
-				
-			case "Boolean": 
-				return Boolean.parseBoolean(value);
-				
-			case "String": 
-				return value;
-				
-			default: 
-				throw new ParseException("parse error", 0);
-				
-			}
-		} catch (NumberFormatException e) {
-			throw new ParseException("parse error", 0);
-		}
 	}
 	
 }

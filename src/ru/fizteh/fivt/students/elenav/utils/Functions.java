@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.elenav.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 
 public class Functions {
 	
@@ -58,6 +59,40 @@ public class Functions {
 			return "String";
 		default:
 			return null;
+		}
+	}
+	
+	public static Object getClass(String value, String type) throws ParseException {
+		try {
+			switch (type) {
+			
+			case "Integer": 
+				return Integer.parseInt(value);
+				
+			case "Long": 
+				return Long.parseLong(value);
+				
+			case "Byte":
+				return Byte.parseByte(value);
+				
+			case "Float": 
+				return Float.parseFloat(value);
+				
+			case "Double": 
+				return Double.parseDouble(value);
+				
+			case "Boolean": 
+				return Boolean.parseBoolean(value);
+				
+			case "String": 
+				return value;
+				
+			default: 
+				throw new ParseException("parse error", 0);
+				
+			}
+		} catch (NumberFormatException e) {
+			throw new ParseException("parse error", 0);
 		}
 	}
 	
