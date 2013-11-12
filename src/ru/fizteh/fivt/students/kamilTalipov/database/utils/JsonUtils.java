@@ -29,13 +29,7 @@ public class JsonUtils {
         StringBuilder result = new StringBuilder("[");
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (value.getColumnAt(i) != null) {
-                if (table.getColumnType(i) == String.class) {
-                    result.append("\"");
-                    result.append(value.getStringAt(i));
-                    result.append("\"");
-                } else {
                     result.append(value.getColumnAt(i).toString());
-                }
             } else {
                 result.append("null");
             }
