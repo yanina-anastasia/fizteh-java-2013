@@ -77,12 +77,13 @@ public class Shell {
         }
         String[] params = getParams(command, flag);
         try {
-            if (!cmds.get(commandName).exec(params, curState)) {
-                return false;
-            }
             if (cmds.get(commandName).getCmd() == "exit") {
                 System.exit(0);
             }
+            if (!cmds.get(commandName).exec(params, curState)) {
+                return false;
+            }
+
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return false;
