@@ -22,7 +22,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
             throw new IllegalArgumentException("Null path");
         }
         if (path.isEmpty()) {
-            throw new IOException("lol what");
+            throw new IllegalArgumentException("Empty");
         }
         TableProvider toReturn;
         try {
