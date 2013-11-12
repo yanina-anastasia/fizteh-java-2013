@@ -1,10 +1,14 @@
 package ru.fizteh.fivt.students.elenav.storeable;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +25,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.utils.Functions;
-import ru.fizteh.fivt.students.elenav.utils.Reader;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
 public class StoreableTableState extends FilesystemState implements Table {
@@ -241,7 +244,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 							throw new IOException("can't read files: empty file " + f.getName());
 						}
 						try {
-							Reader.readFile(f, this);
+							readFile(f, this);
 						} catch (ParseException e) {
 							throw new IOException("can't deserialize");
 						}
@@ -253,6 +256,40 @@ public class StoreableTableState extends FilesystemState implements Table {
 			startMap.clear();
 			startMap.putAll(map);
 		}
+		
+	}
+	
+	public void readFile(File in, StoreableTableState table) throws IOException, ParseException {
+		DataInputStream s = new DataInputStream(new FileInputStream(in));
+		boolean flag = true;
+		do {
+			try {
+				int keyLength = s.readInt();
+				int valueLength = s.readInt();
+				if (keyLength <= 0 || valueLength <= 0 || keyLength >= 1024*1024 || valueLength >= 1024*1024) {
+					throw new IOException("Invalid input");
+				}
+				byte[] tempKey = new byte[keyLength];	
+				s.read(tempKey);
+				String key = new String(tempKey, StandardCharsets.UTF_8);
+				
+				if (!in.getName().equals(getFile(key)) || !in.getParentFile().getName().equals(getDir(key))) {
+					throw new IOException("wrong key placement");
+				}
+				
+				byte[] tempValue = new byte[valueLength];
+				s.read(tempValue);
+				String value = new String(tempValue, StandardCharsets.UTF_8);
+				try {
+					table.map.put(key, Deserializer.run(table, value));
+				} catch (XMLStreamException e) {
+					throw new RuntimeException(e);
+				}
+			} catch (EOFException e) {
+				break;
+			}
+		} while (flag);
+		s.close();
 		
 	}
 	

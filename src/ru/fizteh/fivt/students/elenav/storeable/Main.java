@@ -39,7 +39,7 @@ public class Main {
 			storeable.addCommand(new DropCommand(storeable));
 			storeable.addCommand(new UseCommand(storeable));
 			storeable.addCommand(new SizeCommand(storeable));
-			
+		
 			try {
 				storeable.run(args);
 			} catch (IOException e) {
