@@ -2,6 +2,9 @@ package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.tools;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
+import org.json.JSONArray;
+import ru.fizteh.fivt.storage.structured.Table;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,5 +81,34 @@ public class ColumnTypes {
         } catch (ColumnFormatException e) {
             throw new ParseException(e.getMessage(), 0);
         }
+    }
+
+    public List<Object> parseJSONArray(JSONArray values, Table table) throws ParseException {
+        List<Object> parsedValues = new ArrayList<>();
+        for (int i = 0; i < table.getColumnsCount(); i++) {
+            if (values.get(i) == null) {
+                parsedValues.add(null);
+            } else if (table.getColumnType(i) == Integer.class && values.get(i).getClass() == Integer.class) {
+                parsedValues.add(values.getInt(i));
+            } else if (table.getColumnType(i) == Long.class
+                    && (values.get(i).getClass() == Long.class || values.get(i).getClass() == Integer.class)) {
+                parsedValues.add(values.getLong(i));
+            } else if (table.getColumnType(i) == Byte.class && values.get(i).getClass() == Integer.class) {
+                Integer a = values.getInt(i);
+                parsedValues.add(a.byteValue());
+            } else if (table.getColumnType(i) == Float.class && values.get(i).getClass() == Double.class) {
+                Double a = values.getDouble(i);
+                parsedValues.add(a.floatValue());
+            } else if (table.getColumnType(i) == Double.class && values.get(i).getClass() == Double.class) {
+                parsedValues.add(values.getDouble(i));
+            } else if (table.getColumnType(i) == Boolean.class && values.get(i).getClass() == Boolean.class) {
+                parsedValues.add(values.getBoolean(i));
+            } else if (table.getColumnType(i) == String.class && values.get(i).getClass() == String.class) {
+                parsedValues.add(values.getString(i));
+            } else {
+                throw new ParseException("types mismatch", 0);
+            }
+        }
+        return parsedValues;
     }
 }

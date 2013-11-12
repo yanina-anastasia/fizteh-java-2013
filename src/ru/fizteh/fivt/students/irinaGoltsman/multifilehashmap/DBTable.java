@@ -67,10 +67,7 @@ public class DBTable implements Table {
         tableProvider = provider;
         columnTypes = types;
         HashMap<String, String> tmpTable = new HashMap<>();
-        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
-        if (returnCOde != Code.OK) {
-            throw new IOException("Error while reading table: " + this.getName());
-        }
+        FileManager.readDBFromDisk(tableDirectory, tmpTable);
         List<String> keys = new ArrayList<>(tmpTable.keySet());
         List<String> values = new ArrayList<>(tmpTable.values());
         for (int i = 0; i < values.size(); i++) {
@@ -90,10 +87,7 @@ public class DBTable implements Table {
         tableProvider = provider;
         columnTypes = FileManager.readTableSignature(tableDirectory);
         HashMap<String, String> tmpTable = new HashMap<>();
-        Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
-        if (returnCOde != Code.OK) {
-            throw new IOException("Error while reading table: " + this.getName());
-        }
+        FileManager.readDBFromDisk(tableDirectory, tmpTable);
         List<String> keys = new ArrayList<>(tmpTable.keySet());
         List<String> values = new ArrayList<>(tmpTable.values());
         for (int i = 0; i < values.size(); i++) {

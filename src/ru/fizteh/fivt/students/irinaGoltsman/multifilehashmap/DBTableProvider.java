@@ -132,10 +132,8 @@ public class DBTableProvider implements TableProvider {
         } catch (JSONException e) {
             throw new ParseException("deserialize: wrong string: " + e.getMessage(), 0);
         }
-        List<Object> parsedValues = new ArrayList<>(values.length());
-        for (int i = 0; i < values.length(); i++) {
-            parsedValues.add(values.get(i));
-        }
+        ColumnTypes ct = new ColumnTypes();
+        List<Object> parsedValues = ct.parseJSONArray(values, table);
         Storeable parsedRow;
         try {
             parsedRow = createFor(table, parsedValues);

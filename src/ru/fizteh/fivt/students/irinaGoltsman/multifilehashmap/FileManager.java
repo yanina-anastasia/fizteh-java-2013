@@ -1,12 +1,8 @@
 package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.tools.ColumnTypes;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -28,7 +24,7 @@ public class FileManager {
         }
     }
 
-    private static LineOfDB readLineOfDatFile(RandomAccessFile datFile, long inputLength) {
+    private static LineOfDB readLineOfDatFile(RandomAccessFile datFile, long inputLength) throws IOException {
         long length = inputLength;
         int lengthOfKey;
         int lengthOfValue;
@@ -37,31 +33,22 @@ public class FileManager {
             lengthOfKey = datFile.readInt();
             lengthOfValue = datFile.readInt();
         } catch (IOException e) {
-            System.err.println("Wrong format of db");
-            return empty;
+            throw new IOException("Wrong format of db: " + e.getMessage());
         }
         length -= 8;
         if (lengthOfKey <= 0 || lengthOfValue <= 0) {
-            System.err.println("Wrong format of db: length of key and length of value must be positive integers.");
-            return empty;
+            throw new IOException("Wrong format of db: length of key and length of value must be positive integers.");
         }
         if (lengthOfKey > length) {
-            System.err.println("Wrong format of db: length of key ​​do not match content.");
-            return empty;
+            throw new IOException("Wrong format of db: length of key ​​do not match content.");
         }
         byte[] bytesOfKey = readKeyOrValue(datFile, lengthOfKey);
-        if (bytesOfKey.length == 0) {
-            return empty;
-        }
         length -= lengthOfKey;
         if (lengthOfValue > length) {
             System.err.println("Wrong format of db: length of value ​​do not match content.");
             return empty;
         }
         byte[] bytesOfValue = readKeyOrValue(datFile, lengthOfValue);
-        if (bytesOfValue.length == 0) {
-            return empty;
-        }
         length -= lengthOfValue;
         String key;
         String value;
@@ -77,63 +64,43 @@ public class FileManager {
         return result;
     }
 
-    private static byte[] readKeyOrValue(RandomAccessFile datFile, int length) {
+    private static byte[] readKeyOrValue(RandomAccessFile datFile, int length) throws IOException {
         byte[] bytes = new byte[length];
         int countOfBytesWasRead = 0;
         while (true) {
             try {
                 countOfBytesWasRead = datFile.read(bytes, countOfBytesWasRead, length - countOfBytesWasRead);
             } catch (IOException e) {
-                System.err.println("Wrong format of db");
-                bytes = new byte[0];
-                return bytes;
+                throw new IOException("Wrong format of db: " + e.getMessage());
             }
             if (countOfBytesWasRead == length) {
                 break;
             }
             if (countOfBytesWasRead == -1) {
-                System.err.println("Error while reading key or value");
-                bytes = new byte[0];
-                return bytes;
+                throw new IOException("Error while reading key or value");
             }
         }
         return bytes;
     }
 
-    private static Code readFromDisk(RandomAccessFile datFile, HashMap<String, String> storage) {
+    private static void readFromDisk(RandomAccessFile datFile, HashMap<String, String> storage) throws IOException {
         long length = -1;
-        try {
-            length = datFile.length();
-        } catch (IOException e) {
-            System.err.println(e);
-            return Code.SYSTEM_ERROR;
-        }
+        length = datFile.length();
         if (length == 0) {
-            return Code.OK;
+            return;
         }
         while (length > 0) {
             LineOfDB line = readLineOfDatFile(datFile, length);
-            if (line.length == 0) {
-                return Code.ERROR;
-            }
             length -= line.length;
             storage.put(line.key, line.value);
         }
-        try {
-            datFile.close();
-        } catch (IOException e) {
-            System.err.println(e);
-            return Code.SYSTEM_ERROR;
-        }
-        return Code.OK;
+        datFile.close();
     }
 
-    public static Code readDBFromDisk(File tableDirectory, HashMap<String, String> tableStorage) {
+    public static void readDBFromDisk(File tableDirectory, HashMap<String, String> tableStorage) throws IOException {
         if (!tableDirectory.exists() || tableDirectory.isFile()) {
-            System.err.println(tableDirectory + ": not directory or not exist");
-            return Code.ERROR;
+            throw new IOException(tableDirectory + ": not directory or not exist");
         }
-
         for (int index = 0; index < 16; index++) {
             String currentDirectoryName = index + ".dir";
             File currentDirectory = new File(tableDirectory, currentDirectoryName);
@@ -141,8 +108,7 @@ public class FileManager {
                 continue;
             }
             if (!currentDirectory.isDirectory()) {
-                System.err.println(currentDirectory.toString() + ": not directory");
-                return Code.ERROR;
+                throw new IOException(currentDirectory.toString() + ": not directory");
             }
             for (int fileIndex = 0; fileIndex < 16; fileIndex++) {
                 String currentFileName = fileIndex + ".dat";
@@ -156,13 +122,9 @@ public class FileManager {
                 } catch (FileNotFoundException e) {
                     continue;
                 }
-                Code returnCode = readFromDisk(fileIndexDat, tableStorage);
-                if (returnCode != Code.OK) {
-                    return returnCode;
-                }
+                readFromDisk(fileIndexDat, tableStorage);
             }
         }
-        return Code.OK;
     }
 
     private static void cleanEmptyDir(File dir) throws IOException {
