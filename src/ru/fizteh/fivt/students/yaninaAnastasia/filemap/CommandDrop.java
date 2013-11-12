@@ -18,7 +18,6 @@ public class CommandDrop extends Command {
         }
         if (args[0].equals(myState.table.getName())) {
             myState.table = null;
-            myState.table.putName("");
         }
         myState.database.removeTable(args[0]);
 
