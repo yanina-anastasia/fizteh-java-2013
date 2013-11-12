@@ -29,6 +29,11 @@ public class NewTable implements Table {
                         || directory.listFiles().length == 0) {
                     throw new IOException("empty dir");
                 }
+                for (File dat : directory.listFiles()) {
+                    if (!checkNameOfFiles(dat.getName()) || dat.isFile() || dat.length() == 0) {
+                        throw new IOException("empty file");
+                    }
+                }
             }
 
         } else {
