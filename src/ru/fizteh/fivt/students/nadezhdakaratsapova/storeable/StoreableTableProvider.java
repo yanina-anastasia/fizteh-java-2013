@@ -123,7 +123,7 @@ public class StoreableTableProvider implements TableProvider {
             dataBaseTables.remove(name);
 
         } else {
-            throw new IllegalStateException(name + "not exists");
+            throw new IllegalStateException(name + " not exists");
         }
     }
 
