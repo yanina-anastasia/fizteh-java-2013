@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import java.io.File;
+import java.util.List;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vlmazlov.storeable.TypeName;
@@ -183,6 +184,12 @@ public class ValidityChecker {
 	public static void checkTableValue(Object value) throws ValidityCheckFailedException {
 		if (value == null) {
 			throw new ValidityCheckFailedException("valuer not specified");
+		}
+	}
+
+	public static void checkStoreableTableSignature(List<Class<?>> signature) throws ValidityCheckFailedException {
+		if (signature.isEmpty()) {
+			throw new ValidityCheckFailedException("Table signature not specified");
 		}
 	}
 }

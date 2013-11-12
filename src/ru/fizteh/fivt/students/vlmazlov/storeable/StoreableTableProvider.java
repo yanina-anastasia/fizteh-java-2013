@@ -146,29 +146,31 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         List<Class<?>> signature = new ArrayList<Class<?>>();
         Scanner scanner = new Scanner(signatureFile);
 
-        while (scanner.hasNext()) {
-            String type = scanner.next();
-            Class<?> columnType = TypeName.getClassByName(type.trim());
+        try {
+            while (scanner.hasNext()) {
+                String type = scanner.next();
+                Class<?> columnType = TypeName.getClassByName(type.trim());
 
-            if (columnType == null) {
-                throw new UnsupportedDataTypeException("Unsupported column type: " + type);
+                if (columnType == null) {
+                    throw new UnsupportedDataTypeException("Unsupported column type: " + type);
+                }
+
+                signature.add(columnType);
             }
 
-            signature.add(columnType);
-        }
+            ValidityChecker.checkStoreableTableSignature(signature);
 
-        try {
-            scanner.close();
+            //В итоге заменил на другой, см. ProviderReadre.readMultiTable
+            ///Костыль!!!!!!!!!!!!!!
+            /*if (signatureFile.delete()) {
+                System.out.println("Waste");
+            } */   
+            ///Костыль!!!!!!!!!!!!!!
+            return signature;
         } finally {
-            System.err.println("Unable to close scanner");
-        }
-        //В итоге заменил на другой, см. ProviderReadre.readMultiTable
-        ///Костыль!!!!!!!!!!!!!!
-        /*if (signatureFile.delete()) {
-            System.out.println("Waste");
-        } */   
-        ///Костыль!!!!!!!!!!!!!!
-        return signature;
+            scanner.close();
+        }  
+
     }
 
     @Override
