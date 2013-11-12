@@ -169,8 +169,6 @@ public class StoreableTableState extends FilesystemState implements Table {
 	public void setNumberOfChanges(int numberOfChanges) {
 		this.numberOfChanges = numberOfChanges;
 	}
-	
-	
 
 	private int getDir(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
@@ -186,7 +184,6 @@ public class StoreableTableState extends FilesystemState implements Table {
 		}
 		return ndirectory;
 	}
-	
 
 	private int getFile(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
@@ -209,8 +206,14 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (dirs != null) {
 			for (File file : dirs) {
 				File[] files = file.listFiles();
+				if (files.length == 0) {
+					throw new IOException("can't read files: empty dir " + file.getName());
+				}
 				if (files != null) {
 					for (File f : files) {
+						if (f.length() == 0) {
+							throw new IOException("can't read files: empty file " + f.getName());
+						}
 						try {
 							Reader.readFile(f, this);
 						} catch (ParseException e) {
