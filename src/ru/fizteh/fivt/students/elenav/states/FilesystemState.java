@@ -17,7 +17,7 @@ import ru.fizteh.fivt.students.elenav.commands.Command;
 public abstract class FilesystemState {
 	
 	private final PrintStream stream;
-	private final String name;
+	private String name;
 	private File workingDirectory = null;
 	public Provider provider = null;
 	private final List<AbstractCommand> commands = new ArrayList<AbstractCommand>();
@@ -128,5 +128,9 @@ public abstract class FilesystemState {
 	public abstract int getNumberOfChanges();
 
 	public abstract void read() throws IOException;
+
+	public void setName(String n) {
+		name = n;
+	}
 	
 }

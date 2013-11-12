@@ -234,6 +234,9 @@ public class StoreableTableState extends FilesystemState implements Table {
 				throw new IOException("can't read files: empty table " + getName());
 			}
 			for (File file : dirs) {
+				if (!file.isDirectory()) {
+					continue;
+				}
 				File[] files = file.listFiles();
 				if (files != null) {
 					if (files.length == 0) {

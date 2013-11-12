@@ -34,6 +34,7 @@ public class UseCommand extends AbstractCommand {
 		} else {
 			if (getState().getWorkingDirectory() == null || getState().getName() != null && !name.equals(getState().getName())) {
 				table.setWorkingDirectory(f);
+				table.setName(name);
 				table.provider.use(table);
 				table.read();
 				getState().getStream().println("using " + name);
