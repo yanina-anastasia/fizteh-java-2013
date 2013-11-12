@@ -96,7 +96,7 @@ public class FileMapCommands extends AbstractCommands {
         String tableName = lexems[1];
         if (myTable != null) {
             if (myTable.getName().equals(tableName)) {
-                throw new Exception(tableName + " is used");
+                usingTable = false;
             }
         }
         try {
