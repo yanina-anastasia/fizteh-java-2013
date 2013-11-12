@@ -43,8 +43,22 @@ public class NewTableProvider implements TableProvider {
         providerTypes.put("String", String.class);
         providerTypesNames.put(String.class, "String");
         for (File file : workingDirectory.listFiles()) {
-            if (checkTableName(file.getName()) && file.isDirectory() && file.listFiles().length != 0) {
-                tables.put(file.getName(), new NewTable(file.getName(), this));
+            if (checkTableName(file.getName())) {
+                if (file.isDirectory()) {
+                    if (file.listFiles().length != 0) {
+                        if (this.checkSignature(new File(workingDirectory, file.getName()))) {
+                            tables.put(file.getName(), new NewTable(file.getName(), this));
+                        } else {
+                            throw new IOException("no signature");
+                        }
+                    } else {
+                        throw new IOException("no signature");
+                    }
+                } else {
+                    throw new IllegalArgumentException("not a directory");
+                }
+            } else {
+                throw new IllegalArgumentException("incorrect table name");
             }
         }
     }
@@ -125,6 +139,17 @@ public class NewTableProvider implements TableProvider {
             }
         }
         return table;
+    }
+
+    private boolean checkSignature(File tableFile) {
+        if (tableFile.listFiles().length != 0) {
+            for (int i = 0; i < tableFile.listFiles().length; ++i) {
+                if (tableFile.listFiles()[i].getName().equals("signature.tsv")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
