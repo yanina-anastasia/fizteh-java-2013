@@ -501,6 +501,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         int columnIndex = 0;
         for (Object value : values) {
             storeable.setColumnAt(columnIndex, value);
+            ++columnIndex;
         }
         return storeable;
     }

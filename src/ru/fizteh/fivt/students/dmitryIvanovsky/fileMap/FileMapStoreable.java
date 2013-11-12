@@ -12,7 +12,7 @@ public class FileMapStoreable implements Storeable {
     private List<Class<?>> columnType;
     Boolean newTypeNull = false;
 
-    FileMapStoreable(List<Class<?>> columnType) {
+    public FileMapStoreable(List<Class<?>> columnType) {
         this.columnType = columnType;
         for (Class<?> col : columnType) {
             column.add(null);
@@ -27,7 +27,8 @@ public class FileMapStoreable implements Storeable {
 
     private void checkColumnFormat(int columnIndex, Class<?> valueClass) {
         if (!valueClass.equals(columnType.get(columnIndex))) {
-            throw new ColumnFormatException("wrong column format");
+            String message = String.format("wrong column format index %d %s", columnIndex, valueClass.toString());
+            throw new ColumnFormatException(message);
         }
     }
 
@@ -141,56 +142,6 @@ public class FileMapStoreable implements Storeable {
                     return false;
                 }
             }
-            /*
-            if (columnType.get(i) == Integer.class) {
-                if (line.getIntAt(i) != null && this.getIntAt(i) != null) {
-                    if (!line.getIntAt(i).equals(this.getIntAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == Long.class) {
-                if (line.getLongAt(i) != null && this.getLongAt(i) != null) {
-                    if (!line.getLongAt(i).equals(this.getLongAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == Byte.class) {
-                if (line.getByteAt(i) != null && this.getByteAt(i) != null) {
-                    if (!line.getByteAt(i).equals(this.getByteAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == Float.class) {
-                if (line.getFloatAt(i) != null && this.getFloatAt(i) != null) {
-                    if (!line.getFloatAt(i).equals(this.getFloatAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == Double.class) {
-                if (line.getDoubleAt(i) != null && this.getDoubleAt(i) != null) {
-                    if (!line.getDoubleAt(i).equals(this.getDoubleAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == Boolean.class) {
-                if (line.getBooleanAt(i) != null && this.getBooleanAt(i) != null) {
-                    if (!line.getBooleanAt(i).equals(this.getBooleanAt(i))) {
-                        return false;
-                    }
-                }
-            }
-            if (columnType.get(i) == String.class) {
-                if (line.getStringAt(i) != null && this.getStringAt(i) != null) {
-                    if (!line.getStringAt(i).equals(this.getStringAt(i))) {
-                        return false;
-                    }
-                }
-            }*/
         }
         return true;
     }

@@ -197,6 +197,21 @@ public class TestFileMap {
         assertEquals(st1, fileMap.get("1"));
     }
 
+    @Test()
+    public void checkGetColumnsCount() {
+        assertEquals(2, fileMap.getColumnsCount());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void checkErrorGetColumnType() {
+        fileMap.getColumnType(3);
+    }
+
+    @Test()
+    public void checkOKGetColumnType() {
+        assertEquals(String.class, fileMap.getColumnType(0));
+    }
+
     @AfterClass
     public static void tearDown() {
         try {
