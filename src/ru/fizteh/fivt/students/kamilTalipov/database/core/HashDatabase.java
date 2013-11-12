@@ -45,7 +45,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
     @Override
     public boolean dropTable(String tableName) {
         try {
-            if (activeTable != null && activeTable.equals(tableName)) {
+            if (activeTable != null && activeTable.getName().equals(tableName)) {
                 activeTable = null;
             }
             tableProvider.removeTable(tableName);
