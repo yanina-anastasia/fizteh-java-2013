@@ -14,6 +14,10 @@ public class Serializer {
 	
 	public static String run(Table table, Storeable storeable) throws XMLStreamException {
 		
+		if (storeable == null) {
+			return null;
+		}
+		
 		StringWriter string = new StringWriter();
 		XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(string);
 		try {
