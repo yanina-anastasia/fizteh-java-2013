@@ -41,8 +41,7 @@ public class Deserializer {
         Object value = null;
         try {
             int nodeType = reader.next();
-            if (nodeType == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("null"))
-            {
+            if (reader.getLocalName().equals("null")) {
                 return null;
             }
             if (nodeType != XMLStreamConstants.START_ELEMENT || !reader.getName().getLocalPart().equals("col")) {
@@ -51,9 +50,7 @@ public class Deserializer {
             nodeType = reader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
                 value = ColumnTypes.parsingValue(reader.getText(), expectedType);
-            }
-            else
-            {
+            } else {
                 throw new ParseException("Incorrect XML format", 0);
             }
             nodeType = reader.next();
