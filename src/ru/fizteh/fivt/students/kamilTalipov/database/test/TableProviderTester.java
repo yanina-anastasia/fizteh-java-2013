@@ -5,8 +5,6 @@ import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.DatabaseException;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
