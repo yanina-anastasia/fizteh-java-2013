@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class DBTableProviderFactory implements TableProviderFactory {
     public TableProvider create(String rootDir) throws IOException {
-        if (rootDir == null || rootDir.trim().isEmpty() || !rootDir.matches("[A-Za-zА-Яа-я0-9]+")) {
+        if (rootDir == null || rootDir.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong directory name");
         }
         TableProvider newTableProvider = null;
