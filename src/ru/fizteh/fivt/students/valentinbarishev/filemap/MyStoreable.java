@@ -57,7 +57,7 @@ public class MyStoreable implements Storeable{
         }
 
         Class<?> valueType = value.getClass();
-        if (valueType == JSONObject.NULL) {
+        if (valueType == JSONObject.NULL || JSONObject.NULL == value) {
             return null;
         }
 
