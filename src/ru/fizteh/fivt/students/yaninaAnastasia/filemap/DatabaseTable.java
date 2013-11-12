@@ -115,7 +115,7 @@ public class DatabaseTable implements Table {
         if (oldValue == null) {
             size += 1;
         }
-        uncommittedChanges += 1;
+        uncommittedChanges = changesCount();
         return oldValue;
     }
 
@@ -139,7 +139,7 @@ public class DatabaseTable implements Table {
         if (oldValue != null) {
             size -= 1;
         }
-        uncommittedChanges += 1;
+        uncommittedChanges = changesCount();
         return oldValue;
     }
 
