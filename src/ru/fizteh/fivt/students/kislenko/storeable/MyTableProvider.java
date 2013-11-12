@@ -86,7 +86,7 @@ public class MyTableProvider implements TableProvider {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (array.get(i).equals(null)) {
                 values.add(null);
-            } else if (array.get(i).getClass().isAssignableFrom(table.getColumnType(i))) {
+            } else if (array.get(i).getClass() == table.getColumnType(i)) {
                 values.add(array.get(i));
             } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
                     table.getColumnType(i) == Long.class) {
@@ -94,6 +94,9 @@ public class MyTableProvider implements TableProvider {
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
                 values.add(a.byteValue());
+            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
+                Double a = array.getDouble(i);
+                values.add(a.floatValue());
             } else {
                 throw new ParseException("Incorrect value string.", -1);
             }
