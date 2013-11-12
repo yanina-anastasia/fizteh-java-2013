@@ -7,37 +7,37 @@ import java.util.Map;
 
 public enum ColumnTypes {
     INTEGER("int", Integer.class) {
-        public Object parseValue(String string) {
+        public Integer parseValue(String string) {
             return Integer.parseInt(string);
         }
     },
     LONG("long", Long.class) {
-        public Object parseValue(String string) {
+        public Long parseValue(String string) {
             return Long.parseLong(string);
         }
     },
     BYTE("byte", Byte.class) {
-        public Object parseValue(String string) {
+        public Byte parseValue(String string) {
             return Byte.parseByte(string);
         }
     },
     FLOAT("float", Float.class) {
-        public Object parseValue(String string) {
+        public Float parseValue(String string) {
             return Float.parseFloat(string);
         }
     },
     DOUBLE("double", Double.class) {
-        public Object parseValue(String string) {
+        public Double parseValue(String string) {
             return Double.parseDouble(string);
         }
     },
     BOOLEAN("boolean", Boolean.class) {
-        public Object parseValue(String string) {
+        public Boolean parseValue(String string) {
             return Boolean.parseBoolean(string);
         }
     },
     STRING("String", String.class) {
-        public Object parseValue(String string) {
+        public String parseValue(String string) {
             return string;
         }
     };
