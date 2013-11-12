@@ -333,6 +333,10 @@ public class StoreableTableState extends FilesystemState implements Table {
 	public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
 		return columnTypes.get(columnIndex);
 	}
+	
+	public void setColumnTypes(List<Class<?>> types) {
+		columnTypes = types;
+	}
 
 	@Override
 	public String put(String key, String value) throws XMLStreamException, ParseException {

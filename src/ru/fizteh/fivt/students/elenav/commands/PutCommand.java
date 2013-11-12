@@ -28,8 +28,7 @@ public class PutCommand extends AbstractCommand {
 					getState().getStream().println("new");
 				}
 			} catch (ParseException | XMLStreamException e) {
-				System.err.println("invalid input: " + e.getMessage()+" $"+
-							StoreableTableState.class.cast(table).getColumnsCount());
+				System.err.println("invalid input: " + e.getMessage());
 			}
 		}
 	}	

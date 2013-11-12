@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -185,6 +186,8 @@ public class StoreableTableProvider implements TableProvider, Provider {
 
 	@Override
 	public void use(FilesystemState table) throws IOException {
+		List<Class<?>> list = new ArrayList<>();
+		StoreableTableState.class.cast(table).setColumnTypes(list);
 		StoreableTableState.class.cast(table).getColumnTypes();
 		
 	}
