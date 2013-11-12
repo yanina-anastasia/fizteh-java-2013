@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 import java.io.IOException;
@@ -20,10 +21,12 @@ public class ShellUseTable extends SimpleShellCommand {
             return;
         }
 
+        Table old = context.table;
         context.table = context.provider.getTable(getArg(1));
         if (context.table != null) {
             System.out.println("using " + getArg(1));
         } else {
+            context.table = old;
             System.out.println(getArg(1) + " not exists");
         }
     }
