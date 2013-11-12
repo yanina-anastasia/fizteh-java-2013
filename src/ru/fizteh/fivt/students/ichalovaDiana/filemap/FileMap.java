@@ -101,12 +101,12 @@ public class FileMap {
         
         private static Class<?> forName(String className) {
             Map<String, Class<?>> types = new HashMap<String, Class<?>>();
-            types.put("int", int.class);
-            types.put("long", long.class);
-            types.put("byte", byte.class);
-            types.put("float", float.class);
-            types.put("double", double.class);
-            types.put("boolean", boolean.class);
+            types.put("int", Integer.class);
+            types.put("long", Long.class);
+            types.put("byte", Byte.class);
+            types.put("float", Float.class);
+            types.put("double", Double.class);
+            types.put("boolean", Boolean.class);
             types.put("String", String.class);
             
             return types.get(className);
