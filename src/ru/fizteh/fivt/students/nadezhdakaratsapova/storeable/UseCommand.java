@@ -23,7 +23,8 @@ public class UseCommand implements Command {
                 throw new IOException(commitSize + " unsaved changes");
             }
         }
-        if (curState.setCurTable(args[1]) != null) {
+        if (curState.getTable(args[1]) != null) {
+            curState.setCurTable(args[1]);
             System.out.println("using " + args[1]);
         } else {
             System.out.println(args[1] + " not exists");
