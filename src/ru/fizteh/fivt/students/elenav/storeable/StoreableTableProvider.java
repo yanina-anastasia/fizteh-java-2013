@@ -42,6 +42,9 @@ public class StoreableTableProvider implements TableProvider, Provider {
 
 	private boolean isCorrectColumnType(List<Class<?>> columnTypes) {
 		for (Class<?> type : columnTypes) {
+			if (type == null) {
+				return false;
+			}
 			String stringType = type.getSimpleName();
 			if (!stringType.equals("Integer") && !stringType.equals("Long") && !stringType.equals("Byte") &&
 					!stringType.equals("Float") && !stringType.equals("Double") && !stringType.equals("Boolean") 
