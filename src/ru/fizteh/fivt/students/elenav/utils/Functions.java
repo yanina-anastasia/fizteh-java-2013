@@ -82,7 +82,7 @@ public class Functions {
 				throw new ParseException("invalide type of object: " + type, 0);
 			}
 		} catch (NumberFormatException e) {
-			throw new ParseException("parse error", 0);
+			throw new ParseException("parse error: "+ e.getMessage(), 0);
 		}
 	}
 	

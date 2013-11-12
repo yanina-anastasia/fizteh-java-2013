@@ -5,6 +5,7 @@ import java.text.ParseException;
 import javax.xml.stream.XMLStreamException;
 
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
+import ru.fizteh.fivt.students.elenav.storeable.StoreableTableState;
 
 public class PutCommand extends AbstractCommand {
 
@@ -27,7 +28,8 @@ public class PutCommand extends AbstractCommand {
 					getState().getStream().println("new");
 				}
 			} catch (ParseException | XMLStreamException e) {
-				System.err.println("invalid input: " + e.getMessage());
+				System.err.println("invalid input: " + e.getMessage()+" $"+
+							StoreableTableState.class.cast(table).getColumnsCount());
 			}
 		}
 	}	
