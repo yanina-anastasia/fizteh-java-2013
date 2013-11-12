@@ -47,7 +47,15 @@ public class NewTableProvider implements TableProvider {
                 if (file.isDirectory()) {
                     if (file.listFiles().length != 0) {
                         if (this.checkSignature(new File(workingDirectory, file.getName()))) {
-                            tables.put(file.getName(), new NewTable(file.getName(), this));
+                            for (File directory : file.listFiles()) {
+                                if (checkNameOfDataBaseDirectory(directory.getName()) && directory.isDirectory()
+                                        && directory.listFiles().length != 0) {
+                                    tables.put(file.getName(), new NewTable(file.getName(), this));
+                                } else {
+                                    throw new IOException("empty dir");
+                                }
+                            }
+
                         } else {
                             throw new IOException("no signature");
                         }
@@ -91,7 +99,7 @@ public class NewTableProvider implements TableProvider {
     }
 
     private boolean checkNameOfDataBaseDirectory(String dir) {
-        return dir.matches("(([0-9])|(1[0-5]))\\.dir");
+        return (dir.matches("(([0-9])|(1[0-5]))\\.dir") || dir.equals("signature.tsv"));
     }
 
     private boolean checkNameOfFiles(String file) {
