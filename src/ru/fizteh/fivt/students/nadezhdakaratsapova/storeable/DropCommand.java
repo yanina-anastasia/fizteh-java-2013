@@ -18,7 +18,7 @@ public class DropCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         curState.removeTable(args[1]);
-        if (curState.curDataBaseStorage != null && args[1].equals(curState.curDataBaseStorage.getName())) {
+        if (args[1].equals(curState.curDataBaseStorage.getName())) {
             curState.setCurTable(null);
         }
         System.out.println("dropped");
