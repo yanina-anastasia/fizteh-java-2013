@@ -230,16 +230,7 @@ public class DbMain {
     }
 
     public static void exit(String[] arg) {
-        if (currentTable != null) {
-            int numberOfChanges = currentTable.countChanges();
-            if (numberOfChanges != 0) {
-                System.out.println(numberOfChanges + " unsaved changes");
-            }  else {
-                System.exit(0);
-            }
-        } else {
             System.exit(0);
-        }
     }
 
     public static void commit(String[] arg) {
