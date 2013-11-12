@@ -169,6 +169,7 @@ public class StoreableTableProvider implements TableProvider {
                                     if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
                                         throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
                                     }
+                                    /*
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                     } else {
@@ -176,7 +177,7 @@ public class StoreableTableProvider implements TableProvider {
                                     }
                                     if (node != XMLStreamConstants.END_ELEMENT) {
                                         throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
-                                    }
+                                    }*/
                                 }
                             }
                         } else {
@@ -210,7 +211,7 @@ public class StoreableTableProvider implements TableProvider {
                 String s = signatureController.convertStoreableFieldToString(value, i, table.getColumnType(i));
                 if (s == null) {
                     xmlWriter.writeStartElement("null");
-                    xmlWriter.writeEndElement();
+                    // xmlWriter.writeEndElement();
                 } else {
                     xmlWriter.writeCharacters(s);
                 }
