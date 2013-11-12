@@ -20,9 +20,6 @@ public class CommandUse extends Command {
                 TableBuilder tableBuilder = new TableBuilder(myState.table.provider, myState.table);
                 myState.table.save(tableBuilder);
             }
-            /*if (myState.table != null && myState.table.uncommittedChanges != 0) {
-                System.out.println(myState.table.uncommittedChanges + "unsaved changes");
-            }  */
             myState.table = myState.database.getTable(args[0]);
             System.out.println("using " + args[0]);
         } catch (IllegalArgumentException e) {
