@@ -55,7 +55,31 @@ public class StoreableTable implements Table {
 		}
 	}
 	
+	private void writeSignature() throws IOException {
+		File signature = new File(this.tablePath, "signature.tsv");
+		if(signature.exists()) {
+			return;
+		} 
+		if(!signature.createNewFile()) {
+			throw new IOException("Can not create 'signature.tsv' file.");
+		}
+		DataOutputStream writer = null;
+		List<String> columnTypesNames = Utils.getColumnTypesNames(this.columnTypes);
+		try {
+			writer = new DataOutputStream(new FileOutputStream(signature));
+			for(int i = 0; i < this.getColumnsCount(); ++i) {
+				writer.writeUTF(columnTypesNames.get(i));
+				if(i != this.getColumnsCount() - 1) {
+					writer.writeUTF(" ");
+				}
+			}
+		} finally {
+			writer.close();
+		}
+	}
+	
 	private void write() throws IOException {
+		writeSignature();
 		File directory;
 		for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
 			directory = new File(this.tablePath, i + ".dir");

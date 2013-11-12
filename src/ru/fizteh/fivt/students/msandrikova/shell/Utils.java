@@ -210,7 +210,7 @@ public class Utils {
 			case "boolean":
 				answer.add(Boolean.class);
 				break;
-			case "string":
+			case "String":
 				answer.add(String.class);
 				break;
 			default:
@@ -218,6 +218,36 @@ public class Utils {
 			}
 		}
 		reader.close();
+		return answer;
+	}
+	
+	public static List<String> getColumnTypesNames(List<Class<?>> columnTypes) {
+		List<String> answer = new ArrayList<String>();
+		for(int i = 0; i < columnTypes.size(); ++i) {
+			switch(columnTypes.get(i).getName()) {
+			case "java.lang.Integer":
+				answer.add("int");
+				break;
+			case "java.lang.Byte":
+				answer.add("byte");
+				break;
+			case "java.lang.Long":
+				answer.add("long");
+				break;
+			case "java.lang.Float":
+				answer.add("float");
+				break;
+			case "java.lang.Boolean":
+				answer.add("boolean");
+				break;
+			case "java.lang.String":
+				answer.add("String");
+				break;
+			case "java.lang.Double":
+				answer.add("double");
+				break;
+			}
+		}
 		return answer;
 	}
 }

@@ -62,8 +62,7 @@ public class StoreableTableProvider implements TableProvider {
 		} catch (IOException e) {
 			throw e;
 		}
-		
-		Table removedTable = this.mapOfTables.remove(name);
+		this.mapOfTables.remove(name);
 	}
 
 	@Override
