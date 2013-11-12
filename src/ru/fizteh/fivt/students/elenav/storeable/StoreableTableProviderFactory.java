@@ -11,7 +11,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 	@Override
 	public TableProvider create(String path) throws IOException {
 		if (path == null || path.trim().isEmpty()) {
-			throw new IllegalArgumentException("can't create TableProvider: null directory");
+			throw new IllegalArgumentException("can't create TableProvider: not existing directory");
 		}
 		File f = new File(path);
 		if (!f.exists()) {
