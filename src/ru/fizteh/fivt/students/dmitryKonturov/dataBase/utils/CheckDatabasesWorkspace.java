@@ -140,7 +140,11 @@ public class CheckDatabasesWorkspace {
 
     public static void checkWorkspace(Path workspace) throws DatabaseException, IOException {
         String exceptionPrefix = String.format("Check workspace \'%s\'", workspace.toString());
+
         try {
+            if (!Files.exists(workspace)) {
+                throw new IOException(exceptionPrefix + " not exists");
+            }
             if (!Files.isDirectory(workspace)) {
                 throw new DatabaseException(exceptionPrefix, "Workspace is not directory");
             }

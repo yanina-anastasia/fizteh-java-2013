@@ -30,7 +30,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-            throw new IOException("Cannot create tableProvider", e);
+            throw new IllegalArgumentException("Cannot create tableProvider", e);
         }
         return toReturn;
     }
