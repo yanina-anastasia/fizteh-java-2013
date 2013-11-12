@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.visamsonov.storeable.tests;
 import org.junit.*;
 import java.io.File;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.students.visamsonov.storage.TableFactory;
+import ru.fizteh.fivt.students.visamsonov.storage.StructuredTableFactory;
 
 public class TableProviderFactoryTest {
 
@@ -12,7 +12,7 @@ public class TableProviderFactoryTest {
 	@Before
 	public void before () throws Exception {
 		new File("/tmp/dbtest").mkdirs();
-		factory = new TableFactory();
+		factory = new StructuredTableFactory();
 	}
 
 	@Test

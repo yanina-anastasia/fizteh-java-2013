@@ -9,7 +9,7 @@ import java.text.ParseException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.visamsonov.storage.TableDirectory;
+import ru.fizteh.fivt.students.visamsonov.storage.StructuredTableDirectory;
 
 public class TableTest {
 
@@ -29,7 +29,7 @@ public class TableTest {
 	@Before
 	public void before () throws Exception {
 		new File("/tmp/dbtest").mkdirs();
-		provider = new TableDirectory("/tmp/dbtest");
+		provider = new StructuredTableDirectory("/tmp/dbtest");
 		try {
 			provider.removeTable(TABLE_NAME);
 		}

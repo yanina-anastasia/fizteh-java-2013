@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.text.ParseException;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.visamsonov.storage.TableDirectory;
+import ru.fizteh.fivt.students.visamsonov.storage.StructuredTableDirectory;
 
 public class TableProviderTest {
 
@@ -17,7 +17,7 @@ public class TableProviderTest {
 	@Before
 	public void before () throws Exception {
 		new File("/tmp/dbtest").mkdirs();
-		provider = new TableDirectory("/tmp/dbtest");
+		provider = new StructuredTableDirectory("/tmp/dbtest");
 	}
 
 	@Test
