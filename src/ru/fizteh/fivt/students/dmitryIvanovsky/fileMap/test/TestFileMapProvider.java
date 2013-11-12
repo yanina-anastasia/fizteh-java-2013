@@ -117,8 +117,8 @@ public class TestFileMapProvider {
 
         Storeable st = multiMap.createFor(table, column);
 
-        String res = "<row><col>12</col><col>13</col><col>14</col><col>12.2</col>" +
-                     "<col>12.3</col><col>true</col><col>qwe</col></row>";
+        String res = "<row><col>12</col><col>13</col><col>14</col><col>12.2</col>"
+                      + "<col>12.3</col><col>true</col><col>qwe</col></row>";
 
         assertEquals(res, multiMap.serialize(table, st));
     }
