@@ -92,7 +92,7 @@ public class TableProviderImplementation implements TableProvider {
                 if (i != 0) {
                     signatureFile.write("\t");
                 }
-                signatureFile.write(columnTypes.get(i).getSimpleName());
+                signatureFile.write(toName(columnTypes.get(i)));
             }
         } catch (IOException e) {
             throw new IOException("Error while writing to the signature file: "
@@ -102,6 +102,19 @@ public class TableProviderImplementation implements TableProvider {
         tables.put(name, new TableImplementation(this, databaseDirectory, name, columnTypes));
         
         return tables.get(name);
+    }
+    
+    private static String toName(Class<?> className) {
+        Map<Class<?>, String> types = new HashMap<Class<?>, String>();
+        types.put(Integer.class, "int");
+        types.put(Long.class, "long");
+        types.put(Byte.class, "byte");
+        types.put(Float.class, "float");
+        types.put(Double.class, "double");
+        types.put(Boolean.class, "boolean");
+        types.put(String.class, "String");
+        
+        return types.get(className);
     }
 
     @Override
