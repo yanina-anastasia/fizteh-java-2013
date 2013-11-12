@@ -7,8 +7,8 @@ import org.junit.runner.notification.Failure;
 public class TestRunner {
     public static void main(String[] args) {
         runTest(TestFileMap.class);
-        //runTest(TestFileMapProvider.class);
-        //runTest(TestFileMapProviderFactory.class);
+        runTest(TestFileMapProvider.class);
+        runTest(TestFileMapProviderFactory.class);
     }
 
     public static void runTest(Class testClass) {

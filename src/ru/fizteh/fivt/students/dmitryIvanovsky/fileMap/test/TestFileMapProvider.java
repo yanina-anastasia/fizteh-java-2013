@@ -3,14 +3,24 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class TestFileMapProvider {
 
@@ -43,20 +53,22 @@ public class TestFileMapProvider {
     public void createNull() throws IOException {
         multiMap.createTable(null, null);
     }
-    /*
+
     @Test(expected = IllegalArgumentException.class)
     public void getNull() {
         multiMap.getTable(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void removeNull() {
+    public void removeNull() throws IOException {
         multiMap.removeTable(null);
     }
 
     @Test()
-    public void createGetTable() {
-        multiMap.createTable("123");
+    public void createGetTable() throws IOException {
+        List<Class<?>> columnType = new ArrayList<>();
+        columnType.add(Integer.class);
+        multiMap.createTable("123", columnType);
         Table a = multiMap.getTable("123");
         Table b = multiMap.getTable("123");
         assertEquals(a, b);
@@ -69,13 +81,15 @@ public class TestFileMapProvider {
     }
 
     @Test()
-    public void removeCreateTable() {
+    public void removeCreateTable() throws IOException {
         File file = new File(String.valueOf(pathTables.resolve("12345").toAbsolutePath()));
-        multiMap.createTable("12345");
+        List<Class<?>> columnType = new ArrayList<>();
+        columnType.add(Integer.class);
+        multiMap.createTable("12345", columnType);
         assertTrue(file.isDirectory());
         multiMap.removeTable("12345");
         assertFalse(file.exists());
-    }  */
+    }
 
     @AfterClass
     public static void tearDown() {

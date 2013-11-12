@@ -2,11 +2,14 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
+
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -37,20 +40,20 @@ public class TestFileMapProviderFactory {
 
     }
 
-    /*@Test(expected = IllegalArgumentException.class)
-    public void createNull() {
+    @Test(expected = IllegalArgumentException.class)
+    public void createNull() throws IOException {
         multiMapFactory.create(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createNotExist() {
+    @Test(expected = IOException.class)
+    public void createNotExist() throws IOException {
         multiMapFactory.create("/123123/1243");
     }
 
     @Test()
-    public void createProvider() {
+    public void createProvider() throws IOException {
         multiMapFactory.create(pathTables.toString());
-    }   */
+    }
 
     @AfterClass
     public static void tearDown() {

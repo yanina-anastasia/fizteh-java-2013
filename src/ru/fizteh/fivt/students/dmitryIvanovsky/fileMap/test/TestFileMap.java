@@ -135,32 +135,35 @@ public class TestFileMap {
         Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
         fileMap.put("!23\nwerf", st1);
     }
-    /*
+
     @Test()
-    public void commitSimpleCount() {
+    public void commitSimpleCount() throws IOException, ParseException {
         fileMap.commit();
-        fileMap.put("123", "3453");
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put("123", st1);
         assertEquals(1, fileMap.commit());
         fileMap.remove("123");
     }
 
     @Test()
-    public void commitHardCount() {
+    public void commitHardCount() throws IOException, ParseException {
         fileMap.remove("1");
         fileMap.remove("2");
         fileMap.commit();
-        fileMap.put("1", "1");
-        fileMap.put("2", "2");
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>2</col></row>");
+        fileMap.put("1", st1);
+        fileMap.put("2", st1);
         assertEquals(2, fileMap.commit());
 
-        fileMap.put("1", "1");
+        fileMap.put("1", st1);
         fileMap.remove("1");
-        fileMap.put("1", "1");
+        fileMap.put("1", st1);
         assertEquals(0, fileMap.commit());
 
-        fileMap.put("1", "1");
+        fileMap.put("1", st1);
         fileMap.remove("1");
-        fileMap.put("1", "2");
+        fileMap.put("1", st2);
         assertEquals(1, fileMap.commit());
         fileMap.remove("1");
         fileMap.remove("2");
@@ -168,12 +171,14 @@ public class TestFileMap {
     }
 
     @Test()
-    public void rollbackAfterRemove() {
+    public void rollbackAfterRemove() throws IOException, ParseException {
         fileMap.remove("1");
         fileMap.remove("2");
         fileMap.commit();
-        fileMap.put("1", "1");
-        fileMap.put("2", "2");
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>2</col></row>");
+        fileMap.put("1", st1);
+        fileMap.put("2", st2);
         assertEquals(fileMap.rollback(), 2);
         assertEquals(null, fileMap.get("1"));
         assertEquals(null, fileMap.get("2"));
@@ -182,13 +187,15 @@ public class TestFileMap {
     }
 
     @Test()
-    public void rollbackAfterEdit() {
-        fileMap.put("1", "1");
+    public void rollbackAfterEdit() throws IOException, ParseException {
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put("1", st1);
         fileMap.commit();
-        fileMap.put("1", "2");
+        Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>2</col></row>");
+        fileMap.put("1", st2);
         fileMap.rollback();
-        assertEquals("1", fileMap.get("1"));
-    }  */
+        assertEquals(st1, fileMap.get("1"));
+    }
 
     @AfterClass
     public static void tearDown() {
