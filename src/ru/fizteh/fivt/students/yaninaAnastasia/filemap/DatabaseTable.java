@@ -81,10 +81,10 @@ public class DatabaseTable implements Table {
         }
         if (key.matches("\\s*") || key.split("\\s+").length != 1) {
             throw new IllegalArgumentException("Key contains whitespaces");
-        }
+        }/*
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
-        }
+        }  */
         checkAlienStoreable(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
             try {
