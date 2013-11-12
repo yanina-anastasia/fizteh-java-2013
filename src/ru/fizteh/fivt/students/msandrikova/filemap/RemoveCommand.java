@@ -30,6 +30,7 @@ public class RemoveCommand extends Command {
 				oldValue = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.remove(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
+				return;
 			}
 		}
 

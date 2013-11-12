@@ -178,18 +178,8 @@ public class Utils {
 	}
 	
 	
-	public static List<Class<?>> getClassTypes(File f) throws IOException {
-		File signature = new File(f, "signature.tsv");
-		if(!signature.exists()) {
-			throw new IOException("Signature file does not exist.");
-		}
-		Scanner reader = new Scanner(new FileInputStream(signature));
-		if(!reader.hasNextLine()) {
-			reader.close();
-			throw new IOException("Signature file is empty.");
-		}
+	public static List<Class<?>> classTypesFromArray(String[] columnTypes) throws IOException {
 		List<Class<?>> answer = new ArrayList<Class<?>>();
-		String[] columnTypes = reader.nextLine().split("\\s");
 		for(String columnType : columnTypes) {
 			switch(columnType) {
 			case "int":
@@ -217,8 +207,23 @@ public class Utils {
 				throw new IOException("Incorrect signature file.");
 			}
 		}
-		reader.close();
 		return answer;
+	}
+	
+	public static List<Class<?>> getClassTypes(File f) throws IOException {
+		File signature = new File(f, "signature.tsv");
+		if(!signature.exists()) {
+			throw new IOException("Signature file does not exist.");
+		}
+		Scanner reader = new Scanner(new FileInputStream(signature));
+		if(!reader.hasNextLine()) {
+			reader.close();
+			throw new IOException("Signature file is empty.");
+		}
+		String[] columnTypes = reader.nextLine().split("\\s");
+		reader.close();
+		
+		return Utils.classTypesFromArray(columnTypes);
 	}
 	
 	public static List<String> getColumnTypesNames(List<Class<?>> columnTypes) {
@@ -249,6 +254,11 @@ public class Utils {
 			}
 		}
 		return answer;
+	}
+	
+	public static List<Class<?>> parseColumnTypes(String types) throws IOException {
+		String[] columnTypes = types.split("[)(,]");
+		return Utils.classTypesFromArray(columnTypes);
 	}
 	
 }

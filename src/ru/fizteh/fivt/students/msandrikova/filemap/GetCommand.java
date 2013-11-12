@@ -28,6 +28,7 @@ public class GetCommand extends Command {
 				value = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.get(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
+				return;
 			}
 		}
 		
