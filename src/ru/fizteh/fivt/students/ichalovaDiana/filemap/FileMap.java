@@ -315,11 +315,7 @@ public class FileMap {
 
                 int changesNumber = table.commit();
                 
-                System.out.println('B');
-                
                 System.out.println(changesNumber);
-                
-                System.out.println('C');
 
             } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
