@@ -7,7 +7,7 @@ import java.util.List;
 import ru.fizteh.fivt.students.elenav.commands.AbstractCommand;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.storeable.StoreableTableState;
-import ru.fizteh.fivt.students.elenav.utils.Functions;
+import ru.fizteh.fivt.students.elenav.storeable.TypeClass;
 
 public class CreateTableCommand extends AbstractCommand {
 
@@ -46,7 +46,7 @@ public class CreateTableCommand extends AbstractCommand {
 		for (int i = 2; i < args.length; ++i) {
 			String type = args[i];
 			if (type != null) {
-				result.add(Functions.getClassFromString(type));
+				result.add(TypeClass.getTypeWithName(type));
 			}
 		}
 		return result;

@@ -55,38 +55,32 @@ public class FileMapState extends FilesystemState {
 
 	@Override
 	public int commit() {
-		System.err.println("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public int rollback() {
-		System.err.println("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public int size() {
-		System.err.println("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public int getNumberOfChanges() {
-		System.err.println("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public void read() {
-		System.err.println("Command can't be executed");
-		
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		System.err.println("Command can't be executed");
-		return null;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
                                                                                                                                                                  
 

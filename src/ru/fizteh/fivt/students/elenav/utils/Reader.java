@@ -6,13 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.HashMap;
-
-import javax.xml.stream.XMLStreamException;
-
-import ru.fizteh.fivt.students.elenav.storeable.Deserializer;
-import ru.fizteh.fivt.students.elenav.storeable.StoreableTableState;
 
 public class Reader {
 

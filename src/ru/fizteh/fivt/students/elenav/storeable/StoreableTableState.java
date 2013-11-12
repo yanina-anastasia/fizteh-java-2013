@@ -24,7 +24,6 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
-import ru.fizteh.fivt.students.elenav.utils.Functions;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
 public class StoreableTableState extends FilesystemState implements Table {
@@ -65,7 +64,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		monoString = monoString.trim();
 		String[] types = monoString.split("\\s+");
 		for (String type : types) {
-			columnTypes.add(Functions.getClassFromString(type));
+			columnTypes.add(TypeClass.getTypeWithName(type));
 		}
 		
 		sc.close();

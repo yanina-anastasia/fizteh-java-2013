@@ -129,7 +129,6 @@ public class MultiFileMapState extends FilesystemState implements Table {
 		this.numberOfChanges = numberOfChanges;
 	}
 	
-
 	private int getDir(String key) throws IOException {
 		int hashcode = Math.abs(key.hashCode());
 		int ndirectory = hashcode % 16;
@@ -196,10 +195,13 @@ public class MultiFileMapState extends FilesystemState implements Table {
 						File out = new File(dir, j + ".dat");
 						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 						Set<Entry<String, String>> set = toWriteInCurFile.entrySet();
-						for (Entry<String, String> element : set) {
-							Writer.writePair(element.getKey(), element.getValue(), s);
+						try {
+							for (Entry<String, String> element : set) {
+								Writer.writePair(element.getKey(), element.getValue(), s);
+							}
+						} finally {
+							s.close();
 						}
-						s.close();
 					}
 				}
 			}
@@ -208,8 +210,11 @@ public class MultiFileMapState extends FilesystemState implements Table {
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		System.err.println("Command can't be executed");
-		return null;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	public static void main(String[] args) {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 	
 }

@@ -97,7 +97,7 @@ public class StoreableTableProvider implements TableProvider, Provider {
 			f.createNewFile();
 			PrintStream s = new PrintStream(signature);
 			for (int i = 0; i < types.size(); ++i) {
-				s.append(Functions.getStringFromClass(types.get(i)));
+				s.append(TypeClass.getNameWithType(types.get(i)));
 				s.append(" ");
 			}
 			s.close();

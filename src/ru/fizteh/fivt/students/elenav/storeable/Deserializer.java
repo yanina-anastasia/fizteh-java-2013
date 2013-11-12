@@ -9,7 +9,6 @@ import javax.xml.stream.XMLInputFactory;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class Deserializer {
 	
@@ -30,7 +29,7 @@ public class Deserializer {
 				reader.next();
 				if (reader.isCharacters()) {
 					String smth = reader.getText();
-					st.setColumnAt(i, Functions.getClass(smth, table.getColumnType(i).getSimpleName()));
+					st.setColumnAt(i, TypeClass.parse(smth, table.getColumnType(i)));
 					++i;
 				} else {
 					throw new ParseException("parse error: empty value", i);

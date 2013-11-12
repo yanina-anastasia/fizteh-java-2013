@@ -36,8 +36,7 @@ public class ShellState extends FilesystemState implements ShellFace {
 
 	@Override
 	public int commit() {
-		System.err.print("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	public String get(String string) {
@@ -57,8 +56,7 @@ public class ShellState extends FilesystemState implements ShellFace {
 	}
 
 	public String remove(String string) {
-		System.err.print("Command can't be executed");
-		return null;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 	
 	@Override
@@ -68,31 +66,27 @@ public class ShellState extends FilesystemState implements ShellFace {
 
 	@Override
 	public int rollback() {
-		System.err.print("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public int size() {
-		System.err.print("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public int getNumberOfChanges() {
-		System.err.print("Command can't be executed");
-		return 0;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public void read() throws IOException {
-		System.err.print("Command can't be executed");
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		System.err.println("Command can't be executed");
-		return null;
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
 	}
 
 }
