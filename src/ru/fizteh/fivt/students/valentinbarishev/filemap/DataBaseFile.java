@@ -131,7 +131,7 @@ public class DataBaseFile {
                         + " in file " + fileName);
             }
             try {
-                provider.deserialize(table, node.value.toString());
+                provider.deserialize(table, new String(node.value));
             } catch (ParseException e) {
                 throw new IOException("Invalid file format! (parse exception error!)");
             }
