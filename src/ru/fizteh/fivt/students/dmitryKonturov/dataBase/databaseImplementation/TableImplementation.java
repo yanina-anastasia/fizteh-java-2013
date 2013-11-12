@@ -120,6 +120,18 @@ public class TableImplementation implements Table {
         }
     }
 
+    private void checkKey(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("key is null");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("key must have positive length");
+        }
+        if (key.matches("(.*\\s+.*)+")) {
+            throw new IllegalArgumentException("key contains space characters");
+        }
+    }
+
     @Override
     public String getName() {
         checkTableState();
@@ -141,12 +153,7 @@ public class TableImplementation implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Empty key");
-        }
-        if (key.contains(" ") || key.trim().length() == 0) {
-            throw new IllegalArgumentException("Key shouldn't contain whitespaces and be non-empty");
-        }
+        checkKey(key);
         if (value == null) {
             throw new IllegalArgumentException("Empty value");
         }
