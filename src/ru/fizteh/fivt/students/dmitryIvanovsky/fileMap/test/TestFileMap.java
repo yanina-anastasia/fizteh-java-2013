@@ -77,7 +77,7 @@ public class TestFileMap {
         fileMap.remove("1");
     }
 
-    /*@Test
+    @Test
     public void getPutManyKey() throws ParseException {
         Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
         fileMap.put("1", st1);
@@ -87,27 +87,22 @@ public class TestFileMap {
         fileMap.put("3", st3);
         Storeable st4 = multiMap.deserialize(fileMap, "<row><col>qwe4</col><col>4</col></row>");
         fileMap.put("4", st4);
-
-        assertEquals("123", fileMap.get("qwe2"));
-
-
-        assertEquals("789", fileMap.get("qwe4"));
-
-        assertEquals("3", fileMap.get("1"));
-        fileMap.remove("qwe1");
-        fileMap.remove("qwe2");
-        fileMap.remove("qwe3");
-        fileMap.remove("qwe4");
+        assertEquals(st1, fileMap.get("1"));
+        assertEquals(st4, fileMap.get("4"));
+        assertEquals(st3, fileMap.get("3"));
         fileMap.remove("1");
         fileMap.remove("2");
+        fileMap.remove("3");
+        fileMap.remove("4");
     }
 
     @Test
-    public void correctSizeAfterPut() {
-        fileMap.put("1", "123");
-        fileMap.put("2", "123");
-        fileMap.put("3", "123");
-        fileMap.put("4", "123");
+    public void correctSizeAfterPut() throws ParseException {
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put("1", st1);
+        fileMap.put("2", st1);
+        fileMap.put("3", st1);
+        fileMap.put("4", st1);
         assertEquals(4, fileMap.size());
         fileMap.remove("1");
         fileMap.remove("2");
@@ -125,8 +120,9 @@ public class TestFileMap {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putNullKey() {
-        fileMap.put(null, "132");
+    public void putNullKey() throws ParseException {
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put(null, st1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -135,10 +131,11 @@ public class TestFileMap {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void putNlValue() {
-        fileMap.put("!23\nwerf", "!23");
+    public void putNlValue() throws ParseException {
+        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+        fileMap.put("!23\nwerf", st1);
     }
-
+    /*
     @Test()
     public void commitSimpleCount() {
         fileMap.commit();

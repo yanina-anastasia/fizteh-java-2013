@@ -457,7 +457,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 writer.writeStartElement("row");
                 for (int i = 0; i < columnType.size(); i++) {
                     if (value.getColumnAt(i) == null) {
-                        writer.writeEmptyElement("null");
+                        //writer.writeEmptyElement("null");
+                        writer.writeStartElement("null");
+                        writer.writeEndElement();
                     } else {
                         writer.writeStartElement("col");
                         writer.writeCharacters(getStringFromElement(value, i, columnType.get(i)));
