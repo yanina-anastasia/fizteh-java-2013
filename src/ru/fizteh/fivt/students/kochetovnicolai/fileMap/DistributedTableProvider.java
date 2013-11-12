@@ -10,16 +10,21 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.xml.stream.*;
 
 public class DistributedTableProvider implements TableProvider {
 
 
 
-    HashMap<String, DistributedTable> tables;
-    HashMap<String, TableMember> tableMembers;
-    HashMap<String, List<Class<?>>> types;
-    File currentPath;
+    protected HashMap<String, DistributedTable> tables;
+    protected HashMap<String, ThreadLocal<TableMember>> tableMembers;
+    protected HashMap<String, List<Class<?>>> types;
+    protected File currentPath;
+
+    protected ReadWriteLock membersLock;
+    protected ReadWriteLock tablesLock;
 
     protected void checkTableDirectory(String name) {
         File tableDirectory = new File(currentPath.getPath() + File.separator + name);
@@ -70,7 +75,7 @@ public class DistributedTableProvider implements TableProvider {
         }
     }
 
-    public boolean existsTable(String name) {
+    protected boolean existsTable(String name) {
         if (!tables.containsKey(name)) {
             try {
                 loadTable(name);
@@ -95,6 +100,15 @@ public class DistributedTableProvider implements TableProvider {
         tables = new HashMap<>();
         tableMembers = new HashMap<>();
         types = new HashMap<>();
+        tablesLock = new ReentrantReadWriteLock();
+        membersLock = new ReentrantReadWriteLock();
+    }
+
+    protected TableMember createTableMemberUnsafe(String name) {
+        ThreadLocal<TableMember> threadLocal = new ThreadLocal<>();
+        threadLocal.set(new TableMember(tables.get(name), this, membersLock));
+        tableMembers.put(name, threadLocal);
+        return threadLocal.get();
     }
 
     @Override
@@ -102,23 +116,48 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        if (!tables.containsKey(name)) {
-            try {
-                loadTable(name);
-            } catch (IOException e) {
-                return null;
+
+        try {
+            membersLock.readLock().lock();
+            if (tableMembers.containsKey(name)) {
+                return tableMembers.get(name).get();
             }
-            if (!tables.containsKey(name)) {
-                return null;
-            }
+        } finally {
+            membersLock.readLock().unlock();
         }
 
-        /**/
-        if (!tableMembers.containsKey(name)) {
-            tableMembers.put(name, new TableMember(tables.get(name), this));
+        try {
+            membersLock.writeLock().lock();
+            if (!tableMembers.containsKey(name)) {
+                try {
+                    tablesLock.readLock().lock();
+                    if (tables.containsKey(name)) {
+                        return  createTableMemberUnsafe(name);
+                    }
+                } finally {
+                    tablesLock.readLock().unlock();
+                }
+                try {
+                    tablesLock.writeLock().lock();
+                    if (!tables.containsKey(name)) {
+                        try {
+                            loadTable(name);
+                        } catch (IOException e) {
+                            return null;
+                        }
+                        if (!tables.containsKey(name)) {
+                            return null;
+                        }
+                    }
+                    return createTableMemberUnsafe(name);
+                } finally {
+                    tablesLock.writeLock().unlock();
+                }
+            }
+        } finally {
+            membersLock.writeLock().unlock();
         }
-        return tableMembers.get(name);
-        //return new TableMember(tables.get(name), this);
+        return null;
     }
 
     protected void createSignature(File tableDirectory, List<Class<?>> columnTypes) throws IOException {
@@ -150,48 +189,91 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-        if (existsTable(name)) {
-            return null;
+
+        try {
+            membersLock.readLock().lock();
+            if (tableMembers.containsKey(name)) {
+                return null;
+            }
+            try {
+                tablesLock.readLock().lock();
+                if (tables.containsKey(name)) {
+                    return null;
+                }
+            } finally {
+                tablesLock.readLock().unlock();
+            }
+        } finally {
+            membersLock.readLock().unlock();
         }
-        File tableDirectory = new File(currentPath.getPath() + File.separator + name);
-        DistributedTable table = new DistributedTable(currentPath, name);
-        createSignature(tableDirectory, columnTypes);
-        tables.put(name, table);
-        types.put(name, columnTypes);
-        /**/
-        if (!tableMembers.containsKey(name)) {
-            tableMembers.put(name, new TableMember(tables.get(name), this));
+
+        try {
+            membersLock.writeLock().lock();
+            if (tableMembers.containsKey(name)) {
+                return null;
+            }
+            try {
+                tablesLock.writeLock().lock();
+                if (existsTable(name)) {
+                    return null;
+                }
+                File tableDirectory = new File(currentPath.getPath() + File.separator + name);
+                DistributedTable table = new DistributedTable(currentPath, name);
+                createSignature(tableDirectory, columnTypes);
+                tables.put(name, table);
+                types.put(name, columnTypes);
+                return createTableMemberUnsafe(name);
+            } finally {
+                tablesLock.writeLock().unlock();
+            }
+        } finally {
+            membersLock.writeLock().unlock();
         }
-        return tableMembers.get(name);
-        //return new TableMember(tables.get(name), this);
     }
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (!existsTable(name)) {
-            throw new IllegalStateException("table is not exists");
+        if (!isValidName(name)) {
+            throw new IllegalArgumentException("invalid table name");
         }
-        tables.get(name).clear();
-        File dir = new File(currentPath.getPath() + File.separator + name);
-        File signature = new File(dir.getPath() + File.separator + "signature.tsv");
-        if (!signature.delete() || !dir.delete()) {
-           throw new IOException(dir.getPath() + ": couldn't delete directory");
+
+        try {
+            membersLock.writeLock().lock();
+            tablesLock.writeLock().lock();
+            if (!existsTable(name)) {
+                throw new IllegalStateException("table is not exists");
+            }
+            tables.get(name).clear();
+            File dir = new File(currentPath.getPath() + File.separator + name);
+            File signature = new File(dir.getPath() + File.separator + "signature.tsv");
+            if (!signature.delete() || !dir.delete()) {
+                throw new IOException(dir.getPath() + ": couldn't delete directory");
+            }
+            tables.remove(name);
+            types.remove(name);
+            if (tableMembers.containsKey(name)) {
+                tableMembers.remove(name);
+            }
+        } finally {
+            tablesLock.writeLock().unlock();
+            membersLock.writeLock().unlock();
         }
-        tables.remove(name);
-        types.remove(name);
-        /***/
-        if (tableMembers.containsKey(name)) {
-            tableMembers.remove(name);
-        }
-        //
     }
 
     @Override
     public TableRecord createFor(Table table) {
-        if (table == null || !tableMembers.containsKey(table.getName())) {
-            throw new IllegalArgumentException("invalid table");
+        if (table == null) {
+            throw new IllegalArgumentException("argument shouldn't be null");
         }
-        return new TableRecord(types.get(table.getName()));
+        try {
+            tablesLock.readLock().lock();
+            if (!tables.containsKey(table.getName())) {
+                throw new IllegalArgumentException("invalid table");
+            }
+            return new TableRecord(types.get(table.getName()));
+        } finally {
+            tablesLock.readLock().unlock();
+        }
     }
 
     @Override
@@ -272,13 +354,27 @@ public class DistributedTableProvider implements TableProvider {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (table == null || !tableMembers.containsKey(table.getName())) {
-            throw new IllegalArgumentException("invalid arguments");
+        if (table == null) {
+            throw new IllegalArgumentException("table shouldn't be null");
         }
-        if (value == null) {
-            return null;
+        List<Class<?>> tableTypes;
+        try {
+            membersLock.readLock().lock();
+            if (!tableMembers.containsKey(table.getName())) {
+                throw new IllegalArgumentException("invalid arguments");
+            }
+            if (value == null) {
+                return null;
+            }
+            try {
+                tablesLock.readLock().lock();
+                tableTypes = types.get(table.getName());
+            } finally {
+                tablesLock.readLock().unlock();
+            }
+        } finally {
+            membersLock.readLock().unlock();
         }
-        List<Class<?>> tableTypes = types.get(table.getName());
         StringWriter stringWriter;
         try {
             value.getStringAt(tableTypes.size());
@@ -315,7 +411,11 @@ public class DistributedTableProvider implements TableProvider {
         return stringWriter.toString();
     }
 
-    public List<Class<?>> getTableTypes(String tableName) {
+    List<Class<?>> getTableTypes(String tableName) {
         return types.get(tableName);
+    }
+
+    boolean containsMember(String name) {
+        return tableMembers.containsKey(name);
     }
 }

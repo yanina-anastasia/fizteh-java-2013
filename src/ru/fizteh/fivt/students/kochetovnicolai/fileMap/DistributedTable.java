@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DistributedTable extends FileManager implements Table {
 
@@ -21,6 +22,8 @@ public class DistributedTable extends FileManager implements Table {
     protected final int partsNumber = 16;
     protected File[] directoriesList = new File[partsNumber];
     protected File[][] filesList = new File[partsNumber][partsNumber];
+
+    protected ReentrantReadWriteLock lock;
 
     @Override
     public String getName() {
@@ -37,6 +40,10 @@ public class DistributedTable extends FileManager implements Table {
 
     public boolean isValidValue(String value) {
         return isValidKey(value);
+    }
+
+    public ReentrantReadWriteLock getLock() {
+        return lock;
     }
 
     private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
@@ -106,6 +113,7 @@ public class DistributedTable extends FileManager implements Table {
                 filesList[i][j] = new File(directoriesList[i].getPath() + File.separator + j + ".dat");
             }
         }
+        lock = new ReentrantReadWriteLock();
         cache = new HashMap<>();
         changes = new HashMap<>();
         oldRecordNumber = readTable();
