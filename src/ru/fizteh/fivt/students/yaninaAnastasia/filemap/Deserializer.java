@@ -25,11 +25,11 @@ public class Deserializer {
 
             int nodeType = reader.next();
             if (nodeType != XMLStreamConstants.START_ELEMENT) {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format01", 0);
             }
 
             if (!reader.getName().getLocalPart().equals("row")) {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format0", 0);
             }
 
         } catch (XMLStreamException e) {
@@ -45,20 +45,20 @@ public class Deserializer {
                 return null;
             }
             if (nodeType != XMLStreamConstants.START_ELEMENT || !reader.getName().getLocalPart().equals("col")) {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format1", 0);
             }
             nodeType = reader.next();
             if (nodeType == XMLStreamConstants.CHARACTERS) {
                 value = ColumnTypes.parsingValue(reader.getText(), expectedType);
             } else {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format2", 0);
             }
             nodeType = reader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT) {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format3", 0);
             }
         } catch (XMLStreamException e) {
-            throw new ParseException("Incorrect XML format", 0);
+            throw new ParseException("Incorrect XML format4", 0);
         }
         return value;
     }
@@ -67,10 +67,10 @@ public class Deserializer {
         try {
             int nodeType = reader.next();
             if (nodeType != XMLStreamConstants.END_ELEMENT && nodeType != XMLStreamConstants.END_DOCUMENT) {
-                throw new ParseException("Incorrect XML format", 0);
+                throw new ParseException("Incorrect XML format5", 0);
             }
         } catch (XMLStreamException e) {
-            throw new IOException("Error with deserializing");
+            throw new IOException("Error with deserializing6");
         }
     }
 }
