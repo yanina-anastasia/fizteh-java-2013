@@ -101,8 +101,8 @@ public class StoreableUtils {
        int columnCount = table.getColumnsCount();
        for (int i = 0; i < columnCount; ++i) {
            try {
-                if (!storeable.getColumnAt(i).getClass().equals(table.getColumnType(i))) {
-                    throw new ColumnFormatException();
+                if (!(storeable.getColumnAt(i).getClass() == table.getColumnType(i))) {
+                    throw new ColumnFormatException("types not equal");
                 }
            } catch (Exception e) {
                throw new ColumnFormatException(String.format("Column %d  is bad", i));
