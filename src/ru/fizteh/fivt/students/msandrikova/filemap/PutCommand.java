@@ -15,8 +15,19 @@ public class PutCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if(!shell.getState().isStoreable && !super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
+		}
+		
+		if(shell.getState().isStoreable && argumentsList.length - 2 < 1) {
+			Utils.generateAnError("Incorrect arguments amount.", this.getName(), shell.getIsInteractive());
+			return;
+		}
+		
+		if(shell.getState().isStoreable) {
+			for(int i = 3; i < argumentsList.length; ++i) {
+				argumentsList[2] += " " + argumentsList[i];
+			}
 		}
 		
 		String key = argumentsList[1];
