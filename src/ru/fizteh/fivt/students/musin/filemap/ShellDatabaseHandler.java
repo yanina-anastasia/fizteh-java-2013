@@ -132,6 +132,9 @@ public class ShellDatabaseHandler {
                         printException(e);
                         return  -1;
                     }
+                    if (current != null && args.get(0).equals(current.getName())) {
+                        current = null;
+                    }
                     System.out.println("dropped");
                     return 0;
                 }
