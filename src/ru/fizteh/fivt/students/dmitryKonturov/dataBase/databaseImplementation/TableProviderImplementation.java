@@ -104,11 +104,11 @@ public class TableProviderImplementation implements TableProvider {
         }
 
         for (Class<?> currentType : columnTypes) {
+            if (currentType == null) {
+                throw new ColumnFormatException("null type");
+            }
             boolean isAllowed = false;
             for (Class<?> type : ALLOWED_TYPES) {
-                if (type == null) {
-                    throw new ColumnFormatException("null type");
-                }
                 if (currentType.equals(type)) {
                     isAllowed = true;
                 }
