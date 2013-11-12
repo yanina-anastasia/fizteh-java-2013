@@ -101,11 +101,15 @@ public class StoreableUtils {
        int columnCount = table.getColumnsCount();
        for (int i = 0; i < columnCount; ++i) {
            try {
-                if (!(storeable.getColumnAt(i).getClass() == table.getColumnType(i))) {
-                    throw new ColumnFormatException("types not equal");
+               Class<?> storeableClass = storeable.getColumnAt(i).getClass();
+               Class<?> tableClass = table.getColumnType(i);
+
+               if (!(storeableClass == tableClass)) {
+                    throw new ColumnFormatException(String.format("types not equal: %s with %s",
+                            storeableClass.getName(), tableClass.getName()));
                 }
            } catch (Exception e) {
-               throw new ColumnFormatException(String.format("Column %d  is bad", i));
+               throw new ColumnFormatException(String.format("Column %d  is bad", i), e);
            }
        }
        boolean isCorrect;
