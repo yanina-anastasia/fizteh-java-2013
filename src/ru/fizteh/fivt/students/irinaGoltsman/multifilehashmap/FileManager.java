@@ -133,6 +133,7 @@ public class FileManager {
             System.err.println(tableDirectory + ": not directory or not exist");
             return Code.ERROR;
         }
+
         for (int index = 0; index < 16; index++) {
             String currentDirectoryName = index + ".dir";
             File currentDirectory = new File(tableDirectory, currentDirectoryName);

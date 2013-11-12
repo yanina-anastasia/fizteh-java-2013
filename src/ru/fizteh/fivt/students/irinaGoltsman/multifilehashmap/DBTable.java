@@ -46,6 +46,12 @@ public class DBTable implements Table {
             throws IOException {
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
+        if (!inputTableDirectory.exists()) {
+            throw new IllegalArgumentException("DBTable: table dir does not exist");
+        }
+        if (inputTableDirectory.listFiles().length == 0) {
+            throw new IOException("empty dir");
+        }
         columnTypes = FileManager.readTableSignature(tableDirectory);
         HashMap<String, String> tmpTable = new HashMap<>();
         Code returnCOde = FileManager.readDBFromDisk(tableDirectory, tmpTable);
