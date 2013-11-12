@@ -173,6 +173,7 @@ public class TableImplementation implements Table {
         Storeable value;
         String rawValue;
         for (String key : putChanges.keySet()) {
+            System.out.println(key);
             value = putChanges.get(key);
             rawValue = tableProvider.serialize(this, value);
             putValueToFile(key, rawValue);
@@ -180,8 +181,11 @@ public class TableImplementation implements Table {
         }
         
         for (String key : removeChanges) {
+            System.out.println("removed " + key);
             removeValueFromFile(key);
         }
+        
+        System.out.println("?");
         
         putChanges.clear();
         removeChanges.clear();
