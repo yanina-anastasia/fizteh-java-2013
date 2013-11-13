@@ -145,6 +145,7 @@ public class WorkWithTableProviderCommands {
                     printOut(tableName + " not exists");
                 } else {
                     provider.removeTable(realArgs[0]);
+                    info.setProperty("CurrentTable", null);
                     printOut("dropped");
                 }
             } catch (Exception e) {

@@ -38,7 +38,9 @@ public class JsonUtils {
             try {
                 Class<?> type = table.getColumnType(i);
                 Object toSet;
-                if (type == Integer.class) {
+                if (array.isNull(i)) {
+                    toSet = null;
+                } else if (type == Integer.class) {
                     toSet = array.getInt(i);
                 } else if (type == Long.class) {
                     toSet = array.getLong(i);
