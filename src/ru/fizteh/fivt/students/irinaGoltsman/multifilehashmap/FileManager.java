@@ -59,6 +59,9 @@ public class FileManager {
             System.err.println(e);
             return empty;
         }
+        if (key.contains("\\s")) {
+            throw new IOException("key contains whitespace symbol");
+        }
         long lengthOfLine = inputLength - length;
         LineOfDB result = new LineOfDB(lengthOfLine, key, value);
         return result;
