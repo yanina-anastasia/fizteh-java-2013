@@ -44,13 +44,14 @@ public class DbMain {
                 } else {
                     //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
                     //s1 += "\n\n\n";
-                    s1 += "not is Dir";
+                    s1 += "not is Dir ";
                 }
             } else {
-                s1 += "listFile null";
+                s1 += "listFile null ";
             }
 
         } catch (Exception e) {
+            s1 += "exception ";
             s1 += e.getMessage();
         }
     }
