@@ -112,7 +112,7 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
             throw new ParseException("JSONArray create error", -1);
         }
 
-        if (array.length() == table.getColumnsCount()) {
+        if (array.length() != table.getColumnsCount()) {
             throw new ParseException("incorrect value", -1);
         }
 
