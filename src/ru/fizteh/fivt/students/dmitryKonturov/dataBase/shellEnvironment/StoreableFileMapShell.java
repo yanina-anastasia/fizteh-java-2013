@@ -28,6 +28,11 @@ public class StoreableFileMapShell extends ShellEmulator {
     }
 
     @Override
+    public String getGreetingString() {
+        return "$" + System.lineSeparator();
+    }
+
+    @Override
     protected String[] shellParseArguments(String bigArg) {
         String newBigArg = bigArg.trim();
         String[] args;
