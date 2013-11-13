@@ -16,6 +16,7 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.RemoveCommand;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseState;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.CommitCommand;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.RollBackCommand;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.SizeCommand;
 import java.io.IOException;
 import java.io.FileNotFoundException;		
 
@@ -50,7 +51,7 @@ public class Main {
 			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateStoreableCommand(),
 			new DropCommand(), new CommitCommand(),
-			new RollBackCommand()
+			new RollBackCommand(), new SizeCommand()
 		};
 
 		Shell<DataBaseState> shell = new Shell<DataBaseState>(commands, state);
