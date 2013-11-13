@@ -187,6 +187,9 @@ public class NewTableProvider implements TableProvider {
         if (table == null) {
             throw new IllegalStateException("Table does not exist");
         } else {
+            if (table.getName().equals(currentTable.getName())) {
+                currentTable = null;
+            }
             for (File dir : tableFile.listFiles()) {
                 if (checkNameOfDataBaseDirectory(dir.toString()) && dir.isDirectory()) {
                     for (File file : dir.listFiles()) {
