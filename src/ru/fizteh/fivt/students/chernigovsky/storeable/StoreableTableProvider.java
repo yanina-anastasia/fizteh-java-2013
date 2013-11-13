@@ -153,6 +153,9 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @return Пустой {@link ru.fizteh.fivt.storage.structured.Storeable}, нацеленный на использование с этой таблицей.
      */
     public MyStoreable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("null table");
+        }
         return new MyStoreable(table);
     }
 
@@ -166,6 +169,10 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws IndexOutOfBoundsException При несоответствии числа переданных значений и числа колонок.
      */
     public MyStoreable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table == null || values == null) {
+            throw new IllegalArgumentException("null value or table");
+        }
+
         if (table.getColumnsCount() != values.size()) {
             throw new IndexOutOfBoundsException("invalid values count");
         }
