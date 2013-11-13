@@ -51,7 +51,9 @@ public class StoreableCmdParseAndExecute {
                 case "create":
                     try {
                         cmdAndArgs.add(cmdScanner.next());
-                        cmdAndArgs.add(cmdScanner.findInLine(Pattern.compile("\\(.+\\)")).replaceAll("[\\(|\\)]", ""));
+                        String temp = cmdScanner.findInLine(Pattern.compile("\\(.+\\)")).replaceAll("[\\(|\\)]", "");
+                        temp = temp.replaceAll("\\s+", " ");
+                        cmdAndArgs.add(temp);
                     } catch (NullPointerException exc) {
                         throw new IOException("wrong type (execute create: bad arguments)");
                     }
