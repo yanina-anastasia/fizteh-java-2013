@@ -31,24 +31,6 @@ public class DbState extends State {
         }
     }
     
-    @Override
-    public int exitWithError(int errCode) {
-        try {
-            commit();
-        } catch (IOException e) {
-            System.err.println("filemap: error while writing data to the disk");
-            errCode = 1;
-        } finally {
-            try {
-                dbFile.close();
-            } catch (IOException e) {
-                System.err.println("filemap: error in file closing");
-                return 1;
-            }
-        }
-        return errCode;
-    }
-    
     private void fileCheck() {
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {
@@ -156,11 +138,10 @@ public class DbState extends State {
             } while (position <= firstOffset); 
             
             initial = new HashMap<String, String>(data);
-        } catch (IOException e) {
             dbFile.close();
-            throw new RuntimeException("error when reading from file" , e);
+        } catch (IOException e) {       
+            throw new RuntimeException("error when reading from file", e);
         }
-        dbFile.close();
         return result;
     }
     
@@ -201,12 +182,10 @@ public class DbState extends State {
                     offset += value.length;
                 }
             }
-        } catch (IOException e) {
             dbFile.close();
-            throw new RuntimeException("error when reading file");
+        } catch (IOException e) {          
+            throw new RuntimeException("error when reading file", e);
         }
-        
-        dbFile.close();
     }
     
     public int getFolderNum(String key) {
