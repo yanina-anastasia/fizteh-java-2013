@@ -27,7 +27,7 @@ public class SignatureFile {
             throw new IllegalStateException("Signature file not exists");
         }
         RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw");
-        String inputString = signature.readUTF();
+        String inputString = signature.readLine();
         signature.close();
         if (inputString == null) {
             throw new IllegalStateException("Readed string from signature file is null");
@@ -66,7 +66,7 @@ public class SignatureFile {
             concatenatedColumnTypes.append(formatColumnType(classes.get(i)));
             concatenatedColumnTypes.append(" ");
         }
-        signature.writeUTF(concatenatedColumnTypes.toString().trim());
+        signature.writeBytes(concatenatedColumnTypes.toString().trim());
         signature.close();
     }
 
@@ -143,6 +143,9 @@ public class SignatureFile {
     public static List<Object> parseValues(StoreableTable currentTable, String input) throws ColumnFormatException {
         List<Class<?>> classes = currentTable.getColumnTypes();
         List<Object> values = new ArrayList<>(classes.size());
+        for (int i = 0; i < classes.size(); ++i) {
+            values.add(i, null);
+        }
         String[] splittedInput = input.split("\\s+");
         if (splittedInput.length != classes.size()) {
             throw new ColumnFormatException("Parsed values has different size from expected");
@@ -154,31 +157,31 @@ public class SignatureFile {
             try {
                 switch (classes.get(i).getName()) {
                     case "java.lang.Integer":
-                        values.add(i, new Integer(splittedInput[i]));
+                        values.set(i, new Integer(splittedInput[i]));
                         break;
                     case "java.lang.Long":
-                        values.add(i, new Long(splittedInput[i]));
+                        values.set(i, new Long(splittedInput[i]));
                         break;
                     case "java.lang.Byte":
-                        values.add(i, new Byte(splittedInput[i]));
+                        values.set(i, new Byte(splittedInput[i]));
                         break;
                     case "java.lang.Float":
-                        values.add(i, new Float(splittedInput[i]));
+                        values.set(i, new Float(splittedInput[i]));
                         break;
                     case "java.lang.Double":
-                        values.add(i, new Double(splittedInput[i]));
+                        values.set(i, new Double(splittedInput[i]));
                         break;
                     case "java.lang.Boolean":
-                        values.add(i, new Boolean(splittedInput[i]));
+                        values.set(i, new Boolean(splittedInput[i]));
                         break;
                     case "java.lang.String":
-                        values.add(i, splittedInput[i]);
+                        values.set(i, splittedInput[i]);
                         break;
                     default:
                         throw new ColumnFormatException("Uknonwn column type: " + classes.get(i).getName());
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("Error value type");
+                throw new ColumnFormatException("Error value type", e);
             }
         }
         return values;

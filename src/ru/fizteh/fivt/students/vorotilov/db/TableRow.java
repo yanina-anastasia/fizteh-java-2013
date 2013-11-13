@@ -24,6 +24,9 @@ public class TableRow implements Storeable {
     TableRow(List<Class<?>> classes) {
         this.classes = classes;
         columns = new ArrayList<>(classes.size());
+        for (int i = 0; i < classes.size(); ++i) {
+            columns.add(i, null);
+        }
     }
 
     /**

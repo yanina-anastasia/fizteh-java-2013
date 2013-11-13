@@ -365,9 +365,17 @@ public class StoreableTable implements Table {
                             + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
                 }
             }
-            value.getColumnAt(columnTypes.size());
+            boolean unusedValue = true;
+            try {
+                value.getColumnAt(columnTypes.size());
+            } catch (IndexOutOfBoundsException e) {
+                unusedValue = false;
+            }
+            if (unusedValue) {
+                throw new ColumnFormatException("Alien value");
+            }
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException("Alien value");
+            throw new ColumnFormatException("Alien value", e);
         }
 
     }
