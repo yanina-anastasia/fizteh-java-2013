@@ -105,6 +105,14 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
      */
     public MyStoreable deserialize(Table table, String value) throws ParseException {
+        /* if (table == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (value == null) {
+            return null;
+        } maybe need this checks */
+
         JSONArray array;
         try {
             array = new JSONArray(value);
@@ -116,16 +124,29 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
             throw new ParseException("incorrect value", -1);
         }
 
-        List<Object> deserializedValue = new ArrayList<Object>();
-
+        MyStoreable result = createFor(table);
         for (int i = 0; i < array.length(); ++i) {
-            if (array.get(i) != JSONObject.NULL && !table.getColumnType(i).equals(array.get(i).getClass())) {
-                throw new ParseException("incorrect value", -1);
+            try {
+                Object object = array.get(i);
+                if (object == JSONObject.NULL) {
+                    result.setColumnAt(i, null);
+                } else {
+                    if (table.getColumnType(i) == Long.class) {
+                        result.setColumnAt(i, Long.valueOf(object.toString()));
+                    } else if (table.getColumnType(i) == Float.class) {
+                        result.setColumnAt(i, Float.valueOf(object.toString()));
+                    } else if (table.getColumnType(i) == Byte.class) {
+                        result.setColumnAt(i, Byte.valueOf(object.toString()));
+                    } else {
+                        result.setColumnAt(i, table.getColumnType(i).cast(object));
+                    }
+                }
+            }  catch (ColumnFormatException | IndexOutOfBoundsException e) {
+                throw new ParseException("JSON: incorrect format", i);
             }
-            deserializedValue.add(array.get(i));
         }
 
-        return createFor(table, deserializedValue);
+        return result;
     }
 
     /**
