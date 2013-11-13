@@ -5,6 +5,8 @@ import java.util.List;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vlmazlov.storeable.TypeName;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ValidityChecker {
 
@@ -189,7 +191,11 @@ public class ValidityChecker {
 			throw new ValidityCheckFailedException("key not specified");
 		}
 
-		if ((key.trim().length() < MIN_KEY_LEN) || (key.trim().length() > MAX_KEY_LEN) || (key.contains(" "))) {
+		Pattern pattern = null;
+		pattern = pattern.compile("\\s+");
+		Matcher matcher = pattern.matcher(key);
+
+		if ((key.trim().length() < MIN_KEY_LEN) || (key.trim().length() > MAX_KEY_LEN) || (matcher.find())) {
 			throw new ValidityCheckFailedException(key + " is not a valid key");
 		}
 	}
