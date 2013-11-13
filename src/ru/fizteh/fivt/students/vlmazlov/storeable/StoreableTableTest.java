@@ -145,6 +145,11 @@ public class StoreableTableTest {
 			val2, table.get("key2"));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void putKeyWithWhitespacesShouldFail() {
+		table.put("   k e w   ee  ", val1);
+	}
+
 	@Test
 	public void removeTest() {
 		table.put("key1", val1);

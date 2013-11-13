@@ -189,8 +189,7 @@ public class ValidityChecker {
 			throw new ValidityCheckFailedException("key not specified");
 		}
 
-		key = key.trim();
-		if ((key.length() < MIN_KEY_LEN) || (key.length() > MAX_KEY_LEN) || (key.contains(" "))) {
+		if ((key.trim().length() < MIN_KEY_LEN) || (key.trim().length() > MAX_KEY_LEN) || (key.contains(" "))) {
 			throw new ValidityCheckFailedException(key + " is not a valid key");
 		}
 	}
