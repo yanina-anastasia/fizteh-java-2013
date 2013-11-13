@@ -11,7 +11,12 @@ import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * User: Alexander
@@ -19,15 +24,47 @@ import java.util.*;
  * Time: 16:49
  */
 public class StoreableTable implements Table {
+    /**
+     * GENERIC DATA
+     */
     private TableProvider provider;
     private File tableStorageDirectory;
     private List<Class<?>> columnTypes;
-    private Map<String, Storeable> data = new HashMap<>();
-    private Map<String, Storeable> changes = new HashMap<>();
-    private Set<String> removedKeys = new HashSet<>();
-    private int amountOfChanges = 0;
+    private Map<String, Storeable> data;
+
+    /**
+     * THREAD LOCAL DATA
+     */
+    private ThreadLocal<HashMap<String, Storeable>> changes;
+    private ThreadLocal<HashSet<String>> removedKeys;
+    private ThreadLocal<Integer> amountOfChanges;
+
+    private final Lock transactionLock = new ReentrantLock(true);
 
     public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
+        data = new HashMap<>();
+        changes = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+
+        removedKeys = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<>();
+            }
+        };
+
+        amountOfChanges = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+
+
         if (givenProvider == null) {
             throw new IOException("storeable table: create failed, provider is not set");
         }
@@ -49,6 +86,29 @@ public class StoreableTable implements Table {
         if (givenProvider == null) {
             throw new IOException("storeable table: create failed, provider is not set");
         }
+
+        data = new HashMap<>();
+        changes = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+
+        removedKeys = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<>();
+            }
+        };
+
+        amountOfChanges = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         columnTypes = givenTypes;
@@ -65,9 +125,9 @@ public class StoreableTable implements Table {
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("get: key is bad");
         }
-        Storeable resultOfGet = changes.get(key);
+        Storeable resultOfGet = changes.get().get(key);
         if (resultOfGet == null) {
-            if (removedKeys.contains(key)) {
+            if (removedKeys.get().contains(key)) {
                 return null;
             }
             resultOfGet = data.get(key);
@@ -84,16 +144,16 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("put: value not suitable for this table");
         }
         Storeable valueInData = data.get(key);
-        Storeable resultOfPut = changes.put(key, value);
+        Storeable resultOfPut = changes.get().put(key, value);
 
         if (resultOfPut == null) {
-            amountOfChanges++;
-            if (!removedKeys.contains(key)) {
+            amountOfChanges.set(amountOfChanges.get() + 1);
+            if (!removedKeys.get().contains(key)) {
                 resultOfPut = valueInData;
             }
         }
         if (valueInData != null) {
-            removedKeys.add(key);
+            removedKeys.get().add(key);
         }
         return resultOfPut;
     }
@@ -104,20 +164,20 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("remove: key is bad");
         }
 
-        Storeable resultOfRemove = changes.get(key);
-        if (resultOfRemove == null && !removedKeys.contains(key)) {
+        Storeable resultOfRemove = changes.get().get(key);
+        if (resultOfRemove == null && !removedKeys.get().contains(key)) {
             resultOfRemove = data.get(key);
         }
-        if (changes.containsKey(key)) {
-            amountOfChanges--;
-            changes.remove(key);
+        if (changes.get().containsKey(key)) {
+            amountOfChanges.set(amountOfChanges.get() - 1);
+            changes.get().remove(key);
             if (data.containsKey(key)) {
-                removedKeys.add(key);
+                removedKeys.get().add(key);
             }
         } else {
-            if (data.containsKey(key) && !removedKeys.contains(key)) {
-                removedKeys.add(key);
-                amountOfChanges++;
+            if (data.containsKey(key) && !removedKeys.get().contains(key)) {
+                removedKeys.get().add(key);
+                amountOfChanges.set(amountOfChanges.get() + 1);
             }
         }
         return resultOfRemove;
@@ -125,28 +185,33 @@ public class StoreableTable implements Table {
 
     @Override
     public int size() {
-        return data.size() + changes.size() - removedKeys.size();
+        return data.size() + changes.get().size() - removedKeys.get().size();
     }
 
     @Override
     public int commit() {
-        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes, removedKeys);
-        for (String key : removedKeys) {
-            data.remove(key);
-        }
-        data.putAll(changes);
         try {
-            WorkWithStoreableDataBase.writeIntoFiles(tableStorageDirectory, data, this, provider);
-        } catch (Exception exc) {
-            System.err.println("commit: " + exc.getMessage());
+            transactionLock.lock();
+            int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
+            for (String key : removedKeys.get()) {
+                data.remove(key);
+            }
+            data.putAll(changes.get());
+            try {
+                WorkWithStoreableDataBase.writeIntoFiles(tableStorageDirectory, data, this, provider);
+            } catch (Exception exc) {
+                System.err.println("commit: " + exc.getMessage());
+            }
+            setDefault();
+            return result;
+        } finally {
+            transactionLock.unlock();
         }
-        setDefault();
-        return result;
     }
 
     @Override
     public int rollback() {
-        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes, removedKeys);
+        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
         setDefault();
         return result;
     }
@@ -166,12 +231,12 @@ public class StoreableTable implements Table {
     }
 
     private void setDefault() {
-        changes.clear();
-        removedKeys.clear();
-        amountOfChanges = 0;
+        changes.get().clear();
+        removedKeys.get().clear();
+        amountOfChanges.set(0);
     }
 
     public int getAmountOfChanges() {
-        return amountOfChanges;
+        return amountOfChanges.get();
     }
 }
