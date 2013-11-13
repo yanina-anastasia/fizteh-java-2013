@@ -262,6 +262,7 @@ public class UniversalDataTable<ValueType> {
                             throw new IllegalArgumentException("Wrong key in" + fileName);
                         }
                     }
+                    //while (fileReader.valuesToReadExists())
                     fileReader.putValueToTable(valueConverter.convertStringToValueType(fileReader.getNextValue()));
                     fileReader.closeResources();
                 }
