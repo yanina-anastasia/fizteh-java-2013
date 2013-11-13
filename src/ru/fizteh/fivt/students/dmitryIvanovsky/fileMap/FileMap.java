@@ -36,7 +36,6 @@ public class FileMap implements Table {
     boolean tableDrop = false;
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
-    String s1 = "";
     Map<String, Boolean> typeNull;
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
