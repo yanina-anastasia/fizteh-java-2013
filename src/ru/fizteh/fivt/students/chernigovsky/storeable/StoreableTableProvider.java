@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.chernigovsky.storeable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -9,6 +10,7 @@ import ru.fizteh.fivt.students.chernigovsky.junit.AbstractTableProvider;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +21,11 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
             for (String string : newDbDirectory.list()) {
                 ExtendedStoreableTable newTable = new StoreableTable(string, flag, null);
                 tableHashMap.put(string, newTable);
-                /*try {
-                    MultiFileHashMapUtils.readTable(new State(newTable, this));
+                try {
+                    StoreableUtils.readTable(newTable, this);
                 } catch (IOException ex) {
                     throw new RuntimeException();
-                }*/
+                }
             }
         }
     }
@@ -114,11 +116,16 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
             throw new ParseException("incorrect value", -1);
         }
 
+        List<Object> deserializedValue = new ArrayList<Object>();
+
         for (int i = 0; i < array.length(); ++i) {
-            //TypeEnum.
+            if (array.get(i) != JSONObject.NULL && !table.getColumnType(i).equals(array.get(i).getClass())) {
+                throw new ParseException("incorrect value", -1);
+            }
+            deserializedValue.add(array.get(i));
         }
 
-        return null;
+        return createFor(table, deserializedValue);
     }
 
     /**
@@ -131,7 +138,12 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
      */
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        return null;
+        Object[] serializedValue = new Object[table.getColumnsCount()];
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            serializedValue[i] = value.getColumnAt(i);
+        }
+        JSONArray array = new JSONArray(serializedValue);
+        return array.toString();
     }
 
     /**
