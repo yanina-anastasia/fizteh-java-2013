@@ -161,6 +161,7 @@ public class StoreableUtils {
                     throw new DatabaseException("Not supported type");
                 }
                 output.write(typeName);
+                output.write(" ");
             }
         } catch (IOException e) {
             throw new IOException("Cannot save signature file", e);
