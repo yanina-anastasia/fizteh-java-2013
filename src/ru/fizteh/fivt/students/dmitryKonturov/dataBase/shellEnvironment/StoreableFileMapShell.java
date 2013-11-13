@@ -27,10 +27,10 @@ public class StoreableFileMapShell extends ShellEmulator {
         super.addToCommandList(new ShellCommand[]{new ExitCommand()});
     }
 
-    @Override
+    /*@Override
     public String getGreetingString() {
-        return " input here $ " + System.lineSeparator();
-    }
+        return "$ " + System.lineSeparator();
+    } */
 
     @Override
     protected String[] shellParseArguments(String bigArg) {
