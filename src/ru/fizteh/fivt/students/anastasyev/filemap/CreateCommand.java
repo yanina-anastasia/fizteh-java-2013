@@ -31,7 +31,7 @@ public class CreateCommand implements Command<FileMapTableProvider> {
             return false;
         }
         try {
-            if (command[1].startsWith("(")) {
+            if (command[1].startsWith("(") && !command[2].startsWith("(")) {
                 System.err.println("wrong type (table name expected)");
                 return false;
             }

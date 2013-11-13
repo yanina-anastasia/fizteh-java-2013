@@ -234,19 +234,29 @@ public class FileMapTableTest {
         assertNull(table.put("key3", value3Storeable));
 
         assertEquals(table.commit(), 3);
+        assertEquals(table.rollback(), 0);
+        assertEquals(table.size(), 3);
 
-        assertTrue(storeableEquals(table.remove("key1"), value1Storeable, table));
+        assertTrue(storeableEquals(table.put("key1", value2Storeable), value1Storeable, table));
+        assertEquals(table.size(), 3);
+        assertTrue(storeableEquals(table.remove("key1"), value2Storeable, table));
+        assertEquals(table.size(), 2);
         assertNull(table.put("key4", valueStoreable));
+        assertEquals(table.size(), 3);
         assertTrue(storeableEquals(table.put("key3", newValueStoreable), value3Storeable, table));
         assertTrue(storeableEquals(table.remove("key4"), valueStoreable, table));
+        assertEquals(table.size(), 2);
         assertNull(table.get("key1"));
         assertNull(table.get("key4"));
 
         assertEquals(table.rollback(), 2);
+        assertEquals(table.size(), 3);
         assertTrue(storeableEquals(table.get("key1"), value1Storeable, table));
 
         assertEquals(tableProvider.serialize(table, table.remove("key1")), value1);
         assertNull(table.put("key1", value1Storeable));
+        assertEquals(table.size(), 3);
+
         assertEquals(table.rollback(), 0);
     }
 
@@ -284,11 +294,15 @@ public class FileMapTableTest {
         assertNull(table.put("key3", value3Storeable));
         assertTrue(storeableEquals(table.put("key3", value3Storeable), value3Storeable, table));
         assertEquals(table.commit(), 3);
+        assertEquals(table.size(), 3);
 
         assertTrue(storeableEquals(table.remove("key"), value1Storeable, table));
+        assertEquals(table.size(), 2);
         assertNull(table.put("key4", valueStoreable));
+        assertEquals(table.size(), 3);
         assertTrue(storeableEquals(table.put("key2", valueStoreable), value1Storeable, table));
         assertTrue(storeableEquals(table.get("key2"), valueStoreable, table));
+        assertEquals(table.size(), 3);
         assertTrue(storeableEquals(table.remove("key4"), valueStoreable, table));
         assertEquals(table.size(), 2);
     }

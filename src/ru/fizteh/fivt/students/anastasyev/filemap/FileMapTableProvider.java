@@ -161,6 +161,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         }
     }
 
+    @Override
     public Table getTable(String name) throws IllegalArgumentException, RuntimeException {
         isBadName(name);
         return allFileMapTablesHashtable.get(name);
@@ -220,6 +221,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         }
     }
 
+    @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (table == null) {
             throw new ParseException("Table is null", 0);
@@ -247,6 +249,7 @@ public class FileMapTableProvider extends State implements TableProvider {
         }
     }
 
+    @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         if (value == null) {
             return null;
@@ -262,10 +265,12 @@ public class FileMapTableProvider extends State implements TableProvider {
         return array.toString();
     }
 
+    @Override
     public Storeable createFor(Table table) {
         return new MyStoreable(table);
     }
 
+    @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         return new MyStoreable(table, values);
     }
