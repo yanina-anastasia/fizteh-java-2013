@@ -15,7 +15,6 @@ public class StoreableCommands implements Storeable{
         this.types = new ArrayList(types);
         values = new ArrayList(types.size());
         for (int i = 0; i < types.size(); ++i) {
-            Class type = types.get(i);
             Object empty = null;
             values.add(empty);
         }
@@ -27,9 +26,9 @@ public class StoreableCommands implements Storeable{
         }
         for (int i = 0; i < types.size(); ++i) {
             if (values.get(i) != null) {
-                Class type = types.get(i);
-                Class value = values.get(i).getClass();
-                if (!type.getSimpleName().equals(value.getSimpleName())) {
+                String typeName = types.get(i).getSimpleName().toUpperCase();
+                String valueName = values.get(i).getClass().getSimpleName().toUpperCase();
+                if (!typeName.equals(valueName)) {
                     throw new ColumnFormatException("wrong type");
                 }
             }

@@ -119,21 +119,27 @@ public class TableProviderCommands implements TableProvider {
             for (int i = 0; i < types.size(); ++i) {
                 String typeName = types.get(i).getSimpleName();
                 switch (typeName) {
+                    case ("int") :
                     case ("Integer") :
                         typeName = "int";
                         break;
+                    case ("long") :
                     case ("Long") :
                         typeName = "long";
                         break;
+                    case ("byte") :
                     case ("Byte") :
                         typeName = "byte";
                         break;
+                    case ("float") :
                     case ("Float") :
                         typeName = "float";
                         break;
+                    case ("double") :
                     case ("Double") :
                         typeName = "double";
                         break;
+                    case ("boolean") :
                     case ("Boolean") :
                         typeName = "boolean";
                         break;
@@ -176,12 +182,18 @@ public class TableProviderCommands implements TableProvider {
             }
             try {
                 if (!(columnTypes.get(i).equals(Integer.class)
-                 || columnTypes.get(i).equals(Byte.class)
-                 || columnTypes.get(i).equals(Float.class)
-                 || columnTypes.get(i).equals(Double.class)
-                 || columnTypes.get(i).equals(Long.class)
-                 || columnTypes.get(i).equals(Boolean.class)
-                 || columnTypes.get(i).equals(String.class))) {
+                    || columnTypes.get(i).equals(Byte.class)
+                    || columnTypes.get(i).equals(Float.class)
+                    || columnTypes.get(i).equals(Double.class)
+                    || columnTypes.get(i).equals(Long.class)
+                    || columnTypes.get(i).equals(Boolean.class)
+                    || columnTypes.get(i).equals(String.class)
+                    || columnTypes.get(i).equals(int.class)
+                    || columnTypes.get(i).equals(byte.class)
+                    || columnTypes.get(i).equals(float.class)
+                    || columnTypes.get(i).equals(double.class)
+                    || columnTypes.get(i).equals(long.class)
+                    || columnTypes.get(i).equals(boolean.class))) {
                     throw new IllegalArgumentException();
                 }
             } catch (Exception e) {
