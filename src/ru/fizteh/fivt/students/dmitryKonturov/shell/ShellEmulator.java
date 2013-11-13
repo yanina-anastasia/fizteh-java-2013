@@ -124,7 +124,6 @@ public abstract class ShellEmulator {
                 executeQuery(query);
             } catch (ShellException sh) {
                 System.err.println("Shell: " + getNiceMessage(sh));
-                sh.printStackTrace(System.err);
             } catch (Exception e) {
                 System.err.println("Shell: Unhandled exception: " + getNiceMessage(e));
             } finally {
