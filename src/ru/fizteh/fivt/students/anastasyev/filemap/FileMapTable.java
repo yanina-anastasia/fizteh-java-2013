@@ -269,13 +269,16 @@ public class FileMapTable implements Table {
                 return valueChanged.newValue;
             }
         } else {
-            --size;
             changedKeys.put(key, new Value(null, valueOnDisk));
-            if (valueChanged != null) {
-                return valueChanged.newValue;
-            } else {
+            if (valueChanged == null) {
+                --size;
                 return valueOnDisk;
             }
+            if (valueChanged.newValue != null) {
+                --size;
+                return valueChanged.newValue;
+            }
+            return null;
         }
     }
 
