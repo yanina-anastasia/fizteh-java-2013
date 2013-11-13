@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.vlmazlov.storeable;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.GenericTableProviderFactory;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DiffCountingTableProviderFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
