@@ -21,7 +21,8 @@ public class Value implements Storeable {
         if (columnIndex < 0 || columnIndex >= types.size()) {
             throw new IndexOutOfBoundsException("Incorrect number of column to set.");
         }
-        if (value != null && !value.getClass().equals(types.get(columnIndex))) {
+        if (value != null && value.getClass() != types.get(columnIndex) && !(types.get(columnIndex) == Long.class &&
+                value.getClass() == Integer.class)) {
             throw new ColumnFormatException("Incorrect type of setting value.");
         }
         columns.set(columnIndex, value);
