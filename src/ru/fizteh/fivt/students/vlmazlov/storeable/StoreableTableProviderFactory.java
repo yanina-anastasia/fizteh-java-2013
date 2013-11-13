@@ -8,21 +8,32 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
 
-public class StoreableTableProviderFactory 
-extends GenericTableProviderFactory<Storeable, StoreableTable, StoreableTableProvider> implements TableProviderFactory  {
+public class StoreableTableProviderFactory implements TableProviderFactory  {
    	
+    protected boolean autoCommit;
+    
+    //autoCommit disabled by default
     public StoreableTableProviderFactory() {
-      super();
+      autoCommit = false;
     }
 
     public StoreableTableProviderFactory(boolean autoCommit) {
-      super(autoCommit);
+      this.autoCommit = autoCommit;
     }
 
-    protected StoreableTableProvider instantiateTableProvider(String dir) throws ValidityCheckFailedException, IOException {
-      if (!(new File(dir)).isDirectory()) {
-        throw new IOException(dir + " doesn't denote a directory");
+    public StoreableTableProvider create(String dir) throws IOException {
+      if ((dir == null) || (dir.trim().isEmpty())) {
+        throw new IllegalArgumentException("Directory not specified");
       }
-      return new StoreableTableProvider(dir, autoCommit);
+
+      if (!(new File(dir)).exists()) {
+        throw new IOException(dir + " doesn't exist");
+      }
+
+      try {
+        return new StoreableTableProvider(dir, autoCommit);
+      } catch (ValidityCheckFailedException ex) {
+        throw new IllegalArgumentException(ex.getMessage());
+      }
     }
 }

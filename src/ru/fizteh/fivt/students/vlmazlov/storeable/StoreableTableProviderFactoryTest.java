@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vlmazlov.storeable;
 
 import org.junit.*;
+import java.io.IOException;
 
 public class StoreableTableProviderFactoryTest {
 	private StoreableTableProviderFactory factory;
@@ -11,7 +12,7 @@ public class StoreableTableProviderFactoryTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void creatingNullShouldFail() {
+	public void creatingNullShouldFail() throws IOException{
 		factory.create(null);
 	}
 } 

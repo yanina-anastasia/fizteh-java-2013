@@ -5,18 +5,23 @@ import ru.fizteh.fivt.students.vlmazlov.filemap.StringTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DiffCountingTableProviderFactory;
 import java.io.FileNotFoundException;
 
-public class StringTableProviderFactory 
-extends GenericTableProviderFactory<String, StringTable, StringTableProvider> implements DiffCountingTableProviderFactory  {
-   	
+public class StringTableProviderFactory implements DiffCountingTableProviderFactory  {
+    protected boolean autoCommit;
+
+    //autoCommit disabled by default
     public StringTableProviderFactory() {
-      super();
+      autoCommit = false;
     }
 
     public StringTableProviderFactory(boolean autoCommit) {
-      super(autoCommit);
+      this.autoCommit = autoCommit;
     }
 
-    protected StringTableProvider instantiateTableProvider(String dir) throws ValidityCheckFailedException {
-    	return new StringTableProvider(dir, autoCommit);
-    }
+    public StringTableProvider create(String dir) {
+      try {
+        return new StringTableProvider(dir, autoCommit);
+      } catch (ValidityCheckFailedException ex) {
+        throw new IllegalArgumentException(ex.getMessage());
+      }
+    }  	
 }
