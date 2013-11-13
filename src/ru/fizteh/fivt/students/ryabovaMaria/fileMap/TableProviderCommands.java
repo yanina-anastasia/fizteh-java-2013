@@ -228,6 +228,9 @@ public class TableProviderCommands implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (table == null) {
+            throw new IllegalArgumentException("null table");
+        }
         if (value == null) {
             return null;
         }
@@ -262,26 +265,32 @@ public class TableProviderCommands implements TableProvider {
                     values.add(null);
                 } else {
                     switch (type.getSimpleName()) {
+                        case("int") :
                         case ("Integer") :
                             Integer currentInt = array.getInt(i);
                             values.add(currentInt);
                             break;
+                        case ("long") :
                         case ("Long") :
                             Long currentLong = array.getLong(i);
                             values.add(currentLong);
                             break;
+                        case ("byte") :
                         case ("Byte") :
                             Byte currentByte = Byte.valueOf(array.get(i).toString());
                             values.add(currentByte);
                             break;
+                        case ("boolean") :
                         case ("Boolean") :
                             Boolean currentBoolean = array.getBoolean(i);
                             values.add(currentBoolean);
                             break;
+                        case ("float") :
                         case ("Float") :
                             Float currentFloat = Float.valueOf(array.get(i).toString());
                             values.add(currentFloat);
                             break;
+                        case ("double") :
                         case ("Double") :
                             Double currentDouble = array.getDouble(i);
                             values.add(currentDouble);
