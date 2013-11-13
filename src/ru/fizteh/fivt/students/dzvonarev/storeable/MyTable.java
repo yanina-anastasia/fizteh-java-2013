@@ -121,6 +121,12 @@ public class MyTable implements Table {
         if (!signature.exists()) {
             throw new RuntimeException("signature.tsv not existing");
         }
+        RandomAccessFile sigFile = openFileForRead(tableFile.getAbsolutePath() + File.separator + "signature.tsv");
+        if (sigFile.length() == 0) {
+            closeFile(sigFile);
+            throw new RuntimeException("signature.tsv is empty");
+        }
+        closeFile(sigFile);
         try (Scanner formatScanner = new Scanner(signature)) {
             while (formatScanner.hasNextLine()) {
                 arr.add(formatScanner.nextLine());
