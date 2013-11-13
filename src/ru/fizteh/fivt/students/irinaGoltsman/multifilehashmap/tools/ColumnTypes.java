@@ -23,6 +23,7 @@ public class ColumnTypes {
         typeMatchingStringClass.put("double", Double.class);
         typeMatchingStringClass.put("boolean", Boolean.class);
         typeMatchingStringClass.put("String", String.class);
+        typeMatchingStringClass.put("string", String.class);
 
         typeMatchingClassString.put("Integer", "int");
         typeMatchingClassString.put("Long", "long");
