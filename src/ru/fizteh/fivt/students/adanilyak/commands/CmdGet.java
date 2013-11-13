@@ -37,7 +37,7 @@ public class CmdGet implements Cmd {
             if (result == null) {
                 System.out.println("not found");
             } else {
-                /** TRYING TO PASS TEST ON CRADLE*/ System.out.println("found");
+                //System.out.println("found");
                 System.out.println(result);
             }
         } else {
