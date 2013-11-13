@@ -24,7 +24,26 @@ public class FileManager {
         }
     }
 
-    private static LineOfDB readLineOfDatFile(RandomAccessFile datFile, long inputLength) throws IOException {
+    private static void checkKeyOnRightHashCode(String key, int originalDirIndex, int originalFileIndex)
+            throws IOException {
+        int hashCode = key.hashCode();
+        int indexOfDir = hashCode % 16;
+        if (indexOfDir < 0) {
+            indexOfDir *= -1;
+        }
+        int indexOfDat = hashCode / 16 % 16;
+        if (indexOfDat < 0) {
+            indexOfDat *= -1;
+        }
+        if (indexOfDat != originalDirIndex || indexOfDat != originalFileIndex) {
+            throw new IOException(String.format("wrong key '%s': it should be in %i.dir in %i.dat, "
+                    + "but it is in %i.dir in %i.dat", key, indexOfDir,
+                    indexOfDat, originalDirIndex, originalFileIndex));
+        }
+    }
+
+    private static LineOfDB readLineOfDatFile(RandomAccessFile datFile, long inputLength,
+                                              int dirIndex, int fileIndex) throws IOException {
         long length = inputLength;
         int lengthOfKey;
         int lengthOfValue;
@@ -62,6 +81,7 @@ public class FileManager {
         if (key.contains("\\s")) {
             throw new IOException("key contains whitespace symbol");
         }
+        checkKeyOnRightHashCode(key, dirIndex, fileIndex);
         long lengthOfLine = inputLength - length;
         LineOfDB result = new LineOfDB(lengthOfLine, key, value);
         return result;
@@ -86,14 +106,15 @@ public class FileManager {
         return bytes;
     }
 
-    private static void readFromDisk(RandomAccessFile datFile, HashMap<String, String> storage) throws IOException {
+    private static void readFromDisk(RandomAccessFile datFile, HashMap<String, String> storage,
+                                     int dirIndex, int fileIndex) throws IOException {
         long length = -1;
         length = datFile.length();
         if (length == 0) {
             return;
         }
         while (length > 0) {
-            LineOfDB line = readLineOfDatFile(datFile, length);
+            LineOfDB line = readLineOfDatFile(datFile, length, dirIndex, fileIndex);
             length -= line.length;
             storage.put(line.key, line.value);
         }
@@ -125,7 +146,7 @@ public class FileManager {
                 } catch (FileNotFoundException e) {
                     continue;
                 }
-                readFromDisk(fileIndexDat, tableStorage);
+                readFromDisk(fileIndexDat, tableStorage, index, fileIndex);
             }
         }
     }
