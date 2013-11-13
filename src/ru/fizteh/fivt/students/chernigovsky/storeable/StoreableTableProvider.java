@@ -81,7 +81,7 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
                     throw new IOException("write error");
                 }
                 String typeString = TypeEnum.getByClass(type).getSignature();
-                dataOutputStream.write(typeString.getBytes("UTF_8"));
+                dataOutputStream.write(typeString.getBytes("UTF-8"));
                 dataOutputStream.write(' ');
             }
 
