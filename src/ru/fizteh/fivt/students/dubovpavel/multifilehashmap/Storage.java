@@ -35,7 +35,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         if(!dir.isDirectory()) {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("Storage loading: '%s' is not a directory. Empty storage applied", dir.getPath()));
-            dir.mkdirs();
+            dir.mkdir();
         } else {
             for(File folder: dir.listFiles()) {
                 if(folder.isDirectory()) {
