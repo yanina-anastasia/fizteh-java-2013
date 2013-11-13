@@ -358,12 +358,18 @@ public class StoreableTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
-        for (int i = 0; i < columnTypes.size(); ++i) {
-            if (!value.getColumnAt(i).getClass().equals(columnTypes.get(i))) {
-                throw new ColumnFormatException("Wrong column type. was: "
-                        + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
+        try {
+            for (int i = 0; i < columnTypes.size(); ++i) {
+                if (!columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                    throw new ColumnFormatException("Wrong column type. was: "
+                            + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
+                }
             }
+            value.getColumnAt(columnTypes.size());
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("Alien value");
         }
+
     }
 
 }

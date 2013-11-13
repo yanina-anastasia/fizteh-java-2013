@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.vorotilov.shell.FileUtil;
 import ru.fizteh.fivt.students.vorotilov.shell.FileWasNotDeleted;
@@ -141,7 +142,15 @@ public class StoreableTableProvider implements TableProvider {
      */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        JSONArray jsonArray = new JSONArray(value);
+        JSONArray jsonArray;
+        try {
+            jsonArray = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException("Can't parse json array", 0);
+        }
+        if (jsonArray == null) {
+            throw new ParseException("Can't parse json array", 0);
+        }
         if (jsonArray.length() != table.getColumnsCount()) {
             throw new ParseException("Different length of value and table types", 0);
         }
@@ -163,6 +172,7 @@ public class StoreableTableProvider implements TableProvider {
      */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        int columsNumber = table.getColumnsCount();
         JSONArray jsonArray = new JSONArray();
         checkTableRow(table, (TableRow) value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
