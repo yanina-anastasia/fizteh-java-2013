@@ -57,7 +57,6 @@ public class StoreableFileMapShell extends ShellEmulator {
                     int unsavedChanges = table.getUnsavedChangesCount();
                     if (unsavedChanges > 0) {
                         table.commit();
-                        //throw new ShellException(String.format("%d unsaved changes", unsavedChanges));
                     }
                 } catch (Exception e) {
                     throw new ShellException(getName(), e);
