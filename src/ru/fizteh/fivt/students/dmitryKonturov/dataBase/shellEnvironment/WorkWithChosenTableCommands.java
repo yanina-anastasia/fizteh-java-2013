@@ -37,6 +37,7 @@ public class WorkWithChosenTableCommands {
 
     private static void printOut(Object toPrint) {
         System.out.println(toPrint);
+        System.out.flush();
     }
 
     public static ShellCommand[] getPackageCommands() {
@@ -121,7 +122,9 @@ public class WorkWithChosenTableCommands {
                 if (value == null) {
                     printOut("not found");
                 } else {
-                    printOut("found" + System.lineSeparator() + provider.serialize(table, value));
+                    String answer = provider.serialize(table, value);
+                    printOut("found");
+                    printOut(answer);
                 }
             } catch (Exception e) {
                 throw new ShellException(getName(), e);
