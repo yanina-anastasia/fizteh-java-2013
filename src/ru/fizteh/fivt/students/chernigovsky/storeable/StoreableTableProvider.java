@@ -105,13 +105,13 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
      */
     public MyStoreable deserialize(Table table, String value) throws ParseException {
-        /* if (table == null) {
+        /*if (table == null) {
             throw new IllegalArgumentException();
         }
 
         if (value == null) {
             return null;
-        } maybe need this checks */
+        } maybe need this checks*/
 
         JSONArray array;
         try {
@@ -124,66 +124,16 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
             throw new ParseException("incorrect value", -1);
         }
 
-        MyStoreable result = createFor(table);
+        List<Object> deserializedValue = new ArrayList<Object>();
+
         for (int i = 0; i < array.length(); ++i) {
-            try {
-                Object object = array.get(i);
-                if (object == JSONObject.NULL) {
-                    result.setColumnAt(i, null);
-                } else {
-                    if (table.getColumnType(i) == Long.class) {
-                        result.setColumnAt(i, Long.valueOf(object.toString()));
-                    } else if (table.getColumnType(i) == Float.class) {
-                        result.setColumnAt(i, Float.valueOf(object.toString()));
-                    } else if (table.getColumnType(i) == Byte.class) {
-                        result.setColumnAt(i, Byte.valueOf(object.toString()));
-                    } else {
-                        result.setColumnAt(i, table.getColumnType(i).cast(object));
-                    }
-                }
-            }  catch (ColumnFormatException | IndexOutOfBoundsException e) {
-                throw new ParseException("JSON: incorrect format", i);
+            if (array.get(i) != JSONObject.NULL && !table.getColumnType(i).equals(array.get(i).getClass())) {
+                throw new ParseException("incorrect value", -1);
             }
+            deserializedValue.add(array.get(i));
         }
 
-        return result;
-    }
-
-    private static boolean isCorrectSize(Storeable value, Table table) {
-        try {
-            value.getColumnAt(table.getColumnsCount() - 1);
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-        try {
-            value.getColumnAt(table.getColumnsCount());
-        }  catch (IndexOutOfBoundsException e) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isCorrectStoreable(Storeable value, Table table) {
-        if (value == null) {
-            throw new IllegalArgumentException("Storeable must be not null");
-        }
-        if (table == null) {
-            throw new IllegalArgumentException("Table must be not null");
-        }
-
-        if (!isCorrectSize(value, table)) {
-            return false;
-        }
-
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i) != null
-                    && value.getColumnAt(i).getClass() != table.getColumnType(i)) {
-                return false;
-            }
-        }
-
-        return true;
+        return createFor(table, deserializedValue);
     }
 
     /**
@@ -196,45 +146,12 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
      */
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        /*Object[] serializedValue = new Object[table.getColumnsCount()];
+        Object[] serializedValue = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             serializedValue[i] = value.getColumnAt(i);
         }
         JSONArray array = new JSONArray(serializedValue);
-        return array.toString(); */
-        if (value == null) {
-            throw new IllegalArgumentException("Storeable must be not null");
-        }
-        if (table == null) {
-            throw new IllegalArgumentException("Table must be not null");
-        }
-
-        if (!isCorrectStoreable(value, table)) {
-            throw new ColumnFormatException("Incorrect storeable");
-        }
-
-        StringBuilder result = new StringBuilder("[");
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i) != null) {
-                if (table.getColumnType(i) == String.class) {
-                    result.append("\"");
-                    result.append(value.getStringAt(i));
-                    result.append("\"");
-                } else {
-                    result.append(value.getColumnAt(i).toString());
-                }
-            } else {
-                result.append("null");
-            }
-
-            if (i != table.getColumnsCount() - 1) {
-                result.append(",");
-            }  else {
-                result.append("]");
-            }
-        }
-
-        return result.toString();
+        return array.toString();
     }
 
     /**
