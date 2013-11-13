@@ -121,8 +121,7 @@ public class WorkWithChosenTableCommands {
                 if (value == null) {
                     printOut("not found");
                 } else {
-                    printOut("found");
-                    printOut(provider.serialize(table, value));
+                    printOut("found" + System.lineSeparator() + provider.serialize(table, value));
                 }
             } catch (Exception e) {
                 throw new ShellException(getName(), e);
