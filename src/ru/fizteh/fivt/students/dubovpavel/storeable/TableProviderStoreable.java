@@ -1,0 +1,58 @@
+package ru.fizteh.fivt.students.dubovpavel.storeable;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
+import ru.fizteh.fivt.students.dubovpavel.strings.StringTableProviderStorageExtended;
+import ru.fizteh.fivt.students.dubovpavel.strings.TableProviderStorageExtended;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TableProviderStoreable extends TableProviderStorageExtended<TableStoreable> implements TableProvider {
+    private TableStoreableBuilder dataBaseBuilder;
+
+    public TableProviderStoreable(Storage storage, TableStoreableBuilder builder) {
+        super(storage);
+        dataBaseBuilder = builder;
+    }
+
+    public ArrayList<Class<?>> collectFields(Table table) {
+        ArrayList<Class<?>> result = new ArrayList<>(table.getColumnsCount());
+        for(int i = 0; i < table.getColumnsCount(); i++) {
+            result.set(i, table.getColumnType(i));
+        }
+        return result;
+    }
+
+    @Override
+    public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        dataBaseBuilder.setFields(new ArrayList<Class<?>>(columnTypes));
+        return super.createTable(name);
+    }
+
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        return null;
+    }
+
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        return null;
+    }
+
+    public Storeable createFor(Table table) {
+        return new StoreableImpl(collectFields(table));
+    }
+
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        StoreableImpl row = new StoreableImpl(collectFields(table));
+        int i = 0;
+        for(Object value : values) {
+            row.setColumnAt(i++, value);
+        }
+        return row;
+    }
+}

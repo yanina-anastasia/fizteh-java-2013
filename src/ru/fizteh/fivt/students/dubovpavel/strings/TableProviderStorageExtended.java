@@ -2,10 +2,11 @@ package ru.fizteh.fivt.students.dubovpavel.strings;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
-public class TableProviderStorageExtended implements TableProvider{
-    Storage<WrappedMindfulDataBaseMultiFileHashMap> storage;
+public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase> {
+    protected Storage<DB> storage;
 
     private boolean isNameValid(String name) {
         return !name.contains("\\") && !name.contains("/");
@@ -15,7 +16,7 @@ public class TableProviderStorageExtended implements TableProvider{
         this.storage = storage;
     }
 
-    public Table getTable(String name) {
+    public DB getTable(String name) {
         if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -25,7 +26,7 @@ public class TableProviderStorageExtended implements TableProvider{
         return storage.getDataBase(name);
     }
 
-    public Table createTable(String name) {
+    public DB createTable(String name) {
         if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }

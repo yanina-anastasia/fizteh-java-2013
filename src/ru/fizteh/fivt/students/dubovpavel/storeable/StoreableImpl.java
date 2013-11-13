@@ -4,15 +4,16 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class StoreableImpl implements Storeable {
     private ArrayList<Object> data;
     private ArrayList<Class<?>> fields;
-    public StoreableImpl(List<Class<?>> types) {
-        fields = new ArrayList(types);
-        data = new ArrayList<>(types.size());
+
+    public StoreableImpl(ArrayList<Class<?>> types) {
+        fields = types;
+        data = new ArrayList<>(fields.size());
     }
+
     private void checkIndex(int columnIndex) throws IndexOutOfBoundsException {
         if(columnIndex >= fields.size()) throw new IndexOutOfBoundsException(
                 String.format("Index is out of bound. Size: %s, index: %s", fields.size(), columnIndex)

@@ -4,14 +4,9 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DataBaseBuilder;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 
-public class WrappedMindfulDataBaseMultiFileHashMapBuilder extends DataBaseBuilder<FileRepresentativeDataBase> {
-    Dispatcher dispatcher;
+public abstract class WrappedMindfulDataBaseMultiFileHashMapBuilder<V> extends DataBaseBuilder<FileRepresentativeDataBase<V>> {
+    protected Dispatcher dispatcher;
     public void setDispatcher(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
-    }
-
-    public WrappedMindfulDataBaseMultiFileHashMap construct() {
-        assert(dir != null && dispatcher != null);
-        return new WrappedMindfulDataBaseMultiFileHashMap(dir, dispatcher);
     }
 }

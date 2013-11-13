@@ -14,7 +14,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     protected HashMap<String, DB> storage;
     private DB cursor;
     private Dispatcher dispatcher;
-    private DataBaseBuilder<FileRepresentativeDataBase> builder;
+    private DataBaseBuilder<DB> builder;
 
     public void save() throws StorageException {
         for(Map.Entry<String, DB> entry: storage.entrySet()) {
@@ -26,7 +26,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         }
     }
 
-    public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<FileRepresentativeDataBase> dataBaseBuilder) {
+    public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<DB> dataBaseBuilder) {
         builder = dataBaseBuilder;
         storage = new HashMap<>();
         this.dispatcher = dispatcher;
@@ -39,7 +39,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             for(File folder: dir.listFiles()) {
                 if(folder.isDirectory()) {
                     builder.setPath(folder);
-                    DB dataBase = (DB)builder.construct();
+                    DB dataBase = builder.construct();
                     try {
                         dataBase.open();
                     } catch(DataBaseHandler.DataBaseException e) {
@@ -74,7 +74,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
                 }
             }
             builder.setPath(newData);
-            DB newDataBase = (DB)builder.construct();
+            DB newDataBase = builder.construct();
             storage.put(key, newDataBase);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
             return newDataBase;

@@ -21,9 +21,9 @@ public class TableProviderStorageExtendedFactory implements TableProviderFactory
         }
         StorageBuilder storageBuilder = new StorageBuilder();
         storageBuilder.setPath(false, dir);
-        storageBuilder.setDataBaseBuilder(new WrappedMindfulDataBaseMultiFileHashMapBuilder());
+        storageBuilder.setDataBaseBuilder(new StringWrappedMindfulDataBaseMultiFileHashMapBuilder());
         Dispatcher dummy = new Dispatcher(false);
         storageBuilder.setDispatcher(dummy);
-        return new TableProviderStorageExtended(storageBuilder.construct());
+        return new StringTableProviderStorageExtended(storageBuilder.construct());
     }
 }

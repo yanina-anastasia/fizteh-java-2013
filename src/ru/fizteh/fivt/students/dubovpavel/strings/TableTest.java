@@ -9,7 +9,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import java.io.File;
 
 public class TableTest {
-    private WrappedMindfulDataBaseMultiFileHashMap db;
+    private StringWrappedMindfulDataBaseMultiFileHashMap db;
     private Dispatcher dispatcher;
     private File path;
 
@@ -31,7 +31,7 @@ public class TableTest {
         dispatcher = new Dispatcher(false);
         File tablePath = new File(path, "tableName");
         assert(tablePath.mkdir() == true);
-        db = new WrappedMindfulDataBaseMultiFileHashMap(tablePath, dispatcher);
+        db = new StringWrappedMindfulDataBaseMultiFileHashMap(tablePath, dispatcher);
     }
 
     @After

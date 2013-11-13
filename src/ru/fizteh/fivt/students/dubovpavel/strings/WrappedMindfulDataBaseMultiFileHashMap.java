@@ -1,33 +1,33 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 import java.io.File;
 
-public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMultiFileHashMap implements Table {
+public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
     Dispatcher dispatcher;
 
-    public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher) {
-        super(path);
+    public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher, ObjectTransformer<V> transformer) {
+        super(path, transformer);
         this.dispatcher = dispatcher;
     }
     @Override
-    public String get(String key) {
+    public V get(String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
         return super.get(key);
     }
     @Override
-    public String put(String key, String value) {
-        if(key == null || value == null || key.isEmpty() || key.contains("\n") || value.contains("\n")) {
+    public V put(String key, V value) {
+        if(key == null || value == null || key.isEmpty() || key.contains("\n")) {
             throw new IllegalArgumentException();
         }
         return super.put(key, value);
     }
     @Override
-    public String remove(String key) {
+    public V remove(String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
@@ -37,7 +37,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMulti
     public int commit() {
         try {
             return super.commit();
-        } catch (DataBaseException e) {
+        } catch (DataBaseHandler.DataBaseException e) {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("Database %s: %s", getName(), e.getMessage()));
         }

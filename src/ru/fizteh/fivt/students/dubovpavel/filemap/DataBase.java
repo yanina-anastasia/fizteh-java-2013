@@ -6,11 +6,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataBase implements DataBaseHandler<String, String> {
+public class DataBase<V> implements DataBaseHandler<String, V> {
     protected File savingEndPoint;
     protected static final Charset charset = StandardCharsets.UTF_8;
     protected static final int MAXLENGTH = 1 << 20;
-    protected HashMap<String, String> dict = new HashMap<String, String>();
+    private Serial<V> builder;
+    protected HashMap<String, V> dict = new HashMap<String, V>();
 
     private void checkValid() {
         if(savingEndPoint == null) {
@@ -40,31 +41,36 @@ public class DataBase implements DataBaseHandler<String, String> {
                 byte[] valueBuffer = new byte[valueLength];
                 db.readFully(valueBuffer, 0, valueLength);
                 String value = new String(valueBuffer, charset);
-                dict.put(key, value);
+                dict.put(key, builder.deserialize(value));
             }
         } catch (IOException e) {
-            dict = new HashMap<String, String>();
+            dict = new HashMap<>();
             throw new DataBaseException(String.format("Conformity loading: IOException: %s. Empty database applied", e.getMessage()));
         } catch (DataBaseException e) {
-            dict = new HashMap<String, String>();
+            dict = new HashMap<>();
             throw new DataBaseException(String.format("Conformity loading: DataBaseException: %s. Empty database applied", e.getMessage()));
+        } catch (Serial.SerialException e) {
+            dict = new HashMap<>();
+            throw new DataBaseException(String.format("Conformity loading: SerialException (deserialization): %s. Empty database applied", e.getMessage()));
         }
     }
 
-    public DataBase(File path) {
+    public DataBase(File path, Serial<V> builder) {
         savingEndPoint = path;
+        this.builder = builder;
     }
 
-    protected DataBase() {
+    protected DataBase(Serial<V> builder) {
         savingEndPoint = null;
+        this.builder = builder;
     }
 
     public void save() throws DataBaseException {
         checkValid();
         try(DataOutputStream db = new DataOutputStream(new FileOutputStream(savingEndPoint))) {
-            for(Map.Entry<String, String> entry: dict.entrySet()) {
+            for(Map.Entry<String, V> entry: dict.entrySet()) {
                 byte[] key = entry.getKey().getBytes(charset);
-                byte[] value = entry.getValue().getBytes(charset);
+                byte[] value = builder.serialize(entry.getValue()).getBytes(charset);
                 db.writeInt(key.length);
                 db.writeInt(value.length);
                 db.write(key);
@@ -72,12 +78,14 @@ public class DataBase implements DataBaseHandler<String, String> {
             }
         } catch(IOException e) {
             throw new DataBaseException(String.format("Conformity saving: IOException: %s", e.getMessage()));
+        } catch (Serial.SerialException e) {
+            throw new DataBaseException(String.format("Conformity saving: SerialException (serialization): %s", e.getMessage()));
         }
     }
 
-    public String put(String key, String value) {
+    public V put(String key, V value) {
         if(dict.containsKey(key)) {
-            String old = dict.get(key);
+            V old = dict.get(key);
             dict.put(key, value);
             return old;
         } else {
@@ -86,9 +94,9 @@ public class DataBase implements DataBaseHandler<String, String> {
         }
     }
 
-    public String remove(String key) {
+    public V remove(String key) {
         if(dict.containsKey(key)) {
-            String removing = dict.get(key);
+            V removing = dict.get(key);
             dict.remove(key);
             return removing;
         } else {
@@ -96,7 +104,7 @@ public class DataBase implements DataBaseHandler<String, String> {
         }
     }
 
-    public String get(String key) {
+    public V get(String key) {
         if(dict.containsKey(key)) {
             return dict.get(key);
         } else {
