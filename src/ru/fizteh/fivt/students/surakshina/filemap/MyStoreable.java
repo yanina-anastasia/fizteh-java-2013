@@ -3,8 +3,6 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONObject;
-
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -12,10 +10,8 @@ import ru.fizteh.fivt.storage.structured.Table;
 public class MyStoreable implements Storeable {
     private ArrayList<Object> values = null;
     private ArrayList<Class<?>> types = null;
-    private Table currentTable;
 
     public MyStoreable(Table table) {
-        this.currentTable = table;
         this.values = new ArrayList<Object>();
         this.types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
@@ -46,19 +42,88 @@ public class MyStoreable implements Storeable {
         return true;
     }
 
-    public MyStoreable(Table table, List<?> values2) {
-        int size = values.size();
+    public MyStoreable(Table table, List<?> input) {
+        int size = input.size();
         if (size != table.getColumnsCount()) {
             throw new IndexOutOfBoundsException("Incorrect number of values");
         }
-        values = new ArrayList<Object>(currentTable.getColumnsCount());
-        types = new ArrayList<Class<?>>(currentTable.getColumnsCount());
-        for (int i = 0; i < currentTable.getColumnsCount(); ++i) {
-            types.add(currentTable.getColumnType(i));
-            if (values2.get(i) != JSONObject.NULL && !currentTable.getColumnType(i).equals(values2.get(i).getClass())) {
-                throw new ColumnFormatException("Incorrect column type");
+        values = new ArrayList<Object>(table.getColumnsCount());
+        types = new ArrayList<Class<?>>(table.getColumnsCount());
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            types.add(i, table.getColumnType(i));
+            Object key = input.get(i);
+            Class<?> currentClass = table.getColumnType(i);
+            if (key.equals(null)) {
+                values.add(null);
+            } else if (currentClass.equals(Integer.class)) {
+                if (key.getClass().equals(Integer.class)) {
+                    values.add(key);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (currentClass.equals(Long.class)) {
+                if (key.getClass().equals(Long.class)) {
+                    values.add(key);
+                } else if (key.getClass().equals(Integer.class)) {
+                    values.add(Integer.class.cast(key).longValue());
+                } else if (key.getClass().equals(Byte.class)) {
+                    values.add(Byte.class.cast(key).longValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (currentClass.equals(Byte.class)) {
+                if (key.getClass().equals(Byte.class)) {
+                    values.add(key);
+                } else if (key.getClass().equals(Integer.class)) {
+                    Integer current = Integer.class.cast(key);
+                    if (current > Byte.MAX_VALUE || current < Byte.MIN_VALUE) {
+                        throw new ColumnFormatException("Incorrect column format 1");
+                    }
+                    values.add(current.byteValue());
+                } else if (key.getClass().equals(Long.class)) {
+                    Long current = Long.class.cast(key);
+                    if (current > Byte.MAX_VALUE || current < Byte.MIN_VALUE) {
+                        throw new ColumnFormatException("Incorrect column format 2");
+                    }
+                    values.add(current.byteValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format 3");
+                }
+            } else if (currentClass.equals(Float.class)) {
+                if (key.getClass().equals(Float.class)) {
+                    values.add(key);
+                } else if (key.getClass().equals(Double.class)) {
+                    values.add(Double.class.cast(key).floatValue());
+                } else if (key.getClass().equals(Integer.class)) {
+                    values.add(Integer.class.cast(key).floatValue());
+                } else if (key.getClass().equals(Long.class)) {
+                    values.add(Long.class.cast(key).floatValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format 4");
+                }
+            } else if (currentClass.equals(Double.class)) {
+                if (key.getClass().equals(Double.class)) {
+                    values.add(key);
+                } else if (key.getClass().equals(Float.class)) {
+                    values.add(Float.class.cast(key).doubleValue());
+                } else if (key.getClass().equals(Integer.class)) {
+                    values.add(Integer.class.cast(key).doubleValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format 5");
+                }
+            } else if (currentClass.equals(Boolean.class)) {
+                if (key.getClass().equals(Boolean.class)) {
+                    values.add(key);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format 6");
+                }
+            } else if (currentClass.equals(String.class)) {
+                if (key.getClass().equals(String.class)) {
+                    values.add(key);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format 7");
+                }
             }
-            values.add(values2.get(i));
         }
     }
 
@@ -73,7 +138,7 @@ public class MyStoreable implements Storeable {
 
     private void checkFormatValue(int columnIndex, Object value) {
         if (!value.getClass().equals(types.get(columnIndex))) {
-            throw new ColumnFormatException("Incorrect column format");
+            throw new ColumnFormatException("Incorrect column format 8");
         }
 
     }

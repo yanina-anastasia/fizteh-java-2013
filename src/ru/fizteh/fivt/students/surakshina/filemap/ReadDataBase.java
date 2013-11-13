@@ -83,7 +83,7 @@ public class ReadDataBase {
                             || !dir.equals(Integer.class.cast(ndirectory).toString())) {
                         throw new IOException("wrong key placement");
                     }
-                    mapFile.put(keyFirst, JSONSerializer.deserialize(table, value));
+                    mapFile.put(keyFirst, table.getTableProvider().deserialize(table, value));
                     keyFirst = keySecond;
                     firstOffset = offsetOfValueSecond;
                 } while (currentPosition < offsetOfValueFirst);
@@ -109,7 +109,7 @@ public class ReadDataBase {
                             || !dir.equals(Integer.class.cast(ndirectory).toString())) {
                         throw new IOException("wrong key placement");
                     }
-                    mapFile.put(keyFirst, JSONSerializer.deserialize(table, value));
+                    mapFile.put(keyFirst, table.getTableProvider().deserialize(table, value));
                 }
             } else {
                 throw new IOException("Offset is negative");

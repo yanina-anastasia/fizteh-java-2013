@@ -19,7 +19,7 @@ public class CommandPut extends DataBaseCommand {
             Storeable value = null;
             Storeable result = null;
             try {
-                value = JSONSerializer.deserialize(state.getTable(), input[2]);
+                value = state.getTableProvider().deserialize(state.getTable(), input[2]);
             } catch (ParseException e) {
                 state.printError(e.getMessage());
                 return;

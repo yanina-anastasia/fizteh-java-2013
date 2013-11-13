@@ -158,6 +158,7 @@ public class NewTableProvider implements TableProvider {
     public void saveChanges(NewTable table) throws IOException {
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTable(table.getName());
+        currentTable = table;
         for (File file : files.keySet()) {
             WriteInDataBase.saveFile(file, files.get(file));
         }

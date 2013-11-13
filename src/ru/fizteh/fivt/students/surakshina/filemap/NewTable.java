@@ -44,6 +44,10 @@ public class NewTable implements Table {
         types = readSignature();
     }
 
+    public NewTableProvider getTableProvider() {
+        return provider;
+    }
+
     private boolean checkNameOfDataBaseDirectory(String dir) {
         return (dir.matches("(([0-9])|(1[0-5]))\\.dir"));
     }
