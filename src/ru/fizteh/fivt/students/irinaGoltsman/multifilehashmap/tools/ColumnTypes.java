@@ -86,25 +86,26 @@ public class ColumnTypes {
     public List<Object> parseJSONArray(JSONArray values, Table table) throws ParseException {
         List<Object> parsedValues = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            if (values.get(i) == null) {
+            Class<?> type = table.getColumnType(i);
+            Object val = values.get(i);
+            if (val.equals(null)) {
                 parsedValues.add(null);
-            } else if (table.getColumnType(i) == Integer.class && values.get(i).getClass() == Integer.class) {
+            } else if (type == Integer.class && val.getClass() == Integer.class) {
                 parsedValues.add(values.getInt(i));
-            } else if (table.getColumnType(i) == Long.class
-                    && (values.get(i).getClass() == Long.class || values.get(i).getClass() == Integer.class)) {
+            } else if (type == Long.class && (val.getClass() == Long.class || val.getClass() == Integer.class)) {
                 parsedValues.add(values.getLong(i));
-            } else if (table.getColumnType(i) == Byte.class && values.get(i).getClass() == Integer.class) {
+            } else if (type == Byte.class && val.getClass() == Integer.class) {
                 Integer a = values.getInt(i);
                 parsedValues.add(a.byteValue());
-            } else if (table.getColumnType(i) == Float.class && values.get(i).getClass() == Double.class) {
+            } else if (type == Float.class && val.getClass() == Double.class) {
                 Double a = values.getDouble(i);
                 parsedValues.add(a.floatValue());
-            } else if (table.getColumnType(i) == Double.class && values.get(i).getClass() == Double.class) {
+            } else if (type == Double.class && val.getClass() == Double.class) {
                 parsedValues.add(values.getDouble(i));
-            } else if (table.getColumnType(i) == Boolean.class && values.get(i).getClass() == Boolean.class) {
+            } else if (type == Boolean.class && val.getClass() == Boolean.class) {
                 parsedValues.add(values.getBoolean(i));
-            } else if (table.getColumnType(i) == String.class && values.get(i).getClass() == String.class) {
-                parsedValues.add(values.getString(i));
+            } else if (type == String.class && val.getClass() == String.class) {
+                parsedValues.add(val);
             } else {
                 throw new ParseException("types mismatch", 0);
             }
