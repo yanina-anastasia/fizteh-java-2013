@@ -21,11 +21,15 @@ public class MyStoreable implements Storeable {
     private Table table;
 
     public MyStoreable(Table newTable) {
+        if (newTable == null) {
+            throw new IllegalArgumentException("table is null");
+        }
+        table = newTable;
         columns = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columns.add(null);
         }
-        table = newTable;
+
     }
 
     /**

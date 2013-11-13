@@ -105,13 +105,13 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
      */
     public MyStoreable deserialize(Table table, String value) throws ParseException {
-        /*if (table == null) {
+        if (table == null) {
             throw new IllegalArgumentException();
         }
 
         if (value == null) {
             return null;
-        } maybe need this checks*/
+        }
 
         JSONArray array;
         try {
@@ -126,11 +126,29 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
 
         List<Object> deserializedValue = new ArrayList<Object>();
 
-        for (int i = 0; i < array.length(); ++i) {
-            if (array.get(i) != JSONObject.NULL && !table.getColumnType(i).equals(array.get(i).getClass())) {
-                throw new ParseException("incorrect value", -1);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (array.get(i).equals(null)) {
+                deserializedValue.add(null);
+            } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
+                deserializedValue.add(array.getInt(i));
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
+                    table.getColumnType(i) == Long.class) {
+                deserializedValue.add(array.getLong(i));
+            } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
+                Integer a = array.getInt(i);
+                deserializedValue.add(a.byteValue());
+            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
+                Double a = array.getDouble(i);
+                deserializedValue.add(a.floatValue());
+            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
+                deserializedValue.add(array.getDouble(i));
+            } else if (array.get(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
+                deserializedValue.add(array.getBoolean(i));
+            } else if (array.get(i).getClass() == String.class && table.getColumnType(i) == String.class) {
+                deserializedValue.add(array.getString(i));
+            } else {
+                throw new ParseException("Incorrect value string.", -1);
             }
-            deserializedValue.add(array.get(i));
         }
 
         return createFor(table, deserializedValue);
