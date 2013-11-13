@@ -149,6 +149,43 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
         return result;
     }
 
+    private static boolean isCorrectSize(Storeable value, Table table) {
+        try {
+            value.getColumnAt(table.getColumnsCount() - 1);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+        try {
+            value.getColumnAt(table.getColumnsCount());
+        }  catch (IndexOutOfBoundsException e) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isCorrectStoreable(Storeable value, Table table) {
+        if (value == null) {
+            throw new IllegalArgumentException("Storeable must be not null");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
+        if (!isCorrectSize(value, table)) {
+            return false;
+        }
+
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (value.getColumnAt(i) != null
+                    && value.getColumnAt(i).getClass() != table.getColumnType(i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Преобразовывает объект {@link ru.fizteh.fivt.storage.structured.Storeable} в строку.
      *
@@ -159,12 +196,45 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
      */
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        Object[] serializedValue = new Object[table.getColumnsCount()];
+        /*Object[] serializedValue = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             serializedValue[i] = value.getColumnAt(i);
         }
         JSONArray array = new JSONArray(serializedValue);
-        return array.toString();
+        return array.toString(); */
+        if (value == null) {
+            throw new IllegalArgumentException("Storeable must be not null");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
+        if (!isCorrectStoreable(value, table)) {
+            throw new ColumnFormatException("Incorrect storeable");
+        }
+
+        StringBuilder result = new StringBuilder("[");
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (value.getColumnAt(i) != null) {
+                if (table.getColumnType(i) == String.class) {
+                    result.append("\"");
+                    result.append(value.getStringAt(i));
+                    result.append("\"");
+                } else {
+                    result.append(value.getColumnAt(i).toString());
+                }
+            } else {
+                result.append("null");
+            }
+
+            if (i != table.getColumnsCount() - 1) {
+                result.append(",");
+            }  else {
+                result.append("]");
+            }
+        }
+
+        return result.toString();
     }
 
     /**
