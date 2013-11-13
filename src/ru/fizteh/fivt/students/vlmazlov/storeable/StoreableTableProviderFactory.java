@@ -20,7 +20,10 @@ extends GenericTableProviderFactory<Storeable, StoreableTable, StoreableTablePro
       super(autoCommit);
     }
 
-    protected StoreableTableProvider instantiateTableProvider(String dir) throws ValidityCheckFailedException {
-    	return new StoreableTableProvider(dir, autoCommit);
+    protected StoreableTableProvider instantiateTableProvider(String dir) throws ValidityCheckFailedException, IOException {
+      if (!(new File(dir)).isDirectory()) {
+        throw new IOException(dir + " doesn't denote a directory");
+      }
+      return new StoreableTableProvider(dir, autoCommit);
     }
 }

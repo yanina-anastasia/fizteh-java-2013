@@ -30,6 +30,9 @@ public class Main {
 		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
+		} catch (IOException ex) {
+			System.err.println(ex.getMessage());
+			System.exit(2);
 		}
 		
 		try {

@@ -190,7 +190,7 @@ public class ValidityChecker {
 		}
 
 		key = key.trim();
-		if ((key.length() < MIN_KEY_LEN) || (key.length() > MAX_KEY_LEN)) {
+		if ((key.length() < MIN_KEY_LEN) || (key.length() > MAX_KEY_LEN) || (key.contains(" "))) {
 			throw new ValidityCheckFailedException(key + " is not a valid key");
 		}
 	}
