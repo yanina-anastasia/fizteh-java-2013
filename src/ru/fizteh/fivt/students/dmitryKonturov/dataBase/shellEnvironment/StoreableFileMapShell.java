@@ -29,7 +29,7 @@ public class StoreableFileMapShell extends ShellEmulator {
 
     @Override
     public String getGreetingString() {
-        return "$" + System.lineSeparator();
+        return " input here $ " + System.lineSeparator();
     }
 
     @Override
