@@ -16,11 +16,6 @@ public class GetCommand implements Command<FileMapTableProvider> {
                 System.out.println("no table");
                 return false;
             }
-            FileMap db = currTable.getMyState(command[1].hashCode());
-            if (db == null) {
-                System.out.println("not found");
-                return true;
-            }
             Storeable str = currTable.get(command[1]);
             if (str == null) {
                 System.out.println("not found");

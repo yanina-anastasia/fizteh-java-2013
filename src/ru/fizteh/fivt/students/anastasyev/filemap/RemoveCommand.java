@@ -16,12 +16,6 @@ public class RemoveCommand implements Command<FileMapTableProvider> {
                 System.out.println("no table");
                 return false;
             }
-            FileMap db = null;
-            db = currTable.getMyState(command[1].hashCode());
-            if (db == null) {
-                System.out.println("not found");
-                return true;
-            }
             Storeable str = currTable.remove(command[1]);
             if (str == null) {
                 System.out.println("not found");

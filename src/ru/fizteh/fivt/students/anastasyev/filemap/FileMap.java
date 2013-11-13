@@ -35,9 +35,6 @@ public class FileMap {
         } catch (IOException e) {
             throw new IOException(e.getMessage(), e);
         }
-        if (elementHashMap.isEmpty()) {
-            delete();
-        }
     }
 
     private void openFileMapWithCheck() throws IOException, ParseException {

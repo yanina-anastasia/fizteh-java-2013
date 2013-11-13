@@ -28,14 +28,6 @@ public class FileMapTable implements Table {
             this.newValue = newValue;
             onDiskValue = newOnDisk;
         }
-
-        /*public Storeable getNewValue() {
-            return newValue;
-        }
-
-        public Storeable getOnDisk() {
-            return onDiskValue;
-        }*/
     }
 
     private boolean isEmptyString(String val) {
@@ -69,11 +61,6 @@ public class FileMapTable implements Table {
         } catch (IndexOutOfBoundsException e) {
             //It's OK   Некрасивая конструкция, and I know it
         }
-    }
-
-    public FileMap getMyState(int hashCode) {
-        int absHash = Math.abs(hashCode);
-        return mapsTable[absHash % 16][absHash / 16 % 16];
     }
 
     public FileMap openFileMap(int dirHash, int datHash) throws IOException {
