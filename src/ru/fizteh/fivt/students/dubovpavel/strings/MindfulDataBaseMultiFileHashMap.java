@@ -16,7 +16,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
     }
 
     private void copyHashMap(HashMap<String, V> from, HashMap<String, V> to) {
-        to = new HashMap<>();
+        to.clear();
         for(Map.Entry<String, V> entry: from.entrySet()) {
             to.put(entry.getKey(), transformer.copy(entry.getValue()));
         }
