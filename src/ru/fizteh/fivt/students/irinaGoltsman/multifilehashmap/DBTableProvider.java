@@ -92,7 +92,7 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException("remove table: table name is empty");
         }
         if (!allTables.containsKey(tableName)) {
-            throw new IllegalStateException("remove table: no such table");
+            throw new IllegalStateException(String.format("%s not exists", tableName));
         }
         //File table = new File(rootDirectoryOfTables, tableName);
         MapOfCommands cm = new MapOfCommands();
