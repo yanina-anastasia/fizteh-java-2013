@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -187,7 +188,6 @@ public class UniversalDataTable<ValueType> {
     }
 
     public void load() throws IOException, ParseException {
-        //System.out.println("blabla");
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
@@ -262,8 +262,9 @@ public class UniversalDataTable<ValueType> {
                             throw new IllegalArgumentException("Wrong key in" + fileName);
                         }
                     }
-                    //while (fileReader.valuesToReadExists())
-                    fileReader.putValueToTable(valueConverter.convertStringToValueType(fileReader.getNextValue()));
+                    while (fileReader.valuesToReadExists()) {
+                        fileReader.putValueToTable(valueConverter.convertStringToValueType(fileReader.getNextValue()));
+                    }
                     fileReader.closeResources();
                 }
             }
@@ -280,7 +281,7 @@ public class UniversalDataTable<ValueType> {
                     DataTable keysToFile = new DataTable();
                     File file = new File(dir, new String(j + ".dat"));
                     for (String key : keys) {
-                        int hashByte = Math.abs(key.getBytes()[0]);
+                        int hashByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
                         int ndirectory = hashByte % DIR_COUNT;
                         int nfile = (hashByte / DIR_COUNT) % FILE_COUNT;
                         if ((ndirectory == i) && (nfile == j)) {

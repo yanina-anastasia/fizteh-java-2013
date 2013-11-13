@@ -19,11 +19,11 @@ public class FileWriter {
                 offset += s.getBytes(StandardCharsets.UTF_8).length + intSize + separatorSize;
             }
             for (String s : keys) {
-                String value = dataTable.get(s);
-                s += '\0';
                 byte[] b = s.getBytes(StandardCharsets.UTF_8);
                 outStream.write(b);
+                outStream.write('\0');
                 outStream.writeInt(offset);
+                String value = dataTable.get(s);
                 values.add(value);
                 offset += value.getBytes().length;
             }

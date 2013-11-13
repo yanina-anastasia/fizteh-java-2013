@@ -84,7 +84,7 @@ public class FileReader<ValueType> {
         if (!offsets.isEmpty()) {
             offsetsSize = offsets.size();
         }
-        return (curValue < offsetsSize);
+        return (curValue <= offsetsSize);
     }
 
     public String getNextValue() throws IOException {
