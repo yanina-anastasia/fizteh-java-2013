@@ -26,19 +26,6 @@ public class TableRow implements Storeable {
         columns = new ArrayList<>(classes.size());
     }
 
-    TableRow(List<Class<?>> classes, List<Object> columns) {
-        this.classes = classes;
-        if (classes.size() != columns.size()) {
-            throw new ColumnFormatException("Number of colums and data are different");
-        }
-        for (int i = 0; i < classes.size(); ++i) {
-            if (!columns.get(i).getClass().equals(classes.get(i))) {
-                throw new ColumnFormatException("Can't init Storeable column: incorrect type");
-            }
-        }
-        this.columns = columns;
-    }
-
     /**
      * Установить значение в колонку
      * @param columnIndex - индекс колонки в таблице, начиная с нуля
@@ -57,7 +44,7 @@ public class TableRow implements Storeable {
                 throw new ColumnFormatException("Empty string can't be stored");
             }
         }
-        columns.add(columnIndex, value);
+        columns.set(columnIndex, value);
     }
 
     /**
