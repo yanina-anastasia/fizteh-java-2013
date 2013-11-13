@@ -38,7 +38,7 @@ public class Main {
 			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateCommand(),
 			new DropCommand(), new CommitCommand(),
-			new RollBackCommand()
+			new RollBackCommand(), new SizeCommand()
 		};
 
 		Shell<DataBaseState> shell = new Shell<DataBaseState>(commands, state);

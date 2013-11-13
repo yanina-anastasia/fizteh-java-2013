@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 import ru.fizteh.fivt.students.vlmazlov.filemap.StringTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DiffCountingTableProviderFactory;
 import java.io.FileNotFoundException;
+import java.io.File;
 
 public class StringTableProviderFactory implements DiffCountingTableProviderFactory  {
     protected boolean autoCommit;
@@ -18,6 +19,11 @@ public class StringTableProviderFactory implements DiffCountingTableProviderFact
     }
 
     public StringTableProvider create(String dir) {
+
+      if (!(new File(dir)).exists()) {
+        (new File(dir)).mkdir();
+      }
+
       try {
         return new StringTableProvider(dir, autoCommit);
       } catch (ValidityCheckFailedException ex) {
