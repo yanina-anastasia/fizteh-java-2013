@@ -169,7 +169,7 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws IndexOutOfBoundsException При несоответствии числа переданных значений и числа колонок.
      */
     public MyStoreable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (table == null || values == null) {
+        if (table == null || values == null || values.isEmpty()) {
             throw new IllegalArgumentException("null value or table");
         }
 
