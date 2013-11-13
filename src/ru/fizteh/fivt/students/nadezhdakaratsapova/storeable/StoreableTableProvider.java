@@ -213,7 +213,6 @@ public class StoreableTableProvider implements TableProvider {
                 String s = signatureController.convertStoreableFieldToString(value, i, table.getColumnType(i));
                 if (s == null) {
                     xmlWriter.writeEmptyElement("null");
-                    //xmlWriter.writeEndElement();
                 } else {
                     xmlWriter.writeStartElement("col");
                     xmlWriter.writeCharacters(s);
