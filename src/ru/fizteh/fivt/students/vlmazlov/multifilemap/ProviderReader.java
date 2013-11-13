@@ -26,7 +26,7 @@ public class ProviderReader {
     }
 
     private static <V> void checkKeys(GenericTable<V> tablePart, File file, File directory) throws ValidityCheckFailedException {
-        for (Map.Entry<String, V> entry : tablePart) {  
+        for (Map.Entry<String, V> entry : tablePart) { 
             ValidityChecker.checkKeyStorageAffiliation(entry.getKey(), getNum(file), getNum(directory), 
                 FILES_QUANTITY, DIRECTORIES_QUANTITY);
         }
@@ -58,6 +58,8 @@ public class ProviderReader {
                 ValidityChecker.checkMultiFileStorageFile(file, FILES_QUANTITY);
 
                 TableReader.readTable(directory, file, tableParts.get(getNum(directory)).get(getNum(file)), provider);
+                //iterating is only possible over commited entries
+                tableParts.get(getNum(directory)).get(getNum(file)).commit();
 
                 checkKeys(tableParts.get(getNum(directory)).get(getNum(file)), file, directory);
             }
@@ -65,8 +67,6 @@ public class ProviderReader {
 
         for (int i = 0;i < tableParts.size();++i) {
             for (int j = 0;j < tableParts.get(i).size();++j) {
-                //iterating is only possible over commited entries
-                tableParts.get(i).get(j).commit();
                 addTablePart(tableParts.get(i).get(j), table);
             }
         }
