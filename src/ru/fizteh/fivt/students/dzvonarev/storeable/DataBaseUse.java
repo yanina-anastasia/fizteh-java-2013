@@ -29,12 +29,22 @@ public class DataBaseUse implements CommandInterface {
         String tableName = str.substring(spaceIndex + 1, str.length());
         if (tableProvider.getCurrentTable() != null) {
             MyTable currTable = tableProvider.getTable(tableProvider.getCurrentTable());
-            System.out.println(currTable.getCountOfChanges() + " unsaved changes");
-        }
-        if (tableProvider.changeCurrentTable(tableName) == -1) {
-            throw new IOException(tableName + " not exists");
+            int countOfChanges = currTable.getCountOfChanges();
+            if (countOfChanges != 0) {
+                System.out.println(currTable.getCountOfChanges() + " unsaved changes");
+            } else {
+                if (tableProvider.changeCurrentTable(tableName) == -1) {
+                    throw new IOException(tableName + " not exists");
+                } else {
+                    System.out.println("using " + tableName);
+                }
+            }
         } else {
-            System.out.println("using " + tableName);
+            if (tableProvider.changeCurrentTable(tableName) == -1) {
+                throw new IOException(tableName + " not exists");
+            } else {
+                System.out.println("using " + tableName);
+            }
         }
     }
 

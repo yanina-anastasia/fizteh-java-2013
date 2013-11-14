@@ -10,8 +10,8 @@ import java.util.List;
 
 public class Parser {
 
-    public ArrayList<Class<?>> parseTypeList(List<String> types) throws ParseException {
-        ArrayList<Class<?>> temp = new ArrayList<>();
+    public List<Class<?>> parseTypeList(List<String> types) throws ParseException {
+        List<Class<?>> temp = new ArrayList<>();
         for (String type : types) {
             switch (type) {
                 case "int":

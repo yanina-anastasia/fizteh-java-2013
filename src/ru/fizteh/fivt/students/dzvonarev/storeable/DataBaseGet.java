@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dzvonarev.storeable;
 
-
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
@@ -34,8 +33,9 @@ public class DataBaseGet implements CommandInterface {
         if (value == null) {
             System.out.println("not found");
         } else {
+            String foundValue = tableProvider.serialize(tableProvider.getTable(tableName), value);
             System.out.println("found");
-            System.out.println(tableProvider.serialize(tableProvider.getTable(tableName), value));
+            System.out.println(foundValue);
         }
     }
 

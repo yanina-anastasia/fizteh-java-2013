@@ -61,6 +61,18 @@ public class MyTableProvider implements TableProvider {
         return !(name == null || !(name.matches("\\w+")));
     }
 
+    public boolean typesAreValid(List<Class<?>> types) {
+        if (types == null) {
+            return false;
+        }
+        for (Class<?> type : types) {
+            if (typeToString.get(type) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void readData() throws IOException, RuntimeException {   // IOException - for system errors
         File currDir = new File(workingDirectory);
         if (currDir.exists() && currDir.isDirectory()) {
@@ -147,15 +159,15 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
-        if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("Invalid table name " + tableName);
+        if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
+            throw new IllegalArgumentException("Invalid table or type name while creating " + tableName);
         }
         File newTable = new File(workingDirectory, tableName);
         if (multiFileMap.containsKey(tableName)) {
             return null;
         }
         if (!newTable.mkdir()) {
-            throw new IllegalArgumentException("Can't create table " + tableName);
+            throw new IOException("Can't create table " + tableName);
         }
         writeTypesInFile(tableName, types);
         MyTable table = new MyTable(newTable, this);

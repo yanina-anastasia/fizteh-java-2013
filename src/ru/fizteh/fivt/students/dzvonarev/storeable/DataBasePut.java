@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dzvonarev.storeable;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
@@ -42,10 +43,16 @@ public class DataBasePut implements CommandInterface {
             throw new IOException(e);
         }
         MyTable currTable = tableProvider.getTable(tableName);
-        Storeable result = currTable.put(key, valueStoreable);
+        Storeable result;
+        try {
+            result = currTable.put(key, valueStoreable);
+        } catch (ColumnFormatException e) {
+            throw new IOException(e);
+        }
         if (result != null) {
+            String oldValue = tableProvider.serialize(tableProvider.getTable(tableName), result);
             System.out.println("overwrite");
-            System.out.println(tableProvider.serialize(tableProvider.getTable(tableName), result));
+            System.out.println(oldValue);
         } else {
             System.out.println("new");
         }

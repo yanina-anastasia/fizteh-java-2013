@@ -39,45 +39,6 @@ public class MyTable implements Table {
         return type;
     }
 
-    public void modifyFileMap() {
-        if (changesMap == null || changesMap.isEmpty()) {
-            return;
-        }
-        Set fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
-            ValueNode value = currItem.getValue();
-            if (!equals(value.newValue, value.oldValue)) {
-                if (value.newValue == null) {
-                    fileMap.remove(currItem.getKey());
-                } else {
-                    fileMap.put(currItem.getKey(), value.newValue);
-                }
-            }
-        }
-    }
-
-    public int countSize() {
-        if (changesMap == null || changesMap.isEmpty()) {
-            return 0;
-        }
-        int size = 0;
-        Set fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
-            ValueNode value = currItem.getValue();
-            if (value.oldValue == null && value.newValue != null) {
-                ++size;
-            }
-            if (value.oldValue != null && value.newValue == null) {
-                --size;
-            }
-        }
-        return size;
-    }
-
     public int getCountOfChanges() {
         if (changesMap == null || changesMap.isEmpty()) {
             return 0;
@@ -253,6 +214,18 @@ public class MyTable implements Table {
         return true;
     }
 
+    public boolean isValid(Storeable value) {
+        for (int i = 0; i < getColumnsCount(); ++i) {
+            if (value.getColumnAt(i).getClass() == null) {
+                continue;
+            }
+            if (value.getColumnAt(i).getClass() != type.get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void writeInTable() throws IOException {
         if (fileMap == null) {
             return;
@@ -406,6 +379,46 @@ public class MyTable implements Table {
         return count;
     }
 
+
+    public void modifyFileMap() {
+        if (changesMap == null || changesMap.isEmpty()) {
+            return;
+        }
+        Set fileSet = changesMap.entrySet();
+        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, ValueNode> currItem = i.next();
+            ValueNode value = currItem.getValue();
+            if (!equals(value.newValue, value.oldValue)) {
+                if (value.newValue == null) {
+                    fileMap.remove(currItem.getKey());
+                } else {
+                    fileMap.put(currItem.getKey(), value.newValue);
+                }
+            }
+        }
+    }
+
+    public int countSize() {
+        if (changesMap == null || changesMap.isEmpty()) {
+            return 0;
+        }
+        int size = 0;
+        Set fileSet = changesMap.entrySet();
+        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, ValueNode> currItem = i.next();
+            ValueNode value = currItem.getValue();
+            if (value.oldValue == null && value.newValue != null) {
+                ++size;
+            }
+            if (value.oldValue != null && value.newValue == null) {
+                --size;
+            }
+        }
+        return size;
+    }
+
     @Override
     public int rollback() {
         int count = getCountOfChanges();
@@ -426,13 +439,5 @@ public class MyTable implements Table {
         return type.get(columnIndex);
     }
 
-    public boolean isValid(Storeable value) {
-        for (int i = 0; i < getColumnsCount(); ++i) {
-            if (value.getColumnAt(i).getClass() != type.get(i)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 }

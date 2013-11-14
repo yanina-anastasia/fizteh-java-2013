@@ -9,16 +9,28 @@ import java.util.List;
 
 public class MyStoreable implements Storeable {
 
-    public MyStoreable(Table table, List<?> args) {
-        ArrayList<Object> temp = new ArrayList<>();
-        for (int i = 0; i < args.size(); ++i) {
-            temp.add(args.get(i));
-        }
-        column = temp;
+    public MyStoreable(Table table, List<?> args) throws IndexOutOfBoundsException, ColumnFormatException {
         columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
         }
+        List<Class<?>> tableTypes = ((MyTable) table).getTypeArray();
+        if (args.size() != tableTypes.size()) {            // wrong count of columns
+            throw new IndexOutOfBoundsException("wrong count of colums in value");
+        }
+        for (int i = 0; i < args.size(); ++i) {
+            if (args.get(i) == null) {
+                continue;
+            }
+            if (args.get(i).getClass() != tableTypes.get(i)) {
+                throw new ColumnFormatException(args.get(i) + " got wrong type");
+            }
+        }
+        ArrayList<Object> temp = new ArrayList<>();      // if all OK we init column array
+        for (Object arg : args) {
+            temp.add(arg);
+        }
+        column = temp;
     }
 
     public MyStoreable(Table table) {

@@ -25,7 +25,7 @@ public class DataBaseCreate implements CommandInterface {
         }
         int newSpaceIndex = str.indexOf(' ', spaceIndex + 1);
         if (newSpaceIndex == -1) {
-            throw new IOException("put: wrong parameters");
+            throw new IOException("create: wrong parameters");
         }
         int index = newSpaceIndex;
         String newName = str.substring(spaceIndex + 1, index);
