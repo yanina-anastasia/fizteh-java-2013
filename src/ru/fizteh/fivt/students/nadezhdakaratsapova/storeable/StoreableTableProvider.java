@@ -65,7 +65,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             throw new IllegalArgumentException("The table has not allowed name");
         }
         if (!name.matches(TABLE_NAME)) {
-            throw new RuntimeException("Not correct file name");
+            throw new IllegalArgumentException("Not correct file name");
         }
         return dataBaseTables.get(name);
     }
@@ -75,7 +75,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             throw new IllegalArgumentException("create: the table has not allowed name");
         }
         if (!name.matches(TABLE_NAME)) {
-            throw new RuntimeException("create: not correct file name");
+            throw new IllegalArgumentException("create: not correct file name");
         }
         if (columnTypes == null) {
             throw new IllegalArgumentException("create: the null column type is not allowed");
