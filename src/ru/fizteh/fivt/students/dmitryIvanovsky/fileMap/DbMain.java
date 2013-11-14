@@ -27,7 +27,9 @@ public class DbMain {
 
         try {
             //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
-            Process proc = Runtime.getRuntime().exec("bash 1.sh");
+            Runtime.getRuntime().exec("bash /home/student/tmp/1.sh").waitFor();
+            Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+            proc.waitFor();
             BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             while(read.ready()) {
                 s += read.readLine()+"\n";
@@ -37,7 +39,7 @@ public class DbMain {
                 s += read.readLine()+"\n";
             }
 
-        } catch(IOException e) {
+        } catch(Exception e) {
             s += e.getMessage()+"\n";
         }
 
