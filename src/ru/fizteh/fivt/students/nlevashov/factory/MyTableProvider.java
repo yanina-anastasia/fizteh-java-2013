@@ -116,7 +116,7 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("TableProvider.createTable: columnTypes is null");
         }
         for (Class<?> c : columnTypes)  {
-            if ((c != Integer.class) && (c != Long.class) && (c != Byte.class) && (c != Float.class)
+            if ((c != null) && (c != Integer.class) && (c != Long.class) && (c != Byte.class) && (c != Float.class)
                                      && (c != Double.class) && (c != Boolean.class) && (c != String.class)) {
                 throw new IllegalArgumentException("TableProvider.createTable: Illegal type \"" + c.toString() + "\"");
             }
