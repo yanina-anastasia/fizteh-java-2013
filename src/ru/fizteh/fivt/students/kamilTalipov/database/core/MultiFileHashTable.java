@@ -21,7 +21,7 @@ import java.util.*;
 
 public class MultiFileHashTable implements Table {
     private HashMap<String, Storeable> table;
-    private HashMap<String, Storeable> oldValues;
+    private HashMap<String, Storeable> newValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -81,7 +81,7 @@ public class MultiFileHashTable implements Table {
         writeSignatureFile();
 
         table = new HashMap<>();
-        oldValues = new HashMap<>();
+        newValues = new HashMap<>();
         readTable();
     }
 
@@ -104,6 +104,9 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
+        if (newValues.containsKey(key)) {
+            return newValues.get(key);
+        }
         return table.get(key);
     }
 
@@ -125,12 +128,11 @@ public class MultiFileHashTable implements Table {
             throw new ColumnFormatException("Storeable incorrect value");
         }
 
-        Storeable oldValue = table.put(key, value);
-        if (!oldValues.containsKey(key) && !isEqualStoreable(oldValue, value)) {
-            oldValues.put(key, oldValue);
-        } else if (oldValues.get(key) != null
-                && isEqualStoreable(value, oldValues.get(key))) {
-            oldValues.remove(key);
+        Storeable oldValue = get(key);
+        if (isEqualStoreable(value, table.get(key))) {
+            newValues.remove(key);
+        } else {
+            newValues.put(key, value);
         }
 
         return oldValue;
@@ -145,14 +147,8 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
-        Storeable oldValue = table.remove(key);
-        if (!oldValues.containsKey(key)) {
-            if (oldValue != null) {
-                oldValues.put(key, oldValue);
-            }
-        } else if (oldValues.get(key) == null) {
-            oldValues.remove(key);
-        }
+        Storeable oldValue = get(key);
+        newValues.put(key, null);
 
         return oldValue;
     }
@@ -164,13 +160,46 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int size() {
-        return table.size();
+        int tableSize = table.size();
+        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
+            String key = entry.getKey();
+            Storeable value = entry.getValue();
+            Storeable savedValue = table.get(key);
+            if (savedValue == null) {
+                if (value != null) {
+                    ++tableSize;
+                }
+            } else {
+                if (value == null) {
+                    --tableSize;
+                }
+            }
+        }
+
+        return tableSize;
     }
 
     @Override
     public int commit() throws IOException {
-        int changes = oldValues.size();
-        oldValues.clear();
+        int changes = 0;
+        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
+            String key = entry.getKey();
+            Storeable value = entry.getValue();
+            if (value == null) {
+                if (table.remove(key) != null) {
+                    ++changes;
+                }
+            } else {
+                Storeable oldValue = table.put(key, value);
+                if (oldValue == null) {
+                    ++changes;
+                } else if (!isEqualStoreable(oldValue, value)) {
+                    ++changes;
+                }
+            }
+        }
+
+        newValues.clear();
 
         try {
             writeTable();
@@ -185,16 +214,8 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int rollback() {
-        for (Map.Entry<String, Storeable> entry : oldValues.entrySet()) {
-            if (entry.getValue() == null) {
-                table.remove(entry.getKey());
-            } else {
-                table.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        int changes = oldValues.size();
-        oldValues.clear();
+        int changes = uncommittedChanges();
+        newValues.clear();
         return changes;
     }
 
@@ -209,7 +230,25 @@ public class MultiFileHashTable implements Table {
     }
 
     public int uncommittedChanges() {
-        return oldValues.size();
+        int changes = 0;
+        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
+            String key = entry.getKey();
+            Storeable value = entry.getValue();
+            if (value == null) {
+                if (table.get(key) != null) {
+                    ++changes;
+                }
+            } else {
+                Storeable oldValue = table.get(key);
+                if (oldValue == null) {
+                    ++changes;
+                } else if (!isEqualStoreable(value, oldValue)) {
+                    ++changes;
+                }
+            }
+        }
+
+        return changes;
     }
 
     public void exit() throws DatabaseException {
