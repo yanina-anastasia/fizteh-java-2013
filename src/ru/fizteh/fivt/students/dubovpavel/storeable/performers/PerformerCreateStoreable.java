@@ -25,16 +25,18 @@ public class PerformerCreateStoreable<D extends Dispatcher & StorageAccessible> 
             fields.add(caster);
         }
     }
-
+    @Override
+    public boolean pertains(Command command) {
+        return command.getHeader().equals("create") && command.argumentsCount() == 2 && command.getArgument(1).charAt(0) == '(';
+    }
     @Override
     public void execute(D dispatcher, Command command) throws PerformerException {
         ArrayList<Class<?>> fields = new ArrayList<>();
-        testType(fields, command.getArgument(1).substring(1));
-        for(int i = 2; i < command.argumentsCount() - 1; i++) {
-            testType(fields, command.getArgument(i));
+        String list = command.getArgument(1);
+        String[] types = list.substring(1, list.length() - 1).split("\\s+");
+        for(String type: types) {
+            testType(fields, type);
         }
-        String lastChunk = command.getArgument(command.argumentsCount() - 1);
-        testType(fields, lastChunk.substring(0, lastChunk.length() - 1));
         builder.setFields(fields);
         dispatcher.getStorage().create(command.getArgument(0));
     }

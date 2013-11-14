@@ -27,6 +27,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
     public void open() throws DataBaseException {
         try(BufferedReader reader = new BufferedReader(new FileReader(new File(root, "signature.tsv")))) {
             String[] types = reader.readLine().split(" ");
+            fields.clear();
             for(String type: types) {
                 String sType = type.trim();
                 if(sType.equals("")) {

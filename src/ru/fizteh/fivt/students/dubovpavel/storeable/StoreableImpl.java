@@ -24,9 +24,11 @@ public class StoreableImpl implements Storeable {
     }
 
     private void checkType(int columnIndex, Class<?> type) throws ColumnFormatException {
-        if(!type.equals(fields.get(columnIndex))) throw new ColumnFormatException(
+        ColumnFormatException e = new ColumnFormatException(
                 String.format("Types mismatch. Expected: %s, found: %s", fields.get(columnIndex).getName(), type.getName())
         );
+        Class<?> signatureType = fields.get(columnIndex);
+        if(!TypeNamesMatcher.castableClasses.get(signatureType).contains(type)) throw e;
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {

@@ -10,9 +10,12 @@ public class TableStoreableBuilder extends WrappedMindfulDataBaseMultiFileHashMa
         fields = types;
     }
     public TableStoreable construct() {
+        ArrayList<Class<?>> fieldsCopy;
         if(fields == null) {
-            fields = new ArrayList<>();
+            fieldsCopy = new ArrayList<>();
+        } else {
+            fieldsCopy = (ArrayList<Class<?>>)fields.clone();
         }
-        return new TableStoreable(dir, dispatcher, fields);
+        return new TableStoreable(dir, dispatcher, fieldsCopy);
     }
 }
