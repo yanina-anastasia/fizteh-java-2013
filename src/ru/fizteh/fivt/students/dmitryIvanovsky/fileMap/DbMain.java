@@ -29,7 +29,7 @@ public class DbMain {
         try {
             //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
             //Runtime.getRuntime().exec("bash /home/student/tmp/1.sh").waitFor();
-            Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+            Process proc = Runtime.getRuntime().exec("wget");
             proc.waitFor();
             BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             while(read.ready()) {
