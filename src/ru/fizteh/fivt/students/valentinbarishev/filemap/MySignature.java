@@ -75,9 +75,12 @@ public class MySignature {
 
     public static List<Class<?>> getTypes(final String str) throws IOException {
         List<Class<?>> result = new ArrayList<>();
-        byte[] s = str.getBytes();
-        for (int i = 0; i < str.length(); ++i) {
-            if (s[i] == ' ' || s[i] == '(' || s[i] == ')') {
+        byte[] s = str.trim().getBytes();
+        if (!(s[0] == '(' && s[str.length() - 1] == ')')) {
+            throw new IOException("wrong type (no brackets)");
+        }
+        for (int i = 1; i < str.length() - 1; ++i) {
+            if (s[i] == ' ') {
                 continue;
             }
 
