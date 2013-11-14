@@ -1,13 +1,12 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
-import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.SignatureController;
 
 import java.io.IOException;
 
 public class CreateCommand implements Command {
-    StoreableTableProvider curState;
+    private StoreableTableProvider curState;
 
     public CreateCommand(StoreableTableProvider state) {
         curState = state;

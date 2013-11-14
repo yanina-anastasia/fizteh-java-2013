@@ -1,4 +1,6 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
+
+import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

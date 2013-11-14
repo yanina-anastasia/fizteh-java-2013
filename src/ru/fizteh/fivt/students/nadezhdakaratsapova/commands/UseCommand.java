@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
-import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class UseCommand implements Command {
-    private StoreableTableProvider curState;
+    private UniversalTableProvider curState;
 
-    public UseCommand(StoreableTableProvider state) {
+    public UseCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -18,8 +18,8 @@ public class UseCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         int commitSize;
-        if (curState.curDataBaseStorage != null) {
-            if ((commitSize = curState.curDataBaseStorage.commitSize()) != 0) {
+        if (curState.getCurTable() != null) {
+            if ((commitSize = curState.getCurTable().commitSize()) != 0) {
                 throw new IOException(commitSize + " unsaved changes");
             }
         }

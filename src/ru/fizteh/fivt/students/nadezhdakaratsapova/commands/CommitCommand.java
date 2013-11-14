@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
-
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class CommitCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public CommitCommand(MultiFileHashMapProvider state) {
+    public CommitCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -17,7 +17,7 @@ public class CommitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.curDataBaseStorage.commit());
+        System.out.println(curState.getCurTable().commit());
     }
 
     public boolean compareArgsCount(int inputArgsCount) {

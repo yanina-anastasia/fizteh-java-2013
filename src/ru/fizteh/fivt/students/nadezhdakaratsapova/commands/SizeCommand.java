@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
-
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class SizeCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public SizeCommand(MultiFileHashMapProvider state) {
+    public SizeCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -17,7 +17,7 @@ public class SizeCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.curDataBaseStorage.size());
+        System.out.println(curState.getCurTable().size());
     }
 
     public boolean compareArgsCount(int inputArgsCount) {

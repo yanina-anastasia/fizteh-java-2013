@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
-
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class RollbackCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public RollbackCommand(MultiFileHashMapProvider state) {
+    public RollbackCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -17,10 +17,11 @@ public class RollbackCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        System.out.println(curState.curDataBaseStorage.rollback());
+        System.out.println(curState.getCurTable().rollback());
     }
 
     public boolean compareArgsCount(int inputArgsCount) {
         return (inputArgsCount == 0);
     }
+
 }

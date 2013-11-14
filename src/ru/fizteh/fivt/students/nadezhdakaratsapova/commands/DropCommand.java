@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
-import java.text.ParseException;
 
 public class DropCommand implements Command {
-    StoreableTableProvider curState;
+    private UniversalTableProvider curState;
 
-    public DropCommand(StoreableTableProvider state) {
+    public DropCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -18,7 +18,7 @@ public class DropCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         curState.removeTable(args[1]);
-        if (args[1].equals(curState.curDataBaseStorage.getName())) {
+        if (args[1].equals(curState.getCurTable().getName())) {
             curState.setCurTable(null);
         }
         System.out.println("dropped");

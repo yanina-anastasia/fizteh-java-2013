@@ -1,13 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class ExitCommand implements Command {
-    MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public ExitCommand(MultiFileHashMapProvider state) {
+    public ExitCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -16,8 +17,8 @@ public class ExitCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        if (curState.curDataBaseStorage != null) {
-            curState.curDataBaseStorage.writeToDataBase();
+        if (curState.getCurTable() != null) {
+            curState.getCurTable().writeToDataBase();
         }
         System.exit(0);
     }
@@ -25,4 +26,5 @@ public class ExitCommand implements Command {
     public boolean compareArgsCount(int inputArgsCount) {
         return (inputArgsCount == 0);
     }
+
 }

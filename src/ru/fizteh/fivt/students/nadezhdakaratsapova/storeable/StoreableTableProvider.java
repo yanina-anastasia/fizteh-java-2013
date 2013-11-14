@@ -4,9 +4,11 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileHashMapProvider;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.SignatureController;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.StoreableColumnType;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import javax.xml.stream.*;
 import java.io.*;
@@ -15,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StoreableTableProvider implements TableProvider {
+public class StoreableTableProvider implements TableProvider, UniversalTableProvider {
     public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
     private File workingDirectory;
     public StoreableTable curDataBaseStorage = null;
@@ -58,7 +60,7 @@ public class StoreableTableProvider implements TableProvider {
         }
     }
 
-    public Table getTable(String name) throws IllegalArgumentException {
+    public StoreableTable getTable(String name) throws IllegalArgumentException {
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
@@ -149,7 +151,7 @@ public class StoreableTableProvider implements TableProvider {
                                         node = xmlReader.next();
                                         if (node == XMLStreamConstants.CHARACTERS) {
                                             String parseValue = xmlReader.getText();
-                                            ret.setColumnAt(columnCounter, signatureController.convertStringToAnotherObject(parseValue, table.getColumnType(columnCounter)));
+                                            ret.setColumnAt(columnCounter, StoreableColumnType.convertStringToAnotherObject(parseValue, table.getColumnType(columnCounter)));
                                             ++columnCounter;
                                         }
 
@@ -249,6 +251,9 @@ public class StoreableTableProvider implements TableProvider {
         return storeable;
     }
 
+    public UniversalDataTable getCurTable() {
+        return curDataBaseStorage;
+    }
 }
 
 

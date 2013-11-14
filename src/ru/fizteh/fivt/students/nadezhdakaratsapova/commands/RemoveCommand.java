@@ -1,13 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import java.io.IOException;
 
 public class RemoveCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public RemoveCommand(MultiFileHashMapProvider state) {
+    public RemoveCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -16,8 +17,8 @@ public class RemoveCommand implements Command {
     }
 
     public void execute(String[] args) throws IOException {
-        if (curState.curDataBaseStorage != null) {
-            String value = curState.curDataBaseStorage.remove(args[1]);
+        if (curState.getCurTable() != null) {
+            Object value = curState.getCurTable().remove(args[1]);
             if (value == null) {
                 System.out.println("not found");
             } else {

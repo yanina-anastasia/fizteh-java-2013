@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
-
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 

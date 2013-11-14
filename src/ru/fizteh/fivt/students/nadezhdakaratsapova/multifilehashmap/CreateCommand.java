@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
 import java.io.IOException;
 
 public class CreateCommand implements Command {
-    MultiFileHashMapProvider curState;
+    private MultiFileHashMapProvider curState;
 
     public CreateCommand(MultiFileHashMapProvider state) {
         curState = state;

@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
 
-
 import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileReader;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.FileWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,17 +11,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class UniversalDataTable<ValueType> {
+public abstract class UniversalDataTable<ValueType> {
     public static final int DIR_COUNT = 16;
     public static final int FILE_COUNT = 16;
 
-    private File dataBaseDirectory;
-    private String tableName;
+    protected File dataBaseDirectory;
+    protected String tableName;
     private Map<String, ValueType> dataStorage = new HashMap<String, ValueType>();
 
     private Map<String, ValueType> putKeys = new HashMap<String, ValueType>();
     private Set<String> removeKeys = new HashSet<String>();
-    private ValueConverter<ValueType> valueConverter;
+    public ValueConverter<ValueType> valueConverter;
 
     public UniversalDataTable() {
 
@@ -44,7 +41,7 @@ public class UniversalDataTable<ValueType> {
         return tableName;
     }
 
-    public ValueType put(String key, ValueType value) {
+    protected ValueType putSimple(String key, ValueType value) {
         ValueType oldValue = null;
         if (!removeKeys.contains(key)) {
             if ((oldValue = putKeys.get(key)) == null) {
@@ -187,7 +184,7 @@ public class UniversalDataTable<ValueType> {
         return dataBaseDirectory;
     }
 
-    public void load() throws IOException, ParseException {
+    protected void universalLoad() throws IOException, ParseException {
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
@@ -271,7 +268,7 @@ public class UniversalDataTable<ValueType> {
         }
     }
 
-    public void writeToDataBase() throws IOException {
+    protected void writeToDataBaseWithoutSignature() throws IOException {
         rollback();
         Set<String> keys = getKeys();
         if (!keys.isEmpty()) {
@@ -311,4 +308,10 @@ public class UniversalDataTable<ValueType> {
             }
         }
     }
+
+    public abstract ValueType put(String key, ValueType value);
+
+    public abstract void load() throws IOException, ParseException;
+
+    public abstract void writeToDataBase() throws IOException;
 }

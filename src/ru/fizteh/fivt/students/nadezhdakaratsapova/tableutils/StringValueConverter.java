@@ -1,9 +1,4 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
-
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.ValueConverter;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
 
 import java.text.ParseException;
 
