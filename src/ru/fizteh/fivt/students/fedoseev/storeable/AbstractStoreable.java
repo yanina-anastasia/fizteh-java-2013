@@ -63,7 +63,7 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
             for (File dir : curDir.listFiles()) {
                 if (dir.listFiles() != null) {
                     if (dir.listFiles().length == 0) {
-                        throw new IllegalArgumentException("ERROR: empty table directory");
+                        throw new IOException("ERROR: empty table directory");
                     }
 
                     for (File file : dir.listFiles()) {
@@ -80,8 +80,8 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
     public static void checkOpenFile(StoreableTable curTable, RandomAccessFile curFile)
             throws IOException, ParseException {
-        curTable.ifUnfitCurFileSize(curFile);
-        curTable.ifUnfitCurTableSize();
+        curTable.checkFile(curFile);
+        curTable.checkTable();
 
         curTable.setTableSize(curTable.getTableSize() + curFile.length());
 

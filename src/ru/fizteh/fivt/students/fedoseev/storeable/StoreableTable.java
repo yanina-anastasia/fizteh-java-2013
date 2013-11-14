@@ -158,14 +158,19 @@ public class StoreableTable implements Table {
         return prevSize;
     }
 
-    public void ifUnfitCurTableSize() throws IOException {
+    public void checkTable() throws IOException {
         if (this.getTableSize() > MAX_TABLE_SIZE) {
             AbstractStoreable.saveTable(this);
             clearContentAndDiff();
         }
     }
 
-    public void ifUnfitCurFileSize(RandomAccessFile raf) throws IOException {
+    public void checkFile(RandomAccessFile raf) throws IOException {
+        if (raf.length() == 0) {
+            raf.close();
+
+            throw new IOException("ERROR: empty file");
+        }
         if (raf.length() > MAX_FILE_SIZE) {
             raf.close();
 
