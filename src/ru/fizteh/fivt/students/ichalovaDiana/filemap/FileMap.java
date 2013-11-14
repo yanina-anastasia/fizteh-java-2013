@@ -23,7 +23,7 @@ public class FileMap {
 
     static {
         try {
-
+            //System.setIn(new FileInputStream("C:\\Users\\ItsNotMe\\Java Workspace\\fizteh-again\\in"));
             String dbDir = System.getProperty("fizteh.db.dir");
 
             TableProviderFactory factory = new TableProviderFactoryImplementation();
@@ -131,10 +131,11 @@ public class FileMap {
                     database.removeTable(tableName);
                 } catch (IllegalStateException e) {
                     System.out.println(tableName + " not exists");
+                    return;
                 }
                 System.out.println("dropped");
                 
-                if (FileMap.currentTableName.equals(tableName)) {
+                if (currentTableName != null && FileMap.currentTableName.equals(tableName)) {
                     FileMap.currentTableName = null;
                 }
 
