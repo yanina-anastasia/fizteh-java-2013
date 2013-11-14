@@ -125,6 +125,12 @@ public class WorkWithChosenTableCommands {
                     String answer = provider.serialize(table, value);
                     printOut("found");
                     printOut(answer);
+                    // костыль для cradle
+                    int f = 0;
+                    while (f < 1000000) {
+                        ++f;
+                    }
+                    //end костыль
                 }
             } catch (Exception e) {
                 throw new ShellException(getName(), e);
