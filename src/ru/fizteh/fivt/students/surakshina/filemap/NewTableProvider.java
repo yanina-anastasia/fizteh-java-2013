@@ -186,7 +186,7 @@ public class NewTableProvider implements TableProvider {
         NewTable table = tables.remove(name);
         File tableFile = new File(workingDirectory, name);
         if (table == null) {
-            throw new IllegalStateException("Table does not exist");
+            throw new IllegalStateException(name + "not exists");
         } else {
             if (table.getName().equals(currentTable.getName())) {
                 currentTable = null;
