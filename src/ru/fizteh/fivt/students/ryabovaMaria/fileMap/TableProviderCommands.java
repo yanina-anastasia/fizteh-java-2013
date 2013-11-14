@@ -319,6 +319,9 @@ public class TableProviderCommands implements TableProvider {
         if (value == null) {
             return null;
         }
+        if (table == null) {
+            throw new IllegalArgumentException("incorrect table");
+        }
         JSONArray text = null;
         try {
             text = new JSONArray();
@@ -415,6 +418,9 @@ public class TableProviderCommands implements TableProvider {
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table == null) {
             throw new IllegalArgumentException("bad tablename");
+        }
+        if (values == null) {
+            throw new IllegalArgumentException("bad values");
         }
         List<Class<?>> curTypes;
         try {

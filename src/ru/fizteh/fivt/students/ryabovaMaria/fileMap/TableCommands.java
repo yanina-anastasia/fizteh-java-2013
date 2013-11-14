@@ -205,7 +205,7 @@ public class TableCommands implements Table {
             Storeable answer = tableProvider.deserialize(this, lastValue);
             return answer;
         } catch (ParseException | NullPointerException e) {
-            throw new IllegalArgumentException("incorrect args");
+            throw new IllegalArgumentException("incorrect args ");
         }
     }
 
