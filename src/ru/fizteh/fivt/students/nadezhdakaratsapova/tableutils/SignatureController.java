@@ -64,7 +64,9 @@ public class SignatureController {
         if (value == null) {
             throw new IllegalArgumentException("Not allowed type of signature");
         }
-        ret = StoreableColumnType.getStoreableField(columnIndex, value, columnType).toString();
+        if (value.getColumnAt(columnIndex) != null) {
+            ret = StoreableColumnType.getStoreableField(columnIndex, value, columnType).toString();
+        }
         return ret;
     }
 
