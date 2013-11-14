@@ -44,6 +44,7 @@ public class CommandCreate implements Command<StoreableState> {
                 File signature = new File(tableDir, "signature.tsv");
                 signature.delete();
                 tableDir.delete();
+                System.out.println("wrong type (signature is so bad that I can't create new table)");
                 throw e;
             }
             System.out.println("created");
