@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.belousova.storable.StorableTableProviderFactory;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,14 @@ public class StorableTableProviderTest {
         badList.add(IllegalArgumentException.class);
     }
 
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        File file = new File("javatest");
+        if (file.exists()) {
+            FileUtils.deleteDirectory(file);
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         table = tableProvider.createTable("table", goodList);
@@ -44,14 +53,6 @@ public class StorableTableProviderTest {
     @After
     public void tearDown() throws Exception {
         tableProvider.removeTable("table");
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        File file = new File("javatest");
-        if (file.exists()) {
-            FileUtils.deleteDirectory(file);
-        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -204,5 +205,39 @@ public class StorableTableProviderTest {
         Table table1 = tableProvider.createTable("testRemoveTableExisted", goodList);
         tableProvider.removeTable("testRemoveTableExisted");
         Assert.assertNull(tableProvider.getTable("testRemoveTableExisted"));
+    }
+
+    @Test
+    public void testThreadsCreate() throws Exception {
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.createTable("testThreadsCreateTable", goodList);
+                    tableProvider.getTable("testThreadsCreateAnotherTable");
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("bad test");
+                }
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.createTable("testThreadsCreateAnotherTable", goodList);
+                    tableProvider.createTable("testThreadsCreateTable", goodList);
+                    tableProvider.getTable("testThreadsCreateTable");
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("bad test");
+                }
+            }
+        });
+
+        thread1.run();
+        thread2.run();
+
+        thread1.interrupt();
+        thread2.interrupt();
     }
 }

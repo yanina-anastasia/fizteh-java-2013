@@ -16,57 +16,67 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         implements ChangesCountingTableProvider {
 
     public StorableTableProvider(File directory) throws IOException {
-        if (directory == null) {
-            throw new IllegalArgumentException("null directory");
-        }
-        if (!directory.exists()) {
-            directory.mkdir();
-        } else if (!directory.isDirectory()) {
-            throw new IllegalArgumentException("'" + directory.getName() + "' is not a directory");
-        }
+        tableProviderTransactionLock.readLock().lock();
+        try {
+            if (directory == null) {
+                throw new IllegalArgumentException("null directory");
+            }
+            if (!directory.exists()) {
+                directory.mkdir();
+            } else if (!directory.isDirectory()) {
+                throw new IllegalArgumentException("'" + directory.getName() + "' is not a directory");
+            }
 
-        dataDitectory = directory;
+            dataDitectory = directory;
 
-        if (!directory.canRead()) {
-            throw new IOException("directory is unavailable");
-        }
-        for (File tableFile : directory.listFiles()) {
-            tableMap.put(tableFile.getName(), new StorableTable(tableFile, this));
+            if (!directory.canRead()) {
+                throw new IOException("directory is unavailable");
+            }
+            for (File tableFile : directory.listFiles()) {
+                tableMap.put(tableFile.getName(), new StorableTable(tableFile, this));
+            }
+        } finally {
+            tableProviderTransactionLock.readLock().unlock();
         }
 
     }
 
     @Override
     public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if (name == null) {
-            throw new IllegalArgumentException("null name");
-        }
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("empty name");
-        }
-        if (!name.matches(TABLE_NAME_FORMAT)) {
-            throw new IllegalArgumentException("incorrect name");
-        }
-
-        if (tableMap.containsKey(name)) {
-            return null;
-        }
-        if (columnTypes == null) {
-            throw new IllegalArgumentException("ColumnTypes list is not set");
-        }
-        if (columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("ColumnTypes list is empty");
-        }
-        File tableFile = new File(dataDitectory, name);
-        tableFile.mkdir();
+        tableProviderTransactionLock.writeLock().lock();
         try {
-            StorableUtils.writeSignature(tableFile, columnTypes);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("wrong column type table");
+            if (name == null) {
+                throw new IllegalArgumentException("null name");
+            }
+            if (name.isEmpty()) {
+                throw new IllegalArgumentException("empty name");
+            }
+            if (!name.matches(TABLE_NAME_FORMAT)) {
+                throw new IllegalArgumentException("incorrect name");
+            }
+
+            if (tableMap.containsKey(name)) {
+                return null;
+            }
+            if (columnTypes == null) {
+                throw new IllegalArgumentException("ColumnTypes list is not set");
+            }
+            if (columnTypes.isEmpty()) {
+                throw new IllegalArgumentException("ColumnTypes list is empty");
+            }
+            File tableFile = new File(dataDitectory, name);
+            tableFile.mkdir();
+            try {
+                StorableUtils.writeSignature(tableFile, columnTypes);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("wrong column type table");
+            }
+            ChangesCountingTable table = new StorableTable(tableFile, this);
+            tableMap.put(name, table);
+            return table;
+        } finally {
+            tableProviderTransactionLock.writeLock().unlock();
         }
-        ChangesCountingTable table = new StorableTable(tableFile, this);
-        tableMap.put(name, table);
-        return table;
     }
 
     @Override

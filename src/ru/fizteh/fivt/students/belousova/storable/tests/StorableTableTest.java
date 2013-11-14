@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.belousova.storable.StorableTableProviderFactory;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -244,5 +245,42 @@ public class StorableTableTest {
     @Test(expected = IndexOutOfBoundsException.class)
     public void testGetColumnTypeOutOfBounds() throws Exception {
         table.getColumnType(10);
+    }
+
+    @Test
+    public void testThreadsPutPutCommit() throws Exception {
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                table.put("testThreadsPutPutCommitKey", testStorable);
+
+                try {
+                    table.commit();
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("bad test");
+                }
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                table.put("testThreadsPutPutCommitAnotherKey", testStorable);
+                try {
+                    table.commit();
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("bad test");
+                }
+            }
+        });
+
+        thread1.run();
+        thread2.run();
+
+        thread1.interrupt();
+        thread2.interrupt();
+
+        Assert.assertEquals(testStorable, table.get("testThreadsPutPutCommitKey"));
+        Assert.assertEquals(testStorable, table.get("testThreadsPutPutCommitAnotherKey"));
     }
 }

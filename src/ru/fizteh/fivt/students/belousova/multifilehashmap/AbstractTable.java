@@ -6,11 +6,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractTable<KeyType, ValueType> {
     protected Map<KeyType, ValueType> dataBase = new HashMap<KeyType, ValueType>();
-    protected Map<KeyType, ValueType> addedKeys = new HashMap<KeyType, ValueType>();
-    protected Set<KeyType> deletedKeys = new HashSet<KeyType>();
+    protected ThreadLocal<Map<KeyType, ValueType>> addedKeys;// = new HashMap<KeyType, ValueType>();
+    protected ThreadLocal<Set<KeyType>> deletedKeys;// = new HashSet<KeyType>();
+
+    protected final Lock tableTransactionsLock = new ReentrantLock(true);
 
     protected File dataDirectory = null;
 
@@ -26,10 +30,10 @@ public abstract class AbstractTable<KeyType, ValueType> {
             throw new IllegalArgumentException("empty key");
         }
 
-        if (addedKeys.containsKey(key)) {
-            return addedKeys.get(key);
+        if (addedKeys.get().containsKey(key)) {
+            return addedKeys.get().get(key);
         }
-        if (deletedKeys.contains(key)) {
+        if (deletedKeys.get().contains(key)) {
             return null;
         }
         return dataBase.get(key);
@@ -49,13 +53,13 @@ public abstract class AbstractTable<KeyType, ValueType> {
             throw new IllegalArgumentException("empty value");
         }
 
-        if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
-            deletedKeys.add(key);
+        if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
+            deletedKeys.get().add(key);
             ValueType oldValue = dataBase.get(key);
-            addedKeys.put(key, value);
+            addedKeys.get().put(key, value);
             return oldValue;
         }
-        return addedKeys.put(key, value);
+        return addedKeys.get().put(key, value);
     }
 
     public ValueType remove(KeyType key) {
@@ -66,23 +70,23 @@ public abstract class AbstractTable<KeyType, ValueType> {
             throw new IllegalArgumentException("empty key");
         }
 
-        if (dataBase.containsKey(key) && !deletedKeys.contains(key)) {
-            deletedKeys.add(key);
+        if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
+            deletedKeys.get().add(key);
             return dataBase.get(key);
         }
-        return addedKeys.remove(key);
+        return addedKeys.get().remove(key);
     }
 
     public int size() {
-        return dataBase.size() + addedKeys.size() - deletedKeys.size();
+        return dataBase.size() + addedKeys.get().size() - deletedKeys.get().size();
     }
 
     protected int countChanges() {
-        int changesCounter = addedKeys.size() + deletedKeys.size();
-        for (KeyType key : addedKeys.keySet()) {
-            if (deletedKeys.contains(key)) {
+        int changesCounter = addedKeys.get().size() + deletedKeys.get().size();
+        for (KeyType key : addedKeys.get().keySet()) {
+            if (deletedKeys.get().contains(key)) {
                 changesCounter--;
-                if (dataBase.get(key).equals(addedKeys.get(key))) {
+                if (dataBase.get(key).equals(addedKeys.get().get(key))) {
                     changesCounter--;
                 }
             }
@@ -95,8 +99,8 @@ public abstract class AbstractTable<KeyType, ValueType> {
 
     public int rollback() {
         int counter = countChanges();
-        deletedKeys.clear();
-        addedKeys.clear();
+        deletedKeys.get().clear();
+        addedKeys.get().clear();
         return counter;
     }
 
