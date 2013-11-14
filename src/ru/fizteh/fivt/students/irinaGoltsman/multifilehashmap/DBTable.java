@@ -129,7 +129,7 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return originalTable.size();
+        return tableOfChanges.size() + originalTable.size() - removedKeys.size();
     }
 
     //@return Количество сохранённых ключей.
