@@ -191,9 +191,7 @@ public class MultiFileHashTable implements Table {
                 }
             } else {
                 Storeable oldValue = table.put(key, value);
-                if (oldValue == null) {
-                    ++changes;
-                } else if (!isEqualStoreable(oldValue, value)) {
+                if (!isEqualStoreable(value, oldValue)) {
                     ++changes;
                 }
             }
@@ -234,17 +232,8 @@ public class MultiFileHashTable implements Table {
         for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
             String key = entry.getKey();
             Storeable value = entry.getValue();
-            if (value == null) {
-                if (table.get(key) != null) {
-                    ++changes;
-                }
-            } else {
-                Storeable oldValue = table.get(key);
-                if (oldValue == null) {
-                    ++changes;
-                } else if (!isEqualStoreable(value, oldValue)) {
-                    ++changes;
-                }
+            if (!isEqualStoreable(value, table.get(key))) {
+                ++changes;
             }
         }
 
