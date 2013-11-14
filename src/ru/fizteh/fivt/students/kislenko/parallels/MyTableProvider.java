@@ -30,7 +30,7 @@ public class MyTableProvider implements TableProvider {
         }
         MyTable table = tables.get(name);
         lock.writeLock().unlock();
-        System.out.println(Thread.currentThread().getName() + " exit get with success");
+        //System.out.println(Thread.currentThread().getName() + " exit get with success");
         return table;
     }
 
