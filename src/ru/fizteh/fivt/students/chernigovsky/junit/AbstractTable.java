@@ -49,7 +49,7 @@ public abstract class AbstractTable<ValueType> {
         }
         Pattern pattern = Pattern.compile("\\s");
         Matcher matcher = pattern.matcher(key);
-        if (matcher.find()) {
+        if (key.isEmpty() || matcher.find()) {
             throw new IllegalArgumentException("key is wrong");
         }
 
@@ -111,7 +111,7 @@ public abstract class AbstractTable<ValueType> {
         }
         Pattern pattern = Pattern.compile("\\s");
         Matcher matcher = pattern.matcher(key);
-        if (matcher.find()) {
+        if (key.isEmpty() || matcher.find()) {
             throw new IllegalArgumentException("key is wrong");
         }
 
@@ -160,7 +160,7 @@ public abstract class AbstractTable<ValueType> {
         }
         Pattern pattern = Pattern.compile("\\s");
         Matcher matcher = pattern.matcher(key);
-        if (matcher.find()) {
+        if (key.isEmpty() || matcher.find()) {
             throw new IllegalArgumentException("key is wrong");
         }
 

@@ -8,7 +8,7 @@ import java.io.IOException;
 public class StoreableTableProviderFactory implements TableProviderFactory {
     @Override
     public StoreableTableProvider create(String dir) throws IOException {
-        if (dir == null) {
+        if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("dir is null");
         }
 
