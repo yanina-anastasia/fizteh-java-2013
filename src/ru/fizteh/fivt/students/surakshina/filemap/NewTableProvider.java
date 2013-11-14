@@ -159,8 +159,13 @@ public class NewTableProvider implements TableProvider {
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTable(table.getName());
         currentTable = table;
+        createTable(currentTable.getName(), currentTable.getSignature());
         for (File file : files.keySet()) {
-            WriteInDataBase.saveFile(file, files.get(file));
+            File newDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
+                    + file.getParentFile().getName());
+            newDir.mkdirs();
+            File newFile = new File(newDir, file.getName());
+            WriteInDataBase.saveFile(newFile, files.get(file));
         }
         tables.put(table.getName(), table);
     }
@@ -188,15 +193,24 @@ public class NewTableProvider implements TableProvider {
         if (table == null) {
             throw new IllegalStateException(name + " not exists");
         } else {
-            if (table.getName().equals(currentTable.getName())) {
-                currentTable = null;
+            if (currentTable != null) {
+                if (table.getName().equals(currentTable.getName())) {
+                    currentTable = null;
+                }
             }
             for (File dir : tableFile.listFiles()) {
-                if (checkNameOfDataBaseDirectory(dir.toString()) && dir.isDirectory()) {
-                    for (File file : dir.listFiles()) {
-                        if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                            file.delete();
+                if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
+                        || (dir.getName().equals("signature.tsv"))) {
+                    if (dir.getName().equals("signature.tsv")) {
+                        dir.delete();
+                        break;
+                    } else {
+                        for (File file : dir.listFiles()) {
+                            if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                                file.delete();
+                            }
                         }
+                        dir.delete();
                     }
                 }
             }

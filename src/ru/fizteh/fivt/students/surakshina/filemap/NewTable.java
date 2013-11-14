@@ -44,6 +44,10 @@ public class NewTable implements Table {
         types = readSignature();
     }
 
+    public ArrayList<Class<?>> getSignature() {
+        return types;
+    }
+
     public NewTableProvider getTableProvider() {
         return provider;
     }
