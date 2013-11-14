@@ -61,6 +61,9 @@ public class SignatureController {
 
     public String convertStoreableFieldToString(Storeable value, int columnIndex, Class<?> columnType) {
         String ret = null;
+        if (value == null) {
+            throw new IllegalArgumentException("Not allowed type of signature");
+        }
         ret = StoreableColumnType.getStoreableField(columnIndex, value, columnType).toString();
         return ret;
     }
