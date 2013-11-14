@@ -19,28 +19,7 @@ public class DBTable implements Table {
     private List<Class<?>> columnTypes;
     private TableProvider tableProvider;
 
-    public DBTable(File inputTableDirectory, TableProvider provider, List<Class<?>> types)
-            throws IOException {
-        FileManager.checkTableDir(inputTableDirectory);
-        tableDirectory = inputTableDirectory;
-        tableProvider = provider;
-        columnTypes = types;
-        HashMap<String, String> tmpTable = new HashMap<>();
-        FileManager.readDBFromDisk(tableDirectory, tmpTable);
-        List<String> keys = new ArrayList<>(tmpTable.keySet());
-        List<String> values = new ArrayList<>(tmpTable.values());
-        for (int i = 0; i < values.size(); i++) {
-            try {
-                Storeable rowValue = tableProvider.deserialize(this, values.get(i));
-                originalTable.put(keys.get(i), rowValue);
-            } catch (ParseException e) {
-                throw new IOException(e);
-            }
-        }
-    }
-
-    public DBTable(File inputTableDirectory, TableProvider provider)
-            throws IOException {
+    public DBTable(File inputTableDirectory, TableProvider provider) throws IOException {
         FileManager.checkTableDir(inputTableDirectory);
         tableDirectory = inputTableDirectory;
         tableProvider = provider;
@@ -150,7 +129,7 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return tableOfChanges.size() + originalTable.size() - removedKeys.size();
+        return originalTable.size();
     }
 
     //@return Количество сохранённых ключей.
