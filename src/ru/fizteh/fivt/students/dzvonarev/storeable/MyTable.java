@@ -243,11 +243,11 @@ public class MyTable implements Table {
             }
         }
         Set fileSet = fileMap.entrySet();
-        Iterator<Map.Entry<String, MyStoreable>> i = fileSet.iterator();
+        Iterator<Map.Entry<String, Storeable>> i = fileSet.iterator();
         while (i.hasNext()) {
-            Map.Entry<String, MyStoreable> currItem = i.next();
+            Map.Entry<String, Storeable> currItem = i.next();
             String key = currItem.getKey();
-            MyStoreable value = currItem.getValue();
+            Storeable value = currItem.getValue();
             int b = key.getBytes()[0];
             int nDirectory = Math.abs(b) % 16;
             int nFile = Math.abs(b) / 16 % 16;
@@ -271,7 +271,7 @@ public class MyTable implements Table {
         }
     }
 
-    public void writeInFile(String path, String key, MyStoreable value) throws IOException {
+    public void writeInFile(String path, String key, Storeable value) throws IOException {
         RandomAccessFile fileWriter = null;
         try {
             fileWriter = openFileForWrite(path);
