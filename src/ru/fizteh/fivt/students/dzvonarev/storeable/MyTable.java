@@ -224,7 +224,7 @@ public class MyTable implements Table {
 
     public boolean isValid(Storeable value) {
         for (int i = 0; i < getColumnsCount(); ++i) {
-            if (value.getColumnAt(i).getClass() == null) {
+            if (value.getColumnAt(i) == null) {
                 continue;
             }
             if (value.getColumnAt(i).getClass() != type.get(i)) {
@@ -354,6 +354,7 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || key.contains("\\s+") || value == null) {
             throw new IllegalArgumentException("put: wrong key or value");
         }
+
         if (!isValid(value)) {
             throw new ColumnFormatException("invalid storeable");
         }
