@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -172,5 +173,85 @@ public class TableProviderCommandsTest {
         tempTableProvider.deserialize(tempTable, "[\"value\", 12]");
     }
     
+    @Test
+    public void deserialiseCorrect() throws IOException, ParseException {
+        try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("String");
+        }
+        Table tempTable = tempTableProvider.getTable("correctTable");
+        Storeable tempStoreable = tempTableProvider.deserialize(tempTable, "[\"value\"]");
+        assertTrue("incorrect value", tempStoreable.getStringAt(0).equals("value"));
+    }
     
+    @Test (expected = IllegalArgumentException.class)
+    public void serialiseNullTable() throws IOException {
+        List<Object> values = new ArrayList();
+        values.add(100000);
+        values.add(1);
+        Storeable tempStoreable = new StoreableCommands(values, types);
+        tempTableProvider.serialize(null, tempStoreable);
+    }
+    
+    @Test
+    public void serialiseNullValues() throws IOException {
+       try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("String");
+       }
+       Table tempTable = tempTableProvider.getTable("correctTable");
+       String tempString = tempTableProvider.serialize(tempTable, null);
+       assertNull("result should be null", tempString);
+    }
+    
+    @Test (expected = ColumnFormatException.class)
+    public void serialiseWrong() throws IOException {
+       try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("int byte");
+       }
+       Table tempTable = tempTableProvider.getTable("correctTable");
+       List<Object> values = new ArrayList();
+       values.add("string");
+       values.add(1);
+       Storeable tempStoreable = new StoreableCommands(values, types);
+       tempTableProvider.serialize(tempTable, tempStoreable);
+    }
+    
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void serialiseWrongNumber() throws IOException {
+       try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("int byte");
+       }
+       Table tempTable = tempTableProvider.getTable("correctTable");
+       List<Object> values = new ArrayList();
+       values.add(10000000);
+       values.add(1);
+       values.add("strange");
+       Storeable tempStoreable = new StoreableCommands(values, types);
+       tempTableProvider.serialize(tempTable, tempStoreable);
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void createForNullTable() {
+        tempTableProvider.createFor(null);
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void createForNullValues() throws IOException {
+        try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("int byte");
+        }
+        Table tempTable = tempTableProvider.getTable("correctTable");
+        tempTableProvider.createFor(tempTable, null);
+    }
+    
+    @Test (expected = ColumnFormatException.class)
+    public void createForIncorrectValues() throws IOException {
+        try (FileWriter sign = new FileWriter(signFile)) {
+            sign.write("int byte");
+        }
+        Table tempTable = tempTableProvider.getTable("correctTable");
+        List<Object> values = new ArrayList();
+        values.add(1000000);
+        values.add(true);
+        tempTableProvider.createFor(tempTable, values);
+    }
 }
