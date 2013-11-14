@@ -134,16 +134,22 @@ public class FileMapTable implements Table {
     private void readTable() throws IOException, ParseException {
         mapsTable = new FileMap[16][16];
         for (int i = 0; i < 16; ++i) {
-            File dbDir = new File(currentFileMapTable.toString() + File.separator + i + ".dir");
+            File dbDir = new File(currentFileMapTable.toString(), i + ".dir");
             if (dbDir.exists()) {
                 if (!dbDir.isDirectory()) {
                     throw new IOException(i + ".dir is not table subdirectory");
                 }
+                if (dbDir.listFiles().length == 0) {
+                    throw new IOException(i + ".dir is empty dir");
+                }
                 for (int j = 0; j < 16; ++j) {
-                    File dbDat = new File(dbDir.toString() + File.separator + j + ".dat");
+                    File dbDat = new File(dbDir.toString(), j + ".dat");
                     if (dbDat.exists()) {
                         if (!dbDat.isFile()) {
                             throw new IOException(i + ".dat is not a FileMap file");
+                        }
+                        if (dbDat.length() == 0) {
+                            throw new IOException(i + ".dat is empty");
                         }
                         mapsTable[i][j] = new FileMap(dbDat.toString(), i, j, this, provider);
                         if (mapsTable[i][j].isEmpty()) {
