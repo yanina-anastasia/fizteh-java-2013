@@ -62,7 +62,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public boolean typesAreValid(List<Class<?>> types) {
-        if (types == null) {
+        if (types == null || types.isEmpty()) {
             return false;
         }
         for (Class<?> type : types) {

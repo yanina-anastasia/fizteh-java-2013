@@ -19,13 +19,21 @@ public class MyTable implements Table {
         Storeable newValue;
     }
 
-    public MyTable(File dirTable, MyTableProvider currentProvider) {
+    public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException {
         tableProvider = currentProvider;
         tableFile = dirTable;
         tableName = dirTable.getName();
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
         type = new ArrayList<>();
+        List<String> temp = new ArrayList<>();  //init type of table
+        readTypes(temp);
+        Parser myParser = new Parser();
+        try {
+            type = myParser.parseTypeList(temp);
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
     }
 
     private String tableName;                      // name of current table
@@ -316,7 +324,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null || key.trim().isEmpty() || key.contains("\\s+")) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
@@ -343,8 +351,8 @@ public class MyTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null || key.trim().isEmpty() || value == null) {
-            throw new IllegalArgumentException("put: wrong key and value");
+        if (key == null || key.trim().isEmpty() || key.contains("\\s+") || value == null) {
+            throw new IllegalArgumentException("put: wrong key or value");
         }
         if (!isValid(value)) {
             throw new ColumnFormatException("invalid storeable");
@@ -356,7 +364,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null || key.trim().isEmpty() || key.contains("\\s+")) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         Storeable oldValue = get(key);

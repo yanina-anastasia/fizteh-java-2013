@@ -9,12 +9,18 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
-        if (dir == null) {
+        if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("directory name is not valid");
         }
-        if (!new File(dir).exists() ||
-                !(new File(dir).exists() && new File(dir).isDirectory())) {
-            throw new IllegalArgumentException("directory name is not valid");
+        File providerFile = new File(dir);
+        if (!providerFile.exists()) {
+            if (!providerFile.mkdir()) {
+                throw new IOException("can't create provider in " + dir);
+            }
+        } else {
+            if (!providerFile.isDirectory()) {
+                throw new IllegalArgumentException("directory name is not valid");
+            }
         }
         return new MyTableProvider(dir);  // will read data in here
     }

@@ -16,7 +16,7 @@ public class MyStoreable implements Storeable {
         }
         List<Class<?>> tableTypes = ((MyTable) table).getTypeArray();
         if (args.size() != tableTypes.size()) {            // wrong count of columns
-            throw new IndexOutOfBoundsException("wrong count of colums in value");
+            throw new IndexOutOfBoundsException("wrong count of columns in value");
         }
         for (int i = 0; i < args.size(); ++i) {
             if (args.get(i) == null) {
