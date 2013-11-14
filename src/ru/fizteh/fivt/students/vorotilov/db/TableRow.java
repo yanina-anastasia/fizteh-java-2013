@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
+import org.json.JSONArray;
 import ru.fizteh.fivt.storage.structured.*;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class TableRow implements Storeable {
     private List<Object> columns;
 
     TableRow(List<Class<?>> classes) {
-        this.classes = classes;
+        this.classes = new ArrayList<>(classes);
         columns = new ArrayList<>(classes.size());
         for (int i = 0; i < classes.size(); ++i) {
             columns.add(i, null);
@@ -179,42 +180,11 @@ public class TableRow implements Storeable {
 
     @Override
     public String toString() throws ColumnFormatException {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < classes.size(); ++i) {
-            switch (classes.get(i).getName()) {
-                case "java.lang.Integer":
-                    stringBuilder.append(getIntAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.Long":
-                    stringBuilder.append(getLongAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.Byte":
-                    stringBuilder.append(getByteAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.Float":
-                    stringBuilder.append(getFloatAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.Double":
-                    stringBuilder.append(getDoubleAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.Boolean":
-                    stringBuilder.append(getBooleanAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                case "java.lang.String":
-                    stringBuilder.append(getStringAt(i));
-                    stringBuilder.append(" ");
-                    break;
-                default:
-                    throw new ColumnFormatException("Uknonwn column type: " + classes.get(i).getName());
-            }
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i < columns.size(); ++i) {
+            jsonArray.put(columns.get(i));
         }
-        return stringBuilder.toString();
+        return jsonArray.toString();
     }
 
 }

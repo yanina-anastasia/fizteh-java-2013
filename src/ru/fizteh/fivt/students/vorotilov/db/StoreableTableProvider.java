@@ -172,7 +172,6 @@ public class StoreableTableProvider implements TableProvider {
      */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        int columsNumber = table.getColumnsCount();
         JSONArray jsonArray = new JSONArray();
         checkTableRow(table, (TableRow) value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {

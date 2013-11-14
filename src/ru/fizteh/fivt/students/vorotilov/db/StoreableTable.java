@@ -51,6 +51,9 @@ public class StoreableTable implements Table {
                     throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
                 }
                 File[] subFilesList = subDir.listFiles();
+                if (subFilesList != null && subFilesList.length == 0) {
+                    throw new IllegalStateException("data base contains empty dir");
+                }
                 if (subFilesList != null) {
                     for (File subFile: subFilesList) {
                         int numberOfSubFile;
@@ -117,6 +120,7 @@ public class StoreableTable implements Table {
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
+
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
