@@ -1,52 +1,18 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
 public class DbMain {
 
-    public static void writeFile() throws FileNotFoundException {
-        String s = "#!/bin/bash\n\n" + "sudo -u student -E apt-get install curl\n" +
-                "cd /home/student/tmp\n" + "echo potracheno1\n" + "pwd | cat\n" +
-                "tar cfz cradle.tar.gz --exclude=*.git* --exclude=*/.* /home/ \n" +  "echo potracheno2\n" +
-                "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n" +
-                "echo potracheno3\n";
-        File f = new File("/home/student/tmp/1.sh");
-        try (PrintWriter out = new PrintWriter(f.getAbsoluteFile())) {
-            out.print(s);
-        }
-    }
-
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
 
-        writeFile();
-        String s = "";
-
-        try {
-            //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
-            //Runtime.getRuntime().exec("bash /home/student/tmp/1.sh").waitFor();
-            Process proc = Runtime.getRuntime().exec("ftp");
-            proc.waitFor();
-            BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-            while(read.ready()) {
-                s += read.readLine()+"\n";
-            }
-            read = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            while(read.ready()) {
-                s += read.readLine()+"\n";
-            }
-
-        } catch(Exception e) {
-            s += e.getMessage()+"\n";
-        }
-
-        throw new IOException(s + " potracheno4");
-
-        /*
         try {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
@@ -56,7 +22,7 @@ public class DbMain {
             System.out.println("Error loading");
             FileMapUtils.getMessage(e);
             System.exit(1);
-        } */
+        }
     }
 
     public static void runDb(String[] args, String path) throws IOException {
