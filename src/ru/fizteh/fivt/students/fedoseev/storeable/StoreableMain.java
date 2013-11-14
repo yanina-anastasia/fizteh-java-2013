@@ -4,11 +4,6 @@ import java.io.File;
 
 public class StoreableMain {
     private static void checkDbDirectory(File dbDir) {
-        if (dbDir.listFiles().length == 0) {
-            System.err.println("ERROR: empty directory\n");
-            System.exit(1);
-        }
-
         if (!dbDir.isDirectory()) {
             System.err.println("ERROR: incorrect database directory format\n");
             System.exit(1);
