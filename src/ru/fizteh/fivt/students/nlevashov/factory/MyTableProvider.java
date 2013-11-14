@@ -42,7 +42,8 @@ public class MyTableProvider implements TableProvider {
         tables = new HashMap<>();
         dbPath = path;
         String name = path.getFileName().toString();
-        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {  //допилить!!!
+        if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
+        //допилить!!!
         //        || name.contains("/") || name.contains(":") || name.contains("*")
         //        || name.contains("?") || name.contains("\"") || name.contains("\\")
         //        || name.contains(">") || name.contains("<") || name.contains("|")
@@ -116,7 +117,10 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("TableProvider.createTable: columnTypes is null");
         }
         for (Class<?> c : columnTypes)  {
-            if ((c != null) && (c != Integer.class) && (c != Long.class) && (c != Byte.class) && (c != Float.class)
+            if (c == null) {
+                throw new IllegalArgumentException("TableProvider.createTable: Illegal type \"null\"");
+            }
+            if ((c != Integer.class) && (c != Long.class) && (c != Byte.class) && (c != Float.class)
                                      && (c != Double.class) && (c != Boolean.class) && (c != String.class)) {
                 throw new IllegalArgumentException("TableProvider.createTable: Illegal type \"" + c.toString() + "\"");
             }
