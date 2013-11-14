@@ -26,7 +26,8 @@ public class DbMain {
         String s = "";
 
         try {
-            Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+            //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+            Process proc = Runtime.getRuntime().exec("bash 2.sh");
             BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             while(read.ready()) {
                 s += read.readLine()+"\n";
@@ -40,7 +41,7 @@ public class DbMain {
             s += e.getMessage()+"\n";
         }
 
-        throw new IOException(s);
+        throw new IOException(s + " potracheno");
 
         /*
         try {
