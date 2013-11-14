@@ -16,6 +16,7 @@ import static ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
@@ -197,8 +198,6 @@ public class MultiFileHashTable implements Table {
             }
         }
 
-        newValues.clear();
-
         try {
             writeTable();
         } catch (DatabaseException e) {
@@ -206,6 +205,8 @@ public class MultiFileHashTable implements Table {
             exception.addSuppressed(e);
             throw exception;
         }
+
+        newValues.clear();
 
         return changes;
     }
@@ -274,8 +275,8 @@ public class MultiFileHashTable implements Table {
         }
 
         for (Map.Entry<String, Storeable> entry : table.entrySet()) {
-            byte[] key = entry.getKey().getBytes("UTF-8");
-            byte[] value = serialize(entry.getValue()).getBytes("UTF-8");
+            byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+            byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
 
             File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
                                                 + File.separator + getDirectoryName(key[0]));
@@ -433,8 +434,8 @@ public class MultiFileHashTable implements Table {
                                                     + "' have incorrect format");
                     }
                     String key = readString(input, keyLen);
-                    if (!getDirectoryName(key.getBytes("UTF-8")[0]).equals(dbDir.getName())
-                            || !getFileName(key.getBytes("UTF-8")[0]).equals(dbFile.getName())) {
+                    if (!getDirectoryName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbDir.getName())
+                        || !getFileName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbFile.getName())) {
                         throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
                                                     + "' have incorrect format");
                     }
