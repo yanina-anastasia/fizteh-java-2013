@@ -21,6 +21,22 @@ public class FileMapTableTest {
     List<Class<?>> classes;
     String value = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\"]";
 
+    Table table;
+    String value1;
+    Storeable value1Storeable;
+    String value2;
+    Storeable value2Storeable;
+    String value3;
+    Storeable value3Storeable;
+    String value4;
+    Storeable value4Storeable;
+    String value5;
+    Storeable value5Storeable;
+
+    Thread first;
+    Thread second;
+    Thread third;
+
     private boolean storeableEquals(Storeable first, Storeable second, Table table) {
         if (first == null && second == null) {
             return true;
@@ -46,7 +62,7 @@ public class FileMapTableTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
-    public void setCurrTable() throws IOException {
+    public void setCurrTable() throws IOException, ParseException {
         factory = new FileMapTableProviderFactory();
         classes = new ArrayList<Class<?>>();
         classes.add(Integer.class);
@@ -63,6 +79,25 @@ public class FileMapTableTest {
         currTable = tableProvider.createTable("TestTable", classes);
         currTableName = "TestTable";
         assertEquals(currTable.getName(), currTableName);
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(String.class);
+        table = tableProvider.createTable("table", classList);
+        value1 = "[1,\"value1\"]";
+        value1Storeable = tableProvider.deserialize(table, value1);
+        assertEquals(tableProvider.serialize(table, value1Storeable), value1);
+        value2 = "[2,\"value2\"]";
+        value2Storeable = tableProvider.deserialize(table, value2);
+        assertEquals(tableProvider.serialize(table, value2Storeable), value2);
+        value3 = "[3,\"value3\"]";
+        value3Storeable = tableProvider.deserialize(table, value3);
+        assertEquals(tableProvider.serialize(table, value3Storeable), value3);
+        value4 = "[4,\"value4\"]";
+        value4Storeable = tableProvider.deserialize(table, value4);
+        assertEquals(tableProvider.serialize(table, value4Storeable), value4);
+        value5 = "[5,\"value5\"]";
+        value5Storeable = tableProvider.deserialize(table, value5);
+        assertEquals(tableProvider.serialize(table, value5Storeable), value5);
     }
 
     @After
@@ -118,8 +153,8 @@ public class FileMapTableTest {
         classList.add(Integer.class);
         classList.add(String.class);
         classList.add(String.class);
-        Table table = tableProvider.createTable("table", classList);
-        Storeable valueOld = tableProvider.deserialize(table, val);
+        Table table1 = tableProvider.createTable("table1", classList);
+        Storeable valueOld = tableProvider.deserialize(table1, val);
         valueOld.setColumnAt(2, "     ");
         currTable.put("key", valueOld);
     }
@@ -173,17 +208,7 @@ public class FileMapTableTest {
 
     @Test
     public void testCommit() throws Exception {
-        List<Class<?>> classList = new ArrayList<Class<?>>();
-        classList.add(Integer.class);
-        classList.add(String.class);
-        Table table = tableProvider.createTable("table", classList);
-        int sizeBefore = currTable.size();
-        String value1 = "[5, \"value1\"]";
-        Storeable value1Storeable = tableProvider.deserialize(table, value1);
-        String value2 = "[7, \"value2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(table, value2);
-        String value3 = "[7, \"value3\"]";
-        Storeable value3Storeable = tableProvider.deserialize(table, value3);
+        int sizeBefore = table.size();
         assertNull(table.put("key1", value1Storeable));
         assertTrue(storeableEquals(table.put("key1", value1Storeable), value1Storeable, table));
         assertNull(table.put("key2", value2Storeable));
@@ -199,27 +224,6 @@ public class FileMapTableTest {
 
     @Test
     public void testRollback() throws Exception {
-        List<Class<?>> classList = new ArrayList<Class<?>>();
-        classList.add(Integer.class);
-        classList.add(String.class);
-        classList.add(String.class);
-        Table table = tableProvider.createTable("table", classList);
-        String value1 = "[5,\"value1\",null]";
-        Storeable value1Storeable = tableProvider.deserialize(table, value1);
-        assertEquals(tableProvider.serialize(table, value1Storeable), value1);
-        String value2 = "[7,null,\"val2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(table, value2);
-        assertEquals(tableProvider.serialize(table, value2Storeable), value2);
-        String value3 = "[7,\"value3\",null]";
-        Storeable value3Storeable = tableProvider.deserialize(table, value3);
-        assertEquals(tableProvider.serialize(table, value3Storeable), value3);
-        String value4 = "[1,\"value4\",\"val4\"]";
-        Storeable valueStoreable = tableProvider.deserialize(table, value4);
-        assertEquals(tableProvider.serialize(table, valueStoreable), value4);
-        String newValue = "[1,\"value\",\"newValue\"]";
-        Storeable newValueStoreable = tableProvider.deserialize(table, newValue);
-        assertEquals(tableProvider.serialize(table, newValueStoreable), newValue);
-
         assertNull(table.put("key1", value1Storeable));
         assertNull(table.put("key2", value2Storeable));
         assertNotNull(table.put("key2", value2Storeable));
@@ -246,10 +250,10 @@ public class FileMapTableTest {
         assertTrue(storeableEquals(table.remove("key1"), value2Storeable, table));
         assertNull(table.remove("key1"));
         assertEquals(table.size(), 2);
-        assertNull(table.put("key4", valueStoreable));
+        assertNull(table.put("key4", value4Storeable));
         assertEquals(table.size(), 3);
-        assertTrue(storeableEquals(table.put("key3", newValueStoreable), value3Storeable, table));
-        assertTrue(storeableEquals(table.remove("key4"), valueStoreable, table));
+        assertTrue(storeableEquals(table.put("key3", value5Storeable), value3Storeable, table));
+        assertTrue(storeableEquals(table.remove("key4"), value4Storeable, table));
         assertNull(table.remove("key4"));
         assertEquals(table.size(), 2);
         assertNull(table.get("key1"));
@@ -268,26 +272,6 @@ public class FileMapTableTest {
 
     @Test
     public void testSize() throws Exception {
-        List<Class<?>> classList = new ArrayList<Class<?>>();
-        classList.add(Integer.class);
-        classList.add(String.class);
-        Table table = tableProvider.createTable("table", classList);
-        String value1 = "[5,\"value1\"]";
-        Storeable value1Storeable = tableProvider.deserialize(table, value1);
-        assertEquals(tableProvider.serialize(table, value1Storeable), value1);
-        String value2 = "[7,\"value2\"]";
-        Storeable value2Storeable = tableProvider.deserialize(table, value2);
-        assertEquals(tableProvider.serialize(table, value2Storeable), value2);
-        String value3 = "[7,\"value3\"]";
-        Storeable value3Storeable = tableProvider.deserialize(table, value3);
-        assertEquals(tableProvider.serialize(table, value3Storeable), value3);
-        String value4 = "[8752,\"value4\"]";
-        Storeable valueStoreable = tableProvider.deserialize(table, value4);
-        assertEquals(tableProvider.serialize(table, valueStoreable), value4);
-        String newValue = "[1,\"newValue\"]";
-        Storeable newValueStoreable = tableProvider.deserialize(table, newValue);
-        assertEquals(tableProvider.serialize(table, newValueStoreable), newValue);
-
         assertNull(table.put("key", value1Storeable));
         assertTrue(storeableEquals(table.remove("key"), value1Storeable, table));
         assertNull(table.get("key"));
@@ -304,12 +288,12 @@ public class FileMapTableTest {
 
         assertTrue(storeableEquals(table.remove("key"), value1Storeable, table));
         assertEquals(table.size(), 2);
-        assertNull(table.put("key4", valueStoreable));
+        assertNull(table.put("key4", value4Storeable));
         assertEquals(table.size(), 3);
-        assertTrue(storeableEquals(table.put("key2", valueStoreable), value1Storeable, table));
-        assertTrue(storeableEquals(table.get("key2"), valueStoreable, table));
+        assertTrue(storeableEquals(table.put("key2", value4Storeable), value1Storeable, table));
+        assertTrue(storeableEquals(table.get("key2"), value4Storeable, table));
         assertEquals(table.size(), 3);
-        assertTrue(storeableEquals(table.remove("key4"), valueStoreable, table));
+        assertTrue(storeableEquals(table.remove("key4"), value4Storeable, table));
         assertEquals(table.size(), 2);
     }
 
@@ -318,26 +302,238 @@ public class FileMapTableTest {
         List<Class<?>> classList = new ArrayList<Class<?>>();
         classList.add(Integer.class);
         classList.add(String.class);
-        Table table = tableProvider.createTable("table", classList);
+        Table table1 = tableProvider.createTable("table1", classList);
 
         String rollbackVal = "[7,\"rollback\"]";
-        Storeable rollback = tableProvider.deserialize(table, rollbackVal);
+        Storeable rollback = tableProvider.deserialize(table1, rollbackVal);
         String rollbackVal1 = "[7,\"rollback1\"]";
-        Storeable rollback1 = tableProvider.deserialize(table, rollbackVal1);
+        Storeable rollback1 = tableProvider.deserialize(table1, rollbackVal1);
 
-        assertNull(table.put("commit", rollback));
-        assertTrue(storeableEquals(table.get("commit"), rollback, table));
-        assertEquals(table.rollback(), 1);
+        assertNull(table1.put("commit", rollback));
+        assertTrue(storeableEquals(table1.get("commit"), rollback, table1));
+        assertEquals(table1.rollback(), 1);
 
-        assertNull(table.get("commit"));
-        assertNull(table.put("commit", rollback));
-        assertTrue(storeableEquals(table.get("commit"), rollback, table));
-        assertEquals(table.commit(), 1);
+        assertNull(table1.get("commit"));
+        assertNull(table1.put("commit", rollback));
+        assertTrue(storeableEquals(table1.get("commit"), rollback, table1));
+        assertEquals(table1.commit(), 1);
 
-        assertTrue(storeableEquals(table.remove("commit"), rollback, table));
-        assertNull(table.put("commit", rollback1));
+        assertTrue(storeableEquals(table1.remove("commit"), rollback, table1));
+        assertNull(table1.put("commit", rollback1));
 
-        assertEquals(table.commit(), 1);
-        assertTrue(storeableEquals(table.get("commit"), rollback1, table));
+        assertEquals(table1.commit(), 1);
+        assertTrue(storeableEquals(table1.get("commit"), rollback1, table1));
+    }
+
+    @Test
+    public void testParallelsPutWithoutCommit() throws InterruptedException {
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertNull(table.get(value1));
+    }
+
+    @Test
+    public void testParallelsPutWithOneCommit() throws InterruptedException {
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+                try {
+                    assertEquals(table.commit(), 1);
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    first.join();
+                } catch (InterruptedException e) {
+                    //
+                }
+                assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+                assertTrue(storeableEquals(table.put(value1, value2Storeable), value1Storeable, table));
+                try {
+                    assertEquals(table.commit(), 1);
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertTrue(storeableEquals(table.get(value1), value2Storeable, table));
+    }
+
+    @Test
+    public void myOwnTestParallelsWithCommitAnsRollbacks() throws InterruptedException {
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    assertNull(table.put(value1, value1Storeable));
+                    Thread.sleep(100);
+                    assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+                    assertEquals(table.commit(), 1);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                try {
+                    first.join();
+                } catch (InterruptedException e) {
+                    //
+                }
+                assertEquals(table.rollback(), 0);
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertTrue(storeableEquals(table.get(value1), value1Storeable, table));
+    }
+
+    @Test
+    public void testParallelsCommit() throws InterruptedException {
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                assertNull(table.put(value2, value2Storeable));
+                assertNull(table.put(value3, value3Storeable));
+                try {
+                    Thread.sleep(100);
+                    assertEquals(table.commit(), 3);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(table.put(value1, value1Storeable));
+                assertNull(table.put(value2, value2Storeable));
+                assertNull(table.put(value3, value3Storeable));
+                try {
+                    first.join();
+                    assertEquals(table.commit(), 0);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+                assertNull(table.put(value4, value1Storeable));
+                try {
+                    third.join();
+                    assertTrue(storeableEquals(table.remove(value4), value1Storeable, table));
+                    assertEquals(table.commit(), 1);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+        third = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                    assertNull(table.put(value4, value4Storeable));
+                    assertEquals(table.commit(), 1);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        third.start();
+        second.join();
+    }
+
+    @Test
+    public void testParallelsRemoveSynohronize() throws InterruptedException {
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    assertNull(table.put(value1, value1Storeable));
+                    assertNull(table.put(value3, value3Storeable));
+                    assertEquals(table.commit(), 2);
+                    assertEquals(table.rollback(), 0);
+
+                    assertNotNull(table.put(value1, value1Storeable));
+                    second.join();
+                    assertNotNull(table.remove(value1));
+                    assertEquals(table.rollback(), 0);
+                    assertNull(table.get(value1));
+                    assertNull(table.put(value1, value1Storeable));
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    assertNull(table.put(value2, value2Storeable));
+                    assertEquals(table.commit(), 1);
+                    assertEquals(table.rollback(), 0);
+
+                    Thread.sleep(100);
+                    assertNotNull(table.get(value1));
+                    assertNotNull(table.get(value2));
+                    assertNotNull(table.get(value3));
+                    assertNotNull(table.remove(value1));
+                    assertNotNull(table.put(value2, value4Storeable));
+                    assertEquals(table.commit(), 2);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertNull(table.get(value1));
+        assertTrue(storeableEquals(table.get(value2), value4Storeable, table));
+        assertTrue(storeableEquals(table.get(value3), value3Storeable, table));
     }
 }

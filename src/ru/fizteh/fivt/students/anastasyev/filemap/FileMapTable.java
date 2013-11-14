@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FileMapTable implements Table {
     private File currentFileMapTable;
@@ -16,18 +18,66 @@ public class FileMapTable implements Table {
     private FileMapTableProvider provider;
     private FileMap[][] mapsTable;
 
-    private HashMap<String, Value> changedKeys = new HashMap<String, Value>();
-    private int size = 0;
-    private int oldSize = 0;
-
-    private class Value {
-        private Storeable newValue;
-        private Storeable onDiskValue;
-
-        public Value(Storeable newValue, Storeable newOnDisk) {
-            this.newValue = newValue;
-            onDiskValue = newOnDisk;
+    private ThreadLocal<HashMap<String, Storeable>> changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
         }
+    };
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
+
+    private Storeable onDiskValue(String key) {
+        int absHash = Math.abs(key.hashCode());
+        int dirHash = absHash % 16;
+        int datHash = absHash / 16 % 16;
+        Storeable valueOnDisk = null;
+        if (mapsTable[dirHash][datHash] != null) {
+            valueOnDisk = mapsTable[dirHash][datHash].get(key);
+        }
+        return valueOnDisk;
+    }
+
+    private int changesCount() {
+        int changesCount = 0;
+        for (String entryKey : changedKeys.get().keySet()) {
+            Storeable value = changedKeys.get().get(entryKey);
+            if (value != null && !storeableEquals(value, onDiskValue(entryKey))
+                    || value == null && onDiskValue(entryKey) != null) {
+                ++changesCount;
+            }
+        }
+        return changesCount;
+    }
+
+    private int changesSize() {
+        int changesSize = 0;
+        for (String entryKey : changedKeys.get().keySet()) {
+            Storeable value = changedKeys.get().get(entryKey);
+            if (value == null) {
+                if (onDiskValue(entryKey) != null) {
+                    --changesSize;
+                }
+            } else {
+                if (onDiskValue(entryKey) == null) {
+                    ++changesSize;
+                }
+            }
+        }
+        return changesSize;
+    }
+
+    private int oldSize() {
+        int oldSize = 0;
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (mapsTable[i][j] != null) {
+                    oldSize += mapsTable[i][j].size();
+                }
+            }
+        }
+        return oldSize;
     }
 
     private boolean isEmptyString(String val) {
@@ -83,7 +133,6 @@ public class FileMapTable implements Table {
 
     private void readTable() throws IOException, ParseException {
         mapsTable = new FileMap[16][16];
-        size = 0;
         for (int i = 0; i < 16; ++i) {
             File dbDir = new File(currentFileMapTable.toString() + File.separator + i + ".dir");
             if (dbDir.exists()) {
@@ -100,8 +149,6 @@ public class FileMapTable implements Table {
                         if (mapsTable[i][j].isEmpty()) {
                             mapsTable[i][j].delete();
                             mapsTable[i][j] = null;
-                        } else {
-                            size += mapsTable[i][j].size();
                         }
                     }
                 }
@@ -114,7 +161,6 @@ public class FileMapTable implements Table {
                 }
             }
         }
-        oldSize = size;
     }
 
     private boolean storeableEquals(Storeable first, Storeable second) {
@@ -148,7 +194,6 @@ public class FileMapTable implements Table {
         }
         columnTypes = new ArrayList<Class<?>>();
         try (RandomAccessFile input = new RandomAccessFile(signature.toString(), "r")) {
-            int position = 0;
             while (input.getFilePointer() != input.length()) {
                 byte ch = 0;
                 Vector<Byte> v = new Vector<Byte>();
@@ -169,34 +214,44 @@ public class FileMapTable implements Table {
     }
 
     public FileMapTable(String tableName, FileMapTableProvider newProvider) throws IOException, ParseException {
-        currentFileMapTable = new File(tableName);
-        provider = newProvider;
-        if (!currentFileMapTable.exists()) {
-            if (!currentFileMapTable.mkdir()) {
-                throw new IOException("Can't create " + currentFileMapTable.getName());
+        try {
+            read.lock();
+            currentFileMapTable = new File(tableName);
+            provider = newProvider;
+            if (!currentFileMapTable.exists()) {
+                if (!currentFileMapTable.mkdir()) {
+                    throw new IOException("Can't create " + currentFileMapTable.getName());
+                }
             }
+            if (!currentFileMapTable.isDirectory()) {
+                throw new IOException(currentFileMapTable.getName() + " is not a directory");
+            }
+            readSignature();
+            readTable();
+        } finally {
+            read.unlock();
         }
-        if (!currentFileMapTable.isDirectory()) {
-            throw new IOException(currentFileMapTable.getName() + " is not a directory");
-        }
-        readSignature();
-        readTable();
     }
 
     public FileMapTable(String tableName, List<Class<?>> newColumnTypes, FileMapTableProvider newProvider)
             throws IOException, ParseException {
-        currentFileMapTable = new File(tableName);
-        if (!currentFileMapTable.exists()) {
-            if (!currentFileMapTable.mkdir()) {
-                throw new IOException("Can't create " + currentFileMapTable.getName());
+        try {
+            read.lock();
+            currentFileMapTable = new File(tableName);
+            if (!currentFileMapTable.exists()) {
+                if (!currentFileMapTable.mkdir()) {
+                    throw new IOException("Can't create " + currentFileMapTable.getName());
+                }
             }
+            if (!currentFileMapTable.isDirectory()) {
+                throw new IOException(currentFileMapTable.getName() + " is not a directory");
+            }
+            columnTypes = new ArrayList<Class<?>>(newColumnTypes);
+            provider = newProvider;
+            readTable();
+        } finally {
+            read.unlock();
         }
-        if (!currentFileMapTable.isDirectory()) {
-            throw new IOException(currentFileMapTable.getName() + " is not a directory");
-        }
-        columnTypes = new ArrayList<Class<?>>(newColumnTypes);
-        provider = newProvider;
-        readTable();
     }
 
     @Override
@@ -210,27 +265,22 @@ public class FileMapTable implements Table {
             throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
-        int absHash = Math.abs(key.hashCode());
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
-        Storeable valueOnDisk = null;
-        if (mapsTable[dirHash][datHash] != null) {
-            valueOnDisk = mapsTable[dirHash][datHash].get(key);
-        }
-        Value valueChanged = changedKeys.get(key);
-        if (valueOnDisk == null && valueChanged == null || valueChanged != null && valueChanged.newValue == null) {
-            ++size;
-        }
-        if (valueChanged == null) {
-            changedKeys.put(key, new Value(value, valueOnDisk));
-            return valueOnDisk;
-        } else {
-            if (storeableEquals(value, valueOnDisk)) {
-                changedKeys.remove(key);
-            } else {
-                changedKeys.put(key, new Value(value, valueOnDisk));
+        try {
+            read.lock();
+            Storeable valueOnDisk = onDiskValue(key);
+            Storeable valueChanged = changedKeys.get().get(key);
+            if (!changedKeys.get().containsKey(key)) {
+                changedKeys.get().put(key, value);
+                return valueOnDisk;
             }
-            return valueChanged.newValue;
+            if (storeableEquals(value, valueOnDisk)) {
+                changedKeys.get().remove(key);
+            } else {
+                changedKeys.get().put(key, value);
+            }
+            return valueChanged;
+        } finally {
+            read.unlock();
         }
     }
 
@@ -239,33 +289,30 @@ public class FileMapTable implements Table {
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
-        int absHash = Math.abs(key.hashCode());
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
-        Storeable valueOnDisk = null;
-        if (mapsTable[dirHash][datHash] != null) {
-            valueOnDisk = mapsTable[dirHash][datHash].get(key);
-        }
-        Value valueChanged = changedKeys.get(key);
-        if (valueOnDisk == null) {
-            if (valueChanged == null) {
-                return null;
+        try {
+            read.lock();
+            Storeable valueOnDisk = onDiskValue(key);
+            Storeable valueChanged = changedKeys.get().get(key);
+            if (valueOnDisk == null) {
+                if (!changedKeys.get().containsKey(key)) {
+                    return null;
+                } else {
+                    changedKeys.get().remove(key);
+                    return valueChanged;
+                }
             } else {
-                --size;
-                changedKeys.remove(key);
-                return valueChanged.newValue;
+                if (!changedKeys.get().containsKey(key)) {
+                    changedKeys.get().put(key, null);
+                    return valueOnDisk;
+                }
+                if (valueChanged != null) {
+                    changedKeys.get().put(key, null);
+                    return valueChanged;
+                }
+                return null;
             }
-        } else {
-            changedKeys.put(key, new Value(null, valueOnDisk));
-            if (valueChanged == null) {
-                --size;
-                return valueOnDisk;
-            }
-            if (valueChanged.newValue != null) {
-                --size;
-                return valueChanged.newValue;
-            }
-            return null;
+        } finally {
+            read.unlock();
         }
     }
 
@@ -274,81 +321,83 @@ public class FileMapTable implements Table {
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
-        Value valueChanged = changedKeys.get(key);
-        if (valueChanged != null) {
-            return valueChanged.newValue;
+        try {
+            read.lock();
+            if (changedKeys.get().containsKey(key)) {
+                return changedKeys.get().get(key);
+            } else {
+                return onDiskValue(key);
+            }
+        } finally {
+            read.unlock();
         }
-        int absHash = Math.abs(key.hashCode());
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
-        if (mapsTable[dirHash][datHash] != null) {
-            return mapsTable[dirHash][datHash].get(key);
-        }
-        return null;
     }
 
     @Override
     public int commit() throws RuntimeException {
-        int changesCount = 0;
-        for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
-            String key = entry.getKey();
-            Value value = entry.getValue();
-            if (value.newValue != null && !storeableEquals(value.newValue, value.onDiskValue)
-                    || (value.newValue == null && value.onDiskValue != null)) {
-                int absHash = Math.abs(key.hashCode());
-                int dirHash = absHash % 16;
-                int datHash = absHash / 16 % 16;
-                try {
-                    mapsTable[dirHash][datHash] = openFileMap(dirHash, datHash);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("Can't open fileMap");
-                }
-                if (value.newValue == null) {
-                    mapsTable[dirHash][datHash].remove(key);
-                } else {
-                    mapsTable[dirHash][datHash].put(key, value.newValue);
-                }
-                ++changesCount;
-            }
-        }
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (mapsTable[i][j] != null) {
+        try {
+            write.lock();
+            int changesCount = 0;
+            for (Map.Entry<String, Storeable> entry : changedKeys.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (value != null && !storeableEquals(value, onDiskValue(key))
+                        || value == null && onDiskValue(key) != null) {
+                    int absHash = Math.abs(key.hashCode());
+                    int dirHash = absHash % 16;
+                    int datHash = absHash / 16 % 16;
                     try {
-                        mapsTable[i][j].save();
+                        mapsTable[dirHash][datHash] = openFileMap(dirHash, datHash);
                     } catch (IOException e) {
-                        throw new RuntimeException(e.getMessage(), e);
+                        throw new IllegalArgumentException("Can't open fileMap");
                     }
-                    if (mapsTable[i][j].isEmpty()) {
+                    if (value == null) {
+                        mapsTable[dirHash][datHash].remove(key);
+                    } else {
+                        mapsTable[dirHash][datHash].put(key, value);
+                    }
+                    ++changesCount;
+                }
+            }
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    if (mapsTable[i][j] != null) {
                         try {
-                            mapsTable[i][j].delete();
+                            mapsTable[i][j].save();
                         } catch (IOException e) {
                             throw new RuntimeException(e.getMessage(), e);
+                        }
+                        if (mapsTable[i][j].isEmpty()) {
+                            try {
+                                mapsTable[i][j].delete();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e.getMessage(), e);
+                            }
                         }
                     }
                 }
             }
+            changedKeys.get().clear();
+            return changesCount;
+        } finally {
+            write.unlock();
         }
-        oldSize = size;
-        changedKeys.clear();
-        return changesCount;
     }
 
     @Override
     public int rollback() throws RuntimeException {
-        int changesCount = changedKeys.size();
-        changedKeys.clear();
-        size = oldSize;
+        int changesCount = changesCount();
+        changedKeys.get().clear();
         return changesCount;
     }
 
     @Override
     public int size() {
-        return size;
+        return oldSize() + changesSize();
     }
 
-    public int uncommittedSize() {
-        return changedKeys.size();
+    public int uncommittedChangesCount() {
+        return changesCount();
     }
 
     @Override
