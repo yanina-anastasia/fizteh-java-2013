@@ -24,7 +24,7 @@ public class ShellDbGet extends SimpleShellCommand {
             System.out.println("not found");
         } else {
             System.out.println("found ");
-            //System.out.println(context.provider.serialize(context.table, storeable));
+            System.out.println(context.provider.serialize(context.table, storeable));
         }
     }
 }
