@@ -19,7 +19,12 @@ public class DataBaseRollback implements CommandInterface {
             throw new IOException("no table");
         }
         MyTable currTable = tableProvider.getTable(tableName);
-        int changes = currTable.rollback();
+        int changes;
+        try {
+            changes = currTable.rollback();
+        } catch (IndexOutOfBoundsException e) {
+            throw new IOException(e);
+        }
         System.out.println(changes);
     }
 }

@@ -19,7 +19,7 @@ public class MyTable implements Table {
         Storeable newValue;
     }
 
-    public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException {
+    public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException, RuntimeException {
         tableProvider = currentProvider;
         tableFile = dirTable;
         tableName = dirTable.getName();
@@ -47,11 +47,11 @@ public class MyTable implements Table {
         return type;
     }
 
-    public int getCountOfChanges() {
+    public int getCountOfChanges() throws IndexOutOfBoundsException {
         if (changesMap == null || changesMap.isEmpty()) {
             return 0;
         }
-        Set fileSet = changesMap.entrySet();
+        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
         Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
         int counter = 0;
         while (i.hasNext()) {
@@ -64,7 +64,7 @@ public class MyTable implements Table {
         return counter;
     }
 
-    public boolean equals(Storeable st1, Storeable st2) {
+    public boolean equals(Storeable st1, Storeable st2) throws IndexOutOfBoundsException {
         for (int i = 0; i < getColumnsCount(); ++i) {
             if (st1 == null || st2 == null) {
                 if (st1 == null && st2 == null) {
@@ -222,7 +222,7 @@ public class MyTable implements Table {
         return true;
     }
 
-    public boolean isValid(Storeable value) {
+    public boolean isValid(Storeable value) throws IndexOutOfBoundsException {
         for (int i = 0; i < getColumnsCount(); ++i) {
             if (value.getColumnAt(i) == null) {
                 continue;
@@ -242,7 +242,7 @@ public class MyTable implements Table {
                 return;
             }
         }
-        Set fileSet = fileMap.entrySet();
+        Set<Map.Entry<String, Storeable>> fileSet = fileMap.entrySet();
         Iterator<Map.Entry<String, Storeable>> i = fileSet.iterator();
         while (i.hasNext()) {
             Map.Entry<String, Storeable> currItem = i.next();
@@ -350,11 +350,10 @@ public class MyTable implements Table {
     }
 
     @Override
-    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (key == null || key.trim().isEmpty() || key.contains("\\s+") || value == null) {
             throw new IllegalArgumentException("put: wrong key or value");
         }
-
         if (!isValid(value)) {
             throw new ColumnFormatException("invalid storeable");
         }
@@ -376,12 +375,12 @@ public class MyTable implements Table {
     }
 
     @Override
-    public int size() {
+    public int size() throws IndexOutOfBoundsException {
         return countSize() + fileMap.size();
     }
 
     @Override
-    public int commit() {
+    public int commit() throws IndexOutOfBoundsException {
         modifyFileMap();
         int count = getCountOfChanges();
         changesMap.clear();
@@ -389,11 +388,11 @@ public class MyTable implements Table {
     }
 
 
-    public void modifyFileMap() {
+    public void modifyFileMap() throws IndexOutOfBoundsException {
         if (changesMap == null || changesMap.isEmpty()) {
             return;
         }
-        Set fileSet = changesMap.entrySet();
+        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
         Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
@@ -408,12 +407,12 @@ public class MyTable implements Table {
         }
     }
 
-    public int countSize() {
+    public int countSize() throws IndexOutOfBoundsException {
         if (changesMap == null || changesMap.isEmpty()) {
             return 0;
         }
         int size = 0;
-        Set fileSet = changesMap.entrySet();
+        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
         Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
@@ -429,7 +428,7 @@ public class MyTable implements Table {
     }
 
     @Override
-    public int rollback() {
+    public int rollback() throws IndexOutOfBoundsException {
         int count = getCountOfChanges();
         changesMap.clear();
         return count;

@@ -19,7 +19,12 @@ public class DataBaseCommit implements CommandInterface {
             throw new IOException("no table");
         }
         MyTable currTable = tableProvider.getTable(tableName);
-        int changes = currTable.commit();
+        int changes;
+        try {
+            changes = currTable.commit();
+        } catch (IndexOutOfBoundsException e) {
+            throw new IOException(e);
+        }
         System.out.println(changes);
     }
 }

@@ -19,7 +19,12 @@ public class DataBaseSize implements CommandInterface {
         if (tableName == null) {
             throw new IOException("no table");
         }
-        int size = tableProvider.getSize();
+        int size;
+        try {
+            size = tableProvider.getSize();
+        } catch (IndexOutOfBoundsException e) {
+            throw new IOException(e);
+        }
         System.out.println(size);
     }
 

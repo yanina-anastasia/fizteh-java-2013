@@ -43,7 +43,7 @@ public class MyTableProvider implements TableProvider {
         return currTable;
     }
 
-    public int getSize() {
+    public int getSize() throws IndexOutOfBoundsException {
         return multiFileMap.get(currTable).size();
     }
 
@@ -140,7 +140,7 @@ public class MyTableProvider implements TableProvider {
                 return;
             }
         }
-        Set fileSet = multiFileMap.entrySet();
+        Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
         Iterator<Map.Entry<String, MyTable>> i = fileSet.iterator();
         while (i.hasNext()) {
             Map.Entry<String, MyTable> currItem = i.next();
