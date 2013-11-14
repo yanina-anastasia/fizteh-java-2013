@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.chernigovsky.storeable;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.chernigovsky.junit.AbstractTable;
 
@@ -33,7 +34,9 @@ public class StoreableTable extends AbstractTable<Storeable> implements Extended
         if (value == null) { // maybe need to check: value.trim().isEmpty()
             throw new IllegalArgumentException("value is null");
         }
-        StoreableUtils.checkValue(this, value);
+        if (!StoreableUtils.checkValue(this, value)) {
+            throw new ColumnFormatException("invalid value");
+        }
         return super.put(key, value);
     }
 }
