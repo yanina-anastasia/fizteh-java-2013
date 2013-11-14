@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.tools.ColumnTypes;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -257,9 +258,9 @@ public class FileManager {
         if (!scan.hasNext()) {
             throw new IOException("empty signature: " + signature.getCanonicalPath());
         }
-        String[] types = scan.next().split(" ");
-        ColumnTypes columnTypes = new ColumnTypes();
-        List<Class<?>> listOfTypes = columnTypes.convertArrayOfStringsToListOfClasses(types);
+        String[] types = scan.nextLine().split(" ");
+        ColumnTypes ct = new ColumnTypes();
+        List<Class<?>> listOfTypes = ct.convertArrayOfStringsToListOfClasses(types);
         scan.close();
         return listOfTypes;
     }
@@ -277,9 +278,14 @@ public class FileManager {
         }
         RandomAccessFile signatureFile = new RandomAccessFile(signature, "rw");
         for (String type : columnTypes) {
-            //TODO: роверь работу signatureFile.writeUTF(type)
-            signatureFile.writeUTF(type);
-            signatureFile.write(' ');
+            if (type.matches("int|byte|long|float|double|boolean|String")) {
+                signatureFile.write(type.getBytes(StandardCharsets.UTF_8));
+                signatureFile.write(' ');
+            } else {
+                signatureFile.close();
+                signature.delete();
+                throw new IOException("writing signature: illegal type: " + type);
+            }
         }
         signatureFile.close();
     }

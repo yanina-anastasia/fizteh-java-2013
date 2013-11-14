@@ -84,6 +84,23 @@ public class DBTableProviderTest {
         provider.createTable("tmp", columnTypes);
     }
 
+    @Test
+    public void createTableRightWritingSignature() throws IOException{
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(Byte.class);
+        types.add(Long.class);
+        types.add(Double.class);
+        types.add(Float.class);
+        types.add(Boolean.class);
+        types.add(String.class);
+        Table table = provider.createTable("tmp", types);
+        if (table == null){
+            provider.removeTable("tmp");
+            table = provider.createTable("tmp", types);
+        }
+        provider.removeTable("tmp");
+    }
     //-------Tests for removeTable
     @Test(expected = IllegalArgumentException.class)
     public void removeTableNullNameTable() throws IOException {
@@ -198,4 +215,6 @@ public class DBTableProviderTest {
         Assert.assertEquals(s, row.getStringAt(6));
         provider.removeTable("tmp");
     }
+
+
 }

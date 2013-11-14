@@ -23,7 +23,6 @@ public class ColumnTypes {
         typeMatchingStringClass.put("double", Double.class);
         typeMatchingStringClass.put("boolean", Boolean.class);
         typeMatchingStringClass.put("String", String.class);
-        typeMatchingStringClass.put("string", String.class);
 
         typeMatchingClassString.put("Integer", "int");
         typeMatchingClassString.put("Long", "long");
@@ -31,12 +30,13 @@ public class ColumnTypes {
         typeMatchingClassString.put("Float", "float");
         typeMatchingClassString.put("Double", "double");
         typeMatchingClassString.put("Boolean", "boolean");
-        typeMatchingClassString.put("String", "string");
+        typeMatchingClassString.put("String", "String");
     }
 
     public List<Class<?>> convertArrayOfStringsToListOfClasses(String[] types) throws ColumnFormatException {
         List<Class<?>> result = new ArrayList<>(types.length);
         for (String type : types) {
+            type = type.trim();
             Class<?> currentType = typeMatchingStringClass.get(type);
             if (currentType == null) {
                 throw new ColumnFormatException("illegal name of type: " + type);

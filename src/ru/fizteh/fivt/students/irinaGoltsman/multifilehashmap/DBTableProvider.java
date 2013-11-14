@@ -69,18 +69,13 @@ public class DBTableProvider implements TableProvider {
             return null;
         }
         if (!tableFile.mkdir()) {
-            return null;
+            throw new IOException("table" + tableName + "can't be create");
         }
         List<String> types = ct.convertListOfClassesToListOfStrings(columnTypes);
         FileManager.writeSignature(tableFile, types);
-        try {
-            Table newTable = new DBTable(tableFile, this, columnTypes);
-            allTables.put(tableName, newTable);
-            return newTable;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+        Table newTable = new DBTable(tableFile, this);
+        allTables.put(tableName, newTable);
+        return newTable;
     }
 
     @Override
