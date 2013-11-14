@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.FileStorage;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
@@ -11,11 +14,23 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 public abstract class GenericTable<ValueType> {
 
     private final String name;
-    private int size = 0;
-    private int oldSize = 0;
+    volatile private int oldSize = 0;
+    protected ReadWriteLock lock = new ReentrantReadWriteLock(true);
     protected final File tableDirectory;
-    private final Map<String, ValueType> changedValues = new HashMap<>();
     private final Map<String, ValueType> oldDatabase = new HashMap<>();
+    private final ThreadLocal<Map<String, ValueType>> changedValues = new ThreadLocal<Map<String, ValueType>>() {
+        @Override
+        protected Map<String, ValueType> initialValue() {
+            return new HashMap<>();
+        }
+    };
+    private final ThreadLocal<Integer> changedSize = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
+
 
     public GenericTable(String name, File rootDir) {
         tableDirectory = new File(rootDir, name);
@@ -27,97 +42,117 @@ public abstract class GenericTable<ValueType> {
 
     public ValueType get(String key) {
         checkKey(key);
-        if (changedValues.containsKey(key)) {
-            return changedValues.get(key);
+        if (changedValues.get().containsKey(key)) {
+            return changedValues.get().get(key);
         } else {
-            return  oldDatabase.get(key);
+            try {
+                lock.readLock().lock();
+                return  oldDatabase.get(key);
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 
     public ValueType remove(String key) {
         checkKey(key);
         ValueType res;
-        if (changedValues.containsKey(key)) {
-            if (oldDatabase.get(key) == null) {
-                res = changedValues.remove(key);
+        try {
+            lock.readLock().lock();
+            if (changedValues.get().containsKey(key)) {
+                if (oldDatabase.get(key) == null) {
+                    res = changedValues.get().remove(key);
+                } else {
+                    res = changedValues.get().put(key, null);
+                }
             } else {
-                res = changedValues.put(key, null);
+                if (oldDatabase.get(key) == null) {
+                    res = null;
+                } else {
+                    changedValues.get().put(key, null);
+                    res = oldDatabase.get(key);
+                }
             }
-        } else {
-            if (oldDatabase.get(key) == null) {
-                res = null;
-            } else {
-                changedValues.put(key, null);
-                res = oldDatabase.get(key);
-            }
+        } finally {
+            lock.readLock().unlock();
         }
         if (res != null) {
-            --size;
+            changedSize.set(changedSize.get() - 1);
         }
         return res;
     }
 
     public ValueType put(String key, ValueType value) {
-
         checkKey(key);
         if (value == null) {
             throw new IllegalArgumentException("null value");
         }
         ValueType res;
-        if (changedValues.containsKey(key)) {
-            if (value.equals(oldDatabase.get(key))) {
-                res = changedValues.remove(key);
+        try {
+            lock.readLock().lock();
+            if (changedValues.get().containsKey(key)) {
+                if (value.equals(oldDatabase.get(key))) {
+                    res = changedValues.get().remove(key);
+                } else {
+                    res = changedValues.get().put(key, value);
+                }
             } else {
-                res = changedValues.put(key, value);
+                if (value.equals(oldDatabase.get(key))) {
+                    res = oldDatabase.get(key);
+                } else {
+                    changedValues.get().put(key, value);
+                    res = oldDatabase.get(key);
+                }
             }
-        } else {
-            if (value.equals(oldDatabase.get(key))) {
-                res = oldDatabase.get(key);
-            } else {
-                changedValues.put(key, value);
-                res = oldDatabase.get(key);
-            }
+        } finally {
+            lock.readLock().unlock();
         }
+
         if (res == null) {
-            ++size;
+            changedSize.set(changedSize.get() + 1);
         }
         return res;
     }
 
     public int commit() throws IOException {
 
-        loadOldDatabase();
-
-        for (String s: changedValues.keySet()) {
-            if (changedValues.get(s) == null) {
-                --oldSize;
-                oldDatabase.remove(s);
-            } else if (oldDatabase.put(s, changedValues.get(s)) == null) {
-                ++oldSize;
+        try {
+            lock.writeLock().lock();
+            loadOldDatabase();
+            for (String s: changedValues.get().keySet()) {
+                if (changedValues.get().get(s) == null) {
+                    --oldSize;
+                    oldDatabase.remove(s);
+                } else if (oldDatabase.put(s, changedValues.get().get(s)) == null) {
+                    ++oldSize;
+                }
             }
-        }
-        size = oldSize;
-        Map <Integer, Map<String, ValueType>> database = new HashMap<>();
 
-        for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
-            int nfile = Utils.getNumberOfFile(s.getKey());
-            if (database.get(nfile) == null) {
-                database.put(nfile, new HashMap<String, ValueType>());
+            Map <Integer, Map<String, ValueType>> database = new HashMap<>();
+
+            for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
+                int nfile = Utils.getNumberOfFile(s.getKey());
+                if (database.get(nfile) == null) {
+                    database.put(nfile, new HashMap<String, ValueType>());
+                }
+                database.get(nfile).put(s.getKey(), s.getValue());
             }
-            database.get(nfile).put(s.getKey(), s.getValue());
+
+            for (int i = 0; i < 256; ++i) {
+                FileStorage.commitDiff(getFile(i), serialize(database.get(i)));
+            }
+
+            for (int i = 0; i < 16; ++i) {
+                File dir = new File(tableDirectory, i + ".dir");
+                dir.delete();
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
 
-        for (int i = 0; i < 256; ++i) {
-            FileStorage.commitDiff(getFile(i), serialize(database.get(i)));
-        }
-
-        for (int i = 0; i < 16; ++i) {
-            File dir = new File(tableDirectory, i + ".dir");
-            dir.delete();
-        }
-
-        int res = changedValues.size();
-        changedValues.clear();
+        int res = changedValues.get().size();
+        changedValues.get().clear();
+        changedSize.set(0);
         return res;
     }
 
@@ -142,14 +177,14 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
-        int res = changedValues.size();
-        changedValues.clear();
-        size = oldSize;
+        int res = changedValues.get().size();
+        changedValues.get().clear();
+        changedSize.set(0);
         return res;
     }
 
     public int getChangedValuesNumber() {
-        return changedValues.size();
+        return changedValues.get().size();
     }
 
     public String getName() {
@@ -157,15 +192,17 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int size() {
-        return size;
+        return oldSize + changedSize.get();
     }
 
     public void loadAll() throws IOException {
         loadOldDatabase();
-        size = oldSize;
+        changedValues.get().clear();
+        changedSize.set(0);
     }
 
     public void loadOldDatabase() throws IOException {
+        lock.writeLock().lock();
         oldSize = 0;
         for (int i = 0; i < 256; ++i) {
             File dir = new File(tableDirectory, i / 16 + ".dir");
@@ -175,7 +212,7 @@ public abstract class GenericTable<ValueType> {
                 throw new IOException("empty dir");
             }
             File db = new File(dir, i % 16 + ".dat");
-            if (db.exists()) {
+            if (db.isFile()) {
                 Map<String, String> fromFile = FileStorage.openDataFile(db, i);
                 oldDatabase.putAll(deserialize(fromFile));
                 if (fromFile.isEmpty()) {

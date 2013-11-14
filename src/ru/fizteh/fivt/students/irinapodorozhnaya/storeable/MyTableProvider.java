@@ -7,6 +7,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -24,19 +26,30 @@ public class MyTableProvider implements ExtendProvider {
     private final File dataBaseDir;
     private final Map<String, ExtendTable> tables = new HashMap<>();
     private static final String STRING_NAME_FORMAT = "[a-zA-Zа-яА-Я0-9_]+";
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public MyTableProvider(File dataBaseDir) throws IOException {
         this.dataBaseDir = dataBaseDir;
-        for (String tableName: dataBaseDir.list()) {
-            tables.put(tableName, new MyTable(tableName, dataBaseDir, this));
-            tables.get(tableName).loadAll();
+        try {
+            lock.writeLock().lock();
+            for (String tableName: dataBaseDir.list()) {
+                tables.put(tableName, new MyTable(tableName, dataBaseDir, this));
+                tables.get(tableName).loadAll();
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public ExtendTable getTable(String name) {
         checkCorrectName(name);
-        return tables.get(name);
+        try {
+            lock.readLock().lock();
+            return tables.get(name);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -47,36 +60,44 @@ public class MyTableProvider implements ExtendProvider {
         if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("bad column list");
         }
-        
-        File table = new File(dataBaseDir, name);
-        if (table.isDirectory()) {
-            return null;
-        }
-        if (!table.mkdir()) {
-            throw new IllegalArgumentException("table has illegal name");
-        }
-        
-        try (PrintStream signature = new PrintStream(new File(table, "signature.tsv"))) {
-            for (Class<?> s : columnTypes) {
-                signature.print(Types.getSimpleName(s));
-                signature.print(" ");
+        try {
+            lock.writeLock().lock();
+            File table = new File(dataBaseDir, name);
+            if (table.isDirectory()) {
+                return null;
             }
+            if (!table.mkdir()) {
+                throw new IllegalArgumentException("table has illegal name");
+            }
+
+            try (PrintStream signature = new PrintStream(new File(table, "signature.tsv"))) {
+                for (Class<?> s : columnTypes) {
+                    signature.print(Types.getSimpleName(s));
+                    signature.print(" ");
+                }
+            }
+            ExtendTable newTable = new MyTable(name, dataBaseDir, this, columnTypes);
+            tables.put(name, newTable);
+            return newTable;
+        } finally {
+            lock.writeLock().unlock();
         }
-        ExtendTable newTable = new MyTable(name, dataBaseDir, this, columnTypes);
-        tables.put(name, newTable);
-        return newTable;
     }
 
     @Override
     public void removeTable(String name) throws IOException {
         
         checkCorrectName(name);
-
-        if (tables.remove(name) == null) {
-            throw new IllegalStateException(name + " not exists");
+        try {
+            lock.writeLock().lock();
+            if (tables.remove(name) == null) {
+                throw new IllegalStateException(name + " not exists");
+            }
+            File table = new File(dataBaseDir, name);
+            CommandRemove.deleteRecursivly(table);
+        } finally {
+            lock.writeLock().unlock();
         }
-        File table = new File(dataBaseDir, name);
-        CommandRemove.deleteRecursivly(table);            
     }
 
     @Override

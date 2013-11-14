@@ -55,7 +55,13 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         }
         return columns;        
     }
-    
+
+    @Override
+    public int commit() throws IOException {
+        this.loadOldDatabase();
+        return super.commit();
+    }
+
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         
