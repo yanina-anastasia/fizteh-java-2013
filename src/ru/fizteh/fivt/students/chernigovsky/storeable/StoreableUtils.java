@@ -17,7 +17,7 @@ public class StoreableUtils {
             }
         }
 
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
+        /*for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (value.getColumnAt(i).equals(null)) {
             } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
             } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
@@ -30,7 +30,7 @@ public class StoreableUtils {
             } else {
                 return false;
             }
-        }
+        }*/
 
         try {
             value.getColumnAt(table.getColumnsCount());
