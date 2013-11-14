@@ -138,7 +138,7 @@ public class StoreableTableProvider implements TableProvider {
             columnTypes.add(table.getColumnType(i));
         }
 
-        return new StoreableStoreable(columnTypes);
+        return new StoreableStorable(columnTypes);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class StoreableTableProvider implements TableProvider {
             }
         }
 
-        StoreableStoreable storeable = new StoreableStoreable(columnTypes);
+        StoreableStorable storeable = new StoreableStorable(columnTypes);
 
         storeable.setColumns(values);
 

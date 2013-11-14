@@ -6,11 +6,11 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StoreableStoreable implements Storeable {
+public class StoreableStorable implements Storeable {
     ArrayList<Class<?>> columnTypes;
     ArrayList<Object> columns;
 
-    public StoreableStoreable(ArrayList<Class<?>> columnTypes) {
+    public StoreableStorable(ArrayList<Class<?>> columnTypes) {
         this.columnTypes = columnTypes;
 
         columns = new ArrayList<>();
