@@ -9,7 +9,7 @@ import java.util.Map;
 public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
     private static final int dirsCount = 16;
     private static final int chunksCount = 16;
-    private File root;
+    protected File root;
 
     public DataBaseMultiFileHashMap(File path, Serial<V> builder) {
         super(builder);

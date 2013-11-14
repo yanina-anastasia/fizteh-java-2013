@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dubovpavel.storeable;
 
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DataBaseBuilder;
 import ru.fizteh.fivt.students.dubovpavel.strings.WrappedMindfulDataBaseMultiFileHashMapBuilder;
 
 import java.util.ArrayList;
@@ -11,6 +10,9 @@ public class TableStoreableBuilder extends WrappedMindfulDataBaseMultiFileHashMa
         fields = types;
     }
     public TableStoreable construct() {
+        if(fields == null) {
+            fields = new ArrayList<>();
+        }
         return new TableStoreable(dir, dispatcher, fields);
     }
 }

@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageBuilder;
 import java.io.File;
 
 public class TableProviderStorageExtendedFactory implements TableProviderFactory {
-    public TableProvider create(String dir) {
+    public static void check(String dir) {
         if(dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -19,6 +19,9 @@ public class TableProviderStorageExtendedFactory implements TableProviderFactory
         if(!corresponding.isDirectory()) {
             throw new RuntimeException();
         }
+    }
+    public TableProvider create(String dir) {
+        check(dir);
         StorageBuilder storageBuilder = new StorageBuilder();
         storageBuilder.setPath(false, dir);
         storageBuilder.setDataBaseBuilder(new StringWrappedMindfulDataBaseMultiFileHashMapBuilder());

@@ -46,6 +46,11 @@ public class Storage <DB extends FileRepresentativeDataBase> {
                     } catch(DataBaseHandler.DataBaseException e) {
                         this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                 String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
+                        if(!e.acceptable) {
+                            this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                                    "Database denied");
+                            continue;
+                        }
                     }
                     storage.put(folder.getName(), dataBase);
                 }
@@ -76,6 +81,13 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             }
             builder.setPath(newData);
             DB newDataBase = builder.construct();
+            try {
+                newDataBase.save();
+            } catch (DataBaseHandler.DataBaseException e) {
+                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                        String.format("Can not create database prototype: %s", e.getMessage()));
+                return null;
+            }
             storage.put(key, newDataBase);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
             return newDataBase;

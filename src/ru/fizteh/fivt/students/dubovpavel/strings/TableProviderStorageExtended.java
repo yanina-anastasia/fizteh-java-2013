@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 

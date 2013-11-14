@@ -4,8 +4,8 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.dubovpavel.filemap.Serial;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
-import ru.fizteh.fivt.students.dubovpavel.strings.StringTableProviderStorageExtended;
 import ru.fizteh.fivt.students.dubovpavel.strings.TableProviderStorageExtended;
 
 import java.io.IOException;
@@ -36,11 +36,17 @@ public class TableProviderStoreable extends TableProviderStorageExtended<TableSt
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        return null;
+        StoreableImplTransformer transformer = new StoreableImplTransformer(collectFields(table));
+        return transformer.serialize(value);
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
-        return null;
+        StoreableImplTransformer transformer = new StoreableImplTransformer(collectFields(table));
+        try {
+            return transformer.deserialize(value);
+        } catch (Serial.SerialException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public Storeable createFor(Table table) {

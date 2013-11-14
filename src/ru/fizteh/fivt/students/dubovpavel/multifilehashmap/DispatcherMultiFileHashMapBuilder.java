@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DispatcherFileMapBuilder;
 
 public class DispatcherMultiFileHashMapBuilder extends DispatcherFileMapBuilder {
-    private StorageBuilder builder;
+    protected StorageBuilder builder;
 
     public void setStorageBuilder(StorageBuilder storageBuilder) {
         builder = storageBuilder;

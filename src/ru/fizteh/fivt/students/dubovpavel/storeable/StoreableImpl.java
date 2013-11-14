@@ -12,6 +12,9 @@ public class StoreableImpl implements Storeable {
     public StoreableImpl(ArrayList<Class<?>> types) {
         fields = types;
         data = new ArrayList<>(fields.size());
+        for(int i = 0; i < fields.size(); i++) {
+            data.add(null);
+        }
     }
 
     private void checkIndex(int columnIndex) throws IndexOutOfBoundsException {

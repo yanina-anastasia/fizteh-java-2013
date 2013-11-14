@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.dubovpavel.filemap;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,12 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
             throw new RuntimeException("DataBase pointer was null");
         }
     }
+
+    protected void generateLoadingError(String error, String message, boolean acc) throws DataBaseException {
+        dict = new HashMap<>();
+        throw new DataBaseException(String.format("Conformity loading: %s: %s. Empty database applied", error, message), acc);
+    }
+
     public void open() throws DataBaseException {
         checkValid();
         try(DataInputStream db = new DataInputStream(new FileInputStream(savingEndPoint))) {
@@ -44,14 +51,13 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
                 dict.put(key, builder.deserialize(value));
             }
         } catch (IOException e) {
-            dict = new HashMap<>();
-            throw new DataBaseException(String.format("Conformity loading: IOException: %s. Empty database applied", e.getMessage()));
+            generateLoadingError("IOException", e.getMessage(), true);
         } catch (DataBaseException e) {
-            dict = new HashMap<>();
-            throw new DataBaseException(String.format("Conformity loading: DataBaseException: %s. Empty database applied", e.getMessage()));
+            generateLoadingError("DataBaseException", e.getMessage(), true);
         } catch (Serial.SerialException e) {
-            dict = new HashMap<>();
-            throw new DataBaseException(String.format("Conformity loading: SerialException (deserialization): %s. Empty database applied", e.getMessage()));
+            generateLoadingError("SerialException (deserialization)", e.getMessage(), true);
+        } catch (ParseException e) {
+            generateLoadingError("ParseException (deserialization)", e.getMessage(), true);
         }
     }
 
