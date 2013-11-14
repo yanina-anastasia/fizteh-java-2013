@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.demidov.multifilehashmap;
 
 import java.io.IOException;
+
 import ru.fizteh.fivt.students.demidov.filemap.Get;
 import ru.fizteh.fivt.students.demidov.filemap.Put;
 import ru.fizteh.fivt.students.demidov.filemap.Remove;
+import ru.fizteh.fivt.students.demidov.junit.TableImplementation;
 import ru.fizteh.fivt.students.demidov.junit.TableProviderFactoryImplementation;
 import ru.fizteh.fivt.students.demidov.junit.TableProviderImplementation;
 import ru.fizteh.fivt.students.demidov.shell.Exit;
@@ -25,9 +27,9 @@ public class Main {
 		usedShell.curShell.loadCommand(new Get(state));
 		usedShell.curShell.loadCommand(new Put(state));
 		usedShell.curShell.loadCommand(new Remove(state));
-		usedShell.curShell.loadCommand(new Create(state));
-		usedShell.curShell.loadCommand(new Drop(state));
-		usedShell.curShell.loadCommand(new Use(state));
+		usedShell.curShell.loadCommand(new Create<String, TableImplementation>(state));
+		usedShell.curShell.loadCommand(new Drop<String, TableImplementation>(state));
+		usedShell.curShell.loadCommand(new Use<String, TableImplementation>(state));
 		usedShell.curShell.loadCommand(new Exit());
 		
 		try {

@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import ru.fizteh.fivt.students.demidov.filemap.FileMap;
+
+import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
-public class FilesMap {	
-	public FilesMap(String directoryPath) throws IOException { 
-		baseFileMaps = new HashMap<String, FileMap>();
+public class FilesMap<ElementType> {	
+	public FilesMap(String directoryPath, BasicTable<ElementType> table) throws IOException { 
+		baseFileMaps = new HashMap<String, FileMap<ElementType>>();
+		this.table = table;
 		
 		if (new File(directoryPath).isDirectory()) {
 			this.directoryPath = directoryPath;
@@ -18,14 +20,14 @@ public class FilesMap {
 		}
 	}
 		
-	public FileMap getFileMapForKey(String key) {
+	public FileMap<ElementType> getFileMapForKey(String key) {
 		Integer ndirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());
 		String baseFileKey = MultiFileMapUtils.makeKey(ndirectory, nfile);
 		
 		if (baseFileMaps.get(baseFileKey) == null) {
 			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
-			baseFileMaps.put(baseFileKey, new FileMap(fileMapDirectory + File.separator + nfile.toString() + ".dat"));
+			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
 		}
 		return baseFileMaps.get(baseFileKey);
 	}
@@ -60,7 +62,7 @@ public class FilesMap {
 						int ndirectory = MultiFileMapUtils.getNumber(subdirectoryName);
 						int nfile = MultiFileMapUtils.getNumber(baseFileName);
 						String key = MultiFileMapUtils.makeKey(ndirectory, nfile);
-						baseFileMaps.put(key, new FileMap(baseFile.getPath())); 
+						baseFileMaps.put(key, new FileMap<ElementType>(baseFile.getPath(), table)); 
 						baseFileMaps.get(key).readDataFromFile();
 					}
 				}
@@ -72,7 +74,7 @@ public class FilesMap {
 		clearFilesMapDirectory();
 	
 		for (String key: baseFileMaps.keySet()) {
-			FileMap baseFileMap = baseFileMaps.get(key);			
+			FileMap<ElementType> baseFileMap = baseFileMaps.get(key);			
 			if (baseFileMap.getCurrentTable().isEmpty()) {
 				continue;
 			}
@@ -100,6 +102,7 @@ public class FilesMap {
 		}
 	}
 
-	private Map<String, FileMap> baseFileMaps;
+	private Map<String, FileMap<ElementType>> baseFileMaps;
 	private String directoryPath;
+	private BasicTable<ElementType> table;
 }
