@@ -17,8 +17,8 @@ public class StoreableUtils {
             }
         }
 
-        /*for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i).equals(null)) {
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (value.getColumnAt(i) == null) {
             } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
             } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
                     table.getColumnType(i) == Long.class) {
@@ -30,7 +30,7 @@ public class StoreableUtils {
             } else {
                 return false;
             }
-        }*/
+        }
 
         try {
             value.getColumnAt(table.getColumnsCount());
