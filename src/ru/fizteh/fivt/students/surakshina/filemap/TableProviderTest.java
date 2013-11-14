@@ -64,4 +64,14 @@ public class TableProviderTest {
         Table table = provider.createTable("table", list);
         assertSame(provider.getTable("table"), table);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkTableExist() {
+        try {
+            provider.removeTable("param");
+        } catch (IOException e) {
+            // ok
+        }
+    }
+
 }

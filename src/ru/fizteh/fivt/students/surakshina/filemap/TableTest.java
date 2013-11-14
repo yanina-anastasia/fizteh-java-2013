@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -20,7 +22,7 @@ public class TableTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-    
+
     @Before
     public void begin() throws IOException {
         factory = new NewTableProviderFactory();
@@ -35,17 +37,44 @@ public class TableTest {
         list.add(Long.class);
 
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void checkKeyWithWhiteSpace() { 
+    public void checkKeyWithWhiteSpace() {
         Table table = null;
         try {
             table = provider.createTable("table", list);
         } catch (IOException e) {
-           //ok
+            // ok
         }
         Storeable st = new MyStoreable(table);
         st.setColumnAt(0, 5);
-        table.put("  sad ", st);  
+        table.put("  sad ", st);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getNull() {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        table.get(null);
+    }
+
+    @Test
+    public void getExistsKey() throws Exception {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        assertNull(table.put("keyX", st));
+        assertNotNull(table.get("keyX"));
+        assertNotNull(table.remove("keyX"));
+        assertNull(table.get("keyX"));
     }
 }
