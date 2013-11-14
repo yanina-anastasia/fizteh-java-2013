@@ -227,6 +227,7 @@ public class MyTable implements Table {
                 Storeable temp = value;
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
+                    Object tempValue = value.getColumnAt(i);
                     if (c == Integer.class) {
                         temp.setColumnAt(i, Integer.valueOf(1));
                     } else if (c == Long.class)  {
@@ -242,6 +243,7 @@ public class MyTable implements Table {
                     } else {
                         temp.setColumnAt(i, "abc");
                     }
+                    temp.setColumnAt(i, tempValue);
                 }
                 return map.put(key, value);
             } catch (IndexOutOfBoundsException e1) {

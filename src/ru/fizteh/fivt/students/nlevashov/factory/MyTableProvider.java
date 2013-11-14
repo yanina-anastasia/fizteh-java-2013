@@ -319,6 +319,7 @@ public class MyTableProvider implements TableProvider {
                 Storeable temp = value;
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
+                    Object tempValue = value.getColumnAt(i);
                     if (c == Integer.class) {
                         temp.setColumnAt(i, Integer.valueOf(1));
                     } else if (c == Long.class)  {
@@ -334,6 +335,7 @@ public class MyTableProvider implements TableProvider {
                     } else {
                         temp.setColumnAt(i, "abc");
                     }
+                    temp.setColumnAt(i, tempValue);
                 }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
