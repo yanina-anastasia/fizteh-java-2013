@@ -324,7 +324,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty() || key.contains("\\s+")) {
+        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
@@ -351,7 +351,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (key == null || key.trim().isEmpty() || key.contains("\\s+") || value == null) {
+        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0 || value == null) {
             throw new IllegalArgumentException("put: wrong key or value");
         }
         if (!isValid(value)) {
@@ -364,7 +364,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty() || key.contains("\\s+")) {
+        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         Storeable oldValue = get(key);

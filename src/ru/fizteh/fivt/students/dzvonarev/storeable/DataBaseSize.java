@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dzvonarev.storeable;
 
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class DataBaseSize implements CommandInterface {
         try {
             size = tableProvider.getSize();
         } catch (IndexOutOfBoundsException e) {
-            throw new IOException(e);
+            throw new ColumnFormatException(e);
         }
         System.out.println(size);
     }
