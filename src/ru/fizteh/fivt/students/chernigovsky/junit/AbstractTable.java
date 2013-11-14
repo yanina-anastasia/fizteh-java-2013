@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractTable<ValueType> {
     private HashMap<String, ValueType> hashMap;
@@ -42,9 +44,15 @@ public abstract class AbstractTable<ValueType> {
      * @throws IllegalArgumentException Если значение параметра key является null.
      */
     public ValueType get(String key) {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
+        }
+
         if (removedEntries.get(key) != null) {
             return null;
         }
@@ -98,9 +106,15 @@ public abstract class AbstractTable<ValueType> {
     }
 
     public ValueType put(String key, ValueType value) {
-        if (key == null || key.trim().isEmpty()) {
+        if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
+        }
+
         if (value == null) { // maybe need to check: value.trim().isEmpty()
             throw new IllegalArgumentException("value is null");
         }
@@ -143,6 +157,11 @@ public abstract class AbstractTable<ValueType> {
     public ValueType remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
+        }
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
         }
 
         ValueType ans = removing(key);

@@ -14,7 +14,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 
         File dbDirectory = new File(dir);
         if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
-            throw new IllegalArgumentException("no such directory");
+            throw new IOException("no such directory");
         }
 
         return new StoreableTableProvider(dbDirectory, false);

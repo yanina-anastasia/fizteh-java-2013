@@ -38,7 +38,7 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
      * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
      */
     public ExtendedStoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
-    if (name == null) {
+        if (name == null) {
             throw new IllegalArgumentException("name is null");
         }
         if (!name.matches(TABLE_NAME_FORMAT)) {
@@ -56,6 +56,8 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
         if (columnTypes.isEmpty()) {
             throw new IllegalArgumentException("ColumnTypes list is empty");
         }
+
+
 
         File tableDirectory = new File(getDbDirectory(), name);
         if (!tableDirectory.mkdir()) {
@@ -78,7 +80,7 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
                 }
                 TypeEnum typesEnum = TypeEnum.getByClass(type);
                 if (typesEnum == null) {
-                    throw new IOException("write error");
+                    throw new IllegalArgumentException("wrong column type");
                 }
                 String typeString = TypeEnum.getByClass(type).getSignature();
                 dataOutputStream.write(typeString.getBytes("UTF-8"));
