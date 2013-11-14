@@ -9,10 +9,6 @@ import java.text.ParseException;
 public class StoreableUtils {
 
     public static boolean checkValue(Table table, Storeable value) {
-        if (table == null || value == null) {
-            return false;
-        }
-
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             try {
                 value.getColumnAt(i);
@@ -22,7 +18,8 @@ public class StoreableUtils {
         }
 
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
+            if (value.getColumnAt(i).equals(null)) {
+            } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
             } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
                     table.getColumnType(i) == Long.class) {
             } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
