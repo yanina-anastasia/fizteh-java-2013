@@ -224,7 +224,8 @@ public class NewTableProvider implements TableProvider {
                     newFile.close();
                     throw new IllegalArgumentException("Incorrect column name");
                 }
-                newFile.println(getNameString(columnTypes.get(i)));
+                newFile.print(getNameString(columnTypes.get(i)));
+                newFile.print(" ");
             }
             newFile.close();
             tables.put(name, new NewTable(name, this));
@@ -258,7 +259,7 @@ public class NewTableProvider implements TableProvider {
             throw new ParseException("Incorrect format", 0);
         }
         if (array.length() != table.getColumnsCount()) {
-            throw new ParseException("Incorrect numer of types", 0);
+            throw new ParseException("Incorrect number of types", 0);
         }
         ArrayList<Object> values = new ArrayList<Object>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
