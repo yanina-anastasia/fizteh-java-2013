@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -11,7 +12,8 @@ public abstract class AbstractFrame<State> implements Frame {
     protected State state;
 
     @Override
-    public void runCommands(String cmd, int end) throws IOException, InterruptedException {
+    public void runCommands(String cmd, int end)
+            throws IOException, InterruptedException, ClassNotFoundException, ParseException {
         Map<String, AbstractCommand> commands = getCommands();
 
         if (!commands.containsKey(cmd.substring(0, end))) {
@@ -20,7 +22,7 @@ public abstract class AbstractFrame<State> implements Frame {
 
         AbstractCommand command = commands.get(cmd.substring(0, end));
 
-        if (Utils.getCommandArguments(cmd).length != command.getArgsCount()) {
+        if (Utils.getCommandArguments(cmd).length != command.getArgsCount() && command.getArgsCount() != -1) {
             throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
                     "\" command receives " + command.getArgsCount() + " arguments");
         }

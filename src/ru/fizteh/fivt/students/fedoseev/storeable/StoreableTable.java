@@ -1,40 +1,46 @@
-package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
+package ru.fizteh.fivt.students.fedoseev.storeable;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class MultiFileHashMapTable implements Table {
+public class StoreableTable implements Table {
     private static final int MAX_TABLE_SIZE = 4 * 1024 * 1024;
     private static final int MAX_FILE_SIZE = 1024 * 1024;
     private static final int DIRS_NUMBER = 16;
     private static final int DIR_FILES_NUMBER = 16;
 
     private String tableName;
-    private Map<String, String> contents;
-    private Map<String, String> diff;
+    private Map<String, Storeable> contents;
+    private Map<String, Storeable> diff;
     private long tableSize;
     private boolean[] boolUsedDirs;
     private boolean[][] boolUsedFiles;
     private int number;
-    private int prevNumber;
+    private StoreableTableProvider tb;
+    private ArrayList<Class<?>> columnTypes;
 
-    public MultiFileHashMapTable(String tableName) {
+    public StoreableTable(String tableName, List<Class<?>> columnTypes, StoreableTableProvider prev) {
         this.tableName = tableName;
         tableSize = 0;
+        tb = prev;
 
         boolUsedDirs = new boolean[DIRS_NUMBER];
         boolUsedFiles = new boolean[DIRS_NUMBER][DIR_FILES_NUMBER];
         contents = new HashMap<>();
         diff = new HashMap<>();
 
-        prevNumber = contents.size();
-        number = prevNumber;
+        number = contents.size();
+        this.columnTypes = new ArrayList<>(columnTypes);
     }
 
     @Override
@@ -43,39 +49,41 @@ public class MultiFileHashMapTable implements Table {
     }
 
     @Override
-    public String get(String key) {
-        if (key != null) {
-            key = key.trim();
-        }
-
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("GET ERROR: incorrect key");
-        }
+    public Storeable get(String key) {
+        checkKeyFormat(key);
 
         if (diff.containsKey(key)) {
             return diff.get(key);
         }
 
-        getBoolUsedDirs()[dirHash(key)] = true;
-        getBoolUsedFiles()[dirHash(key)][fileHash(key)] = true;
-
         return contents.get(key);
     }
 
     @Override
-    public String put(String key, String value) {
-        if (key != null) {
-            key = key.trim();
-        }
-        if (value != null) {
-            value = value.trim();
+    public Storeable put(String key, Storeable value) {
+        checkKeyFormat(key);
+        try {
+            for (int i = 0; i < columnTypes.size(); i++) {
+                Object v = value.getColumnAt(i);
+
+                if (v != null && !columnTypes.get(i).equals(v.getClass())) {
+                    throw new ColumnFormatException("PUT ERROR: invalid value");
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("PUT ERROR: invalid value");
         }
 
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("PUT ERROR: incorrect key");
-        }
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("PUT ERROR: incorrect value");
+        boolean throwed = false;
+
+        try {
+            value.getColumnAt(columnTypes.size());
+        } catch (IndexOutOfBoundsException e) {
+            throwed = true;
+        } finally {
+            if (!throwed) {
+                throw new ColumnFormatException("PUT ERROR: invalid value");
+            }
         }
 
         if (!diff.containsKey(key) && !contents.containsKey(key) || diff.containsKey(key) && diff.get(key) == null) {
@@ -85,7 +93,7 @@ public class MultiFileHashMapTable implements Table {
         getBoolUsedDirs()[dirHash(key)] = true;
         getBoolUsedFiles()[dirHash(key)][fileHash(key)] = true;
 
-        String prevValue = get(key);
+        Storeable prevValue = get(key);
 
         diff.put(key, value);
 
@@ -97,14 +105,8 @@ public class MultiFileHashMapTable implements Table {
     }
 
     @Override
-    public String remove(String key) {
-        if (key != null) {
-            key = key.trim();
-        }
-
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("REMOVE ERROR: incorrect key");
-        }
+    public Storeable remove(String key) {
+        checkKeyFormat(key);
 
         if (!diff.containsKey(key) && contents.get(key) != null || diff.get(key) != null) {
             number--;
@@ -113,7 +115,7 @@ public class MultiFileHashMapTable implements Table {
         getBoolUsedDirs()[dirHash(key)] = true;
         getBoolUsedFiles()[dirHash(key)][fileHash(key)] = true;
 
-        String prevValue = get(key);
+        Storeable prevValue = get(key);
 
         diff.put(key, null);
 
@@ -142,7 +144,6 @@ public class MultiFileHashMapTable implements Table {
         int prevSize = diff.size();
 
         diff.clear();
-        prevNumber = number;
 
         return prevSize;
     }
@@ -152,14 +153,14 @@ public class MultiFileHashMapTable implements Table {
         int prevSize = diff.size();
 
         diff.clear();
-        number = prevNumber;
+        number = contents.size();
 
         return prevSize;
     }
 
     public void ifUnfitCurTableSize() throws IOException {
         if (this.getTableSize() > MAX_TABLE_SIZE) {
-            AbstractMultiFileHashMap.saveTable(this);
+            AbstractStoreable.saveTable(this);
             clearContentAndDiff();
         }
     }
@@ -167,6 +168,7 @@ public class MultiFileHashMapTable implements Table {
     public void ifUnfitCurFileSize(RandomAccessFile raf) throws IOException {
         if (raf.length() > MAX_FILE_SIZE) {
             raf.close();
+
             throw new IOException("ERROR: too big file");
         }
     }
@@ -191,7 +193,7 @@ public class MultiFileHashMapTable implements Table {
         return diff.size();
     }
 
-    public Map<String, String> getMapContent() {
+    public Map<String, Storeable> getMapContents() {
         return contents;
     }
 
@@ -212,10 +214,10 @@ public class MultiFileHashMapTable implements Table {
         return Math.abs(key.substring(0).getBytes(StandardCharsets.UTF_8)[0]) / DIRS_NUMBER % DIR_FILES_NUMBER;
     }
 
-    public void putMapTable(Map<String, String> map) {
+    public void putMapTable(Map<String, Storeable> map) {
         if (map != null) {
             for (String key : map.keySet()) {
-                contents.put(key, map.get(key));
+                put(key, map.get(key));
             }
         }
     }
@@ -229,7 +231,7 @@ public class MultiFileHashMapTable implements Table {
     }
 
     public void setUsedDirs() {
-        for (String key : getMapContent().keySet()) {
+        for (String key : getMapContents().keySet()) {
             boolUsedDirs[dirHash(key)] = true;
         }
     }
@@ -246,5 +248,29 @@ public class MultiFileHashMapTable implements Table {
                 boolUsedFiles[i][j] = false;
             }
         }
+    }
+
+    public StoreableTableProvider getTb() {
+        return tb;
+    }
+
+    private void checkKeyFormat(String key) {
+        if (key == null || !key.matches("[\\S]+")) {
+            throw new IllegalArgumentException("GET | PUT | REMOVE ERROR: invalid key");
+        }
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
+            throw new IndexOutOfBoundsException("ERROR: invalid column index");
+        }
+
+        return columnTypes.get(columnIndex);
     }
 }

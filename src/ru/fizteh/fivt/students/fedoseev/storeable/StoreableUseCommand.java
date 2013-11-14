@@ -1,16 +1,17 @@
-package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
+package ru.fizteh.fivt.students.fedoseev.storeable;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 
 import java.io.IOException;
+import java.text.ParseException;
 
-public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMapState> {
-    public MultiFileHashMapUseCommand() {
+public class StoreableUseCommand extends AbstractCommand<StoreableState> {
+    public StoreableUseCommand() {
         super("use", 1);
     }
 
     @Override
-    public void execute(String[] input, MultiFileHashMapState state) throws IOException {
+    public void execute(String[] input, StoreableState state) throws IOException, ParseException {
         String tableName = input[0];
 
         if (state.getCurDir().getName().equals(tableName)) {
@@ -18,7 +19,7 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
             return;
         }
 
-        MultiFileHashMapTable curTable = state.getCurTable();
+        StoreableTable curTable = state.getCurTable();
         int changesNumber = 0;
 
         if (curTable != null) {
@@ -30,7 +31,7 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
         }
 
         if (state.getCurDir().toPath().resolve(tableName).toFile().exists()) {
-            AbstractMultiFileHashMap.saveTable(curTable);
+            AbstractStoreable.saveTable(curTable);
 
             if (curTable != null) {
                 curTable.clearContentAndDiff();
@@ -39,7 +40,7 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
             state.setCurTable(tableName);
             curTable = state.getCurTable();
 
-            AbstractMultiFileHashMap.readTableOff(curTable);
+            AbstractStoreable.readTableOff(curTable);
 
             System.out.println("using " + tableName);
         } else {

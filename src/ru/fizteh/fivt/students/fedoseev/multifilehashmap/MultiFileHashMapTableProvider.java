@@ -48,8 +48,4 @@ public class MultiFileHashMapTableProvider implements TableProvider {
             throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: incorrect table name");
         }
     }
-
-    public Map<String, MultiFileHashMapTable> getDatabaseTables() {
-        return databaseTables;
-    }
 }
