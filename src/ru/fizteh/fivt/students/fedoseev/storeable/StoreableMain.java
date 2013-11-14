@@ -15,10 +15,6 @@ public class StoreableMain {
                     System.err.println("ERROR: incorrect table format\n");
                     System.exit(1);
                 }
-                if (tableDir.listFiles().length == 0) {
-                    System.err.println("ERROR: empty table directory\n");
-                    System.exit(1);
-                }
             }
         }
     }

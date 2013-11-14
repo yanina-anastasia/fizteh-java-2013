@@ -62,6 +62,10 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
         if (curDir.listFiles() != null) {
             for (File dir : curDir.listFiles()) {
                 if (dir.listFiles() != null) {
+                    if (dir.listFiles().length == 0) {
+                        throw new IllegalArgumentException("ERROR: empty table directory");
+                    }
+
                     for (File file : dir.listFiles()) {
                         RandomAccessFile raf = new RandomAccessFile(file, "r");
 
