@@ -66,6 +66,9 @@ public class StructuredStorage implements StructuredTableInterface {
 	}
 
 	public Storeable put (String key, Storeable value) throws ColumnFormatException {
+		if (key != null && key.matches(".*\\s.*")) {
+			throw new ColumnFormatException();
+		}
 		try {
 			return provider.deserialize(this, stringStorage.put(key, provider.serialize(this, value)));
 		}

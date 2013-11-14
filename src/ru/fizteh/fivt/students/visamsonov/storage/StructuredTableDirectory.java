@@ -202,6 +202,29 @@ public class StructuredTableDirectory implements StructuredTableProviderInterfac
 		String result = "<row>";
 		try {
 			for (int i = 0; i < table.getColumnsCount(); i++) {
+				switch (getNameByType(table.getColumnType(i))) {
+					case "int":
+						value.getIntAt(i);
+						break;
+					case "long":
+						value.getLongAt(i);
+						break;
+					case "float":
+						value.getFloatAt(i);
+						break;
+					case "byte":
+						value.getByteAt(i);
+						break;
+					case "double":
+						value.getDoubleAt(i);
+						break;
+					case "boolean":
+						value.getBooleanAt(i);
+						break;
+					case "String":
+						value.getStringAt(i);
+						break;
+				}
 				Object obj = value.getColumnAt(i);
 				if (obj == null) {
 					result += "<null/>";

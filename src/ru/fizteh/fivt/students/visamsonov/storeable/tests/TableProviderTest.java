@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.text.ParseException;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.students.visamsonov.storage.StructuredTableDirectory;
 
 public class TableProviderTest {
@@ -57,6 +58,18 @@ public class TableProviderTest {
 		struct.setColumnAt(1, "aba");
 		Assert.assertEquals(provider.serialize(provider.getTable("test"), struct), "<row><col>-1</col><col>aba</col></row>");
 		provider.removeTable("test");
+	}
+
+	@Test(expected = ColumnFormatException.class)
+	public void testAlienStoreable () throws Exception {
+		List<Class<?>> typesOne = new ArrayList<Class<?>>(Arrays.asList(Integer.class, String.class));
+		List<Class<?>> typesTwo = new ArrayList<Class<?>>(Arrays.asList(String.class, Integer.class));
+		provider.createTable("test1", typesOne);
+		provider.createTable("test2", typesTwo);
+		Storeable struct = provider.createFor(provider.getTable("test2"));
+		provider.serialize(provider.getTable("test1"), struct);
+		provider.removeTable("test1");
+		provider.removeTable("test2");
 	}
 
 	@Test
