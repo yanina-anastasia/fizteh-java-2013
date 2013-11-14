@@ -179,8 +179,7 @@ public class FileMap {
                                     throw new IOException("wrong type (create: wrong arguments)");
                                 }
                                 int bracketIndex = arguments.indexOf(' ');
-                                create(arguments.substring(0, bracketIndex),
-                                       arguments.substring(bracketIndex + 2, arguments.length() - 1).split(" "));
+                                create(arguments.substring(0, bracketIndex), arguments.substring(bracketIndex + 2, arguments.length() - 1).split("[\\s\\t\\n]"));
                                 break;
                             }
                             case "drop": {
