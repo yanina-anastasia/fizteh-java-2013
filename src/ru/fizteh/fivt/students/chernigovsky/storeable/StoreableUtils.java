@@ -16,11 +16,27 @@ public class StoreableUtils {
                 return false;
             }
         }
+
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
+            } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
+                    table.getColumnType(i) == Long.class) {
+            } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
+            } else if (value.getColumnAt(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
+            } else if (value.getColumnAt(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
+            } else if (value.getColumnAt(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
+            } else if (value.getColumnAt(i).getClass() == String.class && table.getColumnType(i) == String.class) {
+            } else {
+                return false;
+            }
+        }
+
         try {
             value.getColumnAt(table.getColumnsCount());
         } catch (IndexOutOfBoundsException ex) {
             return true;
         }
+
         return false;
     }
 
