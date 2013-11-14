@@ -28,4 +28,12 @@ public class StoreableTable extends AbstractTable<Storeable> implements Extended
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         return columnTypeList.get(columnIndex);
     }
+
+    public Storeable put(String key, Storeable value) {
+        if (value == null) { // maybe need to check: value.trim().isEmpty()
+            throw new IllegalArgumentException("value is null");
+        }
+        StoreableUtils.checkValue(this, value);
+        return super.put(key, value);
+    }
 }

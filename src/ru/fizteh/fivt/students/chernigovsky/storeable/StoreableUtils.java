@@ -1,9 +1,29 @@
 package ru.fizteh.fivt.students.chernigovsky.storeable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+
 import java.io.*;
 import java.text.ParseException;
 
 public class StoreableUtils {
+
+    public static boolean checkValue(Table table, Storeable value) {
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            try {
+                value.getColumnAt(i);
+            } catch (IndexOutOfBoundsException ex) {
+                return false;
+            }
+        }
+        try {
+            value.getColumnAt(table.getColumnsCount());
+        } catch (IndexOutOfBoundsException ex) {
+            return true;
+        }
+        return false;
+    }
+
     public static void readTable(ExtendedStoreableTable table, StoreableTableProvider tableProvider) throws IOException{
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {

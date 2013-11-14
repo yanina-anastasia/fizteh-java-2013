@@ -166,21 +166,13 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         Object[] serializedValue = new Object[table.getColumnsCount()];
 
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            try {
-                serializedValue[i] = value.getColumnAt(i);
-            } catch (IndexOutOfBoundsException ex) {
-                throw new ColumnFormatException("invalid value");
-            }
-        }
-        try {
-            value.getColumnAt(table.getColumnsCount());
-        } catch (IndexOutOfBoundsException ex) {
-            JSONArray array = new JSONArray(serializedValue);
-            return array.toString();
-        }
+        StoreableUtils.checkValue(table, value);
 
-        throw new ColumnFormatException("invalid value");
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            serializedValue[i] = value.getColumnAt(i);
+        }
+        JSONArray array = new JSONArray(serializedValue);
+        return array.toString();
     }
 
     /**
