@@ -20,28 +20,27 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.StringTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.convertStringToClass;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.myParsing;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.parseValue;
-import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.getStringFromElement;
-
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
 
 public class FileMapProvider implements CommandAbstract, TableProvider {
 
     private final Path pathDb;
     private final CommandShell mySystem;
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read  = readWriteLock.readLock();
+    private final Lock write = readWriteLock.writeLock();
     String useNameTable;
     Set<String> setDirTable;
     FileMap dbData;
-    boolean err;
     boolean out;
     Map<String, FileMap> mapFileMap;
 
@@ -72,7 +71,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     public FileMapProvider(String pathDb) throws Exception {
         this.out = true;
-        this.err = true;
 
         this.useNameTable = "";
         this.pathDb = Paths.get(pathDb);
@@ -116,12 +114,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             FileMap table = new FileMap(pathDb, nameMap, this);
             return table;
         } catch (Exception e) {
-            //e.printStackTrace();
             e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
             throw e;
-            //return null;
         }
     }
+
 
     public String startShellString() {
         return "$ ";
@@ -134,11 +131,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             args = myParsing(args);
             String key = args[0];
             String value = args[1];
-            if (value.contains("<null>")) {
-                dbData.putTypeNull(key, true);
-            } else {
-                dbData.putTypeNull(key, false);
-            }
             Storeable res = dbData.put(key, deserialize(dbData, value));
             if (res == null) {
                 outPrint("new");
@@ -159,9 +151,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 outPrint("not found");
             } else {
                 String s = serialize(dbData, res);
-                if (dbData.getTypeNull(key)) {
-                    s = s.replaceAll("<null/>", "<null></null>");
-                }
                 outPrint("found");
                 outPrint(s);
             }
@@ -237,45 +226,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    private List<String> parsingForCreate(String[] args) throws IllegalArgumentException {
-        String query = args[0];
-        query = query.trim();
-        StringTokenizer token = new StringTokenizer(query);
-        int countTokens = token.countTokens();
-        if (countTokens < 3) {
-            throw new IllegalArgumentException("A few argument");
-        }
-
-        List<String> res = new ArrayList<>();
-        res.add(token.nextToken());
-        res.add(token.nextToken());
-
-        for (int i = 2; i < countTokens; ++i) {
-            String t = token.nextToken();
-            if (i == 2 && t.trim().charAt(0) != '(') {
-                throw new IllegalArgumentException("wrong type ( )");
-            }
-            if (i == countTokens - 1 && t.trim().charAt(t.trim().length() - 1) != ')') {
-                throw new IllegalArgumentException("wrong type ( )");
-            }
-            if (t.charAt(0) == '(') {
-                t = t.substring(1);
-            }
-            if (t.isEmpty()) {
-                continue;
-            }
-            if (t.charAt(t.length() - 1) == ')') {
-                if (t.length() - 1 > 0) {
-                    t = t.substring(0, t.length() - 1);
-                }
-            }
-            if (!t.trim().isEmpty() && !t.contains(")") && !t.contains("(")) {
-                res.add(t.trim());
-            }
-        }
-        return res;
-    }
-
     public void multiCreate(String[] args) throws Exception {
         List<String> argsParse = parsingForCreate(args);
         String nameTable = argsParse.get(1);
@@ -298,7 +248,8 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
+
+    public Table singleCreateTable(String name, List<Class<?>> columnType) throws IOException {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -330,10 +281,17 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    private Boolean antiCorrectDir(String dir) {
-        return dir.contains("/") || dir.contains(":") || dir.contains("*")
-               || dir.contains("?") || dir.contains("\"") || dir.contains("\\")
-               || dir.contains(">") || dir.contains("<") || dir.contains("|");
+    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
+        if (write.tryLock()) {
+            write.lock();
+            try {
+                return singleCreateTable(name, columnType);
+            } finally {
+                write.unlock();
+            }
+        } else {
+            return null;
+        }
     }
 
     public Table getTable(String name) {
@@ -360,7 +318,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public void removeTable(String name) {
+    public void singleRemoveTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -371,10 +329,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 dbData.setDrop();
             }
             try {
-                //dbData.closeTable();
-                //if (!dbData.isDrop()) {
                 mySystem.rm(new String[]{pathDb.resolve(name).toString()});
-                //}
             } catch (Exception e) {
                 IllegalArgumentException ex = new IllegalArgumentException();
                 ex.addSuppressed(e);
@@ -382,6 +337,15 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             }
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    public void removeTable(String name) {
+        write.lock();
+        try {
+            singleRemoveTable(name);
+        } finally {
+            write.unlock();
         }
     }
 
@@ -441,7 +405,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             return line;
 
         } catch (Exception e) {
-            //e.printStackTrace();
             throw new ParseException("wrong data format", 0);
         }
     }
@@ -461,8 +424,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 writer.writeStartElement("row");
                 for (int i = 0; i < columnType.size(); i++) {
                     if (value.getColumnAt(i) == null) {
-                       //  writer.writeStartElement("null");
-                       // writer.writeEndElement();
                        writer.writeEmptyElement("null");
                     } else {
                         writer.writeStartElement("col");

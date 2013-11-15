@@ -2,8 +2,8 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 public class FileMapUtils {
 
@@ -171,6 +171,51 @@ public class FileMapUtils {
         for (int i = 0; i < e.getSuppressed().length; ++i) {
             errPrint(e.getSuppressed()[i].getMessage());
         }
+    }
+
+    public static Boolean antiCorrectDir(String dir) {
+        return dir.contains("/") || dir.contains(":") || dir.contains("*")
+                || dir.contains("?") || dir.contains("\"") || dir.contains("\\")
+                || dir.contains(">") || dir.contains("<") || dir.contains("|");
+    }
+
+    public static List<String> parsingForCreate(String[] args) throws IllegalArgumentException {
+        String query = args[0];
+        query = query.trim();
+        StringTokenizer token = new StringTokenizer(query);
+        int countTokens = token.countTokens();
+        if (countTokens < 3) {
+            throw new IllegalArgumentException("A few argument");
+        }
+
+        List<String> res = new ArrayList<>();
+        res.add(token.nextToken());
+        res.add(token.nextToken());
+
+        for (int i = 2; i < countTokens; ++i) {
+            String t = token.nextToken();
+            if (i == 2 && t.trim().charAt(0) != '(') {
+                throw new IllegalArgumentException("wrong type ( )");
+            }
+            if (i == countTokens - 1 && t.trim().charAt(t.trim().length() - 1) != ')') {
+                throw new IllegalArgumentException("wrong type ( )");
+            }
+            if (t.charAt(0) == '(') {
+                t = t.substring(1);
+            }
+            if (t.isEmpty()) {
+                continue;
+            }
+            if (t.charAt(t.length() - 1) == ')') {
+                if (t.length() - 1 > 0) {
+                    t = t.substring(0, t.length() - 1);
+                }
+            }
+            if (!t.trim().isEmpty() && !t.contains(")") && !t.contains("(")) {
+                res.add(t.trim());
+            }
+        }
+        return res;
     }
 
     static void errPrint(String message) {

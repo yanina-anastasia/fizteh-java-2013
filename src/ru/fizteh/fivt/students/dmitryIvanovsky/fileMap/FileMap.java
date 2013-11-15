@@ -36,7 +36,6 @@ public class FileMap implements Table {
     boolean tableDrop = false;
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
-    Map<String, Boolean> typeNull;
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
@@ -44,7 +43,6 @@ public class FileMap implements Table {
         this.changeTable = new HashMap<>();
         this.parent = parent;
         this.tableData = new HashMap<>();
-        this.typeNull = new HashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -385,18 +383,6 @@ public class FileMap implements Table {
 
     public int changeKey() {
         return changeTable.size();
-    }
-
-    public void putTypeNull(String key, Boolean type) {
-        typeNull.put(key, type);
-    }
-
-    public Boolean getTypeNull(String key) {
-        if (typeNull.containsKey(key) && tableData.containsKey(key)) {
-            return typeNull.get(key);
-        } else {
-            return false;
-        }
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
