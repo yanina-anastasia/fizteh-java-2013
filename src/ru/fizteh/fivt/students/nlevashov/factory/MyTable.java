@@ -223,12 +223,30 @@ public class MyTable implements Table {
             throw new ColumnFormatException("Table.put: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
             try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
-                Storeable temp = value;
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
                     Object o = value.getColumnAt(i);
                     //if (o == null) throw new ColumnFormatException("Table.put: null column");
-                    if ((o != null) && (c != o.getClass())) throw new ColumnFormatException("Table.put: wrong type");
+                    if (o == null) {
+                        if (c == Integer.class) {
+                            value.setColumnAt(i, Integer.valueOf(1));
+                        } else if (c == Long.class)  {
+                            value.setColumnAt(i, Long.valueOf((long) 1));
+                        } else if (c == Byte.class) {
+                            value.setColumnAt(i, Byte.valueOf((byte) 1));
+                        } else if (c == Float.class) {
+                            value.setColumnAt(i, Float.valueOf((float) 1.5));
+                        } else if (c == Double.class) {
+                            value.setColumnAt(i, Double.valueOf(1.5));
+                        } else if (c == Boolean.class) {
+                            value.setColumnAt(i, Boolean.valueOf(true));
+                        } else {
+                            value.setColumnAt(i, "abc");
+                        }
+                        value.setColumnAt(i, null);
+                    } else if (c != o.getClass()) {
+                        throw new ColumnFormatException("Table.put: wrong type");
+                    }
                     /*if (c == Integer.class) {
                         //Integer tempValue = value.getIntAt(i);
                         temp.setColumnAt(i, Integer.valueOf(1));

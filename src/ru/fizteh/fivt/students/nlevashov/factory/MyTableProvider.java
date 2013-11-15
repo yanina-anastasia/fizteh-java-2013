@@ -316,12 +316,30 @@ public class MyTableProvider implements TableProvider {
             throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
             try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
-                Storeable temp = value;
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
                     Object o = value.getColumnAt(i);
                     //if (o == null) throw new ColumnFormatException("TableProvider.serialize: null column");
-                    if ((o != null) && (c != o.getClass())) throw new ColumnFormatException("TableProvider.serialize: wrong type");
+                    if (o == null) {
+                        if (c == Integer.class) {
+                            value.setColumnAt(i, Integer.valueOf(1));
+                        } else if (c == Long.class)  {
+                            value.setColumnAt(i, Long.valueOf((long) 1));
+                        } else if (c == Byte.class) {
+                            value.setColumnAt(i, Byte.valueOf((byte) 1));
+                        } else if (c == Float.class) {
+                            value.setColumnAt(i, Float.valueOf((float) 1.5));
+                        } else if (c == Double.class) {
+                            value.setColumnAt(i, Double.valueOf(1.5));
+                        } else if (c == Boolean.class) {
+                            value.setColumnAt(i, Boolean.valueOf(true));
+                        } else {
+                            value.setColumnAt(i, "abc");
+                        }
+                        value.setColumnAt(i, null);
+                    } else if (c != o.getClass()) {
+                        throw new ColumnFormatException("TableProvider.serialize: wrong type");
+                    }
                 }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
