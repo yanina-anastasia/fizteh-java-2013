@@ -97,7 +97,24 @@ public class Filemap implements Table {
                     str += " but: ";
                     for (int j = 0; j < types.size(); j++) {
                         if (value.getColumnAt(j) != null) {
-                            str += value.getColumnAt(j).getClass() + " ";
+                            str += value.getColumnAt(j).getClass() + " -- ";
+                            Class<?> valClass = value.getColumnAt(j).getClass();
+                            Object valObj = value.getColumnAt(j);
+                            if (valClass.equals(String.class)) {
+                                str += String.class.cast(valObj) + ", ";
+                            } else if (valClass.equals(Integer.class)) {
+                                str += Integer.class.cast(valObj) + ", ";
+                            } else if (valClass.equals(Long.class)) {
+                                str += Long.class.cast(valObj) + ", ";
+                            } else if (valClass.equals(Float.class)) {
+                                str += Float.class.cast(valObj) + ", ";                                
+                            } else if (valClass.equals(Double.class)) {
+                                str += Double.class.cast(valObj) + ", ";
+                            } else if (valClass.equals(Byte.class)) {
+                                str += Byte.class.cast(valObj) + ", ";
+                            } else if (valClass.equals(Boolean.class)) {
+                                str += Boolean.class.cast(valObj) + ", ";
+                            }
                         } else {
                             str += "null ";
                         }
