@@ -193,7 +193,7 @@ public class DataBase implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
-        if (key.isEmpty()) {
+        if (key.isEmpty() || key.trim().isEmpty() ) {
             throw new IllegalArgumentException("Key is empty");
         }
         if (key.split("\\s").length > 1 || key.contains("\t") || key.contains(System.lineSeparator())) {

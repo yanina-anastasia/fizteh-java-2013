@@ -34,12 +34,12 @@ public class DBaseProviderFactoryTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCreateNotExisting() {
         try {
             test.create(root.newFolder().getAbsolutePath() + "not_existing_name");
         } catch (IOException e) {
-            fail("Unexpected IOException");
+            fail("Unexpected Exception");
         }
     }
 

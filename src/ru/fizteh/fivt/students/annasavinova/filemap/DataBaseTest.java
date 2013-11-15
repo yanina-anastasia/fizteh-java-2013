@@ -215,15 +215,14 @@ public class DataBaseTest {
         try {
             Storeable row = prov.createFor(test);
             row.setColumnAt(0, "v0");
-            test.put("k1", row);
+            test.put("kk1", row);
             test.commit();
             row.setColumnAt(0, "v1");
-            test.put("k1", row);
+            test.put("kk1", row);
             row.setColumnAt(0, "v2");
-            test.put("k1", row);
-            assertSame(test.commit(), 1);
-            assertSame(test.get("k1").getStringAt(0), "v2");
-            test.remove("k1");
+            test.put("kk1", row);
+            assertSame(test.get("kk1").getStringAt(0), "v2");
+            test.remove("kk1");
             assertSame(test.commit(), 1);
         } catch (Exception e) {
             e.printStackTrace();
