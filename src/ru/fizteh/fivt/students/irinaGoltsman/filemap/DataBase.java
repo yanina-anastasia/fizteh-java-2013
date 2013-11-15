@@ -55,15 +55,15 @@ public class DataBase {
         }
         String key = args[1];
         Storeable value = currentTable.get(key);
-        String serializedValue = "";
-        try {
-            serializedValue = currentTableProvider.serialize(currentTable, value);
-        } catch (ColumnFormatException e) {
-            System.out.println(String.format("wrong type (%s)", e.getMessage()));
-            return Code.OK;
-        }
         if (value != null) {
             System.out.println("found");
+            String serializedValue = "";
+            try {
+                serializedValue = currentTableProvider.serialize(currentTable, value);
+            } catch (ColumnFormatException e) {
+                System.out.println(String.format("wrong type (%s)", e.getMessage()));
+                return Code.OK;
+            }
             System.out.println(serializedValue);
         } else {
             System.out.println("not found");
