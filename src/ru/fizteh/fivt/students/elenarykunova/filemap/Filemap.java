@@ -76,47 +76,9 @@ public class Filemap implements Table {
         for (int i = 0; i < types.size(); ++i) {
             try {
                 Object val = value.getColumnAt(i);
-                /*
-                 * if (val != null && !types.get(i).equals(val.getClass())) { if
-                 * (val.getClass().equals(String.class)) { String str = (String)
-                 * val; throw new
-                 * ColumnFormatException("types mismatch: expected " +
-                 * types.get(i) + " but was " + val.getClass() + " " + str); }
-                 * else { throw new
-                 * ColumnFormatException("types mismatch: expected " +
-                 * types.get(i) + " but was " + val.getClass()); } }
-                 */
                 if (val != null && !types.get(i).equals(val.getClass())) {
-                    String str = "";
-                    for (int j = 0; j < types.size(); j++) {
-                        str += types.get(j) + " ";
-                    }
-                    str += " but: ";
-                    for (int j = 0; j < types.size(); j++) {
-                        if (value.getColumnAt(j) != null) {
-                            str += value.getColumnAt(j).getClass() + " -- ";
-                            Class<?> valClass = value.getColumnAt(j).getClass();
-                            Object valObj = value.getColumnAt(j);
-                            if (valClass.equals(String.class)) {
-                                str += String.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Integer.class)) {
-                                str += Integer.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Long.class)) {
-                                str += Long.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Float.class)) {
-                                str += Float.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Double.class)) {
-                                str += Double.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Byte.class)) {
-                                str += Byte.class.cast(valObj) + ", ";
-                            } else if (valClass.equals(Boolean.class)) {
-                                str += Boolean.class.cast(valObj) + ", ";
-                            }
-                        } else {
-                            str += "null ";
-                        }
-                    }
-                    throw new ColumnFormatException(str);
+                    throw new ColumnFormatException("types mismatch: expected "
+                            + types.get(i) + " but was " + val.getClass());
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");

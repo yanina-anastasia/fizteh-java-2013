@@ -247,12 +247,6 @@ public class ExecuteCmd extends Shell {
             break;
         case "exit":
             if (arg.length == 1) {
-                try {
-                    mp.commit();
-                } catch (RuntimeException e) {
-                    System.err.println(e.getMessage());
-                    return ExitCode.ERR;
-                }
                 return ExitCode.EXIT;
             }
             break;
