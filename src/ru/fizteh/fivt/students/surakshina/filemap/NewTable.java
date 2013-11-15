@@ -25,24 +25,16 @@ public class NewTable implements Table {
                 if (directory.getName().equals("signature.tsv")) {
                     continue;
                 }
-                if (!checkNameOfDataBaseDirectory(directory.getName()) || !directory.isDirectory()) {
-                    throw new IOException(directory.getName() + " wrong dir");
-                }
-
-                if (directory.listFiles().length == 0) {
-                    throw new IOException(directory.getName() + " empty dir");
+                if (!checkNameOfDataBaseDirectory(directory.getName()) || !directory.isDirectory()
+                        || directory.listFiles().length == 0) {
+                    throw new IOException("empty dir");
                 }
                 for (File dat : directory.listFiles()) {
-                    if (!checkNameOfFiles(dat.getName()) || !dat.isFile()) {
-                        throw new IOException(dat.getName() + " wrong dat");
-                    }
-
-                    if (dat.listFiles().length == 0) {
-                        throw new IOException(dat.getName() + " empty dat");
+                    if (!checkNameOfFiles(dat.getName()) || !dat.isFile() || dat.length() == 0) {
+                        throw new IOException("empty file");
                     }
                 }
             }
-
         } else {
             throw new IOException("wrong type (no signature)");
         }
