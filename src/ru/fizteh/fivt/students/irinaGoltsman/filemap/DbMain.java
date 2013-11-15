@@ -2,14 +2,11 @@ package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProviderFactory;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Code;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.MapOfCommands;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.Shell;
 import ru.fizteh.fivt.students.irinaGoltsman.shell.ShellCommands;
-
-import java.io.File;
 
 public class DbMain {
     public static void main(String[] args) {
