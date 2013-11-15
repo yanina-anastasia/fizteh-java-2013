@@ -228,7 +228,6 @@ public class NewTable implements Table {
 
     @Override
     public Storeable get(String key) {
-        checkName(key);
         if (!dataMap.containsKey(key)) {
             return null;
         }
@@ -237,7 +236,6 @@ public class NewTable implements Table {
 
     @Override
     public Storeable remove(String key) {
-        checkName(key);
         if (dataMap.containsKey(key)) {
             Storeable oldVal = dataMap.get(key).getValue();
             dataMap.get(key).setValue(null);
