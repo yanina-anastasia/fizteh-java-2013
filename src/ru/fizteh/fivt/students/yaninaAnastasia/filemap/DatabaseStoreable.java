@@ -56,7 +56,7 @@ public class DatabaseStoreable implements Storeable {
                 columns.set(columnNum, value);
                 return;
             }
-            isColumnTypeValid(columnNum, value);
+            isColumnTypeValid(columnNum, value.getClass());
             /*try {
                 if (value.getClass() == String.class) {
                     String stringValue = (String) value;
@@ -134,8 +134,8 @@ public class DatabaseStoreable implements Storeable {
         }
     }
 
-    private void isColumnTypeValid(int columnIndex, Object value) throws ColumnFormatException {
-        if (!value.getClass().isAssignableFrom(classes.get(columnIndex))) {
+    private void isColumnTypeValid(int columnIndex, Class<?> value) throws ColumnFormatException {
+        if (!value.isAssignableFrom(classes.get(columnIndex))) {
             throw new ColumnFormatException(String.format("Incorrect type: expected %s, but is %s",
                     classes.get(columnIndex).getName(), value.getClass().getName()));
         }
