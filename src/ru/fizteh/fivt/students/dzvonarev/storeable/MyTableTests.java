@@ -27,8 +27,8 @@ public class MyTableTests {
         provider = factory.create(folder.newFolder().getCanonicalPath());
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
-        cl.add(Integer.class);
-        cl.add(Integer.class);
+        cl.add(String.class);
+        cl.add(Double.class);
         table = provider.createTable("testTable", cl);
     }
 
@@ -37,38 +37,49 @@ public class MyTableTests {
         table.put("key", null);
     }
 
-    @Test(expected = ColumnFormatException.class)
-    public void testAlienStoreavble() throws IOException {
+    @Test
+    public void testIsCorrect() throws IOException{
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
-        cl.add(Boolean.class);
-        Table table2 = provider.createTable("asd", cl);
-        Storeable x = provider.createFor(table2);
-        table.put("asd", x);
-    }
-
-    @Test
-    public void testIsValid() {
+        cl.add(String.class);
+        cl.add(Double.class);
+        Table t = provider.createTable("1ff1", cl);
         List<Object> data = new ArrayList<>();
-        Integer num = new Integer(2);
-        data.add(num);
-        data.add(24);
-        Storeable st = provider.createFor(table, data);
+        data.add(2);
+        data.add("fq");
+        data.add(3.3);
+        Storeable st = provider.createFor(t, data);
         table.put("blabla", st);
     }
 
-    @Test
-    public void testTable() throws IOException {
-        List<Class<?>> x = new ArrayList<>();
-        x.add(Integer.class);
-        x.add(Long.class);
-        x.add(Float.class);
-        x.add(Double.class);
-        x.add(String.class);
-        x.add(Boolean.class);
-        x.add(Byte.class);
-        Table t = provider.createTable("asdasd", x);
-        t.put("asd", provider.createFor(t));
+    @Test (expected = ColumnFormatException.class)
+    public void testLessArguments() throws IOException {
+        List<Class<?>> cl = new ArrayList<>();
+        cl.add(Integer.class);
+        cl.add(String.class);
+        Table t = provider.createTable("less", cl);
+        List<Object> x = new ArrayList<>();
+        x.add(24);
+        x.add("lbaba");
+        Storeable st = provider.createFor(t, x);
+        table.put("asd", st);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testMoreArguments() throws IOException {
+        List<Class<?>> cl = new ArrayList<>();
+        cl.add(Integer.class);
+        cl.add(String.class);
+        cl.add(Double.class);
+        cl.add(Integer.class);
+        Table t = provider.createTable("more", cl);
+        List<Object> x = new ArrayList<>();
+        x.add(1);
+        x.add("2");
+        x.add(3.4);
+        x.add(1);
+        Storeable st = provider.createFor(t, x);
+        table.put("asd", st);
     }
 
 

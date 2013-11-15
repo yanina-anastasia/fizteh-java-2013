@@ -52,7 +52,7 @@ public class MyStoreable implements Storeable {
         if (value.getClass() != columnTypes.get(columnIndex)) {
             throw new ColumnFormatException("wrong type of value in " + columnIndex + " column");
         }
-        column.add(columnIndex, value);
+        column.set(columnIndex, value);
     }
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
