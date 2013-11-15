@@ -219,7 +219,7 @@ public class MyTable implements Table {
     public void checkingValueForValid(Storeable value) throws ColumnFormatException {
         try {
             value.getColumnAt(getColumnsCount());
-            throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + " )");
+            throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + ")");
         } catch (IndexOutOfBoundsException e) {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
@@ -451,7 +451,7 @@ public class MyTable implements Table {
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
-            throw new IndexOutOfBoundsException("wrong type (wrong column index at " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index at " + columnIndex + ")");
         }
         return type.get(columnIndex);
     }

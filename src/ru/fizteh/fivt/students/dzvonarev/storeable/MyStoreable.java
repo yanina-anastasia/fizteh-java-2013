@@ -15,14 +15,14 @@ public class MyStoreable implements Storeable {
             columnTypes.add(table.getColumnType(i));
         }
         if (args.size() != columnTypes.size()) {            // wrong count of columns
-            throw new IndexOutOfBoundsException("wrong type (wrong count of columns in value - " + args.size() + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong count of columns in value - " + args.size() + ")");
         }
         for (int i = 0; i < args.size(); ++i) {
             if (args.get(i) == null) {
                 continue;
             }
             if (args.get(i).getClass() != columnTypes.get(i)) {
-                throw new ColumnFormatException("wrong type ( " + i + " column got wrong type - " + args.get(i) + " )");
+                throw new ColumnFormatException("wrong type (" + i + " column got wrong type - " + args.get(i) + ")");
             }
         }
         ArrayList<Object> temp = new ArrayList<>();      // if all OK we init column array
@@ -47,87 +47,87 @@ public class MyStoreable implements Storeable {
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (value.getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( value " + value + " got invalid type in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (value " + value + " got invalid type in " + columnIndex + " column)");
         }
         column.set(columnIndex, value);
     }
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         return column.get(columnIndex);
     }
 
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Integer) column.get(columnIndex);
     }
 
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Long) column.get(columnIndex);
     }
 
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Byte) column.get(columnIndex);
     }
 
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Float) column.get(columnIndex);
     }
 
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Double) column.get(columnIndex);
     }
 
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Boolean) column.get(columnIndex);
     }
 
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
-            throw new IndexOutOfBoundsException("wrong type ( wrong column index - " + columnIndex + " )");
+            throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type ( wrong type of value in " + columnIndex + " column )");
+            throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (String) column.get(columnIndex);
     }

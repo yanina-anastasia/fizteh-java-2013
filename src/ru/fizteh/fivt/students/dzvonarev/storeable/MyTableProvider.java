@@ -108,7 +108,7 @@ public class MyTableProvider implements TableProvider {
                 }
             }
         } else {
-            throw new RuntimeException("wrong type (invalid directory name " + workingDirectory + " )");
+            throw new RuntimeException("wrong type (invalid directory name " + workingDirectory + ")");
         }
     }
 
@@ -145,7 +145,7 @@ public class MyTableProvider implements TableProvider {
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
         if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " )");
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         return multiFileMap.get(tableName);
     }
@@ -171,7 +171,7 @@ public class MyTableProvider implements TableProvider {
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
         if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " )");
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         if (!multiFileMap.containsKey(tableName)) {
             throw new IllegalStateException(tableName + " not exists");
