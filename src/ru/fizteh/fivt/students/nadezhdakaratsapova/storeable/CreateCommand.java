@@ -25,6 +25,6 @@ public class CreateCommand implements Command {
     }
 
     public boolean compareArgsCount(int inputArgsCount) {
-        return (inputArgsCount > 2);
+        return (inputArgsCount > 1);
     }
 }
