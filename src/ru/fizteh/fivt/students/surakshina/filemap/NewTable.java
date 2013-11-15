@@ -31,7 +31,7 @@ public class NewTable implements Table {
                 }
                 for (File dat : directory.listFiles()) {
                     if (!checkNameOfFiles(dat.getName()) || !dat.isFile() || dat.length() == 0) {
-                        throw new IOException("empty file");
+                        throw new IOException(dat.getName() + "  empty file");
                     }
                 }
             }
