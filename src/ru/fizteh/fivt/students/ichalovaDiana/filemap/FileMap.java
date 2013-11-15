@@ -24,7 +24,6 @@ public class FileMap {
 
     static {
         try {
-            //System.setIn(new FileInputStream("C:\\Users\\ItsNotMe\\Java Workspace\\fizteh-again\\in"));
             String dbDir = System.getProperty("fizteh.db.dir");
 
             TableProviderFactory factory = new TableProviderFactoryImplementation();

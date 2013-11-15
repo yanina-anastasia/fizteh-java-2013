@@ -21,6 +21,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, true);
         Assert.assertEquals(true, value1.getColumnAt(0));
+        Assert.assertEquals(true, value1.getBooleanAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -38,6 +39,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, 666);
         Assert.assertEquals(666, value1.getColumnAt(0));
+        Assert.assertEquals((Integer) 666, value1.getIntAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -55,6 +57,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, 5.3f);
         Assert.assertEquals(5.3f, value1.getColumnAt(0));
+        Assert.assertEquals((Float) 5.3f, value1.getFloatAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -72,6 +75,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, 5.3);
         Assert.assertEquals(5.3, value1.getColumnAt(0));
+        Assert.assertEquals((Double) 5.3, value1.getDoubleAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -89,6 +93,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, (byte) 5);
         Assert.assertEquals((byte) 5, value1.getColumnAt(0));
+        Assert.assertEquals((Byte) (byte) 5, value1.getByteAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -106,6 +111,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, 5L);
         Assert.assertEquals(5L, value1.getColumnAt(0));
+        Assert.assertEquals((Long) 5L, value1.getLongAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -123,6 +129,7 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, "String");
         Assert.assertEquals("String", value1.getColumnAt(0));
+        Assert.assertEquals("String", value1.getStringAt(0));
     }
     
     @Test(expected = ColumnFormatException.class)
@@ -132,4 +139,5 @@ public class TestsForStoreable {
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, 5L);
     }
+    
 }
