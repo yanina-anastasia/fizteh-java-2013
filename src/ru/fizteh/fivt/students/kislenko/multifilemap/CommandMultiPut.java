@@ -15,7 +15,7 @@ public class CommandMultiPut implements Command<MultiFileHashMapState> {
         return 2;
     }
 
-    public void run(MultiFileHashMapState state, String[] args) throws IOException {
+    public void run(MultiFileHashMapState state, String[] args) throws Exception {
         MyTable table = state.getCurrentTable();
         if (state.getCurrentTable() == null) {
             System.out.println("no table");
