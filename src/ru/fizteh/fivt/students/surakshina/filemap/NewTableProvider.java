@@ -174,11 +174,15 @@ public class NewTableProvider implements TableProvider {
         HashMap<File, HashMap<String, String>> files = new HashMap<File, HashMap<String, String>>();
         HashMap<String, String> map = table.returnMap();
         for (String key : map.keySet()) {
-            File file = getFile(key);
-            if (!files.containsKey(file)) {
-                files.put(file, new HashMap<String, String>());
+            if (map.get(key) != null) {
+                File file = getFile(key);
+                if (!files.containsKey(file)) {
+                    files.put(file, new HashMap<String, String>());
+                }
+                files.get(file).put(key, map.get(key));
+            } else {
+                map.remove(key);
             }
-            files.get(file).put(key, map.get(key));
         }
         return files;
     }
