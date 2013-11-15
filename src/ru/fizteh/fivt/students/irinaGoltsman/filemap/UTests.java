@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.irinaGoltsman.filemap;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
@@ -20,11 +17,8 @@ public class UTests {
     @Rule
     public TemporaryFolder rootDBDirectory = new TemporaryFolder();
 
-    @Before
-    public void init() throws IOException {
-        TableProviderFactory factory = new DBTableProviderFactory();
-        TableProvider tableProvider = factory.create(rootDBDirectory.toString());
-        dataBase = new DataBase(tableProvider);
+    @BeforeClass
+    public static void setUp(){
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Exit());
         cm.addCommand(new DBCommands.Put());
@@ -38,6 +32,13 @@ public class UTests {
         cm.addCommand(new DBCommands.RollBack());
     }
 
+    @Before
+    public void init() throws IOException {
+        TableProviderFactory factory = new DBTableProviderFactory();
+        TableProvider tableProvider = factory.create(rootDBDirectory.toString());
+        dataBase = new DataBase(tableProvider);
+    }
+    /*
     @Test
     public void useNotExistingTable() throws IOException {
         String[] args = new String[1];
@@ -53,8 +54,7 @@ public class UTests {
         String out = scan.nextLine();
         Assert.assertEquals("newTable not exists", out);
     }
-
-    /*
+     */
     @Test
     public void createTable() throws IOException {
         String[] args = new String[1];
@@ -72,7 +72,7 @@ public class UTests {
         String out = scan.nextLine();
         Assert.assertEquals("Command 'create' has wrong arguments", out);
     }
-     */
+
     @Test
     public void consoleApp() throws IOException {
         File output = new File("output.txt");
