@@ -19,9 +19,6 @@ public class CommandCreate extends DataBaseCommand {
         for (int i = 0; i < result.length; ++i) {
             if (!result[i].isEmpty()) {
                 classNew.add(state.getTableProvider().getNameClass(result[i]));
-            } else {
-                state.printError("Incorrect input");
-                return;
             }
         }
         try {
