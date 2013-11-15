@@ -223,12 +223,21 @@ public class MyTable implements Table {
     }
 
     public boolean isValid(Storeable value) throws IndexOutOfBoundsException {
+        try {
+            value.getColumnAt(getColumnsCount());
+            throw new ColumnFormatException("value has more columns then types");
+        } catch (IndexOutOfBoundsException e) {
+        }
         for (int i = 0; i < getColumnsCount(); ++i) {
-            if (value.getColumnAt(i) == null) {
-                continue;
-            }
-            if (value.getColumnAt(i).getClass() != type.get(i)) {
-                return false;
+            try {
+                if (value.getColumnAt(i) == null) {
+                    continue;
+                }
+                if (value.getColumnAt(i).getClass() != type.get(i)) {
+                    return false;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("value has less columns then types");
             }
         }
         return true;
@@ -322,9 +331,18 @@ public class MyTable implements Table {
         return tableName.substring(tableName.lastIndexOf(File.separator) + 1, tableName.length());
     }
 
+    public boolean containsWhitespace(String str) {
+        for (int i = 0; i < str.length(); ++i) {
+            if (Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0) {
+        if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("get: wrong key");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
@@ -351,7 +369,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0 || value == null) {
+        if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("put: wrong key or value");
         }
         if (!isValid(value)) {
@@ -364,7 +382,7 @@ public class MyTable implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null || key.trim().isEmpty() || key.indexOf(' ') >= 0) {
+        if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("remove: wrong key");
         }
         Storeable oldValue = get(key);

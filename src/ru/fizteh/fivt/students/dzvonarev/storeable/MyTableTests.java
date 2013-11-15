@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
@@ -31,6 +33,16 @@ public class MyTableTests {
     @Test(expected = IllegalArgumentException.class)
     public void testNullValue() {
         table.put("key", null);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testAlienStoreavble() throws IOException {
+        List<Class<?>> cl = new ArrayList<>();
+        cl.add(Integer.class);
+        cl.add(Boolean.class);
+        Table table2 = provider.createTable("asd", cl);
+        Storeable x = provider.createFor(table2);
+        table.put("asd", x);
     }
 
 

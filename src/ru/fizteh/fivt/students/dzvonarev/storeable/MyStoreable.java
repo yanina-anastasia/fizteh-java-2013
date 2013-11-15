@@ -45,6 +45,7 @@ public class MyStoreable implements Storeable {
     private ArrayList<Object> column;           // values in columns
     private ArrayList<Class<?>> columnTypes;    // types of these values
 
+
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong column index " + columnIndex);
