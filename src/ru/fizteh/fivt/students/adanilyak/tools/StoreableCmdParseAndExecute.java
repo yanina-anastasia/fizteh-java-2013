@@ -51,7 +51,8 @@ public class StoreableCmdParseAndExecute {
                 case "create":
                     try {
                         cmdAndArgs.add(cmdScanner.next());
-                        String temp = cmdScanner.findInLine(Pattern.compile("\\(.+\\)")).replaceAll("[\\(|\\)]", "");
+                        String temp = cmdScanner.findInLine(Pattern.compile("\\(.+\\)"))
+                                .replaceFirst("\\(", "").replaceFirst("\\)", "");
                         temp = temp.replaceAll("\\s+", " ");
                         cmdAndArgs.add(temp);
                     } catch (NullPointerException exc) {
