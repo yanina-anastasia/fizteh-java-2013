@@ -34,6 +34,9 @@ public class StorableState extends MultiFileShellState {
         List<Class<?>> columnTypes = new ArrayList<>();
         for (String type : signature) {
             TypesEnum typesEnum = TypesEnum.getBySignature(type);
+            if (typesEnum == null) {
+                throw new IOException("bad value type: " + type);
+            }
             columnTypes.add(typesEnum.getClazz());
         }
         tableProvider.createTable(name, columnTypes);
