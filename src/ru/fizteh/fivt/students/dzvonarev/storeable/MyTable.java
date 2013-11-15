@@ -216,7 +216,7 @@ public class MyTable implements Table {
         return true;
     }
 
-    public boolean isValid(Storeable value) throws ColumnFormatException {
+    public boolean isValid(Storeable value) {
         try {                                                      // checking format
             value.getColumnAt(getColumnsCount());
             return false;
@@ -231,10 +231,14 @@ public class MyTable implements Table {
         }
 
         for (int i = 0; i < getColumnsCount(); ++i) {              // checking value
-            if (value.getColumnAt(i) == null) {
-                continue;
-            }
-            if (value.getColumnAt(i).getClass() != type.get(i)) {
+            try {
+                if (value.getColumnAt(i) == null) {
+                    continue;
+                }
+                if (value.getColumnAt(i).getClass() != type.get(i)) {
+                    return false;
+                }
+            } catch (IndexOutOfBoundsException e) {
                 return false;
             }
         }
@@ -371,7 +375,8 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("put: wrong key or value");
         }
         if (!isValid(value)) {
-            throw new ColumnFormatException("invalid storeable");
+            throw new ColumnFormatException(
+                    "invalid storeable");
         }
         Storeable oldValue = get(key);
         addChanges(key, value);
