@@ -51,11 +51,8 @@ public class DataBaseProvider implements TableProvider {
 
     @Override
     public Table getTable(String name) throws IllegalArgumentException {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is null");
-        }
         if (!checkTableName(name)) {
-            throw new RuntimeException("name is incorrect");
+            throw new IllegalArgumentException("name is incorrect");
         }
         DataBase getTable = tableBase.get(name);
         return getTable;
@@ -151,11 +148,11 @@ public class DataBaseProvider implements TableProvider {
         File fileTable = new File(rootDir + name);
         if (!fileTable.exists()) {
             if (!fileTable.mkdir()) {
-                throw new IOException("Cannot create directory");
+                throw new IOException("Cannot create directory " + fileTable.getAbsolutePath());
             }
             File types = new File(rootDir + name + File.separator + "signature.tsv");
             if (!types.createNewFile()) {
-                throw new IOException("Cannot create directory");
+                throw new IOException("Cannot create file " + types.getAbsolutePath());
             }
             fillTypesFile(types, columnTypes);
             DataBase table = new DataBase(name, rootDir, this);
@@ -168,11 +165,8 @@ public class DataBaseProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is null");
-        }
         if (!checkTableName(name)) {
-            throw new RuntimeException("name is incorrect");
+            throw new IllegalArgumentException("name is incorrect");
         }
         File fileTable = new File(rootDir + name);
         if (!fileTable.exists() && tableBase.get(name) == null) {
@@ -201,33 +195,24 @@ public class DataBaseProvider implements TableProvider {
     }
 
     public Class<?> getClassFromString(String name) {
-        Class<?> result = null;
         switch (name) {
-        case ("int"):
-            result = Integer.class;
-            break;
-        case ("long"):
-            result = Long.class;
-            break;
-        case ("byte"):
-            result = Byte.class;
-            break;
-        case ("float"):
-            result = Float.class;
-            break;
-        case ("double"):
-            result = Double.class;
-            break;
-        case ("boolean"):
-            result = Boolean.class;
-            break;
-        case ("String"):
-            result = String.class;
-            break;
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "byte":
+            return Byte.class;
+        case "float":
+            return Float.class;
+        case "double":
+            return Double.class;
+        case "boolean":
+            return Boolean.class;
+        case "String":
+            return String.class;
         default:
             throw new RuntimeException("Incorrect type " + name);
         }
-        return result;
     }
 
     public Object getObjectFromString(String text, Class<?> type) throws IOException {

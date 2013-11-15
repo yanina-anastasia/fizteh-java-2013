@@ -171,47 +171,42 @@ public class FileMap extends UserShell {
     }
 
     private void doCreateTable(String args) {
-        try {
-            args.trim();
-            if (!args.endsWith(")")) {
-                printError("Incorrect arguments. Need types");
-                return;
-            }
-            args = args.replace(")", "");
-            String[] strArray = args.split("[ ]+[/(]", 2);
-            if (strArray.length < 2) {
-                printError("Incorrect arguments. Need types");
-                return;
-            }
-            String tableName = strArray[0];
-            ArrayList<Class<?>> list = new ArrayList<>();
-            Scanner sc = new Scanner(strArray[1]);
-            while (sc.hasNext()) {
-                try {
-                    String type = sc.next();
-                    Class<?> cl = prov.getClassFromString(type);
-                    list.add(cl);
-                } catch (RuntimeException e) {
-                    printError("wrong type (" + e.getMessage() + ")");
-                    sc.close();
-                    return;
-                }
-            }
-            sc.close();
+        args.trim();
+        if (!args.endsWith(")")) {
+            printError("Incorrect arguments. Need types");
+            return;
+        }
+        args = args.replace(")", "");
+        String[] strArray = args.split("[ ]+[/(]", 2);
+        if (strArray.length < 2) {
+            printError("Incorrect arguments. Need types");
+            return;
+        }
+        String tableName = strArray[0];
+        ArrayList<Class<?>> list = new ArrayList<>();
+        Scanner sc = new Scanner(strArray[1]);
+        while (sc.hasNext()) {
             try {
-                if (prov.createTable(tableName, list) == null) {
-                    System.out.println(tableName + " exists");
-                } else {
-                    System.out.println("created");
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            } catch (IllegalArgumentException e) {
-                System.out.println("wrong type (" + e.getMessage() + ")");
+                String type = sc.next();
+                Class<?> cl = prov.getClassFromString(type);
+                list.add(cl);
+            } catch (RuntimeException e) {
+                printError("wrong type (" + e.getMessage() + ")");
+                sc.close();
+                return;
             }
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+        }
+        sc.close();
+        try {
+            if (prov.createTable(tableName, list) == null) {
+                System.out.println(tableName + " exists");
+            } else {
+                System.out.println("created");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
         }
     }
@@ -225,19 +220,18 @@ public class FileMap extends UserShell {
             }
         }
         try {
-            if (prov.getTable(tableName) == null) {
+            DataBase tmp = (DataBase) prov.getTable(tableName);
+            if (tmp == null) {
                 System.out.println(tableName + " not exists");
             } else {
                 if (currTable != null) {
                     currTable.unloadData();
                 }
-                currTable = (DataBase) prov.getTable(tableName);
+                currTable = tmp;
                 System.out.println("using " + tableName);
             }
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
-        } catch (RuntimeException e) {
-            printError(e.getMessage());
         }
     }
 
@@ -246,19 +240,15 @@ public class FileMap extends UserShell {
             currTable = null;
         }
         try {
-            try {
-                prov.removeTable(tableName);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
-            }
+            prov.removeTable(tableName);
             System.out.println("dropped");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         } catch (IllegalStateException e) {
             System.out.println(tableName + " not exists");
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -274,10 +264,6 @@ public class FileMap extends UserShell {
         } catch (ParseException e) {
             e.printStackTrace();
             printError("Cannot parse arguments");
-        } catch (RuntimeException e) {
-            //TODO
-            e.printStackTrace();
-            printError(e.getMessage());
         }
 
     }
@@ -293,7 +279,6 @@ public class FileMap extends UserShell {
             }
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
-            return;
         }
     }
 
