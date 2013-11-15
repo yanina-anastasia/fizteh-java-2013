@@ -12,6 +12,9 @@ import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.BufferedReader;
@@ -29,8 +32,9 @@ public class FileMap implements Table {
 
     private final Path pathDb;
     private final CommandShell mySystem;
+    private final Lock commitLock = new ReentrantLock();
     String nameTable;
-    Map<String, Storeable> tableData;
+    ConcurrentHashMap<String, Storeable> tableData;
     ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
         @Override
         protected Map<String, Storeable> initialValue() {
@@ -45,9 +49,8 @@ public class FileMap implements Table {
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
         this.pathDb = pathDb;
-        //this.changeTable = new HashMap<>();
         this.parent = parent;
-        this.tableData = new HashMap<>();
+        this.tableData = new ConcurrentHashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -121,8 +124,7 @@ public class FileMap implements Table {
         this.pathDb = pathDb;
         this.parent = parent;
         this.columnType = columnType;
-        //this.changeTable = new HashMap<>();
-        this.tableData = new HashMap<>();
+        this.tableData = new ConcurrentHashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -565,6 +567,15 @@ public class FileMap implements Table {
     }
 
     public int commit() {
+        commitLock.lock();
+        try {
+            return singleCommit();
+        } finally {
+            commitLock.unlock();
+        }
+    }
+
+    private int singleCommit() {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }

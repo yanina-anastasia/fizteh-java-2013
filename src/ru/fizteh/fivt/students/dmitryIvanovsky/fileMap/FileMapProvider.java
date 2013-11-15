@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
@@ -36,7 +37,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     private final Path pathDb;
     private final CommandShell mySystem;
-    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock read  = readWriteLock.readLock();
     private final Lock write = readWriteLock.writeLock();
     String useNameTable;
