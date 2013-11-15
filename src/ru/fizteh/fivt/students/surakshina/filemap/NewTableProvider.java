@@ -103,7 +103,7 @@ public class NewTableProvider implements TableProvider {
             }
         }
         File file = new File(fileDir, nfile + ".dat");
-        if (!file.exists()) {
+        /*if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
                     throw new RuntimeException("Can't create file");
@@ -111,7 +111,7 @@ public class NewTableProvider implements TableProvider {
             } catch (IOException e) {
                 throw new RuntimeException("Can't create file");
             }
-        }
+        }*/
         return file;
     }
 
