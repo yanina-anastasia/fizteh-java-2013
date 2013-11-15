@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.demidov.multifilehashmap;
+package ru.fizteh.fivt.students.demidov.filemap;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,10 @@ import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
 
 public class FileMap<ElementType> {
 	public FileMap(String path, BasicTable<ElementType> table) {
+		if ((new File(path)).isDirectory()) {
+			path += File.separator + "db.dat";
+		}
+		
 		this.path = path;		
 		this.table = table;
 		

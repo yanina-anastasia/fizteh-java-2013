@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
+import ru.fizteh.fivt.students.demidov.filemap.FileMap;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FilesMap<ElementType> {	
@@ -42,12 +43,17 @@ public class FilesMap<ElementType> {
 	
 	public void clearFilesMapDirectory() throws IOException {
 		for (String subdirectory: (new File(directoryPath)).list()) {
-			Utils.deleteFileOrDirectory(new File(directoryPath, subdirectory));
+			if (!(subdirectory.equals("signature.tsv"))) {
+				Utils.deleteFileOrDirectory(new File(directoryPath, subdirectory));
+			}
 		}	
 	}
-	
+
 	public void readData() throws IOException {	
 		for (String subdirectoryName : (new File(directoryPath)).list()) {
+			if (subdirectoryName.equals("signature.tsv")) {
+				continue;
+			}
 			File subdirectory = new File(directoryPath, subdirectoryName);
 			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")))) {
 				throw new IOException("wrong subdirectory " + subdirectory.getPath());

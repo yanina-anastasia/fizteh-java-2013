@@ -14,7 +14,7 @@ public class TableProviderImplementation extends BasicTableProvider<TableImpleme
 	
 	public TableImplementation createTable(String name) {
 		if ((name == null) || (!(name.matches("\\w+")))) {
-			throw new IllegalArgumentException("wrong table name: " + name);
+			throw new IllegalArgumentException("wrong table name " + name);
 		}
 
 		if (tables.containsKey(name)) {

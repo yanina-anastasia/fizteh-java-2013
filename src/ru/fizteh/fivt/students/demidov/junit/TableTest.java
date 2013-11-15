@@ -11,7 +11,7 @@ public class TableTest {
 			Assert.fail("unable to create TableProviderImplementation example");
 		}
 		currentTable = currentProvider.createTable("createdTable");
-	}      
+	}
 
 	//test put
 	@Test
