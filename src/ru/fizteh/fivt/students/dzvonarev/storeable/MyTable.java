@@ -225,7 +225,7 @@ public class MyTable implements Table {
     public boolean isValid(Storeable value) throws ColumnFormatException {
         try {
             value.getColumnAt(getColumnsCount());
-            throw new ColumnFormatException("value has more columns then types");
+            //throw new ColumnFormatException("value has more columns then types");
         } catch (IndexOutOfBoundsException e) {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
