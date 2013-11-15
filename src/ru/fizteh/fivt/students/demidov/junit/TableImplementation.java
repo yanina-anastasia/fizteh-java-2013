@@ -19,7 +19,7 @@ public class TableImplementation extends BasicTable<String> implements Table {
 	}
 	
 	public String put(String key, String value) {
-		if (value.trim().isEmpty()) {
+		if ((value == null) || (value.trim().isEmpty())) {
 			throw new IllegalArgumentException("empty value");
 		}
 		return super.put(key, value);
