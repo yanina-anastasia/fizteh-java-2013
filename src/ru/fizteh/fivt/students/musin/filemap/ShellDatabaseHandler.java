@@ -70,7 +70,19 @@ public class ShellDatabaseHandler {
                         return -1;
                     }
                     try {
-                        String[] typeNames = args.get(1).substring(1, args.get(1).length() - 1).split("\\s+");
+                        if (args.get(1).length() < 2) {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        if (args.get(1).charAt(0) != '(') {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        if (args.get(1).charAt(args.get(1).length() - 1) != ')') {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        String[] typeNames = args.get(1).substring(1, args.get(1).length() - 1).trim().split("\\s+");
                         ArrayList<Class<?>> columnTypes = new ArrayList<>();
                         for (int i = 0; i < typeNames.length; i++) {
                             if (typeNames[i].equals("int")) {
@@ -98,6 +110,9 @@ public class ShellDatabaseHandler {
                             System.out.printf("%s exists\n", args.get(0));
                             return 0;
                         }
+                    } catch (ColumnFormatException e) {
+                        System.out.println(String.format("wrong type (%s)", e.getMessage()));
+                        return -1;
                     } catch (RuntimeException e) {
                         printException(e);
                         return -1;

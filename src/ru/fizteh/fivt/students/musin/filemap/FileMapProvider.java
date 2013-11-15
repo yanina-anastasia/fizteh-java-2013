@@ -126,7 +126,7 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException("Null columnTypes");
         }
         if (columnTypes.size() == 0) {
-            throw new IllegalArgumentException("Can't create table with no columns");
+            throw new ColumnFormatException("Can't create table with no columns");
         }
         for (Class<?> columnType : columnTypes) {
             boolean check = false;
