@@ -358,36 +358,40 @@ public class MultiFileHashTable implements Table {
             for (int i = 0; i < getColumnsCount(); ++i) {
                 switch (getColumnType(i).getCanonicalName()) {
                     case "java.lang.Integer":
-                        signatureWriter.write("int ");
+                        signatureWriter.write("int");
                         break;
 
                     case "java.lang.Long":
-                        signatureWriter.write("long ");
+                        signatureWriter.write("long");
                         break;
 
                     case "java.lang.Byte":
-                        signatureWriter.write("byte ");
+                        signatureWriter.write("byte");
                         break;
 
                     case "java.lang.Float":
-                        signatureWriter.write("float ");
+                        signatureWriter.write("float");
                         break;
 
                     case "java.lang.Double":
-                        signatureWriter.write("double ");
+                        signatureWriter.write("double");
                         break;
 
                     case "java.lang.Boolean":
-                        signatureWriter.write("boolean ");
+                        signatureWriter.write("boolean");
                         break;
 
                     case "java.lang.String":
-                        signatureWriter.write("String ");
+                        signatureWriter.write("String");
                         break;
 
                     default:
                         throw new IllegalArgumentException("wrong type (unsupported type "
                                                             + getColumnType(i).getCanonicalName() + ")");
+                }
+
+                if (i != getColumnsCount() - 1) {
+                    signatureWriter.write(" ");
                 }
             }
         }
