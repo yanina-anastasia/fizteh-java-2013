@@ -31,7 +31,12 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
-    private String currentFileMapTable = null;
+    private ThreadLocal<String> currentFileMapTable = new ThreadLocal<String>() {
+        @Override
+        public String initialValue() {
+            return null;
+        }
+    };
     private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
 
     @Override
@@ -75,14 +80,14 @@ public class FileMapTableProvider extends State implements TableProvider {
                 System.out.println(name + " not exists");
                 return;
             }
-            if (currentFileMapTable != null) {
-                int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable).uncommittedChangesCount();
+            if (currentFileMapTable.get() != null) {
+                int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable.get()).uncommittedChangesCount();
                 if (uncommitedSize != 0) {
                     System.out.println(uncommitedSize + " unsaved changes");
                     return;
                 }
             }
-            currentFileMapTable = name;
+            currentFileMapTable.set(name);
             System.out.println("using " + name);
         } finally {
             write.unlock();
@@ -90,10 +95,10 @@ public class FileMapTableProvider extends State implements TableProvider {
     }
 
     public FileMapTable getCurrentFileMapTable() {
-        if (currentFileMapTable == null) {
+        if (currentFileMapTable.get() == null) {
             return null;
         }
-        return allFileMapTablesHashtable.get(currentFileMapTable);
+        return allFileMapTablesHashtable.get(currentFileMapTable.get());
     }
 
     public FileMapTableProvider(String dbDir) throws IllegalArgumentException, IOException {
@@ -241,8 +246,8 @@ public class FileMapTableProvider extends State implements TableProvider {
             } catch (IOException e) {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
-            if (name.equals(currentFileMapTable)) {
-                currentFileMapTable = null;
+            if (name.equals(currentFileMapTable.get())) {
+                currentFileMapTable.set(null);
             }
         } finally {
             write.unlock();
