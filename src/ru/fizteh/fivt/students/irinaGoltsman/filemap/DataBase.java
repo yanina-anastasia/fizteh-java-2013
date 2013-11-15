@@ -34,7 +34,7 @@ public class DataBase {
         if (currentTable != null) {
             int countOfChanges = ((DBTable) currentTable).countTheNumberOfChanges();
             if (countOfChanges != 0) {
-                System.out.println(countOfChanges + "unsaved changes");
+                System.out.println(countOfChanges + " unsaved changes");
                 return Code.OK;
             }
         }
