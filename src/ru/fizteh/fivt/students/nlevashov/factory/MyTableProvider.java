@@ -345,6 +345,7 @@ public class MyTableProvider implements TableProvider {
                 throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
             }
         }
+        throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
 
         StringBuilder sb = new StringBuilder();
         sb.append("<row>");
