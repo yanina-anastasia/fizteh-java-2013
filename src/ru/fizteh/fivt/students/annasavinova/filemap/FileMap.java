@@ -208,7 +208,7 @@ public class FileMap extends UserShell {
                 System.err.println(e.getMessage());
                 System.exit(1);
             } catch (IllegalArgumentException e) {
-                System.out.println("wrong type(" + e.getMessage() + ")");
+                System.out.println("wrong type (" + e.getMessage() + ")");
             }
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
