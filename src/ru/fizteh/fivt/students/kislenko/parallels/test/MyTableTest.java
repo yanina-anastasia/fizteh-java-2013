@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.kislenko.junit.test.Cleaner;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTable;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTableProvider;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTableProviderFactory;
-import ru.fizteh.fivt.students.kislenko.parallels.Value;
+import ru.fizteh.fivt.students.kislenko.storeable.Value;
 
 import java.io.File;
 import java.io.IOException;

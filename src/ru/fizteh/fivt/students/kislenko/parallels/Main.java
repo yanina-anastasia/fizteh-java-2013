@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.kislenko.parallels;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 import ru.fizteh.fivt.students.kislenko.shell.Shell;
+import ru.fizteh.fivt.students.kislenko.storeable.*;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -32,13 +33,13 @@ public class Main {
                 }
             }
             Path db = dbDir.toPath();
-            ParallelsState state = new ParallelsState(db);
+            StoreableState state = new StoreableState(db);
             Command[] commandList = new Command[]{new CommandCommit(), new CommandCreate(), new CommandDrop(),
                     new CommandRollback(), new CommandSize(), new CommandStorableGet(), new CommandStorableRemove(),
                     new CommandStoreablePut(), new CommandUse()};
             StoreableBuilder builder = new StoreableBuilder();
             builder.build(state);
-            Shell<ParallelsState> shell = new Shell<ParallelsState>(state, commandList);
+            Shell<StoreableState> shell = new Shell<StoreableState>(state, commandList);
             if (args.length == 0) {
                 shell.interactiveMode();
             } else {

@@ -7,7 +7,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTable;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTableProvider;
-import ru.fizteh.fivt.students.kislenko.parallels.Value;
+import ru.fizteh.fivt.students.kislenko.storeable.Value;
 
 import java.util.ArrayList;
 import java.util.List;
