@@ -38,7 +38,7 @@ public class DataBaseCreate implements CommandInterface {
         try {
             newTypes = myParser.parseTypeList(myParser.getTypesFrom(types));
         } catch (ParseException e) {
-            throw new IllegalArgumentException("invalid types " + types, e);
+            throw new IllegalArgumentException(e);
         }
         Table newTable = tableProvider.createTable(newName, newTypes);
         if (newTable == null) {

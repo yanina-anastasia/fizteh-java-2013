@@ -219,7 +219,7 @@ public class MyTable implements Table {
     public void checkingValueForValid(Storeable value) throws ColumnFormatException {
         try {
             value.getColumnAt(getColumnsCount());
-            throw new ColumnFormatException("value is not valid: it has more columns");
+            throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + " )");
         } catch (IndexOutOfBoundsException e) {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
@@ -228,10 +228,10 @@ public class MyTable implements Table {
                     continue;
                 }
                 if (value.getColumnAt(i).getClass() != type.get(i)) {
-                    throw new ColumnFormatException("value is not valid: value has wrong type in " + i + " column");
+                    throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
                 }
             } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException("value is not valid: it has less columns");
+                throw new ColumnFormatException("wrong type (invalid value: it has less columns)");
             }
         }
     }
@@ -336,7 +336,7 @@ public class MyTable implements Table {
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
-            throw new IllegalArgumentException("get: wrong key");
+            throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
         if (changesMap.containsKey(key)) {            // если он был изменен
             return changesMap.get(key).newValue;
@@ -363,7 +363,7 @@ public class MyTable implements Table {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
-            throw new IllegalArgumentException("put: wrong key or value");
+            throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
         checkingValueForValid(value);
         Storeable oldValue = get(key);
@@ -374,7 +374,7 @@ public class MyTable implements Table {
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
-            throw new IllegalArgumentException("remove: wrong key");
+            throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
         Storeable oldValue = get(key);
         if (oldValue != null) {
@@ -451,7 +451,7 @@ public class MyTable implements Table {
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
-            throw new IndexOutOfBoundsException("wrong column index " + columnIndex);
+            throw new IndexOutOfBoundsException("wrong type (wrong column index at " + columnIndex + " )");
         }
         return type.get(columnIndex);
     }

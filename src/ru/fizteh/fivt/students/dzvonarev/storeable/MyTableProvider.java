@@ -87,7 +87,7 @@ public class MyTableProvider implements TableProvider {
                     try {
                         newTable.readFileMap();
                     } catch (ParseException e) {
-                        throw new RuntimeException(e.getMessage() + " can't read data from tables", e);
+                        throw new RuntimeException(e);
                     }
                     multiFileMap.put(table, newTable);
                 }
@@ -108,14 +108,14 @@ public class MyTableProvider implements TableProvider {
                 }
             }
         } else {
-            throw new RuntimeException("working directory is not valid");
+            throw new RuntimeException("wrong type (invalid directory name " + workingDirectory + " )");
         }
     }
 
     public void writeTypesInFile(String name, List<Class<?>> types) throws IOException {
         File signature = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
         if (!signature.createNewFile()) {
-            throw new IOException("can't create signature.tsv file");
+            throw new IOException("can't create file signature.tsv");
         }
         PrintWriter myWriter = new PrintWriter(signature);
         for (Class<?> type : types) {
@@ -145,7 +145,7 @@ public class MyTableProvider implements TableProvider {
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
         if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("Invalid table name " + tableName);
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " )");
         }
         return multiFileMap.get(tableName);
     }
@@ -153,7 +153,7 @@ public class MyTableProvider implements TableProvider {
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
-            throw new IllegalArgumentException("Invalid table or type name while creating " + tableName);
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
         File newTable = new File(workingDirectory, tableName);
         if (multiFileMap.containsKey(tableName)) {
@@ -171,7 +171,7 @@ public class MyTableProvider implements TableProvider {
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
         if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("Invalid table name " + tableName);
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " )");
         }
         if (!multiFileMap.containsKey(tableName)) {
             throw new IllegalStateException(tableName + " not exists");

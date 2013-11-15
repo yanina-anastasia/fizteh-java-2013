@@ -36,7 +36,7 @@ public class Parser {
                     temp.add(String.class);
                     break;
                 default:
-                    throw new ParseException("parsingTypeList : unknown type " + type, 0);
+                    throw new ParseException("wrong type ( " + type + " )", 0);
             }
         }
         return temp;
@@ -44,14 +44,14 @@ public class Parser {
 
     public ArrayList<Object> parseValueToList(String value) throws ParseException {
         if (value == null || value.trim().isEmpty()) {
-            throw new ParseException("invalid value " + value, 0);
+            throw new ParseException("wrong type ( invalid value " + value + " )", 0);
         }
         ArrayList<Object> temp = new ArrayList<>();
         JSONArray jArr;
         try {
             jArr = new JSONArray(value);
         } catch (JSONException e) {
-            throw new ParseException(e.getMessage() + "invalud value " + value, 0);
+            throw new ParseException("wrong type ( invalid value " + value + " )", 0);
         }
         for (int i = 0; i < jArr.length(); ++i) {
             temp.add(jArr.get(i));
@@ -62,12 +62,12 @@ public class Parser {
     public List<String> getTypesFrom(String str) throws ParseException {
         List<String> temp = new ArrayList();
         if (str.charAt(0) != '(' || str.charAt(str.length() - 1) != ')') {
-            throw new ParseException("invalid types " + str, 0);
+            throw new ParseException("wrong type ( invalid value " + str + " )", 0);
         }
         String source = str.substring(1, str.length() - 1);
         String[] types = source.trim().split("\\s+");
         if (!typeNamesAreValid(types)) {
-            throw new ParseException("invalid types " + str, 0);
+            throw new ParseException("wrong type ( invalid value " + str + " )", 0);
         }
         Collections.addAll(temp, types);
         return temp;

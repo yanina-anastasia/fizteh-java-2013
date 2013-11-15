@@ -10,7 +10,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
         if (dir == null || dir.trim().isEmpty() || dir.indexOf(' ') >= 0) {
-            throw new IllegalArgumentException("directory name is not valid");
+            throw new IllegalArgumentException("wrong type (invalid name of table provider)");
         }
         File providerFile = new File(dir);
         if (!providerFile.exists()) {
@@ -19,7 +19,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
             }
         } else {
             if (!providerFile.isDirectory()) {
-                throw new IllegalArgumentException("directory name is not valid");
+                throw new IllegalArgumentException("wrong type (table provider is not a directory)");
             }
         }
         return new MyTableProvider(dir);  // will read data in here

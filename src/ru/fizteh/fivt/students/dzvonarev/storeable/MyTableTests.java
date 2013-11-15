@@ -38,7 +38,7 @@ public class MyTableTests {
     }
 
     @Test
-    public void testIsCorrect() throws IOException{
+    public void testIsCorrect() throws IOException {
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
         cl.add(String.class);
@@ -52,7 +52,7 @@ public class MyTableTests {
         table.put("blabla", st);
     }
 
-    @Test (expected = ColumnFormatException.class)
+    @Test(expected = ColumnFormatException.class)
     public void testLessArguments() throws IOException {
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
@@ -65,7 +65,7 @@ public class MyTableTests {
         table.put("asd", st);
     }
 
-    @Test (expected = ColumnFormatException.class)
+    @Test(expected = ColumnFormatException.class)
     public void testMoreArguments() throws IOException {
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
