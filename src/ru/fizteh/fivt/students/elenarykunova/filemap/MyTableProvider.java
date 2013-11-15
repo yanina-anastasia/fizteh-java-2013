@@ -390,7 +390,10 @@ public class MyTableProvider implements TableProvider {
             throw new ParseException(
                     "deserialize: number of elements mismatch", 0);
         }
-        ArrayList<Object> values = new ArrayList<Object>();
+        ArrayList<Object> values = new ArrayList<Object>(json.length());
+        for (int i = 0; i < json.length(); i++) {
+            values.add(json.get(i));
+        }
         /*
          * for (int i = 0; i < json.length(); i++) { if
          * (!json.get(i).equals(JSONObject.NULL)) { Object resCast =
