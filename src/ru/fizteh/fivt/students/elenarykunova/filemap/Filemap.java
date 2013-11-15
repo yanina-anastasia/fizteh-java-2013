@@ -64,7 +64,7 @@ public class Filemap implements Table {
                 .contains("]"));
     }
 
-    public Storeable get(String key) throws IllegalArgumentException {
+     public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
@@ -79,7 +79,7 @@ public class Filemap implements Table {
         for (int i = 0; i < types.size(); ++i) {
             try {
                 Object val = value.getColumnAt(i);
-                if (val != null && !types.get(i).equals(val.getClass())) {
+                /*if (val != null && !types.get(i).equals(val.getClass())) {
                     if (val.getClass().equals(String.class)) {
                         String str = (String) val;
                         throw new ColumnFormatException("types mismatch: expected "
@@ -88,6 +88,14 @@ public class Filemap implements Table {
                         throw new ColumnFormatException("types mismatch: expected "
                                 + types.get(i) + " but was " + val.getClass());
                     }
+                }*/
+                if (val != null && !types.get(i).equals(val.getClass())) {
+                    throw new ColumnFormatException("types mismatch: expected "
+                            + types.get(i) + " but was " + val.getClass());                  
+                    }
+                if (types.get(i).equals(String.class) && val != null
+                        && value.getStringAt(i) != null && value.getStringAt(i).trim().isEmpty()) {
+                    throw new IllegalArgumentException("empty string in newValue");
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
