@@ -23,6 +23,7 @@ public class DataBase {
     private int nfile;
     private Filemap table = null;
     private boolean exists = false;
+    public boolean hasChanged = false;
     
     public boolean hasFile() {
         return exists;
@@ -175,6 +176,7 @@ public class DataBase {
                 keyFirst = keySecond;
                 newOffset = nextOffset;
             } while (currPtr <= firstOffset);
+            hasChanged = true;
         } catch (IOException e1) {
             throw new IOException(filePath
                     + " can't read values from file", e1);

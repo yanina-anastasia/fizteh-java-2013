@@ -151,6 +151,7 @@ public class Filemap implements Table {
             if (myEntry.getValue() == null) {
                 if (data[ndir][nfile].remove(key) != null) {
                     nchanges++;
+                    data[ndir][nfile].hasChanged = true;
                 }
             } else {
                 String currVal = getProvider().serialize(this,
@@ -160,6 +161,7 @@ public class Filemap implements Table {
                     if (trackChanges) {
                         try {
                             data[ndir][nfile].put(key, currVal);
+                            data[ndir][nfile].hasChanged = true;
                         } catch (ColumnFormatException e) {
                             throw new RuntimeException("some problems", e);
                         }
@@ -201,9 +203,10 @@ public class Filemap implements Table {
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                if (data[i][j].hasFile()) {
+                if (data[i][j].hasFile() && data[i][j].hasChanged) {
                     try {
                         data[i][j].commitChanges();
+                        data[i][j].hasChanged = false;
                     } catch (IOException e) {
                         throw new RuntimeException("can't write to file", e);
                     }
