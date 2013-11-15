@@ -90,13 +90,6 @@ public class FileMapTableTest {
         currTable.put("    ", tableProvider.deserialize(currTable, value));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutEmptyValue() throws ParseException {
-        Storeable storeable = tableProvider.deserialize(currTable, value);
-        storeable.setColumnAt(7, "     ");
-        currTable.put("key", storeable);
-    }
-
     @Test
     public void testPutNewKey() throws ParseException {
         assertNull(currTable.put("new", tableProvider.deserialize(currTable, value)));

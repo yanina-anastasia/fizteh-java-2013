@@ -46,10 +46,10 @@ public class FileMapTable implements Table {
                         throw new ColumnFormatException("Wrong column format");
                     }
                 }
-                if (columnTypes.get(i).equals(String.class) && value.getColumnAt(i) != null
+                /*if (columnTypes.get(i).equals(String.class) && value.getColumnAt(i) != null
                         && value.getStringAt(i) != null && value.getStringAt(i).trim().isEmpty()) {
                     throw new IllegalArgumentException("empty string in newValue");
-                }
+                }*/
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("Wrong column count");
             }
