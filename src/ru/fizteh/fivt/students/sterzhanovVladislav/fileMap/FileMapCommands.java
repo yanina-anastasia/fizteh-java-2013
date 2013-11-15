@@ -106,7 +106,7 @@ public class FileMapCommands {
                     if (firstTypeMatcher.find()) {
                         className = firstTypeMatcher.group(1);
                     } else {
-                        throw new IllegalArgumentException("Illegal command format, expected 'create name (args..)'");
+                        throw new IllegalArgumentException("wrong type (Illegal command format, expected 'create name (args..)')");
                     }
                 }
                 if (i == args.length - 1) {

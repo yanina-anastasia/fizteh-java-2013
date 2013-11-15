@@ -137,23 +137,27 @@ public class StoreableUtils {
     }
     
     private static Object dynamicParse(String s, Class<?> type) {
-        if (type.equals(String.class)) {
-            return s;
-        } else if (type.equals(Integer.class)) {
-            return Integer.parseInt(s);
-        } else if (type.equals(Long.class)) {
-            return Long.parseLong(s);
-        } else if (type.equals(Byte.class)) {
-            return Byte.parseByte(s);
-        } else if (type.equals(Float.class)) {
-            return Float.parseFloat(s);
-        } else if (type.equals(Double.class)) {
-            return Double.parseDouble(s);
-        } else if (type.equals(Boolean.class)) {
-            return Boolean.parseBoolean(s);
-        } else {
-            throw new ColumnFormatException("wrong type (unable to handle type " + type.toString() + ")");
+        try {
+            if (type.equals(String.class)) {
+                return s;
+            } else if (type.equals(Integer.class)) {
+                return Integer.parseInt(s);
+            } else if (type.equals(Long.class)) {
+                return Long.parseLong(s);
+            } else if (type.equals(Byte.class)) {
+                return Byte.parseByte(s);
+            } else if (type.equals(Float.class)) {
+                return Float.parseFloat(s);
+            } else if (type.equals(Double.class)) {
+                return Double.parseDouble(s);
+            } else if (type.equals(Boolean.class)) {
+                return Boolean.parseBoolean(s);
+            } 
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")");
         }
+
+        throw new ColumnFormatException("wrong type (unable to handle type " + type.toString() + ")");
     }
     
     public static Class<?> resolveClass(String className) {
