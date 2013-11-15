@@ -193,7 +193,7 @@ public class DataBase implements Table {
         if (key.isEmpty()) {
             throw new IllegalArgumentException("Key is empty");
         }
-        if (key.split("//s").length > 1 || key.contains("\t") || key.contains(System.lineSeparator())) {
+        if (key.split("\\s").length > 1 || key.contains("\t") || key.contains(System.lineSeparator())) {
             throw new IllegalArgumentException("Key contains whitespaces");
         }
     }
