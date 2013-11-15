@@ -13,7 +13,7 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 	}
 	
 	private void invalidFormat () {
-		printError("invalid format");
+		getErrStream().println("wrong type invalid format");
 	}
 	
 	private void wrongType () {
@@ -60,7 +60,7 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 			return false;
 		}
 		if (argsList.size() < 1) {
-			notEnoughArguments();
+			invalidFormat();
 			return false;
 		}
 		List<Class<?>> types = new ArrayList<Class<?>>();
