@@ -73,7 +73,10 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 			types.add(type);
 		}
 		try {
-			state.tableProvider.createTable(argsArray[0], types);
+			if (state.tableProvider.createTable(argsArray[0], types) == null) {
+				getErrStream().println(argsArray[0] + " exists");
+				return false;
+			}
 		}
 		catch (IllegalArgumentException | IOException e) {
 			getErrStream().println(e.getMessage());
