@@ -171,7 +171,7 @@ public class NewTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (!checkName(key)) {
+        if (checkName(key)) {
             throw new IllegalArgumentException("wrong type (incorrect key)");
         }
         if (value == null) {
