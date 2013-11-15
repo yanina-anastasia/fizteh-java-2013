@@ -50,7 +50,7 @@ public class NewTableProvider implements TableProvider {
                     throw new IllegalArgumentException("not a directory");
                 }
             } else {
-                throw new IllegalArgumentException("incorrect table name");
+                throw new IllegalArgumentException("wrong type (incorrect table name)");
             }
         }
     }
@@ -118,7 +118,7 @@ public class NewTableProvider implements TableProvider {
     @Override
     public Table getTable(String name) {
         if (!checkTableName(name)) {
-            throw new IllegalArgumentException("Incorrect table name");
+            throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
         NewTable table = tables.get(name);
         File tableFile = new File(workingDirectory, name);
@@ -127,7 +127,7 @@ public class NewTableProvider implements TableProvider {
             try {
                 table.loadCommitedValues(load(tableFile));
             } catch (IOException | ParseException e) {
-                throw new IllegalArgumentException("Wrong key");
+                throw new IllegalArgumentException("wrong type (Wrong key)");
             }
         }
         return table;
@@ -186,7 +186,7 @@ public class NewTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) {
         if (!checkTableName(name)) {
-            throw new IllegalArgumentException("Incorrect table name");
+            throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
         NewTable table = tables.remove(name);
         File tableFile = new File(workingDirectory, name);
@@ -221,10 +221,10 @@ public class NewTableProvider implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if (!checkTableName(name)) {
-            throw new IllegalArgumentException("Incorrect table name");
+            throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
-            throw new IllegalArgumentException("Incorrect column name");
+            throw new IllegalArgumentException("wrong type (Incorrect column name)");
         }
         if (tables.get(name) != null) {
             return null;
@@ -236,7 +236,7 @@ public class NewTableProvider implements TableProvider {
             for (int i = 0; i < columnTypes.size(); ++i) {
                 if (columnTypes.get(i) == null) {
                     newFile.close();
-                    throw new IllegalArgumentException("Incorrect column name");
+                    throw new IllegalArgumentException("wrong type (Incorrect column name)");
                 }
                 newFile.print(getNameString(columnTypes.get(i)));
                 newFile.print(" ");
@@ -289,7 +289,7 @@ public class NewTableProvider implements TableProvider {
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         if (value == null) {
-            throw new ColumnFormatException("Incorrect column name");
+            throw new ColumnFormatException("wrong type (Incorrect column name)");
         }
         return JSONSerializer.serialize(table, value);
     }

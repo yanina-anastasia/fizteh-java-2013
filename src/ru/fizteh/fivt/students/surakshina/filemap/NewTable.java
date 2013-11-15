@@ -37,7 +37,7 @@ public class NewTable implements Table {
             }
 
         } else {
-            throw new IOException("no signature");
+            throw new IOException("wrong type (no signature)");
         }
         name = newName;
         provider = newProvider;
@@ -195,18 +195,18 @@ public class NewTable implements Table {
         try {
             for (i = 0; i < types.size(); ++i) {
                 if (value.getColumnAt(i) != null && !value.getColumnAt(i).getClass().equals(types.get(i))) {
-                    throw new ColumnFormatException("Storeable invalid in types");
+                    throw new ColumnFormatException("wrong type (Storeable invalid in types)");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new ColumnFormatException("Storeable invalid in index");
+            throw new ColumnFormatException("wrong type (Storeable invalid in index)");
         }
         try {
             value.getColumnAt(i);
         } catch (IndexOutOfBoundsException e) {
             return;
         }
-        throw new ColumnFormatException("Storeable invalid out of range");
+        throw new ColumnFormatException("wrong type (Storeable invalid out of range)");
 
     }
 
@@ -223,7 +223,7 @@ public class NewTable implements Table {
 
     private void checkIndex(int columnIndex) {
         if (columnIndex < 0 || columnIndex > types.size() - 1) {
-            throw new IndexOutOfBoundsException("Incorrect column index");
+            throw new IndexOutOfBoundsException("wrong type (Incorrect column index)");
         }
     }
 
