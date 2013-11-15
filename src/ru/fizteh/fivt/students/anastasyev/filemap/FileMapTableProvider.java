@@ -54,10 +54,11 @@ public class FileMapTableProvider extends State implements TableProvider {
             throw new IOException("Can't create signature.tsv");
         }
         try (RandomAccessFile output = new RandomAccessFile(signature.toString(), "rw")) {
-            for (String type : columnTypes) {
-                output.write(type.getBytes(StandardCharsets.UTF_8));
+            for (int i = 0; i < columnTypes.size() - 1; ++i) {
+                output.write(columnTypes.get(i).getBytes(StandardCharsets.UTF_8));
                 output.write(' ');
             }
+            output.write(columnTypes.get(columnTypes.size() - 1).getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -123,7 +124,7 @@ public class FileMapTableProvider extends State implements TableProvider {
             }
             try {
                 allFileMapTablesHashtable.put(table.getName(), new FileMapTable(table.toString(), this));
-            } catch (ParseException e) {
+            } catch (ParseException | IOException e) {
                 throw new IOException(e.getMessage(), e);
             }
         }

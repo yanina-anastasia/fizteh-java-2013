@@ -85,16 +85,22 @@ public class FileMapTable implements Table {
         mapsTable = new FileMap[16][16];
         size = 0;
         for (int i = 0; i < 16; ++i) {
-            File dbDir = new File(currentFileMapTable.toString() + File.separator + i + ".dir");
+            File dbDir = new File(currentFileMapTable.toString(), i + ".dir");
             if (dbDir.exists()) {
                 if (!dbDir.isDirectory()) {
                     throw new IOException(i + ".dir is not table subdirectory");
                 }
+                if (dbDir.listFiles().length == 0) {
+                    throw new IOException(i + ".dir is empty dir");
+                }
                 for (int j = 0; j < 16; ++j) {
-                    File dbDat = new File(dbDir.toString() + File.separator + j + ".dat");
+                    File dbDat = new File(dbDir.toString(), j + ".dat");
                     if (dbDat.exists()) {
                         if (!dbDat.isFile()) {
                             throw new IOException(i + ".dat is not a FileMap file");
+                        }
+                        if (dbDat.length() == 0) {
+                            throw new IOException(i + ".dat is empty");
                         }
                         mapsTable[i][j] = new FileMap(dbDat.toString(), i, j, this, provider);
                         if (mapsTable[i][j].isEmpty()) {
@@ -152,17 +158,20 @@ public class FileMapTable implements Table {
             while (input.getFilePointer() != input.length()) {
                 byte ch = 0;
                 Vector<Byte> v = new Vector<Byte>();
-                ch = input.readByte();
-                while (ch != ' ') {
-                    v.add(ch);
+                while (ch != ' ' && input.getFilePointer() != input.length()) {
                     ch = input.readByte();
+                    v.add(ch);
                 }
                 byte[] res = new byte[v.size()];
                 for (int i = 0; i < v.size(); i++) {
                     res[i] = v.elementAt(i).byteValue();
                 }
                 String type = new String(res, "UTF-8");
+                type = type.trim();
                 Class<?> classType = provider.getClassName(type);
+                if (classType == null) {
+                    throw new IOException("signature.tsv is broken");
+                }
                 columnTypes.add(classType);
             }
         }
