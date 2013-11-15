@@ -278,4 +278,15 @@ public class StoreableTable implements Table {
 
         return columnTypes.get(columnIndex);
     }
+
+    public void checkKeyPlacement(String key, File dir, File file) throws IOException {
+        String fileName = file.getName();
+        int fileNumber = Integer.parseInt(fileName.substring(0, fileName.indexOf('.')));
+        String dirName = dir.getName();
+        int dirNumber = Integer.parseInt(dirName.substring(0, fileName.indexOf('.')));
+
+        if (fileHash(key) != fileNumber || dirHash(key) != dirNumber) {
+            throw new IOException("ERROR: wrong key placement");
+        }
+    }
 }

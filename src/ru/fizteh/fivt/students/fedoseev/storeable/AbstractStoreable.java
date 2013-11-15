@@ -67,9 +67,7 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                     }
 
                     for (File file : dir.listFiles()) {
-                        RandomAccessFile raf = new RandomAccessFile(file, "r");
-
-                        checkOpenFile(curTable, raf);
+                        checkOpenFile(curTable, file, dir);
                     }
                 }
             }
@@ -78,50 +76,52 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
         curTable.commit();
     }
 
-    public static void checkOpenFile(StoreableTable curTable, RandomAccessFile curFile)
+    public static void checkOpenFile(StoreableTable curTable, File file, File dir)
             throws IOException, ParseException {
+        RandomAccessFile curFile = new RandomAccessFile(file, "r");
+
         curTable.checkFile(curFile);
         curTable.checkTable();
 
         curTable.setTableSize(curTable.getTableSize() + curFile.length());
 
-        Map<String, Storeable> map = readFile(curTable, curFile);
+        Map<String, Storeable> map = readFile(curTable, curFile, file, dir);
         curTable.putMapTable(map);
 
         curFile.close();
     }
 
-    public static Map<String, Storeable> readFile(StoreableTable curTable, RandomAccessFile file)
-            throws IOException, ParseException {
+    public static Map<String, Storeable> readFile(StoreableTable curTable, RandomAccessFile curFile, File file,
+                                                  File dir) throws IOException, ParseException {
         Map<String, Storeable> map = new HashMap<>();
 
-        if (file.length() == 0) {
+        if (curFile.length() == 0) {
             return null;
         }
 
         List<Integer> offsets = new ArrayList<>();
 
-        while (file.getFilePointer() != file.length()) {
-            if (file.readByte() == '\0') {
-                int offset = file.readInt();
+        while (curFile.getFilePointer() != curFile.length()) {
+            if (curFile.readByte() == '\0') {
+                int offset = curFile.readInt();
 
-                if (offset < 0 || offset > file.length()) {
-                    file.close();
+                if (offset < 0 || offset > curFile.length()) {
+                    curFile.close();
                     throw new IOException("ERROR: incorrect input");
                 }
 
                 offsets.add(offset);
             }
         }
-        offsets.add((int) file.length());
+        offsets.add((int) curFile.length());
 
-        file.seek(0);
+        curFile.seek(0);
 
         for (int i = 0; i < offsets.size() - 1; ++i) {
             List<Byte> bytesKeyList = new ArrayList<>();
 
-            while (file.getFilePointer() != file.length()) {
-                byte b = file.readByte();
+            while (curFile.getFilePointer() != curFile.length()) {
+                byte b = curFile.readByte();
 
                 if (b == 0) {
                     break;
@@ -138,21 +138,23 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
             String key = new String(bytesKeyArray, StandardCharsets.UTF_8);
 
-            file.read();
-            file.readInt();
+            curTable.checkKeyPlacement(key, dir, file);
 
-            int currentOffset = (int) file.getFilePointer() - 1;
+            curFile.read();
+            curFile.readInt();
 
-            file.seek(offsets.get(i));
+            int currentOffset = (int) curFile.getFilePointer() - 1;
+
+            curFile.seek(offsets.get(i));
 
             byte[] valueArray = new byte[offsets.get(i + 1) - offsets.get(i)];
 
-            file.read(valueArray);
+            curFile.read(valueArray);
 
             String value = new String(valueArray, StandardCharsets.UTF_8);
 
             map.put(key, curTable.getTb().deserialize(curTable, value));
-            file.seek(currentOffset);
+            curFile.seek(currentOffset);
         }
 
         return map;
