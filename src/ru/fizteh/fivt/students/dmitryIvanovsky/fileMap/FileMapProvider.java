@@ -176,6 +176,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public void multiUse(String[] args) throws Exception {
+        String nameTable = args[0];
+        if (!setDirTable.contains(nameTable)) {
+            outPrint(nameTable + " not exists");
+            return;
+        }
+
         int changeKey = 0;
         if (dbData != null) {
             changeKey = dbData.changeKey();
@@ -184,19 +190,14 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (changeKey > 0) {
             outPrint(String.format("%d unsaved changes", changeKey));
         } else {
-            String nameTable = args[0];
-            if (!setDirTable.contains(nameTable)) {
-                outPrint(nameTable + " not exists");
-            } else {
-                if (!nameTable.equals(useNameTable)) {
-                    if (dbData != null) {
-                        dbData.unloadTable();
-                    }
-                    dbData = (FileMap) getTable(nameTable);
-                    useNameTable = nameTable;
+            if (!nameTable.equals(useNameTable)) {
+                if (dbData != null) {
+                    dbData.unloadTable();
                 }
-                outPrint("using " + nameTable);
+                dbData = (FileMap) getTable(nameTable);
+                useNameTable = nameTable;
             }
+            outPrint("using " + nameTable);
         }
     }
 

@@ -80,6 +80,7 @@ public class CommandLauncher {
                     }
                     return Code.OK;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     getMessage((Exception) e.getCause());
                     return Code.ERROR;
                 }
@@ -96,14 +97,12 @@ public class CommandLauncher {
     }
 
     private void getMessage(Exception e) {
-        //errPrint(String.valueOf(e.getSuppressed().length));
         if (e.getMessage() != null) {
             errPrint(e.getMessage());
         }
         for (int i = 0; i < e.getSuppressed().length; ++i) {
             errPrint(e.getSuppressed()[i].getMessage());
         }
-        //e.printStackTrace();
     }
 
     public Code runCommands(String query, boolean isInteractiveMode) {
