@@ -302,7 +302,9 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         } else if (deleted.containsKey(key)) {
             deleted.remove(key);
         }
-        added.put(key, value);
+        if (!entries.get(key).equals(value)) {
+            added.put(key, value);
+        }
         return oldValue;
     }
 
@@ -315,6 +317,9 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         if (added.containsKey(key)) {
             oldValue = added.get(key);
             added.remove(key);
+            if (entries.containsKey(key)) {
+                deleted.put(key, oldValue);
+            }
         } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
             oldValue = entries.get(key);
             deleted.put(key, entries.get(key));
