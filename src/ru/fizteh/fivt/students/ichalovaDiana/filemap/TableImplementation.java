@@ -306,6 +306,9 @@ public class TableImplementation implements Table {
             throw new IOException("Error while getting value from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
+        
+        files[nDirectory][nFile].close();
+        files[nDirectory][nFile] = null;
         return value;
     }
     
