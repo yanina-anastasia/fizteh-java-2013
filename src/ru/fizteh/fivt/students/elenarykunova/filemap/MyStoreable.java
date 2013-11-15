@@ -26,14 +26,83 @@ public class MyStoreable implements Storeable {
                     "number of columns and size of values list mismatch");
         }
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            if (values.get(i) != null
-                    && !table.getColumnType(i).equals(values.get(i).getClass())) {
-                throw new ColumnFormatException("createFor: types mismatch");
-            }
-        }
-        for (int i = 0; i < table.getColumnsCount(); i++) {
             myTypes.add(table.getColumnType(i));
-            myValues.add(values.get(i));
+            Object newVal = values.get(i);
+            Object newClass = newVal.getClass();
+            Object tableClass = table.getColumnType(i);
+            if (newVal.equals(null)) {
+                myValues.add(null);
+            } else if (tableClass.equals(Integer.class)) {
+                if (newClass.equals(Integer.class)) {
+                    myValues.add(newVal);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(Long.class)) {
+                if (newClass.equals(Long.class)) {
+                    myValues.add(newVal);
+                } else if (newClass.equals(Integer.class)) {
+                    myValues.add(Integer.class.cast(newVal).longValue());
+                } else if (newClass.equals(Byte.class)) {
+                    myValues.add(Byte.class.cast(newVal).longValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(Byte.class)) {
+                if (newClass.equals(Byte.class)) {
+                    myValues.add(newVal);
+                } else if (newClass.equals(Integer.class)) {
+                    Integer current = Integer.class.cast(newVal);
+                    if (current > Byte.MAX_VALUE || current < Byte.MIN_VALUE) {
+                        throw new ColumnFormatException(
+                                "Incorrect column format");
+                    }
+                    myValues.add(current.byteValue());
+                } else if (newClass.equals(Long.class)) {
+                    Long current = Long.class.cast(newVal);
+                    if (current > Byte.MAX_VALUE || current < Byte.MIN_VALUE) {
+                        throw new ColumnFormatException(
+                                "Incorrect column format");
+                    }
+                    myValues.add(current.byteValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(Float.class)) {
+                if (newClass.equals(Float.class)) {
+                    myValues.add(newVal);
+                } else if (newClass.equals(Double.class)) {
+                    myValues.add(Double.class.cast(newVal).floatValue());
+                } else if (newClass.equals(Integer.class)) {
+                    myValues.add(Integer.class.cast(newVal).floatValue());
+                } else if (newClass.equals(Long.class)) {
+                    myValues.add(Long.class.cast(newVal).floatValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(Double.class)) {
+                if (newClass.equals(Double.class)) {
+                    myValues.add(newVal);
+                } else if (newClass.equals(Float.class)) {
+                    myValues.add(Float.class.cast(newVal).doubleValue());
+                } else if (newClass.equals(Integer.class)) {
+                    myValues.add(Integer.class.cast(newVal).doubleValue());
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(Boolean.class)) {
+                if (newClass.equals(Boolean.class)) {
+                    myValues.add(newVal);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            } else if (tableClass.equals(String.class)) {
+                if (newClass.equals(String.class)) {
+                    myValues.add(newVal);
+                } else {
+                    throw new ColumnFormatException("Incorrect column format");
+                }
+            }
         }
     }
 
