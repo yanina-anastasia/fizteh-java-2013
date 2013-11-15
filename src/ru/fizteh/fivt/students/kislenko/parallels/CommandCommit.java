@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandCommit implements Command<StoreableState> {
+public class CommandCommit implements Command<ParallelsState> {
 
     @Override
     public String getName() {
@@ -17,7 +17,7 @@ public class CommandCommit implements Command<StoreableState> {
     }
 
     @Override
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         if (state.getCurrentTable() == null) {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");

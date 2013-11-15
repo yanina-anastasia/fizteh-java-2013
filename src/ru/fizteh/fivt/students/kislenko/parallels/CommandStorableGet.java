@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandStorableGet implements Command<StoreableState> {
+public class CommandStorableGet implements Command<ParallelsState> {
     public String getName() {
         return "get";
     }
@@ -13,7 +13,7 @@ public class CommandStorableGet implements Command<StoreableState> {
         return 1;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         MyTable table = state.getCurrentTable();
         if (table == null) {
             System.out.println("no table");

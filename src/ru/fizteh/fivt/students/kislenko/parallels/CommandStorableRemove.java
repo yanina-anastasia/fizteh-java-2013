@@ -5,7 +5,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandStorableRemove implements Command<StoreableState> {
+public class CommandStorableRemove implements Command<ParallelsState> {
     public String getName() {
         return "remove";
     }
@@ -14,7 +14,7 @@ public class CommandStorableRemove implements Command<StoreableState> {
         return 1;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         MyTable table = state.getCurrentTable();
         if (table == null) {
             System.out.println("no table");

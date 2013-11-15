@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 
-public class CommandCreate implements Command<StoreableState> {
+public class CommandCreate implements Command<ParallelsState> {
     public String getName() {
         return "create";
     }
@@ -13,7 +13,7 @@ public class CommandCreate implements Command<StoreableState> {
         return -1;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         File tableDir = state.getPath().resolve(args[0]).toFile();
         if (args[0].contains(".")) {
             System.err.println("Dots in table name.");

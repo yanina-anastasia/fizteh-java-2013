@@ -3,12 +3,13 @@ package ru.fizteh.fivt.students.kislenko.parallels;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class StoreableState {
+public class ParallelsState {
     private Path databasePath;
-    private MyTable currentTable;
     private MyTableProvider tables;
 
-    public StoreableState(Path p) throws IOException {
+    private ThreadLocal<MyTable> currentTable;
+
+    public ParallelsState(Path p) throws IOException {
         databasePath = p;
         MyTableProviderFactory factory = new MyTableProviderFactory();
         tables = factory.create(p.toString());
@@ -28,12 +29,12 @@ public class StoreableState {
     }
 
     public MyTable getCurrentTable() {
-        return currentTable;
+        return currentTable.get();
     }
 
     public Path getWorkingPath() {
         if (currentTable != null) {
-            return databasePath.resolve(currentTable.getName());
+            return databasePath.resolve(currentTable.get().getName());
         } else {
             return databasePath;
         }
@@ -43,7 +44,7 @@ public class StoreableState {
         if (name == null) {
             currentTable = null;
         } else {
-            currentTable = tables.getTable(databasePath.resolve(name).toString());
+            currentTable.set(tables.getTable(databasePath.resolve(name).toString()));
         }
     }
 }

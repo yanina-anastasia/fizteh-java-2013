@@ -5,7 +5,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 import java.io.File;
 import java.io.IOException;
 
-public class CommandUse implements Command<StoreableState> {
+public class CommandUse implements Command<ParallelsState> {
     public String getName() {
         return "use";
     }
@@ -14,7 +14,7 @@ public class CommandUse implements Command<StoreableState> {
         return 1;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         if (state.getWorkingPath().getFileName().toString().equals(args[0])) {
             System.out.println("using " + args[0]);
             return;

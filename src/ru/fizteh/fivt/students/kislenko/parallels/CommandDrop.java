@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 
-public class CommandDrop implements Command<StoreableState> {
+public class CommandDrop implements Command<ParallelsState> {
     public String getName() {
         return "drop";
     }
@@ -13,7 +13,7 @@ public class CommandDrop implements Command<StoreableState> {
         return 1;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         File db = state.getPath().resolve(args[0]).toFile();
         if (!db.exists()) {
             System.out.println(args[0] + " not exists");

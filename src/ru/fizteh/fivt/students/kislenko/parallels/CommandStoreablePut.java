@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 import java.io.IOException;
 import java.text.ParseException;
 
-public class CommandStoreablePut implements Command<StoreableState> {
+public class CommandStoreablePut implements Command<ParallelsState> {
     public String getName() {
         return "put";
     }
@@ -15,7 +15,7 @@ public class CommandStoreablePut implements Command<StoreableState> {
         return 2;
     }
 
-    public void run(StoreableState state, String[] args) throws Exception {
+    public void run(ParallelsState state, String[] args) throws Exception {
         MyTable table = state.getCurrentTable();
         if (state.getCurrentTable() == null) {
             System.out.println("no table");

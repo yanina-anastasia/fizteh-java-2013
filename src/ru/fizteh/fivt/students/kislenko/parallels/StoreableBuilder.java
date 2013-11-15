@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class StoreableBuilder {
-    public void build(StoreableState state) throws IOException, ClassNotFoundException {
+    public void build(ParallelsState state) throws IOException, ClassNotFoundException {
         File dirCreator = state.getWorkingPath().toFile();
         if (!dirCreator.exists()) {
             dirCreator.mkdir();
@@ -16,7 +16,7 @@ public class StoreableBuilder {
         }
     }
 
-    public void finish(StoreableState state) throws IOException {
+    public void finish(ParallelsState state) throws IOException {
         if (state.getCurrentTable() != null) {
             Utils.dumpTable(state.getCurrentTable());
         }

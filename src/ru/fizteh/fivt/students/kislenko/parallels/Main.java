@@ -32,13 +32,13 @@ public class Main {
                 }
             }
             Path db = dbDir.toPath();
-            StoreableState state = new StoreableState(db);
+            ParallelsState state = new ParallelsState(db);
             Command[] commandList = new Command[]{new CommandCommit(), new CommandCreate(), new CommandDrop(),
                     new CommandRollback(), new CommandSize(), new CommandStorableGet(), new CommandStorableRemove(),
                     new CommandStoreablePut(), new CommandUse()};
             StoreableBuilder builder = new StoreableBuilder();
             builder.build(state);
-            Shell<StoreableState> shell = new Shell<StoreableState>(state, commandList);
+            Shell<ParallelsState> shell = new Shell<ParallelsState>(state, commandList);
             if (args.length == 0) {
                 shell.interactiveMode();
             } else {
