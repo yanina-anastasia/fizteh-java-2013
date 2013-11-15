@@ -38,7 +38,7 @@ public class FileMap {
         if (!fileMap.exists()) {
             return;
         }
-        try (RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "r")) {
+        try (RandomAccessFile input = new RandomAccessFile(fileMap, "r")) {
             if (input.length() == 0) {
                 return;
             }
