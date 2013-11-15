@@ -106,7 +106,7 @@ public class FileMapCommands {
                     if (firstTypeMatcher.find()) {
                         className = firstTypeMatcher.group(1);
                     } else {
-                        throw new IllegalArgumentException("wrong type (Illegal command format, expected 'create name (args..)')");
+                        throw new IllegalArgumentException("wrong type (Wrong command, expected 'create name (args)')");
                     }
                 }
                 if (i == args.length - 1) {
@@ -114,12 +114,12 @@ public class FileMapCommands {
                     if (lastTypeMatcher.find()) {
                         className = lastTypeMatcher.group(1);
                     } else {
-                        throw new IllegalArgumentException("wrong type (Illegal command format, expected 'create name (args..)')");
+                        throw new IllegalArgumentException("wrong type (Wrong command, expected 'create name (args)')");
                     }
                 }
                 Class<?> type = StoreableUtils.resolveClass(className);
                 if (type == null) {
-                    throw new IllegalArgumentException("wrong type (Illegal class given: " + args[i] + ")");
+                    throw new IllegalArgumentException("wrong type (Illegal class given: " + className + ")");
                 }
                 typeList.add(type);
             }
