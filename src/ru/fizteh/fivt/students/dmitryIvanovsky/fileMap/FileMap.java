@@ -448,7 +448,35 @@ public class FileMap implements Table {
             throw new ColumnFormatException(st.messageEqualsType(columnType));
         }
 
-        if (tableData.containsKey(key)) {
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (newValue == null) {
+                Storeable oldValue = tableData.get(key);
+                if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                    changeTable.remove(key);
+                    return null;
+                } else {
+                    changeTable.put(key, value);
+                    return null;
+                }
+            } else {
+                Storeable oldValue = changeTable.get(key);
+                changeTable.put(key, value);
+                return oldValue;
+            }
+        } else {
+            if (tableData.containsKey(key)) {
+                Storeable oldValue = tableData.get(key);
+                if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                    changeTable.put(key, value);
+                }
+                return oldValue;
+            } else {
+                changeTable.put(key, value);
+                return null;
+            }
+        }
+        /*if (tableData.containsKey(key)) {
             Storeable oldValue = tableData.get(key);
 
             if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
@@ -474,7 +502,7 @@ public class FileMap implements Table {
 
             tableData.put(key, value);
             return null;
-        }
+        } */
     }
 
     public void setDrop() {
@@ -484,17 +512,57 @@ public class FileMap implements Table {
     public Storeable get(String key) {
         checkArg(key);
 
-        if (tableData.containsKey(key)) {
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (newValue == null) {
+                return null;
+            } else {
+                Storeable value = changeTable.get(key);
+                return value;
+            }
+        } else {
+            if (tableData.containsKey(key)) {
+                Storeable value = tableData.get(key);
+                return value;
+            } else {
+                return null;
+            }
+        }
+        /*if (tableData.containsKey(key)) {
             return tableData.get(key);
         } else {
             return null;
-        }
+        }*/
     }
 
     public Storeable remove(String key) {
         checkArg(key);
 
-        if (tableData.containsKey(key)) {
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (tableData.containsKey(key)) {
+                if (newValue == null) {
+                    return null;
+                } else {
+                    Storeable value = changeTable.get(key);
+                    changeTable.put(key, null);
+                    return value;
+                }
+            } else {
+                changeTable.remove(key);
+                return newValue;
+            }
+        } else {
+            if (tableData.containsKey(key)) {
+                Storeable value = tableData.get(key);
+                changeTable.put(key, null);
+                return value;
+            } else {
+                return null;
+            }
+        }
+
+        /*if (tableData.containsKey(key)) {
 
             if (!changeTable.containsKey(key)) {
                 changeTable.put(key, tableData.get(key));
@@ -509,20 +577,26 @@ public class FileMap implements Table {
             return value;
         } else {
             return null;
-        }
+        }*/
     }
 
     public int size() {
-        return tableData.size();
+        int size = tableData.size();
+        for (String key : changeTable.keySet()) {
+            if (tableData.containsKey(key)) {
+                if (changeTable.get(key) == null) {
+                    --size;
+                }
+            } else {
+                if (changeTable.get(key) != null) {
+                    ++size;
+                }
+            }
+        }
+        return size;
     }
 
     public int commit() {
-        int res = changeTable.size();
-        changeTable.clear();
-        return res;
-    }
-
-    public int rollback() {
         for (String key : changeTable.keySet()) {
             Storeable value = changeTable.get(key);
             if (value == null) {
@@ -534,6 +608,26 @@ public class FileMap implements Table {
         int count = changeTable.size();
         changeTable.clear();
         return count;
+        /*int res = changeTable.size();
+        changeTable.clear();
+        return res;*/
+    }
+
+    public int rollback() {
+        int res = changeTable.size();
+        changeTable.clear();
+        return res;
+        /*for (String key : changeTable.keySet()) {
+            Storeable value = changeTable.get(key);
+            if (value == null) {
+                tableData.remove(key);
+            } else {
+                tableData.put(key, changeTable.get(key));
+            }
+        }
+        int count = changeTable.size();
+        changeTable.clear();
+        return count;*/
     }
 
     @Override
