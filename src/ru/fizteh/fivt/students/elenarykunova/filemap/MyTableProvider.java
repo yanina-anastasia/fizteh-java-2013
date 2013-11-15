@@ -392,7 +392,11 @@ public class MyTableProvider implements TableProvider {
         }
         ArrayList<Object> values = new ArrayList<Object>(json.length());
         for (int i = 0; i < json.length(); i++) {
-            values.add(json.get(i));
+            if (json.get(i).equals(JSONObject.NULL)) {
+                values.add(null);
+            } else {
+                values.add(json.get(i));                
+            }
         }
         /*
          * for (int i = 0; i < json.length(); i++) { if
