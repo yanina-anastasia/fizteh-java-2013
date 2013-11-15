@@ -14,8 +14,8 @@ public class MyStoreable implements Storeable {
 
     public MyStoreable(Table table) {
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            myTypes.add(table.getColumnType(i));
-            myValues.add(null);
+            myTypes.add(i, table.getColumnType(i));
+            myValues.add(i, null);
         }
     }
 
@@ -26,36 +26,36 @@ public class MyStoreable implements Storeable {
                     "number of columns and size of values list mismatch");
         }
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            myTypes.add(table.getColumnType(i));
+            myTypes.add(i, table.getColumnType(i));
             if (values.get(i) == null) {
-                myValues.add(null);
+                myValues.add(i, null);
             } else {
                 Object newVal = values.get(i);
                 Object newClass = newVal.getClass();
                 Object tableClass = table.getColumnType(i);
                 if (tableClass.equals(Integer.class)) {
                     if (newClass.equals(Integer.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(Byte.class)) {
-                        myValues.add(Byte.class.cast(newVal).intValue());
+                        myValues.add(i, Byte.class.cast(newVal).intValue());
                     } else {
                         throw new ColumnFormatException("expected "
                                 + Integer.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Long.class)) {
                     if (newClass.equals(Long.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(Integer.class)) {
-                        myValues.add(Integer.class.cast(newVal).longValue());
+                        myValues.add(i, Integer.class.cast(newVal).longValue());
                     } else if (newClass.equals(Byte.class)) {
-                        myValues.add(Byte.class.cast(newVal).longValue());
+                        myValues.add(i, Byte.class.cast(newVal).longValue());
                     } else {
                         throw new ColumnFormatException("expected "
                                 + Long.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Byte.class)) {
                     if (newClass.equals(Byte.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(Integer.class)) {
                         Integer current = Integer.class.cast(newVal);
                         if (current > Byte.MAX_VALUE
@@ -63,7 +63,7 @@ public class MyStoreable implements Storeable {
                             throw new ColumnFormatException("expected "
                                     + Byte.class + " but was " + newClass);
                         }
-                        myValues.add(current.byteValue());
+                        myValues.add(i, current.byteValue());
                     } else if (newClass.equals(Long.class)) {
                         Long current = Long.class.cast(newVal);
                         if (current > Byte.MAX_VALUE
@@ -71,44 +71,44 @@ public class MyStoreable implements Storeable {
                             throw new ColumnFormatException("expected "
                                     + Byte.class + " but was " + newClass);
                         }
-                        myValues.add(current.byteValue());
+                        myValues.add(i, current.byteValue());
                     } else {
                         throw new ColumnFormatException("expected "
                                 + Byte.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Float.class)) {
                     if (newClass.equals(Float.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(Double.class)) {
-                        myValues.add(Double.class.cast(newVal).floatValue());
+                        myValues.add(i, Double.class.cast(newVal).floatValue());
                     } else if (newClass.equals(Integer.class)) {
-                        myValues.add(Integer.class.cast(newVal).floatValue());
+                        myValues.add(i, Integer.class.cast(newVal).floatValue());
                     } else if (newClass.equals(Long.class)) {
-                        myValues.add(Long.class.cast(newVal).floatValue());
+                        myValues.add(i, Long.class.cast(newVal).floatValue());
                     } else {
                         throw new ColumnFormatException("expected "
                                 + Float.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Double.class)) {
                     if (newClass.equals(Double.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(Float.class)) {
-                        myValues.add(Float.class.cast(newVal).doubleValue());
+                        myValues.add(i, Float.class.cast(newVal).doubleValue());
                     } else if (newClass.equals(Integer.class)) {
-                        myValues.add(Integer.class.cast(newVal).doubleValue());
+                        myValues.add(i, Integer.class.cast(newVal).doubleValue());
                     } else {
                         throw new ColumnFormatException("expected "
                                 + Double.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Boolean.class)) {
                     if (newClass.equals(Boolean.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else if (newClass.equals(String.class)) {
                         String current = String.class.cast(newVal);
                         if (current.toLowerCase().equals("false")) {
-                            myValues.add(false);
+                            myValues.add(i, false);
                         } else if (current.toLowerCase().equals("true")) {
-                            myValues.add(true);
+                            myValues.add(i, true);
                         } else {
                             throw new ColumnFormatException("expected "
                                     + Boolean.class + " but was " + newClass);
@@ -119,7 +119,7 @@ public class MyStoreable implements Storeable {
                     }
                 } else if (tableClass.equals(String.class)) {
                     if (newClass.equals(String.class)) {
-                        myValues.add(newVal);
+                        myValues.add(i, newVal);
                     } else {
                         throw new ColumnFormatException("expected "
                                 + String.class + " but was " + newClass);
