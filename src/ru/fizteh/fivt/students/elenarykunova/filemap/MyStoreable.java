@@ -146,9 +146,7 @@ public class MyStoreable implements Storeable {
                                 + myTypes.get(columnIndex) + " but was "
                                 + value.getClass());
             }
-        } else {
-            throw new ColumnFormatException("setColumnAt: empty type");
-        }
+        }        
         myValues.add(columnIndex, value);
     }
 

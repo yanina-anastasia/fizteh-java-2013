@@ -52,6 +52,9 @@ public class MyTableProvider implements TableProvider {
                 return true;
             }
         }
+        if (str.split("[\\s]").length > 1) {
+            return true;
+        }
         return false;
     }
 

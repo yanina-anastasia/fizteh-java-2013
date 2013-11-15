@@ -56,7 +56,7 @@ public class Filemap implements Table {
     }
 
     public boolean isEmpty(String val) {
-        return (val == null || (val.isEmpty() || val.trim().isEmpty()));
+        return (val == null || val.trim().isEmpty());
     }
 
     public boolean isCorrectKey(String key) {
@@ -64,7 +64,7 @@ public class Filemap implements Table {
                 .contains("]"));
     }
 
-     public Storeable get(String key) throws IllegalArgumentException {
+    public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
@@ -79,16 +79,16 @@ public class Filemap implements Table {
         for (int i = 0; i < types.size(); ++i) {
             try {
                 Object val = value.getColumnAt(i);
-                /*if (val != null && !types.get(i).equals(val.getClass())) {
-                    if (val.getClass().equals(String.class)) {
-                        String str = (String) val;
-                        throw new ColumnFormatException("types mismatch: expected "
-                                + types.get(i) + " but was " + val.getClass() + " " + str);                        
-                    } else {
-                        throw new ColumnFormatException("types mismatch: expected "
-                                + types.get(i) + " but was " + val.getClass());
-                    }
-                }*/
+                /*
+                 * if (val != null && !types.get(i).equals(val.getClass())) { if
+                 * (val.getClass().equals(String.class)) { String str = (String)
+                 * val; throw new
+                 * ColumnFormatException("types mismatch: expected " +
+                 * types.get(i) + " but was " + val.getClass() + " " + str); }
+                 * else { throw new
+                 * ColumnFormatException("types mismatch: expected " +
+                 * types.get(i) + " but was " + val.getClass()); } }
+                 */
                 if (val != null && !types.get(i).equals(val.getClass())) {
                     String str = "";
                     for (int j = 0; j < types.size(); j++) {
@@ -107,7 +107,7 @@ public class Filemap implements Table {
                             } else if (valClass.equals(Long.class)) {
                                 str += Long.class.cast(valObj) + ", ";
                             } else if (valClass.equals(Float.class)) {
-                                str += Float.class.cast(valObj) + ", ";                                
+                                str += Float.class.cast(valObj) + ", ";
                             } else if (valClass.equals(Double.class)) {
                                 str += Double.class.cast(valObj) + ", ";
                             } else if (valClass.equals(Byte.class)) {
@@ -119,11 +119,7 @@ public class Filemap implements Table {
                             str += "null ";
                         }
                     }
-                    throw new ColumnFormatException(str);                  
-                    }
-                if (types.get(i).equals(String.class) && val != null
-                        && value.getStringAt(i) != null && value.getStringAt(i).trim().isEmpty()) {
-                    throw new IllegalArgumentException("empty string in newValue");
+                    throw new ColumnFormatException(str);
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
@@ -151,7 +147,8 @@ public class Filemap implements Table {
         try {
             checkValue(value);
         } catch (ColumnFormatException e1) {
-            throw new ColumnFormatException("wrong type (put: " + e1.getMessage() + ")", e1);
+            throw new ColumnFormatException("wrong type (put: "
+                    + e1.getMessage() + ")", e1);
         }
         Storeable res = updatedMap.put(key, value);
         return res;
