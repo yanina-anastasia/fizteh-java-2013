@@ -65,10 +65,11 @@ public class MultiFileHashTable implements Table {
         this.types = new ArrayList<>();
         for (Class<?> type : types) {
             if (type == null) {
-                throw new IllegalArgumentException("Type must be not null");
+                throw new IllegalArgumentException("wrong type (type must be not null)");
             }
             if (!isSupportedType(type)) {
-                throw new IllegalArgumentException("Unsupported table type " + type.getCanonicalName());
+                throw new IllegalArgumentException("wrong type (unsupported table type "
+                                                    + type.getCanonicalName() + ")");
             }
             this.types.add(type);
         }
