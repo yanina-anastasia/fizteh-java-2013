@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +75,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         } else if (deleted.containsKey(key)) {
             deleted.remove(key);
         }
-        if (!entries.get(key).equals(value)) {
+        if (!entries.containsKey(key) || !entries.get(key).equals(value)) {
             added.put(key, value);
         }
         return oldValue;
