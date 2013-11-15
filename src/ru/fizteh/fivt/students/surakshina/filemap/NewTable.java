@@ -95,11 +95,9 @@ public class NewTable implements Table {
         return name;
     }
 
-    private void checkName(String name) {
-        if (name == null || name.trim().isEmpty() || name.split("\\s").length > 1 || name.contains("\t")
-                || name.contains(System.lineSeparator()) || name.contains("[") || name.contains("]")) {
-            throw new IllegalArgumentException("wrong type (incorrect key)");
-        }
+    private boolean checkName(String name) {
+        return (name == null || name.trim().isEmpty() || name.split("\\s").length > 1 || name.contains("\t")
+                || name.contains(System.lineSeparator()) || name.contains("[") || name.contains("]"));
     }
 
     public void loadCommitedValues(HashMap<String, Storeable> load) {
@@ -173,7 +171,9 @@ public class NewTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        checkName(key);
+        if (!checkName(key)) {
+            throw new IllegalArgumentException("wrong type (incorrect key)");
+        }
         if (value == null) {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
@@ -228,6 +228,9 @@ public class NewTable implements Table {
 
     @Override
     public Storeable get(String key) {
+        if (key != null && !key.trim().isEmpty()) {
+            throw new IllegalArgumentException("wrong type (incorrect key)");
+        }
         if (!dataMap.containsKey(key)) {
             return null;
         }
@@ -236,6 +239,9 @@ public class NewTable implements Table {
 
     @Override
     public Storeable remove(String key) {
+        if (key != null && !key.trim().isEmpty()) {
+            throw new IllegalArgumentException("wrong type (incorrect key)");
+        }
         if (dataMap.containsKey(key)) {
             Storeable oldVal = dataMap.get(key).getValue();
             dataMap.get(key).setValue(null);
