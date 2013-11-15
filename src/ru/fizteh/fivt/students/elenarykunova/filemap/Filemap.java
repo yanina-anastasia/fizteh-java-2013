@@ -90,8 +90,15 @@ public class Filemap implements Table {
                     }
                 }*/
                 if (val != null && !types.get(i).equals(val.getClass())) {
-                    throw new ColumnFormatException("types mismatch: expected "
-                            + types.get(i) + " but was " + val.getClass());                  
+                    String str = "";
+                    for (int j = 0; j < types.size(); j++) {
+                        str += types.get(j) + " ";
+                    }
+                    str += " but: ";
+                    for (int j = 0; j < types.size(); j++) {
+                        str += value.getColumnAt(j).getClass() + " ";
+                    }
+                    throw new ColumnFormatException(str);                  
                     }
                 if (types.get(i).equals(String.class) && val != null
                         && value.getStringAt(i) != null && value.getStringAt(i).trim().isEmpty()) {
