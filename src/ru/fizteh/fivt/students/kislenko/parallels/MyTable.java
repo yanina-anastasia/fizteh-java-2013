@@ -130,7 +130,8 @@ public class MyTable implements Table {
         uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
         changes.get().put(key, value);
-        if (value.equals(storage.get(key))) {
+        if (storage.get(key) != null &&
+                provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
             changes.get().remove(key);
         }
         lock.writeLock().unlock();
@@ -190,6 +191,8 @@ public class MyTable implements Table {
         }
         int n = changes.get().size();
         changes.get().clear();
+        revision++;
+        threadRevision.set(revision);
         lock.writeLock().unlock();
         return n;
     }

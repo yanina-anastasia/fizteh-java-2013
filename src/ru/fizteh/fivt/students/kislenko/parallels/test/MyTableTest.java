@@ -20,6 +20,8 @@ public class MyTableTest {
     private static MyTable table;
     private static Storeable value1;
     private static Storeable value2;
+    private static int checkInt1;
+    private static int checkInt2;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -269,8 +271,8 @@ public class MyTableTest {
             @Override
             public void run() {
                 try {
-                    value1 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
-                    table.commit();
+                    value1 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    checkInt1 = table.commit();
                 } catch (ParseException ignored) {
                 } catch (IOException ignored) {
                 }
@@ -280,8 +282,8 @@ public class MyTableTest {
             @Override
             public void run() {
                 try {
-                    value2 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
-                    table.commit();
+                    value2 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    checkInt2 = table.commit();
                 } catch (ParseException ignored) {
                 } catch (IOException ignored) {
                 }
@@ -292,5 +294,69 @@ public class MyTableTest {
         first.join();
         second.join();
         Assert.assertTrue(value1 == null ^ value2 == null);
+        Assert.assertEquals(1, checkInt1 + checkInt2);
+    }
+
+    @Test
+    public void testMultiThreadPutSize() throws Exception {
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
+                    checkInt1 = table.size();
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("b", provider.deserialize(table, "[\"doubleEmpty\",-1]"));
+                    table.put("c", provider.deserialize(table, "[\"tripleEmpty\",-1]"));
+                    checkInt2 = table.size();
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertEquals(1, checkInt1);
+        Assert.assertEquals(2, checkInt2);
+    }
+
+    @Test
+    public void testMultiThreadPutRollbackGet() throws Exception {
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value1 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    checkInt1 = table.commit();
+                } catch (ParseException ignored) {
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value2 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    checkInt2 = table.rollback();
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertTrue(value1 == null ^ value2 == null);
+        Assert.assertEquals(1, checkInt1);
+        Assert.assertEquals(0, checkInt2);
     }
 }
