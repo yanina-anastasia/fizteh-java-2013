@@ -222,7 +222,7 @@ public class MyTable implements Table {
         return true;
     }
 
-    public boolean isValid(Storeable value) throws IndexOutOfBoundsException {
+    public boolean isValid(Storeable value) throws ColumnFormatException {
         try {
             value.getColumnAt(getColumnsCount());
             throw new ColumnFormatException("value has more columns then types");
