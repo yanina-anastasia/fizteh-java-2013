@@ -203,16 +203,16 @@ public class FileMapTable implements Table {
             while (input.getFilePointer() != input.length()) {
                 byte ch = 0;
                 Vector<Byte> v = new Vector<Byte>();
-                ch = input.readByte();
-                while (ch != ' ') {
-                    v.add(ch);
+                while (ch != ' ' && input.getFilePointer() != input.length()) {
                     ch = input.readByte();
+                    v.add(ch);
                 }
                 byte[] res = new byte[v.size()];
                 for (int i = 0; i < v.size(); i++) {
                     res[i] = v.elementAt(i).byteValue();
                 }
                 String type = new String(res, "UTF-8");
+                type = type.trim();
                 Class<?> classType = provider.getClassName(type);
                 columnTypes.add(classType);
             }

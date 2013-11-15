@@ -427,6 +427,39 @@ public class FileMapTableTest {
     }
 
     @Test
+    public void testParallelsSimpleCommit() throws InterruptedException {
+        final Storeable[] v = new Storeable[2];
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                v[0] = table.put(value1, value1Storeable);
+                try {
+                    table.commit();
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                v[1] = table.put(value1, value1Storeable);
+                try {
+                    table.commit();
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertTrue(v[1] == null ^ v[0] == null);
+    }
+
+    @Test
     public void testParallelsCommit() throws InterruptedException {
         first = new Thread(new Runnable() {
             @Override
@@ -482,6 +515,7 @@ public class FileMapTableTest {
         first.join();
         third.start();
         second.join();
+        third.join();
     }
 
     @Test
