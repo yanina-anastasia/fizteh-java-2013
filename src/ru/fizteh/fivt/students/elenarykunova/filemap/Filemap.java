@@ -68,9 +68,6 @@ public class Filemap implements Table {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
-        if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("get: key has bad symbols");
-        }
         Storeable res = updatedMap.get(key);
         return res;
     }
@@ -157,9 +154,6 @@ public class Filemap implements Table {
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("remove: key is empty");
-        }
-        if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("remove: key has bad symbols");
         }
         Storeable res = updatedMap.put(key, null);
         return res;
