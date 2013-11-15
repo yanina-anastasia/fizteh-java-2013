@@ -29,7 +29,6 @@ public class TableRow implements Storeable {
             throw new ColumnFormatException("Incorrect value: '" + value + "' format, expected "
                     + table.getColumnType(columnIndex) + " , but was " + value.getClass());
         }
-
         list.set(columnIndex, value);
     }
 
