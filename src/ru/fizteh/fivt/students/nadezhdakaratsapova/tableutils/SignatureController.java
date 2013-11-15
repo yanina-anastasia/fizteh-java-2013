@@ -98,14 +98,25 @@ public class SignatureController {
     public static List<Class<?>> getSignatureFromArgs(String args[]) throws IOException {
         SignatureController signatureController = new SignatureController();
         int argsCount = args.length;
+        StringBuilder signature = new StringBuilder();
+        for (int i = 2; i < argsCount; ++i) {
+            signature.append(args[i]);
+        }
         if ((args[2].charAt(0) != '(') || (args[argsCount - 1].charAt(args[argsCount - 1].length() - 1) != ')')) {
             throw new IOException("The wrong type of command arguments. They should be in brackets");
         }
         List<Class<?>> types = new ArrayList<>();
         String firstType;
-        if ((argsCount - 1) == 1) {
-            firstType = new String(args[2].substring(1, args[1].length() - 2));
-            types.add(StoreableColumnType.getClassFromPrimitive(firstType.trim()));
+        if ((argsCount - 2) == 1) {
+            if (args[2].length() < 2 || args[2].charAt(args[2].length() - 1) != ')') {
+                throw new IllegalArgumentException("wrong type " + signature);
+            }
+            firstType = new String(args[2].substring(1, args[2].length() - 1));
+            try {
+                types.add(StoreableColumnType.getClassFromPrimitive(firstType.trim()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("wrong type " + signature);
+            }
             return types;
         }
         String lastType = null;
@@ -120,13 +131,13 @@ public class SignatureController {
         try {
             types.add(StoreableColumnType.getClassFromPrimitive(firstType.trim()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("wrong type (" + firstType + ")");
+            throw new IllegalArgumentException("wrong type " + signature);
         }
         for (int i = 3; i < argsCount - 1; ++i) {
             try {
                 types.add(StoreableColumnType.getClassFromPrimitive(args[i].trim()));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("wrong type " + args);
+                throw new IllegalArgumentException("wrong type " + signature);
             }
         }
         if (lastType != null) {
