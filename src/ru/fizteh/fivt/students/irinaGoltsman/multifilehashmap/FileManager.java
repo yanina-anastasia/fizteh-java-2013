@@ -277,10 +277,13 @@ public class FileManager {
             throw new IOException("failed to create new signature.tsv: probably a file with such name already exists");
         }
         RandomAccessFile signatureFile = new RandomAccessFile(signature, "rw");
-        for (String type : columnTypes) {
+        for (int i = 0; i < columnTypes.size(); i++) {
+            String type = columnTypes.get(i);
             if (type.matches("int|byte|long|float|double|boolean|String")) {
                 signatureFile.write(type.getBytes(StandardCharsets.UTF_8));
-                signatureFile.write(' ');
+                if (i != (columnTypes.size() - 1)) {
+                    signatureFile.write(' ');
+                }
             } else {
                 signatureFile.close();
                 signature.delete();
