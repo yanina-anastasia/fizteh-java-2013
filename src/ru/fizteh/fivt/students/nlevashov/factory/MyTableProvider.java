@@ -345,15 +345,15 @@ public class MyTableProvider implements TableProvider {
                 throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
             }
         }
-        throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
 
         StringBuilder sb = new StringBuilder();
         sb.append("<row>");
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            Class<?> c = table.getColumnType(i);
-            if (c == null) {
+            Object o = value.getColumnAt(i);
+            if (o == null) {
                 sb.append("<null/>");
             } else {
+                Class<?> c = o.getClass();
                 sb.append("<col>");
                 if (c == Integer.class) {
                     sb.append(value.getIntAt(i).toString());
