@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,16 +56,6 @@ public class DatabaseStoreable implements Storeable {
                 return;
             }
             isColumnTypeValid(columnNum, value.getClass());
-            /*try {
-                if (value.getClass() == String.class) {
-                    String stringValue = (String) value;
-                    if (stringValue.trim().isEmpty()) {
-                        throw new ParseException("Incorrect value: it can not be null", 0);
-                    }
-                }
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Incorrect value");
-            }  */
         }
         columns.set(columnNum, value);
     }
