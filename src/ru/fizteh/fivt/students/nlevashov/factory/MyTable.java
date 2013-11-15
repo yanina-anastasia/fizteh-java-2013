@@ -226,7 +226,10 @@ public class MyTable implements Table {
                 Storeable temp = value;
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
-                    if (c == Integer.class) {
+                    Object o = value.getColumnAt(i);
+                    if (o == null) throw new ColumnFormatException("Table.put: null column");
+                    if (c != o.getClass()) throw new ColumnFormatException("Table.put: wrong type");
+                    /*if (c == Integer.class) {
                         //Integer tempValue = value.getIntAt(i);
                         temp.setColumnAt(i, Integer.valueOf(1));
                         //temp.setColumnAt(i, tempValue);
@@ -254,7 +257,7 @@ public class MyTable implements Table {
                         String tempValue = value.getStringAt(i);
                         temp.setColumnAt(i, "abc");
                         temp.setColumnAt(i, tempValue);
-                    }
+                    } */
                 }
                 return map.put(key, value);
             } catch (IndexOutOfBoundsException e1) {

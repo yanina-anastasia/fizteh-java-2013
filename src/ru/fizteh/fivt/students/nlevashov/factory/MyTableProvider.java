@@ -319,35 +319,9 @@ public class MyTableProvider implements TableProvider {
                 Storeable temp = value;
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
-                    if (c == Integer.class) {
-                        //Integer tempValue = value.getIntAt(i);
-                        temp.setColumnAt(i, Integer.valueOf(1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Long.class)  {
-                        //Long tempValue = value.getLongAt(i);
-                        temp.setColumnAt(i, Long.valueOf((long) 1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Byte.class) {
-                        //Byte tempValue = value.getByteAt(i);
-                        temp.setColumnAt(i, Byte.valueOf((byte) 1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Float.class) {
-                        //Float tempValue = value.getFloatAt(i);
-                        temp.setColumnAt(i, Float.valueOf((float) 1.5));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Double.class) {
-                        //Double tempValue = value.getDoubleAt(i);
-                        temp.setColumnAt(i, Double.valueOf(1.5));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Boolean.class) {
-                        //Boolean tempValue = value.getBooleanAt(i);
-                        temp.setColumnAt(i, Boolean.valueOf(true));
-                        //temp.setColumnAt(i, tempValue);
-                    } else {
-                        String tempValue = value.getStringAt(i);
-                        temp.setColumnAt(i, "abc");
-                        temp.setColumnAt(i, tempValue);
-                    }
+                    Object o = value.getColumnAt(i);
+                    if (o == null) throw new ColumnFormatException("TableProvider.serialize: null column");
+                    if (c != o.getClass()) throw new ColumnFormatException("TableProvider.serialize: wrong type");
                 }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
