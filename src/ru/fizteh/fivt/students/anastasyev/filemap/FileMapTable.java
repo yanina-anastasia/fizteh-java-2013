@@ -214,6 +214,9 @@ public class FileMapTable implements Table {
                 String type = new String(res, "UTF-8");
                 type = type.trim();
                 Class<?> classType = provider.getClassName(type);
+                if (classType == null) {
+                    throw new IOException("signature.tsv is broken");
+                }
                 columnTypes.add(classType);
             }
         }

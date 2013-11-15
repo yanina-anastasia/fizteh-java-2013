@@ -140,7 +140,7 @@ public class FileMapTableProvider extends State implements TableProvider {
             }
             try {
                 allFileMapTablesHashtable.put(table.getName(), new FileMapTable(table.toString(), this));
-            } catch (ParseException e) {
+            } catch (ParseException | IOException e) {
                 throw new IOException(e.getMessage(), e);
             }
         }
