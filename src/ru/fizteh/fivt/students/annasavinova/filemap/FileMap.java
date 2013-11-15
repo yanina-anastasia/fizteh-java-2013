@@ -192,7 +192,7 @@ public class FileMap extends UserShell {
                     Class<?> cl = prov.getClassFromString(type);
                     list.add(cl);
                 } catch (RuntimeException e) {
-                    printError("wrong type " + e.getMessage());
+                    printError("wrong type (" + e.getMessage() + ")");
                     sc.close();
                     return;
                 }
