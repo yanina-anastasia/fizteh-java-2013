@@ -31,10 +31,11 @@ public class FilemapTest {
             rootDir = folder.newFolder("myroot");
             FileMapMain factory = new FileMapMain();
             prov = (MyTableProvider) factory.create(rootDir.getAbsolutePath());
-            List<Class<?>> types = new ArrayList<Class<?>>(3);
+            List<Class<?>> types = new ArrayList<Class<?>>(4);
             types.add(Integer.class);
             types.add(Double.class);
             types.add(String.class);
+            types.add(Boolean.class);
             table = (Filemap) prov.createTable("newTable", types);
         } catch (IOException e) {
             System.err.println("can't make tests");
@@ -92,6 +93,14 @@ public class FilemapTest {
         table.remove("");
     }
 
+    @Test
+    public void testPutBool() throws IllegalArgumentException, ParseException {
+        String valStr1 = "[1,1.5,\"value\", \"true\"]";
+        Storeable val1 = prov.deserialize(table, valStr1);
+        
+        table.put("azaza", val1);
+    }
+    
     @Test (expected = IllegalArgumentException.class)
     public void testRemoveNl() {
         table.remove("              ");

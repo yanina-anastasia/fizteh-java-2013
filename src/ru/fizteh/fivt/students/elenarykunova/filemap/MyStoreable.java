@@ -18,7 +18,7 @@ public class MyStoreable implements Storeable {
             myValues.add(null);
         }
     }
-    
+
     public MyStoreable(Table table, List<?> values)
             throws IndexOutOfBoundsException, ColumnFormatException {
         if (values == null || values.size() != table.getColumnsCount()) {
@@ -26,7 +26,8 @@ public class MyStoreable implements Storeable {
                     "number of columns and size of values list mismatch");
         }
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            if (values.get(i) != null && !table.getColumnType(i).equals(values.get(i).getClass())) {
+            if (values.get(i) != null
+                    && !table.getColumnType(i).equals(values.get(i).getClass())) {
                 throw new ColumnFormatException("createFor: types mismatch");
             }
         }
@@ -49,11 +50,12 @@ public class MyStoreable implements Storeable {
         if (value != null) {
             if (!value.getClass().equals(myTypes.get(columnIndex))) {
                 throw new ColumnFormatException(
-                        "type of value mismatches type of column");
+                        "type of value mismatches type of column : expected "
+                                + myTypes.get(columnIndex) + " but was "
+                                + value.getClass());
             }
         } else {
-            throw new ColumnFormatException(
-                    "setColumnAt: empty type");
+            throw new ColumnFormatException("setColumnAt: empty type");
         }
         myValues.add(columnIndex, value);
     }
@@ -65,7 +67,7 @@ public class MyStoreable implements Storeable {
         }
         return myValues.get(columnIndex);
     }
-    
+
     @Override
     public Integer getIntAt(int columnIndex) throws ColumnFormatException,
             IndexOutOfBoundsException {

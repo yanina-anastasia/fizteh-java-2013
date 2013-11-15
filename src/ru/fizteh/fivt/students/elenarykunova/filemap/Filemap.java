@@ -77,25 +77,15 @@ public class Filemap implements Table {
         return res;
     }
 
-    public void checkValue(Storeable value) throws ColumnFormatException,
-            IllegalArgumentException {
-
-        for (int i = 0; i < types.size(); i++) {
+    private void checkValue(Storeable value) {
+        for (int i = 0; i < types.size(); ++i) {
             try {
-                if (value.getColumnAt(i) != null) {
-                    Object resCast = provider.checkClasses(value.getColumnAt(i), types.get(i));
-                    if (!types.get(i).equals(resCast.getClass())) {
-                        throw new ColumnFormatException(
-                                "types mismatch: expected " + types.get(i)
-                                        + " but was "
-                                        + resCast.getClass());
-                    } else if (types.get(i).equals(String.class)) {
-                        String strValue = value.getStringAt(i);
-                        if (strValue.isEmpty() || strValue.trim().isEmpty()) {
-                            throw new IllegalArgumentException(
-                                    "value: empty string");
-                        }
-                    }
+                if (value.getColumnAt(i) != null
+                        && !value.getColumnAt(i).getClass()
+                                .equals(types.get(i))) {
+                    throw new ColumnFormatException("types mismatch: expected "
+                            + types.get(i) + " but was "
+                            + value.getColumnAt(i).getClass());
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
@@ -105,7 +95,7 @@ public class Filemap implements Table {
             value.getColumnAt(types.size());
             throw new ColumnFormatException("number of columns mismatch");
         } catch (IndexOutOfBoundsException e) {
-            // ok!
+            return;
         }
     }
 
@@ -262,27 +252,6 @@ public class Filemap implements Table {
     public Filemap() {
     }
 
-    public Class<?> getTypeFromString(String type) throws IOException {
-        switch (type) {
-        case "int":
-            return Integer.class;
-        case "long":
-            return Long.class;
-        case "double":
-            return Double.class;
-        case "byte":
-            return Byte.class;
-        case "float":
-            return Float.class;
-        case "boolean":
-            return Boolean.class;
-        case "String":
-            return String.class;
-        default:
-            throw new IOException(type + " types in signature.tsv mismatch");
-        }
-
-    }
 
     public Filemap(String path, String name, MyTableProvider mtp)
             throws RuntimeException, IOException {
@@ -291,26 +260,6 @@ public class Filemap implements Table {
         currTableName = name;
         File info = new File(path + File.separator + "signature.tsv");
 
-        if (info.exists()) {
-            FileInputStream is;
-            is = new FileInputStream(info);
-            try {
-                Scanner sc = new Scanner(is);
-                sc.useDelimiter(" ");
-                try {
-                    while (sc.hasNext()) {
-                        String type = sc.next();
-                        types.add(getTypeFromString(type));
-                    }
-                } finally {
-                    sc.close();
-                }
-            } finally {
-                is.close();
-            }
-        } else {
-            throw new RuntimeException("can't load data from table");
-        }
         if (currTableName != null) {
             load();
         }

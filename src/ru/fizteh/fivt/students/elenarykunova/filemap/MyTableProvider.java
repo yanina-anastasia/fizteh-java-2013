@@ -1,12 +1,15 @@
 package ru.fizteh.fivt.students.elenarykunova.filemap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -133,6 +136,49 @@ public class MyTableProvider implements TableProvider {
         os.close();
     }
 
+    public Class<?> getTypeFromString(String type) throws IOException {
+        switch (type) {
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "double":
+            return Double.class;
+        case "byte":
+            return Byte.class;
+        case "float":
+            return Float.class;
+        case "boolean":
+            return Boolean.class;
+        case "String":
+            return String.class;
+        default:
+            throw new IOException(type + " types in signature.tsv mismatch");
+        }
+
+    }
+
+    public List<Class<?>> getTypesFromSignature(File info) throws IOException {
+        List<Class<?>> types = new ArrayList<Class<?>>();
+        FileInputStream is;
+        is = new FileInputStream(info);
+        try {
+            Scanner sc = new Scanner(is);
+            sc.useDelimiter(" ");
+            try {
+                while (sc.hasNext()) {
+                    String type = sc.next();
+                    types.add(getTypeFromString(type));
+                }
+            } finally {
+                sc.close();
+            }
+        } finally {
+            is.close();
+        }
+        return types;
+    }
+
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, RuntimeException, IOException {
@@ -162,11 +208,20 @@ public class MyTableProvider implements TableProvider {
             if (!info.exists()) {
                 throw new IllegalArgumentException(name
                         + " exists, but couldn't find table info");
-            }
-            writeTypes(info, columnTypes);
-            if (tables.get(name) == null) {
-                Filemap result = new Filemap(tablePath, name, this);
-                tables.put(name, result);
+            } else {
+                List<Class<?>> oldTypes = getTypesFromSignature(info);
+                if (oldTypes.size() != columnTypes.size()) {
+                    throw new IllegalArgumentException(name + " exists, but number of types mismatch");
+                }
+                for (int i = 0; i < oldTypes.size(); i++) {
+                    if (!oldTypes.get(i).equals(columnTypes.get(i))) {
+                        throw new IllegalArgumentException(name + " exists, but types mismatch");                        
+                    }
+                }
+                if (tables.get(name) == null) {
+                    Filemap result = new Filemap(tablePath, name, this);
+                    tables.put(name, result);
+                }
             }
             return null;
         } else {
@@ -309,6 +364,7 @@ public class MyTableProvider implements TableProvider {
         if (value == null || value.isEmpty() || value.trim().isEmpty()) {
             throw new IllegalArgumentException("deserialize: value is empty");
         }
+        Storeable res = new MyStoreable(table);
         JSONArray json;
         try {
             json = new JSONArray(value);
@@ -335,6 +391,7 @@ public class MyTableProvider implements TableProvider {
             }
         }
         return createFor(table, values);
+        // return res;
     }
 
     @Override

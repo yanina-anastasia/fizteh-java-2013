@@ -77,7 +77,7 @@ public class ExecuteCmd extends Shell {
                     System.err.println(e.getMessage());
                     return ExitCode.ERR;
                 } catch (ParseException e1) {
-                    System.err.println(e1.getMessage());
+                    System.err.println("wrong type (" + e1.getMessage() + ")");
                     return ExitCode.ERR;                    
                 }
                 if (ans == null) {
