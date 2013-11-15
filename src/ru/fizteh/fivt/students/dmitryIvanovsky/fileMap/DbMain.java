@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
@@ -53,7 +52,6 @@ public class DbMain {
             }
         } catch (Exception e) {
             System.err.println("Runtime Error");
-            //e.printStackTrace();
             FileMapUtils.getMessage(e);
             System.exit(1);
         }

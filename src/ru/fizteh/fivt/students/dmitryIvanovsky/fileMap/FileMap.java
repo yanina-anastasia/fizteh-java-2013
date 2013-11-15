@@ -91,9 +91,11 @@ public class FileMap implements Table {
     private void writeFileTsv() throws FileNotFoundException {
         Path pathTsv = pathDb.resolve(nameTable).resolve("signature.tsv");
         try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())) {
-            for (Class<?> col : columnType) {
-                out.print(convertClassToString(col));
-                out.print(" ");
+            for (int i = 0; i < columnType.size(); ++i) {
+                out.print(convertClassToString(columnType.get(i)));
+                if (i != columnType.size() - 1) {
+                    out.print(" ");
+                }
             }
         }
     }
@@ -142,7 +144,6 @@ public class FileMap implements Table {
     }
 
     public void exit() throws Exception {
-        //outPrint("123");
         if (!tableDrop) {
             closeTable();
         }
@@ -157,7 +158,7 @@ public class FileMap implements Table {
         File[] listFileMap = currentFileMap.listFiles();
 
         if (listFileMap == null || listFileMap.length == 0) {
-            throw new ErrorFileMap(pathDb.toString() + " empty table");
+            throw new ErrorFileMap(pathDb + " empty table");
         }
 
         for (File nameDir : listFileMap) {
