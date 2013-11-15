@@ -117,6 +117,8 @@ public class WorkWithTableProviderCommands {
                 } else {
                     printOut("created");
                 }
+            } catch (IllegalArgumentException e) {
+                printOut(String.format("wrong type ( %s )", e.getMessage()));
             } catch (Exception e) {
                 throw new ShellException(getName(), e);
             }
@@ -200,8 +202,6 @@ public class WorkWithTableProviderCommands {
                     info.setProperty("CurrentTable", toUseTable);
                     printOut("using " + tableName);
                 }
-            } catch (IllegalArgumentException e) {
-                System.out.println(String.format("wrong type ( %s )", e.getMessage()));
             } catch (Exception e) {
                 throw new ShellException(getName(), e);
             }
