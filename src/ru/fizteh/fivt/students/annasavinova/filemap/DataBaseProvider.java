@@ -1,17 +1,31 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBaseProvider implements TableProvider {
     private HashMap<String, DataBase> tableBase;
     private String rootDir = "";
 
-    public DataBaseProvider(String dir) throws IllegalArgumentException, IllegalStateException {
-        tableBase = new HashMap<>();
+    public DataBaseProvider(String dir) {
         if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Empty directory name");
         }
@@ -23,17 +37,20 @@ public class DataBaseProvider implements TableProvider {
         } else {
             rootDir = dir + File.separatorChar;
         }
+        DataBaseLoader loader = new DataBaseLoader(dir, this);
+        tableBase = loader.loadBase();
     }
 
     protected boolean checkTableName(String tableName) {
-        if (tableName.contains(".") || tableName.contains(";") || tableName.contains("/") || tableName.contains("\\")) {
+        if (tableName == null || tableName.isEmpty() || tableName.contains(".") || tableName.contains(";")
+                || tableName.contains("/") || tableName.contains("\\")) {
             return false;
         }
         return true;
     }
 
     @Override
-    public Table getTable(String name) throws IllegalArgumentException, RuntimeException {
+    public Table getTable(String name) throws IllegalArgumentException {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("name is null");
         }
@@ -41,30 +58,97 @@ public class DataBaseProvider implements TableProvider {
             throw new RuntimeException("name is incorrect");
         }
         DataBase getTable = tableBase.get(name);
-        if (getTable == null) {
-            if (new File(rootDir + name).exists()) {
-                DataBase table = new DataBase(name, rootDir);
-                tableBase.put(name, table);
-                return table;
-            }
-        }
         return getTable;
     }
 
+    private void fillTypesFile(File types, List<Class<?>> columnTypes) throws IOException {
+        FileOutputStream out = new FileOutputStream(types);
+        try {
+            for (Class<?> type : columnTypes) {
+                String name = type.getSimpleName();
+                String res;
+                switch (name) {
+                case "Integer":
+                    res = "int ";
+                    break;
+                case "Long":
+                    res = "long ";
+                    break;
+                case "Byte":
+                    res = "byte ";
+                    break;
+                case "Float":
+                    res = "float ";
+                    break;
+                case "Double":
+                    res = "double ";
+                    break;
+                case "Boolean":
+                    res = "boolean ";
+                    break;
+                case "String":
+                    res = "String ";
+                    break;
+                default:
+                    throw new RuntimeException("Incorrect type in file " + name);
+                }
+                out.write((res).getBytes("UTF-8"));
+            }
+        } catch (IOException e) {
+            throw new IOException("Cannot create file " + types.getAbsolutePath(), e);
+        } finally {
+            if (out != null) {
+                try {
+                out.close();
+                } catch (Throwable e) {
+                    //not OK
+                }
+            }
+        }
+    }
+    
+    private ArrayList<Class<?>> checkColumnTypes(List<Class<?>> types) {
+        ArrayList<Class<?>> res = new ArrayList<Class<?>>();
+        for (Class<?> type : types) {
+            if (type.equals(int.class) || type.equals(Integer.class)) {
+                res.add(Integer.class);
+            } else if (type.equals(long.class) || type.equals(Long.class)) {
+                res.add(Long.class);
+            } else if (type.equals(byte.class) || type.equals(Byte.class)) {
+                res.add(Byte.class);
+            } else if (type.equals(float.class) || type.equals(Float.class)) {
+                res.add(Float.class);
+            } else if (type.equals(double.class) || type.equals(Double.class)) {
+                res.add(Double.class);
+            } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+                res.add(Double.class);
+            } else if (type.equals(String.class)) {
+                res.add(String.class);
+            } else {
+                throw new IllegalArgumentException("Incorrect class " + type);
+            }
+        }
+        return res;
+    }
+
     @Override
-    public Table createTable(String name) throws IllegalArgumentException, RuntimeException {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("name is null");
-        }
+    public Table createTable(String name, List<Class<?>> typesList) throws IOException {
         if (!checkTableName(name)) {
-            throw new RuntimeException("name is incorrect");
+            throw new IllegalArgumentException("name is incorrect");
         }
+        ArrayList<Class<?>> columnTypes = checkColumnTypes(typesList);
         File fileTable = new File(rootDir + name);
         if (!fileTable.exists()) {
             if (!fileTable.mkdir()) {
-                throw new RuntimeException("Cannot create dir");
+                throw new IOException("Cannot create directory");
             }
-            DataBase table = new DataBase(name, rootDir);
+            File types = new File(rootDir + name + File.separator + "signature.tsv");
+            if (!types.createNewFile()) {
+                throw new IOException("Cannot create directory");
+            }
+            fillTypesFile(types, columnTypes);
+            DataBase table = new DataBase(name, rootDir, this);
+            table.setTypes(columnTypes);
             tableBase.put(name, table);
             return table;
         }
@@ -72,7 +156,8 @@ public class DataBaseProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String name) throws IllegalArgumentException, IllegalStateException, RuntimeException {
+    public void removeTable(String name) throws IOException {
+        // TODO check illegal state
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("name is null");
         }
@@ -104,4 +189,159 @@ public class DataBaseProvider implements TableProvider {
             }
         }
     }
+
+    public Class<?> getClassFromString(String name) {
+        Class<?> result = null;
+        switch (name) {
+        case ("int"):
+            result = Integer.class;
+            break;
+        case ("long"):
+            result = Long.class;
+            break;
+        case ("byte"):
+            result = Byte.class;
+            break;
+        case ("float"):
+            result = Float.class;
+            break;
+        case ("double"):
+            result = Double.class;
+            break;
+        case ("boolean"):
+            result = Boolean.class;
+            break;
+        case ("String"):
+            result = String.class;
+            break;
+        default:
+            throw new RuntimeException("Incorrect type " + name);
+        }
+        return result;
+    }
+
+    public Object getObjectFromString(String text, Class<?> type) throws IOException {
+        switch (type.getSimpleName()) {
+        case "int":
+            return new Integer(text);
+        case "long":
+            return new Long(text);
+        case "byte":
+            return new Byte(text);
+        case "float":
+            return new Float(text);
+        case "double":
+            return new Double(text);
+        case "boolean":
+            return new Boolean(text);
+        case "String":
+            return text;
+        default:
+            throw new IOException("Incorrect type");
+        }
+    }
+
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        TableRow row = new TableRow(table);
+        XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
+        StringReader str = new StringReader(value);
+        XMLStreamReader reader = null;
+        try {
+            reader = xmlFactory.createXMLStreamReader(str);
+            if (!reader.hasNext()) {
+                throw new ParseException("Input value is empty", 0);
+            }
+            reader.nextTag();
+            if (!reader.getLocalName().equals("row")) {
+                throw new ParseException("Incorrect xml format", reader.getLocation().getCharacterOffset());
+            }
+            int columnIndex = 0;
+            while (reader.hasNext()) {
+                reader.nextTag();
+                if (!reader.getLocalName().equals("col")) {
+                    if (!reader.isEndElement()) {
+                        throw new ParseException("Incorrect xml format", reader.getLocation().getCharacterOffset());
+                    }
+                    if (reader.isEndElement() && reader.getLocalName().equals("row")) {
+                        break;
+                    }
+                }
+                String text = reader.getElementText();
+                if (!text.equals("null")) {
+                    row.setColumnAt(columnIndex, getObjectFromString(text, table.getColumnType(columnIndex)));
+                }
+                columnIndex++;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse string " + value, e);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cannot parse string " + value, e);
+        } finally {
+            try {
+                reader.close();
+            } catch (Throwable e) {
+                // not OK
+            }
+        }
+        return row;
+    }
+
+    public void checkColumns(Table t, Storeable value) throws ColumnFormatException {
+        for (int i = 0; i < t.getColumnsCount(); ++i) {
+            if (value != null && !value.getColumnAt(i).getClass().equals(t.getColumnType(i))) {
+                throw new ColumnFormatException("incorrect column format");
+            }
+        }
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        checkColumns(table, value);
+
+        XMLOutputFactory xmlFactory = XMLOutputFactory.newFactory();
+        StringWriter str = new StringWriter();
+        try {
+            XMLStreamWriter writer = xmlFactory.createXMLStreamWriter(str);
+            try {
+                writer.writeStartElement("row");
+                for (int i = 0; i < table.getColumnsCount(); ++i) {
+                    writer.writeStartElement("col");
+                    if (value.getColumnAt(i) == null) {
+                        writer.writeCharacters("null");
+                    } else {
+                        writer.writeCharacters(value.getColumnAt(i).toString());
+                    }
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            } finally {
+                writer.close();
+            }
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                str.close();
+            } catch (Throwable e) {
+                // not OK
+            }
+        }
+        return str.toString();
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        return new TableRow(table);
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        TableRow row = new TableRow(table);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            row.setColumnAt(i, values.get(i));
+        }
+        return row;
+    }
+
 }

@@ -2,70 +2,61 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class DBaseProviderFactoryTest {
-    static File rootDir;
-    static File file;
-    static TemporaryFolder root = new TemporaryFolder();
+    DBaseProviderFactory test;
 
-    @BeforeClass
-    public static void createDir() {
+    @Rule
+    public TemporaryFolder root = new TemporaryFolder();
+
+    @Before
+    public void init() {
         try {
-            root.create();
-            rootDir = root.newFolder("rootFolder");
-            file = root.newFile("rootFolder" + File.separator + "filename");
-        } catch (IOException e1) {
-            System.err.println(e1.getMessage());
-            e1.printStackTrace();
+            System.setProperty("fizteh.db.dir", root.newFolder().getAbsolutePath());
+            test = new DBaseProviderFactory();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    @AfterClass
-    public static void clean() {
-        root.delete();
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateNull() {
+        try {
+            test.create(null);
+        } catch (IOException e) {
+            fail("Unexpected IOException");
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateNotExisting() {
+        try {
+            test.create(root.newFolder().getAbsolutePath() + "not_existing_name");
+        } catch (IOException e) {
+            fail("Unexpected IOException");
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateFile() {
+        try {
+            test.create(root.newFile().getAbsolutePath());
+        } catch (IOException e) {
+            fail("Unexpected IOException");
+        }
     }
 
     @Test
     public void testCreate() {
-        System.setProperty("fizteh.db.dir", rootDir.getAbsolutePath());
-        DBaseProviderFactory tmp = new DBaseProviderFactory();
         try {
-            tmp.create(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalArgumentException");
-        }
-
-        try {
-            tmp.create(rootDir.getAbsolutePath() + "not_existing_name");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalArgumentException");
-        }
-
-        try {
-            tmp.create(file.getAbsolutePath());
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalArgumentException");
-        }
-
-        try {
-            assertNotNull(tmp.create(rootDir.getAbsolutePath()));
-        } catch (Exception e) {
+            assertNotNull(test.create(root.newFolder().getAbsolutePath()));
+        } catch (Throwable e) {
             fail("Unexpected exception");
         }
 
