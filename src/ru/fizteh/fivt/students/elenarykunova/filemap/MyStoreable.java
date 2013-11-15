@@ -36,9 +36,11 @@ public class MyStoreable implements Storeable {
                 if (tableClass.equals(Integer.class)) {
                     if (newClass.equals(Integer.class)) {
                         myValues.add(newVal);
+                    } else if (newClass.equals(Byte.class)) {
+                        myValues.add(Byte.class.cast(newVal).intValue());
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Integer.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Long.class)) {
                     if (newClass.equals(Long.class)) {
@@ -48,8 +50,8 @@ public class MyStoreable implements Storeable {
                     } else if (newClass.equals(Byte.class)) {
                         myValues.add(Byte.class.cast(newVal).longValue());
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Long.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Byte.class)) {
                     if (newClass.equals(Byte.class)) {
@@ -58,21 +60,21 @@ public class MyStoreable implements Storeable {
                         Integer current = Integer.class.cast(newVal);
                         if (current > Byte.MAX_VALUE
                                 || current < Byte.MIN_VALUE) {
-                            throw new ColumnFormatException(
-                                    "Incorrect column format");
+                            throw new ColumnFormatException("expected "
+                                    + Byte.class + " but was " + newClass);
                         }
                         myValues.add(current.byteValue());
                     } else if (newClass.equals(Long.class)) {
                         Long current = Long.class.cast(newVal);
                         if (current > Byte.MAX_VALUE
                                 || current < Byte.MIN_VALUE) {
-                            throw new ColumnFormatException(
-                                    "Incorrect column format");
+                            throw new ColumnFormatException("expected "
+                                    + Byte.class + " but was " + newClass);
                         }
                         myValues.add(current.byteValue());
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Byte.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Float.class)) {
                     if (newClass.equals(Float.class)) {
@@ -84,8 +86,8 @@ public class MyStoreable implements Storeable {
                     } else if (newClass.equals(Long.class)) {
                         myValues.add(Long.class.cast(newVal).floatValue());
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Float.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Double.class)) {
                     if (newClass.equals(Double.class)) {
@@ -95,8 +97,8 @@ public class MyStoreable implements Storeable {
                     } else if (newClass.equals(Integer.class)) {
                         myValues.add(Integer.class.cast(newVal).doubleValue());
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Double.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(Boolean.class)) {
                     if (newClass.equals(Boolean.class)) {
@@ -108,19 +110,19 @@ public class MyStoreable implements Storeable {
                         } else if (current.toLowerCase().equals("true")) {
                             myValues.add(true);
                         } else {
-                            throw new ColumnFormatException(
-                                    "Incorrect column format");
+                            throw new ColumnFormatException("expected "
+                                    + Boolean.class + " but was " + newClass);
                         }
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + Boolean.class + " but was " + newClass);
                     }
                 } else if (tableClass.equals(String.class)) {
                     if (newClass.equals(String.class)) {
                         myValues.add(newVal);
                     } else {
-                        throw new ColumnFormatException(
-                                "Incorrect column format");
+                        throw new ColumnFormatException("expected "
+                                + String.class + " but was " + newClass);
                     }
                 }
             }
