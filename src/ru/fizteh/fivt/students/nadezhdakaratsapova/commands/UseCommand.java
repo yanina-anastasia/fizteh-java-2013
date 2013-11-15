@@ -1,14 +1,14 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.commands;
 
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Command;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
-import java.io.File;
 import java.io.IOException;
 
 public class UseCommand implements Command {
-    private MultiFileHashMapProvider curState;
+    private UniversalTableProvider curState;
 
-    public UseCommand(MultiFileHashMapProvider state) {
+    public UseCommand(UniversalTableProvider state) {
         curState = state;
     }
 
@@ -18,12 +18,13 @@ public class UseCommand implements Command {
 
     public void execute(String[] args) throws IOException {
         int commitSize;
-        if (curState.curDataBaseStorage != null) {
-            if ((commitSize = curState.curDataBaseStorage.commitSize()) != 0) {
+        if (curState.getCurTable() != null) {
+            if ((commitSize = curState.getCurTable().commitSize()) != 0) {
                 throw new IOException(commitSize + " unsaved changes");
             }
         }
-        if (curState.setCurTable(args[1]) != null) {
+        if (curState.getTable(args[1]) != null) {
+            curState.setCurTable(args[1]);
             System.out.println("using " + args[1]);
         } else {
             System.out.println(args[1] + " not exists");
@@ -31,7 +32,7 @@ public class UseCommand implements Command {
 
     }
 
-    public int getArgsCount() {
-        return 1;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 1);
     }
 }

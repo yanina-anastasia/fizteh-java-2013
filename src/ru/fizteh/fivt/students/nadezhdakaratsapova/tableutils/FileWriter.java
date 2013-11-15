@@ -1,4 +1,6 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
+
+import ru.fizteh.fivt.students.nadezhdakaratsapova.filemap.DataTable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +23,7 @@ public class FileWriter {
             for (String s : keys) {
                 byte[] b = s.getBytes(StandardCharsets.UTF_8);
                 outStream.write(b);
-                outStream.writeByte('\0');
+                outStream.write('\0');
                 outStream.writeInt(offset);
                 String value = dataTable.get(s);
                 values.add(value);

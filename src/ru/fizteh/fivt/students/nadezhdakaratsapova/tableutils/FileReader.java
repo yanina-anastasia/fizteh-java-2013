@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
+package ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileReader {
+public class FileReader<ValueType> {
 
     public static final int MAX_FILE_SIZE = 1024 * 1024;
     public static final int SEPARATOR_SIZE = 1;
@@ -15,13 +15,14 @@ public class FileReader {
     private int curPos = 0;
     private int offset1 = 1;
     private Integer prevOffset = 0;
-    private DataTable dataTable;
+    private UniversalDataTable dataTable;
     private List<Byte> key = new ArrayList<Byte>();
     private List<Integer> offsets = new ArrayList<Integer>();
     private List<String> keysToMap = new ArrayList<String>();
+    private int curValue = 0;
 
 
-    public FileReader(File file, DataTable table) throws FileNotFoundException {
+    public FileReader(File file, UniversalDataTable table) throws FileNotFoundException {
         dataFile = file;
         dataTable = table;
         if (file.length() != 0) {
@@ -75,30 +76,40 @@ public class FileReader {
         return keyToMap;
     }
 
-    public void putKeysToTable() throws IOException {
-        long fileLength = dataFile.length();
-        int j = 0;
+    public boolean valuesToReadExists() {
+        int offsetsSize = 0;
         if (!offsets.isEmpty()) {
-            int offsetsSize = offsets.size();
-            while (j < offsetsSize) {
-                byte[] b = new byte[offsets.get(j)];
-                inStream.read(b, 0, offsets.get(j));
-                dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
-                curPos += offsets.get(j);
-                ++j;
-            }
+            offsetsSize = offsets.size();
         }
-        if (curPos < fileLength) {
-            int lastOffset = (int) (fileLength - curPos);
-            byte[] b = new byte[lastOffset];
-            for (int k = 0; curPos < fileLength; ++k, ++curPos) {
-                b[k] = inStream.readByte();
-            }
-            dataTable.put(keysToMap.get(j), new String(b, StandardCharsets.UTF_8));
-        }
-        dataTable.commit();
+        return (curValue <= offsetsSize);
     }
 
+    public String getNextValue() throws IOException {
+        if (curValue == offsets.size()) {
+            long fileLength = dataFile.length();
+            if (curPos < fileLength) {
+                int lastOffset = (int) (fileLength - curPos);
+                byte[] b = new byte[lastOffset];
+                for (int k = 0; curPos < fileLength; ++k, ++curPos) {
+                    b[k] = inStream.readByte();
+                }
+                return new String(b, StandardCharsets.UTF_8);
+            }
+
+        }
+        byte[] b = new byte[offsets.get(curValue)];
+        inStream.read(b, 0, offsets.get(curValue));
+        curPos += offsets.get(curValue);
+        return new String(b, StandardCharsets.UTF_8);
+    }
+
+    public void putValueToTable(ValueType value) {
+        dataTable.put(keysToMap.get(curValue), value);
+        if (curValue == offsets.size()) {
+            dataTable.commit();
+        }
+        ++curValue;
+    }
 
     public void closeResources() throws IOException {
         if (curPos > 0) {
