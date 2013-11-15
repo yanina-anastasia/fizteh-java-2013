@@ -29,8 +29,6 @@ public class WriteInDataBase {
             for (Map.Entry<String, String> myEntry : set) {
                 dataBase.write(myEntry.getValue().getBytes(StandardCharsets.UTF_8));
             }
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e);
         } finally {
             try {
                 CloseFile.closeFile(dataBase);
