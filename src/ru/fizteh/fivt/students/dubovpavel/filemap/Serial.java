@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.dubovpavel.filemap;
 
-import java.io.Serializable;
 import java.text.ParseException;
 
 public interface Serial<T> {
