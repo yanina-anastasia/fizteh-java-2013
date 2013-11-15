@@ -35,6 +35,114 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         }
     }
 
+    public int changesCount() {
+        return added.size() + deleted.size();
+    }
+
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String get(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key is null!");
+        }
+        if (added.containsKey(key)) {
+            return added.get(key);
+        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
+            return entries.get(key);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String put(String key, String value) throws IllegalArgumentException {
+        if (ourProvider.isBadName(key)) {
+            throw new IllegalArgumentException("Bad key!");
+        }
+        if (ourProvider.isBadName(value)) {
+            throw new IllegalArgumentException("Bad value!");
+        }
+
+        String oldValue = null;
+        if (added.containsKey(key)) {
+            oldValue = added.get(key);
+            added.remove(key);
+        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
+            oldValue = entries.get(key);
+        } else if (deleted.containsKey(key)) {
+            deleted.remove(key);
+        }
+        if (!entries.get(key).equals(value)) {
+            added.put(key, value);
+        }
+        return oldValue;
+    }
+
+    @Override
+    public String remove(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key is null!");
+        }
+        String oldValue = null;
+        if (added.containsKey(key)) {
+            oldValue = added.get(key);
+            added.remove(key);
+            if (entries.containsKey(key)) {
+                deleted.put(key, oldValue);
+            }
+        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
+            oldValue = entries.get(key);
+            deleted.put(key, entries.get(key));
+        }
+        return oldValue;
+    }
+
+    @Override
+    public int size() {
+        int ans = entries.size() + added.size() - deleted.size();
+        for (String key : added.keySet()) {
+            if (entries.containsKey(key)) {
+                --ans;
+            }
+        }
+        return ans;
+    }
+
+    @Override
+    public int commit() {
+        for (String key : deleted.keySet()) {
+            entries.remove(key);
+        }
+        for (String key : added.keySet()) {
+            if (entries.containsKey(key)) {
+                entries.remove(key);
+            }
+            entries.put(key, added.get(key));
+        }
+        try {
+            writeDatabase();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        int oldSize = added.size() + deleted.size();
+        added.clear();
+        deleted.clear();
+        return oldSize;
+    }
+
+    @Override
+    public int rollback() {
+        int oldSize = added.size() + deleted.size();
+        added.clear();
+        deleted.clear();
+        return oldSize;
+    }
+
     private void readFile(String dirName, String fileName) throws Exception {
 
         try (RandomAccessFile database = new RandomAccessFile(
@@ -261,110 +369,4 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
     }
 
 
-    public int changesCount() {
-        return added.size() + deleted.size();
-    }
-
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null!");
-        }
-        if (added.containsKey(key)) {
-            return added.get(key);
-        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
-            return entries.get(key);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null!");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Value is null!");
-        }
-        String oldValue = null;
-        if (added.containsKey(key)) {
-            oldValue = added.get(key);
-            added.remove(key);
-        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
-            oldValue = entries.get(key);
-        } else if (deleted.containsKey(key)) {
-            deleted.remove(key);
-        }
-        if (!entries.get(key).equals(value)) {
-            added.put(key, value);
-        }
-        return oldValue;
-    }
-
-    @Override
-    public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null!");
-        }
-        String oldValue = null;
-        if (added.containsKey(key)) {
-            oldValue = added.get(key);
-            added.remove(key);
-            if (entries.containsKey(key)) {
-                deleted.put(key, oldValue);
-            }
-        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
-            oldValue = entries.get(key);
-            deleted.put(key, entries.get(key));
-        }
-        return oldValue;
-    }
-
-    @Override
-    public int size() {
-        int ans = entries.size() + added.size() - deleted.size();
-        for (String key : added.keySet()) {
-            if (entries.containsKey(key)) {
-                --ans;
-            }
-        }
-        return ans;
-    }
-
-    @Override
-    public int commit() {
-        for (String key : deleted.keySet()) {
-            entries.remove(key);
-        }
-        for (String key : added.keySet()) {
-            if (entries.containsKey(key)) {
-                entries.remove(key);
-            }
-            entries.put(key, added.get(key));
-        }
-        try {
-            writeDatabase();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        int oldSize = added.size() + deleted.size();
-        added.clear();
-        deleted.clear();
-        return oldSize;
-    }
-
-    @Override
-    public int rollback() {
-        int oldSize = added.size() + deleted.size();
-        added.clear();
-        deleted.clear();
-        return oldSize;
-    }
 }

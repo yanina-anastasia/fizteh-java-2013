@@ -27,7 +27,7 @@ public class TableProvider implements ru.fizteh.fivt.storage.strings.TableProvid
 
     }
 
-    private boolean isBadName(String name) {
+    boolean isBadName(String name) {
         if (name == null || name.isEmpty() || name.trim().isEmpty()) {
             return true;
         }
