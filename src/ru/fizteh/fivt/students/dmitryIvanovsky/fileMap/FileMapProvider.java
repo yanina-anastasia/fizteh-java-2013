@@ -89,9 +89,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public void exit() throws Exception {
-        if (dbData != null) {
-            dbData.closeTable();
-        }
+//        if (dbData != null) {
+//            dbData.closeTable();
+//        }
     }
 
     private void checkBdDir(Path pathTables) throws Exception {
@@ -190,7 +190,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             } else {
                 if (!nameTable.equals(useNameTable)) {
                     if (dbData != null) {
-                        dbData.closeTable();
+                        dbData.unloadTable();
                     }
                     dbData = (FileMap) getTable(nameTable);
                     useNameTable = nameTable;

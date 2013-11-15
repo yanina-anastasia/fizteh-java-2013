@@ -141,12 +141,6 @@ public class FileMap implements Table {
         }
     }
 
-    public void exit() throws Exception {
-        if (!tableDrop) {
-            closeTable();
-        }
-    }
-
     private void loadTable(String nameMap) throws Exception {
         File currentFileMap = pathDb.resolve(nameMap).toFile();
         if (!currentFileMap.isDirectory()) {
@@ -280,15 +274,19 @@ public class FileMap implements Table {
         }
     }
 
-    public void closeTable() throws Exception {
+    public void unloadTable() throws Exception {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
         existDir = false;
-        if (tableDrop) {
-            return;
-        }
         mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
-        writeFileTsv();
         existDir = true;
+        closeTable();
+    }
+
+    private void closeTable() throws Exception {
+        writeFileTsv();
         if (tableData.isEmpty()) {
             return;
         }
@@ -324,7 +322,6 @@ public class FileMap implements Table {
                 closeTableFile(tmp.resolve(numFile.toString() + ".dat").toFile(), arrayMap[i][j]);
             }
         }
-        tableData.clear();
     }
 
     public void closeTableFile(File randomFile, Map<String, Storeable> curMap) throws Exception {
@@ -378,10 +375,16 @@ public class FileMap implements Table {
     }
 
     public String getName() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         return nameTable;
     }
 
     public int changeKey() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         return changeTable.size();
     }
 
@@ -390,7 +393,9 @@ public class FileMap implements Table {
         if (value == null) {
             throw new IllegalArgumentException("value can't be null");
         }
-
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         FileMapStoreable st = null;
         try {
             st = (FileMapStoreable) value;
@@ -476,33 +481,6 @@ public class FileMap implements Table {
                 return null;
             }
         }
-        /*if (tableData.containsKey(key)) {
-            Storeable oldValue = tableData.get(key);
-
-            if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                return oldValue;
-            }
-
-            if (!changeTable.containsKey(key)) {
-                changeTable.put(key, oldValue);
-            }
-
-            tableData.put(key, value);
-            return oldValue;
-        } else {
-
-            if (!changeTable.containsKey(key)) {
-                changeTable.put(key, null);
-            } else {
-                Storeable tmp = changeTable.get(key);
-                if (changeTable.get(key) != null && parent.serialize(this, tmp).equals(parent.serialize(this, value))) {
-                    changeTable.remove(key);
-                }
-            }
-
-            tableData.put(key, value);
-            return null;
-        } */
     }
 
     public void setDrop() {
@@ -511,7 +489,9 @@ public class FileMap implements Table {
 
     public Storeable get(String key) {
         checkArg(key);
-
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         if (changeTable.containsKey(key)) {
             Storeable newValue = changeTable.get(key);
             if (newValue == null) {
@@ -528,16 +508,13 @@ public class FileMap implements Table {
                 return null;
             }
         }
-        /*if (tableData.containsKey(key)) {
-            return tableData.get(key);
-        } else {
-            return null;
-        }*/
     }
 
     public Storeable remove(String key) {
         checkArg(key);
-
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         if (changeTable.containsKey(key)) {
             Storeable newValue = changeTable.get(key);
             if (tableData.containsKey(key)) {
@@ -561,26 +538,12 @@ public class FileMap implements Table {
                 return null;
             }
         }
-
-        /*if (tableData.containsKey(key)) {
-
-            if (!changeTable.containsKey(key)) {
-                changeTable.put(key, tableData.get(key));
-            } else {
-                if (changeTable.get(key) == null) {
-                    changeTable.remove(key);
-                }
-            }
-
-            Storeable value = tableData.get(key);
-            tableData.remove(key);
-            return value;
-        } else {
-            return null;
-        }*/
     }
 
     public int size() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         int size = tableData.size();
         for (String key : changeTable.keySet()) {
             if (tableData.containsKey(key)) {
@@ -597,6 +560,9 @@ public class FileMap implements Table {
     }
 
     public int commit() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         for (String key : changeTable.keySet()) {
             Storeable value = changeTable.get(key);
             if (value == null) {
@@ -607,36 +573,36 @@ public class FileMap implements Table {
         }
         int count = changeTable.size();
         changeTable.clear();
+        try {
+            unloadTable();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
         return count;
-        /*int res = changeTable.size();
-        changeTable.clear();
-        return res;*/
     }
 
     public int rollback() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         int res = changeTable.size();
         changeTable.clear();
         return res;
-        /*for (String key : changeTable.keySet()) {
-            Storeable value = changeTable.get(key);
-            if (value == null) {
-                tableData.remove(key);
-            } else {
-                tableData.put(key, changeTable.get(key));
-            }
-        }
-        int count = changeTable.size();
-        changeTable.clear();
-        return count;*/
     }
 
     @Override
     public int getColumnsCount() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         return columnType.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
         return columnType.get(columnIndex);
     }
 
