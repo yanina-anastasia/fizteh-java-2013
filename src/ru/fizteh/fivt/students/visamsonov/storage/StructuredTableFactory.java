@@ -8,6 +8,7 @@ public class StructuredTableFactory implements StructuredTableProviderFactoryInt
 		if (dir == null || dir.trim().isEmpty() || new File(dir).isFile()) {
 			throw new IllegalArgumentException();
 		}
+		new File(dir).mkdir();
 		if (!(new File(dir).isDirectory())) {
 			 throw new IOException();
 		}
