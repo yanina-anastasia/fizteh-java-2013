@@ -106,20 +106,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-//    private FileMap loadDb(String nameMap) throws Exception {
-//        try {
-//            File currentFileMap = pathDb.resolve(nameMap).toFile();
-//            if (!currentFileMap.isDirectory()) {
-//                throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
-//            }
-//            FileMap table = new FileMap(pathDb, nameMap, this);
-//            return table;
-//        } catch (Exception e) {
-//            e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
-//            throw e;
-//        }
-//    }
-
 
     public String startShellString() {
         return "$ ";
@@ -250,7 +236,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
 
-    public Table singleCreateTable(String name, List<Class<?>> columnType) throws IOException {
+    private Table singleCreateTable(String name, List<Class<?>> columnType) throws IOException {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -295,7 +281,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public Table getTable(String name) {
+    private Table singleGetTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -324,7 +310,16 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public void singleRemoveTable(String name) {
+    public Table getTable(String name) {
+        read.lock();
+        try {
+            return singleGetTable(name);
+        } finally {
+            read.unlock();
+        }
+    }
+
+    private void singleRemoveTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
