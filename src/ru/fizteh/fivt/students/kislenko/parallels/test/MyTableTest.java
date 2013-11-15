@@ -271,10 +271,10 @@ public class MyTableTest {
             @Override
             public void run() {
                 try {
-                    value1 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
                     checkInt1 = table.commit();
-                } catch (ParseException ignored) {
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
                 }
             }
         });
@@ -282,10 +282,10 @@ public class MyTableTest {
             @Override
             public void run() {
                 try {
-                    value2 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
                     checkInt2 = table.commit();
-                } catch (ParseException ignored) {
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
                 }
             }
         });
@@ -293,7 +293,6 @@ public class MyTableTest {
         second.start();
         first.join();
         second.join();
-        Assert.assertTrue(value1 == null ^ value2 == null);
         Assert.assertEquals(1, checkInt1 + checkInt2);
     }
 
@@ -329,12 +328,12 @@ public class MyTableTest {
     }
 
     @Test
-    public void testMultiThreadPutRollbackGet() throws Exception {
+    public void testMultiThreadPutCommitSecond() throws Exception {
         Thread first = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    value1 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
                     checkInt1 = table.commit();
                 } catch (ParseException ignored) {
                 } catch (IOException ignored) {
@@ -345,9 +344,11 @@ public class MyTableTest {
             @Override
             public void run() {
                 try {
-                    value2 = table.put("a", provider.deserialize(table, "[\"string\",-1]"));
-                    checkInt2 = table.rollback();
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
+                    table.put("b", provider.deserialize(table, "[\"pustovoytov\",-2]"));
+                    checkInt2 = table.commit();
                 } catch (ParseException ignored) {
+                } catch (IOException ignored) {
                 }
             }
         });
@@ -355,7 +356,37 @@ public class MyTableTest {
         second.start();
         first.join();
         second.join();
-        Assert.assertTrue(value1 == null ^ value2 == null);
+        Assert.assertTrue((checkInt1 == 1 && checkInt2 == 1) || (checkInt1 == 0 && checkInt2 == 2));
+    }
+
+    @Test
+    public void testMultiThreadPutCommitRollbackGet() throws Exception {
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
+                    checkInt1 = table.commit();
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(200);
+                    checkInt2 = table.rollback();
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
         Assert.assertEquals(1, checkInt1);
         Assert.assertEquals(0, checkInt2);
     }

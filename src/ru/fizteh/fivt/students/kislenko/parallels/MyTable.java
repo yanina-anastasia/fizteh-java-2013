@@ -280,7 +280,8 @@ public class MyTable implements Table {
             } else if (!storage.containsKey(key)) {
                 tempMap.put(key, changes.get().get(key));
                 count.set(count.get() + 1);
-            } else if (storage.containsKey(key) && !changes.get().get(key).equals(storage.get(key))) {
+            } else if (storage.containsKey(key) && !(storage.get(key) != null &&
+                    provider.serialize(this, changes.get().get(key)).equals(provider.serialize(this, storage.get(key))))) {
                 tempMap.put(key, changes.get().get(key));
             }
         }
