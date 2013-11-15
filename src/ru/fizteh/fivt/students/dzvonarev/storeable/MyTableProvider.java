@@ -8,8 +8,8 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dzvonarev.shell.Remove;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.*;
 
@@ -117,18 +117,11 @@ public class MyTableProvider implements TableProvider {
         if (!signature.createNewFile()) {
             throw new IOException("can't create signature.tsv file");
         }
-        FileOutputStream fOutStream = null;
-        try {
-            fOutStream = new FileOutputStream(signature);
-            for (Class<?> type : types) {
-                fOutStream.write((typeToString.get(type) + '\n').getBytes());
-            }
-            fOutStream.flush();
-        } finally {
-            if (fOutStream != null) {
-                fOutStream.close();
-            }
+        PrintWriter myWriter = new PrintWriter(signature);
+        for (Class<?> type : types) {
+            myWriter.write((typeToString.get(type)) + " ");
         }
+        myWriter.close();
     }
 
 

@@ -90,18 +90,12 @@ public class MyTable implements Table {
         if (!signature.exists()) {
             throw new RuntimeException("signature.tsv not existing");
         }
-        RandomAccessFile sigFile = openFileForRead(tableFile.getAbsolutePath() + File.separator + "signature.tsv");
-        if (sigFile.length() == 0) {
-            closeFile(sigFile);
-            throw new RuntimeException("signature.tsv is empty");
+        Scanner myScanner = new Scanner(signature);
+        if (!myScanner.hasNext()) {
+            throw new RuntimeException("signature.tsv: invalid file");
         }
-        closeFile(sigFile);
-        try (Scanner formatScanner = new Scanner(signature)) {
-            while (formatScanner.hasNextLine()) {
-                arr.add(formatScanner.nextLine());
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("signature file wasn't found");
+        while (myScanner.hasNext()) {
+            arr.add(myScanner.next());
         }
     }
 
@@ -226,22 +220,23 @@ public class MyTable implements Table {
         try {                                                      // checking format
             value.getColumnAt(getColumnsCount());
             return false;
-        } catch(IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
         }
-        for (int i = 0;  i < getColumnsCount(); ++i) {
+        for (int i = 0; i < getColumnsCount(); ++i) {
             try {
                 value.getColumnAt(i);
             } catch (IndexOutOfBoundsException e) {
                 return false;
             }
         }
+
         for (int i = 0; i < getColumnsCount(); ++i) {              // checking value
-                if (value.getColumnAt(i) == null) {
-                    continue;
-                }
-                if (value.getColumnAt(i).getClass() != type.get(i)) {
-                    return false;
-                }
+            if (value.getColumnAt(i) == null) {
+                continue;
+            }
+            if (value.getColumnAt(i).getClass() != type.get(i)) {
+                return false;
+            }
         }
         return true;
     }

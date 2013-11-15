@@ -50,7 +50,7 @@ public class MyTableTests {
     @Test
     public void testIsValid() {
         List<Object> data = new ArrayList<>();
-        Integer num =  new Integer(2);
+        Integer num = new Integer(2);
         data.add(num);
         data.add(24);
         Storeable st = provider.createFor(table, data);
@@ -58,7 +58,7 @@ public class MyTableTests {
     }
 
     @Test
-    public void testTable() throws  IOException{
+    public void testTable() throws IOException {
         List<Class<?>> x = new ArrayList<>();
         x.add(Integer.class);
         x.add(Long.class);
@@ -68,7 +68,7 @@ public class MyTableTests {
         x.add(Boolean.class);
         x.add(Byte.class);
         Table t = provider.createTable("asdasd", x);
-        t.put("asd",provider.createFor(t));
+        t.put("asd", provider.createFor(t));
     }
 
 
