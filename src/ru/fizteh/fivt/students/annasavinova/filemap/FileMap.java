@@ -288,7 +288,7 @@ public class FileMap extends UserShell {
             if (value == null) {
                 System.out.println("not found");
             } else {
-                System.out.println("rremoved");
+                System.out.println("removed");
             }
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
