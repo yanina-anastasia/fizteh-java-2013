@@ -173,18 +173,14 @@ public class TableImplementation implements Table {
         Storeable value;
         String rawValue;
         for (String key : putChanges.keySet()) {
-            //System.out.println(key);
             value = putChanges.get(key);
             rawValue = tableProvider.serialize(this, value);
             putValueToFile(key, rawValue);
-            //System.out.println(rawValue);
         }
         
         for (String key : removeChanges) {
             removeValueFromFile(key);
         }
-        
-        //System.out.println("?");
         
         putChanges.clear();
         removeChanges.clear();
