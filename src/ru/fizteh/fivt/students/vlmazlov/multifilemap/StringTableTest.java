@@ -1,18 +1,21 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import org.junit.*;
-import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
+import ru.fizteh.fivt.students.vlmazlov.filemap.StringTable;
+import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import java.io.FileNotFoundException;
+import java.io.File;
 
-public class FileMapTest {
-	private FileMap fileMap;
-	private FileMapProvider provider;
-	private final String root = System.getProperty("fizteh.db.dir");
+public class StringTableTest {
+	private StringTable fileMap;
+	private StringTableProvider provider;
+	private final String root = "StringTableTest";
 
 	@Before
 	public void setUp() {
 		try {
-			provider = new FileMapProvider(root, false);
+			File tempDir = FileUtils.createTempDir(root, null);
+			provider = new StringTableProvider(tempDir.getPath(), false);
 			fileMap = provider.createTable("testTable");
 		} catch (ValidityCheckFailedException ex) {
 			Assert.fail("validity check failed: " + ex.getMessage());
@@ -122,7 +125,4 @@ public class FileMapTest {
 		fileMap.put("key4", "val4");
 		Assert.assertEquals("Incorrect size", 4, fileMap.size());
 	}
-
-
-
 } 

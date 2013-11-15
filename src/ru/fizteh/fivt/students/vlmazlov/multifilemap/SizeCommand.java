@@ -3,9 +3,9 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import java.io.OutputStream;
 
-public class RollBackCommand extends AbstractDataBaseCommand {
-	public RollBackCommand() {
-		super("rollback", 0);
+public class SizeCommand extends AbstractDataBaseCommand {
+	public SizeCommand() {
+		super("size", 0);
 	}
 
 	public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
@@ -14,6 +14,6 @@ public class RollBackCommand extends AbstractDataBaseCommand {
 			return;
 		}
 
-		displayMessage(state.getActiveTable().rollback() + SEPARATOR, out);
+		displayMessage(state.getActiveTable().size() + SEPARATOR, out);
 	}
 }

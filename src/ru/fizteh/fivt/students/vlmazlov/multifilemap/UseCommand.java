@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.AbstractCommand;
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
-import ru.fizteh.fivt.students.vlmazlov.filemap.FileMap;
 import java.io.OutputStream;
 import java.io.IOException;
 
@@ -19,12 +18,17 @@ public class UseCommand extends AbstractDataBaseCommand {
 			return;
 		}
 
-		if (state.getProvider().getTable(tablename) == null) {
-			displayMessage(tablename + " not exists" + SEPARATOR, out);
-		} else {
-			state.setActiveTable(state.getProvider().getTable(tablename));
-	
-			displayMessage("using " + tablename + SEPARATOR, out);
+		try {
+			if (state.getProvider().getTable(tablename) == null) {
+				displayMessage(tablename + " not exists" + SEPARATOR, out);
+			} else {
+				state.setActiveTable(state.getProvider().getTable(tablename));
+		
+				displayMessage("using " + tablename + SEPARATOR, out);
+			}
+		} catch (IllegalArgumentException ex) {
+			displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
+			return;
 		}
 	}
 }
