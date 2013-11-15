@@ -108,11 +108,11 @@ public class FilemapTest {
 
     @Test
     public void testPutGetRemove() throws IllegalArgumentException, ParseException {
-        String valStr1 = "[1,1.5,\"value\"]";
+        String valStr1 = "[1,1.5,\"value\",false]";
         Storeable val1 = prov.deserialize(table, valStr1);
         assertNull(table.put("key", val1));
         
-        String valStr2 = "[1,1.5,\"value2\"]";
+        String valStr2 = "[1,1.5,\"value2\",false]";
         Storeable val2 = prov.deserialize(table, valStr2);
         assertNotNull(table.put("key", val2));
         
@@ -128,11 +128,11 @@ public class FilemapTest {
 
     @Test
     public void testPutGetRemoveCyrillic() throws IllegalArgumentException, ParseException {
-        String valStr1 = "[1, 1.5, значение1]";
+        String valStr1 = "[1, 1.5, значение1,false]";
         Storeable val1 = prov.deserialize(table, valStr1);
         assertNull(table.put("ключ", val1));
         
-        String valStr2 = "[1, 1.5, значение2]";
+        String valStr2 = "[1, 1.5, значение2,false]";
         Storeable val2 = prov.deserialize(table, valStr2);
         assertNotNull(table.put("ключ", val2));
         
@@ -150,7 +150,7 @@ public class FilemapTest {
     public void testSizeCommitRollback() throws IllegalArgumentException, ParseException {
         int sz = 442;
         for (int i = 0; i < sz; i++) {
-            String valStr = "[" + Integer.toString(i + 1) + ", 2.3, value_commit]";
+            String valStr = "[" + Integer.toString(i + 1) + ", 2.3, value_commit,false]";
             Storeable val = prov.deserialize(table, valStr);
             table.put(Integer.toString(i), val);
         }
@@ -167,7 +167,7 @@ public class FilemapTest {
 
     @Test
     public void testRollback() throws IllegalArgumentException, ParseException {
-        String valStr1 = "[0, 2, val1]";
+        String valStr1 = "[0, 2, val1,false]";
         Storeable val1 = prov.deserialize(table, valStr1);
         table.put("11", val1);
         assertEquals(table.commit(), 1);
@@ -175,7 +175,7 @@ public class FilemapTest {
         assertEquals(table.rollback(), 1);
         assertEquals(table.size(), 1);
         
-        String valStr2 = "[4, 2, val2]";
+        String valStr2 = "[4, 2, val2,false]";
         Storeable val2 = prov.deserialize(table, valStr2);
         table.put("11", val2);
         table.put("11", val1);
@@ -186,18 +186,18 @@ public class FilemapTest {
         
         assertNotNull(table.get("11"));
         
-        String valStrInit = "[0, 0.3, a]";
+        String valStrInit = "[0, 0.3, a,false]";
         Storeable valInit = prov.deserialize(table, valStrInit);
 
         table.put("key", valInit);
         table.commit();
 
-        String valStr4 = "[0, 0.3, changed]";
+        String valStr4 = "[0, 0.3, changed,false]";
         Storeable val4 = prov.deserialize(table, valStr4);
 
         table.put("key", val4);
 
-        String valStr5 = "[0, 0.3, changed_again]";
+        String valStr5 = "[0, 0.3, changed_again,false]";
         Storeable val5 = prov.deserialize(table, valStr5);
 
         table.put("key", val5);
@@ -215,27 +215,27 @@ public class FilemapTest {
 
     @Test
     public void testCommit() throws IllegalArgumentException, ParseException {
-        String valStr1 = "[0, 2, val1]";
+        String valStr1 = "[0, 2, val1,false]";
         Storeable val1 = prov.deserialize(table, valStr1);
         table.put("11", val1);
         assertEquals(table.commit(), 1);
         
-        String valStr2 = "[4, 2, val2]";
+        String valStr2 = "[4, 2, val2,false]";
         Storeable val2 = prov.deserialize(table, valStr2);
         assertEquals(table.put("11", val2), val1);
 
-        String valStrNew = "[0, 0.3, a]";
+        String valStrNew = "[0, 0.3, a,false]";
         Storeable valNew = prov.deserialize(table, valStrNew);
 
         table.put("k", valNew);
         assertEquals(2, table.commit());
 
-        String valStr4 = "[0, 0.3, changed]";
+        String valStr4 = "[0, 0.3, changed,false]";
         Storeable val4 = prov.deserialize(table, valStr4);
 
         table.put("k", val4);
 
-        String valStr5 = "[0, 0.3, changed_again]";
+        String valStr5 = "[0, 0.3, changed_again,false]";
         Storeable val5 = prov.deserialize(table, valStr5);
 
         table.put("k", val5);
@@ -259,10 +259,11 @@ public class FilemapTest {
     
     @Test (expected = ColumnFormatException.class)
     public void putBigStoreable() throws IllegalArgumentException, RuntimeException, IOException {
-        List<Class<?>> columnTypes = new ArrayList<Class<?>>(4);
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>(5);
         columnTypes.add(Integer.class);
         columnTypes.add(Double.class);
         columnTypes.add(String.class);
+        columnTypes.add(Integer.class);
         columnTypes.add(Integer.class);
         Filemap big = (Filemap) prov.createTable("big", columnTypes);
         Storeable bigger = prov.createFor(big);
