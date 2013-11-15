@@ -71,7 +71,7 @@ public class DataBaseLoader {
             throw new RuntimeException("Incorrect DataBase: illegal file in base " + path);
         }
         path = path.replace(".dat", "");
-        Integer res = new Integer(path.charAt(path.length()));
+        Integer res = new Integer(path.charAt(path.length() - 1));
         return res;
     }
 
@@ -80,7 +80,7 @@ public class DataBaseLoader {
             throw new RuntimeException("Incorrect DataBase: illegal dir in base " + path);
         }
         path = path.replace(".dir", "");
-        Integer res = new Integer(path.charAt(path.length()));
+        Integer res = new Integer(path.charAt(path.length() - 1));
         return res;
     }
 

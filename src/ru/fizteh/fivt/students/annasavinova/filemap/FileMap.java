@@ -276,6 +276,7 @@ public class FileMap extends UserShell {
         } catch (ParseException e) {
             printError("Cannot parse arguments");
         } catch (RuntimeException e) {
+            e.printStackTrace();
             printError(e.getMessage());
         }
 

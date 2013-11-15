@@ -124,7 +124,7 @@ public class DataBaseProvider implements TableProvider {
             } else if (type.equals(double.class) || type.equals(Double.class)) {
                 res.add(Double.class);
             } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
-                res.add(Double.class);
+                res.add(Boolean.class);
             } else if (type.equals(String.class)) {
                 res.add(String.class);
             } else {
@@ -233,18 +233,18 @@ public class DataBaseProvider implements TableProvider {
 
     public Object getObjectFromString(String text, Class<?> type) throws IOException {
         switch (type.getSimpleName()) {
-        case "int":
-            return new Integer(text);
-        case "long":
-            return new Long(text);
-        case "byte":
-            return new Byte(text);
-        case "float":
-            return new Float(text);
-        case "double":
-            return new Double(text);
-        case "boolean":
-            return new Boolean(text);
+        case "Integer":
+            return Integer.parseInt(text);
+        case "Long":
+            return Long.parseLong(text);
+        case "Byte":
+            return Byte.parseByte(text);
+        case "Float":
+            return Float.parseFloat(text);
+        case "Double":
+            return Double.parseDouble(text);
+        case "Boolean":
+            return Boolean.parseBoolean(text);
         case "String":
             return text;
         default:
@@ -363,6 +363,9 @@ public class DataBaseProvider implements TableProvider {
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         TableRow row = new TableRow(table);
+        if (values.size() != table.getColumnsCount()) {
+            throw new ColumnFormatException("Incorrect num of columns");
+        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             row.setColumnAt(i, values.get(i));
         }
