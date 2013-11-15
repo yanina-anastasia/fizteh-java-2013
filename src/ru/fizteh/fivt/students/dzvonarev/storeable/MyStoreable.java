@@ -14,15 +14,14 @@ public class MyStoreable implements Storeable {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
         }
-        List<Class<?>> tableTypes = ((MyTable) table).getTypeArray();
-        if (args.size() != tableTypes.size()) {            // wrong count of columns
+        if (args.size() != columnTypes.size()) {            // wrong count of columns
             throw new IndexOutOfBoundsException("wrong count of columns in value");
         }
         for (int i = 0; i < args.size(); ++i) {
             if (args.get(i) == null) {
                 continue;
             }
-            if (args.get(i).getClass() != tableTypes.get(i)) {
+            if (args.get(i).getClass() != columnTypes.get(i)) {
                 throw new ColumnFormatException(args.get(i) + " got wrong type");
             }
         }
