@@ -5,14 +5,12 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 public class Filemap implements Table {
@@ -80,12 +78,19 @@ public class Filemap implements Table {
     private void checkValue(Storeable value) {
         for (int i = 0; i < types.size(); ++i) {
             try {
-                if (value.getColumnAt(i) != null
-                        && !value.getColumnAt(i).getClass()
-                                .equals(types.get(i))) {
-                    throw new ColumnFormatException("types mismatch: expected "
-                            + types.get(i) + " but was "
-                            + value.getColumnAt(i).getClass());
+                Object val = value.getColumnAt(i);
+                
+                if (val != null
+                        && !types.get(i).equals(val.getClass())) {
+                    if (val.getClass().equals(String.class)) {
+                        throw new ColumnFormatException("types mismatch: expected "
+                                + types.get(i) + " but was "
+                                + val.getClass() + " -- " + value.getStringAt(i));
+                    } else {
+                        throw new ColumnFormatException("types mismatch: expected "
+                                + types.get(i) + " but was "
+                                + val.getClass());
+                    }
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
