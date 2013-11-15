@@ -218,7 +218,7 @@ public class MyTable implements Table {
 
     public void checkingValueForValid(Storeable value) throws ColumnFormatException {
         try {
-            value.getColumnAt(getColumnsCount());
+            value.getColumnAt(getColumnsCount() + 1);
             throw new ColumnFormatException("value is not valid: it has more columns");
         } catch (IndexOutOfBoundsException e) {
         }
