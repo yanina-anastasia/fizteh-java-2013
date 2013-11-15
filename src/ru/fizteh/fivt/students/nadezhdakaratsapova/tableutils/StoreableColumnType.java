@@ -126,7 +126,7 @@ public enum StoreableColumnType {
     public static Class<?> getClassFromPrimitive(String primitiveType) {
         StoreableColumnType storeableColumnType = primitiveToColumnType.get(primitiveType);
         if (storeableColumnType == null) {
-            throw new IllegalArgumentException("wrong type \\(.*\\)");
+            throw new IllegalArgumentException("wrong type " + primitiveType);
         }
         return storeableColumnType.clsColumnType;
 
