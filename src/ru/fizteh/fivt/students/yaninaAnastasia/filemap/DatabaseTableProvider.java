@@ -65,12 +65,12 @@ public class DatabaseTableProvider implements TableProvider {
             throw new RuntimeException("Bad symbols in tablename " + name);
         }
         if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("column types cannot be null");
+            throw new IllegalArgumentException("wrong type (column types cannot be null)");
         }
 
         for (final Class<?> columnType : columnTypes) {
             if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
-                throw new IllegalArgumentException("unknown column type");
+                throw new IllegalArgumentException("wrong type (unknown column type)");
             }
         }
         try {
