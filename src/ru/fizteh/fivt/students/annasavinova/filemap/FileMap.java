@@ -207,12 +207,10 @@ public class FileMap extends UserShell {
             } catch (IOException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
+            } catch (IllegalArgumentException e) {
+                System.out.println("wrong type(" + e.getMessage() + ")");
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
         } catch (RuntimeException e) {
-            e.printStackTrace();
             System.out.println(e.getMessage());
             System.exit(1);
         }
@@ -276,7 +274,6 @@ public class FileMap extends UserShell {
         } catch (ParseException e) {
             printError("Cannot parse arguments");
         } catch (RuntimeException e) {
-            e.printStackTrace();
             printError(e.getMessage());
         }
 
