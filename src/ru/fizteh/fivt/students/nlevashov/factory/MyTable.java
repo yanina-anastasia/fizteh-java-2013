@@ -227,27 +227,27 @@ public class MyTable implements Table {
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
                     if (c == Integer.class) {
-                        Integer tempValue = value.getIntAt(i);
+                        //Integer tempValue = value.getIntAt(i);
                         temp.setColumnAt(i, Integer.valueOf(1));
                         //temp.setColumnAt(i, tempValue);
                     } else if (c == Long.class)  {
-                        Long tempValue = value.getLongAt(i);
+                        //Long tempValue = value.getLongAt(i);
                         temp.setColumnAt(i, Long.valueOf((long) 1));
                         //temp.setColumnAt(i, tempValue);
                     } else if (c == Byte.class) {
-                        Byte tempValue = value.getByteAt(i);
+                        //Byte tempValue = value.getByteAt(i);
                         temp.setColumnAt(i, Byte.valueOf((byte) 1));
                         //temp.setColumnAt(i, tempValue);
                     } else if (c == Float.class) {
-                        Float tempValue = value.getFloatAt(i);
+                        //Float tempValue = value.getFloatAt(i);
                         temp.setColumnAt(i, Float.valueOf((float) 1.5));
                         //temp.setColumnAt(i, tempValue);
                     } else if (c == Double.class) {
-                        Double tempValue = value.getDoubleAt(i);
+                        //Double tempValue = value.getDoubleAt(i);
                         temp.setColumnAt(i, Double.valueOf(1.5));
                         //temp.setColumnAt(i, tempValue);
                     } else if (c == Boolean.class) {
-                        Boolean tempValue = value.getBooleanAt(i);
+                        //Boolean tempValue = value.getBooleanAt(i);
                         temp.setColumnAt(i, Boolean.valueOf(true));
                         //temp.setColumnAt(i, tempValue);
                     } else {
