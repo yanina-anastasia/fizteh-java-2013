@@ -80,8 +80,14 @@ public class Filemap implements Table {
             try {
                 Object val = value.getColumnAt(i);
                 if (val != null && !types.get(i).equals(val.getClass())) {
-                    throw new ColumnFormatException("types mismatch: expected "
-                            + types.get(i) + " but was " + val.getClass());
+                    if (val.getClass().equals(String.class)) {
+                        String str = (String) val;
+                        throw new ColumnFormatException("types mismatch: expected "
+                                + types.get(i) + " but was " + val.getClass() + " " + str);                        
+                    } else {
+                        throw new ColumnFormatException("types mismatch: expected "
+                                + types.get(i) + " but was " + val.getClass());
+                    }
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
@@ -110,8 +116,6 @@ public class Filemap implements Table {
             checkValue(value);
         } catch (ColumnFormatException e1) {
             throw new ColumnFormatException("put: " + e1.getMessage(), e1);
-        } catch (IllegalArgumentException e2) {
-            throw new IllegalArgumentException("put: " + e2.getMessage(), e2);
         }
         Storeable res = updatedMap.put(key, value);
         return res;
