@@ -98,6 +98,7 @@ public class DatabaseTable implements Table {
                             throw new ParseException("value cannot be null", 0);
                         }
                         break;
+                    default:
                 }
             } catch (ParseException e) {
                 throw new IllegalArgumentException(e);

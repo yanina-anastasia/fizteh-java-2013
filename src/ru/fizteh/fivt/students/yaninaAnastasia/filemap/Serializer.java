@@ -35,6 +35,7 @@ public class Serializer implements Closeable {
                             throw new ParseException("Incorrect value: it can not be null", 0);
                         }
                         break;
+                    default:
                 }
                 streamWriter.writeCharacters(value.toString());
                 streamWriter.writeEndElement();

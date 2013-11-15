@@ -72,12 +72,12 @@ public class Shell {
         }
         boolean flag = false;
         boolean flagCreate = false;
-        if ((cmds.get(commandName).getCmd() == "put") || (cmds.get(commandName).getCmd() == "create")) {
+        if ((cmds.get(commandName).getCmd().equals("put")) || (cmds.get(commandName).getCmd().equals("create"))) {
             flag = true;
         }
         String[] params = getParams(command, flag);
         try {
-            if (cmds.get(commandName).getCmd() == "exit") {
+            if (cmds.get(commandName).getCmd().equals("exit")) {
                 System.exit(0);
             }
             if (!cmds.get(commandName).exec(params, curState)) {
@@ -104,8 +104,7 @@ public class Shell {
                 String[] commandArray = input.split(";");
                 for (final String command : commandArray) {
                     try {
-                        if (!processCommand(command)) {
-                        }
+                        processCommand(command);
                     } catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
                     }

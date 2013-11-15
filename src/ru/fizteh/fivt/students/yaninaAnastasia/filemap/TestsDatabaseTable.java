@@ -61,8 +61,8 @@ public class TestsDatabaseTable {
 
     public Storeable makeMultiStoreable(int value, String valueString, Double valueDouble) {
         try {
-            return provider.deserialize(multiColumnTable, "<row><col>" + value + "</col><col>" + valueString + "</col><col>"
-                    + valueDouble + "</col></row>");
+            return provider.deserialize(multiColumnTable,
+                    "<row><col>" + value + "</col><col>" + valueString + "</col><col>" + valueDouble + "</col></row>");
         } catch (ParseException e) {
             return null;
         }
@@ -256,8 +256,7 @@ public class TestsDatabaseTable {
     }
 
     @Test
-    public void testShortNull()  throws Exception
-    {
+    public void testShortNull()  throws Exception {
         table.put("key", provider.deserialize(table, "<row><null/></row>"));
     }
 

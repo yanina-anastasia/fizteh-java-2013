@@ -44,7 +44,7 @@ public class DatabaseStoreable implements Storeable {
 
     public void indexOfBounds(int columnNum) {
         if (columnNum < 0 || columnNum >= classes.size()) {
-            throw new IndexOutOfBoundsException(String.format("Error with indexes. Index %d is out of bounds", columnNum));
+            throw new IndexOutOfBoundsException(String.format("Index %d is out of bounds", columnNum));
         }
     }
 

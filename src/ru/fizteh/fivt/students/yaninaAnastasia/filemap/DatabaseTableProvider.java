@@ -55,7 +55,8 @@ public class DatabaseTableProvider implements TableProvider {
         return table;
     }
 
-    public Table createTable(String name, List<Class<?>> columnTypes) throws IllegalArgumentException, IllegalStateException {
+    public Table createTable(String name, List<Class<?>> columnTypes)
+            throws IllegalArgumentException, IllegalStateException {
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -176,6 +177,7 @@ public class DatabaseTableProvider implements TableProvider {
                                 throw new ParseException("value cannot be null", 0);
                             }
                             break;
+                        default:
                     }
                 }
                 values.add(columnValue);
@@ -358,7 +360,8 @@ public class DatabaseTableProvider implements TableProvider {
         return true;
     }
 
-    private void loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j, TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
+    private void loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
+                           TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
         if (temp.length() == 0) {
             return;
         }

@@ -44,8 +44,8 @@ public enum ColumnTypes {
 
     private final String name;
     private final Class<?> type;
-    private static final Map<String, ColumnTypes> nameRepository;
-    private static final Map<Class<?>, ColumnTypes> classRepository;
+    private static Map<String, ColumnTypes> nameRepository;
+    private static Map<Class<?>, ColumnTypes> classRepository;
 
     private ColumnTypes(String name, Class<?> type) {
         this.name = name;
