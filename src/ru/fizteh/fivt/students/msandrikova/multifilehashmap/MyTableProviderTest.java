@@ -39,7 +39,7 @@ public class MyTableProviderTest {
 		assertNull(tableProvider.getTable("tableName"));
 		ChangesCountingTable table = tableProvider.createTable("tableName");
 		assertNotNull(tableProvider.getTable("tableName"));
-		assertEquals(table, tableProvider.getTable("tableName"));
+		assertSame(table, tableProvider.getTable("tableName"));
 	}
 
 	@Test

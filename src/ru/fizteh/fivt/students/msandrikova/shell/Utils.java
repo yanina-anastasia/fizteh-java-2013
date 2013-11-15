@@ -12,6 +12,10 @@ import java.util.Scanner;
 
 public class Utils {
 	
+	private Utils() {
+	    // static usage only
+	}
+	
 	public static void generateAnError(final String description, String commandName, boolean isInteractive) {
 		if(!commandName.equals("")){
 			System.err.println("Error: " + commandName + ": " + description);
