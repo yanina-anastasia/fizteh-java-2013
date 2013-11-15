@@ -15,12 +15,19 @@ public class SizeCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) {
+		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) ||
+				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
 		
-		int size = shell.getState().currentTable.size();
+		int size = 0;
+		if(!shell.getState().isStoreable) {
+			size = shell.getState().currentTable.size();
+		} else {
+			size = shell.getState().currentStoreableTable.size();
+		}
+		
 		System.out.println(size);
 	}
 

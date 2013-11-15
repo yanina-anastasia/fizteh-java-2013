@@ -18,11 +18,10 @@ import java.util.Set;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTable implements Table {
+public class StoreableTable implements ChangesCountingTable {
 	private TableProvider tableProvider;
 	private String name;
 	private File tablePath;
@@ -125,25 +124,6 @@ public class StoreableTable implements Table {
 				this.writeInFile(currentFile, keysDueTheirHash.get(i).get(j));
 			}
 		}
-	}
-	
-	private int countChanges() {
-		int changesCount  = 0;
-		int intersectionSize = 0;
-		Storeable originalValue = null;
-		Storeable newValue = null;
-		for(String key : this.originalDatabase.keySet()) {
-			originalValue = this.originalDatabase.get(key);
-			newValue = this.newDatabase.get(key);
-			if(newValue != null) {
-				++intersectionSize;
-				if(!newValue.equals(originalValue)) {
-					++changesCount;
-				}
-			}
-		}
-		changesCount += this.originalDatabase.size() + this.newDatabase.size() - 2 * intersectionSize;
-		return changesCount;
 	}
 	
 	private boolean checkColumnTypes(Storeable value) {
@@ -335,7 +315,7 @@ public class StoreableTable implements Table {
 		if(this.tableProvider.getTable(this.name) == null) {
 			throw new IllegalStateException("Table was removed.");
 		}
-		int changesCount = this.countChanges();
+		int changesCount = this.unsavedChangesCount();
 		this.write();
 		this.originalDatabase = this.newDatabase;
 		return changesCount;
@@ -346,7 +326,7 @@ public class StoreableTable implements Table {
 		if(this.tableProvider.getTable(this.name) == null) {
 			throw new IllegalStateException("Table was removed.");
 		}
-		int changesCount = this.countChanges();
+		int changesCount = this.unsavedChangesCount();
 		this.newDatabase = this.originalDatabase;
 		return changesCount;
 	}
@@ -362,6 +342,26 @@ public class StoreableTable implements Table {
 			throw new IndexOutOfBoundsException("Column index can not be less then 0 and more then types amount.");
 		}
 		return this.columnTypes.get(columnIndex); 
+	}
+
+	@Override
+	public int unsavedChangesCount() {
+		int changesCount  = 0;
+		int intersectionSize = 0;
+		Storeable originalValue = null;
+		Storeable newValue = null;
+		for(String key : this.originalDatabase.keySet()) {
+			originalValue = this.originalDatabase.get(key);
+			newValue = this.newDatabase.get(key);
+			if(newValue != null) {
+				++intersectionSize;
+				if(!newValue.equals(originalValue)) {
+					++changesCount;
+				}
+			}
+		}
+		changesCount += this.originalDatabase.size() + this.newDatabase.size() - 2 * intersectionSize;
+		return changesCount;
 	}
 
 }

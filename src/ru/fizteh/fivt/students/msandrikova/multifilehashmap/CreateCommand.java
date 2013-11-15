@@ -41,7 +41,7 @@ public class CreateCommand extends Command {
 				return;
 			}
 		} else {
-			List<Class<?>> columnTypes;
+			List<Class<?>> columnTypes = null;
 			try {
 				columnTypes = Utils.parseColumnTypes(argumentsList[2]);
 			} catch (IOException e1) {

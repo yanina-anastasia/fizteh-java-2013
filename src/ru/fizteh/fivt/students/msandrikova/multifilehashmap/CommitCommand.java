@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
+import java.io.IOException;
+
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
+import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
 public class CommitCommand extends Command {
 
@@ -15,12 +18,23 @@ public class CommitCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) {
+		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) ||
+				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
 		
-		int changesCount = shell.getState().currentTable.commit();
+		int changesCount = 0;
+		if(!shell.getState().isStoreable) {
+			changesCount = shell.getState().currentTable.commit();
+		} else {
+			try {
+				changesCount = shell.getState().currentStoreableTable.commit();
+			} catch (IOException e) {
+				Utils.generateAnError(e.getMessage() , this.getName(), false);
+			}
+		}
+		
 		System.out.println(changesCount);
 	}
 

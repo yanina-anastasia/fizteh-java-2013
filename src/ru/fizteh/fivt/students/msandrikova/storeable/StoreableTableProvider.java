@@ -14,12 +14,11 @@ import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTableProvider implements TableProvider {
+public class StoreableTableProvider implements ChangesCountingTableProvider {
 	private File currentDirectory;
-	private Map<String, Table> mapOfTables = new HashMap<String, Table>(); 
+	private Map<String, ChangesCountingTable> mapOfTables = new HashMap<String, ChangesCountingTable>(); 
 	
 
 	public StoreableTableProvider(File dir) throws IllegalArgumentException, IOException {
@@ -33,7 +32,7 @@ public class StoreableTableProvider implements TableProvider {
 		} else {
 			for(File f : dir.listFiles()) {
 				if(f.isDirectory()){
-					Table newTable = null;
+					ChangesCountingTable newTable = null;
 					try {
 						List<Class<?>> columnTypes = Utils.getClassTypes(f);
 						newTable = new StoreableTable(this.currentDirectory, f.getName(), columnTypes, this);
@@ -145,7 +144,7 @@ public class StoreableTableProvider implements TableProvider {
 	}
 
 	@Override
-	public Table getTable(String name) throws IllegalArgumentException {
+	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
@@ -157,14 +156,14 @@ public class StoreableTableProvider implements TableProvider {
 	}
 
 	@Override
-	public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+	public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
 		if(this.mapOfTables.get(name) != null) {
 			return null;
 		}
-		Table newTable = null;
+		ChangesCountingTable newTable = null;
 		try {
 			newTable = new StoreableTable(this.currentDirectory, name, columnTypes, this);
 		} catch (IOException e) {

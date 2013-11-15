@@ -10,17 +10,17 @@ import ru.fizteh.fivt.students.msandrikova.storeable.StoreableTableProviderFacto
 public class State {
 	public boolean isMultiFileHashMap;
 	public boolean isStoreable;
-	public ChangesCountingTable currentTable;
-	public ChangesCountingTableProvider tableProvider;
-	public ru.fizteh.fivt.storage.structured.Table currentStoreableTable;
-	public ru.fizteh.fivt.storage.structured.TableProvider storeableTableProvider;
+	public ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTable currentTable;
+	public ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTableProvider tableProvider;
+	public ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTable currentStoreableTable;
+	public ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTableProvider storeableTableProvider;
 	
 	public State(boolean isMultiHashFileMap, boolean isStoreable, String dir) {
 		this.isMultiFileHashMap = isMultiHashFileMap;
 		this.isStoreable = isStoreable;
 		if(this.isMultiFileHashMap) {
 			this.currentTable = null;
-			ChangesCountingTableProviderFactory factory = new MyTableProviderFactory();
+			ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTableProviderFactory factory = new MyTableProviderFactory();
 			try { 
 				this.tableProvider = factory.create(dir);
 			} catch (IllegalArgumentException e) {
@@ -28,7 +28,7 @@ public class State {
 			}
 		} else if(this.isStoreable) {
 			 this.currentStoreableTable = null;
-			 ru.fizteh.fivt.storage.structured.TableProviderFactory storeableFactory = new StoreableTableProviderFactory();
+			 ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTableProviderFactory storeableFactory = new StoreableTableProviderFactory();
 				try {
 					this.storeableTableProvider = storeableFactory.create(dir);
 				} catch (IllegalArgumentException | IOException e) {

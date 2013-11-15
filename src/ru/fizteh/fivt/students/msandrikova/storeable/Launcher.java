@@ -38,8 +38,6 @@ public class Launcher {
 		Shell myShell = new Shell(commands, currentDirectory);
 		myShell.setState(myState);
 		myShell.execute(args);
-
 	}
-
 
 }
