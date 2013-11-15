@@ -63,7 +63,7 @@ public class MyStoreableTest {
     @Test(expected = ColumnFormatException.class)
     public void testColumnFormatExceptionLongInt() {
         Storeable storeable = provider.createFor(table);
-        storeable.setColumnAt(1, (long) 1);
+        storeable.setColumnAt(1, new Long("100000000000"));
         storeable.getIntAt(1);
     }
 }

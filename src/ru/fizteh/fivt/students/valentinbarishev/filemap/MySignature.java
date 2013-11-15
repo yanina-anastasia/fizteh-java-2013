@@ -53,24 +53,25 @@ public class MySignature {
     }
 
     public static void setSignature(final String dir, List<Class<?>> classesList) throws IOException {
-        PrintWriter output = new PrintWriter(new File(dir, "signature.tsv"));
-        for (int i = 0; i < classesList.size(); ++i) {
-            boolean flag = false;
-            for (int j = 0; j < CLASSES.length; ++j) {
-                if (CLASSES[j].equals(classesList.get(i))) {
-                    output.write(TYPES[j]);
-                    flag = true;
-                    break;
+        try (PrintWriter output = new PrintWriter(new File(dir, "signature.tsv"))) {
+            for (int i = 0; i < classesList.size(); ++i) {
+                boolean flag = false;
+                for (int j = 0; j < CLASSES.length; ++j) {
+                    if (CLASSES[j].equals(classesList.get(i))) {
+                        output.write(TYPES[j]);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    throw new IllegalArgumentException("Bad TYPES!");
+                }
+                if (i + 1 != classesList.size()) {
+                    output.write(" ");
                 }
             }
-            if (!flag) {
-                throw new IllegalArgumentException("Bad TYPES!");
-            }
-            if (i + 1 != classesList.size()) {
-                output.write(" ");
-            }
         }
-        output.close();
+
     }
 
     public static List<Class<?>> getTypes(final String str) throws IOException {
