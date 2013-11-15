@@ -27,10 +27,10 @@ public class StoreableTableProvider implements TableProvider, Provider {
 	
 	public StoreableTableProvider(File dir, PrintStream out) throws IOException {
 		if (dir == null) {
-			throw new IllegalArgumentException("can't create null table");
+			throw new IllegalArgumentException("wrong type (null table)");
 		}
 		if (!dir.isDirectory()) {
-			throw new IllegalArgumentException("can't create null table");
+			throw new IllegalArgumentException("wrong type (null table)");
 		}
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory()) {
@@ -59,10 +59,10 @@ public class StoreableTableProvider implements TableProvider, Provider {
 	@Override
 	public Table getTable(String name) {
 		if (name == null || name.trim().isEmpty()) {
-			throw new IllegalArgumentException("can't get table with null name");
+			throw new IllegalArgumentException("wrong type (null name)");
 		}
 		if (!name.matches(CORRECT_FORMAT)) {
-			throw new IllegalArgumentException("can't get table with invalid name");
+			throw new IllegalArgumentException("wrong type ("+name+")");
 		}
 		return tables.get(name);
 	}
@@ -70,13 +70,13 @@ public class StoreableTableProvider implements TableProvider, Provider {
 	@Override
 	public StoreableTableState createTable(String name, List<Class<?>> columnTypes) throws IOException {
 		if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
-			throw new IllegalArgumentException("can't create table: null or invalid name");
+			throw new IllegalArgumentException("wrong type (null or invalid name)");
 		}
 		if (columnTypes == null || columnTypes.isEmpty()) {
-			throw new IllegalArgumentException("can't create table: null or empty columnTypes");
+			throw new IllegalArgumentException("wrong type (null or empty columnTypes)");
 		}
 		if (!isCorrectColumnType(columnTypes)) {
-			throw new IllegalArgumentException("can't create table: invalid columnTypes");
+			throw new IllegalArgumentException("wrong type (invalid columnTypes)");
 		}
 		File f = new File(getWorkingDirectory(), name);
 		if (f.exists()) {
@@ -110,7 +110,7 @@ public class StoreableTableProvider implements TableProvider, Provider {
 	@Override
 	public void removeTable(String name) throws IOException {
 		if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
-            throw new IllegalArgumentException("can't remove table: invalid name");
+            throw new IllegalArgumentException("wrong type (invalid name)");
         }
 		if (tables.get(name) == null) {
 			throw new IllegalStateException("can't remove table: table not exist");
@@ -127,7 +127,7 @@ public class StoreableTableProvider implements TableProvider, Provider {
 	@Override
 	public Storeable deserialize(Table table, String value) throws ParseException {
 		if (table == null || value == null) {
-			throw new IllegalArgumentException("can't deserialize: null table or value");
+			throw new IllegalArgumentException("wrong type (null table or value)");
 		}
 		try {
 			return Deserializer.run(table, value);
