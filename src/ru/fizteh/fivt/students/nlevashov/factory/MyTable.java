@@ -227,8 +227,8 @@ public class MyTable implements Table {
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
                     Object o = value.getColumnAt(i);
-                    if (o == null) throw new ColumnFormatException("Table.put: null column");
-                    if (c != o.getClass()) throw new ColumnFormatException("Table.put: wrong type");
+                    //if (o == null) throw new ColumnFormatException("Table.put: null column");
+                    if ((o != null) && (c != o.getClass())) throw new ColumnFormatException("Table.put: wrong type");
                     /*if (c == Integer.class) {
                         //Integer tempValue = value.getIntAt(i);
                         temp.setColumnAt(i, Integer.valueOf(1));

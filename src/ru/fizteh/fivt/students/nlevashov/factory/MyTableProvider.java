@@ -320,8 +320,8 @@ public class MyTableProvider implements TableProvider {
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
                     Object o = value.getColumnAt(i);
-                    if (o == null) throw new ColumnFormatException("TableProvider.serialize: null column");
-                    if (c != o.getClass()) throw new ColumnFormatException("TableProvider.serialize: wrong type");
+                    //if (o == null) throw new ColumnFormatException("TableProvider.serialize: null column");
+                    if ((o != null) && (c != o.getClass())) throw new ColumnFormatException("TableProvider.serialize: wrong type");
                 }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
