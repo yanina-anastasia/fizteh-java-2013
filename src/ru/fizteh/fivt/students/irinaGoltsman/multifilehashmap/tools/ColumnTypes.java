@@ -76,6 +76,9 @@ public class ColumnTypes {
             throw new ParseException("list of type don't start with '(' or don't end with ')' ", 0);
         }
         inputTypes = inputTypes.substring(1, inputTypes.length() - 1);
+        if (inputTypes.trim().isEmpty()) {
+            throw new ParseException("empty list of types", 0);
+        }
         try {
             List<Class<?>> types = convertArrayOfStringsToListOfClasses(inputTypes.split("\\s"));
             return types;
