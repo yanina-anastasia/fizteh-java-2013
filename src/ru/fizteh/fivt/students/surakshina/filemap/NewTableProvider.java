@@ -97,21 +97,16 @@ public class NewTableProvider implements TableProvider {
         int nfile = c / 16 % 16;
         File fileDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
                 + ndirectory + ".dir");
-        if (!fileDir.exists()) {
-            if (!fileDir.mkdir()) {
-                throw new RuntimeException("Can't create file");
-            }
-        }
+        /*
+         * if (!fileDir.exists()) { if (!fileDir.mkdir()) { throw new
+         * RuntimeException("Can't create file"); } }
+         */
         File file = new File(fileDir, nfile + ".dat");
-        /*if (!file.exists()) {
-            try {
-                if (!file.createNewFile()) {
-                    throw new RuntimeException("Can't create file");
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Can't create file");
-            }
-        }*/
+        /*
+         * if (!file.exists()) { try { if (!file.createNewFile()) { throw new
+         * RuntimeException("Can't create file"); } } catch (IOException e) {
+         * throw new RuntimeException("Can't create file"); } }
+         */
         return file;
     }
 
