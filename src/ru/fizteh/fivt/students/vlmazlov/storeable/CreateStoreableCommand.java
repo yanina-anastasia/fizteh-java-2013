@@ -44,6 +44,9 @@ public class CreateStoreableCommand extends AbstractDataBaseCommand {
 			((StoreableTableProvider)state.getProvider()).createTable(tablename, types);
 		} catch (IOException ex) {
 			throw new CommandFailException("create storeable: unable to write signature");
+		} catch (IllegalArgumentException ex) {
+			displayMessage(ex.getMessage() + SEPARATOR, out);
+			return;
 		}
 		displayMessage("created" + SEPARATOR, out);
 	}
