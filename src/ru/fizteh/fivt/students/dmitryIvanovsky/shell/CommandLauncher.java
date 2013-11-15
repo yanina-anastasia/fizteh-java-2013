@@ -152,28 +152,10 @@ public class CommandLauncher {
             }
             String query = builder.toString();
             Code res = runCommands(query, false);
-            try {
-                exampleClass.exit();
-            } catch (Exception e) {
-                getMessage(e);
-                throw e;
-            }
-
             return res;
-
         } else {
-
             interactiveMode();
-
-            try {
-                exampleClass.exit();
-            } catch (Exception e) {
-                getMessage(e);
-                throw e;
-            }
-
             return Code.OK;
-
         }
     }
 

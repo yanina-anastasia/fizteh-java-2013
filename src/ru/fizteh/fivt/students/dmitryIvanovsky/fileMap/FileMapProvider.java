@@ -88,12 +88,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public void exit() throws Exception {
-//        if (dbData != null) {
-//            dbData.closeTable();
-//        }
-    }
-
     private void checkBdDir(Path pathTables) throws Exception {
         File currentFile = pathTables.toFile();
         File[] listFiles = currentFile.listFiles();
@@ -105,7 +99,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             }
         }
     }
-
 
     public String startShellString() {
         return "$ ";
