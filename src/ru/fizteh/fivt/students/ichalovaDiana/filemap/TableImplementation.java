@@ -15,11 +15,14 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class TableImplementation implements Table {
-    
+    private static final int DIR_NUM = 16;
+    private static final int FILES_NUM = 16;
     private final Path databaseDirectory;
     private final String tableName;
-    private final TableProvider tableProvider; // ??
+    private final TableProvider tableProvider;
     private final List<Class<?>> columnTypes;
+    
+    FileDatabase[][] files;
     
     private Map<String, Storeable> putChanges = new HashMap<String, Storeable>();
     private Set<String> removeChanges = new HashSet<String>();
@@ -28,13 +31,14 @@ public class TableImplementation implements Table {
     private int currentTableSize;
     
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
-            String tableName, List<Class<?>> columnTypes) {
+            String tableName, List<Class<?>> columnTypes) throws IOException {
 
         this.tableProvider = tableProvider;
         this.databaseDirectory = databaseDirectory;
         this.tableName = tableName;
         this.columnTypes = columnTypes;
         currentTableSize = originTableSize = computeSize();
+        files = new FileDatabase[DIR_NUM][FILES_NUM];
     }
     
     @Override
@@ -60,7 +64,12 @@ public class TableImplementation implements Table {
             return null;
         }
         
-        String rawValue = getValueFromFile(key);
+        String rawValue;
+        try {
+            rawValue = getValueFromFile(key);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         
         try {
             return tableProvider.deserialize(this, rawValue);
@@ -79,7 +88,13 @@ public class TableImplementation implements Table {
         
         isValidValue(value);
         
-        String originValueString = getValueFromFile(key);
+        String originValueString;
+        try {
+            originValueString = getValueFromFile(key);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
         Storeable originValue;
         try {
             originValue = tableProvider.deserialize(this, originValueString);
@@ -128,7 +143,13 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Invalid key");
         }
         
-        String originValueString = getValueFromFile(key);
+        String originValueString;
+        try {
+            originValueString = getValueFromFile(key);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
         Storeable originValue;
         try {
             originValue = tableProvider.deserialize(this, originValueString);
@@ -169,7 +190,7 @@ public class TableImplementation implements Table {
     public int commit() throws IOException {
         int changesNumber = countChanges();
         originTableSize = currentTableSize;
-        
+
         Storeable value;
         String rawValue;
         for (String key : putChanges.keySet()) {
@@ -184,6 +205,10 @@ public class TableImplementation implements Table {
         
         putChanges.clear();
         removeChanges.clear();
+        
+        closeAllFiles();
+        files = new FileDatabase[DIR_NUM][FILES_NUM];
+        
         return changesNumber;
     }
 
@@ -241,49 +266,143 @@ public class TableImplementation implements Table {
         throw new ColumnFormatException("Invalid value: more columns");
     }
     
-    private String getValueFromFile(String key) {
+    private String getValueFromFile(String key) throws IOException {
         String value;
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            value = currentDatabase.get(key);
+        if (files[nDirectory][nFile] == null) {
+            try {
+                files[nDirectory][nFile] = new FileDatabase(databaseDirectory.resolve(tableName)
+                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+            } catch (IOException e) {
+                try {
+                    if (files[nDirectory][nFile] != null) {
+                        files[nDirectory][nFile].close();
+                    }
+                } catch (IOException e1) {
+                    e.addSuppressed(new IOException("Error while closing database: "
+                                    + ((e1.getMessage() != null) ? e1.getMessage()
+                                            : "unknown error"), e1));
+                }
+                throw new IOException("Error while opening file: " + nDirectory + " " + nFile + " "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
         }
-        catch (Exception e) {
-            throw new RuntimeException("Error while getting value from file: "
+        
+        try {
+            value = files[nDirectory][nFile].get(key);
+        }
+        catch (IOException e) {
+            try {
+                if (files[nDirectory][nFile] != null) {
+                    files[nDirectory][nFile].close();
+                }
+            } catch (IOException e1) {
+                e.addSuppressed(new IOException("Error while closing database: "
+                                + ((e1.getMessage() != null) ? e1.getMessage()
+                                        : "unknown error"), e1));
+            }
+            throw new IOException("Error while getting value from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
         return value;
     }
     
-    private String putValueToFile(String key, String value) {
+    private String putValueToFile(String key, String value) throws IOException {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.put(key, value);
+        if (files[nDirectory][nFile] == null) {
+            try {
+                files[nDirectory][nFile] = new FileDatabase(databaseDirectory.resolve(tableName)
+                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+            } catch (IOException e) {
+                try {
+                    if (files[nDirectory][nFile] != null) {
+                        files[nDirectory][nFile].close();
+                    }
+                } catch (IOException e1) {
+                    e.addSuppressed(new IOException("Error while closing database: "
+                                    + ((e1.getMessage() != null) ? e1.getMessage()
+                                            : "unknown error"), e1));
+                }
+                throw new IOException("Error while opening file: " + nDirectory + " " + nFile + " "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
         }
-        catch (Exception e) {
-            throw new RuntimeException("Error while putting value to file: "
+        
+        try {
+            return files[nDirectory][nFile].put(key, value);
+        }
+        catch (IOException e) {
+            try {
+                if (files[nDirectory][nFile] != null) {
+                    files[nDirectory][nFile].close();
+                }
+            } catch (IOException e1) {
+                e.addSuppressed(new IOException("Error while closing database: "
+                                + ((e1.getMessage() != null) ? e1.getMessage()
+                                        : "unknown error"), e1));
+            }
+            throw new IOException("Error while putting value to file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
     }
     
-    private String removeValueFromFile(String key) {
+    private String removeValueFromFile(String key) throws IOException {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.remove(key);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while removing value from file: "
+        if (files[nDirectory][nFile] == null) {
+            try {
+                files[nDirectory][nFile] = new FileDatabase(databaseDirectory.resolve(tableName)
+                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+            } catch (IOException e) {
+                try {
+                    if (files[nDirectory][nFile] != null) {
+                        files[nDirectory][nFile].close();
+                    }
+                } catch (IOException e1) {
+                    e.addSuppressed(new IOException("Error while closing database: "
+                                    + ((e1.getMessage() != null) ? e1.getMessage()
+                                            : "unknown error"), e1));
+                }
+                throw new IOException("Error while opening file: " + nDirectory + " " + nFile + " "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        }
+        
+        try {
+            return files[nDirectory][nFile].remove(key);
+        }
+        catch (IOException e) {
+            try {
+                if (files[nDirectory][nFile] != null) {
+                    files[nDirectory][nFile].close();
+                }
+            } catch (IOException e1) {
+                e.addSuppressed(new IOException("Error while closing database: "
+                                + ((e1.getMessage() != null) ? e1.getMessage()
+                                        : "unknown error"), e1));
+            }
+            throw new IOException("Error while removing value from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+    }
+    
+    private void closeAllFiles() throws IOException {
+        for (int i = 0; i < DIR_NUM; ++i) {
+            for (int j = 0; j < FILES_NUM; ++j) {
+                if (files[i][j] != null) {
+                    try {
+                        files[i][j].close();
+                    } catch (IOException e) {
+                        throw new IOException("Error while closing file: " + i + " " + j
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"));
+                    }
+                }
+            }
         }
     }
     
@@ -291,18 +410,18 @@ public class TableImplementation implements Table {
             
         static int getnDirectory(String key) {
             int firstByte = Math.abs(key.getBytes()[0]);
-            int nDirectory = firstByte % 16;
+            int nDirectory = firstByte % DIR_NUM;
             return nDirectory;
         }
         
         static int getnFile(String key) {
             int firstByte = Math.abs(key.getBytes()[0]);
-            int nFile = firstByte / 16 % 16;
+            int nFile = firstByte / FILES_NUM % FILES_NUM;
             return nFile;
         }
     }
     
-    private int computeSize() {
+    private int computeSize() throws IOException {
         int size = 0;
         
         Path tableDirectory = databaseDirectory.resolve(tableName);
@@ -315,8 +434,8 @@ public class TableImplementation implements Table {
                         .resolve(dirName).resolve(fileName))) {
                     
                     size += currentDatabase.getSize();
-                } catch (Exception e) {
-                    throw new RuntimeException("Error while openning file: "
+                } catch (IOException e) {
+                    throw new IOException("Error while openning file: "
                             + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                 }
             }

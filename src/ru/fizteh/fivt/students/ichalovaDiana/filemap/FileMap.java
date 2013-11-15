@@ -321,8 +321,7 @@ public class FileMap {
                 
                 System.out.println(changesNumber);
 
-            } catch (Throwable e) {
-                System.out.println("?");
+            } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
             }
         }

@@ -16,7 +16,7 @@ class FileDatabase implements AutoCloseable {
     RandomAccessFile dbFile;
     Map<String, String> database = new HashMap<String, String>();
 
-    public FileDatabase(Path dbFilePath) throws Exception {
+    public FileDatabase(Path dbFilePath) throws IOException {
         try {
             this.dbFilePath = dbFilePath;
             Files.createDirectories(dbFilePath.getParent());
@@ -24,15 +24,15 @@ class FileDatabase implements AutoCloseable {
             dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw");
             getDataFromFile();
             
-        } catch (Exception e) {
-            Exception exception = new Exception("Error while opening database file: "
+        } catch (IOException e) {
+            IOException exception = new IOException("Error while opening database file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
             try {
                 if (dbFile != null) {
                     dbFile.close();
                 }
-            } catch (Exception e1) {
-                exception.addSuppressed(new Exception("Error while closing database: "
+            } catch (IOException e1) {
+                exception.addSuppressed(new IOException("Error while closing database: "
                                 + ((e1.getMessage() != null) ? e1.getMessage()
                                         : "unknown error"), e1));
             }
@@ -41,16 +41,16 @@ class FileDatabase implements AutoCloseable {
         }
     }
 
-    public String put(String key, String value) throws Exception {
+    public String put(String key, String value) throws IOException {
         String oldValue = database.put(key, value);
         return oldValue;
     }
     
-    public String get(String key) throws Exception {
+    public String get(String key) throws IOException {
         return database.get(key);
     }
     
-    public String remove(String key) throws Exception {   
+    public String remove(String key) throws IOException {   
         String value = database.remove(key);
         return value;
     }
@@ -126,7 +126,7 @@ class FileDatabase implements AutoCloseable {
     }
     
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         saveChanges();
         if (dbFile.length() == 0) {
             dbFile.close();

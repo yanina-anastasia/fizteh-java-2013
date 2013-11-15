@@ -121,7 +121,7 @@ public class TestsForTable {
     @Test
     public void putputSameKey() throws IOException {
         Assert.assertNull(table.put("key1", value1));
-        Storeable value2 = tableProvider.createFor(table);//new StoreableImplementation(columnTypes);
+        Storeable value2 = tableProvider.createFor(table);
         value2.setColumnAt(0, false);
         value2.setColumnAt(1, "BB");
         value2.setColumnAt(2, 6);
