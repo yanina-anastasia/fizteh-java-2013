@@ -57,7 +57,7 @@ public class DataBase implements Table {
         copyMap(dataMap, map);
         copyMap(oldDataMap, map);
     }
-    
+
     public void setTypes(List<Class<?>> columnTypes) {
         typesList = (ArrayList<Class<?>>) columnTypes;
     }
@@ -193,7 +193,7 @@ public class DataBase implements Table {
         if (key.isEmpty()) {
             throw new IllegalArgumentException("Key is empty");
         }
-        if (key.contains(" ") || key.contains("/t") || key.contains(System.lineSeparator())) {
+        if (key.contains(" ") || key.contains("/t") || key.contains(System.lineSeparator()) || key.split("//s").length > 1) {
             throw new IllegalArgumentException("Key contains whitespaces");
         }
     }
