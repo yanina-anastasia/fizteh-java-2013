@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.*;
 
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.FileMapProvider;
 import static org.junit.Assert.*;
 
@@ -20,11 +19,6 @@ public class FileMapProviderTester {
         provider = new FileMapProvider(System.getProperty("user.dir"));
         sampleSignature = new ArrayList<Class<?>>();
         sampleSignature.add(String.class);
-    }
-    
-    @Test(expected = IOException.class)
-    public void badDirectoryShouldFail() throws IllegalArgumentException, IOException {
-        TableProvider badProvider = new FileMapProvider("asldkjfasdfajshdlfk");
     }
     
     @Test
