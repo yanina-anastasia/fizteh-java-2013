@@ -173,6 +173,10 @@ public class StoreableTableProvider implements TableProvider {
     }
 
     private void checkTableName(String tableName) throws IllegalArgumentException {
+        if (tableName == null) {
+            throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: invalid table name");
+        }
+
         if (!tableName.matches("[^><\"?|*.]*")) {
             throw new RuntimeException("GET | CREATE | REMOVE ERROR: illegal symbol in table name");
         }
@@ -180,7 +184,7 @@ public class StoreableTableProvider implements TableProvider {
         String NAME_FORMAT = "[а-яА-яa-zA-Z0-9]+";
 
         if (!new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
-            throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: incorrect table name");
+            throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: invalid table name");
         }
     }
 }

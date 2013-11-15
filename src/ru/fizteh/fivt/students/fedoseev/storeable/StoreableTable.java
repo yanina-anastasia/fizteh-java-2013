@@ -62,6 +62,9 @@ public class StoreableTable implements Table {
     @Override
     public Storeable put(String key, Storeable value) {
         checkKeyFormat(key);
+        if (value == null) {
+            throw new IllegalArgumentException("PUT ERROR: invalid value");
+        }
         try {
             for (int i = 0; i < columnTypes.size(); i++) {
                 Object v = value.getColumnAt(i);
