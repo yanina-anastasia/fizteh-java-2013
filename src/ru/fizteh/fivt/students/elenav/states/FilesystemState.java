@@ -60,7 +60,7 @@ public abstract class FilesystemState {
 		}		
 	}
 	
-	public void interactiveMode() throws IOException {
+	public void interactiveMode() {
 		String command = "";
 		final boolean flag = true;
 		Scanner sc = new Scanner(System.in);
@@ -72,8 +72,8 @@ public abstract class FilesystemState {
 			for (String c : commands) {
 				try {
 					execute(c);
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
+				} catch (IOException | IllegalArgumentException e) {
+					System.out.println(e.getMessage());
 				}
 			}
 		} while (flag); 
