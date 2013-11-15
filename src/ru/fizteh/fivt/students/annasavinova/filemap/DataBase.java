@@ -193,7 +193,7 @@ public class DataBase implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Key is null");
         }
-        if (key.isEmpty() || key.trim().isEmpty() ) {
+        if (key.isEmpty() || key.trim().isEmpty()) {
             throw new IllegalArgumentException("Key is empty");
         }
         if (key.split("\\s").length > 1 || key.contains("\t") || key.contains(System.lineSeparator())) {
@@ -212,7 +212,7 @@ public class DataBase implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (provider.getTable(currTable) != null) {
+        if (provider.getTable(currTable) == null) {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
