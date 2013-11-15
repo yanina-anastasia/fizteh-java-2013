@@ -177,5 +177,13 @@ public class MyTableTest {
         table2.put("sdasd", storeable);
     }
 
+    @Test
+    public void testEmptyStringInStoreable() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(0, "");
+        Assert.assertNull(table.put("abacaba", storeable));
+        Assert.assertEquals(storeable.getStringAt(0), "");
+    }
+
 
 }

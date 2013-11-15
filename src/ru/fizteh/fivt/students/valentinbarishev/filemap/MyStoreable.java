@@ -45,8 +45,8 @@ public class MyStoreable implements Storeable{
         }
     }
 
-    void checkType(int index, Object value) {
-        if ((value != null) && (value.getClass() != types.get(index))) {
+    void checkType(int index, Class<?> value) {
+        if ((value != null) && (value != types.get(index))) {
             throw new ColumnFormatException();
         }
     }
@@ -164,7 +164,7 @@ public class MyStoreable implements Storeable{
         }
         checkBounds(columnIndex);
         value = castTypes(types.get(columnIndex), value);
-        checkType(columnIndex, value);
+        checkType(columnIndex, value.getClass());
         values.set(columnIndex, value);
     }
 
