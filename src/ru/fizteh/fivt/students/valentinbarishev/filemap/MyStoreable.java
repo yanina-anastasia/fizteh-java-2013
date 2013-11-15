@@ -164,7 +164,9 @@ public class MyStoreable implements Storeable{
         }
         checkBounds(columnIndex);
         value = castTypes(types.get(columnIndex), value);
-        checkType(columnIndex, value.getClass());
+        if (value != null) {
+            checkType(columnIndex, value.getClass());
+        }
         values.set(columnIndex, value);
     }
 
