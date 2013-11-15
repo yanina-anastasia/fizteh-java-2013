@@ -27,6 +27,8 @@ public class MyTableTests {
         provider = factory.create(folder.newFolder().getCanonicalPath());
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
+        cl.add(Integer.class);
+        cl.add(Integer.class);
         table = provider.createTable("testTable", cl);
     }
 
@@ -43,6 +45,17 @@ public class MyTableTests {
         Table table2 = provider.createTable("asd", cl);
         Storeable x = provider.createFor(table2);
         table.put("asd", x);
+    }
+
+    @Test
+    public void testIsValid() {
+        List<Object> data = new ArrayList<>();
+        Integer num =  new Integer(2);
+        data.add(num);
+        data.add(24);
+        data.add();
+        Storeable st = provider.createFor(table, data);
+        table.put("blabla", st);
     }
 
 
