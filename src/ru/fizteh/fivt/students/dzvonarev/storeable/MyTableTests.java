@@ -57,5 +57,19 @@ public class MyTableTests {
         table.put("blabla", st);
     }
 
+    @Test
+    public void testTable() throws  IOException{
+        List<Class<?>> x = new ArrayList<>();
+        x.add(Integer.class);
+        x.add(Long.class);
+        x.add(Float.class);
+        x.add(Double.class);
+        x.add(String.class);
+        x.add(Boolean.class);
+        x.add(Byte.class);
+        Table t = provider.createTable("asdasd", x);
+        t.put("asd",provider.createFor(t));
+    }
+
 
 }

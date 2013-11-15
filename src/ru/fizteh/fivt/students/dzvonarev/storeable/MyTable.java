@@ -223,11 +223,11 @@ public class MyTable implements Table {
     }
 
     public boolean isValid(Storeable value) throws ColumnFormatException {
-        try {
+        /*try {
             value.getColumnAt(getColumnsCount());
             throw new ColumnFormatException("value has more columns then types " + getColumnsCount());
-        } catch (IndexOutOfBoundsException e) {
-        }
+        } catch(IndexOutOfBoundsException e) {
+        }     */
         for (int i = 0; i < getColumnsCount(); ++i) {
             try {
                 if (value.getColumnAt(i) == null) {
