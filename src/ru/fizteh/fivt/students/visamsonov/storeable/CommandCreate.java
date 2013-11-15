@@ -49,7 +49,7 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 			return false;
 		}
 		if (argsList.get(argsList.size() - 1).equals(")")) {
-			argsList.remove(1);
+			argsList.remove(argsList.size() - 1);
 		}
 		else if (argsList.get(argsList.size() - 1).endsWith(")")) {
 			int position = argsList.size() - 1;
