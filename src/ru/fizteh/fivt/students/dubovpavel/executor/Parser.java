@@ -9,10 +9,10 @@ public class Parser {
         }
     }
     private boolean charIsNotSystem(char c) {
-        return !Character.isWhitespace(c) && c != ';' && correspondingBound(c) == null;
+        return !Character.isWhitespace(c) && c != ';' && correspondingBound(c) == '\0';
     }
 
-    private Character correspondingBound(Character bound) {
+    private char correspondingBound(char bound) {
         switch(bound) {
             case '\'':
                 return '\'';
@@ -23,11 +23,11 @@ public class Parser {
             case '[':
                 return ']';
             default:
-                return null;
+                return '\0';
         }
     }
 
-    private boolean exclusiveBound(Character bound) {
+    private boolean exclusiveBound(char bound) {
         switch(bound) {
             case '\'':
             case '"':
@@ -46,9 +46,9 @@ public class Parser {
         while(pointer < line.length()) {
             if(Character.isWhitespace(line.charAt(pointer))) {
                 pointer++;
-            } else if(correspondingBound(line.charAt(pointer)) != null) {
+            } else if(correspondingBound(line.charAt(pointer)) != '\0') {
                 int start = pointer;
-                Character corresponding = correspondingBound(line.charAt(pointer));
+                char corresponding = correspondingBound(line.charAt(pointer));
                 for(pointer++; pointer < line.length() && line.charAt(pointer) != corresponding; pointer++);
                 if(pointer >= line.length()) {
                     throw new IncorrectSyntaxException(
