@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dmitryKonturov.dataBase.shellEnvironment;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryKonturov.dataBase.databaseImplementation.TableImplementation;
@@ -55,7 +56,7 @@ public class WorkWithTableProviderCommands {
             return "create";
         }
 
-        private List<Class<?>> getListTypes(String arg) throws ShellException {
+        private List<Class<?>> getListTypes(String arg) throws ShellException, ColumnFormatException {
             if (arg.length() < 2) {
                 throw new ShellException("Empty types list");
             } else {
@@ -69,7 +70,7 @@ public class WorkWithTableProviderCommands {
             for (String type : types) {
                 Class<?> currentType = StoreableUtils.getClassByString(type.trim());
                 if (currentType == null) {
-                    throw new ShellException(getName(), "not supported type");
+                    throw new ColumnFormatException("not supported type: " + type);
                 }
                 toReturn.add(currentType);
             }
@@ -96,7 +97,13 @@ public class WorkWithTableProviderCommands {
                 throw new ShellException(getName(), "No table name");
             }
 
-            List<Class<?>> types = getListTypes(splitedArgs[1].trim());
+            List<Class<?>> types;
+            try {
+                types = getListTypes(splitedArgs[1].trim());
+            } catch (ColumnFormatException e) {
+                System.out.println(String.format("wrong type ( %s )", e.getMessage()));
+                return;
+            }
 
             TableProvider provider = (TableProvider) info.getProperty("TableProvider");
             if (provider == null) {
