@@ -13,11 +13,11 @@ public class CommandCreate extends CommandAbstract<ShellState> {
 	}
 	
 	private void invalidFormat () {
-		getErrStream().println("wrong type invalid format");
+		getErrStream().println("wrong type (invalid format)");
 	}
 	
 	private void wrongType () {
-		getErrStream().println("wrong type unsupported");
+		getErrStream().println("wrong type (unsupported)");
 	}
 	
 	private void notEnoughArguments () {
