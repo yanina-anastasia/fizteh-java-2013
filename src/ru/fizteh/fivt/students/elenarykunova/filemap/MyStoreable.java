@@ -76,7 +76,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Integer.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Integer.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Integer) myValues.get(columnIndex);
     }
@@ -89,7 +91,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Long.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Long.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Long) myValues.get(columnIndex);
 
@@ -103,7 +107,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Byte.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Byte.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Byte) myValues.get(columnIndex);
     }
@@ -116,7 +122,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Float.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Float.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Float) myValues.get(columnIndex);
     }
@@ -129,7 +137,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Double.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Double.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Double) myValues.get(columnIndex);
     }
@@ -142,7 +152,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(Boolean.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + Boolean.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (Boolean) myValues.get(columnIndex);
     }
@@ -155,7 +167,9 @@ public class MyStoreable implements Storeable {
         }
         if (!myTypes.get(columnIndex).equals(String.class)) {
             throw new ColumnFormatException(
-                    "type of value mismatches type of column");
+                    "type of value mismatches type of column : expected "
+                            + String.class + " but was "
+                            + myTypes.get(columnIndex));
         }
         return (String) myValues.get(columnIndex);
     }
