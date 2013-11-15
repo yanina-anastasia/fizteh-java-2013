@@ -228,7 +228,7 @@ public class NewTable implements Table {
 
     @Override
     public Storeable get(String key) {
-        if (key != null && !key.trim().isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (incorrect key)");
         }
         if (!dataMap.containsKey(key)) {
@@ -239,7 +239,7 @@ public class NewTable implements Table {
 
     @Override
     public Storeable remove(String key) {
-        if (key != null && !key.trim().isEmpty()) {
+        if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (incorrect key)");
         }
         if (dataMap.containsKey(key)) {
