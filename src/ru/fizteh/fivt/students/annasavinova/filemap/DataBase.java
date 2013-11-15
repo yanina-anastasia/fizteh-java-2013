@@ -285,7 +285,11 @@ public class DataBase implements Table {
     }
 
     private boolean compareTableRows(Table table, Storeable left, Storeable right) {
+        if (left == null) {
+            return right == null;
+        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
+
             if (!left.getColumnAt(i).equals(right.getColumnAt(i))) {
                 return false;
             }
