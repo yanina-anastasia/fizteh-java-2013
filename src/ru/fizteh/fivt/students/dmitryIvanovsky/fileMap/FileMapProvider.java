@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -42,7 +43,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    Map<String, FileMap> mapFileMap;
+    ConcurrentHashMap<String, FileMap> mapFileMap;
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);
@@ -77,7 +78,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         this.mySystem = new CommandShell(pathDb, false, false);
         this.dbData = null;
         this.setDirTable = new HashSet<>();
-        this.mapFileMap = new HashMap<>();
+        this.mapFileMap = new ConcurrentHashMap<>();
 
         try {
             checkBdDir(this.pathDb);
@@ -105,19 +106,19 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    private FileMap loadDb(String nameMap) throws Exception {
-        try {
-            File currentFileMap = pathDb.resolve(nameMap).toFile();
-            if (!currentFileMap.isDirectory()) {
-                throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
-            }
-            FileMap table = new FileMap(pathDb, nameMap, this);
-            return table;
-        } catch (Exception e) {
-            e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
-            throw e;
-        }
-    }
+//    private FileMap loadDb(String nameMap) throws Exception {
+//        try {
+//            File currentFileMap = pathDb.resolve(nameMap).toFile();
+//            if (!currentFileMap.isDirectory()) {
+//                throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
+//            }
+//            FileMap table = new FileMap(pathDb, nameMap, this);
+//            return table;
+//        } catch (Exception e) {
+//            e.addSuppressed(new ErrorFileMap("Error opening a table " + nameMap));
+//            throw e;
+//        }
+//    }
 
 
     public String startShellString() {
@@ -205,7 +206,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                     if (dbData != null) {
                         dbData.closeTable();
                     }
-                    dbData = loadDb(nameTable);
+                    dbData = (FileMap) getTable(nameTable);
                     useNameTable = nameTable;
                 }
                 outPrint("using " + nameTable);
@@ -301,12 +302,17 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (antiCorrectDir(name)) {
             throw new RuntimeException("bad symbol in name");
         }
+        File currentFileMap = pathDb.resolve(name).toFile();
+        if (!currentFileMap.isDirectory()) {
+            return null;
+        }
         if (mapFileMap.containsKey(name)) {
             return mapFileMap.get(name);
         }
         if (setDirTable.contains(name)) {
             try {
                 FileMap fileMap = new FileMap(pathDb, name, this);
+                mapFileMap.put(name, fileMap);
                 return fileMap;
             } catch (Exception e) {
                 RuntimeException error = new RuntimeException();
