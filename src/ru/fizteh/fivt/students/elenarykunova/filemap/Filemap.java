@@ -83,9 +83,15 @@ public class Filemap implements Table {
                 if (value.getColumnAt(i) != null
                         && !value.getColumnAt(i).getClass()
                                 .equals(types.get(i))) {
+                    if (value.getColumnAt(i).getClass().equals(String.class)) {
+                        throw new ColumnFormatException("types mismatch: expected "
+                                + types.get(i) + " but was "
+                                + value.getColumnAt(i).getClass() + " - " + value.getStringAt(i));                        
+                    } else {
                     throw new ColumnFormatException("types mismatch: expected "
                             + types.get(i) + " but was "
                             + value.getColumnAt(i).getClass());
+                    }
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new ColumnFormatException("number of columns mismatch");
