@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -76,7 +77,7 @@ public class FileMap {
                 String tableName = parsedArguments[0];
                 
                 if (!parsedArguments[1].matches("\\(([A-Za-z]+\\s*)*\\)")) {
-                    throw new IllegalArgumentException("wrong type (Invalid column types)");
+                    throw new ColumnFormatException("Invalid column types");
                 }
                 String[] types = parsedArguments[1].substring(1, parsedArguments[1].length() - 1).split("\\s+");
                 
@@ -93,7 +94,9 @@ public class FileMap {
                 } else {
                     System.out.println("created");
                 }
-
+            
+            } catch (ColumnFormatException e) {
+                throw new ColumnFormatException("wrong type (" + e.getMessage() + ")", e);
             } catch (Exception e) {
                 throw new Exception(e.getMessage());
             }

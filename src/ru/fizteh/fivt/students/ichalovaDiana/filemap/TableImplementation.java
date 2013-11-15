@@ -181,7 +181,6 @@ public class TableImplementation implements Table {
         }
         
         for (String key : removeChanges) {
-            System.out.println("removed " + key);
             removeValueFromFile(key);
         }
         
