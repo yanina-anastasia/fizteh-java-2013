@@ -400,7 +400,13 @@ public class MyTableProvider implements TableProvider {
          * json.get(i).getClass() + " " + table.getColumnType(i), i); }
          * values.add(resCast); } else { values.add(null); } }
          */
-        return createFor(table, values);
+        try {
+            return createFor(table, values);
+        } catch (ColumnFormatException e) {
+            throw new ParseException("deserialize: can't create new storeable " + e.getMessage(), 0);
+        } catch (IndexOutOfBoundsException e2) {
+            throw new ParseException("deserialize: can't create new storeable " + e2.getMessage(), 0);            
+        }
         // return res;
     }
 
