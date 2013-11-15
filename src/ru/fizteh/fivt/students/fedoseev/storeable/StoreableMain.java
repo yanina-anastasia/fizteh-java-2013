@@ -25,6 +25,10 @@ public class StoreableMain {
 
             dbDir = dbDir.getCanonicalFile();
 
+            if (!dbDir.exists()) {
+                dbDir.mkdirs();
+            }
+
             checkDbDirectory(dbDir);
 
             AbstractStoreable storeable = new AbstractStoreable(dbDir);
