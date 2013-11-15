@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTable implements Table {
     private String name;
@@ -20,6 +21,7 @@ public class MyTable implements Table {
     private boolean[][] globalUses;
     private long byteSize;
     private int revision;
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     private ThreadLocal<boolean[][]> uses = new ThreadLocal<boolean[][]>() {
         @Override
@@ -74,38 +76,50 @@ public class MyTable implements Table {
 
     @Override
     public Storeable get(String key) {
+        lock.writeLock().lock();
         resetTable();
         if (key == null) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (changes.get().containsKey(key)) {
+            lock.writeLock().unlock();
             return changes.get().get(key);
         }
-        return storage.get(key);
+        Storeable value = storage.get(key);
+        lock.writeLock().unlock();
+        return value;
     }
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        lock.writeLock().lock();
         resetTable();
         if (key == null || value == null) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to put.");
         }
         try {
             for (int i = 0; i < types.size(); ++i) {
                 if (value.getColumnAt(i) != null && !types.get(i).equals(value.getColumnAt(i).getClass())) {
+                    lock.writeLock().unlock();
                     throw new ColumnFormatException("Incorrect value to put.");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
+            lock.writeLock().unlock();
             throw new ColumnFormatException("Incorrect value to put.");
         }
         if (!tryToGetUnnecessaryColumn(value)) {
+            lock.writeLock().unlock();
             throw new ColumnFormatException("Incorrect value to put.");
         }
         if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
@@ -119,16 +133,20 @@ public class MyTable implements Table {
         if (value.equals(storage.get(key))) {
             changes.get().remove(key);
         }
+        lock.writeLock().unlock();
         return v;
     }
 
     @Override
     public Storeable remove(String key) {
+        lock.writeLock().lock();
         resetTable();
         if (key == null) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
+            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
@@ -141,17 +159,22 @@ public class MyTable implements Table {
         if (storage.get(key) == null) {
             changes.get().remove(key);
         }
+        lock.writeLock().unlock();
         return v;
     }
 
     @Override
     public int size() {
+        lock.writeLock().lock();
         resetTable();
-        return count.get();
+        int tableSize = count.get();
+        lock.writeLock().unlock();
+        return tableSize;
     }
 
     @Override
     public int commit() throws IOException {
+        lock.writeLock().lock();
         resetTable();
         for (String key : changes.get().keySet()) {
             if (changes.get().get(key) == null) {
@@ -167,15 +190,18 @@ public class MyTable implements Table {
         }
         int n = changes.get().size();
         changes.get().clear();
+        lock.writeLock().unlock();
         return n;
     }
 
     @Override
     public int rollback() {
+        lock.writeLock().lock();
         resetTable();
         int n = changes.get().size();
         changes.get().clear();
         count.set(storage.size());
+        lock.writeLock().unlock();
         return n;
     }
 

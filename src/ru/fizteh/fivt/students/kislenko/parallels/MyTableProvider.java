@@ -44,7 +44,7 @@ public class MyTableProvider implements TableProvider {
         }
         if (name == null) {
             lock.writeLock().unlock();
-            System.out.println(Thread.currentThread().getName() + " exit with null name");
+            //System.out.println(Thread.currentThread().getName() + " exit with null name");
             throw new IllegalArgumentException("Incorrect table name.");
         }
         nameOfCurrentCreatingTable = name;

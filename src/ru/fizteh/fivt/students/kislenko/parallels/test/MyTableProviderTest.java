@@ -232,7 +232,6 @@ public class MyTableProviderTest {
         first.join();
         second.join();
         third.join();
-        Assert.assertNull(table2);
-        provider.removeTable("KRESLO");
+        Assert.assertNull(table1);
     }
 }

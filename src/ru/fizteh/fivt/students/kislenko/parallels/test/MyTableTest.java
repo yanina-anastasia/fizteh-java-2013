@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.kislenko.parallels.test;
 
 import org.junit.*;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.kislenko.junit.test.Cleaner;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTable;
 import ru.fizteh.fivt.students.kislenko.parallels.MyTableProvider;
@@ -8,6 +9,7 @@ import ru.fizteh.fivt.students.kislenko.parallels.MyTableProviderFactory;
 import ru.fizteh.fivt.students.kislenko.parallels.Value;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -15,7 +17,9 @@ public class MyTableTest {
     private static MyTableProvider provider;
     private static File databaseDir = new File("database");
     private static ArrayList<Class<?>> typeList = new ArrayList<Class<?>>();
-    MyTable table;
+    private static MyTable table;
+    private static Storeable value1;
+    private static Storeable value2;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -34,6 +38,7 @@ public class MyTableTest {
     @After
     public void tearDown() throws Exception {
         provider.removeTable("table");
+        table.clear();
     }
 
     @AfterClass
@@ -228,5 +233,64 @@ public class MyTableTest {
         Assert.assertEquals(0, table.size());
         Assert.assertEquals(2, table.rollback());
         Assert.assertEquals(2, table.size());
+    }
+
+    @Test
+    public void testMultiThreadPut() throws Exception {
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value1 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value2 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertNull(value1);
+        Assert.assertNull(value2);
+    }
+
+    @Test
+    public void testMultiThreadPutCommit() throws Exception {
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value1 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
+                    table.commit();
+                } catch (ParseException ignored) {
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value2 = table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]"));
+                    table.commit();
+                } catch (ParseException ignored) {
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertTrue(value1 == null ^ value2 == null);
     }
 }
