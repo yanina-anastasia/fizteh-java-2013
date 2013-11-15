@@ -7,22 +7,22 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class DBaseProviderFactory implements TableProviderFactory {
-    @Override
-    public TableProvider create(String dir) throws IOException {
-        if (dir == null) {
-            IllegalArgumentException e = new IllegalArgumentException("dir not selected");
-            throw e;
-        }
-        if (!(new File(dir).exists())) {
-            IllegalArgumentException e = new IllegalArgumentException("Directory not exists");
-            throw e;
-        }
-        if (!(new File(dir).isDirectory())) {
-            IllegalArgumentException e = new IllegalArgumentException("Not a directory");
-            throw e;
-        }
-        DataBaseProvider dataBase = null;
-        dataBase = new DataBaseProvider(dir);
-        return dataBase;
-    }
+	@Override
+	public TableProvider create(String dir) throws IOException {
+		if (dir == null) {
+			throw new IllegalArgumentException("dir not selected");
+		}
+		File root = new File(dir);
+		if (!root.exists()) {
+			if (!root.mkdirs()) {
+				throw new IOException("Directory cannot be created");
+			}
+		}
+		if (!root.isDirectory()) {
+			throw new IOException("Not a directory");
+		}
+		DataBaseProvider dataBase = null;
+		dataBase = new DataBaseProvider(dir);
+		return dataBase;
+	}
 }

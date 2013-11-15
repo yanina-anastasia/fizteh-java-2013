@@ -136,6 +136,14 @@ public class DataBaseProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
+        
+        if (typesList == null) {
+        	throw new IllegalArgumentException("have no types list");
+        }
+        
+        if (typesList.isEmpty()) {
+        	throw new IllegalArgumentException("empty types list");
+        }
         ArrayList<Class<?>> columnTypes = checkColumnTypes(typesList);
         File fileTable = new File(rootDir + name);
         if (!fileTable.exists()) {
@@ -288,11 +296,21 @@ public class DataBaseProvider implements TableProvider {
     }
 
     public void checkColumns(Table t, Storeable value) throws ColumnFormatException {
+    	try {
         for (int i = 0; i < t.getColumnsCount(); ++i) {
             if (value != null && !value.getColumnAt(i).getClass().equals(t.getColumnType(i))) {
                 throw new ColumnFormatException("incorrect column format");
             }
         }
+    	} catch (IndexOutOfBoundsException e) {
+    		throw new ColumnFormatException("less columns in value", e);
+    	}
+    	try {
+    		value.getColumnAt(t.getColumnsCount());
+    		throw new ColumnFormatException("more columns in value");
+    	} catch (IndexOutOfBoundsException e) {
+    		//it's OK
+    	}
     }
 
     @Override
