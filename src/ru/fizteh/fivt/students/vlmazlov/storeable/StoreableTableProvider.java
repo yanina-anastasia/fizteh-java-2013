@@ -35,7 +35,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if ((columnTypes == null) || (columnTypes.isEmpty())) {
-            throw new IllegalArgumentException("Column types not specified");
+            throw new IllegalArgumentException("wrong type (column types not specified)");
         }
 
         try {
