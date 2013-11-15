@@ -26,7 +26,7 @@ public class MyTable implements Table {
         fileMap = new HashMap<>();
         changesMap = new HashMap<>();
         type = new ArrayList<>();
-        List<String> temp = new ArrayList<>();  //init type of table
+        List<String> temp = new ArrayList<>();  //init types of table
         readTypes(temp);
         Parser myParser = new Parser();
         try {
@@ -41,7 +41,7 @@ public class MyTable implements Table {
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
     private HashMap<String, ValueNode> changesMap;
-    private List<Class<?>> type;              // types in this table
+    private List<Class<?>> type;                   // types in this table
 
     public List<Class<?>> getTypeArray() {
         return type;
@@ -216,33 +216,24 @@ public class MyTable implements Table {
         return true;
     }
 
-    public boolean isValid(Storeable value) {
-        try {                                                      // checking format
+    public void checkingValueForValid(Storeable value) throws ColumnFormatException {
+        try {
             value.getColumnAt(getColumnsCount());
-            return false;
+            throw new ColumnFormatException("value is not valid: it has more columns");
         } catch (IndexOutOfBoundsException e) {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
-            try {
-                value.getColumnAt(i);
-            } catch (IndexOutOfBoundsException e) {
-                return false;
-            }
-        }
-
-        for (int i = 0; i < getColumnsCount(); ++i) {              // checking value
             try {
                 if (value.getColumnAt(i) == null) {
                     continue;
                 }
                 if (value.getColumnAt(i).getClass() != type.get(i)) {
-                    return false;
+                    throw new ColumnFormatException("value is not valid: value has wrong type in " + i + " column");
                 }
             } catch (IndexOutOfBoundsException e) {
-                return false;
+                throw new ColumnFormatException("value is not valid: it has less columns");
             }
         }
-        return true;
     }
 
     public void writeInTable() throws IOException {
@@ -374,10 +365,7 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("put: wrong key or value");
         }
-        if (!isValid(value)) {
-            throw new ColumnFormatException(
-                    "invalid storeable");
-        }
+        checkingValueForValid(value);
         Storeable oldValue = get(key);
         addChanges(key, value);
         return oldValue;

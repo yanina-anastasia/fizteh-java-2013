@@ -205,9 +205,7 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (!multiFileMap.get(table.getName()).isValid(value)) {
-            throw new ColumnFormatException("value is not valid");
-        }
+        multiFileMap.get(table.getName()).checkingValueForValid(value);
         ArrayList<Object> temp = new ArrayList<>();
         for (int i = 0; i < multiFileMap.get(table.getName()).getColumnsCount(); ++i) {
             temp.add(value.getColumnAt(i));
