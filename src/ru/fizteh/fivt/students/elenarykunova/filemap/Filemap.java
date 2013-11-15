@@ -96,7 +96,11 @@ public class Filemap implements Table {
                     }
                     str += " but: ";
                     for (int j = 0; j < types.size(); j++) {
-                        str += value.getColumnAt(j).getClass() + " ";
+                        if (value.getColumnAt(i) != null) {
+                            str += value.getColumnAt(j).getClass() + " ";
+                        } else {
+                            str += "null ";
+                        }
                     }
                     throw new ColumnFormatException(str);                  
                     }
