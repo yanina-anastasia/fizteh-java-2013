@@ -110,19 +110,31 @@ public class SignatureController {
         }
         String lastType = null;
         if (args[argsCount - 1].length() == 1) {
-            if (args[argsCount - 1] != ")") {
+            if (!args[argsCount - 1].equals(")")) {
                 throw new IOException("The wrong type of command arguments. They should be in brackets");
             }
         } else {
             lastType = new String(args[argsCount - 1].substring(0, args[argsCount - 1].length() - 1));
         }
         firstType = new String(args[2].substring(1));
-        types.add(StoreableColumnType.getClassFromPrimitive(firstType.trim()));
+        try {
+            types.add(StoreableColumnType.getClassFromPrimitive(firstType.trim()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("wrong type (" + firstType + ")");
+        }
         for (int i = 3; i < argsCount - 1; ++i) {
-            types.add(StoreableColumnType.getClassFromPrimitive(args[i].trim()));
+            try {
+                types.add(StoreableColumnType.getClassFromPrimitive(args[i].trim()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("wrong type " + args);
+            }
         }
         if (lastType != null) {
-            types.add(StoreableColumnType.getClassFromPrimitive(lastType.trim()));
+            try {
+                types.add(StoreableColumnType.getClassFromPrimitive(lastType.trim()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(e.getMessage() + ')');
+            }
         }
         return types;
     }
