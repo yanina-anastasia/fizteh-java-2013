@@ -80,7 +80,7 @@ public class CommandLauncher {
                     }
                     return Code.OK;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     getMessage((Exception) e.getCause());
                     return Code.ERROR;
                 }

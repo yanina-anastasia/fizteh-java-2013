@@ -330,6 +330,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             if (dbData != null) {
                 dbData.setDrop();
             }
+            dbData = null;
             try {
                 mySystem.rm(new String[]{pathDb.resolve(name).toString()});
             } catch (Exception e) {
