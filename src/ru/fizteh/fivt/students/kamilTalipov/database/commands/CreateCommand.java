@@ -62,7 +62,7 @@ public class CreateCommand extends SimpleCommand {
                     break;
 
                 default:
-                    System.err.println("Unsupported type " + args[i]);
+                    System.err.println("wrong type (unsupported type " + args[i] + ")");
                     return;
             }
         }

@@ -386,8 +386,8 @@ public class MultiFileHashTable implements Table {
                         break;
 
                     default:
-                        throw new IllegalArgumentException("Unsupported type '"
-                                                            + getColumnType(i).getCanonicalName() + "'");
+                        throw new IllegalArgumentException("wrong type (unsupported type "
+                                                            + getColumnType(i).getCanonicalName() + ")");
                 }
             }
         }
