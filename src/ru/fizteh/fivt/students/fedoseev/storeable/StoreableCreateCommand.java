@@ -5,6 +5,7 @@ import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
     public StoreableCreateCommand() {
@@ -20,6 +21,51 @@ public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
             throw new RuntimeException("CREATE ERROR: illegal symbol in table name");
         }
 
+        input = checkInput(input, curTableDir);
+
+        String[] columnTypes = Arrays.copyOfRange(input, 1, input.length);
+
+        boolean curTableExists = false;
+
+        if (curTableDir.exists()) {
+            List<Class<?>> signatureTypes = AbstractStoreable.readTypes(curTableDir.toString());
+            String[] curTypes = new String[signatureTypes.size()];
+
+            for (int i = 0; i < signatureTypes.size(); i++) {
+                curTypes[i] = ColumnTypes.typeToName(signatureTypes.get(i));
+            }
+
+            if (Arrays.equals(curTypes, columnTypes)) {
+                curTableExists = true;
+
+                System.out.println(tableName + " exists");
+            }
+        }
+
+        if (!curTableExists || !curTableDir.exists()) {
+            if (curTableDir.exists()) {
+                deleteCurTableDir(curTableDir, state, tableName);
+            }
+
+            curTableDir.mkdirs();
+
+            try {
+                AbstractStoreable.writeTypes(curTableDir.toString(), columnTypes);
+                state.createTable(tableName);
+            } catch (Exception e) {
+                File signatureFile = new File(curTableDir, "signature.tsv");
+
+                signatureFile.delete();
+                curTableDir.delete();
+
+                throw e;
+            }
+
+            System.out.println("created");
+        }
+    }
+
+    private String[] checkInput(String input[], File curTableDir) {
         if (input.length < 2) {
             ifWrongType(curTableDir);
         }
@@ -41,27 +87,31 @@ public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
             }
         }
 
-        if (!curTableDir.exists()) {
-            curTableDir.mkdirs();
+        return input;
+    }
 
-            String[] columnTypes = Arrays.copyOfRange(input, 1, input.length);
+    private void deleteCurTableDir(File curTableDir, StoreableState state, String tableName) throws IOException {
+        if (curTableDir.listFiles() != null) {
+            for (File dir : curTableDir.listFiles()) {
+                if (dir.listFiles() != null) {
+                    for (File file : dir.listFiles()) {
+                        file.delete();
+                    }
+                }
 
-            try {
-                AbstractStoreable.writeTypes(curTableDir.toString(), columnTypes);
-                state.createTable(tableName);
-            } catch (Exception e) {
-                File signatureFile = new File(curTableDir, "signature.tsv");
-
-                signatureFile.delete();
-                curTableDir.delete();
-
-                throw e;
+                dir.delete();
             }
-
-            System.out.println("created");
-        } else {
-            System.out.println(tableName + " exists");
         }
+
+        StoreableTable curTable = state.getCurTable();
+
+        if (curTable != null && tableName.equals(curTable.getCurTableDir().getName())) {
+            curTable.clearContentAndDiff();
+            state.setCurTable(null);
+        }
+
+        curTableDir.delete();
+        state.removeTable(curTableDir.toString());
     }
 
     private void ifWrongType(File curTableDir) {
