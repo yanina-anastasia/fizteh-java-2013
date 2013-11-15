@@ -159,50 +159,49 @@ public class MyStoreable implements Storeable {
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Integer.class);
-        return (Integer) values.get(columnIndex);
+        return Integer.class.cast(values.get(columnIndex));
     }
 
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Long.class);
-        return (Long) values.get(columnIndex);
+        return Long.class.cast(values.get(columnIndex));
     }
 
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Byte.class);
-        return (Byte) values.get(columnIndex);
+        return Byte.class.cast(values.get(columnIndex));
     }
 
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Float.class);
-        return (Float) values.get(columnIndex);
+        return Float.class.cast(values.get(columnIndex));
     }
 
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Double.class);
-        return (Double) values.get(columnIndex);
+        return Double.class.cast(values.get(columnIndex));
     }
 
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, Boolean.class);
-        return (Boolean) values.get(columnIndex);
+        return Boolean.class.cast(values.get(columnIndex));
     }
 
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-
         checkIndex(columnIndex);
         checkFormatValue(columnIndex, String.class);
-        return (String) values.get(columnIndex);
+        return String.class.cast(values.get(columnIndex));
     }
 
 }

@@ -77,4 +77,87 @@ public class TableTest {
         assertNotNull(table.remove("keyX"));
         assertNull(table.get("keyX"));
     }
+
+    @Test
+    public void testSize() throws IOException {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        Storeable st = new MyStoreable(table);
+        Storeable st1 = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st1.setColumnAt(0, 7);
+        table.put("key1", st);
+        table.put("key2", st1);
+        table.commit();
+        assertEquals(table.size(), 2);
+
+    }
+
+    @Test
+    public void testCommit() throws IOException {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        Storeable st = new MyStoreable(table);
+        Storeable st1 = new MyStoreable(table);
+        st.setColumnAt(0, 1000);
+        st1.setColumnAt(0, 11222);
+        table.put("sss", st);
+        table.put("ssssss", st1);
+        assertNotNull(table.remove("sss"));
+        assertEquals(table.commit(), 1);
+
+    }
+
+    @Test
+    public void testRollback() throws IOException {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        Storeable st = new MyStoreable(table);
+        Storeable st1 = new MyStoreable(table);
+        st.setColumnAt(0, 33);
+        st1.setColumnAt(0, 100000);
+        table.put("s", st);
+        table.put("saws", st1);
+        assertEquals(table.commit(), 2);
+        assertEquals(table.rollback(), 0);
+        assertEquals(table.commit(), 0);
+        assertNotNull(table.remove("s"));
+        assertEquals(table.rollback(), 1);
+
+    }
+
+    @Test
+    public void testGetColumnsCount() {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        assertEquals(table.getColumnsCount(), 7);
+    }
+
+    @Test
+    public void testGetColumnType() {
+        Table table = null;
+        try {
+            table = provider.createTable("table", list);
+        } catch (IOException e) {
+            // ok
+        }
+        assertEquals(table.getColumnType(1), Double.class);
+        assertEquals(table.getColumnType(0), Integer.class);
+    }
 }
