@@ -134,7 +134,7 @@ public class Filemap implements Table {
         try {
             checkValue(value);
         } catch (ColumnFormatException e1) {
-            throw new ColumnFormatException("put: " + e1.getMessage(), e1);
+            throw new ColumnFormatException("wrong type (put: " + e1.getMessage() + ")", e1);
         }
         Storeable res = updatedMap.put(key, value);
         return res;
