@@ -20,23 +20,23 @@ public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
             throw new RuntimeException("CREATE ERROR: illegal symbol in table name");
         }
 
+        if (input.length < 2) {
+            ifWrongType(curTableDir);
+        }
+
+        if (!input[1].contains("(") || !input[input.length - 1].contains(")")) {
+            ifWrongType(curTableDir);
+        }
+
+        input[1] = input[1].replace("(", "");
+        input[input.length - 1] = input[input.length - 1].replace(")", "");
+
+        if (input[1].trim().isEmpty()) {
+            ifWrongType(curTableDir);
+        }
+
         if (!curTableDir.exists()) {
             curTableDir.mkdirs();
-
-            if (input.length < 2) {
-                ifWrongType(curTableDir);
-            }
-
-            if (!input[1].contains("(") || !input[input.length - 1].contains(")")) {
-                ifWrongType(curTableDir);
-            }
-
-            input[1] = input[1].replace("(", "");
-            input[input.length - 1] = input[input.length - 1].replace(")", "");
-
-            if (input[1].trim().isEmpty()) {
-                ifWrongType(curTableDir);
-            }
 
             String[] columnTypes = Arrays.copyOfRange(input, 1, input.length);
 
