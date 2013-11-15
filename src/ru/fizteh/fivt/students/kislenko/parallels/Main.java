@@ -20,7 +20,9 @@ public class Main {
                 System.exit(1);
             }
             if (!dbDir.exists()) {
-                dbDir.mkdir();
+                System.err.println("fuck");
+                System.exit(-1);
+                //dbDir.mkdir();
             }
             File[] tables = dbDir.listFiles();
             if (tables != null) {
