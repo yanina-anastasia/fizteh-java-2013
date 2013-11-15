@@ -33,8 +33,6 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
 
         try {
             tableProvider.createTable(tableName, types);
-        } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

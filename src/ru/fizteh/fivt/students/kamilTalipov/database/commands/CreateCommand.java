@@ -67,10 +67,14 @@ public class CreateCommand extends SimpleCommand {
             }
         }
 
-        if (database.createTable(args[0], types)) {
-            System.out.println("created");
-        }  else {
-            System.out.println(args[0] + " exists");
+        try {
+            if (database.createTable(args[0], types)) {
+                System.out.println("created");
+            }  else {
+                System.out.println(args[0] + " exists");
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
         }
     }
 
