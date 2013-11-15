@@ -7,6 +7,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBStoreable;
+import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTable;
 import ru.fizteh.fivt.students.irinaGoltsman.multifilehashmap.DBTableProvider;
 
 import java.io.IOException;
@@ -115,4 +116,28 @@ public class DBTableTest {
         Storeable oldValue = table.put("new1", row);
         Assert.assertNull(oldValue);
     }
+
+    @Test
+    public void countTheNumberOfChangesWork() throws IOException {
+        table.commit();
+        int numberOfChanges = ((DBTable) table).countTheNumberOfChanges();
+        Assert.assertEquals(0, numberOfChanges);
+        Storeable value = table.get("key");
+        numberOfChanges = ((DBTable) table).countTheNumberOfChanges();
+        Assert.assertEquals(0, numberOfChanges);
+        if (value == null) {
+            table.put("key", tableProvider.createFor(table));
+            numberOfChanges = ((DBTable) table).countTheNumberOfChanges();
+            Assert.assertEquals(1, numberOfChanges);
+            table.remove("key");
+            numberOfChanges = ((DBTable) table).countTheNumberOfChanges();
+            Assert.assertEquals(0, numberOfChanges);
+        } else {
+            table.remove("key");
+            numberOfChanges = ((DBTable) table).countTheNumberOfChanges();
+            Assert.assertEquals(1, numberOfChanges);
+        }
+    }
+
+
 }

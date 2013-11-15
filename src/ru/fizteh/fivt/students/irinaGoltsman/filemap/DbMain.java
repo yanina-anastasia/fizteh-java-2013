@@ -39,9 +39,14 @@ public class DbMain {
         cm.addCommand(new DBCommands.Size());
         cm.addCommand(new DBCommands.RollBack());
         Code codeOfShell = Shell.shell(args);
+        /*
         Code codeOfClosing = myDataBase.closeDB();
         if (codeOfClosing == Code.ERROR || codeOfClosing == Code.SYSTEM_ERROR
                 || codeOfShell == Code.SYSTEM_ERROR || codeOfShell == Code.ERROR) {
+            System.exit(1);
+        }
+        */
+        if (codeOfShell == Code.SYSTEM_ERROR || codeOfShell == Code.ERROR) {
             System.exit(1);
         }
     }
