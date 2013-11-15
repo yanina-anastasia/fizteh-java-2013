@@ -65,7 +65,7 @@ public class TableProviderImplementation implements TableProvider {
             throw new IllegalArgumentException("Invalid table name");
         }
         if (!areValidColumnTypes(columnTypes)) {
-            throw new IllegalArgumentException("Invalid column types");
+            throw new ColumnFormatException("Invalid column types");
         }
         if (tables.containsKey(name)) {
             return null;
