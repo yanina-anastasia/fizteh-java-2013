@@ -83,9 +83,9 @@ public class FileMap {
     }
 
     private void write(RandomAccessFile output, String key, Storeable value) throws IOException {
-        output.writeInt(key.getBytes("UTF-8").length);
+        output.writeInt(key.getBytes(StandardCharsets.UTF_8).length);
         output.writeInt(provider.serialize(table, value).getBytes(StandardCharsets.UTF_8).length);
-        output.write(key.getBytes("UTF-8"));
+        output.write(key.getBytes(StandardCharsets.UTF_8));
         output.write(provider.serialize(table, value).getBytes(StandardCharsets.UTF_8));
     }
 
