@@ -16,10 +16,8 @@ public class Main {
         try {
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (dbDir.isFile()) {
-                dbDir.delete();
-                dbDir.mkdir();
-                //System.err.println("Incorrect database directory.");
-                //System.exit(1);
+                System.err.println("Incorrect database directory.");
+                System.exit(1);
             }
             if (!dbDir.exists()) {
                 dbDir.mkdir();
