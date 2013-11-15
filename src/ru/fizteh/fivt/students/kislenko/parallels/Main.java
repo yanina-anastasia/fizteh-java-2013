@@ -16,13 +16,13 @@ public class Main {
         try {
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (dbDir.isFile()) {
-                System.err.println("Incorrect database directory.");
-                System.exit(1);
+                dbDir.delete();
+                dbDir.mkdir();
+                //System.err.println("Incorrect database directory.");
+                //System.exit(1);
             }
             if (!dbDir.exists()) {
-                System.err.println("fuck");
-                System.exit(-1);
-                //dbDir.mkdir();
+                dbDir.mkdir();
             }
             File[] tables = dbDir.listFiles();
             if (tables != null) {
