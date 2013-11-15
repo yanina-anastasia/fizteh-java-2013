@@ -53,7 +53,6 @@ public class MyTableTests {
         Integer num =  new Integer(2);
         data.add(num);
         data.add(24);
-        data.add();
         Storeable st = provider.createFor(table, data);
         table.put("blabla", st);
     }
