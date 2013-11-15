@@ -52,7 +52,7 @@ public class DatabaseStoreable implements Storeable {
         indexOfBounds(columnNum);
         if (value != null) {
             isColumnTypeValid(columnNum, value);
-            try {
+            /*try {
                 if (value.getClass() == String.class) {
                     String stringValue = (String) value;
                     if (stringValue.trim().isEmpty()) {
@@ -61,7 +61,7 @@ public class DatabaseStoreable implements Storeable {
                 }
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Incorrect value");
-            }
+            }  */
         }
         columns.set(columnNum, value);
     }
