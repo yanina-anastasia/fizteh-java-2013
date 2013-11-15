@@ -17,7 +17,7 @@ public class CreateTableCommand extends AbstractCommand {
 
 	public void execute(String args[]) throws IOException {
 		if (args.length < 3) {
-			throw new IllegalArgumentException("can't create table: too few args");
+			throw new IllegalArgumentException("wrong type (too few args)");
 		}
 		FilesystemState result = getState().provider.createTable(args[1], identifyTypes(args));
 		if (result != null) {

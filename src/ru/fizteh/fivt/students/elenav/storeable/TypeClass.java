@@ -62,7 +62,7 @@ public enum TypeClass {
 	public static Class<?> getTypeWithName(String name) {
 		TypeClass type = withName.get(name);
 		if (type == null) {
-			throw new IllegalArgumentException("Invalid type: "+name);
+			throw new IllegalArgumentException("wrong type ("+name+")");
 		}
 		return type.type;
 	}
@@ -70,7 +70,7 @@ public enum TypeClass {
 	public static String getNameWithType(Class<?> c) {
 		TypeClass type = withClass.get(c);
 		if (type == null) {
-			throw new IllegalArgumentException("Invalid type: "+c.getSimpleName());
+			throw new IllegalArgumentException("wrong type ("+c.getSimpleName()+")");
 		}
 		return type.name;
 	}
@@ -78,7 +78,7 @@ public enum TypeClass {
 	public static Object parse(String name, Class<?> c) {
 		TypeClass type = withClass.get(c);
 		if (type == null) {
-			throw new IllegalArgumentException("Invalid type: "+name);
+			throw new IllegalArgumentException("wrong type ("+name+")");
 		}
 		return type.parse(name);
 	}
