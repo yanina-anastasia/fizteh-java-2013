@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.elenarykunova.filemap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
@@ -78,14 +77,14 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException(name
                     + " exists as folder and has no data as table");
         }
-        List<Class<?>> oldTypes = new ArrayList<Class<?>> ();
+        List<Class<?>> oldTypes = new ArrayList<Class<?>>();
         if (info.exists()) {
             try {
                 oldTypes = getTypesFromSignature(info);
             } catch (IOException e) {
                 throw new RuntimeException(name
                         + " can't get info from signature", e);
-            }            
+            }
         }
         try {
             if (tables.get(name) != null) {
@@ -212,9 +211,9 @@ public class MyTableProvider implements TableProvider {
         File tmpFile = new File(tablePath);
 
         File info = new File(tablePath + File.separator + "signature.tsv");
-        List<Class<?>> oldTypes = new ArrayList<Class<?>> ();
+        List<Class<?>> oldTypes = new ArrayList<Class<?>>();
         if (info.exists()) {
-            oldTypes = getTypesFromSignature(info);            
+            oldTypes = getTypesFromSignature(info);
         }
 
         if (tmpFile.exists() && tmpFile.isDirectory()) {
@@ -223,15 +222,18 @@ public class MyTableProvider implements TableProvider {
                         + " exists, but couldn't find table info");
             } else {
                 if (oldTypes.size() != columnTypes.size()) {
-                    throw new IllegalArgumentException(name + " exists, but number of types mismatch");
+                    throw new IllegalArgumentException(name
+                            + " exists, but number of types mismatch");
                 }
                 for (int i = 0; i < oldTypes.size(); i++) {
                     if (!oldTypes.get(i).equals(columnTypes.get(i))) {
-                        throw new IllegalArgumentException(name + " exists, but types mismatch");                        
+                        throw new IllegalArgumentException(name
+                                + " exists, but types mismatch");
                     }
                 }
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this, oldTypes);
+                    Filemap result = new Filemap(tablePath, name, this,
+                            oldTypes);
                     tables.put(name, result);
                 }
             }
@@ -242,7 +244,8 @@ public class MyTableProvider implements TableProvider {
             } else {
                 writeTypes(info, columnTypes);
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this, columnTypes);
+                    Filemap result = new Filemap(tablePath, name, this,
+                            columnTypes);
                     tables.put(name, result);
                     return (Table) result;
                 } else {
@@ -373,10 +376,10 @@ public class MyTableProvider implements TableProvider {
     @Override
     public Storeable deserialize(Table table, String value)
             throws ParseException, IllegalArgumentException {
-        if (value == null || value.isEmpty() || value.trim().isEmpty()) {
+        if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("deserialize: value is empty");
         }
-        Storeable res = new MyStoreable(table);
+        // Storeable res = new MyStoreable(table);
         JSONArray json;
         try {
             json = new JSONArray(value);
@@ -388,20 +391,15 @@ public class MyTableProvider implements TableProvider {
                     "deserialize: number of elements mismatch", 0);
         }
         ArrayList<Object> values = new ArrayList<Object>();
-        for (int i = 0; i < json.length(); i++) {
-            if (!json.get(i).equals(JSONObject.NULL)) {
-                Object resCast = checkClasses(json.get(i),
-                        table.getColumnType(i));
-                if (!resCast.getClass().equals(table.getColumnType(i))) {
-                    throw new ParseException("deserialize: types mismatch "
-                            + json.get(i).getClass() + " "
-                            + table.getColumnType(i), i);
-                }
-                values.add(resCast);
-            } else {
-                values.add(null);
-            }
-        }
+        /*
+         * for (int i = 0; i < json.length(); i++) { if
+         * (!json.get(i).equals(JSONObject.NULL)) { Object resCast =
+         * checkClasses(json.get(i), table.getColumnType(i)); if
+         * (!resCast.getClass().equals(table.getColumnType(i))) { throw new
+         * ParseException("deserialize: types mismatch " +
+         * json.get(i).getClass() + " " + table.getColumnType(i), i); }
+         * values.add(resCast); } else { values.add(null); } }
+         */
         return createFor(table, values);
         // return res;
     }
