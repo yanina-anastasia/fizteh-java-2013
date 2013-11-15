@@ -34,18 +34,20 @@ public class Filemap implements Table {
         return currTablePath;
     }
 
-    protected int getDataBaseFromKeyAndCheck(String key)
+    protected int getDataBaseFromKeyAndCheck(String key, boolean needToCreate)
             throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-
-        if (!data[ndir][nfile].hasFile()) {
-            try {
-                data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
-            } catch (ParseException e) {
-                throw new RuntimeException("wrong type (" + e.getMessage()
-                        + ")", e);
+        
+        if (needToCreate) {
+            if (!data[ndir][nfile].hasFile()) {
+                try {
+                    data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
+                } catch (ParseException e) {
+                    throw new RuntimeException("wrong type (" + e.getMessage()
+                            + ")", e);
+                }
             }
         }
         return ndir * 16 + nfile;
@@ -142,15 +144,20 @@ public class Filemap implements Table {
         String val;
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             key = myEntry.getKey();
-            k = getDataBaseFromKeyAndCheck(key);
+            boolean needToCreate = (myEntry.getValue() != null);
+            k = getDataBaseFromKeyAndCheck(key, needToCreate);
+            
             ndir = k / 16;
             nfile = k % 16;
 
             val = data[ndir][nfile].get(key);
 
             if (myEntry.getValue() == null) {
-                if (data[ndir][nfile].remove(key) != null) {
+                if (data[ndir][nfile].get(key) != null) {
                     nchanges++;
+                }
+                if (trackChanges) {
+                    data[ndir][nfile].remove(key);
                     data[ndir][nfile].hasChanged = true;
                 }
             } else {
