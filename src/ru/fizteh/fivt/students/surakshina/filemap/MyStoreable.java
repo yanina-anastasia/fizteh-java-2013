@@ -131,15 +131,15 @@ public class MyStoreable implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         if (value != null) {
-            checkFormatValue(columnIndex, value);
+            checkFormatValue(columnIndex, value.getClass());
         }
         values.set(columnIndex, value);
     }
 
-    private void checkFormatValue(int columnIndex, Object value) {
-        if (!value.getClass().isAssignableFrom(types.get(columnIndex))) {
+    private void checkFormatValue(int columnIndex, Class<?> value) {
+        if (!value.isAssignableFrom(types.get(columnIndex))) {
             throw new ColumnFormatException("wrong type (Incorrect column format: expected" + types.get(columnIndex)
-                    + "but was" + value.getClass() + ")");
+                    + " but was " + value.getClass() + ")");
         }
 
     }
