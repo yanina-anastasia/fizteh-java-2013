@@ -276,10 +276,10 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
         if (key == null) {
             throw new IllegalArgumentException("Key is null!");
         }
-        if (entries.containsKey(key) && !deleted.containsKey(key)) {
-            return entries.get(key);
-        } else if (added.containsKey(key)) {
+        if (added.containsKey(key)) {
             return added.get(key);
+        } else if (entries.containsKey(key) && !deleted.containsKey(key)) {
+            return entries.get(key);
         } else {
             return null;
         }
