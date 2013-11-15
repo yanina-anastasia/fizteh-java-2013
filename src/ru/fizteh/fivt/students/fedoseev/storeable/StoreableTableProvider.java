@@ -65,7 +65,7 @@ public class StoreableTableProvider implements TableProvider {
         }
 
         XMLDeserializer deserializer = new XMLDeserializer(value);
-        Storeable storeable;
+        Storeable storable;
         List<Object> values = new ArrayList<>(table.getColumnsCount());
 
         for (int i = 0; i < table.getColumnsCount(); i++) {
@@ -89,7 +89,7 @@ public class StoreableTableProvider implements TableProvider {
 
         try {
             deserializer.close();
-            storeable = createFor(table, values);
+            storable = createFor(table, values);
         } catch (ColumnFormatException e) {
             throw new ParseException("DESERIALIZE ERROR: invalid type", 0);
         } catch (IndexOutOfBoundsException e) {
@@ -98,7 +98,7 @@ public class StoreableTableProvider implements TableProvider {
             throw new ParseException(e.getMessage(), 0);
         }
 
-        return storeable;
+        return storable;
     }
 
     @Override
@@ -165,11 +165,11 @@ public class StoreableTableProvider implements TableProvider {
             }
         }
 
-        StoreableStorable storeable = new StoreableStorable(columnTypes);
+        StoreableStorable storable = new StoreableStorable(columnTypes);
 
-        storeable.setColumns(values);
+        storable.setColumns(values);
 
-        return storeable;
+        return storable;
     }
 
     private void checkTableName(String tableName) throws IllegalArgumentException {

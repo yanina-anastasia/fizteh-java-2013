@@ -2,7 +2,9 @@ package ru.fizteh.fivt.students.fedoseev.storeable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum ColumnTypes {
@@ -54,6 +56,8 @@ public enum ColumnTypes {
     private static Map<String, ColumnTypes> namesTypesMap = new HashMap<>();
     private static Map<Class<?>, ColumnTypes> classesTypesMap = new HashMap<>();
 
+    public abstract Object parseValue(String s);
+
     private ColumnTypes(String typeName, Class<?> typeClass) {
         this.typeName = typeName;
         this.typeClass = typeClass;
@@ -86,8 +90,6 @@ public enum ColumnTypes {
         return types.typeName;
     }
 
-    public abstract Object parseValue(String s);
-
     public static Object commonParseValue(String s, Class<?> type) {
         ColumnTypes types = classesTypesMap.get(type);
 
@@ -100,5 +102,15 @@ public enum ColumnTypes {
         } catch (NumberFormatException e) {
             throw new ColumnFormatException(e);
         }
+    }
+
+    public static List<Class<?>> getTypesList() {
+        List<Class<?>> types = new ArrayList<>();
+
+        for (ColumnTypes value : values()) {
+            types.add(value.typeClass);
+        }
+
+        return types;
     }
 }

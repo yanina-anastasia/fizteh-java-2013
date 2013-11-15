@@ -31,12 +31,12 @@ public class StoreableMain {
 
             checkDbDirectory(dbDir);
 
-            AbstractStoreable storeable = new AbstractStoreable(dbDir);
+            AbstractStoreable storable = new AbstractStoreable(dbDir);
 
             if (args.length != 0) {
-                storeable.BatchMode(args);
+                storable.BatchMode(args);
             } else {
-                storeable.InteractiveMode();
+                storable.InteractiveMode();
             }
         } catch (NullPointerException e) {
             System.err.println("ERROR: cannot get property");

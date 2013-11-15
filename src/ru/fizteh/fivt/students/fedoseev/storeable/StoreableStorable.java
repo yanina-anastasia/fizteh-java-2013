@@ -100,7 +100,7 @@ public class StoreableStorable implements Storeable {
     }
 
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
-        if (!value.getClass().isAssignableFrom(columnTypes.get(columnIndex))) {
+        if (!value.equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException(String.format(
                     "wrong type (GET ERROR: incorrect type: expected %s instead of %s)",
                     columnTypes.get(columnIndex).getName(), value.getClass().getName())
