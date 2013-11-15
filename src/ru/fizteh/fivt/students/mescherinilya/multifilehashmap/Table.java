@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -35,20 +37,19 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
     private void readFile(String dirName, String fileName) throws Exception {
 
-        RandomAccessFile database = new RandomAccessFile(
-                path + File.separator + dirName + File.separator + fileName, "r");
+        try (RandomAccessFile database = new RandomAccessFile(
+                path + File.separator + dirName + File.separator + fileName, "r")) {
 
-        int ndirectory = Integer.parseInt(dirName.substring(0, dirName.length() - 4));
-        int nfile = Integer.parseInt(fileName.substring(0, fileName.length() - 4));
+            int ndirectory = Integer.parseInt(dirName.substring(0, dirName.length() - 4));
+            int nfile = Integer.parseInt(fileName.substring(0, fileName.length() - 4));
 
-        if (database.length() == 0) {
-            return;
-        }
+            if (database.length() == 0) {
+                return;
+            }
 
-        ArrayList<Integer> offsets = new ArrayList<Integer>();
-        ArrayList<String> keys = new ArrayList<String>();
+            ArrayList<Integer> offsets = new ArrayList<Integer>();
+            ArrayList<String> keys = new ArrayList<String>();
 
-        try {
             do {
                 ArrayList<Byte> keySymbols = new ArrayList<Byte>();
                 byte b = database.readByte();
@@ -83,22 +84,24 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
 
             } while (database.getFilePointer() != offsets.get(0));
+
+            offsets.add((int) database.length());
+
+            ArrayList<String> values = new ArrayList<String>();
+
+            for (int i = 0; i < keys.size(); ++i) {
+                byte[] bytes = new byte[offsets.get(i+1) - offsets.get(i)];
+                database.read(bytes);
+                values.add(new String(bytes, "UTF-8"));
+            }
+
+
+            for (int i = 0; i < keys.size(); ++i) {
+                entries.put(keys.get(i), values.get(i));
+            }
+
         } catch (EOFException e) {
             throw new IncorrectFileFormatException("Suddenly the end of the file was reached");
-        }
-
-        offsets.add((int) database.length());
-
-        ArrayList<String> values = new ArrayList<String>();
-
-        for (int i = 0; i < keys.size(); ++i) {
-            byte[] bytes = new byte[offsets.get(i+1) - offsets.get(i)];
-            database.read(bytes);
-            values.add(new String(bytes, "UTF-8"));
-        }
-
-        for (int i = 0; i < keys.size(); ++i) {
-            entries.put(keys.get(i), values.get(i));
         }
 
     }
@@ -171,8 +174,18 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
             String dirName = i.toString() + ".dir";
             File currentDir = new File(path + File.separator + dirName);
             if (dirStorage.get(i).isEmpty()) {
-                if (currentDir.exists() && !currentDir.delete()) {
-                    throw new IOException("Couldn't delete the directory " + dirName);
+                if (currentDir.exists()) {
+                    File listOfInternals[] = currentDir.listFiles();
+                    for (File internal : listOfInternals) {
+
+                        if (!internal.delete()) {
+                            throw new IOException("Couldn't delete the file " + dirName
+                                    + File.separator + internal.getName());
+                        }
+                    }
+                    if (!currentDir.delete()) {
+                        throw new IOException("Couldn't delete the directory " + dirName);
+                    }
                 }
             } else {
                 if (currentDir.exists() && !currentDir.isDirectory()) {
@@ -211,9 +224,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
                             throw new IOException("Couldn't create the file " + dirName + File.separator + fileName);
                         }
 
-                        RandomAccessFile file = null;
-                        try {
-                            file = new RandomAccessFile(currentFile, "rw");
+                        try (RandomAccessFile file = new RandomAccessFile(currentFile, "rw")) {
 
                             file.setLength(0);
 
@@ -241,10 +252,6 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
                         } catch (Exception e) {
                             throw new IOException("Couldn't write to the file " + dirName + File.separator + fileName);
-                        } finally {
-                            if (file != null) {
-                                file.close();
-                            }
                         }
                     }
                 }
