@@ -213,10 +213,10 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
-        provider.checkColumns(this, value);
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
+        provider.checkColumns(this, value);
         Storeable oldValue = dataMap.get(key);
         dataMap.put(key, value);
         return oldValue;

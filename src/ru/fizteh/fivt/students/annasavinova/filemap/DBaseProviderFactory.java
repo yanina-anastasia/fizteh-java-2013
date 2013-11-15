@@ -9,7 +9,7 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 public class DBaseProviderFactory implements TableProviderFactory {
 	@Override
 	public TableProvider create(String dir) throws IOException {
-		if (dir == null) {
+		if (dir == null || dir.trim().isEmpty()) {
 			throw new IllegalArgumentException("dir not selected");
 		}
 		File root = new File(dir);
@@ -19,7 +19,7 @@ public class DBaseProviderFactory implements TableProviderFactory {
 			}
 		}
 		if (!root.isDirectory()) {
-			throw new IOException("Not a directory");
+			throw new IllegalArgumentException("Not a directory");
 		}
 		DataBaseProvider dataBase = null;
 		dataBase = new DataBaseProvider(dir);
