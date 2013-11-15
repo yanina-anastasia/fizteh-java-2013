@@ -5,14 +5,19 @@ import java.nio.file.Path;
 
 public class ParallelsState {
     private Path databasePath;
-    private MyTableProvider tables;
+    private MyTableProvider provider;
 
-    private ThreadLocal<MyTable> currentTable;
+    private ThreadLocal<MyTable> currentTable = new ThreadLocal<MyTable>() {
+        @Override
+        public MyTable initialValue() {
+            return null;
+        }
+    };
 
     public ParallelsState(Path p) throws IOException {
         databasePath = p;
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        tables = factory.create(p.toString());
+        provider = factory.create(p.toString());
     }
 
     public Path getPath() {
@@ -20,12 +25,12 @@ public class ParallelsState {
     }
 
     public void deleteTable(String tableName) throws IOException {
-        tables.removeTable(tableName);
+        provider.removeTable(tableName);
     }
 
     public void createTable(String tableName) throws IOException, ClassNotFoundException {
         String temp = databasePath.resolve(tableName).toString();
-        tables.createTable(temp, Utils.readColumnTypes(temp));
+        provider.createTable(temp, Utils.readColumnTypes(temp));
     }
 
     public MyTable getCurrentTable() {
@@ -33,7 +38,7 @@ public class ParallelsState {
     }
 
     public Path getWorkingPath() {
-        if (currentTable != null) {
+        if (currentTable.get() != null) {
             return databasePath.resolve(currentTable.get().getName());
         } else {
             return databasePath;
@@ -42,9 +47,9 @@ public class ParallelsState {
 
     public void setCurrentTable(String name) {
         if (name == null) {
-            currentTable = null;
+            currentTable.set(null);
         } else {
-            currentTable.set(tables.getTable(databasePath.resolve(name).toString()));
+            currentTable.set(provider.getTable(databasePath.resolve(name).toString()));
         }
     }
 }
