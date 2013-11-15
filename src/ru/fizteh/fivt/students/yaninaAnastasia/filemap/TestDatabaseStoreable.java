@@ -25,12 +25,12 @@ public class TestDatabaseStoreable {
         storeable = null;
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void putEmpty() {
         storeable.setColumnAt(1, "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void putOnlyWhiteSpaces() {
         storeable.setColumnAt(1, "     ");
     }

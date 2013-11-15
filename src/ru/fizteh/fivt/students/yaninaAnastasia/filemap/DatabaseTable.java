@@ -86,22 +86,15 @@ public class DatabaseTable implements Table {
         }
         checkAlienStoreable(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
-            /*try {*/
                 switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
                     case "String":
                         String stringValue = (String) value.getColumnAt(index);
                         if (stringValue == null) {
                             continue;
                         }
-                        /*if (checkStringCorrect(stringValue)) {
-                            throw new ParseException("value cannot be null", 0);
-                        } */
                         break;
                     default:
                 }
-            /*} catch (ParseException e) {
-                throw new IllegalArgumentException(e);
-            } */
         }
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
@@ -148,7 +141,7 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = changesCount();
+        int recordsCommitted = changesCount();
         for (String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
@@ -164,7 +157,7 @@ public class DatabaseTable implements Table {
         save(tableBuilder);
         uncommittedChanges = 0;
 
-        return recordsCommited;
+        return recordsCommitted;
     }
 
     public int rollback() {
