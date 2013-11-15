@@ -226,7 +226,6 @@ public class MyTable implements Table {
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
                     Object o = value.getColumnAt(i);
-                    //if (o == null) throw new ColumnFormatException("Table.put: null column");
                     if (o == null) {
                         if (c == Integer.class) {
                             value.setColumnAt(i, Integer.valueOf(1));
@@ -247,35 +246,6 @@ public class MyTable implements Table {
                     } else if (c != o.getClass()) {
                         throw new ColumnFormatException("Table.put: wrong type");
                     }
-                    /*if (c == Integer.class) {
-                        //Integer tempValue = value.getIntAt(i);
-                        temp.setColumnAt(i, Integer.valueOf(1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Long.class)  {
-                        //Long tempValue = value.getLongAt(i);
-                        temp.setColumnAt(i, Long.valueOf((long) 1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Byte.class) {
-                        //Byte tempValue = value.getByteAt(i);
-                        temp.setColumnAt(i, Byte.valueOf((byte) 1));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Float.class) {
-                        //Float tempValue = value.getFloatAt(i);
-                        temp.setColumnAt(i, Float.valueOf((float) 1.5));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Double.class) {
-                        //Double tempValue = value.getDoubleAt(i);
-                        temp.setColumnAt(i, Double.valueOf(1.5));
-                        //temp.setColumnAt(i, tempValue);
-                    } else if (c == Boolean.class) {
-                        //Boolean tempValue = value.getBooleanAt(i);
-                        temp.setColumnAt(i, Boolean.valueOf(true));
-                        //temp.setColumnAt(i, tempValue);
-                    } else {
-                        String tempValue = value.getStringAt(i);
-                        temp.setColumnAt(i, "abc");
-                        temp.setColumnAt(i, tempValue);
-                    } */
                 }
                 return map.put(key, value);
             } catch (IndexOutOfBoundsException e1) {
@@ -371,7 +341,7 @@ public class MyTable implements Table {
      * Считает "разницу" map и oldMap, то есть минимальное количество опрераций встаки, переименования и удаления,
      *                                              с помощью которых одну коллекцию можно преобразовать к другой.
      */
-    int mapsDifference() {
+    public int mapsDifference() {
         int difference = 0;
         for (Map.Entry<String, Storeable> entry : map.entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {

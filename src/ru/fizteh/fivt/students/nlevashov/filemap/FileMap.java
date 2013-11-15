@@ -78,8 +78,8 @@ public class FileMap {
                 currentTable = newCurrentTable;
                 System.out.println("using " + tableName);
             } else {
-                Table currentTableCopy = currentTable;
-                int difference = currentTableCopy.commit();
+                int difference = currentTable.commit();
+                currentTable.rollback();
                 if (difference > 0) {
                     System.out.println(difference + " unsaved changes");
                 } else {

@@ -319,7 +319,6 @@ public class MyTableProvider implements TableProvider {
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
                     Object o = value.getColumnAt(i);
-                    //if (o == null) throw new ColumnFormatException("TableProvider.serialize: null column");
                     if (o == null) {
                         if (c == Integer.class) {
                             value.setColumnAt(i, Integer.valueOf(1));
