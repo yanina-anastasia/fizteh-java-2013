@@ -87,22 +87,22 @@ public class DatabaseTable implements Table {
         }
         checkAlienStoreable(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
-            try {
+            /*try {*/
                 switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
                     case "String":
                         String stringValue = (String) value.getColumnAt(index);
                         if (stringValue == null) {
                             continue;
                         }
-                        if (checkStringCorrect(stringValue)) {
+                        /*if (checkStringCorrect(stringValue)) {
                             throw new ParseException("value cannot be null", 0);
-                        }
+                        } */
                         break;
                     default:
                 }
-            } catch (ParseException e) {
+            /*} catch (ParseException e) {
                 throw new IllegalArgumentException(e);
-            }
+            } */
         }
         Storeable oldValue = null;
         oldValue = modifiedData.get(key);
