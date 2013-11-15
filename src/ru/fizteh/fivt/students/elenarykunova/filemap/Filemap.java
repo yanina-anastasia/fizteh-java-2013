@@ -265,7 +265,7 @@ public class Filemap implements Table {
         provider = mtp;
         currTablePath = path;
         currTableName = name;
-        types = columnTypes;
+        types = new ArrayList<Class<?>>(columnTypes);
 
         if (currTableName != null) {
             load();

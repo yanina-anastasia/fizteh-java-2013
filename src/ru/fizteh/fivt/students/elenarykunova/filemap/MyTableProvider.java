@@ -233,7 +233,7 @@ public class MyTableProvider implements TableProvider {
                 }
                 if (tables.get(name) == null) {
                     Filemap result = new Filemap(tablePath, name, this,
-                            oldTypes);
+                            columnTypes);
                     tables.put(name, result);
                 }
             }
