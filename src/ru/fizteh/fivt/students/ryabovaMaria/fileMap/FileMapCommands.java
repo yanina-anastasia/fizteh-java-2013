@@ -85,7 +85,7 @@ public class FileMapCommands extends AbstractCommands {
                 System.out.println("created");
             }
         } catch (IllegalArgumentException e) {
-            throw new Exception(e);
+            System.out.println("wrong type (" + e.getMessage() + ")");
         }
     }
     
