@@ -155,13 +155,17 @@ public class StoreableUtils {
             }
         }
         try (BufferedWriter output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            boolean isFirst = true;
             for (Class<?> type : types) {
                 String typeName = getStringByClass(type);
                 if (typeName == null) {
                     throw new DatabaseException("Not supported type");
                 }
+                if (!isFirst) {
+                    output.write(" ");
+                }
                 output.write(typeName);
-                output.write(" ");
+                isFirst = false;
             }
         } catch (IOException e) {
             throw new IOException("Cannot save signature file", e);

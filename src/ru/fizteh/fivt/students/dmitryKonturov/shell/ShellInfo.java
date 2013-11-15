@@ -12,13 +12,13 @@ public class ShellInfo {
 
     public Object getProperty(String name) {
         if (name == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Null property name");
         }
         return property.get(name);
     }
     public void setProperty(String name, Object object) {
         if (name == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Null property name");
         }
         property.put(name, object);
     }
