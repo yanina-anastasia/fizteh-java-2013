@@ -194,6 +194,9 @@ public class TableProviderImplementation implements TableProvider {
      */
     @Override
     public Storeable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Null table");
+        }
         return new StoreableImplementation(table);
     }
 
@@ -209,6 +212,9 @@ public class TableProviderImplementation implements TableProvider {
      */
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table == null || values == null) {
+            throw new IllegalArgumentException("Null arguments");
+        }
         int valueSize = values.size();
         if (valueSize != table.getColumnsCount()) {
             throw new IndexOutOfBoundsException("Requested column count and table column count not match");
