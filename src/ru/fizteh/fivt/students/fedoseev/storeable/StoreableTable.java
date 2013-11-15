@@ -286,7 +286,7 @@ public class StoreableTable implements Table {
         String fileName = file.getName();
         int fileNumber = Integer.parseInt(fileName.substring(0, fileName.indexOf('.')));
         String dirName = dir.getName();
-        int dirNumber = Integer.parseInt(dirName.substring(0, fileName.indexOf('.')));
+        int dirNumber = Integer.parseInt(dirName.substring(0, dirName.indexOf('.')));
 
         if (fileHash(key) != fileNumber || dirHash(key) != dirNumber) {
             throw new IOException("ERROR: wrong key placement");
