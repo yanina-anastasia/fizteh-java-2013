@@ -46,10 +46,14 @@ public class FileMap {
                     throw new IOException("wrong type (illegal type/types)");
             }
         }
-        if (provider.createTable(tableName, classes) == null) {
-            throw new IOException(tableName + " exists");
-        } else {
-            System.out.println("created");
+        try {
+            if (provider.createTable(tableName, classes) == null) {
+                throw new IOException(tableName + " exists");
+            } else {
+                System.out.println("created");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IOException("wrong type (" + e.getMessage() + ")");
         }
     }
 
