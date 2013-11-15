@@ -52,10 +52,10 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Table provider must be not null");
         }
         if (types == null) {
-            throw new IllegalArgumentException("Types must be not null");
+            throw new IllegalArgumentException("wrong type (types must be not null)");
         }
         if (types.isEmpty()) {
-            throw new IllegalArgumentException("Types must be not empty");
+            throw new IllegalArgumentException("wrong type (types must be not empty)");
         }
 
         this.tableName = tableName;
