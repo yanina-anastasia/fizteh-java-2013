@@ -176,13 +176,15 @@ public class DataBase {
         return Code.OK;
     }
 
-    public static Code closeDB() {
+    public static void closeDB() {
+        /*
         try {
             realCommit();
         } catch (IOException e) {
             return Code.ERROR;
         }
-        return Code.OK;
+        */
+        currentTable = null;
     }
 
     public static Code size() {
