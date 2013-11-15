@@ -34,6 +34,13 @@ public class StructuredTableDirectory implements StructuredTableProviderInterfac
 
 	public StructuredTableDirectory (String dbDirectory) {
 		this.dbDirectory = dbDirectory;
+		String[] names = new File(dbDirectory).list();
+		for (String name : names) {
+			StructuredTableInterface table = getTable(name);
+			if (table != null) {
+				tables.put(name, table);
+			}
+		}
 	}
 
 	static public Class<?> getTypeByName (String name) {
