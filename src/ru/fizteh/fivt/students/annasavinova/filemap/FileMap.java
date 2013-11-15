@@ -272,8 +272,11 @@ public class FileMap extends UserShell {
                 System.out.println(oldValue.getStringAt(0));
             }
         } catch (ParseException e) {
+            e.printStackTrace();
             printError("Cannot parse arguments");
         } catch (RuntimeException e) {
+            //TODO
+            e.printStackTrace();
             printError(e.getMessage());
         }
 

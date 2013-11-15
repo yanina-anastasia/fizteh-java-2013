@@ -269,16 +269,19 @@ public class DataBaseProvider implements TableProvider {
             int columnIndex = 0;
             while (reader.hasNext()) {
                 reader.nextTag();
-                if (!reader.getLocalName().equals("col")) {
-                    if (!reader.isEndElement()) {
-                        throw new ParseException("Incorrect xml format", reader.getLocation().getCharacterOffset());
+                if (reader.getLocalName().equals("null")) {
+                    row.setColumnAt(columnIndex, null);
+                    reader.nextTag();
+                } else {
+                    if (!reader.getLocalName().equals("col")) {
+                        if (!reader.isEndElement()) {
+                            throw new ParseException("Incorrect xml format", reader.getLocation().getCharacterOffset());
+                        }
+                        if (reader.isEndElement() && reader.getLocalName().equals("row")) {
+                            break;
+                        }
                     }
-                    if (reader.isEndElement() && reader.getLocalName().equals("row")) {
-                        break;
-                    }
-                }
-                String text = reader.getElementText();
-                if (!text.equals("null")) {
+                    String text = reader.getElementText();
                     row.setColumnAt(columnIndex, getObjectFromString(text, table.getColumnType(columnIndex)));
                 }
                 columnIndex++;

@@ -304,7 +304,7 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         if (columnIndex < 0 || columnIndex >= typesList.size()) {
-            throw new IndexOutOfBoundsException("Incorrect index");
+            throw new IndexOutOfBoundsException("Incorrect index " + columnIndex);
         }
         return typesList.get(columnIndex);
     }
