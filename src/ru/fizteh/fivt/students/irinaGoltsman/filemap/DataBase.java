@@ -82,7 +82,8 @@ public class DataBase {
             Storeable oldValue = currentTable.put(key, deserializedValue);
             if (oldValue != null) {
                 System.out.println("overwrite");
-                System.out.println(oldValue);
+                String serializedOldValue = currentTableProvider.serialize(currentTable, oldValue);
+                System.out.println(serializedOldValue);
             } else {
                 System.out.println("new");
             }
