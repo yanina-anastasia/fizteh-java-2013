@@ -166,8 +166,6 @@ public class NewTableProvider implements TableProvider {
                     files.put(file, new HashMap<String, String>());
                 }
                 files.get(file).put(key, map.get(key));
-            } else {
-                map.remove(key);
             }
         }
         return files;
