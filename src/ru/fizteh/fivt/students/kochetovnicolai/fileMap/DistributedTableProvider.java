@@ -217,6 +217,7 @@ public class DistributedTableProvider implements TableProvider {
         }
         TableRecord record = createFor(table);
 
+
         try {
             XMLStreamReader streamReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
             if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.START_ELEMENT) {
@@ -238,17 +239,27 @@ public class DistributedTableProvider implements TableProvider {
                             throw new ParseException(value, 0);
                         }
                     } else if (streamReader.getName().getLocalPart().equals("col")) {
-                        if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.CHARACTERS
-                                || !streamReader.hasText()) {
+                        String text = "";
+                        if (!streamReader.hasNext()) {
                             throw new ParseException(value, 0);
                         }
-                        String text = streamReader.getText();
+                        next = streamReader.next();
+                        if (streamReader.hasText()) {
+                            if (next != XMLStreamConstants.CHARACTERS) {
+                                throw new ParseException(value, 0);
+                            }
+                            text = streamReader.getText();
+                            if (!streamReader.hasNext()) {
+                                throw new ParseException(value, 0);
+                            }
+                            next = streamReader.next();
+                        }
                         try {
                             record.setColumnFromStringAt(i, text);
                         } catch (IllegalArgumentException e) {
                             throw new ParseException(value, 0);
                         }
-                        if (!streamReader.hasNext() || streamReader.next() != XMLStreamConstants.END_ELEMENT
+                        if (next != XMLStreamConstants.END_ELEMENT
                                 || !streamReader.getName().getLocalPart().equals("col")) {
                             throw new ParseException(value, 0);
                         }
@@ -301,9 +312,6 @@ public class DistributedTableProvider implements TableProvider {
                 } else {
                     streamWriter.writeStartElement("col");
                     String string = next.toString();
-                    if (string.equals("")) {
-                        throw new ColumnFormatException("value shouldn't be empty");
-                    }
                     streamWriter.writeCharacters(string);
                     streamWriter.writeEndElement();
                 }

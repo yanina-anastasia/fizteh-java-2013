@@ -124,7 +124,7 @@ public class TestTable {
         Storeable value4 = provider.deserialize(table, "<row><col>value4</col></row>");
         Storeable value1 = provider.deserialize(table, "<row><col>value1</col></row>");
         Storeable value2 = provider.deserialize(table, "<row><col>value2</col></row>");
-        Storeable value3 = provider.deserialize(table, "<row><col>value3</col></row>");
+        Storeable value3 = provider.deserialize(table, "<row><col></col></row>");
         Storeable value5 = provider.deserialize(table, "<row><col>value5</col></row>");
         Assert.assertTrue("put new key should be null", table.put("key1", value1) == null);
         Assert.assertTrue("put new key should be null", table.put("key2", value2) == null);
