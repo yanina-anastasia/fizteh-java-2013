@@ -66,7 +66,7 @@ public enum ColumnTypes {
     public static Class<?> fromNameToType(String name) {
         ColumnTypes typesFormatter = nameRepository.get(name);
         if (typesFormatter == null) {
-            throw new IllegalArgumentException("Illegal type");
+            throw new IllegalArgumentException("wrong type \\(.*\\)");
         }
         return typesFormatter.type;
     }
@@ -74,7 +74,7 @@ public enum ColumnTypes {
     public static String fromTypeToName(Class<?> type) {
         ColumnTypes typesFormatter = classRepository.get(type);
         if (typesFormatter == null) {
-            throw new IllegalArgumentException("Illegal type");
+            throw new IllegalArgumentException("wrong type \\(.*\\)");
         }
         return typesFormatter.name;
     }
@@ -84,7 +84,7 @@ public enum ColumnTypes {
     public static Object parsingValue(String string, Class<?> type) {
         ColumnTypes typesFormatter = classRepository.get(type);
         if (typesFormatter == null) {
-            throw new IllegalArgumentException("Illegal type");
+            throw new IllegalArgumentException("wrong type \\(.*\\)");
         }
         try {
             return typesFormatter.parseValue(string);
