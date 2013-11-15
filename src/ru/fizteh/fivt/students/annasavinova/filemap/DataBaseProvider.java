@@ -168,7 +168,6 @@ public class DataBaseProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        // TODO check illegal state
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("name is null");
         }

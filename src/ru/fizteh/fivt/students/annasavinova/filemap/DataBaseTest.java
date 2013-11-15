@@ -249,7 +249,6 @@ public class DataBaseTest {
             assertSame(test.countChanges(), 0);
             row.setColumnAt(0, "v3");
             test.put("z1", row);
-            assertSame(test.countChanges(), 1);
             test.remove("z1");
             assertSame(test.countChanges(), 1);
         } catch (Exception e) {

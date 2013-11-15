@@ -44,8 +44,7 @@ public class TableRowTest {
         try {
             table = prov.createTable("testTable", columnTypes);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // not OK
         }
         row = prov.createFor(table);
 
