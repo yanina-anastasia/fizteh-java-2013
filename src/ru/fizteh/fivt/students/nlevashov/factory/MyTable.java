@@ -251,9 +251,9 @@ public class MyTable implements Table {
                         temp.setColumnAt(i, Boolean.valueOf(true));
                         //temp.setColumnAt(i, tempValue);
                     } else {
-                        //String tempValue = value.getStringAt(i);
+                        String tempValue = value.getStringAt(i);
                         temp.setColumnAt(i, "abc");
-                        //temp.setColumnAt(i, tempValue);
+                        temp.setColumnAt(i, tempValue);
                     }
                 }
                 return map.put(key, value);

@@ -313,7 +313,7 @@ public class MyTableProvider implements TableProvider {
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         try {
             value.getColumnAt(table.getColumnsCount());
-            throw new ColumnFormatException("Table.put: value has other number of columns");
+            throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
             try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
                 Storeable temp = value;
@@ -344,13 +344,13 @@ public class MyTableProvider implements TableProvider {
                         temp.setColumnAt(i, Boolean.valueOf(true));
                         //temp.setColumnAt(i, tempValue);
                     } else {
-                        //String tempValue = value.getStringAt(i);
+                        String tempValue = value.getStringAt(i);
                         temp.setColumnAt(i, "abc");
-                        //temp.setColumnAt(i, tempValue);
+                        temp.setColumnAt(i, tempValue);
                     }
                 }
             } catch (IndexOutOfBoundsException e1) {
-                throw new ColumnFormatException("Table.put: value has other number of columns");
+                throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
             }
         }
 
