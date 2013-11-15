@@ -16,7 +16,7 @@ public class CommandDrop extends Command {
             System.out.println(args[0] + " not exists");
             return false;
         }
-        if (args[0].equals(myState.table.getName())) {
+        if (myState.table != null && args[0].equals(myState.table.getName())) {
             myState.table = null;
         }
         myState.database.removeTable(args[0]);

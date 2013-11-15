@@ -108,9 +108,10 @@ public class DatabaseTableProvider implements TableProvider {
         if (tables.containsKey(name)) {
             return null;
         }
-
         DatabaseTable table = new DatabaseTable(name, columnTypes, this);
-        tables.put(name, table);
+        if (columnTypes != null && !columnTypes.isEmpty()) {
+            tables.put(name, table);
+        }
         return table;
     }
 

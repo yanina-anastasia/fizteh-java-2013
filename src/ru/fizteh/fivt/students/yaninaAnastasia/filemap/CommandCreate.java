@@ -24,7 +24,7 @@ public class CommandCreate extends Command {
         }
         String columns = tempArg.substring(1);
         columns = columns.substring(0, columns.length() - 1);
-        if (columns.length() == 0)  {
+        if (columns.length() == 0) {
             System.out.println("wrong type (wrong type)");
             return false;
         }
@@ -32,6 +32,10 @@ public class CommandCreate extends Command {
         List<Class<?>> cols = new ArrayList<Class<?>>();
         for (int i = 0; i < arrColumns.length; i++) {
             cols.add(ColumnTypes.fromNameToType(arrColumns[i]));
+        }
+        if (cols.isEmpty()) {
+            System.out.println("wrong type (column types cannot be null)");
+            return false;
         }
         String path = myState.getProperty(myState);
         if (myState.database.tables.containsKey(args[0])) {
