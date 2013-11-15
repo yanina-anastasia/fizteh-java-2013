@@ -15,15 +15,17 @@ public class CommandUse extends DataBaseCommand {
         int count = 0;
         Table table = null;
         try {
+            if (state.getTable() != null) {
+                count = state.getTable().unsavedChanges();
+                if (count != 0) {
+                    System.out.println(count + " unsaved changes");
+                    return;
+                }
+            }
             table = state.getTableProvider().getTable(name);
             if (table != null) {
-                if (state.getTable() != null) {
-                    count = state.getTable().unsavedChanges();
-                    if (count != 0) {
-                        System.out.println(count + "unsaved changes");
-                        return;
-                    }
-                }
+                state.getTableProvider().setCurrentTable((NewTable) table);
+                System.out.println("using " + name);
             } else {
                 System.out.println(name + " not exists");
                 return;
@@ -32,7 +34,5 @@ public class CommandUse extends DataBaseCommand {
             state.printError(e.getMessage());
             return;
         }
-        state.getTableProvider().setCurrentTable((NewTable) table);
-        System.out.println("using " + name);
     }
 }
