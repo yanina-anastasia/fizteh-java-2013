@@ -51,7 +51,10 @@ public class DatabaseStoreable implements Storeable {
     public void setColumnAt(int columnNum, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         indexOfBounds(columnNum);
         if (value != null) {
-            isColumnTypeValid(columnNum, value);
+            if (((String) value).trim().isEmpty()) {
+            } else {
+                isColumnTypeValid(columnNum, value);
+            }
             /*try {
                 if (value.getClass() == String.class) {
                     String stringValue = (String) value;
