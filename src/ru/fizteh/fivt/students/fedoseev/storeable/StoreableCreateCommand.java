@@ -35,6 +35,12 @@ public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
             ifWrongType(curTableDir);
         }
 
+        for (int i = 1; i < input.length; i++) {
+            if (!input[i].trim().matches("(boolean|byte|double|float|int|long|String)")) {
+                ifWrongType(curTableDir);
+            }
+        }
+
         if (!curTableDir.exists()) {
             curTableDir.mkdirs();
 
