@@ -54,7 +54,13 @@ public class TableProviderStoreable extends TableProviderStorageExtended<TableSt
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if(values == null) {
+            throw new IllegalArgumentException("Value is null");
+        }
         StoreableImpl row = new StoreableImpl(collectFields(table));
+        if(values.size() != row.size()) {
+            throw new IllegalArgumentException("Value size mismatches");
+        }
         int i = 0;
         for(Object value : values) {
             row.setColumnAt(i++, value);

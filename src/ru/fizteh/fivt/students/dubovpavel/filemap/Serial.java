@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.dubovpavel.filemap;
 import java.io.Serializable;
 import java.text.ParseException;
 
-public interface Serial<T> extends Serializable {
+public interface Serial<T> {
     public static class SerialException extends Exception {
         public SerialException(String msg) {
             super(msg);

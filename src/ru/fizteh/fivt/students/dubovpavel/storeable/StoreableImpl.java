@@ -18,17 +18,24 @@ public class StoreableImpl implements Storeable {
     }
 
     private void checkIndex(int columnIndex) throws IndexOutOfBoundsException {
-        if(columnIndex >= fields.size()) throw new IndexOutOfBoundsException(
-                String.format("Index is out of bound. Size: %s, index: %s", fields.size(), columnIndex)
-        );
+        if(columnIndex >= fields.size()) {
+            throw new IndexOutOfBoundsException(
+                    String.format("Index is out of bound. Size: %s, index: %s", fields.size(), columnIndex)
+            );
+        }
+    }
+
+    public int size() {
+        return fields.size();
     }
 
     private void checkType(int columnIndex, Class<?> type) throws ColumnFormatException {
-        ColumnFormatException e = new ColumnFormatException(
-                String.format("Types mismatch. Expected: %s, found: %s", fields.get(columnIndex).getName(), type.getName())
-        );
         Class<?> signatureType = fields.get(columnIndex);
-        if(!TypeNamesMatcher.castableClasses.get(signatureType).contains(type)) throw e;
+        if(!TypeNamesMatcher.castableClasses.get(signatureType).contains(type)) {
+            throw new ColumnFormatException(
+                    String.format("Types mismatch. Expected: %s, found: %s", fields.get(columnIndex).getName(), type.getName())
+            );
+        }
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
