@@ -25,31 +25,26 @@ public class CreateCommand extends SimpleCommand {
         clearBrackets(args);
         for (int i = 1; i < args.length; ++i) {
             switch (args[i]) {
-                case "Integer":
                 case "int":
                     types.add(Integer.class);
                     break;
 
-                case "Long":
                 case "long":
                     types.add(Long.class);
                     break;
 
-                case "Byte": case "byte":
+                case "byte":
                     types.add(Byte.class);
                     break;
 
-                case "Float":
                 case "float":
                     types.add(Float.class);
                     break;
 
-                case "Double":
                 case "double":
                     types.add(Double.class);
                     break;
 
-                case "Boolean":
                 case "boolean":
                     types.add(Boolean.class);
                     break;
