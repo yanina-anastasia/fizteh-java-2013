@@ -223,22 +223,25 @@ public class MyTable implements Table {
     }
 
     public boolean isValid(Storeable value) throws ColumnFormatException {
-        /*try {
+        try {                                                      // checking format
             value.getColumnAt(getColumnsCount());
             throw new ColumnFormatException("value has more columns then types " + getColumnsCount());
         } catch(IndexOutOfBoundsException e) {
-        }     */
-        for (int i = 0; i < getColumnsCount(); ++i) {
+        }
+        for (int i = 0;  i < getColumnsCount(); ++i) {
             try {
+                value.getColumnAt(i);
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("value has less columns then types " + getColumnsCount());
+            }
+        }
+        for (int i = 0; i < getColumnsCount(); ++i) {              // checking value
                 if (value.getColumnAt(i) == null) {
                     continue;
                 }
                 if (value.getColumnAt(i).getClass() != type.get(i)) {
                     return false;
                 }
-            } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException("value has less columns then types");
-            }
         }
         return true;
     }
