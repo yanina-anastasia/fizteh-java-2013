@@ -78,11 +78,20 @@ public class MyTableProvider implements TableProvider {
             throw new RuntimeException(name
                     + " exists as folder and has no data as table");
         }
+        List<Class<?>> oldTypes = new ArrayList<Class<?>> ();
+        if (info.exists()) {
+            try {
+                oldTypes = getTypesFromSignature(info);
+            } catch (IOException e) {
+                throw new RuntimeException(name
+                        + " can't get info from signature", e);
+            }            
+        }
         try {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-                Filemap result = new Filemap(tablePath, name, this);
+                Filemap result = new Filemap(tablePath, name, this, oldTypes);
                 tables.put(name, result);
                 return (Table) result;
             }
@@ -203,13 +212,16 @@ public class MyTableProvider implements TableProvider {
         File tmpFile = new File(tablePath);
 
         File info = new File(tablePath + File.separator + "signature.tsv");
+        List<Class<?>> oldTypes = new ArrayList<Class<?>> ();
+        if (info.exists()) {
+            oldTypes = getTypesFromSignature(info);            
+        }
 
         if (tmpFile.exists() && tmpFile.isDirectory()) {
             if (!info.exists()) {
                 throw new IllegalArgumentException(name
                         + " exists, but couldn't find table info");
             } else {
-                List<Class<?>> oldTypes = getTypesFromSignature(info);
                 if (oldTypes.size() != columnTypes.size()) {
                     throw new IllegalArgumentException(name + " exists, but number of types mismatch");
                 }
@@ -219,7 +231,7 @@ public class MyTableProvider implements TableProvider {
                     }
                 }
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this);
+                    Filemap result = new Filemap(tablePath, name, this, oldTypes);
                     tables.put(name, result);
                 }
             }
@@ -230,7 +242,7 @@ public class MyTableProvider implements TableProvider {
             } else {
                 writeTypes(info, columnTypes);
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this);
+                    Filemap result = new Filemap(tablePath, name, this, columnTypes);
                     tables.put(name, result);
                     return (Table) result;
                 } else {

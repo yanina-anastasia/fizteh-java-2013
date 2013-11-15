@@ -22,7 +22,7 @@ public class Filemap implements Table {
     private String currTableName = null;
     private HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
     private MyTableProvider provider = null;
-    private final List<Class<?>> types = new ArrayList<Class<?>>();
+    private List<Class<?>> types = new ArrayList<Class<?>>();
 
     public HashMap<String, Storeable> getHashMap() {
         return updatedMap;
@@ -253,12 +253,12 @@ public class Filemap implements Table {
     }
 
 
-    public Filemap(String path, String name, MyTableProvider mtp)
+    public Filemap(String path, String name, MyTableProvider mtp, List<Class<?>> columnTypes)
             throws RuntimeException, IOException {
         provider = mtp;
         currTablePath = path;
         currTableName = name;
-        File info = new File(path + File.separator + "signature.tsv");
+        types = columnTypes;
 
         if (currTableName != null) {
             load();

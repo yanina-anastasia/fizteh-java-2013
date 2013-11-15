@@ -48,7 +48,7 @@ public class ExecuteCmd extends Shell {
         String[] array = arg.split(" ");
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
         for (int i = 2; i < array.length; i++) {
-            types.add(mp.getTypeFromString(array[i]));
+            types.add(mtp.getTypeFromString(array[i]));
         }
         return types;
     }
