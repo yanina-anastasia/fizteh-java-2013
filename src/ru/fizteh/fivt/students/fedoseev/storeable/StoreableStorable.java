@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StoreableStorable implements Storeable {
-    ArrayList<Class<?>> columnTypes;
-    ArrayList<Object> columns;
+    private final ArrayList<Class<?>> columnTypes;
+    private final ArrayList<Object> columns;
 
     public StoreableStorable(ArrayList<Class<?>> columnTypes) {
         this.columnTypes = columnTypes;
@@ -39,7 +39,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Integer.class);
 
         return (Integer) columns.get(columnIndex);
@@ -47,7 +46,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Long.class);
 
         return (Long) columns.get(columnIndex);
@@ -55,7 +53,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Byte.class);
 
         return (Byte) columns.get(columnIndex);
@@ -63,7 +60,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Float.class);
 
         return (Float) columns.get(columnIndex);
@@ -71,7 +67,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Double.class);
 
         return (Double) columns.get(columnIndex);
@@ -79,7 +74,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, Boolean.class);
 
         return (Boolean) columns.get(columnIndex);
@@ -87,7 +81,6 @@ public class StoreableStorable implements Storeable {
 
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkColumnIndex(columnIndex);
         checkColumnType(columnIndex, String.class);
 
         return (String) columns.get(columnIndex);
@@ -100,6 +93,8 @@ public class StoreableStorable implements Storeable {
     }
 
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
+        checkColumnIndex(columnIndex);
+
         if (!value.equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException(String.format(
                     "wrong type (GET ERROR: incorrect type: expected %s instead of %s)",

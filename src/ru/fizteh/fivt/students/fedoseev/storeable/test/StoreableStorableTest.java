@@ -43,7 +43,7 @@ public class StoreableStorableTest {
         storable.setColumnAt(2, 101.101);
         storable.setColumnAt(3, (float) 010.010);
         storable.setColumnAt(4, 100500);
-        storable.setColumnAt(5, (long) 2 * 4 * 8 * 16 * 32 * 64 * 128 * 256 * 512 * 1024);
+        storable.setColumnAt(5, (long) 2 << 55);
         storable.setColumnAt(6, "bitter end");
 
         Assert.assertEquals(false, storable.getColumnAt(0));
@@ -51,7 +51,7 @@ public class StoreableStorableTest {
         Assert.assertEquals(101.101, storable.getColumnAt(2));
         Assert.assertEquals((float) 010.010, storable.getColumnAt(3));
         Assert.assertEquals(100500, storable.getColumnAt(4));
-        Assert.assertEquals((long) 2 * 4 * 8 * 16 * 32 * 64 * 128 * 256 * 512 * 1024, storable.getColumnAt(5));
+        Assert.assertEquals((long) 2 << 55, storable.getColumnAt(5));
         Assert.assertEquals("bitter end", storable.getColumnAt(6));
     }
 
@@ -73,7 +73,7 @@ public class StoreableStorableTest {
         storable.setColumnAt(2, 101.101);
         storable.setColumnAt(3, (float) 010.010);
         storable.setColumnAt(4, 100500);
-        storable.setColumnAt(5, (long) 2 * 4 * 8 * 16 * 32 * 64 * 128 * 256 * 512 * 1024);
+        storable.setColumnAt(5, (long) 2 << 55);
         storable.setColumnAt(6, "bitter end");
 
         Assert.assertEquals((Object) false, storable.getBooleanAt(0));
@@ -81,7 +81,7 @@ public class StoreableStorableTest {
         Assert.assertEquals(101.101, storable.getDoubleAt(2));
         Assert.assertEquals((float) 010.010, storable.getFloatAt(3));
         Assert.assertEquals((Object) 100500, storable.getIntAt(4));
-        Assert.assertEquals((Object) ((long) 2 * 4 * 8 * 16 * 32 * 64 * 128 * 256 * 512 * 1024), storable.getLongAt(5));
+        Assert.assertEquals((Object) ((long) 2 << 55), storable.getLongAt(5));
         Assert.assertEquals("bitter end", storable.getStringAt(6));
     }
 
