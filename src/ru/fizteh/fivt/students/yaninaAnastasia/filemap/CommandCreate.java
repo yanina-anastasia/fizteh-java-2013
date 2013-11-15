@@ -24,6 +24,10 @@ public class CommandCreate extends Command {
         }
         String columns = tempArg.substring(1);
         columns = columns.substring(0, columns.length() - 1);
+        if (columns.length() == 0)  {
+            System.out.println("wrong type (wrong type)");
+            return false;
+        }
         String[] arrColumns = columns.split("\\s+");
         List<Class<?>> cols = new ArrayList<Class<?>>();
         for (int i = 0; i < arrColumns.length; i++) {
