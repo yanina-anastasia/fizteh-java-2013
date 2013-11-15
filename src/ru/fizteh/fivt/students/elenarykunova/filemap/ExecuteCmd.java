@@ -40,14 +40,28 @@ public class ExecuteCmd extends Shell {
 
 
     private ArrayList<Class<?>> getTypes(String arg) throws IOException {
+        if (arg == null || arg.trim().isEmpty()) {
+            throw new IOException("no types found");
+        }
         arg = arg.trim();
         arg = arg.replaceAll("[\\s]+", " ");
-        arg = arg.replace("(", "");
-        arg = arg.replace(")", "");
+        if (arg.charAt(0) != '(' || arg.charAt(arg.length() - 1) != ')') {
+            throw new IOException("types should be in brackets: (type1, type2, ..., )");
+        }
+        if (arg.length() <= 2) {
+            throw new IOException("no types found");
+        }
+        arg = arg.substring(1, arg.length() - 1);
+        if (arg.contains("(") || arg.contains(")")) {
+            throw new IOException("too many brackets, should be: (type1, type2, ..., )");
+        }
         arg = arg.replace(",", "");
+        if (arg.trim().isEmpty()) {
+            throw new IOException("no types found");            
+        }
         String[] array = arg.split(" ");
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
-        for (int i = 2; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             types.add(mtp.getTypeFromString(array[i]));
         }
         return types;
@@ -133,13 +147,17 @@ public class ExecuteCmd extends Shell {
         case "create":
             if (arg.length >= 2) {
                 try {
-                    if (mtp.createTable(arg[1], getTypes(input)) == null) {
+                    if (arg.length < 3) {
+                        System.err.println("wrong type (no types)");
+                        return ExitCode.ERR;
+                    }
+                    if (mtp.createTable(arg[1], getTypes(arg[2])) == null) {
                         System.out.println(arg[1] + " exists");
                     } else {
                         System.out.println("created");
                     }
                 } catch (IOException e2) {
-                    System.err.println(e2.getMessage());
+                    System.err.println("wrong type (" + e2.getMessage() + ")");
                     return ExitCode.ERR;
                 } catch (RuntimeException e1) {
                     System.err.println(e1.getMessage());

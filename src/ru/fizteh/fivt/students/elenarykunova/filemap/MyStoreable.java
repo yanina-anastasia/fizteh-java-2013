@@ -140,14 +140,14 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("incorrect index");
         }
         if (value != null) {
-            if (!value.getClass().equals(myTypes.get(columnIndex))) {
+            if (!value.getClass().isAssignableFrom(myTypes.get(columnIndex))) {
                 throw new ColumnFormatException(
                         "type of value mismatches type of column : expected "
                                 + myTypes.get(columnIndex) + " but was "
                                 + value.getClass());
             }
         }        
-        myValues.add(columnIndex, value);
+        myValues.set(columnIndex, value);
     }
 
     @Override
