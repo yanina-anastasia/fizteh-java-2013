@@ -145,7 +145,7 @@ public class TableTester {
         table.put("gg", storeable);
     }
 
-    @Test(expected = ColumnFormatException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void putUnsupportedTypeShouldFailedTest() throws IOException {
         List<Class<?>> types = new ArrayList<>();
         types.add(BigInteger.class);
