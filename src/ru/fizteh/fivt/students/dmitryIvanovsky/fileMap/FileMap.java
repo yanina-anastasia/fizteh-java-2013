@@ -66,14 +66,10 @@ public class FileMap implements Table {
 
     private String readFileTsv(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
-        try {
-            try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
-                String s;
-                while ((s = in.readLine()) != null) {
-                    sb.append(s);
-                }
-            } catch (Exception e) {
-                throw new IOException("not found signature.tsv", e);
+        try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
+            String s;
+            while ((s = in.readLine()) != null) {
+                sb.append(s);
             }
         } catch (Exception e) {
             throw new IOException("not found signature.tsv", e);
@@ -276,7 +272,12 @@ public class FileMap implements Table {
         }
         mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
         existDir = false;
-        mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+        try {
+            mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+        } catch (Exception e) {
+            e.addSuppressed(new ErrorFileMap("I can't create a folder table " + pathDb.resolve(nameTable).toString()));
+            throw e;
+        }
         existDir = true;
         closeTable();
     }
@@ -304,7 +305,12 @@ public class FileMap implements Table {
             if (useDir[i]) {
                 Integer numDir = i;
                 Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
-                mySystem.mkdir(new String[]{tmp.toString()});
+                try {
+                    mySystem.mkdir(new String[]{tmp.toString()});
+                } catch (Exception e) {
+                    e.addSuppressed(new ErrorFileMap("I can't create a folder table " + tmp.toString()));
+                    throw e;
+                }
             }
         }
         for (int i = 0; i < 16; ++i) {

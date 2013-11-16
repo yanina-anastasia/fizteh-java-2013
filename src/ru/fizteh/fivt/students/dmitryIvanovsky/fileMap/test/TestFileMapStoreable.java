@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestFileMapStoreable {
     private static FileMapStoreable stIntString;
@@ -87,5 +88,15 @@ public class TestFileMapStoreable {
     @Test(expected = ColumnFormatException.class)
     public void getWrongType() {
         stInt.getBooleanAt(0);
+    }
+
+    @Test()
+    public void checkEqual() {
+        List<Class<?>> list3 = new ArrayList<>();
+        list3.add(Integer.class);
+        FileMapStoreable stInt2 = new FileMapStoreable(list3);
+        stInt2.setColumnAt(0, 1);
+        stInt.setColumnAt(0, 1);
+        assertTrue(stInt2.equals(stInt));
     }
 }
