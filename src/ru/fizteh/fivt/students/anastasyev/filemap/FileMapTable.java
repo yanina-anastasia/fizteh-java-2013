@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.ParseException;
 import java.util.*;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -278,28 +279,6 @@ public class FileMapTable implements Table {
             throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
-<<<<<<< HEAD
-        Storeable copyValue = copyStoreable(value);
-        int absHash = Math.abs(key.hashCode());
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
-        Storeable valueOnDisk = null;
-        if (mapsTable[dirHash][datHash] != null) {
-            valueOnDisk = mapsTable[dirHash][datHash].get(key);
-        }
-        Value valueChanged = changedKeys.get(key);
-        if (valueOnDisk == null && valueChanged == null || valueChanged != null && valueChanged.newValue == null) {
-            ++size;
-        }
-        if (valueChanged == null) {
-            changedKeys.put(key, new Value(copyValue, valueOnDisk));
-            return valueOnDisk;
-        } else {
-            if (storeableEquals(copyValue, valueOnDisk)) {
-                changedKeys.remove(key);
-            } else {
-                changedKeys.put(key, new Value(copyValue, valueOnDisk));
-=======
         try {
             read.lock();
             Storeable valueCopy = copyStoreable(value);
@@ -313,7 +292,6 @@ public class FileMapTable implements Table {
                 changedKeys.get().remove(key);
             } else {
                 changedKeys.get().put(key, valueCopy);
->>>>>>> 19c330e5822fddfef054bc8f6355e8a59ca7b025
             }
             return valueChanged;
         } finally {
