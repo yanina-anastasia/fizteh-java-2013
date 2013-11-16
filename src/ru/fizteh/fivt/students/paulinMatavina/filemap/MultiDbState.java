@@ -145,9 +145,8 @@ public class MultiDbState extends State implements Table {
         writeObjList(objList, signatureName);
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
-            if (fileExist(fold)) {
-                checkFolder(shell.makeNewSource(fold));
-            } else {
+            checkFolder(shell.makeNewSource(fold));
+            if (!fileExist(fold)) {
                 shell.mkdir(new String[] {fold});
             }
             for (int j = 0; j < fileInFolderNum; j++) {
@@ -195,6 +194,13 @@ public class MultiDbState extends State implements Table {
                 throw new ColumnFormatException(e.getMessage(), e);
             }
         }
+        
+        try {
+            value.getColumnAt(objList.size());
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
+        throw new ColumnFormatException("more tokens than expected");
     }
     
     @Override

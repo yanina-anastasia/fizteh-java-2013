@@ -26,7 +26,7 @@ public class DbState extends State {
     private int fileNum;
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
-                                                  throws ParseException, IOException, DbExitException {
+                                                      throws ParseException, IOException {
         foldNum = folder;
         fileNum = file;
         provider = prov;
@@ -37,9 +37,15 @@ public class DbState extends State {
     }
     
     private void fileCheck() throws IOException {
+        boolean newFile = false;
+        File file = new File(path);
+        if (!file.exists()) {
+            file.createNewFile();
+            newFile = true;
+        }      
         try {
             dbFile = new RandomAccessFile(path, "rw");
-            if (dbFile.length() == 0) {
+            if (dbFile.length() == 0 && !newFile) {
                 throw new IllegalStateException(path + " is an empty file");
             }
         } catch (FileNotFoundException e) {
@@ -183,9 +189,11 @@ public class DbState extends State {
 
     public void commit() throws IOException {
         assignInitial();
+        if (data.size() == 0) {
+            return;
+        }
         dbFile = null;
         try {
-            fileCheck();
             fileCheck();
             int offset = 0;
             long pos = 0;
