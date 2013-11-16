@@ -61,13 +61,125 @@ public class TestDatabaseStoreable {
     }
 
     @Test(expected = ColumnFormatException.class)
-    public void testIncorrectType() {
+    public void testIntIncorrectType() {
         storeable.setColumnAt(1, 5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void testBoundsException() {
+    public void testIntBoundsException() {
         storeable.setColumnAt(10, 12);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testStringIncorrectType() {
+        storeable.setColumnAt(2, "testing in progress");
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testStringBoundsException() {
+        storeable.setColumnAt(10, "testing");
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testIntColumnFormatExc() {
+        storeable.setColumnAt(1, "asdasd");
+        storeable.getIntAt(1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testIntOutOfBoundsExc() {
+        storeable.getIntAt(10);
+    }
+
+    @Test
+    public void testColumnFormatIntRight() {
+        storeable.setColumnAt(0, Integer.valueOf(10));
+        Assert.assertEquals(storeable.getIntAt(0), Integer.valueOf(10));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testStringColumnFormatExc() {
+        storeable.setColumnAt(2, 1000);
+        storeable.getStringAt(2);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testStringOutOfBoundsExc() {
+        storeable.getStringAt(10);
+    }
+
+    @Test
+    public void testColumnFormatStringRight() {
+        storeable.setColumnAt(1, String.valueOf("a"));
+        Assert.assertEquals(storeable.getStringAt(1), String.valueOf("a"));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testLongColumnFormatExc() {
+        storeable.setColumnAt(3, true);
+        storeable.getLongAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testLongOutOfBoundsExc() {
+        storeable.getLongAt(10);
+    }
+
+    @Test
+    public void testColumnFormatLongRight() {
+        storeable.setColumnAt(2, Long.valueOf(10));
+        Assert.assertEquals(storeable.getLongAt(2), Long.valueOf(10));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testBooleanColumnFormatExc() {
+        storeable.setColumnAt(4, 10.5);
+        storeable.getBooleanAt(4);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testBooleanOutOfBoundsExc() {
+        storeable.getBooleanAt(10);
+    }
+
+    @Test
+    public void testColumnFormatBooleanRight() {
+        storeable.setColumnAt(3, Boolean.valueOf(true));
+        Assert.assertEquals(storeable.getBooleanAt(3), Boolean.valueOf(true));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testDoubleColumnFormatExc() {
+        storeable.setColumnAt(5, new Float(10.5));
+        storeable.getDoubleAt(5);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testDoubleOutOfBoundsExc() {
+        storeable.getDoubleAt(10);
+    }
+
+    @Test
+    public void testColumnFormatDoubleRight() {
+        storeable.setColumnAt(4, Double.valueOf(10.4));
+        Assert.assertEquals(storeable.getDoubleAt(4), Double.valueOf(10.4));
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testFloatColumnFormatExc() {
+        storeable.setColumnAt(1, "1000");
+        storeable.getFloatAt(1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testFloatOutOfBoundsExc() {
+        storeable.getFloatAt(10);
+    }
+
+    @Test
+    public void testColumnFormatFloatRight() {
+        storeable.setColumnAt(5, Float.valueOf(10));
+        Assert.assertEquals(storeable.getFloatAt(5), Float.valueOf(10));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
@@ -77,75 +189,23 @@ public class TestDatabaseStoreable {
 
     @Test(expected = ColumnFormatException.class)
     public void testColumnFormatException() {
-        storeable.setColumnAt(1, true);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testColumnFormatExceptionMore() {
-        storeable.setColumnAt(0, "asdasd");
-        storeable.getIntAt(0);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testColumnFormatExceptionLongInt() {
-        storeable.setColumnAt(1, new Long("100000000000"));
-        storeable.getIntAt(1);
+        storeable.setColumnAt(1, Boolean.valueOf(true));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void testIndexOutOfBounds() {
-        storeable.getIntAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testColumnFormatString() {
-        storeable.setColumnAt(1, new String("100000000000"));
-        storeable.getIntAt(1);
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetColumnFormatException() {
+    public void testGetIndexOutOfBoundsException() {
         storeable.getColumnAt(20);
     }
 
     @Test
-    public void testGetColumnFormatNoException() {
-        storeable.getColumnAt(0);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testColumnFormatDouble() {
-        storeable.setColumnAt(4, new Double("10000"));
-        storeable.getDoubleAt(1);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testColumnFormatFloat() {
-        storeable.setColumnAt(5, new Float("10000"));
-        storeable.getDoubleAt(2);
+    public void testGetColumnNoException() {
+        storeable.setColumnAt(0, Integer.valueOf(10));
+        Assert.assertEquals(storeable.getColumnAt(0), Integer.valueOf(10));
     }
 
     @Test
-    public void testColumnFormatBooleanCool() {
-        storeable.setColumnAt(3, true);
-        Assert.assertEquals(storeable.getBooleanAt(3), true);
-    }
-
-    @Test
-    public void testColumnFormatDoubleCool() {
-        storeable.setColumnAt(4, new Double("10000"));
-        storeable.getDoubleAt(4);
-    }
-
-    @Test
-    public void testColumnFormatFloatCool() {
-        storeable.setColumnAt(5, new Float("10000"));
-        storeable.getFloatAt(5);
-    }
-
-    @Test
-    public void testColumnFormatLong() {
-        storeable.setColumnAt(2, new Long("10"));
-        storeable.getLongAt(2);
+    public void testSetColumnNoException() {
+        storeable.setColumnAt(1, String.valueOf("a"));
+        Assert.assertEquals(storeable.getColumnAt(1), String.valueOf("a"));
     }
 }

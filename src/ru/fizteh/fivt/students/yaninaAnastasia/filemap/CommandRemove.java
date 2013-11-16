@@ -24,4 +24,5 @@ public class CommandRemove extends Command {
     public String getCmd() {
         return "remove";
     }
+
 }

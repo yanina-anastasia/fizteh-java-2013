@@ -334,7 +334,6 @@ public class DatabaseTableProvider implements TableProvider {
                                 try {
                                     TableBuilder tableBuilder = new TableBuilder(this, loadingTable);
                                     loadTable(temp, loadingTable, i, j, tableBuilder);
-                                    temp.close();
                                 } catch (EOFException e) {
                                     System.err.println("Wrong format");
                                     return false;
@@ -344,6 +343,8 @@ public class DatabaseTableProvider implements TableProvider {
                                 } catch (IllegalArgumentException e) {
                                     System.err.println("Wrong file format");
                                     return false;
+                                } finally {
+                                    temp.close();
                                 }
                             } catch (IOException e) {
                                 System.err.println("Cannot create new file");
