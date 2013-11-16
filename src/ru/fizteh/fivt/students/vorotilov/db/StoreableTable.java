@@ -76,6 +76,10 @@ public class StoreableTable implements Table {
                             tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
                             while (tableFiles[numberOfSubDir][numberOfSubFile].hasNext()) {
                                 TableFile.Entry tempEntry = tableFiles[numberOfSubDir][numberOfSubFile].readEntry();
+                                HashcodeDestination dest = new HashcodeDestination(tempEntry.getKey());
+                                if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
+                                    throw new IllegalStateException("Wrong key placement");
+                                }
                                 try {
                                     tableIndexedData.put(tempEntry.getKey(),
                                             tableProvider.deserialize(this, tempEntry.getValue()));
