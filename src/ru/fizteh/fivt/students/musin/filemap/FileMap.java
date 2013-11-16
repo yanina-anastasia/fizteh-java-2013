@@ -121,7 +121,7 @@ public class FileMap {
                 map.put(key, value);
             }
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -135,7 +135,7 @@ public class FileMap {
         try {
             if (!location.exists()) {
                 if (!location.createNewFile()) {
-                    throw new RuntimeException("Database can't be written to the specified location");
+                    throw new IOException("Database can't be written to the specified location");
                 }
             }
         } catch (IOException e) {

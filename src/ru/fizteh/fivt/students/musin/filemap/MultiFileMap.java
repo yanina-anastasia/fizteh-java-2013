@@ -239,13 +239,13 @@ public class MultiFileMap implements Table {
         }
         if (!location.exists()) {
             if (!location.mkdir()) {
-                throw new RuntimeException("Unable to create a directory for database");
+                throw new IOException("Unable to create a directory for database");
             }
         }
         File signature = new File(location, "signature.tsv");
         if (!signature.exists()) {
             if (!signature.createNewFile()) {
-                throw new RuntimeException("Unable to create a file");
+                throw new IOException("Unable to create a file");
             }
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(signature))) {

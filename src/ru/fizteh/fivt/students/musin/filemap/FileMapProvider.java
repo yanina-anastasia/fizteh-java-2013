@@ -110,9 +110,9 @@ public class FileMapProvider implements TableProvider {
             try {
                 newMap.loadFromDisk();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("", e);
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("", e);
             }
             return newMap;
         }
