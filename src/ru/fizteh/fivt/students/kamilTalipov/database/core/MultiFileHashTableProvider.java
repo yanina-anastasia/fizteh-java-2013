@@ -57,7 +57,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public MultiFileHashTable createTable(String name, List<Class<?>> columnTypes) throws
-            IllegalArgumentException, IOException {
+                                                                        IllegalArgumentException, IOException {
         if (getTable(name) != null) {
             return null;
         }
@@ -120,7 +120,8 @@ public class MultiFileHashTableProvider implements TableProvider {
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException,
+                                                                    IndexOutOfBoundsException {
         return new TableRow(table, values);
     }
 

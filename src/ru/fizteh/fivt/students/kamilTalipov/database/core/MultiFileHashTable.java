@@ -68,7 +68,7 @@ public class MultiFileHashTable implements Table {
             }
             if (!isSupportedType(type)) {
                 throw new IllegalArgumentException("wrong type (unsupported table type "
-                        + type.getCanonicalName() + ")");
+                                                    + type.getCanonicalName() + ")");
             }
             this.types.add(type);
         }
@@ -279,7 +279,7 @@ public class MultiFileHashTable implements Table {
             byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
 
             File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
-                    + File.separator + getDirectoryName(key[0]));
+                                                + File.separator + getDirectoryName(key[0]));
             File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), getFileName(key[0]));
 
 
@@ -295,7 +295,7 @@ public class MultiFileHashTable implements Table {
     private static List<Class<?>> getTypes(String workingDirectory,
                                            String tableName) throws IOException {
         File signatureFile = new File(workingDirectory + File.separator + tableName
-                + File.separator + SIGNATURE_FILE_NAME);
+                                        + File.separator + SIGNATURE_FILE_NAME);
         if (!signatureFile.exists()) {
             throw new IOException("Signature file is not exist (table '" + tableName + "')");
         }
@@ -342,7 +342,7 @@ public class MultiFileHashTable implements Table {
 
                         default:
                             throw new IOException("Signature file contain unsupported type '"
-                                    + type + "' (table '" + tableName + "')");
+                                                    + type + "' (table '" + tableName + "')");
                     }
                 }
             }
@@ -386,7 +386,7 @@ public class MultiFileHashTable implements Table {
 
                     default:
                         throw new IllegalArgumentException("wrong type (unsupported type "
-                                + getColumnType(i).getCanonicalName() + ")");
+                                                            + getColumnType(i).getCanonicalName() + ")");
                 }
 
                 if (i != getColumnsCount() - 1) {
@@ -408,7 +408,7 @@ public class MultiFileHashTable implements Table {
             keyByte *= -1;
         }
         return Integer.toString(((keyByte / ALL_DIRECTORIES)
-                + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY) + ".dat";
+                                    + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY) + ".dat";
     }
 
     private boolean isCorrectDirectoryName(String name) {
@@ -435,26 +435,26 @@ public class MultiFileHashTable implements Table {
                     int valueLen = readInt(input);
                     if (keyLen > MAX_KEY_LEN || valueLen > MAX_VALUE_LEN) {
                         throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                                + "' have incorrect format");
+                                                    + "' have incorrect format");
                     }
                     String key = readString(input, keyLen);
                     if (!getDirectoryName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbDir.getName())
                             || !getFileName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbFile.getName())) {
                         throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                                + "' have incorrect format");
+                                                     + "' have incorrect format");
                     }
                     String value = readString(input, valueLen);
                     try {
                         table.put(key, deserialize(value));
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Database file '" + dbFile.getAbsolutePath()
-                                + "' have incorrect format");
+                                                            + "' have incorrect format");
                     }
                     wasRead = true;
                 }
             } catch (IOException e) {
                 throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                        + "' have incorrect format");
+                                            + "' have incorrect format");
             }
             if (!wasRead) {
                 throw new DatabaseException("Empty database file '" + dbFile.getAbsolutePath() + "'");
@@ -468,7 +468,7 @@ public class MultiFileHashTable implements Table {
             if ((!file.isDirectory() && !file.getName().equals(SIGNATURE_FILE_NAME))
                     || (file.isDirectory() && !isCorrectDirectoryName(file.getName()))) {
                 throw new DatabaseException("At table '" + tableName
-                        + "': directory contain redundant files");
+                                            + "': directory contain redundant files");
             }
             FileUtils.remove(file);
         }
