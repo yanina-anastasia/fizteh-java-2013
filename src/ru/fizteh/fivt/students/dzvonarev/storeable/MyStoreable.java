@@ -18,9 +18,6 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("wrong type (wrong count of columns in value - " + args.size() + ")");
         }
         for (int i = 0; i < args.size(); ++i) {
-            if (args.get(i).equals(null)) {
-                continue;
-            }
             Parser myParser = new Parser();
             if (!myParser.canBeCastedTo(columnTypes.get(i), args.get(i))) {
                 throw new ColumnFormatException("wrong type (" + i + " column got wrong type - " + args.get(i) + ")");

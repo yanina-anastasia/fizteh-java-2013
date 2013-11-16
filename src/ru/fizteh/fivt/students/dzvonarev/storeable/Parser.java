@@ -85,6 +85,9 @@ public class Parser {
     }
 
     public boolean canBeCastedTo(Class<?> type, Object obj) {
+        if (obj.equals(null)) {
+            return true;
+        }
         if (obj.getClass() == Integer.class) {
             Integer num = (Integer) obj;
             if (type == Byte.class) {

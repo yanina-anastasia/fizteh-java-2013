@@ -224,9 +224,6 @@ public class MyTable implements Table {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
             try {
-                if (value.getColumnAt(i).equals(null)) {
-                    continue;
-                }
                 Parser myParser = new Parser();
                 if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
                     throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
