@@ -12,29 +12,61 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTable implements Table {
     private String name;
     private MyTableProvider provider;
     private ArrayList<Class<?>> types;
     private HashMap<String, Storeable> storage;
-    private HashMap<String, Storeable> changes;
-    private boolean[][] uses;
+    private boolean[][] globalUses;
     private long byteSize;
-    private int count;
+    private int revision;
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+    private ThreadLocal<boolean[][]> uses = new ThreadLocal<boolean[][]>() {
+        @Override
+        public boolean[][] initialValue() {
+            boolean[][] temp = new boolean[16][16];
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    temp[i][j] = false;
+                }
+            }
+            return temp;
+        }
+    };
+    private ThreadLocal<Integer> count = new ThreadLocal<Integer>() {
+        @Override
+        public Integer initialValue() {
+            return 0;
+        }
+    };
+    private ThreadLocal<Integer> threadRevision = new ThreadLocal<Integer>() {
+        @Override
+        public Integer initialValue() {
+            return 0;
+        }
+    };
+    private ThreadLocal<HashMap<String, Storeable>> changes = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
+        }
+    };
 
     public MyTable(String tableName, List<Class<?>> columnTypes, MyTableProvider parent) {
         name = tableName;
         provider = parent;
         storage = new HashMap<String, Storeable>();
-        changes = new HashMap<String, Storeable>();
         byteSize = 0;
-        uses = new boolean[16][16];
+        revision = 0;
+        globalUses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j)
-                uses[i][j] = false;
+            for (int j = 0; j < 16; ++j) {
+                globalUses[i][j] = false;
+            }
         }
-        count = storage.size();
         types = new ArrayList<Class<?>>(columnTypes);
     }
 
@@ -51,10 +83,15 @@ public class MyTable implements Table {
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        if (changes.containsKey(key)) {
-            return changes.get(key);
+        lock.writeLock().lock();
+        resetTable();
+        if (changes.get().containsKey(key)) {
+            lock.writeLock().unlock();
+            return changes.get().get(key);
         }
-        return storage.get(key);
+        Storeable value = storage.get(key);
+        lock.writeLock().unlock();
+        return value;
     }
 
     @Override
@@ -77,22 +114,22 @@ public class MyTable implements Table {
         if (!tryToGetUnnecessaryColumn(value)) {
             throw new ColumnFormatException("Incorrect value to put.");
         }
-        if ((!changes.containsKey(key) && !storage.containsKey(key)) ||
-                (changes.containsKey(key) && changes.get(key) == null)) {
-            ++count;
+        lock.writeLock().lock();
+        resetTable();
+        if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
+                (changes.get().containsKey(key) && changes.get().get(key) == null)) {
+            count.set(count.get() + 1);
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+        uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        String copyOfKey = "".concat(key);
-        Storeable copyOfValue = provider.createFor(this);
-        for (int i = 0; i < types.size(); ++i) {
-            copyOfValue.setColumnAt(i, value.getColumnAt(i));
+        Storeable copyOfValue
+        changes.get().put(key, value);
+        if (storage.get(key) != null &&
+                provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
+            changes.get().remove(key);
         }
-        changes.put(copyOfKey, copyOfValue);
-        if (value.equals(storage.get(key))) {
-            changes.remove(key);
-        }
+        lock.writeLock().unlock();
         return v;
     }
 
@@ -104,43 +141,63 @@ public class MyTable implements Table {
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        if (changes.get(key) != null || (!changes.containsKey(key) && storage.get(key) != null)) {
-            --count;
+        lock.writeLock().lock();
+        resetTable();
+        if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
+            count.set(count.get() - 1);
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+        uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        changes.put(key, null);
+        changes.get().put(key, null);
         if (storage.get(key) == null) {
-            changes.remove(key);
+            changes.get().remove(key);
         }
+        lock.writeLock().unlock();
         return v;
     }
 
     @Override
     public int size() {
-        return count;
+        lock.writeLock().lock();
+        resetTable();
+        int tableSize = count.get();
+        lock.writeLock().unlock();
+        return tableSize;
     }
 
     @Override
     public int commit() throws IOException {
-        for (String key : changes.keySet()) {
-            if (changes.get(key) == null) {
+        lock.writeLock().lock();
+        resetTable();
+        for (String key : changes.get().keySet()) {
+            if (changes.get().get(key) == null) {
                 storage.remove(key);
             } else {
-                storage.put(key, changes.get(key));
+                storage.put(key, changes.get().get(key));
             }
         }
-        int n = changes.size();
-        changes.clear();
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                globalUses[i][j] = uses.get()[i][j];
+            }
+        }
+        int n = changes.get().size();
+        changes.get().clear();
+        revision++;
+        threadRevision.set(revision);
+        lock.writeLock().unlock();
         return n;
     }
 
     @Override
     public int rollback() {
-        int n = changes.size();
-        changes.clear();
-        count = storage.size();
+        lock.writeLock().lock();
+        resetTable();
+        int n = changes.get().size();
+        changes.get().clear();
+        count.set(storage.size());
+        lock.writeLock().unlock();
         return n;
     }
 
@@ -158,12 +215,12 @@ public class MyTable implements Table {
     }
 
     public boolean isUsing(int nDirectory, int nFile) {
-        return uses[nDirectory][nFile];
+        return uses.get()[nDirectory][nFile];
     }
 
     public void clear() {
         storage.clear();
-        changes.clear();
+        changes.get().clear();
     }
 
     public HashMap<String, Storeable> getMap() {
@@ -183,7 +240,7 @@ public class MyTable implements Table {
     }
 
     public int getChangeCount() {
-        return changes.size();
+        return changes.get().size();
     }
 
     public MyTableProvider getProvider() {
@@ -198,5 +255,34 @@ public class MyTable implements Table {
             return true;
         }
         return false;
+    }
+
+    private void resetTable() {
+        if (revision == threadRevision.get()) {
+            return;
+        }
+        threadRevision.set(revision);
+        count.set(storage.size());
+        HashMap<String, Storeable> tempMap = new HashMap<String, Storeable>();
+        for (String key : changes.get().keySet()) {
+            if (changes.get().get(key) == null && !storage.containsKey(key)) {
+                changes.get().remove(key);
+            } else if (changes.get().get(key) == null && storage.containsKey(key)) {
+                tempMap.put(key, null);
+                count.set(count.get() - 1);
+            } else if (!storage.containsKey(key)) {
+                tempMap.put(key, changes.get().get(key));
+                count.set(count.get() + 1);
+            } else if (storage.containsKey(key) && !(storage.get(key) != null &&
+                    provider.serialize(this, changes.get().get(key)).equals(provider.serialize(this, storage.get(key))))) {
+                tempMap.put(key, changes.get().get(key));
+            }
+        }
+        changes.set(tempMap);
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                uses.get()[i][j] = globalUses[i][j];
+            }
+        }
     }
 }

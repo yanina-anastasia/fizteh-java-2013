@@ -1,21 +1,24 @@
 package ru.fizteh.fivt.students.kislenko.parallels.test;
 
 import org.junit.*;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.kislenko.junit.test.Cleaner;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTable;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTableProvider;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTableProviderFactory;
+import ru.fizteh.fivt.students.kislenko.parallels.MyTable;
+import ru.fizteh.fivt.students.kislenko.parallels.MyTableProvider;
+import ru.fizteh.fivt.students.kislenko.parallels.MyTableProviderFactory;
 import ru.fizteh.fivt.students.kislenko.storeable.Value;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MyTableTest {
     private static MyTableProvider provider;
     private static File databaseDir = new File("database");
     private static ArrayList<Class<?>> typeList = new ArrayList<Class<?>>();
-    MyTable table;
+    private static MyTable table;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -34,6 +37,7 @@ public class MyTableTest {
     @After
     public void tearDown() throws Exception {
         provider.removeTable("table");
+        table.clear();
     }
 
     @AfterClass
@@ -228,5 +232,169 @@ public class MyTableTest {
         Assert.assertEquals(0, table.size());
         Assert.assertEquals(2, table.rollback());
         Assert.assertEquals(2, table.size());
+    }
+
+    @Test
+    public void testMultiThreadPut() throws Exception {
+        final AtomicReference<Storeable> ref1 = new AtomicReference<Storeable>();
+        final AtomicReference<Storeable> ref2 = new AtomicReference<Storeable>();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ref1.set(table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]")));
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ref2.set(table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]")));
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertNull(ref1.get());
+        Assert.assertNull(ref1.get());
+    }
+
+    @Test
+    public void testMultiThreadPutCommit() throws Exception {
+        final AtomicReference<Integer> ref1 = new AtomicReference<Integer>();
+        final AtomicReference<Integer> ref2 = new AtomicReference<Integer>();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
+                    ref1.set(table.commit());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
+                    ref2.set(table.commit());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertEquals(1, ref1.get() + ref2.get());
+    }
+
+    @Test
+    public void testMultiThreadPutSize() throws Exception {
+        final AtomicReference<Integer> ref1 = new AtomicReference<Integer>();
+        final AtomicReference<Integer> ref2 = new AtomicReference<Integer>();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
+                    ref1.set(table.size());
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("b", provider.deserialize(table, "[\"doubleEmpty\",-1]"));
+                    table.put("c", provider.deserialize(table, "[\"tripleEmpty\",-1]"));
+                    ref2.set(table.size());
+                } catch (ParseException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertEquals(1, ref1.get().intValue());
+        Assert.assertEquals(2, ref2.get().intValue());
+    }
+
+    @Test
+    public void testMultiThreadPutCommitSecond() throws Exception {
+        final AtomicReference<Integer> ref1 = new AtomicReference<Integer>();
+        final AtomicReference<Integer> ref2 = new AtomicReference<Integer>();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
+                    ref1.set(table.commit());
+                } catch (ParseException ignored) {
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
+                    table.put("b", provider.deserialize(table, "[\"pustovoytov\",-2]"));
+                    ref2.set(table.commit());
+                } catch (ParseException ignored) {
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertTrue((ref1.get() == 1 && ref2.get() == 1) || (ref1.get() == 0 && ref2.get() == 2));
+    }
+
+    @Test
+    public void testMultiThreadPutCommitRollbackGet() throws Exception {
+        final AtomicReference<Integer> ref1 = new AtomicReference<Integer>();
+        final AtomicReference<Integer> ref2 = new AtomicReference<Integer>();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(50);
+                    ref1.set(table.commit());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(200);
+                    ref2.set(table.rollback());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertEquals(1, ref1.get().intValue());
+        Assert.assertEquals(0, ref2.get().intValue());
     }
 }
