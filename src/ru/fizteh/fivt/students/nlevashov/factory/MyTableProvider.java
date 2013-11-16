@@ -429,6 +429,7 @@ public class MyTableProvider implements TableProvider {
                 throw new IllegalStateException("there is object which is not a directory in root directory");
             }
             DirectoryStream<Path> levels = Files.newDirectoryStream(table);
+            boolean flag = true;
             for (Path level : levels) {
                 if (!level.getFileName().toString().equals("signature.tsv")) {
                     if (!Files.isDirectory(level)) {
@@ -450,7 +451,12 @@ public class MyTableProvider implements TableProvider {
                                     + table.getFileName() + "\\" + level.getFileName() + "\"");
                         }
                     }
+                } else {
+                    flag = false;
                 }
+            }
+            if (flag) {
+                throw new IllegalStateException("there is table without signature \"" + table.getFileName() + "\"");
             }
         }
     }
