@@ -189,6 +189,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
