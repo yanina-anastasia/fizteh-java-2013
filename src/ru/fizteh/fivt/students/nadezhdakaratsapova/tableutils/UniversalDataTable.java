@@ -160,7 +160,7 @@ public abstract class UniversalDataTable<ValueType> {
                     dataStorage.put(key, putKeys.get().get(key));
                     ++commitSize;
                 } else {
-                    if (!dataStorage.get(key).equals(putKeys.get().get(key))) {
+                    if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
                         dataStorage.put(key, putKeys.get().get(key));
                         ++commitSize;
                     }
