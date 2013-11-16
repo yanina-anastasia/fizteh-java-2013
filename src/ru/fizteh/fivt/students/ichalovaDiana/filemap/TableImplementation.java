@@ -191,6 +191,7 @@ public class TableImplementation implements Table {
         int changesNumber = countChanges();
         originTableSize = currentTableSize;
 
+        Throwable t = null;
         try {
             Storeable value;
             String rawValue;
@@ -203,8 +204,16 @@ public class TableImplementation implements Table {
             for (String key : removeChanges) {
                 removeValueFromFile(key);
             }
+        } catch (Throwable e) {
+            if (t == null) {
+                t = new Throwable();
+            }
+            t.addSuppressed(e);
         } finally {
-            closeAllFiles();
+            closeAllFiles(t);
+            if (t != null) {
+                throw new RuntimeException(t);
+            }
         }
 
         putChanges.clear();
@@ -393,25 +402,20 @@ public class TableImplementation implements Table {
         }
     }
     
-    private void closeAllFiles() throws IOException {
-        Throwable exception = null;
+    private void closeAllFiles(Throwable t) throws IOException {
         for (int i = 0; i < DIR_NUM; ++i) {
             for (int j = 0; j < FILES_NUM; ++j) {
                 if (files[i][j] != null) {
                     try {
                         files[i][j].close();
                     } catch (Throwable e) {
-                        if (exception == null) {
-                            exception = new Throwable();
+                        if (t != null) {
+                            t.addSuppressed(new Throwable("Error while closing file: " + i + " " + j
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e));
                         }
-                        exception.addSuppressed(new Throwable("Error while closing file: " + i + " " + j
-                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e));
                     }
                 }
             }
-        }
-        if (exception != null) {
-            throw new RuntimeException(exception);
         }
     }
     
