@@ -83,7 +83,12 @@ public class MyTable implements Table {
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
         uses[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        changes.put(key, value);
+        String copyOfKey = "".concat(key);
+        Storeable copyOfValue = provider.createFor(this);
+        for (int i = 0; i < types.size(); ++i) {
+            copyOfValue.setColumnAt(i, value.getColumnAt(i));
+        }
+        changes.put(copyOfKey, copyOfValue);
         if (value.equals(storage.get(key))) {
             changes.remove(key);
         }

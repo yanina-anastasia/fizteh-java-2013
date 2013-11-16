@@ -123,7 +123,12 @@ public class MyTable implements Table {
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
         uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        changes.get().put(key, value);
+        String copyOfKey = "".concat(key);
+        Storeable copyOfValue = provider.createFor(this);
+        for (int i = 0; i < types.size(); ++i) {
+            copyOfValue.setColumnAt(i, value.getColumnAt(i));
+        }
+        changes.get().put(copyOfKey, copyOfValue);
         if (storage.get(key) != null &&
                 provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
             changes.get().remove(key);
