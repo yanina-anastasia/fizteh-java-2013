@@ -19,6 +19,7 @@ public class FileMap implements Table {
     private HashMap<String, Storeable> db = null;
     private HashMap<String, Diff> diff = null;
     private List<Class<?>> columnTypes = null;
+    private FileMapProvider parentProvider = null;
 
     @Override
     public String getName() {
@@ -62,7 +63,7 @@ public class FileMap implements Table {
     }
 
     @Override
-    public int commit() {
+    public int commit() throws IOException {
         int result = estimateDiffSize();
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
@@ -75,6 +76,9 @@ public class FileMap implements Table {
             }
         }
         diff.clear();
+        if (parentProvider != null) {
+            writeOut(parentProvider.getRootDir());
+        }
         return result;
     }
 
@@ -205,6 +209,10 @@ public class FileMap implements Table {
     
     public List<Class<?>> getSignature() {
         return columnTypes;
+    }
+    
+    public void setProvider(FileMapProvider provider) {
+        this.parentProvider = provider;
     }
 
     private static boolean isValidKey(String s) {

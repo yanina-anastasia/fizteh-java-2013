@@ -38,12 +38,9 @@ public class StoreableRow implements Storeable {
     private Object getObjAt(int columnIndex, Class<?> type) 
             throws IndexOutOfBoundsException, ColumnFormatException {
         Object obj = getColumnAt(columnIndex);
-        if (obj == null) {
-            return null;
-        }
-        if (!obj.getClass().equals(type)) {
+        if (!signature.get(columnIndex).equals(type)) {
             throw new ColumnFormatException("wrong type (expected " + type.toString() 
-                    + ", but got " + obj.getClass().toString() + ")");
+                    + ", but got " + signature.get(columnIndex).toString() + ")");
         }
         return obj;
     }

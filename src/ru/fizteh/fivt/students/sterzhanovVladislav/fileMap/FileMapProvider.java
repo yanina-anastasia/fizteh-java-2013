@@ -36,6 +36,7 @@ public class FileMapProvider implements TableProvider {
             FileMap table = tables.get(name);
             if (table == null) {
                 table = IOUtility.parseDatabase(dbPath);
+                table.setProvider(this);
                 tables.put(name, table);
             }
             return table; 
@@ -58,6 +59,7 @@ public class FileMapProvider implements TableProvider {
         }
         createFileStructure(dbPath, columnTypes);
         FileMap newFileMap = new FileMap(name, columnTypes);
+        newFileMap.setProvider(this);
         tables.put(name, newFileMap);
         return newFileMap;
     }

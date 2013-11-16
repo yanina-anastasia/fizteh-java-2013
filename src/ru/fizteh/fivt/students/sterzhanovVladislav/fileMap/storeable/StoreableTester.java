@@ -102,7 +102,6 @@ public class StoreableTester {
     public void getStringShouldFail() {
         sampleSignature.add(Integer.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, 5);
         row.getStringAt(0);
     }
     
@@ -110,7 +109,6 @@ public class StoreableTester {
     public void getIntShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getIntAt(0);
     }
 
@@ -118,7 +116,6 @@ public class StoreableTester {
     public void getLongShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getLongAt(0);
     }
 
@@ -126,7 +123,6 @@ public class StoreableTester {
     public void getByteShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getByteAt(0);
     }
 
@@ -134,7 +130,6 @@ public class StoreableTester {
     public void getFloatShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getFloatAt(0);
     }
 
@@ -142,7 +137,6 @@ public class StoreableTester {
     public void getDoubleShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getDoubleAt(0);
     }
 
@@ -150,7 +144,6 @@ public class StoreableTester {
     public void getBooleanShouldFail() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getBooleanAt(0);
     }
 
@@ -158,7 +151,6 @@ public class StoreableTester {
     public void getStringShouldFailIOOB() {
         sampleSignature.add(String.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, "some string");
         row.getStringAt(5);
     }
 
@@ -166,48 +158,42 @@ public class StoreableTester {
     public void getIntegerShouldFailIOOB() {
         sampleSignature.add(Integer.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, 5);
-        row.getStringAt(5);
+        row.getIntAt(5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void getLongShouldFailIOOB() {
         sampleSignature.add(Long.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, Long.MAX_VALUE);
-        row.getStringAt(5);
+        row.getLongAt(5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void getByteShouldFailIOOB() {
         sampleSignature.add(Byte.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, Byte.MIN_VALUE);
-        row.getStringAt(5);
+        row.getByteAt(5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void getFloatShouldFailIOOB() {
         sampleSignature.add(Float.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, Float.MAX_VALUE);
-        row.getStringAt(5);
+        row.getFloatAt(5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void getDoubleShouldFailIOOB() {
         sampleSignature.add(Double.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, Double.MAX_VALUE);
-        row.getStringAt(5);
+        row.getDoubleAt(5);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void getBooleanShouldFailIOOB() {
         sampleSignature.add(Boolean.class);
         row = new StoreableRow(sampleSignature);
-        row.setColumnAt(0, true);
-        row.getStringAt(5);
+        row.getBooleanAt(5);
     }
 
 }

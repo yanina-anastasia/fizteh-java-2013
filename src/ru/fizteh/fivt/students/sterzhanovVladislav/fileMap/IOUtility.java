@@ -189,13 +189,15 @@ public class IOUtility {
         if (signaturePath == null) {
             throw new IllegalStateException("Error: malformed database");
         }
-        FileOutputStream fstream = new FileOutputStream(signaturePath.toFile());
-        for (int typeID = 0; typeID < signature.size(); ++typeID) {
-            String typeName = StoreableUtils.CLASSES.get(signature.get(typeID));
-            byte[] typeNameBuf = (typeName + ((typeID < signature.size() - 1) ? " " : ""))
-                    .getBytes(StandardCharsets.UTF_8);
-            fstream.write(typeNameBuf);
+        try (FileOutputStream fstream = new FileOutputStream(signaturePath.toFile())) {
+            for (int typeID = 0; typeID < signature.size(); ++typeID) {
+                String typeName = StoreableUtils.CLASSES.get(signature.get(typeID));
+                byte[] typeNameBuf = (typeName + ((typeID < signature.size() - 1) ? " " : ""))
+                        .getBytes(StandardCharsets.UTF_8);
+                fstream.write(typeNameBuf);
+            }
+        } catch (IOException e) {
+            throw e;
         }
-        fstream.close();
     }
 }
