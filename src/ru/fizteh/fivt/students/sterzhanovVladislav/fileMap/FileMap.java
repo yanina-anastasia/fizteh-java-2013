@@ -1,21 +1,25 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableUtils;
 import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellUtility;
 
 public class FileMap implements Table {
     
     private String name = null;
-    private HashMap<String, String> db = null;
+    private HashMap<String, Storeable> db = null;
     private HashMap<String, Diff> diff = null;
+    private List<Class<?>> columnTypes = null;
+    private FileMapProvider parentProvider = null;
 
     @Override
     public String getName() {
@@ -23,7 +27,7 @@ public class FileMap implements Table {
     }
 
     @Override
-    public String get(String key) {
+    public Storeable get(String key) {
         if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
@@ -31,22 +35,24 @@ public class FileMap implements Table {
     }
 
     @Override
-    public String put(String key, String value) {
-        if (key == null || key.isEmpty() || !isValidKey(key) 
-                || value == null || value.isEmpty() || value.contains("\n")) {
-            throw new IllegalArgumentException();
+    public Storeable put(String key, Storeable value) {
+        if (!isValidKey(key)) {
+            throw new IllegalArgumentException("Illegal key");
         }
-        String result = getDirtyValue(key);
+        if (!isValidValue(value)) {
+            throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
+        }
+        Storeable result = getDirtyValue(key);
         diff.put(key, new Diff(DiffType.ADD, value));
         return result;
     }
 
     @Override
-    public String remove(String key) {
+    public Storeable remove(String key) {
         if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
-        String result = getDirtyValue(key);
+        Storeable result = getDirtyValue(key);
         diff.put(key, new Diff(DiffType.REMOVE, null));
         return result;
     }
@@ -57,11 +63,11 @@ public class FileMap implements Table {
     }
 
     @Override
-    public int commit() {
+    public int commit() throws IOException {
         int result = estimateDiffSize();
         for (Map.Entry<String, Diff> entry : diff.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue().value;
+            Storeable value = entry.getValue().value;
             DiffType type = entry.getValue().type;
             if (type == DiffType.ADD) {
                 db.put(key, value);
@@ -70,6 +76,9 @@ public class FileMap implements Table {
             }
         }
         diff.clear();
+        if (parentProvider != null) {
+            writeOut(parentProvider.getRootDir());
+        }
         return result;
     }
 
@@ -78,6 +87,19 @@ public class FileMap implements Table {
         int result = estimateDiffSize();
         diff.clear();
         return result;
+    }
+    
+    @Override 
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+    
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        return columnTypes.get(columnIndex);
     }
     
     private int estimateDiffDelta() {
@@ -120,15 +142,21 @@ public class FileMap implements Table {
         this.name = name;
     }
     
-    public FileMap(String dbName) {
+    public FileMap(String dbName, List<Class<?>> classes) {
         name = dbName;
-        db = new HashMap<String, String>();
+        db = new HashMap<String, Storeable>();
         diff = new HashMap<String, Diff>();
+        for (Class<?> type : classes) {
+            if (type == null || !StoreableUtils.CLASSES.containsKey(type)) {
+                throw new IllegalArgumentException("Invalid column type");
+            }
+        }
+        this.columnTypes = classes;
     }
     
-    public FileMap(String dbName, HashMap<String, String> db) {
-        this(dbName);
-        this.db = new HashMap<String, String>(db);
+    public FileMap(String dbName, HashMap<String, Storeable> db, List<Class<?>> classes) {
+        this(dbName, classes);
+        this.db = new HashMap<String, Storeable>(db);
     }
 
     enum DiffType {
@@ -137,16 +165,16 @@ public class FileMap implements Table {
     }
     
     private static class Diff {
-        public String value;
+        public Storeable value;
         public DiffType type; 
 
-        public Diff(DiffType t, String s) {
+        public Diff(DiffType t, Storeable s) {
             type = t;
             value = s;
         }
     }
     
-    private String getDirtyValue(String key) {
+    private Storeable getDirtyValue(String key) {
         Diff changed = diff.get(key);
         if (changed == null) {
             return db.get(key);
@@ -175,31 +203,23 @@ public class FileMap implements Table {
         } catch (IOException e) {
             // Ignore
         }
-        if (!path.toFile().mkdir()) {
-            throw new IOException("Unable to create directory");
-        }
-        for (Map.Entry<String, String> entry : db.entrySet()) {
-            int b = entry.getKey().getBytes()[0];
-            if (b < 0) {
-                b *= -1;
-            }
-            int directoryID = b % 16;
-            int fileID = b / 16 % 16;
-            File subdir = Paths.get(path.normalize() + "/" + directoryID + ".dir").toFile();
-            if (!subdir.exists()) {
-                subdir.mkdir();
-            }
-            File file = Paths.get(path.normalize() + "/" + directoryID + ".dir/" + fileID + ".dat").toFile();
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            try (FileOutputStream fstream = new FileOutputStream(file, true)) {
-                IOUtility.writeEntry(entry, fstream);
-            }
-        } 
+        IOUtility.writeDatabase(db, path, columnTypes);
+        IOUtility.writeSignature(path, columnTypes);
+    }
+    
+    public List<Class<?>> getSignature() {
+        return columnTypes;
+    }
+    
+    public void setProvider(FileMapProvider provider) {
+        this.parentProvider = provider;
     }
 
     private static boolean isValidKey(String s) {
-        return !(s.contains("\n") || s.contains(" ") || s.contains("\t"));
+        return !(s == null || s.isEmpty() || s.contains("\n") || s.matches(".*\\s+.*"));
+    }
+
+    private boolean isValidValue(Storeable s) {
+        return !(s == null || !StoreableUtils.validate(s, columnTypes));
     }
 }

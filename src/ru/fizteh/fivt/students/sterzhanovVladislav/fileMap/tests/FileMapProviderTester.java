@@ -1,34 +1,29 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.tests;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.*;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.FileMapProvider;
 import static org.junit.Assert.*;
 
 public class FileMapProviderTester {
     static FileMapProvider provider;
+    static List<Class<?>> sampleSignature;
     
     @Before
-    public void init() {
+    public void init() throws IllegalArgumentException, IOException {
         provider = new FileMapProvider(System.getProperty("user.dir"));
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void invalidNameShouldFail() {
-        TableProvider badProvider = new FileMapProvider("this should not contain /");
-        badProvider.createTable("Should_not_get_here");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void badDirectoryShouldFail() {
-        TableProvider badProvider = new FileMapProvider("asldkjfasdfajshdlfk");
-        badProvider.createTable("Should_not_get_here");
+        sampleSignature = new ArrayList<Class<?>>();
+        sampleSignature.add(String.class);
     }
     
     @Test
-    public void createAndGetForSameTableShouldBeEqual() {
-        assertEquals(provider.createTable("table"), provider.getTable("table"));
+    public void createAndGetForSameTableShouldBeEqual() throws IOException {
+        assertEquals(provider.createTable("table", sampleSignature), provider.getTable("table"));
     }
     
     @Test(expected = IllegalStateException.class)
@@ -37,15 +32,26 @@ public class FileMapProviderTester {
     }
     
     @Test
-    public void createGetRemoveTest() {
-        assertNotNull(provider.createTable("table"));
+    public void addSameNameShouldBeNull() throws IOException {
+        provider.createTable("table", sampleSignature);
+        assertNull(provider.createTable("table", sampleSignature));
+    }
+    
+    @Test
+    public void createGetRemoveTest() throws IOException {
+        assertNotNull(provider.createTable("table", sampleSignature));
         assertNotNull(provider.getTable("table"));
         provider.removeTable("table");
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void createNullShouldFail() {
-        provider.createTable(null);
+    public void createNullShouldFail() throws IOException {
+        provider.createTable(null, sampleSignature);
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void createNullSignatureShouldFail() throws IOException {
+        provider.createTable("test", null);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -56,6 +62,15 @@ public class FileMapProviderTester {
     @Test(expected = IllegalArgumentException.class)
     public void removeNullShouldFail() {
         provider.removeTable(null);
+    }
+    
+    @Test
+    public void createForTest() throws IOException {
+        Table testTable = provider.createTable("test", sampleSignature);
+        List<String> values = new ArrayList<String>();
+        values.add("test value");
+        assertNull(testTable.put("key", provider.createFor(testTable, values)));
+        assertEquals(testTable.get("key").getStringAt(0), "test value");
     }
     
     @After
