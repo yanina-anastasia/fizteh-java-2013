@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
 
@@ -33,11 +37,14 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     private final Path pathDb;
     private final CommandShell mySystem;
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read  = readWriteLock.readLock();
+    private final Lock write = readWriteLock.writeLock();
     String useNameTable;
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    HashMap<String, FileMap> mapFileMap;
+    ConcurrentHashMap<String, FileMap> mapFileMap;
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);
@@ -72,7 +79,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         this.mySystem = new CommandShell(pathDb, false, false);
         this.dbData = null;
         this.setDirTable = new HashSet<>();
-        this.mapFileMap = new HashMap<>();
+        this.mapFileMap = new ConcurrentHashMap<>();
 
         try {
             checkBdDir(this.pathDb);
@@ -224,7 +231,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
 
-    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
+    private Table singleCreateTable(String name, List<Class<?>> columnType) throws IOException {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -256,7 +263,20 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public Table getTable(String name) {
+    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
+        if (write.tryLock()) {
+            write.lock();
+            try {
+                return singleCreateTable(name, columnType);
+            } finally {
+                write.unlock();
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private Table singleGetTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -285,7 +305,16 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
     }
 
-    public void removeTable(String name) {
+    public Table getTable(String name) {
+        read.lock();
+        try {
+            return singleGetTable(name);
+        } finally {
+            read.unlock();
+        }
+    }
+
+    private void singleRemoveTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -305,6 +334,15 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             }
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    public void removeTable(String name) {
+        write.lock();
+        try {
+            singleRemoveTable(name);
+        } finally {
+            write.unlock();
         }
     }
 
