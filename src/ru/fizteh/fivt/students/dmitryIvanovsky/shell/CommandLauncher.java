@@ -7,6 +7,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Scanner;
 
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.getMessage;
+
 public class CommandLauncher {
 
     public enum Code {
@@ -107,14 +109,14 @@ public class CommandLauncher {
         }
     }
 
-    private void getMessage(Exception e) {
-        if (e.getMessage() != null) {
-            errPrint(e.getMessage());
-        }
-        for (int i = 0; i < e.getSuppressed().length; ++i) {
-            errPrint(e.getSuppressed()[i].getMessage());
-        }
-    }
+//    private void getMessage(Exception e) {
+//        if (e.getMessage() != null) {
+//            errPrint(e.getMessage());
+//        }
+//        for (int i = 0; i < e.getSuppressed().length; ++i) {
+//            errPrint(e.getSuppressed()[i].getMessage());
+//        }
+//    }
 
     public Code runCommands(String query, boolean isInteractiveMode) {
         String[] command;
