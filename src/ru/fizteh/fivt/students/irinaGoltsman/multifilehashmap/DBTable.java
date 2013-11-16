@@ -9,15 +9,31 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBTable implements Table {
 
     private File tableDirectory;
-    private HashMap<String, Storeable> tableOfChanges = new HashMap<>();
     private HashMap<String, Storeable> originalTable = new HashMap<>();
-    private Set<String> removedKeys = new HashSet<>();
     private List<Class<?>> columnTypes;
     private TableProvider tableProvider;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
+    private ThreadLocal<HashMap<String, Storeable>> tableOfChanges = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
+    private ThreadLocal<Set<String>> removedKeys = new ThreadLocal<Set<String>>() {
+        @Override
+        protected HashSet<String> initialValue() {
+            return new HashSet<>();
+        }
+    };
 
     public DBTable(File inputTableDirectory, TableProvider provider) throws IOException {
         FileManager.checkTableDir(inputTableDirectory);
@@ -31,7 +47,12 @@ public class DBTable implements Table {
         for (int i = 0; i < values.size(); i++) {
             try {
                 Storeable rowValue = tableProvider.deserialize(this, values.get(i));
-                originalTable.put(keys.get(i), rowValue);
+                try {
+                    readLock.lock();
+                    originalTable.put(keys.get(i), rowValue);
+                } finally {
+                    readLock.unlock();
+                }
             } catch (ParseException e) {
                 throw new IOException(e);
             }
@@ -48,12 +69,17 @@ public class DBTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("remove: key is null");
         }
-        Storeable value = tableOfChanges.get(key);
+        Storeable value = tableOfChanges.get().get(key);
         if (value == null) {
-            if (removedKeys.contains(key)) {
+            if (removedKeys.get().contains(key)) {
                 return null;
             }
-            value = originalTable.get(key);
+            try {
+                readLock.lock();
+                value = originalTable.get(key);
+            } finally {
+                readLock.unlock();
+            }
         }
         return value;
     }
@@ -92,15 +118,22 @@ public class DBTable implements Table {
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("put: key contains white space");
         }
-        checkEqualityTypes(value);
-        Storeable originalValue = originalTable.get(key);
-        Storeable oldValue = tableOfChanges.put(key, value);
+        Storeable newValue = value;
+        checkEqualityTypes(newValue);
+        Storeable originalValue = null;
+        try {
+            readLock.lock();
+            originalValue = originalTable.get(key);
+        } finally {
+            readLock.unlock();
+        }
+        Storeable oldValue = tableOfChanges.get().put(key, newValue);
         //Значит здесь впервые происходит перезаписывание старого значения.
-        if (!removedKeys.contains(key) && oldValue == null) {
+        if (!removedKeys.get().contains(key) && oldValue == null) {
             oldValue = originalValue;
         }
         if (originalValue != null) {
-            removedKeys.add(key);
+            removedKeys.get().add(key);
         }
         return oldValue;
     }
@@ -110,18 +143,28 @@ public class DBTable implements Table {
         if (key == null) {
             throw new IllegalArgumentException("table remove: key is null");
         }
-        Storeable value = tableOfChanges.get(key);
+        Storeable value = tableOfChanges.get().get(key);
         if (value == null) {
-            if (!removedKeys.contains(key)) {
-                value = originalTable.get(key);
+            if (!removedKeys.get().contains(key)) {
+                try {
+                    readLock.lock();
+                    value = originalTable.get(key);
+                } finally {
+                    readLock.unlock();
+                }
                 if (value != null) {
-                    removedKeys.add(key);
+                    removedKeys.get().add(key);
                 }
             }
         } else {
-            tableOfChanges.remove(key);
-            if (originalTable.containsKey(key)) {
-                removedKeys.add(key);
+            tableOfChanges.get().remove(key);
+            try {
+                readLock.lock();
+                if (originalTable.containsKey(key)) {
+                    removedKeys.get().add(key);
+                }
+            } finally {
+                readLock.unlock();
             }
         }
         return value;
@@ -129,35 +172,40 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return tableOfChanges.size() + originalTable.size() - removedKeys.size();
+        return tableOfChanges.get().size() + originalTable.size() - removedKeys.get().size();
     }
 
     //@return Количество сохранённых ключей.
     @Override
     public int commit() throws IOException {
         int count = countTheNumberOfChanges();
-        for (String delString : removedKeys) {
-            originalTable.remove(delString);
+        try {
+            writeLock.lock();
+            for (String delString : removedKeys.get()) {
+                originalTable.remove(delString);
+            }
+            originalTable.putAll(tableOfChanges.get());
+            List<String> keys = new ArrayList<>(originalTable.keySet());
+            List<Storeable> values = new ArrayList<>(originalTable.values());
+            HashMap<String, String> serializedTable = new HashMap();
+            for (int i = 0; i < values.size(); i++) {
+                String serializedValue = tableProvider.serialize(this, values.get(i));
+                serializedTable.put(keys.get(i), serializedValue);
+            }
+            FileManager.writeTableOnDisk(tableDirectory, serializedTable);
+        } finally {
+            writeLock.unlock();
         }
-        originalTable.putAll(tableOfChanges);
-        List<String> keys = new ArrayList<>(originalTable.keySet());
-        List<Storeable> values = new ArrayList<>(originalTable.values());
-        HashMap<String, String> serializedTable = new HashMap();
-        for (int i = 0; i < values.size(); i++) {
-            String serializedValue = tableProvider.serialize(this, values.get(i));
-            serializedTable.put(keys.get(i), serializedValue);
-        }
-        FileManager.writeTableOnDisk(tableDirectory, serializedTable);
-        tableOfChanges.clear();
-        removedKeys.clear();
+        tableOfChanges.get().clear();
+        removedKeys.get().clear();
         return count;
     }
 
     @Override
     public int rollback() {
         int count = countTheNumberOfChanges();
-        tableOfChanges.clear();
-        removedKeys.clear();
+        tableOfChanges.get().clear();
+        removedKeys.get().clear();
         return count;
     }
 
@@ -176,18 +224,28 @@ public class DBTable implements Table {
 
     public int countTheNumberOfChanges() {
         int countOfChanges = 0;
-        for (String currentKey : removedKeys) {
-            if (tableOfChanges.containsKey(currentKey)) {
-                Storeable currentValue = tableOfChanges.get(currentKey);
-                if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
-                    continue;
+        for (String currentKey : removedKeys.get()) {
+            if (tableOfChanges.get().containsKey(currentKey)) {
+                Storeable currentValue = tableOfChanges.get().get(currentKey);
+                try {
+                    readLock.lock();
+                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
+                        continue;
+                    }
+                } finally {
+                    readLock.unlock();
                 }
             }
             countOfChanges++;
         }
-        for (String currentKey : tableOfChanges.keySet()) {
-            if (!originalTable.containsKey(currentKey)) {
-                countOfChanges++;
+        for (String currentKey : tableOfChanges.get().keySet()) {
+            try {
+                readLock.lock();
+                if (!originalTable.containsKey(currentKey)) {
+                    countOfChanges++;
+                }
+            } finally {
+                readLock.unlock();
             }
         }
         return countOfChanges;
