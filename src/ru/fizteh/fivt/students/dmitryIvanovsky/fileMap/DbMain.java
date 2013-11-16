@@ -53,7 +53,6 @@ public class DbMain {
                 System.exit(1);
             }
         } catch (Exception e) {
-            //e.printStackTrace();
             System.err.println("Runtime Error");
             FileMapUtils.getMessage(e);
             System.exit(1);

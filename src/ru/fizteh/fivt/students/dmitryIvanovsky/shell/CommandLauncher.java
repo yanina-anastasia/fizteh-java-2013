@@ -79,9 +79,11 @@ public class CommandLauncher {
                         method.invoke(exampleClass, args);
                     }
                     return Code.OK;
+                } catch (NullPointerException err) {
+                    return Code.ERROR;
                 } catch (Exception e) {
                     //e.printStackTrace();
-                    //getMessage((Exception) e.getCause());
+                    getMessage((Exception) e.getCause());
                     return Code.ERROR;
                 }
             } else {
