@@ -22,6 +22,7 @@ public class StoreableTable implements Table {
     private final File tableRootDir;
     private TableFile[][] tableFiles = new TableFile[16][16];
     private boolean[][] tableFileModified = new boolean[16][16];
+    private HashMap<String, Storeable> tableOnDisk;
     private HashMap<String, Storeable> tableIndexedData = new HashMap<>();
     private HashSet<String> changedKeys = new HashSet<>();
     private HashSet<String> removedKeys = new HashSet<>();
@@ -89,6 +90,7 @@ public class StoreableTable implements Table {
                 }
             }
         }
+        tableOnDisk = new HashMap<>(tableIndexedData);
     }
 
     StoreableTable(TableProvider tableProvider, File tableRootDir, List<Class<?>> classes) {
@@ -255,6 +257,8 @@ public class StoreableTable implements Table {
                 tableFileModified[nDir][nFile] = false;
             }
         }
+        tableOnDisk.clear();
+        tableOnDisk.putAll(tableIndexedData);
         return numberOfCommittedChanges;
     }
 
@@ -269,22 +273,7 @@ public class StoreableTable implements Table {
         changedKeys.clear();
         removedKeys.clear();
         tableIndexedData.clear();
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFiles[nDir][nFile] != null) {
-                    tableFiles[nDir][nFile].setReadMode();
-                    while (tableFiles[nDir][nFile].hasNext()) {
-                        TableFile.Entry tempEntry = tableFiles[nDir][nFile].readEntry();
-                        try {
-                            tableIndexedData.put(tempEntry.getKey(),
-                                    tableProvider.deserialize(this, tempEntry.getValue()));
-                        } catch (ParseException e) {
-                            throw new IllegalStateException("Can't deserialize", e);
-                        }
-                    }
-                }
-            }
-        }
+        tableIndexedData.putAll(tableOnDisk);
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 tableFileModified[nDir][nFile] = false;
