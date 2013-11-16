@@ -12,12 +12,8 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 		if ((dir == null) || (dir.trim().isEmpty())) {
 			throw new IllegalArgumentException("wrong dir");
 		}
-		File directory = (new File(dir));
-		if (!(directory.exists())) {
-			if (directory.mkdir()) {
-				directory.delete();
-				throw new IOException("non-existing directory");
-			}
+		if ((!(new File(dir)).exists()) && (!(new File(dir)).mkdir())) {
+			throw new IOException("non-existing dir");
 		}
 		return new StoreableTableProvider(dir);			
 	}
