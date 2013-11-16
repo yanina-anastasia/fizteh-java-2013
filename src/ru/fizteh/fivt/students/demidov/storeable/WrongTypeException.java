@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.demidov.storeable;
 
 public class WrongTypeException extends RuntimeException {
 	public WrongTypeException() { 
-		super(); 
+	super(); 
 	}
 	public WrongTypeException(String message) { 
 		super(message); 

@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.demidov.storeable;
 
+import java.io.File;
 import java.io.IOException;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
