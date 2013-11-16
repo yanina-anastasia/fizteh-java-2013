@@ -7,15 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
+import ru.fizteh.fivt.students.demidov.multifilehashmap.MultiFileMapUtils;
 
 public class FileMap<ElementType> {
-	public FileMap(String path, BasicTable<ElementType> table) {
+	public FileMap(Integer ndirectory, Integer nfile, String path, BasicTable<ElementType> table) {
 		if ((new File(path)).isDirectory()) {
 			path += File.separator + "db.dat";
 		}
 		
 		this.path = path;		
 		this.table = table;
+		this.ndirectory = ndirectory;
+		this.nfile = nfile;
 		
 		currentTable = new HashMap<String, ElementType>();
 	}
@@ -33,6 +36,16 @@ public class FileMap<ElementType> {
 		
 		if (!currentFile.createNewFile()) {
 			throw new IOException("unable to create " + path);
+		}
+	}
+	
+	public void checkKey(String key) throws IOException {
+		Integer curNdirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
+		Integer curNfile = MultiFileMapUtils.getNFile(key.hashCode());
+		if ((ndirectory == -1) || ((curNdirectory == ndirectory) && (curNfile == nfile))) {
+			return;
+		} else {
+			throw new IOException("wrong key placement");
 		}
 	}
 	
@@ -88,6 +101,7 @@ public class FileMap<ElementType> {
 				if (previousOffset == -1) {
 					positionOfValues = nextOffset;
 				} else {
+					checkKey(previousKey);
 					currentTable.put(previousKey, table.deserialize(readString(dataBaseFile, previousOffset, nextOffset)));
 				}
 			
@@ -96,6 +110,7 @@ public class FileMap<ElementType> {
 				readPosition = (int)dataBaseFile.getFilePointer();
 			} 
 	
+			checkKey(readKey);
 			currentTable.put(readKey, table.deserialize(readString(dataBaseFile, previousOffset, (int)dataBaseFile.length())));
 		
 			dataBaseFile.close();
@@ -136,4 +151,5 @@ public class FileMap<ElementType> {
 	private Map<String, ElementType> currentTable;
 	private String path;
 	private BasicTable<ElementType> table;
+	private Integer ndirectory, nfile;
 }

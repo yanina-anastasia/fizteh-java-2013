@@ -28,7 +28,7 @@ public class FilesMap<ElementType> {
 		
 		if (baseFileMaps.get(baseFileKey) == null) {
 			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
-			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
+			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(ndirectory, nfile, fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
 		}
 		return baseFileMaps.get(baseFileKey);
 	}
@@ -68,7 +68,7 @@ public class FilesMap<ElementType> {
 						int ndirectory = MultiFileMapUtils.getNumber(subdirectoryName);
 						int nfile = MultiFileMapUtils.getNumber(baseFileName);
 						String key = MultiFileMapUtils.makeKey(ndirectory, nfile);
-						baseFileMaps.put(key, new FileMap<ElementType>(baseFile.getPath(), table)); 
+						baseFileMaps.put(key, new FileMap<ElementType>(ndirectory, nfile, baseFile.getPath(), table)); 
 						baseFileMaps.get(key).readDataFromFile();
 					}
 				}

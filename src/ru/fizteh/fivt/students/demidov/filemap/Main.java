@@ -22,7 +22,7 @@ public class Main {
 			System.exit(1);
 		}
 		
-		fileMap = new FileMap<String>(path, fileMapTable);
+		fileMap = new FileMap<String>(-1, -1, path, fileMapTable);
 		FileMapState state = new FileMapState(fileMap);
 
 		Shell usedShell = new Shell(System.getProperty("user.dir"), System.in, System.out);
