@@ -10,6 +10,10 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 		if ((dir == null) || (dir.trim().isEmpty())) {
 			throw new IllegalArgumentException("wrong dir");
 		}
-		return new StoreableTableProvider(dir);
+		try {
+			return new StoreableTableProvider(dir);
+		} catch (IllegalArgumentException catchedException) {
+			throw new IOException(catchedException);
+		}
 	}
 }
