@@ -57,7 +57,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public MultiFileHashTable createTable(String name, List<Class<?>> columnTypes) throws
-                                                                        IllegalArgumentException, IOException {
+            IllegalArgumentException, IOException {
         if (getTable(name) != null) {
             return null;
         }

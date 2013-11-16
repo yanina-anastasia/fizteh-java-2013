@@ -20,7 +20,7 @@ public class TableProviderTester {
         provider = new MultiFileHashTableProvider(folder.getRoot().getAbsolutePath());
     }
 
-    @Test(expected = DatabaseException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void  illegalInitTest() throws IOException, DatabaseException {
         MultiFileHashTableProvider badProvider = new MultiFileHashTableProvider("gjfdou34923dkfjs");
     }

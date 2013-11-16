@@ -32,6 +32,9 @@ public class TableRow implements Storeable {
         if (table == null) {
             throw new IllegalArgumentException("Table must be not null");
         }
+        if (values == null) {
+            throw new IllegalArgumentException("Values must be not null");
+        }
         if (table.getColumnsCount() != values.size()) {
             throw new IllegalArgumentException("Values more then columns");
         }

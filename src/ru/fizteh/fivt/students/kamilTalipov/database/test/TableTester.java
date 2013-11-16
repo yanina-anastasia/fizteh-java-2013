@@ -134,4 +134,13 @@ public class TableTester {
         table.put("test", storeable);
         Assert.assertEquals(table.rollback(), 0);
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void putIncorrectStoreableShouldFailedTest() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Double.class);
+        MultiFileHashTable table2 = provider.createTable("qqqq", types);
+        Storeable storeable = provider.createFor(table2, Arrays.asList(2.3));
+        table.put("gg", storeable);
+    }
 }

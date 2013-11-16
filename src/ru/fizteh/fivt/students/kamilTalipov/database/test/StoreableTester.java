@@ -1,0 +1,82 @@
+package ru.fizteh.fivt.students.kamilTalipov.database.test;
+
+import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.DatabaseException;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.TableRow;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class StoreableTester {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    public MultiFileHashTableProvider provider;
+    public MultiFileHashTable table;
+
+    @Before
+    public void initTable() throws IOException, DatabaseException {
+        provider = new MultiFileHashTableProvider(folder.getRoot().getAbsolutePath());
+
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        table = provider.createTable("Test", types);
+    }
+
+    @Test
+    public void putGetTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
+        table.put("test", storeable);
+        Assert.assertEquals(table.get("test"), storeable);
+    }
+
+    @Test
+    public void createForTest() {
+        Storeable storeable = provider.createFor(table);
+        Assert.assertEquals(storeable.getColumnAt(0), null);
+        Assert.assertEquals(storeable.getColumnAt(1), null);
+    }
+
+    @Test
+    public void createForTest2() {
+        Storeable storeable = provider.createFor(table, Arrays.asList(54, "tgeg"));
+        Assert.assertEquals(storeable.getColumnAt(0).getClass(), Integer.class);
+        Assert.assertEquals(storeable.getColumnAt(1).getClass(), String.class);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getIncorrectColumnTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(2, "two"));
+        storeable.getColumnAt(2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createStoreableNullTypesTest() {
+        Storeable storeable = new TableRow(table, null);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void setIncorrectTypeValue() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(0, 3.4);
+    }
+
+    @Test
+    public void getIntStringTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        Assert.assertEquals(storeable.getIntAt(0), Integer.valueOf(3));
+        Assert.assertEquals(storeable.getStringAt(1), "three");
+    }
+}
