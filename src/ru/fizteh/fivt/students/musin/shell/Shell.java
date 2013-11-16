@@ -29,71 +29,29 @@ public class Shell {
     }
 
     private int parseString(String s) {
-        ArrayList<String> comm = new ArrayList<String>();
-        int start = 0;
-        boolean quote = false;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == ';' && !quote) {
-                comm.add(s.substring(start, i));
-                start = i + 1;
-            }
-            if (s.charAt(i) == '"') {
-                quote ^= true;
-            }
-        }
-        if (quote) {
-            System.err.println("Wrong quotation sequence");
-            return -1;
-        }
-        if (start != s.length()) {
-            comm.add(s.substring(start, s.length()));
-        }
-        for (int i = 0; i < comm.size(); i++) {
+        String[] comm = s.split(";");
+        for (int i = 0; i < comm.length; i++) {
+            String[] tokens = comm[i].split("\\s+");
+            ArrayList<String> args = new ArrayList<>();
+            ArrayList<String> selfParseArgs = new ArrayList<>();
             String name = "";
-            ArrayList<String> args = new ArrayList<String>();
-            ArrayList<String> selfParseArgs = new ArrayList<String>();
-            boolean nameRead = false;
-            start = 0;
-            quote = false;
-            for (int j = 0; j < comm.get(i).length(); j++) {
-                if (!quote && Character.isWhitespace(comm.get(i).charAt(j))) {
-                    if (start != j) {
-                        if (!nameRead) {
-                            name = comm.get(i).substring(start, j);
-                            nameRead = true;
-                            selfParseArgs.add(comm.get(i).substring(j + 1, comm.get(i).length()));
-                        } else {
-                            args.add(comm.get(i).substring(start, j));
-                        }
+            for (int j = 0; j < tokens.length; j++) {
+                if (!tokens[j].equals("")) {
+                    if (name.equals("")) {
+                        name = tokens[j];
+                    } else {
+                        args.add(tokens[j]);
                     }
-                    start = j + 1;
-                }
-                if (comm.get(i).charAt(j) == '"') {
-                    if (!nameRead) {
-                        System.err.println("Arguments are specified, but no command was given");
-                        return -1;
-                    }
-                    if (quote) {
-                        args.add(comm.get(i).substring(start, j));
-                        if (j + 1 != comm.get(i).length() && !Character.isWhitespace(comm.get(i).charAt(j + 1))) {
-                            System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
-                            return -1;
-                        }
-                    } else if (!Character.isWhitespace(comm.get(i).charAt(j - 1))) {
-                        System.err.println("Wrong argument format (Maybe space-character is forgotten?)");
-                        return -1;
-                    }
-                    quote ^= true;
-                    start = j + 1;
                 }
             }
-            if (start != comm.get(i).length()) {
-                if (!nameRead) {
-                    name = comm.get(i).substring(start, comm.get(i).length());
-                    selfParseArgs.add("");
-                } else {
-                    args.add(comm.get(i).substring(start, comm.get(i).length()));
+            for (int j = 1; j < comm[i].length(); j++) {
+                if (Character.isWhitespace(comm[i].charAt(j)) && !Character.isWhitespace(comm[i].charAt(j - 1))) {
+                    selfParseArgs.add(comm[i].substring(j, comm[i].length()).trim());
+                    break;
                 }
+            }
+            if (selfParseArgs.size() == 0) {
+                selfParseArgs.add("");
             }
             ShellCommand command = commands.get(name);
             if (command != null) {
@@ -131,7 +89,7 @@ public class Shell {
     public int run(BufferedReader br) {
         exit = false;
         while (!exit) {
-            System.out.print("$ ");
+            System.out.print(" $ ");
             try {
                 String str = br.readLine();
                 if (str == null) {
