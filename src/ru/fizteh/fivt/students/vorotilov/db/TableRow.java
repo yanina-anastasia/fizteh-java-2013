@@ -44,7 +44,7 @@ public class TableRow implements Storeable {
         checkBounds(columnIndex);
         if (value != null) {
             if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
-                columns.set(columnIndex, new Long((Integer) value));
+                columns.set(columnIndex, value);
             } else {
                 checkType(columnIndex, value.getClass());
                 if (value instanceof String) {
