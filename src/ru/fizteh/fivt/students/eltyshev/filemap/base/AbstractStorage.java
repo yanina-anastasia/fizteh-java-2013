@@ -9,33 +9,29 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractStorage<Key, Value> {
     class TransactionChanges {
-        HashMap<Key, ValueDifference<Value>> modifiedData;
+        HashMap<Key, Value> modifiedData;
         int size;
         int uncommittedChanges;
 
         TransactionChanges() {
-            this.modifiedData = new HashMap<Key, ValueDifference<Value>>();
+            this.modifiedData = new HashMap<Key, Value>();
             this.size = 0;
             this.uncommittedChanges = 0;
         }
 
         public void addChange(Key key, Value value) {
-            if (modifiedData.containsKey(key)) {
-                modifiedData.get(key).newValue = value;
-            } else {
-                modifiedData.put(key, new ValueDifference(oldData.get(key), value));
-            }
+            modifiedData.put(key, value);
         }
 
         public int applyChanges() {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
-                ValueDifference diff = modifiedData.get(key);
-                if (!FileMapUtils.compareKeys(diff.oldValue, diff.newValue)) {
-                    if (diff.newValue == null) {
+                Value newValue = modifiedData.get(key);
+                if (!FileMapUtils.compareKeys(oldData.get(key), newValue)) {
+                    if (newValue == null) {
                         oldData.remove(key);
                     } else {
-                        oldData.put(key, (Value) diff.newValue);
+                        oldData.put(key, (Value) newValue);
                     }
                     recordsChanged += 1;
                 }
@@ -46,8 +42,8 @@ public abstract class AbstractStorage<Key, Value> {
         public int countChanges() {
             int recordsChanged = 0;
             for (final Key key : modifiedData.keySet()) {
-                ValueDifference diff = modifiedData.get(key);
-                if (!FileMapUtils.compareKeys(diff.oldValue, diff.newValue)) {
+                Value newValue = modifiedData.get(key);
+                if (!FileMapUtils.compareKeys(oldData.get(key), newValue)) {
                     recordsChanged += 1;
                 }
             }
@@ -56,7 +52,7 @@ public abstract class AbstractStorage<Key, Value> {
 
         public Value getValue(Key key) {
             if (modifiedData.containsKey(key)) {
-                return modifiedData.get(key).newValue;
+                return modifiedData.get(key);
             }
             return oldData.get(key);
         }
@@ -207,16 +203,6 @@ public abstract class AbstractStorage<Key, Value> {
 
     Value rawGet(Key key) {
         return oldData.get(key);
-    }
-}
-
-class ValueDifference<Value> {
-    public Value oldValue;
-    public Value newValue;
-
-    ValueDifference(Value oldValue, Value newValue) {
-        this.oldValue = oldValue;
-        this.newValue = newValue;
     }
 }
 
