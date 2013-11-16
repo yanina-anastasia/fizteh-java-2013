@@ -187,7 +187,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
                 outPrint("using " + nameTable);
             }
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
