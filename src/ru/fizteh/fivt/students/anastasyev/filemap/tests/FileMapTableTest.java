@@ -105,7 +105,7 @@ public class FileMapTableTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPutNl() throws ParseException, IOException {
+    public void testPutAlienSmallerStoreable() throws ParseException, IOException {
         String val = "[15,\"string\",\"second string\"]";
         List<Class<?>> classList = new ArrayList<Class<?>>();
         classList.add(Integer.class);
@@ -113,7 +113,27 @@ public class FileMapTableTest {
         classList.add(String.class);
         Table table = tableProvider.createTable("table", classList);
         Storeable valueOld = tableProvider.deserialize(table, val);
-        valueOld.setColumnAt(2, "     ");
+        tableProvider.removeTable("table");
+        currTable.put("key", valueOld);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutAlienBiggerStoreable() throws ParseException, IOException {
+        String val = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\", 1]";
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(Integer.class);
+        classList.add(Integer.class);
+        classList.add(Long.class);
+        classList.add(Float.class);
+        classList.add(Double.class);
+        classList.add(Boolean.class);
+        classList.add(String.class);
+        classList.add(String.class);
+        classList.add(Byte.class);
+        Table table = tableProvider.createTable("table", classList);
+        Storeable valueOld = tableProvider.deserialize(table, val);
+        tableProvider.removeTable("table");
         currTable.put("key", valueOld);
     }
 
