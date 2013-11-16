@@ -158,7 +158,6 @@ public class FileMapTable implements Table {
         }
         columnTypes = new ArrayList<Class<?>>();
         try (RandomAccessFile input = new RandomAccessFile(signature.toString(), "r")) {
-            int position = 0;
             while (input.getFilePointer() != input.length()) {
                 byte ch = 0;
                 Vector<Byte> v = new Vector<Byte>();
