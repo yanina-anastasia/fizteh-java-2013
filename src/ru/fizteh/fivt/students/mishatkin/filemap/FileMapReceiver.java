@@ -114,7 +114,8 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	@Override
 	public String removeCommand(String key) {
 		String retValue = getValueForKey(key);
-		if (unstagedDictionaryPart.remove(key) == null && retValue != null && !retValue.equals("")) {
+		unstagedDictionaryPart.remove(key);
+		if (retValue != null && !retValue.equals("") && dictionary.containsKey(key)) {
 			removedDictionaryPart.put(key, retValue);
 		}
 		if (retValue != null) {
@@ -200,14 +201,14 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	}
 
 	public int size() {
-		if (dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() < 0) {
-			System.err.println("OMFG!!1!111111 Das ist impossible !!11");
-		}
 		int matchesCount = 0;
 		for (String key : unstagedDictionaryPart.keySet()) {
 			if (dictionary.get(key) != null) {
 				++matchesCount;
 			}
+		}
+		if (dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() - matchesCount < 0) {
+			System.err.println("OMFG!!1!111111 Das ist impossible !!11");
 		}
 		return dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() - matchesCount;
 	}
