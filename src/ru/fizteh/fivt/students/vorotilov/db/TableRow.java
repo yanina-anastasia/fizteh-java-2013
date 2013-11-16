@@ -44,7 +44,7 @@ public class TableRow implements Storeable {
         checkBounds(columnIndex);
         if (value != null) {
             if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
-                columns.set(columnIndex, (Long) value);
+                columns.set(columnIndex, Long.parseLong(value.toString()));
             } else {
                 checkType(columnIndex, value.getClass());
                 if (value instanceof String) {
@@ -66,9 +66,6 @@ public class TableRow implements Storeable {
     @Override
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
         checkBounds(columnIndex);
-        if (classes.get(columnIndex).equals(Long.class)) {
-            return (Long) columns.get(columnIndex);
-        }
         return columns.get(columnIndex);
     }
 
