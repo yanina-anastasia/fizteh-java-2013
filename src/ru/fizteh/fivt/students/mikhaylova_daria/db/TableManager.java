@@ -290,6 +290,7 @@ public class TableManager implements TableProvider {
         return xmlString;
     }
 
+
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
@@ -301,6 +302,7 @@ public class TableManager implements TableProvider {
             throw new IllegalArgumentException("wrong type (value is empty)");
         }
         Storeable storeableVal = new Value(table);
+        int numberColumn = 0;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder xmlDocBuilder = docFactory.newDocumentBuilder();
@@ -312,17 +314,16 @@ public class TableManager implements TableProvider {
                         + "was)", 0);
             }
             NodeList children = row.getChildNodes();
-            if (children.getLength() != table.getColumnsCount()) {
-                throw new ParseException("wrong type (Wrong number of columns)", 0);
-            }
             for (int i = 0; i < children.getLength(); i++) {
                 Node child  = children.item(i);
                 String valueColumnStr;
                 if (child.getNodeName().equals("col")) {
                     valueColumnStr = child.getTextContent();
+                    ++numberColumn;
                 } else {
                     if (child.getNodeName().equals("null")) {
                         valueColumnStr = null;
+                        ++numberColumn;
                     } else {
                         throw new ParseException("wrong type (Unknown tag)", i);
                     }
@@ -371,8 +372,12 @@ public class TableManager implements TableProvider {
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
+        if (numberColumn != table.getColumnsCount()) {
+            throw new ParseException("wrong type (Wrong number of columns)", 0);
+        }
         return storeableVal;
     }
+    
 
     public Storeable createFor(Table table) {
         if (table == null) {
