@@ -47,16 +47,16 @@ public class StoreableTest {
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumn() {
-        st.setColumnAt(0, 1);
-        st.setColumnAt(0, "key");
+        st.setColumnAt(0, Integer.valueOf(1));
+        st.setColumnAt(0, String.valueOf("key"));
     }
 
     @Test
     public void testGetColumnAt() {
-        st.setColumnAt(0, 10);
-        st.setColumnAt(1, "value");
-        st.setColumnAt(4, true);
-        st.setColumnAt(3, 2.1);
+        st.setColumnAt(0, Integer.valueOf(10));
+        st.setColumnAt(1, String.valueOf("value"));
+        st.setColumnAt(4, Boolean.valueOf(true));
+        st.setColumnAt(3, Double.valueOf(2.1));
         assertEquals(st.getColumnAt(0).getClass(), Integer.class);
         assertEquals(st.getColumnAt(1).getClass(), String.class);
         assertEquals(st.getColumnAt(4).getClass(), Boolean.class);
@@ -77,22 +77,22 @@ public class StoreableTest {
 
     @Test
     public void testGetBooleanAt() {
-        st.setColumnAt(4, true);
-        assertEquals(true, st.getBooleanAt(4));
+        st.setColumnAt(4, Boolean.valueOf(true));
+        assertEquals(Boolean.valueOf(true), st.getBooleanAt(4));
     }
 
     @Test
     public void testGetStringAt() {
-        st.setColumnAt(1, "sdsds  sdsf sfsf");
-        assertEquals("sdsds  sdsf sfsf", st.getStringAt(1));
+        st.setColumnAt(1, String.valueOf("sdsds  sdsf sfsf"));
+        assertEquals(String.valueOf("sdsds  sdsf sfsf"), st.getStringAt(1));
     }
 
     @Test(expected = ColumnFormatException.class)
     public void testIncorrectColumnType() {
-        st.setColumnAt(0, 1022);
-        st.setColumnAt(1, "val");
-        st.setColumnAt(4, false);
-        st.setColumnAt(3, 2.12);
+        st.setColumnAt(0, Integer.valueOf(1022));
+        st.setColumnAt(1, String.valueOf("val"));
+        st.setColumnAt(4, Boolean.valueOf(false));
+        st.setColumnAt(3, Double.valueOf(2.12));
         st.getIntAt(1);
         st.getBooleanAt(0);
         st.getDoubleAt(4);
@@ -101,13 +101,13 @@ public class StoreableTest {
 
     @Test
     public void testGetDoubleAt() {
-        st.setColumnAt(3, 1111.222);
+        st.setColumnAt(3, Double.valueOf(1111.222));
         assertEquals(Double.valueOf(1111.222), st.getDoubleAt(3));
     }
 
     @Test
     public void testGetByteAt() {
-        st.setColumnAt(5, (byte) 6);
+        st.setColumnAt(5, Byte.valueOf((byte) 6));
         assertEquals(Byte.valueOf((byte) 6), st.getByteAt(5));
     }
 
@@ -154,43 +154,43 @@ public class StoreableTest {
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetIntAt() {
-        st.setColumnAt(0, 1);
+        st.setColumnAt(0, Integer.valueOf(1));
         st.getIntAt(1);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetFloatAt() {
-        st.setColumnAt(2, 10);
+        st.setColumnAt(2, Float.valueOf(10));
         st.getFloatAt(1);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetDoubleAt() {
-        st.setColumnAt(3, 10.111);
+        st.setColumnAt(3, Double.valueOf(10.111));
         st.getDoubleAt(0);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetStringAt() {
-        st.setColumnAt(1, "llslss");
+        st.setColumnAt(1, String.valueOf("llslss"));
         st.getStringAt(0);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetByteAt() {
-        st.setColumnAt(5, (byte) 6);
+        st.setColumnAt(5, Byte.valueOf((byte) 6));
         st.getByteAt(4);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetBooleanAt() {
-        st.setColumnAt(4, true);
+        st.setColumnAt(4, Boolean.valueOf(true));
         st.getBooleanAt(6);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypeColumnGetLongAt() {
-        st.setColumnAt(6, 100000000);
+        st.setColumnAt(6, Long.valueOf(100000000));
         st.getLongAt(1);
     }
 }
