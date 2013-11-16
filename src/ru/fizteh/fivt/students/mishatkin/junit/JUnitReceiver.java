@@ -18,7 +18,7 @@ public class JUnitReceiver extends MultiFileHashMapReceiver {
 	}
 
 	public int sizeCommand() {
-		int retValue = table.size();
+		int retValue = table != null ? table.size() : 0;
 		println(String.valueOf(retValue));
 		return retValue;
 	}
