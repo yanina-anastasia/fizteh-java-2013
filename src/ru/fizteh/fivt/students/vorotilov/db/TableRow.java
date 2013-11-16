@@ -44,12 +44,12 @@ public class TableRow implements Storeable {
         checkBounds(columnIndex);
         if (value != null) {
             if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
-                columns.set(columnIndex, value);
+                columns.set(columnIndex, new Long((Integer) value));
             } else {
                 checkType(columnIndex, value.getClass());
                 if (value instanceof String) {
                     if (((String) value).contains("\n")) {
-                        throw new ColumnFormatException("Empty string can't be stored");
+                        throw new ColumnFormatException("String can't be stored. contains \\n");
                     }
                 }
             }
