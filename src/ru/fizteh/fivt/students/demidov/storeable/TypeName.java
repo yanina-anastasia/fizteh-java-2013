@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.demidov.storeable;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -34,10 +33,10 @@ public enum TypeName {
 		}
 	}
 
-	public static String getAppropriateName(Class<?> clazz) throws IOException{
+	public static String getAppropriateName(Class<?> clazz) {
 		String className = typeByClass.get(clazz);
 		if (className == null) {
-			throw new IOException("no appropriate primitive type");
+			throw new IllegalArgumentException("no appropriate primitive type");
 		}
 		return className;
 	}
