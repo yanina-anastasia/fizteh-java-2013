@@ -83,8 +83,11 @@ public class CommandLauncher {
                     return Code.ERROR;
                 } catch (Exception e) {
                     try {
-                        Exception newErr = (Exception) e.getCause();
-                        getMessage(newErr);
+                        if (e.getCause() != null) {
+                            Exception newErr = (Exception) e.getCause();
+                            getMessage(newErr);
+                            return Code.ERROR;
+                        }
                         return Code.ERROR;
                     } catch (Exception err) {
                         return Code.ERROR;
