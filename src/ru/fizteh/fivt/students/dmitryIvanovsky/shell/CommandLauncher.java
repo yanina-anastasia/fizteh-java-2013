@@ -85,7 +85,9 @@ public class CommandLauncher {
                     try {
                         if (e.getCause() != null) {
                             Exception newErr = (Exception) e.getCause();
-                            getMessage(newErr);
+                            if (newErr != null) {
+                                getMessage(newErr);
+                            }
                             return Code.ERROR;
                         }
                         return Code.ERROR;
