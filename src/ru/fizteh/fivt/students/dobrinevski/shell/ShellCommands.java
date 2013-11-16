@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.dobrinevski.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 
 public class ShellCommands {
@@ -20,7 +19,6 @@ public class ShellCommands {
                 throw new Exception("\'" + args[1] + "\': Not a directory");
             }
         }
-
         public Cd() {
             super(2);
         }
@@ -40,7 +38,6 @@ public class ShellCommands {
                 throw new Exception("\'" + args[1] + "\': Directory wasn't created");
             }
         }
-
         public Mkdir() {
             super(2);
         }
@@ -49,9 +46,9 @@ public class ShellCommands {
     public static class Pwd extends Command {
         @Override
         public void innerExecute(String[] args) {
-            System.out.println(parentShell.currentDir.toPath().normalize());
+            returnValue = new String[1];
+            returnValue[0] = parentShell.currentDir.toPath().normalize().toString();
         }
-
         public Pwd() {
             super(1);
         }
@@ -99,7 +96,7 @@ public class ShellCommands {
 
     public static class Copy extends Command {
         @Override
-        public void innerExecute(String[] args) throws Exception, IOException {
+        public void innerExecute(String[] args) throws Exception {
             Path srcPath = Paths.get(args[1]);
             Path dstPath = Paths.get(args[2]);
             srcPath = parentShell.currentDir.toPath().resolve(srcPath).normalize();
@@ -136,7 +133,6 @@ public class ShellCommands {
                 }
             }
         }
-
         public Copy() {
             super(3);
         }
@@ -191,9 +187,8 @@ public class ShellCommands {
         @Override
         public void innerExecute(String[] args) {
             Path cwd = parentShell.currentDir.toPath();
-            for (String fileName : cwd.toFile().list()) {
-                System.out.println(fileName);
-            }
+            String[] buf = cwd.toFile().list();
+            returnValue = buf;
         }
 
         public Dir() {
@@ -204,7 +199,6 @@ public class ShellCommands {
     public static class Exit extends Command {
         @Override
         public void innerExecute(String[] args) {
-            System.out.println();
             System.exit(0);
         }
 

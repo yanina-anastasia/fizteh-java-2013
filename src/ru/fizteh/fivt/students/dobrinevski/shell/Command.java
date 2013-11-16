@@ -1,8 +1,10 @@
 package ru.fizteh.fivt.students.dobrinevski.shell;
 
+
 public abstract class Command {
     public Shell parentShell;
     public Integer argc;
+    public String[] returnValue = null;
     public Command(int argCount) {
         argc = argCount;
     }
