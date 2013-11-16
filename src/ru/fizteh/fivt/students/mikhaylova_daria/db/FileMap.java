@@ -119,7 +119,9 @@ public class FileMap {
                     fileDataBase.close();
                 }
             } catch (Throwable th) {
-                e.addSuppressed(th);
+                if (e != null) {
+                    e.addSuppressed(th);
+                }
             }
         }
         if (file.length() == 0) {
@@ -222,7 +224,9 @@ public class FileMap {
                 try {
                     dataBase.close();
                 } catch (Throwable th) {
-                    e.addSuppressed(th);
+                    if (e != null) {
+                        e.addSuppressed(th);
+                    }
                 }
             }
         }
