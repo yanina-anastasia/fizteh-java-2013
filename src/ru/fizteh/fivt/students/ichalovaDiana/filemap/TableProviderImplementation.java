@@ -17,9 +17,6 @@ import java.util.Scanner;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -171,7 +168,8 @@ public class TableProviderImplementation implements TableProvider {
                         String text = xmlReader.getElementText();
                         values.add(parseToColumn(table, columnIndex, text));
                         columnIndex += 1;
-                    } else if (nodeType == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("null")) {
+                    } else if (nodeType == XMLStreamConstants.START_ELEMENT 
+                            && xmlReader.getLocalName().equals("null")) {
                         values.add(null);
                         columnIndex += 1;
                     } else if (nodeType == XMLStreamConstants.END_ELEMENT && xmlReader.getLocalName().equals("row")) {

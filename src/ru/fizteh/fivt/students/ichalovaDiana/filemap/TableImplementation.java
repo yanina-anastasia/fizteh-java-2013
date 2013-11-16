@@ -191,22 +191,24 @@ public class TableImplementation implements Table {
         int changesNumber = countChanges();
         originTableSize = currentTableSize;
 
-        Storeable value;
-        String rawValue;
-        for (String key : putChanges.keySet()) {
-            value = putChanges.get(key);
-            rawValue = tableProvider.serialize(this, value);
-            putValueToFile(key, rawValue);
+        try {
+            Storeable value;
+            String rawValue;
+            for (String key : putChanges.keySet()) {
+                value = putChanges.get(key);
+                rawValue = tableProvider.serialize(this, value);
+                putValueToFile(key, rawValue);
+            }
+            
+            for (String key : removeChanges) {
+                removeValueFromFile(key);
+            }
+        } finally {
+            closeAllFiles();
         }
-        
-        for (String key : removeChanges) {
-            removeValueFromFile(key);
-        }
-        
+
         putChanges.clear();
         removeChanges.clear();
-        
-        closeAllFiles();
         files = new FileDatabase[DIR_NUM][FILES_NUM];
         
         return changesNumber;
@@ -292,8 +294,7 @@ public class TableImplementation implements Table {
         
         try {
             value = files[nDirectory][nFile].get(key);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             try {
                 if (files[nDirectory][nFile] != null) {
                     files[nDirectory][nFile].close();
@@ -337,8 +338,7 @@ public class TableImplementation implements Table {
         
         try {
             return files[nDirectory][nFile].put(key, value);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             try {
                 if (files[nDirectory][nFile] != null) {
                     files[nDirectory][nFile].close();
@@ -378,8 +378,7 @@ public class TableImplementation implements Table {
         
         try {
             return files[nDirectory][nFile].remove(key);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             try {
                 if (files[nDirectory][nFile] != null) {
                     files[nDirectory][nFile].close();
@@ -395,17 +394,24 @@ public class TableImplementation implements Table {
     }
     
     private void closeAllFiles() throws IOException {
+        Throwable exception = null;
         for (int i = 0; i < DIR_NUM; ++i) {
             for (int j = 0; j < FILES_NUM; ++j) {
                 if (files[i][j] != null) {
                     try {
                         files[i][j].close();
-                    } catch (IOException e) {
-                        throw new IOException("Error while closing file: " + i + " " + j
-                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"));
+                    } catch (Throwable e) {
+                        if (exception == null) {
+                            exception = new Throwable();
+                        }
+                        exception.addSuppressed(new Throwable("Error while closing file: " + i + " " + j
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e));
                     }
                 }
             }
+        }
+        if (exception != null) {
+            throw new RuntimeException(exception);
         }
     }
     

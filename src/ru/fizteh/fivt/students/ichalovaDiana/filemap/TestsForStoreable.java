@@ -140,6 +140,77 @@ public class TestsForStoreable {
         value1.setColumnAt(0, 5L);
     }
     
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableWrongSet() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(String.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(1, "AA");
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetStringWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(String.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, "AA");
+        value1.getStringAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetBooleanWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Boolean.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, true);
+        value1.getBooleanAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetIntegerWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Integer.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, 5);
+        value1.getIntAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetDoubleWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Double.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, 5.3);
+        value1.getDoubleAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetFloatWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Float.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, 5.3f);
+        value1.getFloatAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetLongWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Long.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, 5L);
+        value1.getFloatAt(1);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void storeableGetByteWrongIndex() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Byte.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, (byte) 5);
+        value1.getFloatAt(1);
+    }
+    
     @Test(expected = ColumnFormatException.class)
     public void setStringInsteadOfDouble() {
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
