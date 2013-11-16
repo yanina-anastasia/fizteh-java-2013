@@ -137,7 +137,7 @@ public class MyStoreable implements Storeable {
     }
 
     private void checkFormatValue(int columnIndex, Class<?> value) {
-        if (!value.isAssignableFrom(types.get(columnIndex))) {
+        if (!value.equals(types.get(columnIndex))) {
             throw new ColumnFormatException("wrong type (Incorrect column format: expected" + types.get(columnIndex)
                     + " but was " + value.getClass() + ")");
         }

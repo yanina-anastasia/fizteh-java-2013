@@ -32,6 +32,8 @@ public class StoreableTest {
         list.add(2, Float.class);
         list.add(3, Double.class);
         list.add(4, Boolean.class);
+        list.add(5, Byte.class);
+        list.add(6, Long.class);
         factory = new NewTableProviderFactory();
         provider = factory.create(folder.newFolder().toString());
         table = provider.createTable("Table", list);
@@ -85,4 +87,33 @@ public class StoreableTest {
         assertEquals("sdsds  sdsf sfsf", st.getStringAt(1));
     }
 
+    @Test(expected = ColumnFormatException.class)
+    public void testIncorrectColumnType() {
+        st.setColumnAt(0, 1022);
+        st.setColumnAt(1, "val");
+        st.setColumnAt(4, false);
+        st.setColumnAt(3, 2.12);
+        st.getIntAt(1);
+        st.getBooleanAt(0);
+        st.getDoubleAt(4);
+        st.getIntAt(3);
+    }
+
+    @Test
+    public void testGetDoubleAt() {
+        st.setColumnAt(3, 1111.222);
+        assertEquals(Double.valueOf(1111.222), st.getDoubleAt(3));
+    }
+
+    @Test
+    public void testGetByteAt() {
+        st.setColumnAt(5, (byte) 6);
+        assertEquals(Byte.valueOf((byte) 6), st.getByteAt(5));
+    }
+
+    @Test
+    public void testGetLongAt() {
+        st.setColumnAt(6, Long.valueOf(1000000000));
+        assertEquals(Long.valueOf(1000000000), st.getLongAt(6));
+    }
 }
