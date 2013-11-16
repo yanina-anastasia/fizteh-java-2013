@@ -81,7 +81,7 @@ public class CommandLauncher {
                     return Code.OK;
                 } catch (Exception e) {
                     //e.printStackTrace();
-                    //getMessage((Exception) e.getCause());
+                    getMessage((Exception) e.getCause());
                     return Code.ERROR;
                 }
             } else {
