@@ -301,8 +301,6 @@ public class FileMap extends UserShell {
             data.exec(args);
             data.doExit();
         } catch (RuntimeException e) {
-            //TODO
-            e.printStackTrace();
             System.err.println(e.getMessage());
             System.exit(1);
         }
