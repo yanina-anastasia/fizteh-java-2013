@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -24,15 +22,6 @@ public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
     private HashMap<String, Filemap> tables = new HashMap<String, Filemap>();
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-//    private Lock read = readWriteLock.readLock();
-//    private Lock write = readWriteLock.writeLock();
-//    private ThreadLocal<String> currentTable = new ThreadLocal<String>() {
-//        @Override
-//        protected String initialValue() {
-//            return null;
-//        }
-//    };
 
     public MyTableProvider() {
     }
@@ -104,14 +93,9 @@ public class MyTableProvider implements TableProvider {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-//                try {
-//                    write.lock();
-                    Filemap result = new Filemap(tablePath, name, this, oldTypes);
-                    tables.put(name, result);
-                    return (Table) result;
-//                } finally {
-//                    write.unlock();
-//                }
+                Filemap result = new Filemap(tablePath, name, this, oldTypes);
+                tables.put(name, result);
+                return (Table) result;
             }
         } catch (IOException e1) {
             throw new RuntimeException("can't read info from signature.tsv", e1);
@@ -287,25 +271,20 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-//        try {
-//            write.lock();
-            File tmpFile = new File(tablePath);
-            if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-                throw new IllegalStateException(name + " not exists");
-            } else {
-                if (tables.get(name) != null) {
-                    tables.remove(name);
-                }
-                Shell sh = new Shell(rootDir, false);
-                if (sh.rm(name) == ExitCode.OK) {
-                    return;
-                } else {
-                    throw new RuntimeException(name + " can't remove table");
-                }
+        File tmpFile = new File(tablePath);
+        if (!tmpFile.exists() || !tmpFile.isDirectory()) {
+            throw new IllegalStateException(name + " not exists");
+        } else {
+            if (tables.get(name) != null) {
+                tables.remove(name);
             }
-//        } finally {
-//            write.unlock();
-//        }
+            Shell sh = new Shell(rootDir, false);
+            if (sh.rm(name) == ExitCode.OK) {
+                return;
+            } else {
+                throw new RuntimeException(name + " can't remove table");
+            }
+        }
     }
 
     @Override
