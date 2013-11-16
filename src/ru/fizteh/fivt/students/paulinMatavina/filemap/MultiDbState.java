@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -25,9 +26,9 @@ public class MultiDbState extends State implements Table {
     private int primaryDbSize;
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
+    public ArrayList<String> possibleTypes;
     
-    
-    private void init(String dbName) throws IOException, ParseException {        
+    private void init(String dbName) throws IOException, ParseException {          
         dbSize = 0;
         isDropped = false;
         
@@ -48,6 +49,7 @@ public class MultiDbState extends State implements Table {
                                                 throws ParseException, IOException {
         validate(property);
         validate(dbName);
+        checkList(columnTypes);
         if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("no root directory");
         }
@@ -55,6 +57,23 @@ public class MultiDbState extends State implements Table {
         rootPath = property;     
         init(dbName);
         objList = columnTypes;
+    }
+    
+    private void checkList(List<Class<?>> columnTypes) {
+        possibleTypes = new ArrayList<String>();
+        possibleTypes.add("String");
+        possibleTypes.add("Integer");
+        possibleTypes.add("Boolean");
+        possibleTypes.add("Float");
+        possibleTypes.add("Double");
+        possibleTypes.add("Byte");
+        possibleTypes.add("Long");
+        for (int i = 0; i < columnTypes.size(); i++) {
+            if (columnTypes.get(i) == null
+                    || !possibleTypes.contains(columnTypes.get(i).getSimpleName())) {
+                throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i).getSimpleName());
+            }
+        }
     }
     
     public MultiDbState(String property, String dbName, MyTableProvider prov) 
@@ -186,7 +205,7 @@ public class MultiDbState extends State implements Table {
         }
         for (int i = 0; i < objList.size(); i++) {
             try {
-                if (value.getColumnAt(i).getClass() != objList.get(i)) {
+                if (value.getColumnAt(i) != null && value.getColumnAt(i).getClass() != objList.get(i)) {
                     throw new ColumnFormatException("expected " + objList.get(i).toString()
                             + ", " + value.getColumnAt(i).getClass() + " passed");
                 }
@@ -339,7 +358,7 @@ public class MultiDbState extends State implements Table {
         
         try {
             for (int i = 0; i < objList.size(); i++) {
-                writer.write(objList.get(i).toString() + " ");
+                writer.write(objList.get(i).getSimpleName() + " ");
             }
             writer.close();
         } catch (IOException e) { 

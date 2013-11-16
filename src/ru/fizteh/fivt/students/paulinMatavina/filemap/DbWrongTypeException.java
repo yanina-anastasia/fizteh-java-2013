@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 @SuppressWarnings("serial")
-class DbWrongTypeException extends RuntimeException {
+class DbWrongTypeException extends IllegalArgumentException {
     public DbWrongTypeException() {
         super();
     }
