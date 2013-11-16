@@ -58,19 +58,19 @@ public class StoreableTable extends BasicTable<Storeable> implements Table {
 		return columnClasses.get(columnIndex);
 	}
 
-	public String serialize(Storeable value) throws IOException {
+	public String serialize(Storeable value) {
 		try {
 			return currentProvider.serialize(this, value);
 		} catch (ColumnFormatException catchedException) {
-			throw new IOException(catchedException);
+			throw new WrongTypeException(catchedException);
 		}
 	}
 	
-	public Storeable deserialize(String value) throws IOException {
+	public Storeable deserialize(String value) {
 		try {
 			return currentProvider.deserialize(this, value);
 		} catch (ParseException catchedException) {
-			throw new IOException(catchedException);
+			throw new WrongTypeException(catchedException);
 		}
 	}
 

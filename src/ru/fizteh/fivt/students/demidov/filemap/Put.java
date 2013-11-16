@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicState;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
+import ru.fizteh.fivt.students.demidov.storeable.WrongTypeException;
 
 public class Put extends BasicFileMapCommand {
 	public Put(BasicState currentState) {
@@ -13,7 +14,7 @@ public class Put extends BasicFileMapCommand {
 		String value = null;
 		try {
 			value = currentState.put(arguments[0], arguments[1]);
-		} catch (IOException catchedException) {
+		} catch (WrongTypeException catchedException) {
 			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
 		}
 		
