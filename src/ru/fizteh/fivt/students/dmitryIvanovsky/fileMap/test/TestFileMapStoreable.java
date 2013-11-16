@@ -13,12 +13,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestFileMapStoreable {
-    private static FileMapStoreable stIntString;
-    private static FileMapStoreable stAll;
-    private static FileMapStoreable stInt;
+    private FileMapStoreable stIntString;
+    private FileMapStoreable stAll;
+    private FileMapStoreable stInt;
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
         List<Class<?>> list1 = new ArrayList<>();
         list1.add(Integer.class);
         list1.add(String.class);

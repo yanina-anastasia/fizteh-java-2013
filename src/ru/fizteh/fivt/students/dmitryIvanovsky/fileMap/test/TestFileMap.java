@@ -21,14 +21,14 @@ import static org.junit.Assert.assertEquals;
 
 public class TestFileMap {
 
-    private static Table fileMap;
-    private static String nameTable;
-    private static CommandShell mySystem;
-    private static Path pathTables;
-    private static FileMapProvider multiMap;
+    private Table fileMap;
+    private String nameTable;
+    private CommandShell mySystem;
+    private Path pathTables;
+    private FileMapProvider multiMap;
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
 
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
@@ -213,7 +213,7 @@ public class TestFileMap {
     }
 
     @AfterClass
-    public static void tearDown() {
+    public void tearDown() {
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {
