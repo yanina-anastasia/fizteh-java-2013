@@ -54,6 +54,7 @@ public class DataBaseProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
+
         DataBase getTable = tableBase.get(name);
         return getTable;
     }
@@ -173,6 +174,7 @@ public class DataBaseProvider implements TableProvider {
             throw new IllegalStateException("table not exists");
         }
         doDelete(fileTable);
+        tableBase.get(name).setRemoved();
         tableBase.remove(name);
     }
 

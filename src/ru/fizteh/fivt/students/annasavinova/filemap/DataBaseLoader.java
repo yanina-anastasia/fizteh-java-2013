@@ -38,12 +38,13 @@ public class DataBaseLoader {
 
     private DataBase loadTable(File tableDir) {
         currentHashMap.clear();
-        DataBase result = new DataBase(tableDir.getName(), rootDir.getAbsolutePath(), provider);
-        currentTable = result;
-        ArrayList<Class<?>> types = null;
+        currentTable = new DataBase(tableDir.getName(), rootDir.getAbsolutePath(), provider);
+        File signature = new File(tableDir + File.separator + "signature.tsv");
+        ArrayList<Class<?>> types = scanSignature(signature);
+        currentTable.setTypes(types);
         for (File currFile : tableDir.listFiles()) {
-            if (currFile.isFile()) {
-                types = scanSignature(currFile);
+            if (currFile.isFile() && !currFile.getName().equals(signature.getName())) {
+                throw new RuntimeException("Incorrect DataBase: illegal file " + currFile.getAbsolutePath());
             } else if (currFile.isDirectory()) {
                 File[] list = currFile.listFiles();
                 if (list.length == 0) {
@@ -60,10 +61,10 @@ public class DataBaseLoader {
         if (types == null) {
             throw new RuntimeException("Incorrect DataBase: have no signature file");
         }
-        result.setHashMap(currentHashMap);
-        result.setTypes(types);
-        result.setHasLoadedData(true);
-        return result;
+        currentTable.setHashMap(currentHashMap);
+        
+        currentTable.setHasLoadedData(true);
+        return currentTable;
     }
 
     private int getFileNumFromPath(String path) {
@@ -71,7 +72,9 @@ public class DataBaseLoader {
             throw new RuntimeException("Incorrect DataBase: illegal file in base " + path);
         }
         path = path.replace(".dat", "");
-        Integer res = new Integer(path.charAt(path.length() - 1));
+        String[] arr = path.split(File.separator);
+
+        Integer res = new Integer(arr[arr.length - 1]);
         return res;
     }
 
@@ -80,7 +83,8 @@ public class DataBaseLoader {
             throw new RuntimeException("Incorrect DataBase: illegal dir in base " + path);
         }
         path = path.replace(".dir", "");
-        Integer res = new Integer(path.charAt(path.length() - 1));
+        String[] arr = path.split(File.separator);
+        Integer res = new Integer(arr[arr.length - 1]);
         return res;
     }
 
@@ -127,7 +131,7 @@ public class DataBaseLoader {
                 int ndirectory = b % 16;
                 int nfile = b / 16 % 16;
                 if (ndirectory != dirNum || nfile != fileNum) {
-                    throw new RuntimeException("Incorrect DataBase: illegal keys in file " + file.getAbsolutePath());
+                    throw new RuntimeException("Incorrect DataBase: illegal key in file " + file.getAbsolutePath());
                 }
                 String key = new String(keyBytes);
                 String value = new String(valueBytes);

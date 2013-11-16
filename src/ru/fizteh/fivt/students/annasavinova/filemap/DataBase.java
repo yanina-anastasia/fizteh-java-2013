@@ -24,6 +24,11 @@ public class DataBase implements Table {
     private String currTable = "";
     private static String rootDir = "";
     private boolean hasLoadedData = false;
+    private boolean removed = false;
+
+    public void setRemoved() {
+        removed = true;
+    }
 
     public DataBase(String tableName, String root, TableProvider prov) {
         if (prov == null) {
@@ -183,7 +188,7 @@ public class DataBase implements Table {
 
     @Override
     public String getName() {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         return currTable;
@@ -203,7 +208,7 @@ public class DataBase implements Table {
 
     @Override
     public Storeable get(String key) {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
@@ -212,7 +217,7 @@ public class DataBase implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
@@ -227,7 +232,7 @@ public class DataBase implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
@@ -240,7 +245,7 @@ public class DataBase implements Table {
 
     @Override
     public int size() {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         int count = 0;
@@ -255,7 +260,7 @@ public class DataBase implements Table {
 
     @Override
     public int commit() throws IOException {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         int changesCount = countChanges();
@@ -282,7 +287,7 @@ public class DataBase implements Table {
 
     @Override
     public int rollback() {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         int changesCount = countChanges();
@@ -292,7 +297,7 @@ public class DataBase implements Table {
 
     @Override
     public int getColumnsCount() {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         return typesList.size();
@@ -300,7 +305,7 @@ public class DataBase implements Table {
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (provider.getTable(currTable) == null) {
+        if (removed) {
             throw new IllegalStateException("table not exists");
         }
         if (columnIndex < 0 || columnIndex >= typesList.size()) {
