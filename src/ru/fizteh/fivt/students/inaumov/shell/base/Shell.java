@@ -58,7 +58,7 @@ public class Shell<State> {
 		for (int i = 0; i < commands.length; ++i) {
 			if (commands[i].length != 0) {
 				Command command = getCommand(commands[i][0]);
-                if (command.getArgumentsNumber() != commands[i].length - 1) {
+                if (!(command.getArgumentsNumber() == -1) && command.getArgumentsNumber() != commands[i].length - 1) {
                     throw new IllegalArgumentException(command.getName() + ": expected " + command.getArgumentsNumber() + " arguments, got " + (commands[i].length - 1) + " arguments");
                 }
 

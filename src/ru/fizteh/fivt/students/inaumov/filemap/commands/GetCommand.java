@@ -1,24 +1,27 @@
 package ru.fizteh.fivt.students.inaumov.filemap.commands;
 
 import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
-import ru.fizteh.fivt.students.inaumov.filemap.SingleFileMapShellState;
+import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 
-public class GetCommand extends AbstractCommand<SingleFileMapShellState> {
+public class GetCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>> extends AbstractCommand<State> {
 	public GetCommand() {
 		super("get", 1);
 	}
 
-	public void execute(String[] args, SingleFileMapShellState fileMapState) throws IllegalArgumentException {
-        if (fileMapState.table == null) {
-            throw new IllegalArgumentException("no table");
+	public void execute(String[] args, State state) {
+        if (state.getTable() == null) {
+            System.err.println("no table");
+            return;
         }
 
-        String value = fileMapState.table.get(args[1]);
+        Key key = state.parseKey(args[1]);
+        Value value = state.get(key);
+
 		if (value == null) {
 			System.out.println("not found");
 		} else {
 			System.out.println("found");
-			System.out.println(value);
+			System.out.println(state.valueToString(value));
 		}
 	}
 }
