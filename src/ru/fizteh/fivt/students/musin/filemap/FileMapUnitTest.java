@@ -482,7 +482,7 @@ public class FileMapUnitTest {
     }
 
     @Test
-    public void getClassReturnsSpecifiedClass() {
+    public void getClassAtReturnsSpecifiedClass() {
         ArrayList<Class<?>> columnTypes = new ArrayList<>();
         columnTypes.add(Integer.class);
         columnTypes.add(Byte.class);
@@ -509,7 +509,7 @@ public class FileMapUnitTest {
     }
 
     @Test
-    public void getClassFromWrongColumnShouldFail() {
+    public void getClassAtFromWrongColumnShouldFail() {
         ArrayList<Class<?>> columnTypes = new ArrayList<>();
         columnTypes.add(Integer.class);
         columnTypes.add(Byte.class);
@@ -577,6 +577,82 @@ public class FileMapUnitTest {
         try {
             sample.getStringAt(0);
         } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void getClassAtFromBigIndexShouldFail() {
+        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+        columnTypes.add(Integer.class);
+        columnTypes.add(Byte.class);
+        columnTypes.add(Long.class);
+        columnTypes.add(Boolean.class);
+        columnTypes.add(Float.class);
+        columnTypes.add(Double.class);
+        columnTypes.add(String.class);
+        Storeable sample = new FixedList(columnTypes);
+        boolean ok = false;
+        try {
+            sample.getIntAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getByteAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getLongAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getBooleanAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getFloatAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getDoubleAt(10);
+        } catch (IndexOutOfBoundsException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getStringAt(10);
+        } catch (IndexOutOfBoundsException e) {
             ok = true;
         }
         if (!ok) {
