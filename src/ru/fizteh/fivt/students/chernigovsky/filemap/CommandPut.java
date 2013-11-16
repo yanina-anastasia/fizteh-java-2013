@@ -10,11 +10,11 @@ public class CommandPut implements Command {
         return 2;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.getCurrentTable() == null) {
+        if (state.currentTableIsNull()) {
             System.out.println("no table");
             return;
         }
-        String oldValue = state.getCurrentTable().put(args[1], args[2]);
+        String oldValue = state.putToCurrentTable(args[1], args[2]);
         if (oldValue == null) {
             System.out.println("new");
         } else {

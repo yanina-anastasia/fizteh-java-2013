@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.chernigovsky.junit;
 
-import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.filemap.FileMapState;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class MultiFileHashMapTableProvider extends AbstractTableProvider<ExtendedMultiFileHashMapTable> implements ExtendedMultiFileHashMapTableProvider {
     public MultiFileHashMapTableProvider(File newDbDirectory, boolean flag) {
@@ -15,7 +14,7 @@ public class MultiFileHashMapTableProvider extends AbstractTableProvider<Extende
                 ExtendedMultiFileHashMapTable newTable = new MultiFileHashMapTable(string, flag);
                 tableHashMap.put(string, newTable);
                 try {
-                    MultiFileHashMapUtils.readTable(new State(newTable, this));
+                    MultiFileHashMapUtils.readTable(new FileMapState(newTable, this));
                 } catch (IOException ex) {
                     throw new RuntimeException();
                 }

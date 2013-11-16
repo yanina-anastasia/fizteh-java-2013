@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.fizteh.fivt.students.chernigovsky.filemap.*;
-import ru.fizteh.fivt.students.chernigovsky.filemap.State;
+import ru.fizteh.fivt.students.chernigovsky.filemap.FileMapState;
 import ru.fizteh.fivt.students.chernigovsky.junit.*;
 
 public class Main {
@@ -24,7 +24,7 @@ public class Main {
         }
 
         ExtendedMultiFileHashMapTableProvider tableProvider = new MultiFileHashMapTableProvider(dbDirectory, true);
-        State state = new State(null, tableProvider);
+        FileMapState fileMapState = new FileMapState(null, tableProvider);
 
         commandMap.put("put", new CommandPut());
         commandMap.put("get", new CommandGet());
@@ -36,11 +36,11 @@ public class Main {
 
         if (args.length == 0) { // Interactive mode
             try {
-                Mods.interactiveMode(commandMap, state);
+                Mods.interactiveMode(commandMap, fileMapState);
             } catch (ExitException ex) {
-                if (state.getCurrentTable() != null) {
+                if (fileMapState.getCurrentTable() != null) {
                     try {
-                        MultiFileHashMapUtils.writeTable(state);
+                        MultiFileHashMapUtils.writeTable(fileMapState);
                     } catch (IOException exc) {
                         System.err.println(exc.getMessage());
                         System.exit(1);
@@ -50,11 +50,11 @@ public class Main {
             }
         } else { // Batch mode
             try {
-                Mods.batchMode(args, commandMap, state);
+                Mods.batchMode(args, commandMap, fileMapState);
             } catch (ExitException ex) {
-                if (state.getCurrentTable() != null) {
+                if (fileMapState.getCurrentTable() != null) {
                     try {
-                        MultiFileHashMapUtils.writeTable(state);
+                        MultiFileHashMapUtils.writeTable(fileMapState);
                     } catch (IOException exc) {
                         System.err.println(exc.getMessage());
                         System.exit(1);
@@ -65,7 +65,7 @@ public class Main {
         }
 
         try {
-             MultiFileHashMapUtils.writeTable(state);
+             MultiFileHashMapUtils.writeTable(fileMapState);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);

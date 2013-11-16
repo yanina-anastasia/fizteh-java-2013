@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Mods {
-    public static void interactiveMode(Map<String, Command> commandMap, State state) throws ExitException {
+    public static void interactiveMode(Map<String, Command> commandMap, FileMapState fileMapState) throws ExitException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
             String string = scanner.nextLine();
             try {
-                parseCommands(string, commandMap, state);
+                parseCommands(string, commandMap, fileMapState);
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }
@@ -19,7 +19,7 @@ public class Mods {
         }
     }
 
-    public static void batchMode(String[] args, Map<String, Command> commandMap, State state) throws ExitException {
+    public static void batchMode(String[] args, Map<String, Command> commandMap, FileMapState fileMapState) throws ExitException {
         StringBuilder stringBuilder = new StringBuilder();
         for (String string : args) {
             stringBuilder.append(string);
@@ -27,13 +27,13 @@ public class Mods {
         }
         String commands = stringBuilder.toString();
         try {
-            parseCommands(commands, commandMap, state);
+            parseCommands(commands, commandMap, fileMapState);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
     }
 
-    private static void parseCommands(String commands, Map<String, Command> commandMap, State state) throws IOException, ExitException {
+    private static void parseCommands(String commands, Map<String, Command> commandMap, FileMapState fileMapState) throws IOException, ExitException {
         String[] listOfCommand = commands.trim().split("\\s*;\\s*");
         for (String string : listOfCommand) {
             String[] commandArguments = string.split("\\s+");
@@ -44,7 +44,7 @@ public class Mods {
             if (commandArguments.length != command.getArgumentsCount() + 1) {
                 throw new IOException("Wrong argument count");
             } else {
-                command.execute(state, commandArguments);
+                command.execute(fileMapState, commandArguments);
             }
         }
 

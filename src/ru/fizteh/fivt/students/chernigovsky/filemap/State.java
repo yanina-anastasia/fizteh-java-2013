@@ -1,27 +1,28 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTable;
-import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.AbstractTable;
 
-public class State {
-    private ExtendedMultiFileHashMapTable currentTable;
-    private ExtendedMultiFileHashMapTableProvider currentTableProvider;
+import java.io.IOException;
 
-    public State(ExtendedMultiFileHashMapTable newTable, ExtendedMultiFileHashMapTableProvider newTableProvider) {
-        currentTable = newTable;
-        currentTableProvider = newTableProvider;
-    }
+public interface State {
+    boolean currentTableIsNull();
 
-    public ExtendedMultiFileHashMapTable getCurrentTable() {
-        return currentTable;
-    }
+    String getFromCurrentTable(String key);
+    String putToCurrentTable(String key, String value);
+    String removeFromCurrentTable(String key);
 
-    public void changeCurrentTable(ExtendedMultiFileHashMapTable newCurrentTable) {
-        currentTable = newCurrentTable;
-    }
+    boolean createTable(String name);
+    boolean removeTable(String name);
+    void checkDropTableUsing(String name);
+    boolean isTableExists(String name);
+    void changeCurrentTable(String name);
+    int getDiffCount();
 
-    public ExtendedMultiFileHashMapTableProvider getCurrentTableProvider() {
-        return currentTableProvider;
-    }
+    void writeTable() throws IOException;
+    void readTable() throws IOException;
 
+    boolean isCurrentTableProviderNull();
+    int commit();
+    int rollback();
+    int size();
 }
