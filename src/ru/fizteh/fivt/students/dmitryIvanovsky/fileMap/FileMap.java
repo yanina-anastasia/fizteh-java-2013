@@ -252,16 +252,15 @@ public class FileMap implements Table {
                 }
             }
         } catch (Exception e) {
-            error.addSuppressed(e);
+            error = e;
             throw error;
         } finally {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                ErrorFileMap notClose = new ErrorFileMap("doesn't close");
-                error.addSuppressed(e);
-                error.addSuppressed(notClose);
-                throw error;
+                if (error != null) {
+                    error.addSuppressed(e);
+                }
             }
         }
     }
