@@ -37,24 +37,24 @@ public class JUnit {
         Files.createDirectory(tfPath.resolve("factory3"));
         Files.createDirectory(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory"));
         Files.createDirectory(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
-                                    .resolve("12.dat"));
+                .resolve("12.dat"));
         Files.createFile(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
-                                                   .resolve("signature.tsv"));
+                .resolve("signature.tsv"));
 
         Files.createDirectory(tfPath.resolve("factory4"));
         Files.createDirectory(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
         Files.createDirectory(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                                        .resolve("12.dir"));
+                .resolve("12.dir"));
         Files.createFile(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                                   .resolve("12.dir").resolve("1.d"));
+                .resolve("12.dir").resolve("1.d"));
         Files.createFile(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                                   .resolve("signature.tsv"));
+                .resolve("signature.tsv"));
 
         Files.createDirectory(tfPath.resolve("factory5"));
         Files.createDirectory(tfPath.resolve("factory5").resolve("directoryWithoutSignature"));
         Files.createDirectory(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
         Files.createFile(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir")
-                                                                                        .resolve("1.dat"));
+                .resolve("1.dat"));
     }
 
     @After
@@ -70,22 +70,22 @@ public class JUnit {
         Files.delete(tfPath.resolve("factory2"));
 
         Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
-                                               .resolve("signature.tsv"));
+                .resolve("signature.tsv"));
         Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
         Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory"));
         Files.delete(tfPath.resolve("factory3"));
 
         Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                               .resolve("signature.tsv"));
+                .resolve("signature.tsv"));
         Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                               .resolve("12.dir").resolve("1.d"));
+                .resolve("12.dir").resolve("1.d"));
         Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
-                                               .resolve("12.dir"));
+                .resolve("12.dir"));
         Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
         Files.delete(tfPath.resolve("factory4"));
 
         Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir")
-                                                                                    .resolve("1.dat"));
+                .resolve("1.dat"));
         Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
         Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature"));
         Files.delete(tfPath.resolve("factory5"));
@@ -465,17 +465,166 @@ public class JUnit {
 
     //------------------------------------------------------------------------
 
+    Storeable store;
+
+    @Before
+    public void createStorable() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(Long.class);
+        types.add(Byte.class);
+        types.add(Float.class);
+        types.add(Double.class);
+        types.add(Boolean.class);
+        types.add(String.class);
+        store = new Storable(types);
+    }
+
     @Test (expected = ColumnFormatException.class)
-    public void createNullStorableTest() {
+    public void createNullTypesStorableTest() {
         Storeable s = new Storable(null);
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void createEmptyStorableTest() {
+    public void createEmptyTypesStorableTest() {
         ArrayList<Class<?>> types = new ArrayList<>();
         Storeable s = new Storable(types);
     }
+
+    @Test (expected = ColumnFormatException.class)
+    public void createWrongTypesStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(Character.class);
+        types.add(String.class);
+        Storeable s = new Storable(types);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void createNullValuesStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        Storeable s = new Storable(types, null);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void createEmptyValuesStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        Storeable s = new Storable(types, values);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void createWrongValuesStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(111);
+        values.add(333);
+        Storeable s = new Storable(types, values);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void setWrongIndexStorableTest1() {
+        store.setColumnAt(-4, 3);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void setWrongIndexStorableTest2() {
+        store.setColumnAt(88, "tra-ta-ta");
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void setWrongValueStorableTest() {
+        store.setColumnAt(1, 9);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getWrongIndexStorableTest1() {
+        store.getColumnAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getWrongIndexStorableTest2() {
+        store.getColumnAt(123);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getIntWrongIndexStorableTest1() {
+        store.getIntAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getIntWrongIndexStorableTest2() {
+        store.getIntAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getLongWrongIndexStorableTest1() {
+        store.getLongAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getLongWrongIndexStorableTest2() {
+        store.getLongAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getByteWrongIndexStorableTest1() {
+        store.getByteAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getByteWrongIndexStorableTest2() {
+        store.getByteAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getFloatWrongIndexStorableTest1() {
+        store.getFloatAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getFloatWrongIndexStorableTest2() {
+        store.getFloatAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getDoubleWrongIndexStorableTest1() {
+        store.getDoubleAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getDoubleWrongIndexStorableTest2() {
+        store.getDoubleAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getBooleanWrongIndexStorableTest1() {
+        store.getBooleanAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getBooleanWrongIndexStorableTest2() {
+        store.getBooleanAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getStringWrongIndexStorableTest1() {
+        store.getStringAt(-10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void getStringWrongIndexStorableTest2() {
+        store.getStringAt(10);
+    }
 }
+
+
 /*
 stack trace - ХЗ
 //checkstyle
