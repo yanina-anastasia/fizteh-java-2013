@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
-import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -27,12 +28,12 @@ import static org.junit.Assert.assertEquals;
 
 public class TestFileMapProvider {
 
-    private static TableProvider multiMap;
-    private static CommandShell mySystem;
-    private static Path pathTables;
+    private TableProvider multiMap;
+    private CommandShell mySystem;
+    private Path pathTables;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
 
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
@@ -153,8 +154,8 @@ public class TestFileMapProvider {
         multiMap.deserialize(table, res);
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {

@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
@@ -15,12 +13,12 @@ import java.nio.file.Paths;
 
 public class TestFileMapProviderFactory {
 
-    private static TableProviderFactory multiMapFactory;
-    private static CommandShell mySystem;
-    private static Path pathTables;
+    private TableProviderFactory multiMapFactory;
+    private CommandShell mySystem;
+    private Path pathTables;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
 
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
@@ -55,8 +53,8 @@ public class TestFileMapProviderFactory {
         multiMapFactory.create(pathTables.toString());
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {

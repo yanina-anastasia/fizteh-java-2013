@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -13,12 +14,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestFileMapStoreable {
-    private static FileMapStoreable stIntString;
-    private static FileMapStoreable stAll;
-    private static FileMapStoreable stInt;
 
-    @BeforeClass
-    public static void setUp() {
+    private FileMapStoreable stIntString;
+    private FileMapStoreable stAll;
+    private FileMapStoreable stInt;
+
+    @Before
+    public void setUp() {
         List<Class<?>> list1 = new ArrayList<>();
         list1.add(Integer.class);
         list1.add(String.class);

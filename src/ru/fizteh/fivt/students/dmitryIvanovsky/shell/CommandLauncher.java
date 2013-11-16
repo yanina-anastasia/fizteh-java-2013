@@ -109,15 +109,6 @@ public class CommandLauncher {
         }
     }
 
-//    private void getMessage(Exception e) {
-//        if (e.getMessage() != null) {
-//            errPrint(e.getMessage());
-//        }
-//        for (int i = 0; i < e.getSuppressed().length; ++i) {
-//            errPrint(e.getSuppressed()[i].getMessage());
-//        }
-//    }
-
     public Code runCommands(String query, boolean isInteractiveMode) {
         String[] command;
         command = query.split(";");
@@ -177,14 +168,6 @@ public class CommandLauncher {
             System.err.flush();
             System.err.println(message);
             System.err.flush();
-        }
-    }
-
-    private void outPrint(String message) {
-        if (out) {
-            System.out.flush();
-            System.out.println(message);
-            System.out.flush();
         }
     }
 

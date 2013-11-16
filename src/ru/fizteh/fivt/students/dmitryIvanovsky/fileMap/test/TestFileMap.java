@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
@@ -21,25 +19,20 @@ import static org.junit.Assert.assertEquals;
 
 public class TestFileMap {
 
-    private static Table fileMap;
-    private static String nameTable;
-    private static CommandShell mySystem;
-    private static Path pathTables;
-    private static FileMapProvider multiMap;
+    private Table fileMap;
+    private String nameTable;
+    private CommandShell mySystem;
+    private Path pathTables;
+    private FileMapProvider multiMap;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
 
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
         pathTables = pathTables.resolve("bdTest");
         try {
             mySystem.mkdir(new String[]{pathTables.toString()});
-        } catch (ErrorShell e) {
-            e.printStackTrace();
-        }
-
-        try {
             multiMap = new FileMapProvider(pathTables.toAbsolutePath().toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,7 +47,7 @@ public class TestFileMap {
             nameTable = "table";
             fileMap = multiMap.createTable("table", list);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
 
     }
@@ -212,8 +205,8 @@ public class TestFileMap {
         assertEquals(String.class, fileMap.getColumnType(0));
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {

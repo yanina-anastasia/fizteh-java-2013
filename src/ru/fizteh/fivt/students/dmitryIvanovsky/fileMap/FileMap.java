@@ -330,12 +330,7 @@ public class FileMap implements Table {
             return;
         }
         RandomAccessFile dbFile = null;
-        ErrorFileMap error = null;
-//        try {
-//
-//        } catch (Exception e) {
-//            throw new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
-//        }
+        Exception error = null;
         try {
             dbFile = new RandomAccessFile(randomFile, "rw");
             dbFile.setLength(0);
@@ -362,16 +357,15 @@ public class FileMap implements Table {
                 dbFile.seek(point);
             }
         } catch (Exception e) {
-            error.addSuppressed(e);
+            error = e;
             throw error;
         } finally {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                ErrorFileMap notClose = new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
-                error.addSuppressed(e);
-                error.addSuppressed(notClose);
-                throw error;
+                if (error != null) {
+                    error.addSuppressed(e);
+                }
             }
         }
     }
@@ -443,8 +437,6 @@ public class FileMap implements Table {
                         throw new ColumnFormatException("this Storeable can't be use in this table");
                     }
                     break;
-                } catch (ColumnFormatException err) {
-                    throw err;
                 }
             }
 
