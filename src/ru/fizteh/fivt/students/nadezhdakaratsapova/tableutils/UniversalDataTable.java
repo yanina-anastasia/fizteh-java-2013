@@ -19,8 +19,20 @@ public abstract class UniversalDataTable<ValueType> {
     protected String tableName;
     private Map<String, ValueType> dataStorage = new HashMap<String, ValueType>();
 
-    private Map<String, ValueType> putKeys = new HashMap<String, ValueType>();
-    private Set<String> removeKeys = new HashSet<String>();
+    private ThreadLocal<Map<String, ValueType>> putKeys = new ThreadLocal<Map<String, ValueType>>() {
+        @Override
+        protected Map<String, ValueType> initialValue() {
+            return new HashMap<String, ValueType>();
+        }
+    };
+
+    private ThreadLocal<Set<String>> removeKeys = new ThreadLocal<Set<String>>() {
+        @Override
+        protected Set<String> initialValue() {
+            return new HashSet<String>();
+        }
+    };
+
     public ValueConverter<ValueType> valueConverter;
 
     public UniversalDataTable() {
@@ -43,25 +55,25 @@ public abstract class UniversalDataTable<ValueType> {
 
     protected ValueType putSimple(String key, ValueType value) {
         ValueType oldValue = null;
-        if (!removeKeys.contains(key)) {
-            if ((oldValue = putKeys.get(key)) == null) {
+        if (!removeKeys.get().contains(key)) {
+            if ((oldValue = putKeys.get().get(key)) == null) {
                 oldValue = dataStorage.get(key);
                 if (oldValue == null) {
-                    putKeys.put(key, value);
+                    putKeys.get().put(key, value);
                 } else {
                     if (!oldValue.equals(value)) {
-                        putKeys.put(key, value);
+                        putKeys.get().put(key, value);
                     }
                 }
             } else {
                 ValueType dataValue = dataStorage.get(key);
                 if (dataValue == null) {
-                    putKeys.put(key, value);
+                    putKeys.get().put(key, value);
                 } else {
                     if (!dataStorage.get(key).equals(value)) {
-                        putKeys.put(key, value);
+                        putKeys.get().put(key, value);
                     } else {
-                        putKeys.remove(key);
+                        putKeys.get().remove(key);
                     }
                 }
 
@@ -69,9 +81,9 @@ public abstract class UniversalDataTable<ValueType> {
         } else {
             ValueType dataValue = dataStorage.get(key);
             if (!dataValue.equals(value)) {
-                putKeys.put(key, value);
+                putKeys.get().put(key, value);
             }
-            removeKeys.remove(key);
+            removeKeys.get().remove(key);
         }
         return oldValue;
     }
@@ -85,15 +97,15 @@ public abstract class UniversalDataTable<ValueType> {
             throw new IllegalArgumentException("Not correct key");
         }
         ValueType value = null;
-        if (!putKeys.isEmpty()) {
-            if (putKeys.containsKey(key)) {
-                return putKeys.get(key);
+        if (!putKeys.get().isEmpty()) {
+            if (putKeys.get().containsKey(key)) {
+                return putKeys.get().get(key);
             }
         }
-        if (!removeKeys.contains(key)) {
+        if (!removeKeys.get().contains(key)) {
             value = dataStorage.get(key);
             if (value == null) {
-                value = putKeys.get(key);
+                value = putKeys.get().get(key);
             }
         }
         return value;
@@ -103,22 +115,22 @@ public abstract class UniversalDataTable<ValueType> {
         if (key == null) {
             throw new IllegalArgumentException("Not correct key");
         }
-        if (!putKeys.isEmpty()) {
-            if (putKeys.get(key) != null) {
+        if (!putKeys.get().isEmpty()) {
+            if (putKeys.get().get(key) != null) {
                 if (dataStorage.get(key) != null) {
-                    removeKeys.add(key);
+                    removeKeys.get().add(key);
                 }
-                return putKeys.remove(key);
+                return putKeys.get().remove(key);
             }
         }
-        if (!removeKeys.isEmpty()) {
-            if (removeKeys.contains(key)) {
+        if (!removeKeys.get().isEmpty()) {
+            if (removeKeys.get().contains(key)) {
                 return null;
             }
         }
         ValueType value;
         if ((value = dataStorage.get(key)) != null) {
-            removeKeys.add(key);
+            removeKeys.get().add(key);
         }
         return value;
     }
@@ -129,55 +141,55 @@ public abstract class UniversalDataTable<ValueType> {
 
     public int size() {
         int size = dataStorage.size();
-        Set<String> keysToCommit = putKeys.keySet();
+        Set<String> keysToCommit = putKeys.get().keySet();
         for (String key : keysToCommit) {
             if (!dataStorage.containsKey(key)) {
                 ++size;
             }
         }
-        size -= removeKeys.size();
+        size -= removeKeys.get().size();
         return size;
     }
 
-    public int commit() {
+    protected int commitWithoutWriteToDataBase() {
         int commitSize = 0;
-        if (!putKeys.isEmpty()) {
-            Set<String> putKeysToCommit = putKeys.keySet();
+        if (!putKeys.get().isEmpty()) {
+            Set<String> putKeysToCommit = putKeys.get().keySet();
             for (String key : putKeysToCommit) {
-                dataStorage.put(key, putKeys.get(key));
+                dataStorage.put(key, putKeys.get().get(key));
                 ++commitSize;
             }
-            putKeys.clear();
+            putKeys.get().clear();
         }
-        if (!removeKeys.isEmpty()) {
-            for (String key : removeKeys) {
+        if (!removeKeys.get().isEmpty()) {
+            for (String key : removeKeys.get()) {
                 dataStorage.remove(key);
                 ++commitSize;
             }
-            removeKeys.clear();
+            removeKeys.get().clear();
         }
         return commitSize;
     }
 
     public int rollback() {
         int rollbackSize = 0;
-        if (!putKeys.isEmpty()) {
-            rollbackSize += putKeys.size();
-            Set<String> putKeysToRollback = putKeys.keySet();
+        if (!putKeys.get().isEmpty()) {
+            rollbackSize += putKeys.get().size();
+            Set<String> putKeysToRollback = putKeys.get().keySet();
             for (String key : putKeysToRollback) {
                 dataStorage.containsKey(key);
             }
-            putKeys.clear();
+            putKeys.get().clear();
         }
-        if (!removeKeys.isEmpty()) {
-            rollbackSize += removeKeys.size();
-            removeKeys.clear();
+        if (!removeKeys.get().isEmpty()) {
+            rollbackSize += removeKeys.get().size();
+            removeKeys.get().clear();
         }
         return rollbackSize;
     }
 
     public int commitSize() {
-        return putKeys.size() + removeKeys.size();
+        return putKeys.get().size() + removeKeys.get().size();
     }
 
     public File getWorkingDirectory() {
@@ -310,6 +322,8 @@ public abstract class UniversalDataTable<ValueType> {
     }
 
     public abstract ValueType put(String key, ValueType value);
+
+    public abstract int commit() throws IOException;
 
     public abstract void load() throws IOException, ParseException;
 

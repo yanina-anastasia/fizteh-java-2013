@@ -12,11 +12,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StoreableTable extends UniversalDataTable<Storeable> implements Table {
 
     private StoreableTableProvider tableProvider;
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+    private final ReadWriteLock tableChangesLock = new ReentrantReadWriteLock();
+
 
     public StoreableTable(String name, File dir, List<Class<?>> types, StoreableTableProvider provider) {
         tableProvider = provider;
@@ -60,6 +64,18 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
             throw new IndexOutOfBoundsException();
         }
         return columnTypes.get(columnIndex);
+    }
+
+    @Override
+    public int commit() throws IOException {
+        int commitSize = commitWithoutWriteToDataBase();
+        tableChangesLock.writeLock().lock();
+        try {
+            writeToDataBase();
+        } finally {
+            tableChangesLock.writeLock().unlock();
+        }
+        return commitSize;
     }
 
     @Override

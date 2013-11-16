@@ -16,6 +16,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StoreableTableProvider implements TableProvider, UniversalTableProvider {
     public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
@@ -23,6 +25,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     public StoreableTable curDataBaseStorage = null;
     private Map<String, StoreableTable> dataBaseTables = new HashMap<String, StoreableTable>();
     private SignatureController signatureController = new SignatureController();
+    private final ReadWriteLock tableWorkController = new ReentrantReadWriteLock();
 
     public StoreableTableProvider(File dir) throws IOException {
         workingDirectory = dir;
@@ -30,7 +33,13 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         if (tables.length != 0) {
             for (File f : tables) {
                 if (f.isDirectory()) {
-                    List<Class<?>> columnTypes = signatureController.getSignature(f.getCanonicalFile());
+                    List<Class<?>> columnTypes = null;
+                    tableWorkController.readLock().lock();
+                    try {
+                        columnTypes = signatureController.getSignature(f.getCanonicalFile());
+                    } finally {
+                        tableWorkController.readLock().unlock();
+                    }
                     if (columnTypes == null) {
                         throw new IOException("signature.tsv is not found");
                     }
@@ -47,9 +56,19 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             if (!dataBaseTables.isEmpty()) {
                 dataTable = dataBaseTables.get(newTable);
                 if (dataTable != null) {
-                    dataTable.load();
+                    tableWorkController.readLock().lock();
+                    try {
+                        dataTable.load();
+                    } finally {
+                        tableWorkController.readLock().unlock();
+                    }
                     if (curDataBaseStorage != null) {
-                        curDataBaseStorage.writeToDataBase();
+                        tableWorkController.writeLock().lock();
+                        try {
+                            curDataBaseStorage.writeToDataBase();
+                        } finally {
+                            tableWorkController.writeLock().unlock();
+                        }
                     }
                 }
             }
@@ -67,7 +86,12 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         if (!name.matches(TABLE_NAME)) {
             throw new IllegalArgumentException("Not correct file name");
         }
-        return dataBaseTables.get(name);
+        tableWorkController.writeLock().lock();
+        try {
+            return dataBaseTables.get(name);
+        } finally {
+            tableWorkController.writeLock().unlock();
+        }
     }
 
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalArgumentException {
@@ -93,13 +117,18 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             } catch (IOException e) {
                 throw new IllegalArgumentException("create: programme's mistake in getting canonical file");
             }
-            newTableFile.mkdir();
-            StoreableTable newTable = new StoreableTable(name, workingDirectory, columnTypes, this);
-            dataBaseTables.put(name, newTable);
-            File sign = new File(newTableFile, "signature.tsv");
-            sign.createNewFile();
-            signatureController.writeSignatureToFile(sign, columnTypes);
-            return newTable;
+            tableWorkController.writeLock().lock();
+            try {
+                newTableFile.mkdir();
+                StoreableTable newTable = new StoreableTable(name, workingDirectory, columnTypes, this);
+                dataBaseTables.put(name, newTable);
+                File sign = new File(newTableFile, "signature.tsv");
+                sign.createNewFile();
+                signatureController.writeSignatureToFile(sign, columnTypes);
+                return newTable;
+            } finally {
+                tableWorkController.writeLock().unlock();
+            }
         }
     }
 
@@ -117,13 +146,15 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             } catch (IOException e) {
                 throw new IllegalArgumentException("Programme's mistake in getting canonical file");
             }
+            tableWorkController.writeLock().lock();
             try {
                 CommandUtils.recDeletion(table);
+                dataBaseTables.remove(name);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e.getMessage());
+            } finally {
+                tableWorkController.writeLock().unlock();
             }
-            dataBaseTables.remove(name);
-
         } else {
             throw new IllegalStateException(name + " not exists");
         }
