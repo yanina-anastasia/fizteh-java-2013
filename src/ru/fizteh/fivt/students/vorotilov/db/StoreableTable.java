@@ -69,6 +69,8 @@ public class StoreableTable implements Table {
                         if (numberOfSubFile < 0 || numberOfSubFile > 15
                                 || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
                             throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                        } else if (subFile.length() == 0) {
+                            throw new IllegalStateException("Empty file in sub dir");
                         } else {
                             tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
                             tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
