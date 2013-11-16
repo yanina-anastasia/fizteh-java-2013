@@ -299,6 +299,8 @@ public class DataBase implements Table {
         if (putValue == null) {
             if (!map.getRemovedMap().containsKey(key)) {
                 ++changed;
+            } else {
+                --changed;
             }
             map.getChangedMap().put(key, value);
             map.getRemovedMap().remove(key);
