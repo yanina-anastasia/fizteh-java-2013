@@ -106,6 +106,7 @@ public class TableProviderCommands implements TableProvider {
                         throw new IllegalArgumentException("Incorrect signature.tsv");
                 }
             }
+            sign.close();
         } catch (Exception e) {
             throw new IllegalArgumentException("Illegal signature.tsv");
         }
@@ -152,6 +153,7 @@ public class TableProviderCommands implements TableProvider {
                     sign.write(typeName + " ");
                 }
             }
+            sign.close();
         }
     }
 

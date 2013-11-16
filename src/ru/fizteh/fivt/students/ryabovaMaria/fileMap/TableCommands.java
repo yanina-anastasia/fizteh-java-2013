@@ -153,6 +153,7 @@ public class TableCommands implements Table {
                 throw new IllegalArgumentException("Incorrect file" + dbFile.toString());
             }
             list[numOfDir][numOfFile].put(lastKey, lastValue);
+            db.close();
         } catch(Exception e) {
             throw new IOException("Incorrect table");
         }
@@ -277,6 +278,7 @@ public class TableCommands implements Table {
                 db.write(value.getBytes("UTF-8"));
                 ++counter;
             }
+            db.close();
         } catch (Exception e) {
             throw new IOException("incorrect file");
         }
