@@ -43,11 +43,6 @@ public class TableRow implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         checkType(columnIndex, value.getClass());
-        if (value instanceof String) {
-            if (((String) value).trim().equals("")) {
-                throw new ColumnFormatException("Empty string can't be stored");
-            }
-        }
         columns.set(columnIndex, value);
     }
 
