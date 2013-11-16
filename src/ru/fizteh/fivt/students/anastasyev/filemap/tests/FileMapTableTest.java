@@ -96,6 +96,32 @@ public class FileMapTableTest {
     }
 
     @Test
+    public void testPutChangedKey() throws ParseException {
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        assertNull(currTable.put("key", valueOld));
+        valueOld.setColumnAt(0, 1);
+        assertFalse(storeableEquals(currTable.get("key"), valueOld, currTable));
+    }
+
+    @Test
+    public void testPutChangedKey2() throws ParseException, IOException {
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        assertNull(currTable.put("key", valueOld));
+        valueOld.setColumnAt(0, 1);
+        assertEquals(currTable.commit(), 1);
+        assertFalse(storeableEquals(currTable.get("key"), valueOld, currTable));
+    }
+
+    @Test
+    public void testPutChangedKey3() throws ParseException, IOException {
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        assertNull(currTable.put("key", valueOld));
+        assertEquals(currTable.commit(), 1);
+        valueOld.setColumnAt(0, 1);
+        assertFalse(storeableEquals(currTable.get("key"), valueOld, currTable));
+    }
+
+    @Test
     public void testPutOldKey() throws ParseException {
         Storeable valueOld = tableProvider.deserialize(currTable, value);
         String valueNewString = "[10,11,22,33,4.4,5,true,\"new1\",\"new2\"]";

@@ -140,6 +140,14 @@ public class FileMapTable implements Table {
         return true;
     }
 
+    private Storeable copyStoreable(Storeable source) {
+        Storeable copy = provider.createFor(this);
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            copy.setColumnAt(i, source.getColumnAt(i));
+        }
+        return copy;
+    }
+
     private void readSignature() throws IOException {
         File signature = new File(currentFileMapTable, "signature.tsv");
         if (!signature.exists()) {
@@ -215,6 +223,7 @@ public class FileMapTable implements Table {
             throw new IllegalArgumentException("Wrong key");
         }
         checkValueCorrectness(value);
+        Storeable copyValue = copyStoreable(value);
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
@@ -227,13 +236,13 @@ public class FileMapTable implements Table {
             ++size;
         }
         if (valueChanged == null) {
-            changedKeys.put(key, new Value(value, valueOnDisk));
+            changedKeys.put(key, new Value(copyValue, valueOnDisk));
             return valueOnDisk;
         } else {
-            if (storeableEquals(value, valueOnDisk)) {
+            if (storeableEquals(copyValue, valueOnDisk)) {
                 changedKeys.remove(key);
             } else {
-                changedKeys.put(key, new Value(value, valueOnDisk));
+                changedKeys.put(key, new Value(copyValue, valueOnDisk));
             }
             return valueChanged.newValue;
         }
