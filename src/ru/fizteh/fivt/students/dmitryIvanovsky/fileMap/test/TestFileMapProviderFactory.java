@@ -15,12 +15,12 @@ import java.nio.file.Paths;
 
 public class TestFileMapProviderFactory {
 
-    private TableProviderFactory multiMapFactory;
-    private CommandShell mySystem;
-    private Path pathTables;
+    private static TableProviderFactory multiMapFactory;
+    private static CommandShell mySystem;
+    private static Path pathTables;
 
     @BeforeClass
-    public void setUp() {
+    public static void setUp() {
 
         pathTables = Paths.get(".");
         mySystem = new CommandShell(pathTables.toString(), false, false);
@@ -56,7 +56,7 @@ public class TestFileMapProviderFactory {
     }
 
     @AfterClass
-    public void tearDown() {
+    public static void tearDown() {
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {
