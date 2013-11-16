@@ -480,6 +480,109 @@ public class FileMapUnitTest {
         columnTypes.add(Integer.class);
         table.put("a", new FixedList(columnTypes));
     }
+
+    @Test
+    public void getClassReturnsSpecifiedClass() {
+        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+        columnTypes.add(Integer.class);
+        columnTypes.add(Byte.class);
+        columnTypes.add(Long.class);
+        columnTypes.add(Boolean.class);
+        columnTypes.add(Float.class);
+        columnTypes.add(Double.class);
+        columnTypes.add(String.class);
+        Storeable sample = new FixedList(columnTypes);
+        sample.setColumnAt(0, new Integer(3));
+        sample.setColumnAt(1, new Byte((byte) 4));
+        sample.setColumnAt(2, new Long((long) 123));
+        sample.setColumnAt(3, new Boolean(true));
+        sample.setColumnAt(4, new Float((float) 1.2));
+        sample.setColumnAt(5, new Double(3.4));
+        sample.setColumnAt(6, "sample");
+        Assert.assertTrue(sample.getIntAt(0).getClass() == Integer.class);
+        Assert.assertTrue(sample.getByteAt(1).getClass() == Byte.class);
+        Assert.assertTrue(sample.getLongAt(2).getClass() == Long.class);
+        Assert.assertTrue(sample.getBooleanAt(3).getClass() == Boolean.class);
+        Assert.assertTrue(sample.getFloatAt(4).getClass() == Float.class);
+        Assert.assertTrue(sample.getDoubleAt(5).getClass() == Double.class);
+        Assert.assertTrue(sample.getStringAt(6).getClass() == String.class);
+    }
+
+    @Test
+    public void getClassFromWrongColumnShouldFail() {
+        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+        columnTypes.add(Integer.class);
+        columnTypes.add(Byte.class);
+        columnTypes.add(Long.class);
+        columnTypes.add(Boolean.class);
+        columnTypes.add(Float.class);
+        columnTypes.add(Double.class);
+        columnTypes.add(String.class);
+        Storeable sample = new FixedList(columnTypes);
+        boolean ok = false;
+        try {
+            sample.getIntAt(1);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getByteAt(2);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getLongAt(3);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getBooleanAt(4);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getFloatAt(5);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getDoubleAt(6);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+        ok = false;
+        try {
+            sample.getStringAt(0);
+        } catch (ColumnFormatException e) {
+            ok = true;
+        }
+        if (!ok) {
+            Assert.fail();
+        }
+    }
 }
 
 
