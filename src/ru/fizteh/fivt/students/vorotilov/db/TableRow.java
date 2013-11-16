@@ -45,11 +45,12 @@ public class TableRow implements Storeable {
         if (value != null) {
             if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
                 columns.set(columnIndex, value);
-            }
-            checkType(columnIndex, value.getClass());
-            if (value instanceof String) {
-                if (((String) value).contains("\n")) {
-                    throw new ColumnFormatException("Empty string can't be stored");
+            } else {
+                checkType(columnIndex, value.getClass());
+                if (value instanceof String) {
+                    if (((String) value).contains("\n")) {
+                        throw new ColumnFormatException("Empty string can't be stored");
+                    }
                 }
             }
         }
