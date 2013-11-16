@@ -34,12 +34,6 @@ public class Filemap implements Table {
         return currTablePath;
     }
 
-    public void createDataBase(int ndir, int nfile) throws RuntimeException {
-        if (!data[ndir][nfile].hasFile()) {
-            data[ndir][nfile].createFile();
-        }
-    }
-
     protected int getDataBaseNumberFromKey(String key) throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
@@ -144,7 +138,9 @@ public class Filemap implements Table {
             ndir = k / 16;
             nfile = k % 16;
             if (myEntry.getValue() != null) {
-                createDataBase(ndir, nfile);
+                if (!data[ndir][nfile].hasFile()) {
+                    data[ndir][nfile].createFile();
+                }
             }
 
             val = data[ndir][nfile].get(key);
