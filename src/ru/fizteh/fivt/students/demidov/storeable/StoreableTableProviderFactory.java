@@ -7,7 +7,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 	public StoreableTableProviderFactory() {}
 	
 	public StoreableTableProvider create(String dir) throws IOException {
-		if ((dir == null) || (dir.trim().isEmpty()) || (!(dir.matches("[^:*?\"<>|]+")))) {
+		if ((dir == null) || (dir.trim().isEmpty())) {
 			throw new IllegalArgumentException("wrong dir");
 		}
 		return new StoreableTableProvider(dir);

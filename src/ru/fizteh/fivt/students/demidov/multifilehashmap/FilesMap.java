@@ -55,7 +55,7 @@ public class FilesMap<ElementType> {
 				continue;
 			}
 			File subdirectory = new File(directoryPath, subdirectoryName);
-			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")))) {
+			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")) || (subdirectory.listFiles().length == 0))) {
 				throw new IOException("wrong subdirectory " + subdirectory.getPath());
 			} else {
 				for (String baseFileName : subdirectory.list()) {
