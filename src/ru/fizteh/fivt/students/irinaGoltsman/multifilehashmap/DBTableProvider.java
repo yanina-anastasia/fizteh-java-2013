@@ -15,15 +15,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBTableProvider implements TableProvider {
     private Map<String, Table> allTables = new HashMap<String, Table>();
     private File rootDirectoryOfTables;
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9@.]+";
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
@@ -35,10 +31,10 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
-            for (File tableFile : rootDirectoryOfTables.listFiles()) {
-                Table table = new DBTable(tableFile, this);
-                allTables.put(tableFile.getName(), table);
-            }
+        for (File tableFile : rootDirectoryOfTables.listFiles()) {
+            Table table = new DBTable(tableFile, this);
+            allTables.put(tableFile.getName(), table);
+        }
     }
 
     @Override
@@ -52,7 +48,7 @@ public class DBTableProvider implements TableProvider {
         if (!tableName.matches(TABLE_NAME_FORMAT)) {
             throw new IllegalArgumentException("get table: error table name");
         }
-            return allTables.get(tableName);
+        return allTables.get(tableName);
     }
 
     @Override
@@ -69,17 +65,17 @@ public class DBTableProvider implements TableProvider {
         ColumnTypes ct = new ColumnTypes();
         ct.checkTypes(columnTypes);
         Table newTable = null;
-            File tableFile = new File(rootDirectoryOfTables, tableName);
-            if (tableFile.exists()) {
-                return null;
-            }
-            if (!tableFile.mkdir()) {
-                throw new IOException("table" + tableName + "can't be create");
-            }
-            List<String> types = ct.convertListOfClassesToListOfStrings(columnTypes);
-            FileManager.writeSignature(tableFile, types);
-            newTable = new DBTable(tableFile, this);
-            allTables.put(tableName, newTable);
+        File tableFile = new File(rootDirectoryOfTables, tableName);
+        if (tableFile.exists()) {
+            return null;
+        }
+        if (!tableFile.mkdir()) {
+            throw new IOException("table" + tableName + "can't be create");
+        }
+        List<String> types = ct.convertListOfClassesToListOfStrings(columnTypes);
+        FileManager.writeSignature(tableFile, types);
+        newTable = new DBTable(tableFile, this);
+        allTables.put(tableName, newTable);
         return newTable;
     }
 
@@ -94,16 +90,16 @@ public class DBTableProvider implements TableProvider {
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
         cm.addCommand(new ShellCommands.ChangeDirectory());
-            if (!allTables.containsKey(tableName)) {
-                throw new IllegalStateException(String.format("%s not exists", tableName));
-            }
-            //File table = new File(rootDirectoryOfTables, tableName);
-            cm.commandProcessing("cd " + rootDirectoryOfTables.toString());
-            Code returnCode = cm.commandProcessing("rm " + tableName);
-            if (returnCode != Code.OK) {
-                throw new IOException("");
-            }
-            allTables.remove(tableName);
+        if (!allTables.containsKey(tableName)) {
+            throw new IllegalStateException(String.format("%s not exists", tableName));
+        }
+        //File table = new File(rootDirectoryOfTables, tableName);
+        cm.commandProcessing("cd " + rootDirectoryOfTables.toString());
+        Code returnCode = cm.commandProcessing("rm " + tableName);
+        if (returnCode != Code.OK) {
+            throw new IOException("");
+        }
+        allTables.remove(tableName);
     }
 
     @Override
