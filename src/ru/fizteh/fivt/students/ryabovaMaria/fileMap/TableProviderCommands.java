@@ -31,7 +31,11 @@ public class TableProviderCommands implements TableProvider {
         if (name == null) {
             throw new IllegalArgumentException("null argument");
         }
-        if (name.isEmpty() || name.contains("/") || name.contains("\\") || name.contains(".")) {
+        if (name.isEmpty()
+            || name.contains("/")
+            || name.contains("\\")
+            || name.contains(".")
+            || name.matches(".*\\s.*")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
         tableDir = curDir.toPath().resolve(name).normalize().toFile();
@@ -148,7 +152,11 @@ public class TableProviderCommands implements TableProvider {
                     default :
                         throw new IllegalArgumentException("Incorrect type name");
                 }
-                sign.write(typeName + " ");
+                if (i == types.size() - 1) {
+                    sign.write(typeName);
+                } else {
+                    sign.write(typeName + " ");
+                }
             }
         }
     }
