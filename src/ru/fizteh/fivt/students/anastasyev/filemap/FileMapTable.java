@@ -7,6 +7,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
@@ -207,16 +208,16 @@ public class FileMapTable implements Table {
         try (RandomAccessFile input = new RandomAccessFile(signature.toString(), "r")) {
             while (input.getFilePointer() != input.length()) {
                 byte ch = 0;
-                Vector<Byte> v = new Vector<Byte>();
+                ArrayList<Byte> v = new ArrayList<Byte>();
                 while (ch != ' ' && input.getFilePointer() != input.length()) {
                     ch = input.readByte();
                     v.add(ch);
                 }
                 byte[] res = new byte[v.size()];
                 for (int i = 0; i < v.size(); i++) {
-                    res[i] = v.elementAt(i).byteValue();
+                    res[i] = v.get(i);
                 }
-                String type = new String(res, "UTF-8");
+                String type = new String(res, StandardCharsets.UTF_8);
                 type = type.trim();
                 Class<?> classType = provider.getClassName(type);
                 if (classType == null) {
