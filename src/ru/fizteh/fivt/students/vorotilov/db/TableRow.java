@@ -44,10 +44,10 @@ public class TableRow implements Storeable {
         checkBounds(columnIndex);
         if (value != null) {
             checkType(columnIndex, value.getClass());
-        }
-        if (value instanceof String) {
-            if (((String) value).contains("\n")) {
-                throw new ColumnFormatException("Empty string can't be stored");
+            if (value instanceof String) {
+                if (((String) value).contains("\n")) {
+                    throw new ColumnFormatException("Empty string can't be stored");
+                }
             }
         }
         columns.set(columnIndex, value);
