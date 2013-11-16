@@ -16,19 +16,20 @@ public class FileMap extends UserShell {
     private static String root = "";
 
     public FileMap() {
-        if (System.getProperty("fizteh.db.dir") == null) {
+        String property = System.getProperty("fizteh.db.dir"); 
+        if (property == null) {
             throw new RuntimeException("root dir not selected");
         }
-        File r = new File(System.getProperty("fizteh.db.dir"));
+        File r = new File(property);
         if (!r.exists()) {
             if (!r.mkdir()) {
                 throw new RuntimeException("cannot create root dir");
             }
         }
-        if (System.getProperty("fizteh.db.dir").endsWith(File.separator)) {
-            root = System.getProperty("fizteh.db.dir");
+        if (property.endsWith(File.separator)) {
+            root = property;
         } else {
-            root = System.getProperty("fizteh.db.dir") + File.separatorChar;
+            root = property + File.separatorChar;
         }
         DBaseProviderFactory factory = new DBaseProviderFactory();
         try {
