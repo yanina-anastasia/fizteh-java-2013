@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
-import ru.fizteh.fivt.students.piakovenko.filemap.DataBase;
+import ru.fizteh.fivt.students.piakovenko.filemap.strings.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
 import java.io.File;
