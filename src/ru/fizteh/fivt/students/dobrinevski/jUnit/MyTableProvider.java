@@ -1,13 +1,13 @@
 package ru.fizteh.fivt.students.dobrinevski.jUnit;
 
+import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommands;
+import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiHashMap;
+import ru.fizteh.fivt.students.dobrinevski.shell.Command;
+
 import java.io.File;
 import java.util.HashMap;
-
-import ru.fizteh.fivt.storage.strings.*;
-import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiHashMap;
-import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommands;
-import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommand;
-import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 
 public class MyTableProvider implements TableProvider {
     HashMap<String, MyTable> bTables;

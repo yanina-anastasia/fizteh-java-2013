@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MyMultiHashMap;
 import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommands;
-import ru.fizteh.fivt.students.dobrinevski.multiFileHashMap.MultiFileHashMapCommand;
 import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
 import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 

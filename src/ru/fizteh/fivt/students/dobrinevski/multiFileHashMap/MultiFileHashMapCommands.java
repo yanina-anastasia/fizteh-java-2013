@@ -1,11 +1,8 @@
 package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
-import java.lang.Exception;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import ru.fizteh.fivt.students.dobrinevski.shell.Command;
-import ru.fizteh.fivt.students.dobrinevski.shell.Shell;
 
 public class MultiFileHashMapCommands {
 
@@ -18,7 +15,8 @@ public class MultiFileHashMapCommands {
                 return;
             }
 
-            if((args[2] == null)||(args[1] == null)||(args[2].isEmpty())||(args[1].isEmpty())||(args[1].lastIndexOf(' ') != -1)||(args[1].lastIndexOf('\t') != -1)) {
+            if ((args[2] == null) || (args[1] == null) || (args[2].isEmpty()) || (args[1].isEmpty())
+                    || args[1].contains(" ") || args[1].contains("\t")) {
                 throw new Exception(args[1] + " shouldn't be a key");
             }
 

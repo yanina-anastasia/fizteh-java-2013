@@ -1,23 +1,23 @@
 package ru.fizteh.fivt.students.dobrinevski.jUnit.tests;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-
+import org.junit.Before;
+import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTable;
 import ru.fizteh.fivt.students.dobrinevski.jUnit.MyTableProvider;
 
-import java.lang.System;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 public class MyTableTester {
     public static Table table;
 
     @Before
-    public void init() throws IOException{
+    public void init() throws IOException {
         File fl = Files.createTempDirectory("tmp").toFile();
         fl.deleteOnExit();
         table = (new MyTableProvider(fl.toString())).createTable("Tested_Table");
