@@ -140,4 +140,11 @@ public class TestsForStoreable {
         value1.setColumnAt(0, 5L);
     }
     
+    @Test(expected = ColumnFormatException.class)
+    public void setStringInsteadOfDouble() {
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Double.class);
+        value1 = new StoreableImplementation(columnTypes);
+        value1.setColumnAt(0, "5L");
+    }
 }
