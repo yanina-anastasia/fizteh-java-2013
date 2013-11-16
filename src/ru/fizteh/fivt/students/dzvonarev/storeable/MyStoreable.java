@@ -46,7 +46,11 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (value.getClass() != columnTypes.get(columnIndex)) {
+        if (value == null || value.equals(null)) {
+            column.set(columnIndex, null);
+            return;
+        }
+        if (!value.getClass().equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException("wrong type (value " + value
                     + " got invalid type in " + columnIndex + " column)");
         }
@@ -64,7 +68,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Integer.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Integer) column.get(columnIndex);
@@ -74,7 +78,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Long.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Long) column.get(columnIndex);
@@ -84,7 +88,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Byte.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Byte) column.get(columnIndex);
@@ -94,7 +98,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Float.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Float) column.get(columnIndex);
@@ -104,7 +108,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Double.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Double) column.get(columnIndex);
@@ -114,7 +118,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(Boolean.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (Boolean) column.get(columnIndex);
@@ -124,7 +128,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (column.get(columnIndex).getClass() != columnTypes.get(columnIndex)) {
+        if (!column.get(columnIndex).getClass().equals(String.class)) {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (String) column.get(columnIndex);
