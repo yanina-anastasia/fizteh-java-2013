@@ -108,17 +108,17 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             throw new IllegalArgumentException("create: not correct types");
         }
         signatureController.checkSignatureValidity(columnTypes);
-        if (dataBaseTables.get(name) != null) {
-            return null;
-        } else {
-            File newTableFile = new File(workingDirectory, name);
-            try {
-                newTableFile = newTableFile.getCanonicalFile();
-            } catch (IOException e) {
-                throw new IllegalArgumentException("create: programme's mistake in getting canonical file");
-            }
-            tableWorkController.writeLock().lock();
-            try {
+        tableWorkController.writeLock().lock();
+        try {
+            if (dataBaseTables.get(name) != null) {
+                return null;
+            } else {
+                File newTableFile = new File(workingDirectory, name);
+                try {
+                    newTableFile = newTableFile.getCanonicalFile();
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("create: programme's mistake in getting canonical file");
+                }
                 newTableFile.mkdir();
                 StoreableTable newTable = new StoreableTable(name, workingDirectory, columnTypes, this);
                 dataBaseTables.put(name, newTable);
@@ -126,9 +126,10 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                 sign.createNewFile();
                 signatureController.writeSignatureToFile(sign, columnTypes);
                 return newTable;
-            } finally {
-                tableWorkController.writeLock().unlock();
+
             }
+        } finally {
+            tableWorkController.writeLock().unlock();
         }
     }
 

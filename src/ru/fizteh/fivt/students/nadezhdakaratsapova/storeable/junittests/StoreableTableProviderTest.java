@@ -12,6 +12,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTableProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ public class StoreableTableProviderTest {
     private static final String TESTED_TABLE = "MyFavouriteTable";
     private StoreableTableProvider tableProvider;
     private File testedFile = new File(TESTED_DIRECTORY);
-    List<Class<?>> types;
+    private List<Class<?>> types;
+    private static boolean firstThreadFlag = true;
+    private static boolean secondThreadFlag = true;
 
     @Before
     public void setUp() throws Exception {
@@ -177,5 +180,35 @@ public class StoreableTableProviderTest {
         values.add(new String("moo"));
         values.add(new String("true"));
         Storeable storeable = tableProvider.createFor(table, values);
+    }
+
+    @Test
+    public void createSameTableFromDifferentThreads() throws Exception {
+        Thread firstThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    firstThreadFlag = (tableProvider.createTable(TESTED_TABLE, types) == null);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                }
+            }
+        });
+        Thread secondThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    secondThreadFlag = (tableProvider.createTable(TESTED_TABLE, types) == null);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                }
+            }
+        });
+        firstThread.start();
+        secondThread.start();
+        firstThread.join();
+        secondThread.join();
+        tableProvider.removeTable(TESTED_TABLE);
+        Assert.assertTrue(firstThreadFlag | secondThreadFlag);
     }
 }
