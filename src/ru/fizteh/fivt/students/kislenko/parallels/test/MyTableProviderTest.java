@@ -12,6 +12,7 @@ import ru.fizteh.fivt.students.kislenko.parallels.MyTableProviderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MyTableProviderTest {
     private static MyTableProvider provider;
@@ -19,8 +20,6 @@ public class MyTableProviderTest {
     private static ArrayList<Class<?>> typeList = new ArrayList<Class<?>>();
     private static boolean multiThreadCorrectFlagFirst = false;
     private static boolean multiThreadCorrectFlagSecond = false;
-    private static MyTable table1;
-    private static MyTable table2;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -177,11 +176,13 @@ public class MyTableProviderTest {
 
     @Test
     public void testMultiThreadCreateGetSameTables() throws Exception {
+        final AtomicReference<MyTable> ref1 = new AtomicReference<MyTable>();
+        final AtomicReference<MyTable> ref2 = new AtomicReference<MyTable>();
         Thread first = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    table1 = provider.createTable("KRESLO", typeList);
+                    ref1.set(provider.createTable("KRESLO", typeList));
                 } catch (IOException ignored) {
                 }
             }
@@ -189,19 +190,20 @@ public class MyTableProviderTest {
         Thread second = new Thread(new Runnable() {
             @Override
             public void run() {
-                table2 = provider.getTable("KRESLO");
+                ref2.set(provider.getTable("KRESLO"));
             }
         });
         first.start();
         second.start();
         first.join();
         second.join();
-        Assert.assertEquals(table1, table2);
+        Assert.assertEquals(ref1.get(), ref2.get());
         provider.removeTable("KRESLO");
     }
 
     @Test
     public void testMultiThreadCreateRemoveGetSameTables() throws Exception {
+        final AtomicReference<MyTable> ref1 = new AtomicReference<MyTable>();
         Thread first = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -223,7 +225,7 @@ public class MyTableProviderTest {
         Thread third = new Thread(new Runnable() {
             @Override
             public void run() {
-                table1 = provider.getTable("KRESLO");
+                ref1.set(provider.getTable("KRESLO"));
             }
         });
         first.start();
@@ -232,6 +234,6 @@ public class MyTableProviderTest {
         first.join();
         second.join();
         third.join();
-        Assert.assertNull(table1);
+        Assert.assertNull(ref1.get());
     }
 }
