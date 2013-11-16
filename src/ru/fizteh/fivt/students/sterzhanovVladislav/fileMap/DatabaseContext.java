@@ -43,7 +43,7 @@ public class DatabaseContext implements Closeable {
         return provider.serialize(activeMap, oldValue);
     }
     
-    public int commit() {
+    public int commit() throws IOException {
         if (activeMap == null) {
             throw new IllegalStateException("no table");
         }
