@@ -8,10 +8,10 @@ package ru.fizteh.fivt.students.piakovenko.tests;
  * To change this template use File | Settings | File Templates.
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.piakovenko.filemap.DataBasesCommander;
+import ru.fizteh.fivt.students.piakovenko.filemap.strings.DataBasesCommander;
 
 import java.io.IOException;
 
