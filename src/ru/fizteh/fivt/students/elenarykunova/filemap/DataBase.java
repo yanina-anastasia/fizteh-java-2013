@@ -88,7 +88,7 @@ public class DataBase {
                 try {
                     closeDataFile(dataFile);
                 } catch (Throwable e5) {
-                    System.err.println("can't close file " + filePath);
+                    //
                 }
             }
         }
