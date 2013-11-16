@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,28 +60,27 @@ public class NewTable implements Table {
 
     private ArrayList<Class<?>> readSignature() throws IOException {
         ArrayList<Class<?>> list = new ArrayList<Class<?>>();
+        Scanner scanner = null;
+        FileInputStream stream = null;
         try {
             File sign = new File(provider.getCurrentDirectory() + File.separator + this.name + File.separator
                     + "signature.tsv");
             if (!sign.exists()) {
                 throw new IOException("Signature does not exist");
             }
-            FileInputStream stream = new FileInputStream(sign);
-            Scanner scanner = new Scanner(stream);
+            stream = new FileInputStream(sign);
+            scanner = new Scanner(stream);
             int i = 0;
             while (scanner.hasNext()) {
                 list.add(provider.getNameClass(scanner.next()));
                 if (list.get(i) == null) {
-                    scanner.close();
-                    stream.close();
                     throw new IOException("Bad signature");
                 }
                 ++i;
             }
+        } finally {
             scanner.close();
             stream.close();
-        } catch (FileNotFoundException e) {
-            throw new IOException(e.getMessage(), e);
         }
         if (list.isEmpty()) {
             throw new IOException("Signature is empty");
