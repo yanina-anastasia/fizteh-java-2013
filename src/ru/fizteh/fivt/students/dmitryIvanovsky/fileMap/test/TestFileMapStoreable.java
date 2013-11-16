@@ -49,6 +49,11 @@ public class TestFileMapStoreable {
         stIntString.setColumnAt(0, "str");
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void setWrongNumber() {
+        stIntString.setColumnAt(3, "str");
+    }
+
     @Test()
     public void getDifferentType() {
         stIntString.setColumnAt(0, 1);
@@ -98,5 +103,75 @@ public class TestFileMapStoreable {
         stInt2.setColumnAt(0, 1);
         stInt.setColumnAt(0, 1);
         assertTrue(stInt2.equals(stInt));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongIntColumn() {
+        stIntString.getIntAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongByteColumn() {
+        stIntString.getByteAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongLongColumn() {
+        stIntString.getLongAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongDoubleColumn() {
+        stIntString.getDoubleAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongFloatColumn() {
+        stIntString.getFloatAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongBooleanColumn() {
+        stIntString.getBooleanAt(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getWrongStringColumn() {
+        stIntString.getStringAt(3);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongIntType() {
+        stAll.getIntAt(1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongByteType() {
+        stInt.getByteAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongDoubleType() {
+        stInt.getDoubleAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongFloatType() {
+        stInt.getFloatAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongLongType() {
+        stInt.getLongAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongBooleanType() {
+        stInt.getBooleanAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void getWrongStringType() {
+        stInt.getStringAt(0);
     }
 }
