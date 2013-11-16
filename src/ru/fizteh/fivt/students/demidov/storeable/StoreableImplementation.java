@@ -33,7 +33,7 @@ public class StoreableImplementation implements Storeable {
 
 	public Object getObjectOfClassAt(int columnIndex, Object ObjectOfClass) throws ColumnFormatException {
 		Object value = storableValues.get(columnIndex);
-		if ((value != null) && (!(value.getClass().equals(ObjectOfClass.getClass())))) {
+		if ((value != null) && (!(value.getClass() == ObjectOfClass))) {
 			throw new ColumnFormatException();
 		}
 		return value;
