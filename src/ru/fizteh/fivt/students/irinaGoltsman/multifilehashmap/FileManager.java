@@ -141,13 +141,11 @@ public class FileManager {
                 if (!currentFile.exists()) {
                     continue;
                 }
-                RandomAccessFile fileIndexDat = null;
-                try {
-                    fileIndexDat = new RandomAccessFile(currentFile, "rw");
+                try (RandomAccessFile fileIndexDat = new RandomAccessFile(currentFile, "rw")) {
+                    readFromDisk(fileIndexDat, tableStorage, index, fileIndex);
                 } catch (FileNotFoundException e) {
                     continue;
                 }
-                readFromDisk(fileIndexDat, tableStorage, index, fileIndex);
             }
         }
     }
@@ -229,17 +227,10 @@ public class FileManager {
                         throw new IOException("File " + datFile.toString() + " can't be created");
                     }
                 }
-                RandomAccessFile currentFile = null;
-                try {
-                    currentFile = new RandomAccessFile(datFile, "rw");
+                try (RandomAccessFile currentFile = new RandomAccessFile(datFile, "rw")) {
+                    writeToDatFile(currentFile, parsedStorage[indexOfDir][indexOfDatFile]);
                 } catch (FileNotFoundException e) {
                     throw new IOException("This error is my fail. Check 'writeTableOnDisk' function");
-                }
-                writeToDatFile(currentFile, parsedStorage[indexOfDir][indexOfDatFile]);
-                try {
-                    currentFile.close();
-                } catch (IOException e) {
-                    throw new IOException("File " + currentFile.toString() + " can't be closed.");
                 }
             }
             cleanEmptyDir(dir);
@@ -276,21 +267,22 @@ public class FileManager {
         if (!signature.createNewFile()) {
             throw new IOException("failed to create new signature.tsv: probably a file with such name already exists");
         }
-        RandomAccessFile signatureFile = new RandomAccessFile(signature, "rw");
-        for (int i = 0; i < columnTypes.size(); i++) {
-            String type = columnTypes.get(i);
-            if (type.matches("int|byte|long|float|double|boolean|String")) {
-                signatureFile.write(type.getBytes(StandardCharsets.UTF_8));
-                if (i != (columnTypes.size() - 1)) {
-                    signatureFile.write(' ');
+
+        try (RandomAccessFile signatureFile = new RandomAccessFile(signature, "rw")) {
+            for (int i = 0; i < columnTypes.size(); i++) {
+                String type = columnTypes.get(i);
+                if (type.matches("int|byte|long|float|double|boolean|String")) {
+                    signatureFile.write(type.getBytes(StandardCharsets.UTF_8));
+                    if (i != (columnTypes.size() - 1)) {
+                        signatureFile.write(' ');
+                    }
+                } else {
+                    signatureFile.close();
+                    signature.delete();
+                    throw new IOException("writing signature: illegal type: " + type);
                 }
-            } else {
-                signatureFile.close();
-                signature.delete();
-                throw new IOException("writing signature: illegal type: " + type);
             }
         }
-        signatureFile.close();
     }
 
     public static void checkTableDir(File tableDir) throws IOException {

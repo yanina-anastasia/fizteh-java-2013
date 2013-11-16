@@ -19,7 +19,7 @@ import java.util.Map;
 public class DBTableProvider implements TableProvider {
     private Map<String, Table> allTables = new HashMap<String, Table>();
     private File rootDirectoryOfTables;
-    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
+    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9@.]+";
 
     public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
