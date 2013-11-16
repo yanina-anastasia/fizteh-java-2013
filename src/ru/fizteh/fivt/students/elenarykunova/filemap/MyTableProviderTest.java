@@ -46,52 +46,6 @@ public class MyTableProviderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testInitializeNull() {
-        MyTableProvider prov = new MyTableProvider(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInitializeEmpty() {
-        MyTableProvider prov = new MyTableProvider("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInitializeNl() {
-        MyTableProvider prov = new MyTableProvider("                       ");
-    }
-
-    @Test
-    public void testInitialize() {
-        MyTableProvider prov;
-        try {
-            prov = new MyTableProvider(existingDir.getAbsolutePath());
-        } catch (Exception e1) {
-            fail("RootDir is correct, shouldn't fail");
-        }
-
-        try {
-            prov = new MyTableProvider(notExistingFile.getAbsolutePath());
-            assertTrue(notExistingFile.exists()
-                    && notExistingFile.isDirectory());
-        } catch (IllegalArgumentException e1) {
-            // ok
-        } catch (Exception e2) {
-            fail("initialize notExistingDir: expected IllegalArgumentException");
-        }
-
-        if (existingFile.isFile()) {
-            try {
-                prov = new MyTableProvider(existingFile.getAbsolutePath());
-                fail("initialize TableProvider with file: expected IllegalArgumentException");
-            } catch (IllegalArgumentException e1) {
-                // ok
-            } catch (Exception e2) {
-                fail("initialize TableProvider with file: expected IllegalArgumentException");
-            }
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testGetTableNull() {
         MyTableProvider prov = new MyTableProvider();
         prov.getTable(null);
