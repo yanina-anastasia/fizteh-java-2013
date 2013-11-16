@@ -103,7 +103,6 @@ public class DbState extends State {
         try {
             fileCheck();
             if (dbFile.length() == 0) {
-                dbFile.close();
                 return 0;
             } 
             
@@ -139,13 +138,13 @@ public class DbState extends State {
             
             initial = new HashMap<String, String>(data);
         } finally {
-          if (dbFile != null) {
-            try {
-              dbFile.close();
-            } catch (Throwable e) {
-              // ignore
+            if (dbFile != null) {
+                try {
+                    dbFile.close();
+                } catch (Throwable e) {
+                    // ignore
+                }
             }
-          }
         }
         
         return result;
@@ -192,9 +191,9 @@ public class DbState extends State {
         } finally {
             if (dbFile != null) {
                 try {
-                  dbFile.close();
+                    dbFile.close();
                 } catch (Throwable e) {
-                  // ignore
+                    // ignore
                 }
             }
         }
