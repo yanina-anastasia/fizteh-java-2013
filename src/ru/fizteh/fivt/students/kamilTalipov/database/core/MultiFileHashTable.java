@@ -201,9 +201,7 @@ public class MultiFileHashTable implements Table {
         try {
             writeTable();
         } catch (DatabaseException e) {
-            IOException exception = new IOException("Database io error");
-            exception.addSuppressed(e);
-            throw exception;
+            throw new IOException("Database io error", e);
         }
 
         newValues.clear();
@@ -355,38 +353,23 @@ public class MultiFileHashTable implements Table {
         File signatureFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
         try (BufferedWriter signatureWriter = new BufferedWriter(new FileWriter(signatureFile))) {
             for (int i = 0; i < getColumnsCount(); ++i) {
-                switch (getColumnType(i).getCanonicalName()) {
-                    case "java.lang.Integer":
-                        signatureWriter.write("int");
-                        break;
-
-                    case "java.lang.Long":
-                        signatureWriter.write("long");
-                        break;
-
-                    case "java.lang.Byte":
-                        signatureWriter.write("byte");
-                        break;
-
-                    case "java.lang.Float":
-                        signatureWriter.write("float");
-                        break;
-
-                    case "java.lang.Double":
-                        signatureWriter.write("double");
-                        break;
-
-                    case "java.lang.Boolean":
-                        signatureWriter.write("boolean");
-                        break;
-
-                    case "java.lang.String":
-                        signatureWriter.write("String");
-                        break;
-
-                    default:
-                        throw new IllegalArgumentException("wrong type (unsupported type "
-                                                            + getColumnType(i).getCanonicalName() + ")");
+                if (getColumnType(i).equals(Integer.class)) {
+                    signatureWriter.write("int");
+                } else if (getColumnType(i).equals(Long.class)) {
+                    signatureWriter.write("long");
+                } else if (getColumnType(i).equals(Byte.class)) {
+                    signatureWriter.write("byte");
+                } else if (getColumnType(i).equals(Float.class)) {
+                    signatureWriter.write("float");
+                } else if (getColumnType(i).equals(Double.class)) {
+                    signatureWriter.write("double");
+                } else if (getColumnType(i).equals(Boolean.class)) {
+                    signatureWriter.write("boolean");
+                } else if (getColumnType(i).equals(String.class)) {
+                    signatureWriter.write("String");
+                } else {
+                    throw new IllegalArgumentException("wrong type (unsupported type "
+                            + getColumnType(i).getCanonicalName() + ")");
                 }
 
                 if (i != getColumnsCount() - 1) {

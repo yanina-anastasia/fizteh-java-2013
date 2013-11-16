@@ -107,12 +107,84 @@ public class StoreableTester {
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypesGetShouldFailedTest() {
         Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
-        storeable.getStringAt(0);
+        storeable.getIntAt(1);
     }
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectTypesGetShouldFailedTest2() {
         Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
         storeable.getLongAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest3() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getByteAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest4() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getFloatAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest5() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getDoubleAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest6() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getBooleanAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest7() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getStringAt(0);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetIntTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getIntAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetLongTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getLongAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetByteTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getByteAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetFloatTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getFloatAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetDoubleTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getDoubleAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutBooleanByteTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getBooleanAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void indexOutGetStringTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getStringAt(10);
     }
 }

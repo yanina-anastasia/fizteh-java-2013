@@ -67,13 +67,9 @@ public class MultiFileHashTableProvider implements TableProvider {
             newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(), name, this, columnTypes);
             tables.add(newTable);
         } catch (FileNotFoundException e) {
-            IOException exception = new IOException("File not found");
-            exception.addSuppressed(e);
-            throw exception;
+            throw new IOException("File not found", e);
         } catch (DatabaseException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Database error");
-            exception.addSuppressed(e);
-            throw exception;
+            throw new IllegalArgumentException("Database error", e);
         }
 
         return newTable;
@@ -96,9 +92,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         try {
             tables.get(tableIndex).removeTable();
         } catch (DatabaseException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Database error");
-            exception.addSuppressed(e);
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Database error", e);
         }
 
         tables.remove(tableIndex);

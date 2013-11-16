@@ -15,13 +15,9 @@ public class MultiFileHashTableFactory implements TableProviderFactory {
         try {
             return new MultiFileHashTableProvider(dir);
         } catch (DatabaseException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Database error");
-            exception.addSuppressed(e);
-            throw exception;
+            throw new IllegalArgumentException("Database error", e);
         } catch (FileNotFoundException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("File not found");
-            exception.addSuppressed(e);
-            throw exception;
+            throw new IllegalArgumentException("File not found", e);
         }
     }
 }
