@@ -16,7 +16,6 @@ public class DbMain {
             String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
-
         } catch (Exception e) {
             System.out.println("Error loading");
             FileMapUtils.getMessage(e);
