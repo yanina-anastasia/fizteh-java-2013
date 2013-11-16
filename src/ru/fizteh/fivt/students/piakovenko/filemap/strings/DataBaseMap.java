@@ -14,6 +14,7 @@ public class DataBaseMap {
     private Map<String, String> map = new HashMap<String, String>(15);
     private Map<String, String> changedMap = new HashMap<String, String>(15);
     private Map<String, String> overwriteMap = new HashMap<String, String>(15);
+    private Map<String, String> removedMap = new HashMap<String, String>(15);
 
     public String put (String key, String value) {
         String oldValue = null;
@@ -67,6 +68,10 @@ public class DataBaseMap {
 
     public Map<String, String> getOverwriteMap() {
         return overwriteMap;
+    }
+
+    public Map<String, String> getRemovedMap() {
+        return removedMap;
     }
 
 }

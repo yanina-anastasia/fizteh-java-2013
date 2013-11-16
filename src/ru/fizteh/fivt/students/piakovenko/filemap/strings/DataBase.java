@@ -352,6 +352,7 @@ public class DataBase implements Table {
             changed = 0;
             map.getChangedMap().clear();
             map.getOverwriteMap().clear();
+            map.getRemovedMap().clear();
             System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
@@ -366,6 +367,7 @@ public class DataBase implements Table {
         map.getMap().clear();
         map.getChangedMap().clear();
         map.getOverwriteMap().clear();
+        map.getRemovedMap().clear();
         try {
             load();
             System.out.println(changed);
