@@ -158,7 +158,10 @@ public class TableCommands implements Table {
             list[numOfDir][numOfFile].put(lastKey, lastValue);
         } catch(Exception e) {
             if (db != null) {
-                db.close();
+                try {
+                    db.close();
+                } catch (Exception ex) {
+                }
             }
             throw new IOException("Incorrect table");
         }
@@ -285,7 +288,10 @@ public class TableCommands implements Table {
             }
         } catch (Exception e) {
             if (db != null) {
-                db.close();
+                try {
+                    db.close();
+                } catch (Exception ex) {
+                }
             }
             throw new IOException("incorrect file");
         }
