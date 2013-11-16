@@ -370,7 +370,7 @@ public class StoreableTable implements Table {
         }
         try {
             for (int i = 0; i < columnTypes.size(); ++i) {
-                if (!columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                if (value.getColumnAt(i) != null && !columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
                     throw new ColumnFormatException("Wrong column type. was: "
                             + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
                 }
