@@ -270,14 +270,14 @@ public class MyTableProvider implements TableProvider {
                     pos += 7;
                     break;
                 case "null":
-                    if ((rowInside) || (nullInside)) {
+                    if ((!rowInside) || (colInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     nullInside = true;
                     pos += 6;
                     break;
                 case "/null":
-                    if ((rowInside) || (!nullInside)) {
+                    if ((!rowInside) || (colInside) || (!nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     nullInside = false;
