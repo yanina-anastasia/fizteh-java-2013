@@ -5,7 +5,10 @@ import ru.fizteh.fivt.students.dzvonarev.shell.Remove;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class MyTableProvider implements TableProvider {
 
@@ -48,7 +51,7 @@ public class MyTableProvider implements TableProvider {
             String[] tables = currDir.list();
             if (tables != null && tables.length != 0) {
                 for (String table : tables) {
-                    File dirTable = new File(workingDirectory + File.separator + table);
+                    File dirTable = new File(workingDirectory, table);
                     if (dirTable.isFile()) {
                         continue;
                     }
@@ -57,7 +60,7 @@ public class MyTableProvider implements TableProvider {
                     multiFileMap.put(table, newTable);
                 }
                 for (String table : tables) {  /* CLEANING */
-                    if (new File(workingDirectory + File.separator + table).isFile()) {
+                    if (new File(workingDirectory, table).isFile()) {
                         continue;
                     }
                     Remove shell = new Remove();
@@ -65,7 +68,7 @@ public class MyTableProvider implements TableProvider {
                     myArgs.add(workingDirectory + File.separator + table);
                     myArgs.add("notFromShell");
                     shell.execute(myArgs);
-                    if (!(new File(workingDirectory + File.separator + table)).mkdir()) {
+                    if (!(new File(workingDirectory, table)).mkdir()) {
                         throw new IOException("exit: can't make " + table + " directory");
                     }
                 }
@@ -76,17 +79,11 @@ public class MyTableProvider implements TableProvider {
     }
 
     public void writeAll() throws IOException {
-        if (multiFileMap == null) {
+        if (multiFileMap == null || multiFileMap.isEmpty()) {
             return;
-        } else {
-            if (multiFileMap.isEmpty()) {
-                return;
-            }
         }
         Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
-        Iterator<Map.Entry<String, MyTable>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, MyTable> currItem = i.next();
+        for (Map.Entry<String, MyTable> currItem : fileSet) {
             MyTable value = currItem.getValue();
             value.writeInTable();
         }
@@ -105,7 +102,7 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("Invalid table name " + tableName);
         }
-        File newTable = new File(workingDirectory + File.separator + tableName);
+        File newTable = new File(workingDirectory, tableName);
         if (multiFileMap.containsKey(tableName)) {
             return null;
         }

@@ -36,9 +36,7 @@ public class MyTable implements Table {
             return;
         }
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
+        for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
             if (!equals(value.newValue, value.oldValue)) {
                 if (value.newValue == null) {
@@ -56,9 +54,7 @@ public class MyTable implements Table {
         }
         int size = 0;
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
+        for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
             if (value.oldValue == null && value.newValue != null) {
                 ++size;
@@ -199,17 +195,11 @@ public class MyTable implements Table {
     }
 
     public void writeInTable() throws IOException {
-        if (fileMap == null) {
+        if (fileMap == null || fileMap.isEmpty()) {
             return;
-        } else {
-            if (fileMap.isEmpty()) {
-                return;
-            }
         }
         Set<Map.Entry<String, String>> fileSet = fileMap.entrySet();
-        Iterator<Map.Entry<String, String>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, String> currItem = i.next();
+        for (Map.Entry<String, String> currItem : fileSet) {
             String key = currItem.getKey();
             String value = currItem.getValue();
             int b = key.getBytes()[0];
