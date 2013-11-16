@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 public class ReadDataBase {
-    public static HashMap<String, String> loadFile(File file) throws IOException {
-        HashMap<String, String> mapFile = new HashMap<>();
-        RandomAccessFile dataBase = null;
-        try {
-            dataBase = new RandomAccessFile(file, "rw");
+    public static HashMap<String, Storeable> loadFile(File file, NewTable table) throws IOException, ParseException {
+        HashMap<String, Storeable> mapFile = new HashMap<>();
+        try (RandomAccessFile dataBase = new RandomAccessFile(file, "rw")) {
             String keyFirst;
             String keySecond = null;
             String value;
@@ -71,7 +72,18 @@ public class ReadDataBase {
                         dataBase.read(tmp);
                     }
                     value = new String(tmp, StandardCharsets.UTF_8);
-                    mapFile.put(keyFirst, value);
+                    byte firstC = 0;
+                    firstC = (byte) Math.abs(keyFirst.getBytes(StandardCharsets.UTF_8)[0]);
+                    int ndirectory = firstC % 16;
+                    int nfile = firstC / 16 % 16;
+                    String dat = file.getName().substring(0, file.getName().lastIndexOf("."));
+                    String dir = file.getParentFile().getName()
+                            .substring(0, file.getParentFile().getName().lastIndexOf("."));
+                    if (!dat.equals(Integer.class.cast(nfile).toString())
+                            || !dir.equals(Integer.class.cast(ndirectory).toString())) {
+                        throw new IOException("wrong key placement");
+                    }
+                    mapFile.put(keyFirst, table.getTableProvider().deserialize(table, value));
                     keyFirst = keySecond;
                     firstOffset = offsetOfValueSecond;
                 } while (currentPosition < offsetOfValueFirst);
@@ -86,18 +98,23 @@ public class ReadDataBase {
                         dataBase.read(tmp);
                     }
                     value = new String(tmp, StandardCharsets.UTF_8);
-                    mapFile.put(keyFirst, value);
+                    byte firstC = 0;
+                    firstC = (byte) Math.abs(keyFirst.getBytes(StandardCharsets.UTF_8)[0]);
+                    int ndirectory = firstC % 16;
+                    int nfile = firstC / 16 % 16;
+                    String dat = file.getName().substring(0, file.getName().lastIndexOf("."));
+                    String dir = file.getParentFile().getName()
+                            .substring(0, file.getParentFile().getName().lastIndexOf("."));
+                    if (!dat.equals(Integer.class.cast(nfile).toString())
+                            || !dir.equals(Integer.class.cast(ndirectory).toString())) {
+                        throw new IOException("wrong key placement");
+                    }
+                    mapFile.put(keyFirst, table.getTableProvider().deserialize(table, value));
                 }
-
             } else {
                 throw new IOException("Offset is negative");
             }
-        } finally {
-            try {
-                CloseFile.closeFile(dataBase);
-            } catch (Throwable e) {
-                // It is OK
-            }
+
         }
         return mapFile;
     }
