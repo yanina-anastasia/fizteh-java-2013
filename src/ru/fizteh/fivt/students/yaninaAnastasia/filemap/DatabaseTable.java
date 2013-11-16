@@ -257,8 +257,7 @@ public class DatabaseTable implements Table {
             }
             return false;
         }
-        RandomAccessFile temp = new RandomAccessFile(path, "rw");
-        try {
+        try (RandomAccessFile temp = new RandomAccessFile(path, "rw")) {
             long offset = 0;
             temp.setLength(0);
             for (String step : keys) {
@@ -276,7 +275,6 @@ public class DatabaseTable implements Table {
                 String value = tableBuilder.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
-            temp.close();
         } catch (IOException e) {
             return false;
         }
