@@ -84,4 +84,32 @@ public class Parser {
         return true;
     }
 
+    public boolean canBeCastedTo(Class<?> type, Object obj) {
+        if (obj.getClass() == Integer.class) {
+            Integer num = (Integer) obj;
+            if (type == Byte.class) {
+                return num >= -128 && num <= 127;
+            }
+            return type == Integer.class || type == Long.class || type == Double.class
+                    || type == Float.class;
+        }
+        if (obj.getClass() == Long.class) {
+            return type == Long.class || type == Double.class;
+        }
+        if (obj.getClass() == Boolean.class) {
+            return type == Boolean.class;
+        }
+        if (obj.getClass() == String.class) {
+            return type == String.class;
+        }
+        if (obj.getClass() == Byte.class) {
+            return type != String.class && type != Boolean.class;
+        }
+        if (obj.getClass() == Float.class) {
+            return type == Double.class || type == Float.class;
+        }
+        return obj.getClass() == Double.class && (type == Double.class) || type == Float.class;
+    }
+
+
 }

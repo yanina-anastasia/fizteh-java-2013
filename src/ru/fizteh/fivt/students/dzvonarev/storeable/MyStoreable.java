@@ -18,10 +18,11 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("wrong type (wrong count of columns in value - " + args.size() + ")");
         }
         for (int i = 0; i < args.size(); ++i) {
-            if (args.get(i) == null) {
+            if (args.get(i).equals(null)) {
                 continue;
             }
-            if (args.get(i).getClass() != columnTypes.get(i)) {
+            Parser myParser = new Parser();
+            if (!myParser.canBeCastedTo(columnTypes.get(i), args.get(i))) {
                 throw new ColumnFormatException("wrong type (" + i + " column got wrong type - " + args.get(i) + ")");
             }
         }
@@ -41,9 +42,8 @@ public class MyStoreable implements Storeable {
         }
     }
 
-    private ArrayList<Object> column;           // values in columns
-    private ArrayList<Class<?>> columnTypes;    // types of these values
-
+    private ArrayList<Object> column;                        // values in columns
+    private ArrayList<Class<?>> columnTypes;                 // types of these values
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         if (columnIndex < 0 || columnIndex >= column.size()) {

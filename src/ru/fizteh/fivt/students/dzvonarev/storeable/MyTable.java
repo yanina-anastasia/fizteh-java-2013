@@ -220,14 +220,15 @@ public class MyTable implements Table {
         try {
             value.getColumnAt(getColumnsCount());
             throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + ")");
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
         for (int i = 0; i < getColumnsCount(); ++i) {
             try {
-                if (value.getColumnAt(i) == null) {
+                if (value.getColumnAt(i).equals(null)) {
                     continue;
                 }
-                if (value.getColumnAt(i).getClass() != type.get(i)) {
+                Parser myParser = new Parser();
+                if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
                     throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
                 }
             } catch (IndexOutOfBoundsException e) {
