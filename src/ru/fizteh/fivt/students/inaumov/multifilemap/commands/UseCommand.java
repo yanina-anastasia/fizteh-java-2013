@@ -4,16 +4,16 @@ import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapShellState;
 import ru.fizteh.fivt.storage.strings.Table;
 
-public class UseCommand extends AbstractCommand<MultiFileMapShellState> {
+public class UseCommand<Table, Key, Value, State extends MultiFileMapShellState<Table, Key, Value>> extends AbstractCommand<State> {
     public UseCommand() {
         super("use", 1);
     }
 
-    public void execute(String[] args, MultiFileMapShellState shellState) {
-        Table oldTable = shellState.table;
+    public void execute(String[] args, State state) {
         Table newTable = null;
+
         try {
-            newTable = shellState.tableProvider.getTable(args[1]);
+            newTable = state.useTable(args[1]);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return;
@@ -27,12 +27,6 @@ public class UseCommand extends AbstractCommand<MultiFileMapShellState> {
             return;
         }
 
-        if (shellState.table != null) {
-            shellState.table.commit();
-        }
-
-        shellState.table = newTable;
-
-        System.out.println("using " + shellState.table.getName());
+        System.out.println("using " + state.getCurrentTableName());
     }
 }

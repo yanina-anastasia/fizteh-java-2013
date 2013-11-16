@@ -1,20 +1,19 @@
 package ru.fizteh.fivt.students.inaumov.filemap.commands;
 
 import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
-import ru.fizteh.fivt.students.inaumov.filemap.SingleFileMapShellState;
+import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 
-public class RollbackCommand extends AbstractCommand<SingleFileMapShellState> {
+public class RollbackCommand<State extends FileMapShellState> extends AbstractCommand<State> {
 	public RollbackCommand() {
 		super("rollback", 0);
 	}
 
-	public void execute(String[] args, SingleFileMapShellState fileMapState) {
-        if (fileMapState.table == null) {
-            throw new IllegalArgumentException("no table");
+	public void execute(String[] args, State state) {
+        if (state.getTable() == null) {
+            System.err.println("no table");
+            return;
         }
 
-        int unsavedChangesNumber = fileMapState.table.rollback();
-
-		System.out.println(unsavedChangesNumber);
+		System.out.println(state.rollback());
 	}
 }
