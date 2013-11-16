@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.vorotilov.shell.WrongCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 public class StoreableTableMain {
@@ -100,9 +101,13 @@ public class StoreableTableMain {
                         System.out.println("no table");
                         throw new WrongCommand();
                     } else {
-                        Storeable value = currentTable.put(parsedCommand[1],
-                                tableProvider.createFor(currentTable,
-                                        SignatureFile.parseValues(currentTable, parsedCommand[2])));
+                        Storeable value;
+                        try {
+                            value = currentTable.put(parsedCommand[1],
+                                    tableProvider.deserialize(currentTable, parsedCommand[2]));
+                        } catch (ParseException e) {
+                            throw new ColumnFormatException("parse exception", e);
+                        }
                         if (value == null) {
                             System.out.println("new");
                         } else {
