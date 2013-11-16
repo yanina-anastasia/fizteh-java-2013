@@ -353,31 +353,17 @@ public class DataBase implements Table {
 
     public int commit() {
         int tempChanged = map.changed();
-        try {
-            saveDataBase();
-            changed = 0;
-            System.out.println(tempChanged);
-            return tempChanged;
-        } catch (IOException e) {
-            System.err.println("Error! " + e.getMessage());
-            System.exit(1);
-        }
-        return 0;
+        map.commit();
+        System.out.println(tempChanged);
+        return tempChanged;
     }
 
     public int rollback() {
         int tempChanged = map.changed();
         map.getMap().clear();
-        try {
-            load();
-            System.out.println(changed);
-            changed = 0;
-            return tempChanged;
-        } catch (IOException e) {
-            System.err.println("Error! " + e.getMessage());
-            System.exit(1);
-        }
-        return 0;
+        map.rollback();
+        System.out.println(tempChanged);
+        return tempChanged;
     }
 
     public int numberOfChanges() {
