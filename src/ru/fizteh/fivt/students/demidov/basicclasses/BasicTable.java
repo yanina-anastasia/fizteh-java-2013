@@ -21,7 +21,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType get(String key) {
-		if ((key == null) || (key.trim().isEmpty())) {
+		if ((key == null) || (key.trim().isEmpty()) || (!(key.matches("\\s+")))) {
 			throw new IllegalArgumentException("null or empty key");
 		}
 		ElementType value = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
@@ -35,7 +35,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType put(String key, ElementType value) {
-		if ((key == null) || (key.trim().isEmpty()) || (value == null)) {
+		if ((key == null) || (key.trim().isEmpty()) || (value == null) || (!(key.matches("\\s+")))) {
 			throw new IllegalArgumentException("null or empty parameter");
 		}
 		ElementType overwrite = get(key);
@@ -50,7 +50,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType remove(String key) {
-		if ((key == null) || (key.trim().isEmpty())) {
+		if ((key == null) || (key.trim().isEmpty()) || (!(key.matches("\\s+")))) {
 			throw new IllegalArgumentException("null or empty key");
 		}
 		ElementType removed = get(key);

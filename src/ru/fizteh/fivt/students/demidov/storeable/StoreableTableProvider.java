@@ -15,8 +15,11 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicTableProvider;
 
 public class StoreableTableProvider extends BasicTableProvider<StoreableTable> implements TableProvider {
-	public StoreableTableProvider(String root) {
+	public StoreableTableProvider(String root) throws IOException {
 		super(root);
+		if (!((new File(root)).exists())) {
+			throw new IOException("non-existing directory");
+		}
 	}
 	
 	public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {

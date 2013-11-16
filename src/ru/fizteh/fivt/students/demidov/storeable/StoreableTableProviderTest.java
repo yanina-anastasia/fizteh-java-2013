@@ -16,7 +16,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 
 public class StoreableTableProviderTest {
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		try {
 			File tempDirectory = null;
 			try {
