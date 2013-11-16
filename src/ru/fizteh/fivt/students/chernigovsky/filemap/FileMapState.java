@@ -46,10 +46,6 @@ public class FileMapState implements State {
         return currentTable.remove(key);
     }
 
-    public boolean createTable(String name) {
-        return currentTableProvider.createTable(name) == null;
-    }
-
     public boolean removeTable(String name) {
         try {
             currentTableProvider.removeTable(name);
@@ -63,6 +59,10 @@ public class FileMapState implements State {
         if (currentTableProvider.getTable(name) == currentTable) {
             currentTable = null;
         }
+    }
+
+    public boolean createTable(String name) {
+        return currentTableProvider.createTable(name) == null;
     }
 
     public boolean isTableExists(String name) {

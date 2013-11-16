@@ -14,7 +14,7 @@ public class CommandCreate implements Command {
         return 1;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.isTableExists(args[1])) {
+        if (state.createTable(args[1])) {
             System.out.println(args[1] + " exists");
         } else {
             System.out.println("created");
