@@ -36,12 +36,13 @@ public class TableWriter {
         storage.delete();
 
         RandomAccessFile dataBaseStorage = new RandomAccessFile(storage, "rw");
+        table.startWriting();
 
         try {
 
             long curOffset = countFirstOffSet(table), writePosition;
-
-            for (Map.Entry<String, V> entry : table) {
+           
+            for (Map.Entry<String, V> entry : table.entrySet()) {
                 if (entry.getValue() == null) {
                     continue;
                 }
@@ -58,6 +59,7 @@ public class TableWriter {
 
         } finally {
             QuietCloser.closeQuietly(dataBaseStorage);
+            table.finishWriting();
         }
 
         if (storage.length() == 0) {

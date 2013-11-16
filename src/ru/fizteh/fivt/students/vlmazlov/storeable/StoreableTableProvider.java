@@ -66,7 +66,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         return table;
     }
 
-   @Override
+    @Override
 	public Storeable deserialize(StoreableTable table, String value) throws ParseException {
 		return this.deserialize((Table)table, value);
 	}

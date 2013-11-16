@@ -20,6 +20,10 @@ public class StringTableProviderFactory implements DiffCountingTableProviderFact
 
     public StringTableProvider create(String dir) {
 
+      if ((dir == null) || (dir.trim().isEmpty())) {
+        throw new IllegalArgumentException("Directory not specified");
+      }
+
       if (!(new File(dir)).exists()) {
         (new File(dir)).mkdir();
       }
