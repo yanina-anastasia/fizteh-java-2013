@@ -103,7 +103,7 @@ public class TableManager implements TableProvider {
                         FileMap currentFileMap = new FileMap(files[g].getCanonicalFile(), idFile);
                         try {
                             TableData tableDat = new TableData(tables[i], this);
-                            currentFileMap.readerFile(tableDat);
+                            currentFileMap.readeFile(tableDat);
                             currentFileMap.setAside();
                         } catch (DataFormatException e) {
                             throw new IllegalArgumentException(e.getMessage(), e);
@@ -408,3 +408,4 @@ public class TableManager implements TableProvider {
         return created;
     }
 }
+
