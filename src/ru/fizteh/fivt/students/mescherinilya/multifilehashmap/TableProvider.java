@@ -11,17 +11,20 @@ public class TableProvider implements ru.fizteh.fivt.storage.strings.TableProvid
     TableProvider(File dir) {
         rootDir = dir;
 
-        tables = new HashMap<String, Table>();
+        if (rootDir == null) {
+            throw new IllegalArgumentException("Root dir is null!");
+        }
 
-        /*if (!rootDir.isDirectory() || !rootDir.canRead() || rootDir.canWrite()) {
-            System.err.println("Bad root 000directory!");
-        }*/
+        if (!rootDir.isDirectory()) {
+            throw new IllegalArgumentException("Bad root directory!");
+        }
+
+        tables = new HashMap<>();
 
         for (File cub : rootDir.listFiles()) {
             if (cub.isDirectory()) {
                 Table table = new Table(cub.getName(), this);
                 tables.put(cub.getName(), table);
-
             }
         }
 

@@ -45,8 +45,8 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
     @Override
     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null!");
+        if (ourProvider.isBadName(key)) {
+            throw new IllegalArgumentException("Bad key!");
         }
         if (added.containsKey(key)) {
             return added.get(key);
@@ -83,8 +83,8 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
 
     @Override
     public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null!");
+        if (ourProvider.isBadName(key)) {
+            throw new IllegalArgumentException("Bad key!");
         }
         String oldValue = null;
         if (added.containsKey(key)) {
