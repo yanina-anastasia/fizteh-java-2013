@@ -187,7 +187,9 @@ public class StoreableTableMain {
             }
         } catch (ColumnFormatException e) {
             System.out.println("wrong type (" + e.getMessage() + ")");
-            throw e;
+            if (!interactiveMode) {
+                throw e;
+            }
         }
     }
 
