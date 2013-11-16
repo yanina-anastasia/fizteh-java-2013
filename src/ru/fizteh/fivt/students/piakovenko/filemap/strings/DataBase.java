@@ -315,13 +315,14 @@ public class DataBase implements Table {
         }
         String removed = map.remove(key);
         if (removed != null) {
-            if (map.getChangedMap().containsKey(key)) {
+            ++changed;
+            /*if (map.getChangedMap().containsKey(key)) {
                 map.getChangedMap().remove(key);
                 //--changed;
             } else if (map.getOverwriteMap().containsKey(key)) {
             } else {
                 ++changed;
-            }
+            }       */
         }
         return removed;
     }
