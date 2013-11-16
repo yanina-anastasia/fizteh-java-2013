@@ -103,7 +103,7 @@ public class TableManager extends Manager {
     @Override
     public void printSuggestMessage() {
         if (currentTable != null) {
-            //outputStream.print(currentTable.getName());
+            outputStream.print(currentTable.getName());
         }
         outputStream.print(" $ ");
     }

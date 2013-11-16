@@ -35,10 +35,6 @@ public class DistributedTable extends FileManager implements Table {
         return key != null && !key.equals("") && !key.matches(".*[\\s].*");
     }
 
-    public boolean isValidValue(String value) {
-        return isValidKey(value);
-    }
-
     private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
         int fileRecordNumber = 0;
         currentFile = filesList[dirNumber][fileNumber];
@@ -329,22 +325,6 @@ public class DistributedTable extends FileManager implements Table {
         pair[0] = new String(keyBytes, StandardCharsets.UTF_8);
         pair[1] = new String(valueBytes, StandardCharsets.UTF_8);
         return pair;
-    }
-
-    protected String readValue(String key) throws IOException {
-        if (currentFile == null || !currentFile.exists()) {
-            return null;
-        }
-        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
-            String[] pair;
-            while ((pair = readNextPair(inputStream)) != null) {
-                if (pair[0].equals(key)) {
-                    inputStream.close();
-                    return pair[1];
-                }
-            }
-        }
-        return null;
     }
 
     public void clear() throws IOException {
