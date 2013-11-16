@@ -127,4 +127,5 @@ public class TestsForTable {
         value2.setColumnAt(2, 6);
         Assert.assertTrue(((TableImplementation) table).storeableAreEqual(value1, table.put("key1", value2)));
     }
+    
 }

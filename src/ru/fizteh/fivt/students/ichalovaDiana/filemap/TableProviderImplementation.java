@@ -23,6 +23,11 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -144,35 +149,46 @@ public class TableProviderImplementation implements TableProvider {
         }
         List<Object> values = new ArrayList<Object>();
         
-        Document document;
+        XMLStreamReader xmlReader;
         try {
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                    .parse(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)));
-        } catch (SAXException | IOException | ParserConfigurationException e) {
+            xmlReader = XMLInputFactory.newInstance()
+                    .createXMLStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (XMLStreamException | FactoryConfigurationError e) {
             throw new RuntimeException("Error while deserializing: " + e.getMessage(), e);
         }
-
-        Element row = document.getDocumentElement();
-        NodeList children = row.getChildNodes();
-        for (int i = 0; i < children.getLength(); ++i) {
-            Node node = children.item(i);
-            switch (node.getNodeType()) {
-            case Node.ELEMENT_NODE:
-                Element e = (Element) node;
-                if (e.getTagName().equals("col")) {
-                    String text = e.getTextContent();
-                    values.add(parseToColumn(table, i, text));
-                } else if (e.getTagName().equals("null")) {
-                    values.add(null);
-                } else {
-                    throw new ParseException("Unexpected element", i);
-                }
-                break;
-            default:
-                throw new ParseException("Unexpected element", i);
-            }
-        }
         
+        try {
+            if (!xmlReader.hasNext()) {
+                throw new ParseException("Empty value", 0);
+            }
+            
+            int columnIndex = 0;
+            int nodeType = xmlReader.next();
+            if (nodeType == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("row")) {
+                while (xmlReader.hasNext()) {
+                    nodeType = xmlReader.next();
+                    if (nodeType == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("col")) {
+                        String text = xmlReader.getElementText();
+                        values.add(parseToColumn(table, columnIndex, text));
+                        columnIndex += 1;
+                    } else if (nodeType == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("null")) {
+                        values.add(null);
+                        columnIndex += 1;
+                    } else if (nodeType == XMLStreamConstants.END_ELEMENT && xmlReader.getLocalName().equals("row")) {
+                        break;
+                    } else if (nodeType == XMLStreamConstants.COMMENT) {
+                        continue;
+                    }
+                }
+            }
+            
+            if (xmlReader.next() != XMLStreamConstants.END_DOCUMENT) {
+                throw new ParseException("Error while parsing " + value, xmlReader.getLocation().getCharacterOffset());
+            }
+        } catch (XMLStreamException e) {
+            throw new ParseException("Error while parsing " + value, xmlReader.getLocation().getCharacterOffset());
+        }
+
         return new StoreableImplementation(table, values);
     }
     
@@ -199,7 +215,6 @@ public class TableProviderImplementation implements TableProvider {
         if (value == null) {
             return null;
         }
-        //check  value!!!
         
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
