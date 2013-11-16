@@ -66,4 +66,26 @@ public class MyStoreableTest {
         storeable.setColumnAt(1, new Long("100000000000"));
         storeable.getIntAt(1);
     }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testColumnFormatExceptionDouble() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(1, new Double(0.0001));
+        storeable.getIntAt(1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testColumnFormatExceptionFloat() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(1, new Float(0.0201));
+        storeable.getIntAt(1);
+    }
+
+    @Test
+    public void testSetByteAtIntColumn() {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(1, (byte) 11);
+        storeable.getIntAt(1);
+    }
+
 }
