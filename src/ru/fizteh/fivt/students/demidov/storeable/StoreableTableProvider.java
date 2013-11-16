@@ -18,8 +18,10 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 	public StoreableTableProvider(String root) throws IOException {
 		super(root);
 		File directory = (new File(root));
-		if ((directory.isDirectory()) && (!(directory.exists()))) {
-			throw new IOException("non-existing directory");
+		if ((!(directory.exists()))) {
+			if (!(directory.mkdir())) {
+				throw new IOException("non-existing directory");
+			}
 		}
 	}
 	

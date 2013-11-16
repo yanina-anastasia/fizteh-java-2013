@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import ru.fizteh.fivt.students.demidov.multifilehashmap.FilesMap;
 
 abstract public class BasicTable<ElementType> {
@@ -21,9 +24,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType get(String key) {
-		if ((key == null) || (key.trim().isEmpty())) {
-			throw new IllegalArgumentException("null or empty key");
-		}
+		checkKey(key);
 		ElementType value = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
 		if (putDiff.containsKey(key)) {
 			value = putDiff.get(key);
@@ -35,7 +36,8 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType put(String key, ElementType value) {
-		if ((key == null) || (key.trim().isEmpty()) || (value == null)) {
+		checkKey(key);
+		if (value == null) {
 			throw new IllegalArgumentException("null or empty parameter");
 		}
 		ElementType overwrite = get(key);
@@ -50,9 +52,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public ElementType remove(String key) {
-		if ((key == null) || (key.trim().isEmpty())) {
-			throw new IllegalArgumentException("null or empty key");
-		}
+		checkKey(key);
 		ElementType removed = get(key);
 		if (removed != null) {
 			removeDiff.add(key);
@@ -120,6 +120,16 @@ abstract public class BasicTable<ElementType> {
 	
 	public FilesMap<ElementType> getFilesMap() {
 		return filesMap;
+	}
+	
+	public void checkKey(String key) {
+		Pattern pattern = null;
+        pattern = Pattern.compile("\\s+");
+        Matcher matcher = pattern.matcher(key);
+		
+		if ((key == null) || (key.trim().isEmpty()) || (matcher.find())) {
+			throw new IllegalArgumentException("incorrect key");
+		}
 	}
 	
 	abstract public String serialize(ElementType value) throws IOException;
