@@ -1,11 +1,15 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.commands;
 
+import ru.fizteh.fivt.students.kamilTalipov.database.core.Database;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.NoTableSelectedException;
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
-public class RollbackCommand extends SimpleCommand {
-    public RollbackCommand(TransactionDatabase database) {
-        super("rollback", 0);
+public class SizeCommand extends SimpleCommand {
+    private final Database database;
+
+    public SizeCommand(Database database) {
+        super("size", 0);
         this.database = database;
     }
 
@@ -17,11 +21,9 @@ public class RollbackCommand extends SimpleCommand {
         }
 
         try {
-            System.out.println(database.rollback());
+            System.out.println(database.size());
         } catch (NoTableSelectedException e) {
             System.err.println("no table");
         }
     }
-
-    private final TransactionDatabase database;
 }

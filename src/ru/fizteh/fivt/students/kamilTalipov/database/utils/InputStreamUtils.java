@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;

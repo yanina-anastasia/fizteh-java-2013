@@ -1,9 +1,12 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.commands;
 
+import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiTableDatabase;
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
 public class DropCommand extends SimpleCommand {
+    private final MultiTableDatabase database;
+
     public DropCommand(MultiTableDatabase database) {
         super("drop", 1);
         this.database = database;
@@ -22,6 +25,4 @@ public class DropCommand extends SimpleCommand {
             System.out.println(args[0] + " not exists");
         }
     }
-
-    private final MultiTableDatabase database;
 }

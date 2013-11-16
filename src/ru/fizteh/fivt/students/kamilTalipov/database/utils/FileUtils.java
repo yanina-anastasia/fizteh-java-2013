@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.utils;
 
 import ru.fizteh.fivt.students.kamilTalipov.shell.PathUtils;
 
@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileUtils {
-    public static File makeDir(String absolutePath) throws IllegalArgumentException {
+    public static File makeDir(String absolutePath) throws IllegalArgumentException, IOException {
         File file = new File(absolutePath);
         if (!file.isAbsolute()) {
             throw new IllegalArgumentException("Path '" + absolutePath + "' not absolute");
@@ -18,7 +18,7 @@ public class FileUtils {
             return file;
         }
         if (!file.mkdir()) {
-            throw new IllegalArgumentException("failed to create directory" + absolutePath + "'");
+            throw new IOException("failed to create directory '" + absolutePath + "'");
         }
 
         return file;

@@ -1,12 +1,16 @@
-package ru.fizteh.fivt.students.kamilTalipov.database;
+package ru.fizteh.fivt.students.kamilTalipov.database.commands;
 
-
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.Database;
+import ru.fizteh.fivt.students.kamilTalipov.database.core.NoTableSelectedException;
 import ru.fizteh.fivt.students.kamilTalipov.shell.Shell;
 import ru.fizteh.fivt.students.kamilTalipov.shell.SimpleCommand;
 
-public class GetCommand extends SimpleCommand {
-    public GetCommand(Database database) {
-        super("get", 1);
+public class RemoveCommand extends SimpleCommand {
+    private final Database database;
+
+    public RemoveCommand(Database database) {
+        super("remove", 1);
         this.database = database;
     }
 
@@ -18,17 +22,14 @@ public class GetCommand extends SimpleCommand {
         }
 
         try {
-            String value = database.get(args[0]);
+            Storeable value = database.remove(args[0]);
             if (value == null) {
                 System.out.println("not found");
-            } else {
-                System.out.println("found");
-                System.out.println(value);
+            }  else {
+                System.out.println("removed");
             }
         } catch (NoTableSelectedException e) {
             System.err.println("no table");
         }
     }
-
-    private final Database database;
 }
