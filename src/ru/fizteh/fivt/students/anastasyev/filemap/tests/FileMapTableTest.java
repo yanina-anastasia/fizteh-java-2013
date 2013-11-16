@@ -125,13 +125,6 @@ public class FileMapTableTest {
         currTable.put("    ", tableProvider.deserialize(currTable, value));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutEmptyValue() throws ParseException {
-        Storeable storeable = tableProvider.deserialize(currTable, value);
-        storeable.setColumnAt(7, "     ");
-        currTable.put("key", storeable);
-    }
-
     @Test
     public void testPutNewKey() throws ParseException {
         assertNull(currTable.put("new", tableProvider.deserialize(currTable, value)));
@@ -147,15 +140,35 @@ public class FileMapTableTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPutNl() throws ParseException, IOException {
+    public void testPutAlienSmallerStoreable() throws ParseException, IOException {
         String val = "[15,\"string\",\"second string\"]";
         List<Class<?>> classList = new ArrayList<Class<?>>();
         classList.add(Integer.class);
         classList.add(String.class);
         classList.add(String.class);
-        Table table1 = tableProvider.createTable("table1", classList);
-        Storeable valueOld = tableProvider.deserialize(table1, val);
-        valueOld.setColumnAt(2, "     ");
+        Table table = tableProvider.createTable("smallerTable", classList);
+        Storeable valueOld = tableProvider.deserialize(table, val);
+        tableProvider.removeTable("smallerTable");
+        currTable.put("key", valueOld);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutAlienBiggerStoreable() throws ParseException, IOException {
+        String val = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\", 1]";
+        List<Class<?>> classList = new ArrayList<Class<?>>();
+        classList.add(Integer.class);
+        classList.add(Integer.class);
+        classList.add(Integer.class);
+        classList.add(Long.class);
+        classList.add(Float.class);
+        classList.add(Double.class);
+        classList.add(Boolean.class);
+        classList.add(String.class);
+        classList.add(String.class);
+        classList.add(Byte.class);
+        Table table = tableProvider.createTable("biggerTable", classList);
+        Storeable valueOld = tableProvider.deserialize(table, val);
+        tableProvider.removeTable("biggerTable");
         currTable.put("key", valueOld);
     }
 

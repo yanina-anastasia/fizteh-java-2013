@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +31,6 @@ public class FileMap {
             openFileMapWithCheck();
         } catch (FileNotFoundException e) {
             throw new IOException("File " + nfile + ".dat not found", e);
-        } catch (ParseException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -41,7 +38,7 @@ public class FileMap {
         if (!fileMap.exists()) {
             return;
         }
-        try (RandomAccessFile input = new RandomAccessFile(fileMap.toString(), "r")) {
+        try (RandomAccessFile input = new RandomAccessFile(fileMap, "r")) {
             if (input.length() == 0) {
                 return;
             }
@@ -88,10 +85,10 @@ public class FileMap {
     }
 
     private void write(RandomAccessFile output, String key, Storeable value) throws IOException {
-        output.writeInt(key.getBytes("UTF-8").length);
-        output.writeInt(provider.serialize(table, value).getBytes("UTF-8").length);
-        output.write(key.getBytes("UTF-8"));
-        output.write(provider.serialize(table, value).getBytes("UTF-8"));
+        output.writeInt(key.getBytes(StandardCharsets.UTF_8).length);
+        output.writeInt(provider.serialize(table, value).getBytes(StandardCharsets.UTF_8).length);
+        output.write(key.getBytes(StandardCharsets.UTF_8));
+        output.write(provider.serialize(table, value).getBytes(StandardCharsets.UTF_8));
     }
 
     public void save() throws IOException {
@@ -105,7 +102,7 @@ public class FileMap {
                 throw new IOException("Can't create " + nfile + ".dat");
             }
         }
-        try (RandomAccessFile output = new RandomAccessFile(fileMap.toString(), "rw")) {
+        try (RandomAccessFile output = new RandomAccessFile(fileMap, "rw")) {
             output.setLength(0);
             Set<Map.Entry<String, Storeable>> hashMapSet = elementHashMap.entrySet();
             for (Map.Entry<String, Storeable> element : hashMapSet) {
