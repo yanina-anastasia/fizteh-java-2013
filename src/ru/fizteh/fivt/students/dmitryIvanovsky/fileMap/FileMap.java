@@ -331,12 +331,13 @@ public class FileMap implements Table {
         }
         RandomAccessFile dbFile = null;
         ErrorFileMap error = null;
+//        try {
+//
+//        } catch (Exception e) {
+//            throw new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
+//        }
         try {
             dbFile = new RandomAccessFile(randomFile, "rw");
-        } catch (Exception e) {
-            throw new ErrorFileMap(randomFile.getAbsolutePath() + " doesn't close");
-        }
-        try {
             dbFile.setLength(0);
             dbFile.seek(0);
             int len = 0;
@@ -363,7 +364,7 @@ public class FileMap implements Table {
         } catch (Exception e) {
             error.addSuppressed(e);
             throw error;
-        }  finally {
+        } finally {
             try {
                 dbFile.close();
             } catch (Exception e) {
