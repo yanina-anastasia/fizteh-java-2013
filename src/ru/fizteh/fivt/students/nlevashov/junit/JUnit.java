@@ -622,6 +622,90 @@ public class JUnit {
     public void getStringWrongIndexStorableTest2() {
         store.getStringAt(10);
     }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getIntFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(143);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getIntAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getLongFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Long.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(143143143);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getLongAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getByteFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Byte.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(121);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getByteAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getFloatFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Float.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(1.5);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getFloatAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getDoubleFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Double.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(789.123);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getDoubleAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getBooleanFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(Boolean.class);
+        types.add(String.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(true);
+        values.add("luck");
+        Storeable s = new Storable(types, values);
+        s.getBooleanAt(1);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void getStringFromAnotherTypeStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        types.add(String.class);
+        types.add(Integer.class);
+        ArrayList<Object> values = new ArrayList<>();
+        values.add("THIS IS THE END!!!");
+        values.add(777);
+        Storeable s = new Storable(types, values);
+        s.getStringAt(1);
+    }
 }
 
 
