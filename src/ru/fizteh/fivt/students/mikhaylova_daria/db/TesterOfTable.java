@@ -240,6 +240,9 @@ public class TesterOfTable {
             int nAfter = t.size();
             assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
             assertEquals("неправильно работает commit", 3, commitSize);
+            assertEquals("не правильно работает get или put возвращает неправильное старое значение",
+                    t.put("new1", v1).getStringAt(0), "value");
+            assertEquals("после добавления того же значения изменился размер таблицы", nAfter, table.size());
         } catch (IOException e) {
             fail();
             e.printStackTrace();
