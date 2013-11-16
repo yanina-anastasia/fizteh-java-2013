@@ -42,8 +42,8 @@ public class StoreableUtils {
 	public static List<Class<?>> getClasses(String directory) throws IOException {
 		List<Class<?>> gotColumns = new ArrayList<>();
 		try (Scanner formatData = new Scanner(new File(directory, "signature.tsv"))) {
-			while (formatData.hasNextLine()) {
-				Class<?> currentClass = TypeName.getAppropriateClass(formatData.nextLine());
+			while (formatData.hasNext()) {
+				Class<?> currentClass = TypeName.getAppropriateClass(formatData.next());
 				gotColumns.add(currentClass);
 			}
 			if (gotColumns.isEmpty()) {

@@ -37,6 +37,9 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 			
 			try (PrintStream writtenSignature = new PrintStream(new File(root + File.separator + name, "signature.tsv"))) {
 				for (int column = 0; column < columnTypes.size(); ++column) {
+					if (column != 0) {
+						writtenSignature.print(" ");
+					}
 					Class<?> type = columnTypes.get(column);
 					if (type == null) {
 						throw new IllegalArgumentException("wrong column type");
@@ -44,7 +47,7 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 					String typeName = null;
 					typeName = TypeName.getAppropriateName(type);
 
-					writtenSignature.println(typeName);
+					writtenSignature.print(typeName);
 				}
 			}
 			
