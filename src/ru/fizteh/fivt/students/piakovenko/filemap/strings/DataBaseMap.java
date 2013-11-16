@@ -12,9 +12,7 @@ import java.util.Map;
  */
 public class DataBaseMap {
     private Map<String, String> map = new HashMap<String, String>(15);
-    private Map<String, String> changedMap = new HashMap<String, String>(15);
-    private Map<String, String> overwriteMap = new HashMap<String, String>(15);
-    private Map<String, String> removedMap = new HashMap<String, String>(15);
+    private Map<String, String> oldMap = new HashMap<String, String>(15);
 
     public String put (String key, String value) {
         String oldValue = null;
@@ -62,16 +60,31 @@ public class DataBaseMap {
         return map;
     }
 
-    public Map<String, String> getChangedMap() {
-        return changedMap;
+    public int changed() {
+        int changes = 0;
+        for (final String key : oldMap.keySet()) {
+            if (!map.containsKey(key)) {
+                ++changes;
+            } else if (!oldMap.get(key).equals(map.get(key))) {
+                ++changes;
+            }
+        }
+        for (final String key : map.keySet()) {
+            if (!oldMap.containsKey(key)) {
+                ++changes;
+            }
+        }
+        return changes;
     }
 
-    public Map<String, String> getOverwriteMap() {
-        return overwriteMap;
+    public void commit() {
+        oldMap.clear();
+        oldMap.putAll(map);
     }
 
-    public Map<String, String> getRemovedMap() {
-        return removedMap;
+    public void rollback() {
+        map.clear();
+        map.putAll(oldMap);
     }
 
 }

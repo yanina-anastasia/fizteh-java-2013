@@ -296,7 +296,7 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("key or value equals NULL");
         }
         String putValue = map.put(key, value);
-        if (putValue == null) {
+        /*if (putValue == null) {
             if (!map.getRemovedMap().containsKey(key)) {
                 ++changed;
             } else {
@@ -317,7 +317,7 @@ public class DataBase implements Table {
                     map.getOverwriteMap().put(key, value);
                 }
             }
-        }
+        }  */
         return putValue;
     }
 
@@ -326,7 +326,7 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("key equals null");
         }
         String removed = map.remove(key);
-        if (removed != null) {
+        /*if (removed != null) {
             if (!map.getRemovedMap().containsKey(key)) {
                 map.getRemovedMap().put(key, removed);
             }
@@ -338,7 +338,7 @@ public class DataBase implements Table {
             } else {
                 ++changed;
             }
-        }
+        }     */
         return removed;
     }
 
@@ -352,13 +352,10 @@ public class DataBase implements Table {
     }
 
     public int commit() {
-        int tempChanged = changed;
+        int tempChanged = map.changed();
         try {
             saveDataBase();
             changed = 0;
-            map.getChangedMap().clear();
-            map.getOverwriteMap().clear();
-            map.getRemovedMap().clear();
             System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
@@ -369,11 +366,8 @@ public class DataBase implements Table {
     }
 
     public int rollback() {
-        int tempChanged = changed;
+        int tempChanged = map.changed();
         map.getMap().clear();
-        map.getChangedMap().clear();
-        map.getOverwriteMap().clear();
-        map.getRemovedMap().clear();
         try {
             load();
             System.out.println(changed);
