@@ -144,5 +144,4 @@ public class GlobalFileMapState {
     public void use(String name) throws IOException {
         throw new IOException("GFMS: use: Sorry, this method was depritiated!:(");
     }
-
 }
