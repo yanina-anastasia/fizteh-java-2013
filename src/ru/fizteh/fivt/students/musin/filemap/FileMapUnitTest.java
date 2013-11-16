@@ -659,6 +659,36 @@ public class FileMapUnitTest {
             Assert.fail();
         }
     }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getColumnTypeFromBigIndexShouldFail() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        table.getColumnType(10);
+    }
+
+    @Test
+    public void getColumnTypeFromIntegerColumnReturnsInteger() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        Assert.assertTrue(table.getColumnType(0) == Integer.class);
+    }
+
+    @Test
+    public void getColumnCountReturnsColumnCount() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        Assert.assertEquals(table.getColumnsCount(), 3);
+    }
 }
 
 
