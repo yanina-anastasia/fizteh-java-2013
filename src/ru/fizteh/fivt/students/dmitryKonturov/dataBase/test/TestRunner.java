@@ -8,8 +8,8 @@ public class TestRunner {
     public static void main(String[] args) {
         runTest(TestTableProviderFactoryImplementation.class);
         runTest(TestTableProviderImplementation.class);
-        //runTest(TestTableImplementation.class);
-        //runTest(TestStoreableImplementation);
+        runTest(TestTableImplementation.class);
+        runTest(TestStoreableImplementation.class);
     }
 
     public static void runTest(Class testClass) {
