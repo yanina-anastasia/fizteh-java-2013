@@ -5,49 +5,54 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Vector;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
+import ru.fizteh.fivt.storage.structured.*;
 
 public class DbState extends State {
-    public HashMap<String, String> data;
-    public HashMap<String, String> initial;
+    public HashMap<String, Storeable> data;
+    private HashMap<String, Storeable> initial;
+    private HashSet<String> removed;
     public RandomAccessFile dbFile;
     public String path;
+    private TableProvider provider;
+    private Table table;
     private int foldNum;
     private int fileNum;
     
-    public DbState(String dbPath, int folder, int file) {
+    public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
+                                                  throws ParseException, IOException, DbExitException {
         foldNum = folder;
         fileNum = file;
+        provider = prov;
+        table = newTable;
         path = dbPath;
-        try {
-            loadData();
-        } catch (IOException e) {
-            System.err.println("filemap: data loading error");
-            throw new DbExitException(1);
-        }
+        removed = new HashSet<String>();
+        loadData();
     }
     
     private void fileCheck() {
-        File dbTempFile = new File(path);
-        if (!dbTempFile.exists()) {
-            try {
-                dbTempFile.createNewFile();
-            } catch (IOException e) {
-                System.err.println("filemap: unable to create a database file");
-                throw new DbExitException(1);
-            }
-        }
         try {
             dbFile = new RandomAccessFile(path, "rw");
         } catch (FileNotFoundException e) {
-            System.err.println("filemap: database file does not exist " + path);
-            throw new DbExitException(1);
+            throw new IllegalStateException(path + " not found");
         }
         return;
+    }
+    
+    public void assignInitial() {
+        initial = new HashMap<String, Storeable>(data);
+        removed = new HashSet<String>();
+    }
+    
+    public void assignData() {
+        data = new HashMap<String, Storeable>(initial);
+        removed = new HashSet<String>();
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
@@ -59,10 +64,8 @@ public class DbState extends State {
         try {
             return new String(byteKeyArr, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            System.err.println("filemap: UTF-8 is unsupported by system");
-            System.exit(1);
+            throw new RuntimeException("UTF-8 is unsupported by system");
         }
-        return "";
     }
     
     private String getKeyFromFile(int offset) throws IOException {
@@ -79,8 +82,7 @@ public class DbState extends State {
     
     private String getValueFromFile(int offset, int endOffset) throws IOException {
         if (offset < 0 || endOffset < 0) {
-            System.err.println("filemap: reading database: wrong file format");
-            System.exit(1);
+            throw new IOException("reading database: wrong file format");
         }
         dbFile.seek(offset);
         byte tempByte;
@@ -92,28 +94,31 @@ public class DbState extends State {
         }        
         
         return byteVectToStr(byteVect);
-    }
+    }    
     
-    public int loadData() throws IOException {
-        data = new HashMap<String, String>();
-        initial = new HashMap<String, String>();
+    public int loadData() throws IOException, ParseException {
+        data = new HashMap<String, Storeable>();
+        assignInitial();
+        File dbTempFile = new File(path);
+        if (!dbTempFile.exists()) {
+            return 0;
+        }
+        int result = 0;  
         dbFile = null;
-        int result = 0;
-        int position = 0;
         try {
-            fileCheck();
+            fileCheck();  
             if (dbFile.length() == 0) {
                 dbFile.close();
                 return 0;
             } 
             
+            int position = 0;
             String key = getKeyFromFile(position);
             int startOffset = dbFile.readInt();
             int endOffset = 0;
             int firstOffset = startOffset;
             String value = "";
             String key2 = "";
-            
             do {  
                 position += key.getBytes().length + 5;
                 if (position < firstOffset) {   
@@ -127,17 +132,19 @@ public class DbState extends State {
                 
                 if (key.getBytes().length > 0) {
                     if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
-                        throw new IOException("wrong key in file");
+                        dbFile.close();
+                        throw new RuntimeException("wrong key in file");
                     }
                     result++;
-                    data.put(key, value);
+                    Storeable stor = provider.deserialize(table, value);
+                    data.put(key, stor);
                 }
                 
                 key = key2;
                 startOffset = endOffset;
             } while (position <= firstOffset); 
             
-            initial = new HashMap<String, String>(data);
+            assignInitial();
         } finally {
           if (dbFile != null) {
             try {
@@ -146,37 +153,41 @@ public class DbState extends State {
               // ignore
             }
           }
-        }
-        
+        }      
         return result;
     }
+   
     
     public int getChangeNum() {
         int result = 0;
-        for (Map.Entry<String, String> s : data.entrySet()) {
-            String was = initial.get(s.getKey());
-            String became = s.getValue();
+        for (Map.Entry<String, Storeable> s : data.entrySet()) {
+            Storeable was = initial.get(s.getKey());
+            Storeable became = s.getValue();
             if ((was != null && !was.equals(became)) 
-                    || (was == null && became != null)) {
+               || (was == null && became != null) 
+               || (was == null && became == null && removed.contains(s.getKey()))) {
                 result++;
             }
         }
         return result;
     }
 
+    
+
     public void commit() throws IOException {
-        initial = new HashMap<String, String>(data);
+        assignInitial();
         dbFile = null;
         try {
             fileCheck();
+            fileCheck();
             int offset = 0;
             long pos = 0;
-            for (Map.Entry<String, String> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : data.entrySet()) {
                 if (s.getValue() != null) {
                     offset += s.getKey().getBytes("UTF-8").length + 5;
                 } 
             }
-            for (Map.Entry<String, String> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : data.entrySet()) {
                 if (s.getValue() != null) {
                     dbFile.seek(pos);
                     dbFile.write(s.getKey().getBytes("UTF-8"));
@@ -184,7 +195,7 @@ public class DbState extends State {
                     dbFile.writeInt(offset);
                     pos = (int) dbFile.getFilePointer();
                     dbFile.seek(offset);
-                    byte[] value = s.getValue().getBytes("UTF-8");
+                    byte[] value = provider.serialize(table, s.getValue()).getBytes("UTF-8");
                     dbFile.write(value);
                     offset += value.length;
                 }
@@ -208,14 +219,14 @@ public class DbState extends State {
         return ((Math.abs(key.getBytes()[0]) / 16) % 16);
     }
     
-    public String put(String[] args) {
-        String key = args[0];
-        String value = args[1];
+    public Storeable put(String key, Storeable value) {
+        if (removed.contains(key)) {
+            removed.remove(key);
+        }
         return data.put(key, value);
     }
     
-    public String get(String[] args) {
-        String key = args[0];
+    public Storeable get(String key) {
         if (data.containsKey(key)) {
             return data.get(key);
         } else {
@@ -223,16 +234,16 @@ public class DbState extends State {
         }
     }
     
-    public String remove(String[] args) {
-        String key = args[0];
-        String value = data.get(key);
+    public Storeable remove(String key) {
+        Storeable value = data.get(key);
         data.put(key, null);
+        removed.add(key);
         return value;
     }
     
     public int size() {
         int result = 0;
-        for (Map.Entry<String, String> entry : data.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : data.entrySet()) {
             if (entry.getValue() != null) {
                 result++;
             }

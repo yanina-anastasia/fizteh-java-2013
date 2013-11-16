@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -11,23 +12,45 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.storage.structured.*;
 
 public class MultiDbStateTest {
     @Rule
     public TemporaryFolder rootFolder = new TemporaryFolder();  
     Table table;
     TableProvider provider;
-    TableProviderFactory factory;
+    MyTableProviderFactory factory;
     File root;
+    ArrayList<Class<?>> list;
+    ArrayList<Object> correct;
+    ArrayList<Object> wrong;
+    Storeable correctValues;
+    Storeable wrongValues;
     
     @Before
+    @Test
     public void initialization() throws IOException {
         rootFolder.create();
         root = rootFolder.newFolder("root");
         factory = new MyTableProviderFactory();
         provider = factory.create(root.getAbsolutePath());
-        table = provider.createTable("default");
+        list = new ArrayList<Class<?>>();
+        list.add(String.class);
+        list.add(Integer.class);
+        list.add(Long.class);
+        list.add(Boolean.class);
+        list.add(Float.class);
+        
+        table = provider.createTable("default", list);
+        assertNotNull(table);
+        wrongValues = provider.createFor(table);
+        correct = new ArrayList<Object>();
+        correct.add("String");
+        correct.add(1000000000);
+        correct.add(1000000000);
+        correct.add(true);
+        correct.add(1.001);
+        correctValues = provider.createFor(table, correct);
     }  
     
     //tests for TableProviderFactory 
@@ -61,55 +84,86 @@ public class MultiDbStateTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testProviderCreateTableNull() {
-        provider.createTable(null);
+        try {
+            provider.createTable(null, list);
+        } catch (IOException e) {
+            fail();
+        }
     } 
     
     @Test
     public void testProviderCreateTableExisting() {
-        table = provider.createTable("default");
+        try {
+            table = provider.createTable("default", list);
+        } catch (IOException e) {
+            fail();
+        }
         assertNull(table);
     } 
     
     @Test
     public void testProviderCreateRemoveTableOk() {
-        table = provider.createTable("myLittlePony");
+        try {
+            provider.createTable("myLittlePony", list);
+        } catch (IOException e) {
+            fail();
+        }
         assertNotNull(table);
-        provider.removeTable("myLittlePony");
+        try {
+            provider.removeTable("myLittlePony");
+        } catch (IOException e) {
+            fail();
+        }
     } 
     
     @Test(expected = IllegalStateException.class)
     public void testProviderRemoveTableNotExisting() {
-        provider.removeTable("myLittlePony");
+        try {
+            provider.removeTable("myLittlePony");
+        } catch (IOException e) {
+            fail();
+        }
     } 
     
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testProviderCreateRemovePut() {
-        table = provider.createTable("myLittleTable");
+        try {
+            table = provider.createTable("myLittleTable", list);
+        } catch (IOException e) {
+            fail();
+        }
         assertNotNull(table);
-        provider.removeTable("myLittleTable");
-        table.put("put", "to dropped");
+        try {
+            provider.removeTable("myLittleTable");
+        } catch (IOException e) {
+            fail();
+        }
+        table.put("put", provider.createFor(table, correct));
     } 
     
     @Test(expected = RuntimeException.class)
     public void testProviderNewNameWrong() {
-        provider.createTable("nam/e");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testProviderNewNameNull() {
-        provider.createTable(null);
+        try {
+            table = provider.createTable("nam//e", list);
+        } catch (IOException e) {
+            fail();
+        }
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testProviderNewNameEmpty() {
-        provider.createTable("      ");
+        try {
+            provider.createTable("      ", list);
+        } catch (IOException e) {
+            fail();
+        }
     }
     //end of tests for TableProvider
     
     //tests for Table            
     @Test(expected = IllegalArgumentException.class)
     public void testTablePutNullKey() {
-        table.put(null, "1");
+        table.put(null, correctValues);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -119,7 +173,7 @@ public class MultiDbStateTest {
     
     @Test
     public void testTablePutNotNullValue() {
-        table.put("abcd", "1");
+        table.put("abcd", correctValues);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -129,8 +183,12 @@ public class MultiDbStateTest {
     
     @Test
     public void testTableGetRemoveRollback() {
-        table.put("a", "b");
-        table.commit();
+        table.put("a", correctValues);
+        try {
+            table.commit();
+        } catch (IOException e) {
+            fail();
+        }
         table.remove("a");
         assertEquals(1, table.rollback());
         assertEquals(1, table.size());
@@ -138,52 +196,68 @@ public class MultiDbStateTest {
     
     @Test
     public void testTablePutRollbackGet() {
-        table.put("newK", "value");
+        table.put("newK", correctValues);
         table.rollback();
         assertNull(table.get("newK"));
     }
     
     @Test
     public void testTablePutCommitGet() {
-        table.put("newK", "value");
-        table.commit();
-        assertEquals(table.get("newK"), "value");
+        table.put("newK", correctValues);
+        try {
+            table.commit();
+        } catch (IOException e) {
+            fail();
+        }
+        assertEquals(table.get("newK"), correctValues);
         table.remove("newK");
-        assertEquals(1, table.commit());
-    }
-    
-    @Test
-    public void testTableNewCommit() {
-        Table t = provider.createTable("newT");
-        assertNotNull(t);
-        assertEquals(0, t.commit());
-        provider.removeTable("newT");
+        int result = 0;
+        try {
+            result = table.commit();
+        } catch (IOException e) {
+            fail();
+        }
+        assertEquals(1, result);
     }
     
     @Test
     public void testTableNewRollback() {
-        Table t = provider.createTable("newT");
-        assertNotNull(t);
-        assertEquals(0, t.rollback());
-        provider.removeTable("newT");
+        try {
+            table = provider.createTable("newT", list);
+        } catch (IOException e) {
+            fail();
+        }
+        assertNotNull(table);
+        assertEquals(0, table.rollback());
+        try {
+            provider.removeTable("newT");
+        } catch (IOException e) {
+            fail();
+        }
     }
     
     @Test
     public void testTableNewGet() {
-        Table t = provider.createTable("newT");
-        assertNull(t.get("a"));
-        provider.removeTable("newT");
-    }
-    
-    @Test
-    public void testTableNewNameOk() {
-        Table t = provider.createTable("name");
-        assertEquals("name", t.getName());
-        provider.removeTable("name");
-    }    
+        try {
+            table = provider.createTable("newT", list);
+        } catch (IOException e) {
+            fail();
+        }
+        
+        assertNull(table.get("a"));
+        try {
+            provider.removeTable("newT");
+        } catch (IOException e) {
+            fail();
+        }
+    }  
     
     @After
     public void after() {
-        provider.removeTable("default");
+        try {
+            provider.removeTable("default");
+        } catch (IOException e) {
+            fail();
+        }       
     }
 }

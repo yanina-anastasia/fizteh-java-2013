@@ -1,5 +1,8 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import java.text.ParseException;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class DbPut implements Command {
@@ -11,8 +14,14 @@ public class DbPut implements Command {
             System.out.println("no table");
             return 0;
         }
-        
-        String result = multiState.getCurrTable().put(key, args[1]);  
+        Storeable value;
+        try {
+            value = multiState.deserialize(multiState.getCurrTable(), args[1]);
+        } catch (ParseException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
+            return 0;
+        }
+        Storeable result = multiState.getCurrTable().put(key, value);  
         if (result == null) {
             System.out.println("new");
         } else {

@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-import ru.fizteh.fivt.storage.strings.*;
+import ru.fizteh.fivt.storage.structured.*;
 
 
 public class MyTableProviderFactory implements TableProviderFactory {
