@@ -158,9 +158,8 @@ public class StoreableTableProvider implements TableProvider {
         for (int i = 0; i < jsonArray.length(); ++i) {
             if (jsonArray.get(i).equals(null)) {
                 tableRow.setColumnAt(i, null);
-            } else if (table.getColumnType(i).equals(Integer.class)
-                    && jsonArray.get(i).getClass().equals(Integer.class)) {
-                tableRow.setColumnAt(i, jsonArray.getInt(i));
+            } else if (table.getColumnType(i).equals(jsonArray.get(i).getClass())) {
+                tableRow.setColumnAt(i, jsonArray.get(i));
             } else if (table.getColumnType(i).equals(Long.class)
                     && (jsonArray.get(i).getClass().equals(Long.class)
                         || jsonArray.get(i).getClass().equals(Integer.class))) {
@@ -171,15 +170,6 @@ public class StoreableTableProvider implements TableProvider {
             } else if (table.getColumnType(i).equals(Float.class)
                     && jsonArray.get(i).getClass().equals(Double.class)) {
                 tableRow.setColumnAt(i, (new Double(jsonArray.getDouble(i)).floatValue()));
-            } else if (table.getColumnType(i).equals(Double.class)
-                    && jsonArray.get(i).getClass().equals(Double.class)) {
-                tableRow.setColumnAt(i, jsonArray.getDouble(i));
-            } else if (table.getColumnType(i).equals(Boolean.class)
-                    && jsonArray.get(i).getClass().equals(Boolean.class)) {
-                tableRow.setColumnAt(i, jsonArray.getBoolean(i));
-            } else if (table.getColumnType(i).equals(String.class)
-                    && jsonArray.get(i).getClass().equals(String.class)) {
-                tableRow.setColumnAt(i, jsonArray.getInt(i));
             } else {
                 throw new ParseException("Unknown type", 0);
             }
