@@ -10,7 +10,7 @@ public class FileMapStoreable implements Storeable {
 
     private List<Object> column = new ArrayList<>();
     private List<Class<?>> columnType;
-    Boolean newTypeNull = false;
+    //Boolean newTypeNull = false;
 
     public FileMapStoreable(List<Class<?>> columnType) {
         this.columnType = columnType;
@@ -98,13 +98,13 @@ public class FileMapStoreable implements Storeable {
         return String.class.cast(column.get(columnIndex));
     }
 
-    Boolean isNewTypeNull() {
-        return newTypeNull;
-    }
+//    Boolean isNewTypeNull() {
+//        //return newTypeNull;
+//    }
 
-    void setNewTypeNull(Boolean newTypeNull) {
-        this.newTypeNull = newTypeNull;
-    }
+//    void setNewTypeNull(Boolean newTypeNull) {
+//        //this.newTypeNull = newTypeNull;
+//    }
 
     public String messageEqualsType(List<Class<?>> list) {
         if (list.size() != columnType.size()) {

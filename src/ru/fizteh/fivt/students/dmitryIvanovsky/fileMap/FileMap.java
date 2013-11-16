@@ -32,15 +32,9 @@ public class FileMap implements Table {
 
     private final Path pathDb;
     private final CommandShell mySystem;
-    private final Lock commitLock = new ReentrantLock();
     String nameTable;
-    ConcurrentHashMap<String, Storeable> tableData;
-    ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
-        @Override
-        protected Map<String, Storeable> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    Map<String, Storeable> tableData = new HashMap<>();
+    Map<String, Storeable> changeTable = new HashMap<>();
     boolean existDir = false;
     boolean tableDrop = false;
     FileMapProvider parent;
@@ -50,7 +44,6 @@ public class FileMap implements Table {
         this.nameTable = nameTable;
         this.pathDb = pathDb;
         this.parent = parent;
-        this.tableData = new ConcurrentHashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -124,7 +117,6 @@ public class FileMap implements Table {
         this.pathDb = pathDb;
         this.parent = parent;
         this.columnType = columnType;
-        this.tableData = new ConcurrentHashMap<>();
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
         File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
@@ -392,7 +384,7 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        return changeTable.get().size();
+        return changeTable.size();
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
@@ -460,31 +452,31 @@ public class FileMap implements Table {
             throw new ColumnFormatException(st.messageEqualsType(columnType));
         }
 
-        if (changeTable.get().containsKey(key)) {
-            Storeable newValue = changeTable.get().get(key);
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
             if (newValue == null) {
                 Storeable oldValue = tableData.get(key);
                 if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                    changeTable.get().remove(key);
+                    changeTable.remove(key);
                     return null;
                 } else {
-                    changeTable.get().put(key, value);
+                    changeTable.put(key, value);
                     return null;
                 }
             } else {
-                Storeable oldValue = changeTable.get().get(key);
-                changeTable.get().put(key, value);
+                Storeable oldValue = changeTable.get(key);
+                changeTable.put(key, value);
                 return oldValue;
             }
         } else {
             if (tableData.containsKey(key)) {
                 Storeable oldValue = tableData.get(key);
                 if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                    changeTable.get().put(key, value);
+                    changeTable.put(key, value);
                 }
                 return oldValue;
             } else {
-                changeTable.get().put(key, value);
+                changeTable.put(key, value);
                 return null;
             }
         }
@@ -499,12 +491,12 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        if (changeTable.get().containsKey(key)) {
-            Storeable newValue = changeTable.get().get(key);
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
             if (newValue == null) {
                 return null;
             } else {
-                Storeable value = changeTable.get().get(key);
+                Storeable value = changeTable.get(key);
                 return value;
             }
         } else {
@@ -522,24 +514,24 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        if (changeTable.get().containsKey(key)) {
-            Storeable newValue = changeTable.get().get(key);
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
             if (tableData.containsKey(key)) {
                 if (newValue == null) {
                     return null;
                 } else {
-                    Storeable value = changeTable.get().get(key);
-                    changeTable.get().put(key, null);
+                    Storeable value = changeTable.get(key);
+                    changeTable.put(key, null);
                     return value;
                 }
             } else {
-                changeTable.get().remove(key);
+                changeTable.remove(key);
                 return newValue;
             }
         } else {
             if (tableData.containsKey(key)) {
                 Storeable value = tableData.get(key);
-                changeTable.get().put(key, null);
+                changeTable.put(key, null);
                 return value;
             } else {
                 return null;
@@ -552,13 +544,13 @@ public class FileMap implements Table {
             throw new IllegalStateException("table was deleted");
         }
         int size = tableData.size();
-        for (String key : changeTable.get().keySet()) {
+        for (String key : changeTable.keySet()) {
             if (tableData.containsKey(key)) {
-                if (changeTable.get().get(key) == null) {
+                if (changeTable.get(key) == null) {
                     --size;
                 }
             } else {
-                if (changeTable.get().get(key) != null) {
+                if (changeTable.get(key) != null) {
                     ++size;
                 }
             }
@@ -567,28 +559,19 @@ public class FileMap implements Table {
     }
 
     public int commit() {
-        commitLock.lock();
-        try {
-            return singleCommit();
-        } finally {
-            commitLock.unlock();
-        }
-    }
-
-    private int singleCommit() {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        for (String key : changeTable.get().keySet()) {
-            Storeable value = changeTable.get().get(key);
+        for (String key : changeTable.keySet()) {
+            Storeable value = changeTable.get(key);
             if (value == null) {
                 tableData.remove(key);
             } else {
-                tableData.put(key, changeTable.get().get(key));
+                tableData.put(key, changeTable.get(key));
             }
         }
-        int count = changeTable.get().size();
-        changeTable.get().clear();
+        int count = changeTable.size();
+        changeTable.clear();
         try {
             unloadTable();
         } catch (Exception e) {
@@ -601,8 +584,8 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        int res = changeTable.get().size();
-        changeTable.get().clear();
+        int res = changeTable.size();
+        changeTable.clear();
         return res;
     }
 

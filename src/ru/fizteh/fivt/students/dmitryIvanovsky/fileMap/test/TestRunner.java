@@ -9,6 +9,7 @@ public class TestRunner {
         runTest(TestFileMap.class);
         runTest(TestFileMapProvider.class);
         runTest(TestFileMapProviderFactory.class);
+        runTest(TestFileMapStoreable.class);
     }
 
     public static void runTest(Class testClass) {
