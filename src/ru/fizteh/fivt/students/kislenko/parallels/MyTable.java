@@ -77,16 +77,14 @@ public class MyTable implements Table {
 
     @Override
     public Storeable get(String key) {
-        lock.writeLock().lock();
-        resetTable();
         if (key == null) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to get.");
         }
+        lock.writeLock().lock();
+        resetTable();
         if (changes.get().containsKey(key)) {
             lock.writeLock().unlock();
             return changes.get().get(key);
@@ -98,31 +96,26 @@ public class MyTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        lock.writeLock().lock();
-        resetTable();
         if (key == null || value == null) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to put.");
         }
         try {
             for (int i = 0; i < types.size(); ++i) {
                 if (value.getColumnAt(i) != null && !types.get(i).equals(value.getColumnAt(i).getClass())) {
-                    lock.writeLock().unlock();
                     throw new ColumnFormatException("Incorrect value to put.");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            lock.writeLock().unlock();
             throw new ColumnFormatException("Incorrect value to put.");
         }
         if (!tryToGetUnnecessaryColumn(value)) {
-            lock.writeLock().unlock();
             throw new ColumnFormatException("Incorrect value to put.");
         }
+        lock.writeLock().lock();
+        resetTable();
         if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
                 (changes.get().containsKey(key) && changes.get().get(key) == null)) {
             count.set(count.get() + 1);
@@ -141,16 +134,14 @@ public class MyTable implements Table {
 
     @Override
     public Storeable remove(String key) {
-        lock.writeLock().lock();
-        resetTable();
         if (key == null) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
-            lock.writeLock().unlock();
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
+        lock.writeLock().lock();
+        resetTable();
         if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
             count.set(count.get() - 1);
         }
