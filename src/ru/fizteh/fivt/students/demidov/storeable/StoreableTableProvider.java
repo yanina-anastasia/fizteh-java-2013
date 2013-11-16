@@ -17,7 +17,8 @@ import ru.fizteh.fivt.students.demidov.basicclasses.BasicTableProvider;
 public class StoreableTableProvider extends BasicTableProvider<StoreableTable> implements TableProvider {
 	public StoreableTableProvider(String root) throws IOException {
 		super(root);
-		if (!((new File(root)).exists())) {
+		File directory = (new File(root));
+		if ((directory.isDirectory()) && (!(directory.exists()))) {
 			throw new IOException("non-existing directory");
 		}
 	}
