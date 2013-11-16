@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.fizteh.fivt.students.elenarykunova.shell.Shell;
+import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class DataBase {
 
@@ -24,41 +25,54 @@ public class DataBase {
     private Filemap table = null;
     private boolean exists = false;
     public boolean hasChanged = false;
-    
+
     public boolean hasFile() {
         return exists;
+    }
+
+    public void loadDataToMap(HashMap<String, Storeable> map)
+            throws IllegalArgumentException, ParseException {
+        Set<Map.Entry<String, String>> mySet = data.entrySet();
+        for (Map.Entry<String, String> myEntry : mySet) {
+            map.put(myEntry.getKey(),
+                    table.getProvider().deserialize(table, myEntry.getValue()));
+        }
     }
 
     public String getFileName(int ndir, int nfile) {
         return ndir + ".dir" + File.separator + nfile + ".dat";
     }
 
-    public DataBase(Filemap myTable, int numbDir, int numbFile,
-            boolean createIfNotExists) throws RuntimeException, ParseException {
+    public void createFile() throws RuntimeException {
+        if (filePath != null) {
+            File tmpFile = new File(filePath);
+            if (!tmpFile.exists()) {
+                if (!tmpFile.getParentFile().exists()) {
+                    if (!tmpFile.getParentFile().mkdir()) {
+                        throw new RuntimeException(filePath
+                                + ": can't create file");
+                    }
+                }
+                try {
+                    if (!tmpFile.createNewFile()) {
+                        throw new RuntimeException(filePath
+                                + ": can't create file");
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(filePath + ": can't create file");
+                }
+            }
+            exists = true;
+        }
+    }
+
+    public DataBase(Filemap myTable, int numbDir, int numbFile) throws RuntimeException, ParseException {
         table = myTable;
         tablePath = table.getTablePath();
         ndir = numbDir;
         nfile = numbFile;
         filePath = tablePath + File.separator + getFileName(ndir, nfile);
-
         File tmpFile = new File(filePath);
-        if (!tmpFile.exists() && createIfNotExists) {
-            if (!tmpFile.getParentFile().exists()) {
-                if (!tmpFile.getParentFile().mkdir()) {
-                    System.err.println(filePath + ": can't create file");
-                    System.exit(1);
-                }
-            }
-            try {
-                if (!tmpFile.createNewFile()) {
-                    System.err.println(filePath + ": can't create file");
-                    System.exit(1);
-                }
-            } catch (IOException e) {
-                System.err.println(filePath + ": can't create file");
-                System.exit(1);
-            }
-        }
 
         if (tmpFile.exists()) {
             try {
@@ -68,7 +82,8 @@ public class DataBase {
             } catch (FileNotFoundException e1) {
                 throw new RuntimeException(filePath + ": can't find file", e1);
             } catch (IOException e3) {
-                throw new RuntimeException(filePath + ": error in loading file", e3);
+                throw new RuntimeException(
+                        filePath + ": error in loading file", e3);
             } finally {
                 try {
                     closeDataFile();
@@ -169,7 +184,8 @@ public class DataBase {
                             value);
                 } catch (ParseException e) {
                     throw new ParseException(filePath
-                            + " can't deserialize values from file " + e.getMessage(), e.getErrorOffset());
+                            + " can't deserialize values from file "
+                            + e.getMessage(), e.getErrorOffset());
                 }
                 table.getHashMap().put(keyFirst, val);
 
@@ -178,8 +194,7 @@ public class DataBase {
             } while (currPtr <= firstOffset);
             hasChanged = true;
         } catch (IOException e1) {
-            throw new IOException(filePath
-                    + " can't read values from file", e1);
+            throw new IOException(filePath + " can't read values from file", e1);
         } catch (OutOfMemoryError e2) {
             throw new RuntimeException(filePath
                     + " can't read values from file: out of memory", e2);

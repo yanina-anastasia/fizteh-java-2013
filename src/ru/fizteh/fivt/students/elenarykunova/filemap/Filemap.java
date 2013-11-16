@@ -34,22 +34,16 @@ public class Filemap implements Table {
         return currTablePath;
     }
 
-    protected int getDataBaseFromKeyAndCheck(String key, boolean needToCreate)
-            throws RuntimeException {
+    public void createDataBase(int ndir, int nfile) throws RuntimeException {
+        if (!data[ndir][nfile].hasFile()) {
+            data[ndir][nfile].createFile();
+        }
+    }
+
+    protected int getDataBaseNumberFromKey(String key) throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-        
-        if (needToCreate) {
-            if (!data[ndir][nfile].hasFile()) {
-                try {
-                    data[ndir][nfile] = new DataBase(this, ndir, nfile, true);
-                } catch (ParseException e) {
-                    throw new RuntimeException("wrong type (" + e.getMessage()
-                            + ")", e);
-                }
-            }
-        }
         return ndir * 16 + nfile;
     }
 
@@ -134,7 +128,8 @@ public class Filemap implements Table {
         return n;
     }
 
-    public int getUncommitedChangesAndTrack(boolean trackChanges) {
+    public int getUncommitedChangesAndTrack(boolean trackChanges)
+            throws RuntimeException {
         Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
         int k;
         int ndir;
@@ -144,11 +139,13 @@ public class Filemap implements Table {
         String val;
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             key = myEntry.getKey();
-            boolean needToCreate = (myEntry.getValue() != null);
-            k = getDataBaseFromKeyAndCheck(key, needToCreate);
-            
+
+            k = getDataBaseNumberFromKey(key);
             ndir = k / 16;
             nfile = k % 16;
+            if (myEntry.getValue() != null) {
+                createDataBase(ndir, nfile);
+            }
 
             val = data[ndir][nfile].get(key);
 
@@ -182,11 +179,7 @@ public class Filemap implements Table {
     public int commit() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(true);
         if (nchanges != 0) {
-            try {
-                saveChanges();
-            } catch (RuntimeException e) {
-                throw e;
-            }
+            saveChanges();
         }
         return nchanges;
     }
@@ -194,7 +187,12 @@ public class Filemap implements Table {
     public int rollback() throws RuntimeException {
         int nchanges = getUncommitedChangesAndTrack(false);
         if (nchanges != 0) {
-            load();
+            try {
+                loadFromDataMap();
+            } catch (ParseException | IllegalArgumentException e) {
+                throw new RuntimeException(
+                        "can't read data from saved changes", e);
+            }
         }
         return nchanges;
     }
@@ -232,17 +230,36 @@ public class Filemap implements Table {
         }
     }
 
-    public void load() throws RuntimeException {
+    public void loadFromDisk() throws RuntimeException {
         if (updatedMap != null) {
             updatedMap.clear();
+        } else {
+            updatedMap = new HashMap<String, Storeable>();
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 try {
-                    data[i][j] = new DataBase(this, i, j, false);
+                    data[i][j] = new DataBase(this, i, j);
                 } catch (ParseException e) {
                     throw new RuntimeException("wrong type (load "
                             + e.getMessage() + ")", e);
+                }
+            }
+        }
+    }
+
+    public void loadFromDataMap() throws IllegalArgumentException,
+            ParseException {
+        if (updatedMap != null) {
+            updatedMap.clear();
+        } else {
+            updatedMap = new HashMap<String, Storeable>();
+        }
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (data[i][j].hasFile()) {
+                    data[i][j].loadDataToMap(updatedMap);
                 }
             }
         }
@@ -259,7 +276,7 @@ public class Filemap implements Table {
         types = new ArrayList<Class<?>>(columnTypes);
 
         if (currTableName != null) {
-            load();
+            loadFromDisk();
         }
     }
 

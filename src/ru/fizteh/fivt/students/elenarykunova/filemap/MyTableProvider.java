@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -22,6 +24,15 @@ public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
     private HashMap<String, Filemap> tables = new HashMap<String, Filemap>();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+//    private Lock read = readWriteLock.readLock();
+//    private Lock write = readWriteLock.writeLock();
+//    private ThreadLocal<String> currentTable = new ThreadLocal<String>() {
+//        @Override
+//        protected String initialValue() {
+//            return null;
+//        }
+//    };
 
     public MyTableProvider() {
     }
@@ -93,9 +104,14 @@ public class MyTableProvider implements TableProvider {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-                Filemap result = new Filemap(tablePath, name, this, oldTypes);
-                tables.put(name, result);
-                return (Table) result;
+//                try {
+//                    write.lock();
+                    Filemap result = new Filemap(tablePath, name, this, oldTypes);
+                    tables.put(name, result);
+                    return (Table) result;
+//                } finally {
+//                    write.unlock();
+//                }
             }
         } catch (IOException e1) {
             throw new RuntimeException("can't read info from signature.tsv", e1);
@@ -271,109 +287,25 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-        File tmpFile = new File(tablePath);
-        if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-            throw new IllegalStateException(name + " not exists");
-        } else {
-            if (tables.get(name) != null) {
-                tables.remove(name);
-            }
-            Shell sh = new Shell(rootDir, false);
-            if (sh.rm(name) == ExitCode.OK) {
-                return;
+//        try {
+//            write.lock();
+            File tmpFile = new File(tablePath);
+            if (!tmpFile.exists() || !tmpFile.isDirectory()) {
+                throw new IllegalStateException(name + " not exists");
             } else {
-                throw new RuntimeException(name + " can't remove table");
+                if (tables.get(name) != null) {
+                    tables.remove(name);
+                }
+                Shell sh = new Shell(rootDir, false);
+                if (sh.rm(name) == ExitCode.OK) {
+                    return;
+                } else {
+                    throw new RuntimeException(name + " can't remove table");
+                }
             }
-        }
-    }
-
-    public Object checkClasses(Object first, Class<?> second) {
-        Object result;
-
-        if (first == null) {
-            return first;
-        }
-        if (first.getClass().equals(second)) {
-            return first;
-        }
-
-        if (first.getClass().equals(Integer.class)) {
-            int val = (int) first;
-            if (second.equals(Long.class)) {
-                result = Long.valueOf(val);
-                return result;
-            }
-            if (second.equals(Float.class)) {
-                result = Float.valueOf(val);
-                return result;
-            }
-            if (second.equals(Double.class)) {
-                result = Double.valueOf(val);
-                return result;
-            }
-            if (second.equals(String.class)) {
-                result = String.valueOf(val);
-                return result;
-            }
-            if (-128 <= val && val <= 127 && second.equals(Byte.class)) {
-                result = Byte.valueOf((byte) val);
-                return result;
-            }
-        }
-        if (first.getClass().equals(Float.class)) {
-            float val = (float) first;
-            if (second.equals(Double.class)) {
-                result = Double.valueOf(val);
-                return result;
-            }
-            if (second.equals(String.class)) {
-                result = String.valueOf(val);
-                return result;
-            }
-        }
-        if (first.getClass().equals(Long.class)) {
-            long val = (long) first;
-            if (second.equals(Float.class)) {
-                result = Float.valueOf(val);
-                return result;
-            }
-            if (second.equals(Double.class)) {
-                result = Double.valueOf(val);
-                return result;
-            }
-            if (second.equals(String.class)) {
-                result = String.valueOf(val);
-                return result;
-            }
-        }
-        if (first.getClass().equals(Byte.class)) {
-            byte val = (byte) first;
-            if (second.equals(Long.class)) {
-                result = Long.valueOf(val);
-                return result;
-            }
-            if (second.equals(Float.class)) {
-                result = Float.valueOf(val);
-                return result;
-            }
-            if (second.equals(Double.class)) {
-                result = Double.valueOf(val);
-                return result;
-            }
-            if (second.equals(Integer.class)) {
-                result = Integer.valueOf(val);
-                return result;
-            }
-            if (second.equals(String.class)) {
-                result = String.valueOf(val);
-                return result;
-            }
-        }
-        if (first.getClass().equals(String.class)) {
-            String val = (String) first;
-            return JSONObject.stringToValue(val);
-        }
-        return first;
+//        } finally {
+//            write.unlock();
+//        }
     }
 
     @Override
@@ -382,7 +314,6 @@ public class MyTableProvider implements TableProvider {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("deserialize: value is empty");
         }
-        // Storeable res = new MyStoreable(table);
         JSONArray json;
         try {
             json = new JSONArray(value);
@@ -398,26 +329,18 @@ public class MyTableProvider implements TableProvider {
             if (json.get(i).equals(JSONObject.NULL)) {
                 values.add(i, null);
             } else {
-                values.add(i, json.get(i));                
+                values.add(i, json.get(i));
             }
         }
-        /*
-         * for (int i = 0; i < json.length(); i++) { if
-         * (!json.get(i).equals(JSONObject.NULL)) { Object resCast =
-         * checkClasses(json.get(i), table.getColumnType(i)); if
-         * (!resCast.getClass().equals(table.getColumnType(i))) { throw new
-         * ParseException("deserialize: types mismatch " +
-         * json.get(i).getClass() + " " + table.getColumnType(i), i); }
-         * values.add(resCast); } else { values.add(null); } }
-         */
         try {
             return createFor(table, values);
         } catch (ColumnFormatException e) {
-            throw new ParseException("deserialize: can't create new storeable " + e.getMessage(), 0);
+            throw new ParseException("deserialize: can't create new storeable "
+                    + e.getMessage(), 0);
         } catch (IndexOutOfBoundsException e2) {
-            throw new ParseException("deserialize: can't create new storeable " + e2.getMessage(), 0);            
+            throw new ParseException("deserialize: can't create new storeable "
+                    + e2.getMessage(), 0);
         }
-        // return res;
     }
 
     @Override
