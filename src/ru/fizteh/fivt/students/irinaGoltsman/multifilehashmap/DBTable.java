@@ -92,9 +92,10 @@ public class DBTable implements Table {
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("put: key contains white space");
         }
-        checkEqualityTypes(value);
+        Storeable newValue = value;
+        checkEqualityTypes(newValue);
         Storeable originalValue = originalTable.get(key);
-        Storeable oldValue = tableOfChanges.put(key, value);
+        Storeable oldValue = tableOfChanges.put(key, newValue);
         //Значит здесь впервые происходит перезаписывание старого значения.
         if (!removedKeys.contains(key) && oldValue == null) {
             oldValue = originalValue;

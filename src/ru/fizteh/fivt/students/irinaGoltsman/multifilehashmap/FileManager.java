@@ -37,8 +37,8 @@ public class FileManager {
             indexOfDat *= -1;
         }
         if (indexOfDir != originalDirIndex || indexOfDat != originalFileIndex) {
-            throw new IOException(String.format("wrong key '%s': it should be in %i.dir in %i.dat, "
-                    + "but it is in %i.dir in %i.dat", key, indexOfDir,
+            throw new IOException(String.format("wrong key '%s': it should be in %d.dir in %d.dat, "
+                    + "but it is in %d.dir in %d.dat", key, indexOfDir,
                     indexOfDat, originalDirIndex, originalFileIndex));
         }
     }
