@@ -157,7 +157,7 @@ public class StoreableTableProvider implements TableProvider {
         }
         Storeable tableRow = createFor(table);
         for (int i = 0; i < jsonArray.length(); ++i) {
-            if (jsonArray.getJSONObject(i).equals("null")) {
+            if (jsonArray.get(i).equals(null)) {
                 tableRow.setColumnAt(i, null);
             } else {
                 tableRow.setColumnAt(i, jsonArray.get(i));
