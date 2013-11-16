@@ -20,16 +20,13 @@ public class StoreableTable implements Table {
     private TableProvider tableProvider;
     private List<Class<?>> columnTypes;
     private final File tableRootDir;
-    private TableFile[][] tableFiles;
-    private boolean[][] tableFileModified;
-    private HashMap<String, Storeable> tableIndexedData;
-    private HashSet<String> changedKeys;
+    private TableFile[][] tableFiles = new TableFile[16][16];
+    private boolean[][] tableFileModified = new boolean[16][16];
+    private HashMap<String, Storeable> tableIndexedData = new HashMap<>();
+    private HashSet<String> changedKeys = new HashSet<>();
+    private HashSet<String> removedKeys = new HashSet<>();
 
     private void index() {
-        tableFiles = new TableFile[16][16];
-        tableFileModified = new boolean[16][16];
-        tableIndexedData = new HashMap<>();
-        changedKeys = new HashSet<>();
         File[] subDirsList = tableRootDir.listFiles();
         if (subDirsList != null) {
             for (File subDir: subDirsList) {
@@ -175,10 +172,10 @@ public class StoreableTable implements Table {
         checkKey(key);
         checkValue(value);
         Storeable oldValue = tableIndexedData.get(key);
-        changedKeys.add(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
+            changedKeys.add(key);
             tableIndexedData.put(key, value);
         }
         return oldValue;
@@ -199,7 +196,7 @@ public class StoreableTable implements Table {
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            changedKeys.add(key);
+            removedKeys.add(key);
         }
         return oldValue;
     }
@@ -223,8 +220,9 @@ public class StoreableTable implements Table {
      */
     @Override
     public int commit() throws IOException {
-        int numberOfCommittedChanges = changedKeys.size();
+        int numberOfCommittedChanges = uncommittedChanges();
         changedKeys.clear();
+        removedKeys.clear();
         Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
         Iterator<Map.Entry<String, Storeable>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
@@ -267,8 +265,9 @@ public class StoreableTable implements Table {
      */
     @Override
     public int rollback() {
-        int numberOfRolledChanges = changedKeys.size();
+        int numberOfRolledChanges = uncommittedChanges();
         changedKeys.clear();
+        removedKeys.clear();
         tableIndexedData.clear();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
@@ -294,7 +293,7 @@ public class StoreableTable implements Table {
         return numberOfRolledChanges;
     }
 
-    public void close() throws Exception {
+    public void close() throws IOException {
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 if (tableFiles[nDir][nFile] != null) {
@@ -318,7 +317,14 @@ public class StoreableTable implements Table {
     }
 
     public int uncommittedChanges() {
-        return changedKeys.size();
+        int count = changedKeys.size();
+        Iterator<String> iter = removedKeys.iterator();
+        while (iter.hasNext()) {
+            if (!changedKeys.contains(iter.next())) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     /**

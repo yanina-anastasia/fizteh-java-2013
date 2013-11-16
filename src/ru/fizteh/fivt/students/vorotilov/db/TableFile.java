@@ -168,7 +168,7 @@ public class TableFile implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         tableFile.close();
         if (tableFilePath.length() == 0) {
             if (!tableFilePath.delete()) {
