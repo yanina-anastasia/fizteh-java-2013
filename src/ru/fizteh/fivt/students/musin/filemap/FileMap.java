@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -140,7 +139,7 @@ public class FileMap {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error creating the file", e);
+            throw new IOException("Error creating the file", e);
         }
         try (FileOutputStream outputStream = new FileOutputStream(location)) {
             for (Map.Entry<String, Storeable> entry : map.entrySet()) {
@@ -166,30 +165,5 @@ public class FileMap {
 
     public Storeable remove(String key) {
         return map.remove(key);
-    }
-
-    ArrayList<String> parseArguments(int argCount, String argString) {
-        ArrayList<String> args = new ArrayList<String>();
-        int argsRead = 0;
-        String last = "";
-        int start = 0;
-        for (int i = 0; i < argString.length(); i++) {
-            if (Character.isWhitespace(argString.charAt(i))) {
-                if (start != i) {
-                    args.add(argString.substring(start, i));
-                    argsRead++;
-                }
-                start = i + 1;
-                if (argsRead == argCount - 1) {
-                    last = argString.substring(start, argString.length());
-                    break;
-                }
-            }
-        }
-        last = last.trim();
-        if (!last.equals("")) {
-            args.add(last);
-        }
-        return args;
     }
 }

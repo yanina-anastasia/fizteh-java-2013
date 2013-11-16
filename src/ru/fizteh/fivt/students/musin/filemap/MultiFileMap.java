@@ -202,7 +202,7 @@ public class MultiFileMap implements Table {
         } catch (FileNotFoundException e) {
             throw new RuntimeException("No signature file found");
         } catch (IOException e) {
-            throw new RuntimeException("Error reading a file");
+            throw new IOException("Error reading a signature file", e);
         }
         for (int dir = 0; dir < arraySize; dir++) {
             String relative = String.format("%d.dir", dir);
@@ -270,7 +270,7 @@ public class MultiFileMap implements Table {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error reading a file");
+            throw new IOException("Error reading a signature file", e);
         }
         for (int dir = 0; dir < arraySize; dir++) {
             boolean dirRequired = false;
