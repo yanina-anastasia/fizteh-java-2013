@@ -10,10 +10,10 @@ public class DbMain {
 
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
-        String path = "/home/deamoon/Music/dir2";
+        //String path = "/home/deamoon/Music/dir2";
 
         try {
-            //String path = System.getProperty("fizteh.db.dir");
+            String path = System.getProperty("fizteh.db.dir");
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
         } catch (Exception e) {
