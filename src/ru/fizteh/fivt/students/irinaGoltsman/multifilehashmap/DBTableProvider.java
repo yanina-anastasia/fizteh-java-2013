@@ -24,8 +24,6 @@ public class DBTableProvider implements TableProvider {
     private File rootDirectoryOfTables;
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9@.]+";
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-    private final Lock readLock = lock.readLock();
-    private final Lock writeLock = lock.writeLock();
 
     public DBTableProvider(File rootDirectory) throws IOException {
         if (!rootDirectory.exists()) {
@@ -37,15 +35,10 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
-        try {
-            writeLock.lock();
             for (File tableFile : rootDirectoryOfTables.listFiles()) {
                 Table table = new DBTable(tableFile, this);
                 allTables.put(tableFile.getName(), table);
             }
-        } finally {
-            writeLock.unlock();
-        }
     }
 
     @Override
@@ -59,12 +52,7 @@ public class DBTableProvider implements TableProvider {
         if (!tableName.matches(TABLE_NAME_FORMAT)) {
             throw new IllegalArgumentException("get table: error table name");
         }
-        try {
-            readLock.lock();
             return allTables.get(tableName);
-        } finally {
-            readLock.unlock();
-        }
     }
 
     @Override
@@ -81,8 +69,6 @@ public class DBTableProvider implements TableProvider {
         ColumnTypes ct = new ColumnTypes();
         ct.checkTypes(columnTypes);
         Table newTable = null;
-        try {
-            writeLock.lock();
             File tableFile = new File(rootDirectoryOfTables, tableName);
             if (tableFile.exists()) {
                 return null;
@@ -94,9 +80,6 @@ public class DBTableProvider implements TableProvider {
             FileManager.writeSignature(tableFile, types);
             newTable = new DBTable(tableFile, this);
             allTables.put(tableName, newTable);
-        } finally {
-            writeLock.unlock();
-        }
         return newTable;
     }
 
@@ -111,8 +94,6 @@ public class DBTableProvider implements TableProvider {
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
         cm.addCommand(new ShellCommands.ChangeDirectory());
-        try {
-            writeLock.lock();
             if (!allTables.containsKey(tableName)) {
                 throw new IllegalStateException(String.format("%s not exists", tableName));
             }
@@ -123,9 +104,6 @@ public class DBTableProvider implements TableProvider {
                 throw new IOException("");
             }
             allTables.remove(tableName);
-        } finally {
-            writeLock.unlock();
-        }
     }
 
     @Override
