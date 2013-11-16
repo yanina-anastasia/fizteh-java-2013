@@ -132,7 +132,11 @@ public class SignatureFile {
         if (input.trim().equals("")) {
             throw new IllegalArgumentException("Column types are empty");
         }
-        String[] parsedColumnTypes = input.substring(1, input.length() - 1).split("\\s+");
+        String inputWithoutBraces = input.substring(1, input.length() - 1);
+        if (inputWithoutBraces.trim().equals("")) {
+            throw new ColumnFormatException("Unknown column type");
+        }
+        String[] parsedColumnTypes = inputWithoutBraces.split("\\s+");
         List<Class<?>> classes = new ArrayList<>(parsedColumnTypes.length);
         for (int i = 0; i < parsedColumnTypes.length; ++i) {
             classes.add(i, parseColumnType(parsedColumnTypes[i]));
