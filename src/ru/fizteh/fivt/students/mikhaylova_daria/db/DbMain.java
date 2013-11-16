@@ -119,7 +119,7 @@ public class DbMain {
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
         } catch (IllegalStateException e) {
-             System.out.println("wrong type (" + nameDir + " not exists)");
+             System.out.println(nameDir + " not exists");
         } catch (IOException e) {
             System.out.println("wrong type (Reading/writing error" + e.getMessage() + ")");
         }
