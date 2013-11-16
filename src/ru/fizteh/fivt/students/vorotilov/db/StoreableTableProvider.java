@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.vorotilov.shell.FileUtil;
 import ru.fizteh.fivt.students.vorotilov.shell.FileWasNotDeleted;
@@ -156,7 +157,7 @@ public class StoreableTableProvider implements TableProvider {
         }
         Storeable tableRow = createFor(table);
         for (int i = 0; i < jsonArray.length(); ++i) {
-            if (jsonArray.get(i).equals("null")) {
+            if (jsonArray.getJSONObject(i).equals("null")) {
                 tableRow.setColumnAt(i, null);
             } else {
                 tableRow.setColumnAt(i, jsonArray.get(i));
