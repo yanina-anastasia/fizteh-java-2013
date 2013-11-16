@@ -116,7 +116,7 @@ public class StoreableTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testPutEmptyValue() throws IOException {
+    public void testPutN1Value() throws IOException {
         List<Class<?>> classes = new ArrayList<>();
         classes.add(String.class);
         StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
@@ -125,7 +125,7 @@ public class StoreableTableTest {
         String currentTableName = "TestTable";
         currentTable = tableProvider.createTable(currentTableName, classes);
         TableRow tableRow = new TableRow(classes);
-        tableRow.setColumnAt(0, "   ");
+        tableRow.setColumnAt(0, "\n");
         currentTable.put("key", tableRow);
     }
 

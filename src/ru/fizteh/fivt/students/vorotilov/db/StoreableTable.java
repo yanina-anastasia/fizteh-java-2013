@@ -175,11 +175,11 @@ public class StoreableTable implements Table {
         checkKey(key);
         checkValue(value);
         Storeable oldValue = tableIndexedData.get(key);
+        changedKeys.add(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
             tableIndexedData.put(key, value);
-            changedKeys.add(key);
         }
         return oldValue;
     }
