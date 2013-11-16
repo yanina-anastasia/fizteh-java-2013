@@ -19,7 +19,7 @@ public class CommandPut extends AbstractCommand {
 	public void execute(String[] args) throws IOException {
 		String s = state.put(args[1], args[2]);
 		if (s != null) {
-			state.getOutputStream().println("overwrite " + s);
+			state.getOutputStream().println("overwrite\n" + s);
 		} else {
 			state.getOutputStream().println("new");
 		}

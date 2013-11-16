@@ -22,7 +22,7 @@ public class CommandGet extends AbstractCommand {
 		if (s == null) {
 			state.getOutputStream().println("not found");
 		} else {
-			state.getOutputStream().println("found " + s);
+			state.getOutputStream().println("found\n" + s);
 		}
 	}
 
