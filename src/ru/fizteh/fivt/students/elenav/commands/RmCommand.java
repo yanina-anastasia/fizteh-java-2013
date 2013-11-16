@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.shell.ShellState;
 
@@ -26,7 +25,7 @@ public class RmCommand extends AbstractCommand {
 		}
 	}
 	
-	public void execute(String args[], PrintStream s) throws IOException {
+	public void execute(String args[]) throws IOException {
 		File f = new File(absolutePath(args[1]));
 		if (!f.exists()) {
 			throw new IOException("rm: cannot remove '" + args[1] + "': No such file or directory");

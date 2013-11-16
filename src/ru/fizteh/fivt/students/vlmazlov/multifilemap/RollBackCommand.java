@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.DataBaseWriter;
 import java.io.OutputStream;
 
 public class RollBackCommand extends AbstractDataBaseCommand {

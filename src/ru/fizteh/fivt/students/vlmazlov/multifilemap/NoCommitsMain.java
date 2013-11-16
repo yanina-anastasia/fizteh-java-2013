@@ -13,7 +13,7 @@ public class NoCommitsMain {
 	public static void main(String[] args) {
 
 		DataBaseState state = null;
-		FileMapProviderFactory factory = new FileMapProviderFactory(true);
+		StringTableProviderFactory factory = new StringTableProviderFactory(true);
 
 		try {
 			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
@@ -23,7 +23,7 @@ public class NoCommitsMain {
 		}
 
 		try {
-			DataBaseReader.readMultiTableDataBase((FileMapProvider)state.getProvider());
+			state.getProvider().read();
 		} catch (IOException ex) {
 			System.err.println("Unable to retrieve database: " + ex.getMessage());
 			System.exit(3);
@@ -56,7 +56,7 @@ public class NoCommitsMain {
 		}
 
 		try {
-			DataBaseWriter.writeMultiTableDataBase((FileMapProvider)state.getProvider());
+			state.getProvider().write();
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(8);

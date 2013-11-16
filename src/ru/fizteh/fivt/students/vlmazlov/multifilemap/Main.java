@@ -6,24 +6,25 @@ import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import ru.fizteh.fivt.students.vlmazlov.shell.Command;
 import ru.fizteh.fivt.students.vlmazlov.shell.UserInterruptionException;
 import ru.fizteh.fivt.students.vlmazlov.shell.ExitCommand;
+import ru.fizteh.fivt.students.vlmazlov.filemap.StringTable;
 import java.io.IOException;
 import java.io.FileNotFoundException;		
 
 public class Main {
 	public static void main(String[] args) {
 
-		DataBaseState state = null;
-		FileMapProviderFactory factory = new FileMapProviderFactory();
+		StringTableProviderFactory factory = new StringTableProviderFactory();
+		DataBaseState<String, StringTable> state = null;
 
 		try {
-			state =  new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
+			state = new DataBaseState(factory.create(System.getProperty("fizteh.db.dir")));
 		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
 		}
 
 		try {
-			DataBaseReader.readMultiTableDataBase((FileMapProvider)state.getProvider());
+			state.getProvider().read();
 		} catch (IOException ex) {
 			System.err.println("Unable to retrieve database: " + ex.getMessage());
 			System.exit(3);
@@ -37,7 +38,7 @@ public class Main {
 			new RemoveCommand(), new ExitCommand(),
 			new UseCommand(), new CreateCommand(),
 			new DropCommand(), new CommitCommand(),
-			new RollBackCommand()
+			new RollBackCommand(), new SizeCommand()
 		};
 
 		Shell<DataBaseState> shell = new Shell<DataBaseState>(commands, state);
@@ -57,7 +58,7 @@ public class Main {
 		}
 
 		try {
-			DataBaseWriter.writeMultiTableDataBase((FileMapProvider)state.getProvider());
+			state.getProvider().write();
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(8);
