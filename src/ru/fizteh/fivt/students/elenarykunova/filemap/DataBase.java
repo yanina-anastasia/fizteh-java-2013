@@ -17,7 +17,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 public class DataBase {
 
     private HashMap<String, String> data = new HashMap<String, String>();
-    private RandomAccessFile dataFile = null;
     private String filePath = null;
     private String tablePath = null;
     private int ndir;
@@ -73,7 +72,8 @@ public class DataBase {
         nfile = numbFile;
         filePath = tablePath + File.separator + getFileName(ndir, nfile);
         File tmpFile = new File(filePath);
-
+        RandomAccessFile dataFile = null;
+        
         if (tmpFile.exists()) {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
@@ -86,7 +86,7 @@ public class DataBase {
                         filePath + ": error in loading file", e3);
             } finally {
                 try {
-                    closeDataFile();
+                    closeDataFile(dataFile);
                 } catch (Throwable e5) {
                     System.err.println("can't close file " + filePath);
                 }
@@ -94,7 +94,7 @@ public class DataBase {
         }
     }
 
-    public void checkOffset(long offset, long currPtr) throws IOException {
+    public void checkOffset(long offset, long currPtr, RandomAccessFile dataFile) throws IOException {
         if (offset < currPtr || offset > dataFile.length()) {
             IOException e = new IOException();
             throw e;
@@ -108,7 +108,7 @@ public class DataBase {
         return (currNumbDir == ndir && currNumbFile == nfile);
     }
 
-    public String getKeyFromFile() throws IOException {
+    public String getKeyFromFile(RandomAccessFile dataFile) throws IOException {
         byte ch = 0;
         ArrayList<Byte> v = new ArrayList<Byte>();
         ch = dataFile.readByte();
@@ -128,7 +128,7 @@ public class DataBase {
         return result;
     }
 
-    public String getValueFromFile(long nextOffset) throws IOException {
+    public String getValueFromFile(long nextOffset, RandomAccessFile dataFile) throws IOException {
         int beginPtr = (int) dataFile.getFilePointer();
         byte[] res = new byte[(int) (nextOffset - beginPtr)];
         dataFile.read(res);
@@ -152,19 +152,19 @@ public class DataBase {
             String value;
 
             dataFile.seek(currPtr);
-            keyFirst = getKeyFromFile();
+            keyFirst = getKeyFromFile(dataFile);
 
             newOffset = dataFile.readInt();
             currPtr = dataFile.getFilePointer();
-            checkOffset(newOffset, currPtr);
+            checkOffset(newOffset, currPtr, dataFile);
             firstOffset = newOffset;
             do {
                 dataFile.seek(currPtr);
                 if (currPtr < firstOffset) {
-                    keySecond = getKeyFromFile();
+                    keySecond = getKeyFromFile(dataFile);
                     nextOffset = dataFile.readInt();
                     currPtr = dataFile.getFilePointer();
-                    checkOffset(nextOffset, currPtr);
+                    checkOffset(nextOffset, currPtr, dataFile);
                 } else if (currPtr == firstOffset) {
                     nextOffset = dataFile.length();
                     currPtr++;
@@ -175,7 +175,7 @@ public class DataBase {
                 }
 
                 dataFile.seek(newOffset);
-                value = getValueFromFile(nextOffset);
+                value = getValueFromFile(nextOffset, dataFile);
 
                 data.put(keyFirst, value);
                 MyStoreable val;
@@ -220,7 +220,7 @@ public class DataBase {
         return curr;
     }
 
-    protected void closeDataFile() throws RuntimeException {
+    protected void closeDataFile(RandomAccessFile dataFile) throws RuntimeException {
         try {
             if (dataFile != null) {
                 dataFile.close();
@@ -231,6 +231,8 @@ public class DataBase {
     }
 
     public void commitChanges() throws IOException, RuntimeException {
+        Throwable t = null;
+        RandomAccessFile dataFile = null;
         try {
             try {
                 dataFile = new RandomAccessFile(filePath, "rw");
@@ -239,7 +241,7 @@ public class DataBase {
                         + " can't get access to file", e);
             }
             if (data == null || data.isEmpty()) {
-                closeDataFile();
+                closeDataFile(dataFile);
                 Shell sh = new Shell(tablePath, false);
                 if (sh.rm(filePath) != Shell.ExitCode.OK) {
                     throw new RuntimeException(filePath + " can't delete file");
@@ -265,11 +267,16 @@ public class DataBase {
             for (Map.Entry<String, String> myEntry : mySet) {
                 dataFile.write(myEntry.getValue().getBytes());
             }
+        } catch (RuntimeException e5) {
+            t = e5;
+            throw e5;
         } finally {
             try {
-                closeDataFile();
-            } catch (Throwable e5) {
-                System.err.println("can't close file " + filePath);
+                closeDataFile(dataFile);
+            } catch (Throwable e6) {
+                if (t != null) {
+                    t.addSuppressed(e6);
+                }
             }
         }
     }

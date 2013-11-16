@@ -54,9 +54,119 @@ public class MyStoreableTest {
         stor.setColumnAt(10, "Aaa");
     }
 
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testIntColumnSmallIndex() {
+        stor.getIntAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testIntColumnBigIndex() {
+        stor.getIntAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testFloatColumnSmallIndex() {
+        stor.getFloatAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testFloatColumnBigIndex() {
+        stor.getFloatAt(10);
+    }
+    
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testDoubleColumnSmallIndex() {
+        stor.getDoubleAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testDoubleColumnBigIndex() {
+        stor.getDoubleAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testByteColumnSmallIndex() {
+        stor.getByteAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testByteColumnBigIndex() {
+        stor.getByteAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testStringColumnSmallIndex() {
+        stor.getStringAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testStringColumnBigIndex() {
+        stor.getStringAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testLongColumnSmallIndex() {
+        stor.getLongAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testLongColumnBigIndex() {
+        stor.getLongAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testBooleanColumnSmallIndex() {
+        stor.getBooleanAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testBooleanColumnBigIndex() {
+        stor.getBooleanAt(10);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testGetColumnSmallIndex() {
+        stor.getColumnAt(-1);
+    }
+
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testGetColumnBigIndex() {
+        stor.getColumnAt(10);
+    }
+
     @Test (expected = ColumnFormatException.class)
-    public void testSetColumnInvalidType() {
+    public void testSetIntColumnInvalidType() {
         stor.setColumnAt(0, "Aaa");
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testSetDoubleColumnInvalidType() {
+        stor.setColumnAt(1, true);
+    }
+    
+    @Test (expected = ColumnFormatException.class)
+    public void testSetStringColumnInvalidType() {
+        stor.setColumnAt(2, 555);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testSetFloatColumnInvalidType() {
+        stor.setColumnAt(3, false);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testSetByteColumnInvalidType() {
+        stor.setColumnAt(4, 1000000);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testSetBooleanColumnInvalidType() {
+        stor.setColumnAt(5, "azaza");
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void testSetLongColumnInvalidType() {
+        stor.setColumnAt(6, 5.3333);
     }
 
     @Test
@@ -68,16 +178,6 @@ public class MyStoreableTest {
         assertEquals((String) stor.getStringAt(2), "value");
     }
     
-    @Test (expected = IndexOutOfBoundsException.class)
-    public void testGetColumnSmallIndex() {
-        stor.getColumnAt(-1);
-    }
-
-    @Test (expected = IndexOutOfBoundsException.class)
-    public void testGetColumnBigIndex() {
-        stor.getColumnAt(10);
-    }
-
     @Test
     public void testGetColumnAt() {
         stor.setColumnAt(0, 10);
@@ -150,7 +250,7 @@ public class MyStoreableTest {
     
     @Test (expected = ColumnFormatException.class)
     public void testSetStringInegerShouldFail() {
-        Integer i = 42;
+        int i = 42;
         stor.setColumnAt(2, i);
     }
 }

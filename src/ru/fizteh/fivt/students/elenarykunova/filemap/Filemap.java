@@ -290,4 +290,28 @@ public class Filemap implements Table {
         }
         return types.get(columnIndex);
     }
+
+    public static void main(String[] args) {
+        FileMapMain myFactory = new FileMapMain();
+        MyTableProvider provider;
+        try {
+            provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
+            Filemap mp = new Filemap();
+            ExecuteCmd exec = new ExecuteCmd(mp, provider);
+            exec.workWithUser(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (IOException e1) {
+            System.err.println(e1.getMessage());
+            System.exit(1);
+        } catch (IllegalStateException e2) {
+            System.err.println(e2.getMessage());
+            System.exit(1);
+        } catch (RuntimeException e3) {
+            System.err.println(e3.getMessage());
+            System.exit(1);
+        }
+    }
+
 }

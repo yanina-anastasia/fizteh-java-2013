@@ -170,10 +170,11 @@ public class MyTableProvider implements TableProvider {
     }
 
     public List<Class<?>> getTypesFromSignature(File info) throws IOException {
+        Throwable e = null;
         List<Class<?>> types = new ArrayList<Class<?>>();
-        FileInputStream is;
-        is = new FileInputStream(info);
+        FileInputStream is = null;
         try {
+            is = new FileInputStream(info);
             Scanner sc = new Scanner(is);
             sc.useDelimiter(" ");
             try {
@@ -184,8 +185,17 @@ public class MyTableProvider implements TableProvider {
             } finally {
                 sc.close();
             }
+        } catch (IOException t) {
+            e = t;
+            throw t;
         } finally {
-            is.close();
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Throwable e1) {
+                    e.addSuppressed(e1);
+                }
+            }
         }
         return types;
     }
