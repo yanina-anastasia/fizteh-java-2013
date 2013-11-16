@@ -23,7 +23,6 @@ public class StoreableTableMain {
                 case "exit":
                     if (parsedCommand.length > 1) {
                         System.out.println("exit: must not get parameter");
-                        currentTable.commit();
                         throw new WrongCommand();
                     } else {
                         throw new ExitCommand();
