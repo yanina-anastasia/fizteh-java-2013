@@ -27,7 +27,7 @@ public class TableMember implements Table {
     }
 
     protected void checkExistence() {
-        providerLock.readLock().lock();
+        //providerLock.readLock().lock();
         if (!provider.containsMember(name)) {
             throw new IllegalStateException("table not exists now");
         }
