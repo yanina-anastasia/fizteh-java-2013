@@ -359,6 +359,7 @@ public class DataBase implements Table {
         int tempChanged = changed;
         map.getMap().clear();
         map.getChangedMap().clear();
+        map.getOverwriteMap().clear();
         try {
             load();
             System.out.println(changed);
