@@ -84,7 +84,7 @@ public class FileMap {
 
     private void writeFile(TableData table) throws Exception {
         RandomAccessFile fileDataBase = null;
-        Exception e = new Exception("Writing error");
+        Exception e = null;
         try {
             fileDataBase = new RandomAccessFile(file, "rw");
             fileDataBase.setLength(0);
@@ -112,6 +112,7 @@ public class FileMap {
             }
         } catch (Exception exp) {
             e = exp;
+            throw e;
         } finally {
             try {
                 if (fileDataBase != null) {
@@ -149,7 +150,7 @@ public class FileMap {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
-        Exception e = new Exception("Reading error");
+        Exception e = null;
         Storeable storeableValue;
         RandomAccessFile dataBase = null;
         try {
