@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 
 
 import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.piakovenko.shell.MyException;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 import ru.fizteh.fivt.students.piakovenko.shell.Remove;
 
