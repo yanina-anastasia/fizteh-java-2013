@@ -11,6 +11,7 @@ import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProv
 import ru.fizteh.fivt.students.kamilTalipov.database.core.TableRow;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -142,5 +143,12 @@ public class TableTester {
         MultiFileHashTable table2 = provider.createTable("qqqq", types);
         Storeable storeable = provider.createFor(table2, Arrays.asList(2.3));
         table.put("gg", storeable);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void putUnsupportedTypeShouldFailedTest() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(BigInteger.class);
+        MultiFileHashTable table2 = provider.createTable("TypesTest", types);
     }
 }

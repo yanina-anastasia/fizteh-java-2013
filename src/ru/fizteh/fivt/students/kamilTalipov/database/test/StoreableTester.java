@@ -79,4 +79,40 @@ public class StoreableTester {
         Assert.assertEquals(storeable.getIntAt(0), Integer.valueOf(3));
         Assert.assertEquals(storeable.getStringAt(1), "three");
     }
+
+    @Test
+    public void getAllSupportedTypesTest() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        types.add(Long.class);
+        types.add(Byte.class);
+        types.add(Float.class);
+        types.add(Double.class);
+        types.add(Boolean.class);
+        types.add(String.class);
+
+        MultiFileHashTable table2 = provider.createTable("TypeTest", types);
+
+        Storeable storeable = new TableRow(table2, Arrays.asList(12, 34L, Byte.valueOf("3"),
+                                                                12.4f, 55.2, true, "big"));
+        Assert.assertEquals(storeable.getIntAt(0), Integer.valueOf(12));
+        Assert.assertEquals(storeable.getLongAt(1), Long.valueOf(34L));
+        Assert.assertEquals(storeable.getByteAt(2), Byte.valueOf("3"));
+        Assert.assertEquals(storeable.getFloatAt(3), Float.valueOf(12.4f));
+        Assert.assertEquals(storeable.getDoubleAt(4), Double.valueOf(55.2));
+        Assert.assertEquals(storeable.getBooleanAt(5), true);
+        Assert.assertEquals(storeable.getStringAt(6), "big");
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getStringAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypesGetShouldFailedTest2() {
+        Storeable storeable = new TableRow(table, Arrays.asList(3, "three"));
+        storeable.getLongAt(0);
+    }
 }
