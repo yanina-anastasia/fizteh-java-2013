@@ -165,13 +165,14 @@ public class StoreableTableProvider implements TableProvider {
                         || jsonArray.get(i).getClass().equals(Integer.class))) {
                 tableRow.setColumnAt(i, jsonArray.getLong(i));
             } else if (table.getColumnType(i).equals(Byte.class)
-                    && jsonArray.get(i).getClass().equals(Byte.class)) {
+                    && jsonArray.get(i).getClass().equals(Integer.class)) {
                 tableRow.setColumnAt(i, (new Integer(jsonArray.getInt(i))).byteValue());
             } else if (table.getColumnType(i).equals(Float.class)
                     && jsonArray.get(i).getClass().equals(Double.class)) {
                 tableRow.setColumnAt(i, (new Double(jsonArray.getDouble(i)).floatValue()));
             } else {
-                throw new ParseException("Unknown type", 0);
+                throw new ParseException("Unknown type " + jsonArray.get(i).getClass()
+                        + " ; expected: " + table.getColumnType(i), 0);
             }
         }
         return tableRow;
