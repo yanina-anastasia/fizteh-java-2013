@@ -54,14 +54,23 @@ public class MultiDbStateTest {
     }  
     
     //tests for TableProviderFactory 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFactoryCreateWrong() {
-        provider = factory.create("wrong-path");
+        try {
+            provider = factory.create("wrong-path");
+        } catch (IOException e) {
+            return;
+        }
+        fail();
     }  
     
     @Test(expected = IllegalArgumentException.class)
     public void testFactoryCreateNull() {
-        provider = factory.create(null);
+        try {
+            provider = factory.create(null);
+        } catch (IOException e) {
+            fail();
+        }
     }   
     //end of tests for TableProviderFactory
     

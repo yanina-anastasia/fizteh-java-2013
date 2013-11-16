@@ -12,6 +12,10 @@ public class MultiDbCreate implements Command {
     public int execute(String[] args, State state) {
         StringTokenizer tokens = new StringTokenizer(args[0]);
         String name = tokens.nextToken();
+        if (!tokens.hasMoreTokens()) {
+            System.out.println("wrong type: (usage: create <name> <type1 [type2 ...]>)");
+            return 0;
+        }
         
         MyTableProvider multiState = (MyTableProvider) state;
         Table table = null;

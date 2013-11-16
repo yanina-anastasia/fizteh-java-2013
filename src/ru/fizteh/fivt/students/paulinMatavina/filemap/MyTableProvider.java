@@ -21,11 +21,11 @@ public class MyTableProvider extends State implements TableProvider {
     private ShellState shell;
     public String currTableName;
     
-    public MyTableProvider(String dir) {
+    public MyTableProvider(String dir) throws IOException {
         validate(dir);
         File root = new File(dir);
         if (!root.exists() || !root.isDirectory()) {
-            throw new IllegalArgumentException("wrong root directory was set");
+            throw new IOException("wrong root directory was set");
         }
         
         commands = new HashMap<String, Command>();
@@ -84,14 +84,12 @@ public class MyTableProvider extends State implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, DbWrongTypeException {
         validate(name);
-        checkNameIsCorrect(name);
-        
+        checkNameIsCorrect(name);      
         if (fileExist(name)) {
             return null;
-        }
-   
-        if (columnTypes.size() == 0) {
-            throw new DbWrongTypeException("usage: create <name> <type1 [type2 ...]>");
+        }   
+        if (columnTypes == null || columnTypes.size() == 0) {
+            throw new IllegalArgumentException("no column types provided");
         }
         MultiDbState table;
         shell.mkdir(new String[] {shell.makeNewSource(name)});
