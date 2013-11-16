@@ -300,10 +300,8 @@ public class DataBase implements Table {
             ++changed;
             map.getChangedMap().put(key, value);
         } else {
-            if (map.getChangedMap().containsKey(key) || map.getOverwriteMap().containsKey(key)) {
-            } else {
-                map.getOverwriteMap().put(key, value);
-                ++changed;
+            if (!putValue.equals(value) && !map.getChangedMap().containsKey(key)) {
+              ++changed;
             }
         }
         return putValue;
@@ -315,14 +313,12 @@ public class DataBase implements Table {
         }
         String removed = map.remove(key);
         if (removed != null) {
-            ++changed;
-            /*if (map.getChangedMap().containsKey(key)) {
+            if (map.getChangedMap().containsKey(key)) {
                 map.getChangedMap().remove(key);
-                //--changed;
-            } else if (map.getOverwriteMap().containsKey(key)) {
+                --changed;
             } else {
                 ++changed;
-            }       */
+            }
         }
         return removed;
     }
