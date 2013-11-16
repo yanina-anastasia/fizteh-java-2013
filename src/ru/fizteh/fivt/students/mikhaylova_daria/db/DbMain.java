@@ -78,33 +78,21 @@ public class DbMain {
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
                 columnTypes.add(i, Integer.class);
+            } else if (signatures[i].equals("long")) {
+                columnTypes.add(i, Long.class);
+            }  else if (signatures[i].equals("byte")) {
+                columnTypes.add(i, Byte.class);
+            } else if (signatures[i].equals("float")) {
+                columnTypes.add(i, Float.class);
+            } else  if (signatures[i].equals("double")) {
+                columnTypes.add(i, Double.class);
+            } else if (signatures[i].equals("boolean")) {
+                columnTypes.add(i, Boolean.class);
+            } else if (signatures[i].equals("String")) {
+                columnTypes.add(i, String.class);
             } else {
-                if (signatures[i].equals("long")) {
-                    columnTypes.add(i, Long.class);
-                }  else {
-                    if (signatures[i].equals("byte")) {
-                        columnTypes.add(i, Byte.class);
-                    } else {
-                        if (signatures[i].equals("float")) {
-                            columnTypes.add(i, Float.class);
-                        } else {
-                            if (signatures[i].equals("double")) {
-                                columnTypes.add(i, Double.class);
-                            } else {
-                                if (signatures[i].equals("boolean")) {
-                                    columnTypes.add(i, Boolean.class);
-                                } else {
-                                    if (signatures[i].equals("String")) {
-                                        columnTypes.add(i, String.class);
-                                    } else {
-                                        throw new IllegalArgumentException("wrong type (This type is not supposed: "
-                                                + signatures[i] + ")");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                throw new IllegalArgumentException("wrong type (This type is not supposed: "
+                        + signatures[i] + ")");
             }
         }
 
@@ -128,15 +116,14 @@ public class DbMain {
         }
         try {
             mainManager.removeTable(command[1]);
-            System.out.println("dropped");
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
         } catch (IllegalStateException e) {
-             System.out.println(nameDir + " not exists");
+             System.out.println("wrong type (" + nameDir + " not exists)");
         } catch (IOException e) {
             System.out.println("wrong type (Reading/writing error" + e.getMessage() + ")");
         }
-        
+        System.out.println("dropped");
     }
 
     public void use(String[] command) throws IOException {
