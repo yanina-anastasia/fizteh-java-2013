@@ -2,8 +2,6 @@ package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
@@ -28,6 +26,12 @@ public class StoreableCommands implements Storeable{
             if (values.get(i) != null) {
                 String typeName = types.get(i).getSimpleName().toUpperCase();
                 String valueName = values.get(i).getClass().getSimpleName().toUpperCase();
+                if ("INT".equals(typeName)) {
+                    typeName = "INTEGER";
+                }
+                if ("INT".equals(valueName)) {
+                    valueName = "INTEGER";
+                }
                 if (!typeName.equals(valueName)) {
                     throw new ColumnFormatException("wrong type");
                 }
@@ -54,6 +58,12 @@ public class StoreableCommands implements Storeable{
         Class valueClass = value.getClass();
         String typeClassName = type.getSimpleName().toString().toUpperCase();
         String valueClassName = valueClass.getSimpleName().toString().toUpperCase();
+        if ("INT".equals(typeClassName)) {
+            typeClassName = "INTEGER";
+        }
+        if ("INT".equals(valueClassName)) {
+            valueClassName = "INTEGER";
+        }
         if (!typeClassName.equals(valueClassName)) {
             throw new ColumnFormatException();
         } else {
