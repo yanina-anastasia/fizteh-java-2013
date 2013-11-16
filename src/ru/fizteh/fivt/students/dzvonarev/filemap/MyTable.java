@@ -101,7 +101,8 @@ public class MyTable implements Table {
                 File dbDirTable = new File(tableName, dbDir);
                 String[] dbDats = dbDirTable.list();
                 if (dbDats == null || dbDats.length == 0) {
-                    throw new RuntimeException("table " + getName() + " is not valid: directory " + dbDirTable + " is empty");
+                    throw new RuntimeException("table " + getName()
+                            + " is not valid: directory " + dbDirTable + " is empty");
                 }
                 for (String dbDat : dbDats) {
                     String str = tableName + File.separator + dbDir + File.separator + dbDat;
@@ -324,7 +325,8 @@ public class MyTable implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty() || containsWhitespace(key) || containsWhitespace(value)) {
+        if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()
+                || containsWhitespace(key) || containsWhitespace(value)) {
             throw new IllegalArgumentException("put: wrong key and value");
         }
         String oldValue = get(key);
