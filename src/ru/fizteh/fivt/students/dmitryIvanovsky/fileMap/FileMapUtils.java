@@ -169,7 +169,9 @@ public class FileMapUtils {
             errPrint(e.getMessage());
         }
         for (int i = 0; i < e.getSuppressed().length; ++i) {
-            errPrint(e.getSuppressed()[i].getMessage());
+            if (e.getSuppressed()[i].getMessage() != null) {
+                errPrint(e.getSuppressed()[i].getMessage());
+            }
         }
     }
 
