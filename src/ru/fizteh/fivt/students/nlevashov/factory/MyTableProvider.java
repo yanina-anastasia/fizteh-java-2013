@@ -229,47 +229,64 @@ public class MyTableProvider implements TableProvider {
         int pos = 0;
         boolean rowInside = false;
         boolean colInside = false;
+        boolean nullInside = false;
         while (tokenParser.hasMoreTokens()) {
             String token = tokenParser.nextToken();
             switch (token) {
                 case "row":
-                    if (rowInside) {
+                    if ((rowInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     rowInside = true;
                     pos += 5;
                     break;
                 case "/row":
-                    if (!rowInside) {
+                    if ((!rowInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     rowInside = false;
                     pos += 6;
                     break;
                 case "col":
-                    if ((!rowInside) || (colInside)) {
+                    if ((!rowInside) || (colInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     colInside = true;
                     pos += 5;
                     break;
                 case "/col":
-                    if ((!rowInside) || (!colInside)) {
+                    if ((!rowInside) || (!colInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     colInside = false;
                     pos += 6;
                     break;
                 case "null/":
-                    if ((!rowInside) || (colInside)) {
+                    if ((!rowInside) || (colInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     s.setColumnAt(i, null);
                     i++;
                     pos += 7;
                     break;
+                case "null":
+                    if ((rowInside) || (nullInside)) {
+                        throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
+                    }
+                    nullInside = true;
+                    pos += 6;
+                    break;
+                case "/null":
+                    if ((rowInside) || (!nullInside)) {
+                        throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
+                    }
+                    nullInside = false;
+                    s.setColumnAt(i, null);
+                    i++;
+                    pos += 7;
+                    break;
                 default:
-                    if ((!rowInside) || (!colInside)) {
+                    if ((!rowInside) || (!colInside) || (nullInside)) {
                         throw new ParseException("TableProvider.deserialize: incorrect order of tags", pos);
                     }
                     try {
