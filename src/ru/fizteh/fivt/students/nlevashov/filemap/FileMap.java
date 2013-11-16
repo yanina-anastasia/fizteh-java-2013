@@ -258,7 +258,7 @@ public class FileMap {
                     return true;
                 }
             });
-        } catch (IOException e) {
+        } catch (IOException | IllegalStateException | IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }

@@ -28,7 +28,7 @@ public class Storable implements Storeable {
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException - Попытка вставить неразрешенный тип.
      */
     public Storable(List<Class<?>> columnTypes) throws ColumnFormatException {
-        if (columnTypes == null) {
+        if ((columnTypes == null) || (columnTypes.isEmpty())) {
             throw new ColumnFormatException("Storable.constructor: columnTypes is null");
         }
         for (Class<?> c : columnTypes)  {
@@ -52,10 +52,10 @@ public class Storable implements Storeable {
      */
     public Storable(List<Class<?>> columnTypes, List<Object> columnValues)
             throws ColumnFormatException, IndexOutOfBoundsException {
-        if (columnTypes == null) {
+        if ((columnTypes == null) || (columnTypes.isEmpty())) {
             throw new ColumnFormatException("Storable.constructor: columnTypes is null");
         }
-        if (columnValues == null) {
+        if ((columnValues == null) || (columnValues.isEmpty())) {
             throw new ColumnFormatException("Storable.constructor: columnTypes is null");
         }
         if (columnTypes.size() != columnValues.size()) {

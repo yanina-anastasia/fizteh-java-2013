@@ -101,9 +101,9 @@ public class MyTable implements Table {
                         int c = i.read();
                         if (c != -1) {
                             int pos = 1;
-                            Vector<String> keys = new Vector<>();
-                            Vector<Integer> offsets = new Vector<>();
-                            Vector<Byte> key = new Vector<>();
+                            List<String> keys = new ArrayList<>();
+                            List<Integer> offsets = new ArrayList<>();
+                            List<Byte> key = new ArrayList<>();
                             do {
                                 key.add((byte) c);
                                 c = i.read();
@@ -364,9 +364,9 @@ public class MyTable implements Table {
      * @throws IOException Сообщения об ошибках
      */
     void refreshDiskData() throws IOException {
-        Vector<Vector<HashMap<String, Storeable>>> parts = new Vector<>();
+        List<List<HashMap<String, Storeable>>> parts = new ArrayList<>();
         for (int dirNum = 0; dirNum < 16; dirNum++) {
-            parts.add(new Vector<HashMap<String, Storeable>>());
+            parts.add(new ArrayList<HashMap<String, Storeable>>());
             for (int fileNum = 0; fileNum < 16; fileNum++) {
                 parts.get(dirNum).add(new HashMap<String, Storeable>());
             }
@@ -394,7 +394,7 @@ public class MyTable implements Table {
                         try (BufferedOutputStream o = new BufferedOutputStream(Files.newOutputStream(file))) {
                             byte[][] keys = new byte[parts.get(dirNum).get(fileNum).size()][];
                             byte[][] values = new byte[parts.get(dirNum).get(fileNum).size()][];
-                            Vector<Integer> valuesLengthSum = new Vector<>();
+                            List<Integer> valuesLengthSum = new ArrayList<>();
                             valuesLengthSum.add(0);
                             int head = 0;
 

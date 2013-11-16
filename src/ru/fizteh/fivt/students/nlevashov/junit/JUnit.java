@@ -3,14 +3,14 @@ package ru.fizteh.fivt.students.nlevashov.junit;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.students.nlevashov.factory.*;
 import ru.fizteh.fivt.students.nlevashov.storable.Storable;
 import ru.fizteh.fivt.storage.structured.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class JUnit {
@@ -18,240 +18,173 @@ public class JUnit {
     TableProvider provider;
     Table table;
 
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Before
-    public void providerCreatingPlatformMaking() {
+    public void providerCreatingPlatformMaking() throws IOException {
         factory = new MyTableProviderFactory();
         assertNotNull(factory);
+        Path tfPath = tempFolder.getRoot().toPath();
+        Files.createDirectory(tfPath.resolve("factory1"));
+        Files.createDirectory(tfPath.resolve("factory1").resolve("emptyDirectory"));
 
-        try {
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory1"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory1").resolve("emptyDirectory"));
+        Files.createDirectory(tfPath.resolve("factory2"));
+        Files.createDirectory(tfPath.resolve("factory2").resolve("directoryWithFile"));
+        Files.createFile(tfPath.resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
+        Files.createFile(tfPath.resolve("factory2").resolve("directoryWithFile").resolve("signature.tsv"));
 
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory2"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile").resolve("signature.tsv"));
+        Files.createDirectory(tfPath.resolve("factory3"));
+        Files.createDirectory(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory"));
+        Files.createDirectory(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
+                                    .resolve("12.dat"));
+        Files.createFile(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
+                                                   .resolve("signature.tsv"));
 
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("signature.tsv"));
+        Files.createDirectory(tfPath.resolve("factory4"));
+        Files.createDirectory(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
+        Files.createDirectory(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                                        .resolve("12.dir"));
+        Files.createFile(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                                   .resolve("12.dir").resolve("1.d"));
+        Files.createFile(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                                   .resolve("signature.tsv"));
 
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir").resolve("1.d"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("signature.tsv"));
-
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory5"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature"));
-            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
-            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir").resolve("1.dat"));
-        } catch (IOException e) {
-        }
+        Files.createDirectory(tfPath.resolve("factory5"));
+        Files.createDirectory(tfPath.resolve("factory5").resolve("directoryWithoutSignature"));
+        Files.createDirectory(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
+        Files.createFile(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir")
+                                                                                        .resolve("1.dat"));
     }
 
     @After
-    public void providerCreatingPlatformCleaning() {
-        try {
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory1").resolve("emptyDirectory"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory1"));
+    public void providerCreatingPlatformCleaning() throws IOException {
+        Path tfPath = tempFolder.getRoot().toPath();
 
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithFile").resolve("signature.tsv"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2"));
+        Files.delete(tfPath.resolve("factory1").resolve("emptyDirectory"));
+        Files.delete(tfPath.resolve("factory1"));
 
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithWrongNameDirectory").resolve("signature.tsv"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3"));
+        Files.delete(tfPath.resolve("factory2").resolve("directoryWithFile").resolve("signature.tsv"));
+        Files.delete(tfPath.resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
+        Files.delete(tfPath.resolve("factory2").resolve("directoryWithFile"));
+        Files.delete(tfPath.resolve("factory2"));
 
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("signature.tsv"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir").resolve("1.d"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4"));
+        Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory")
+                                               .resolve("signature.tsv"));
+        Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
+        Files.delete(tfPath.resolve("factory3").resolve("directoryWithWrongNameDirectory"));
+        Files.delete(tfPath.resolve("factory3"));
 
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir").resolve("1.dat"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory5").resolve("directoryWithoutSignature"));
-            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory5"));
-        } catch (IOException e) {
-        }
+        Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                               .resolve("signature.tsv"));
+        Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                               .resolve("12.dir").resolve("1.d"));
+        Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile")
+                                               .resolve("12.dir"));
+        Files.delete(tfPath.resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
+        Files.delete(tfPath.resolve("factory4"));
+
+        Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir")
+                                                                                    .resolve("1.dat"));
+        Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature").resolve("12.dir"));
+        Files.delete(tfPath.resolve("factory5").resolve("directoryWithoutSignature"));
+        Files.delete(tfPath.resolve("factory5"));
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void nullProviderCreating() {
-        try {
-            factory.create(null);
-        } catch (IOException e) {
-        }
+    public void nullProviderCreating() throws IOException {
+        factory.create(null);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void emptyProviderCreating() {
-        try {
-            factory.create("");
-        } catch (IOException e) {
-        }
+    public void emptyProviderCreating() throws IOException {
+        factory.create("");
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void wrongNameProviderCreating() {
-        try {
-            factory.create("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~");
-        } catch (IOException e) {
-        }
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void directoryWithFileProviderCreating() {
-        try {
-            factory.create("factory2");
-        } catch (IOException e) {
-        }
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void directoryWithWrongNameDirectoryProviderCreating() {
-        try {
-            factory.create("factory3");
-        } catch (IOException e) {
-        }
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void directoryWithDirectoryWithWrongNameFileProviderCreating() {
-        try {
-            factory.create("factory4");
-        } catch (IOException e) {
-        }
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void directoryWithoutSignatureProviderCreating() {
-        try {
-            factory.create("factory5");
-        } catch (IOException e) {
-        }
+    public void wrongNameProviderCreating() throws IOException {
+        factory.create("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~");
     }
 
     //------------------------------------------------------------------------
 
     @Before
-    public void tableGettingCreatingRemovingPlatformMaking() {
-        try {
-            provider = factory.create("providerName");
-        } catch (IOException e) {
-        }
+    public void tableGettingCreatingRemovingPlatformMaking() throws IOException {
+        provider = factory.create("providerName");
         assertNotNull(provider);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void nullTableCreating() {
+    public void nullTableCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            provider.createTable(null, types);
-        } catch (IOException e) {
-        }
+        provider.createTable(null, types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void emptyTableCreating() {
+    public void emptyTableCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            provider.createTable("", types);
-        } catch (IOException e) {
-        }
+        provider.createTable("", types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void wrongNameTableCreating() {
+    public void wrongNameTableCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            provider.createTable("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~", types);
-        } catch (IOException e) {
-        }
+        provider.createTable("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~", types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void nullTypesCreating() {
-        try {
-            provider.createTable("car", null);
-        } catch (IOException e) {
-        }
+    public void nullTypesCreating() throws IOException {
+        provider.createTable("car", null);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void emptyTypesCreating() {
+    public void emptyTypesCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
-        try {
-            provider.createTable("child", types);
-        } catch (IOException e) {
-        }
+        provider.createTable("child", types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void typesWithNullCreating() {
+    public void typesWithNullCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(null);
         types.add(String.class);
-        try {
-            provider.createTable("child", types);
-        } catch (IOException e) {
-        }
+        provider.createTable("child", types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void typesWithIncorrectTypeCreating() {
+    public void typesWithIncorrectTypeCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(Character.class);
         types.add(String.class);
-        try {
-            provider.createTable("child", types);
-        } catch (IOException e) {
-        }
+        provider.createTable("child", types);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void nullTableRemoving() {
-        try {
-            provider.removeTable(null);
-        } catch (IOException e) {
-        }
+    public void nullTableRemoving() throws IOException {
+        provider.removeTable(null);
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void emptyTableRemoving() {
-        try {
-            provider.removeTable("");
-        } catch (IOException e) {
-        }
+    public void emptyTableRemoving() throws IOException {
+        provider.removeTable("");
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void wrongNameTableRemoving() {
-        try {
-            provider.removeTable("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~");
-        } catch (IOException e) {
-        }
+    public void wrongNameTableRemoving() throws IOException {
+        provider.removeTable("!@#$%^&*()_+-=qwerty|\\\\/<>?';lkjhgfdsazxcvbnm`~");
     }
 
     @Test (expected = IllegalStateException.class)
-    public void nonexistingTableRemoving() {
-        try {
-            provider.removeTable("notExistingTableName");
-        } catch (IOException e) {
-        }
+    public void nonexistingTableRemoving() throws IOException {
+        provider.removeTable("notExistingTableName");
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -275,99 +208,87 @@ public class JUnit {
     }
 
     @Test
-    public void existingTableCreating() {
+    public void existingTableCreating() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            table = provider.createTable("tableName", types);
-            assertNotNull(table);
-            assertNull(provider.createTable("tableName", types));
-            provider.removeTable("tableName");
-        } catch (IOException e) {
-        }
+        table = provider.createTable("tableName", types);
+        assertNotNull(table);
+        assertNull(provider.createTable("tableName", types));
+        provider.removeTable("tableName");
     }
 
     @Test
-    public void manyTableGettingCreatingRemoving() {
+    public void manyTableGettingCreatingRemoving() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            Table table1 = provider.createTable("tableName1", types);
-            Table table2 = provider.createTable("tableName2", types);
-            Table table3 = provider.createTable("tableName3", types);
-            Table table4 = provider.createTable("русскоеНазвание", types);
-            assertNotNull(table1);
-            assertNotNull(table2);
-            assertNotNull(table3);
-            assertNotNull(table4);
+        Table table1 = provider.createTable("tableName1", types);
+        Table table2 = provider.createTable("tableName2", types);
+        Table table3 = provider.createTable("tableName3", types);
+        Table table4 = provider.createTable("русскоеНазвание", types);
+        assertNotNull(table1);
+        assertNotNull(table2);
+        assertNotNull(table3);
+        assertNotNull(table4);
 
-            assertNotNull(provider.getTable("tableName1"));
-            assertNotNull(provider.getTable("tableName2"));
-            assertNotNull(provider.getTable("tableName3"));
-            assertNotNull(provider.getTable("русскоеНазвание"));
+        assertNotNull(provider.getTable("tableName1"));
+        assertNotNull(provider.getTable("tableName2"));
+        assertNotNull(provider.getTable("tableName3"));
+        assertNotNull(provider.getTable("русскоеНазвание"));
 
-            assertNull(provider.createTable("tableName1", types));
-            assertNull(provider.createTable("tableName2", types));
-            assertNull(provider.createTable("tableName3", types));
-            assertNull(provider.createTable("русскоеНазвание", types));
+        assertNull(provider.createTable("tableName1", types));
+        assertNull(provider.createTable("tableName2", types));
+        assertNull(provider.createTable("tableName3", types));
+        assertNull(provider.createTable("русскоеНазвание", types));
 
-            assertNotNull(provider.getTable("tableName1"));
-            assertNotNull(provider.getTable("tableName2"));
-            assertNotNull(provider.getTable("tableName3"));
-            assertNotNull(provider.getTable("русскоеНазвание"));
+        assertNotNull(provider.getTable("tableName1"));
+        assertNotNull(provider.getTable("tableName2"));
+        assertNotNull(provider.getTable("tableName3"));
+        assertNotNull(provider.getTable("русскоеНазвание"));
 
-            provider.removeTable("tableName2");
-            provider.removeTable("tableName3");
+        provider.removeTable("tableName2");
+        provider.removeTable("tableName3");
 
-            assertNotNull(provider.getTable("tableName1"));
-            assertNull(provider.getTable("tableName2"));
-            assertNull(provider.getTable("tableName3"));
-            assertNotNull(provider.getTable("русскоеНазвание"));
+        assertNotNull(provider.getTable("tableName1"));
+        assertNull(provider.getTable("tableName2"));
+        assertNull(provider.getTable("tableName3"));
+        assertNotNull(provider.getTable("русскоеНазвание"));
 
-            Table table5 = provider.createTable("tableName2", types);
-            Table table6 = provider.createTable("tableName3", types);
-            assertNotNull(table5);
-            assertNotNull(table6);
+        Table table5 = provider.createTable("tableName2", types);
+        Table table6 = provider.createTable("tableName3", types);
+        assertNotNull(table5);
+        assertNotNull(table6);
 
-            assertNotNull(provider.getTable("tableName1"));
-            assertNotNull(provider.getTable("tableName2"));
-            assertNotNull(provider.getTable("tableName3"));
-            assertNotNull(provider.getTable("русскоеНазвание"));
+        assertNotNull(provider.getTable("tableName1"));
+        assertNotNull(provider.getTable("tableName2"));
+        assertNotNull(provider.getTable("tableName3"));
+        assertNotNull(provider.getTable("русскоеНазвание"));
 
-            provider.removeTable("tableName1");
-            provider.removeTable("tableName2");
-            provider.removeTable("tableName3");
-            provider.removeTable("русскоеНазвание");
+        provider.removeTable("tableName1");
+        provider.removeTable("tableName2");
+        provider.removeTable("tableName3");
+        provider.removeTable("русскоеНазвание");
 
-            assertNull(provider.getTable("tableName1"));
-            assertNull(provider.getTable("tableName2"));
-            assertNull(provider.getTable("tableName3"));
-            assertNull(provider.getTable("русскоеНазвание"));
-        } catch (IOException e) {
-        }
+        assertNull(provider.getTable("tableName1"));
+        assertNull(provider.getTable("tableName2"));
+        assertNull(provider.getTable("tableName3"));
+        assertNull(provider.getTable("русскоеНазвание"));
     }
 
     //------------------------------------------------------------------------
 
     @Before
-    public void tablePlatformMaking() {
+    public void tablePlatformMaking() throws IOException {
         ArrayList<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         types.add(String.class);
-        try {
-            table = provider.createTable("table", types);
-        } catch (IOException e) {
-        }
+        table = provider.createTable("table", types);
     }
 
     @After
-    public void tablePlatformCleaning() {
-        try {
-            provider.removeTable("table");
-        } catch (IOException e) {
-        }
+    public void tablePlatformCleaning() throws IOException {
+        provider.removeTable("table");
     }
 
     @Test
@@ -489,7 +410,7 @@ public class JUnit {
     }
 
     @Test
-    public void commitRollbackTest() {
+    public void commitRollbackTest() throws IOException {
         ArrayList<Class<?>> types1 = new ArrayList<>();
         types1.add(Integer.class);
         types1.add(String.class);
@@ -522,26 +443,44 @@ public class JUnit {
         values4.add("I'm sexy & i know it!");
         Storeable value4 = new Storable(types4, values4);
 
-        try {
-            assertEquals(0, table.commit());
-            table.put("key1", value1);
-            table.put("key2", value2);
-            assertEquals(2, table.commit());
-            table.remove("key1");
-            assertEquals(1, table.commit());
-            assertEquals(0, table.commit());
-            table.put("key2", value4);
-            assertEquals(1, table.commit());
+        assertEquals(0, table.commit());
+        table.put("key1", value1);
+        table.put("key2", value2);
+        assertEquals(2, table.commit());
+        table.remove("key1");
+        assertEquals(1, table.commit());
+        assertEquals(0, table.commit());
+        table.put("key2", value4);
+        assertEquals(1, table.commit());
 
-            table.put("key3", value3);
-            table.remove("key3");
-            assertEquals(0, table.commit());
+        table.put("key3", value3);
+        table.remove("key3");
+        assertEquals(0, table.commit());
 
-            table.put("key4", value4);
-            table.get("key4");
-            table.put("key4", value2);
-            assertEquals(1, table.commit());
-        } catch (IOException e) {
-        }
+        table.put("key4", value4);
+        table.get("key4");
+        table.put("key4", value2);
+        assertEquals(1, table.commit());
+    }
+
+    //------------------------------------------------------------------------
+
+    @Test (expected = ColumnFormatException.class)
+    public void createNullStorableTest() {
+        Storeable s = new Storable(null);
+    }
+
+    @Test (expected = ColumnFormatException.class)
+    public void createEmptyStorableTest() {
+        ArrayList<Class<?>> types = new ArrayList<>();
+        Storeable s = new Storable(types);
     }
 }
+/*
+stack trace - ХЗ
+//checkstyle
+tests
+//tempfolder
+//vector
+
+*/
