@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -26,7 +26,7 @@ public class MultiDbState extends State implements Table {
     private int primaryDbSize;
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
-    public ArrayList<String> possibleTypes;
+    public HashMap<Class<?>, String> possibleTypes;
     
     private void init(String dbName) throws IOException, ParseException {          
         dbSize = 0;
@@ -47,6 +47,7 @@ public class MultiDbState extends State implements Table {
     
     public MultiDbState(String property, String dbName, MyTableProvider prov, List<Class<?>> columnTypes) 
                                                 throws ParseException, IOException {
+        initMap();
         validate(property);
         validate(dbName);
         checkList(columnTypes);
@@ -59,18 +60,21 @@ public class MultiDbState extends State implements Table {
         objList = columnTypes;
     }
     
+    private void initMap() {
+        possibleTypes = new HashMap<Class<?>, String>();
+        possibleTypes.put(String.class, "String");
+        possibleTypes.put(Integer.class, "int");
+        possibleTypes.put(Boolean.class, "boolean");
+        possibleTypes.put(Float.class, "float");
+        possibleTypes.put(Double.class, "double");
+        possibleTypes.put(Byte.class, "byte");
+        possibleTypes.put(Long.class, "long");
+    }
+    
     private void checkList(List<Class<?>> columnTypes) {
-        possibleTypes = new ArrayList<String>();
-        possibleTypes.add("String");
-        possibleTypes.add("Integer");
-        possibleTypes.add("Boolean");
-        possibleTypes.add("Float");
-        possibleTypes.add("Double");
-        possibleTypes.add("Byte");
-        possibleTypes.add("Long");
         for (int i = 0; i < columnTypes.size(); i++) {
             if (columnTypes.get(i) == null
-                    || !possibleTypes.contains(columnTypes.get(i).getSimpleName())) {
+                    || !possibleTypes.keySet().contains(columnTypes.get(i))) {
                 throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i).getSimpleName());
             }
         }
@@ -78,6 +82,7 @@ public class MultiDbState extends State implements Table {
     
     public MultiDbState(String property, String dbName, MyTableProvider prov) 
             throws ParseException, IOException {
+        initMap();
         validate(property);
         validate(dbName);
         if (property == null || property.trim().isEmpty()) {
@@ -357,12 +362,18 @@ public class MultiDbState extends State implements Table {
         }
         
         try {
-            for (int i = 0; i < objList.size(); i++) {
-                writer.write(objList.get(i).getSimpleName() + " ");
+            for (int i = 0; i < objList.size() - 1; i++) {
+                writer.write(possibleTypes.get(objList.get(i)) + " ");
             }
-            writer.close();
+            writer.write(possibleTypes.get(objList.get(objList.size() - 1)));
         } catch (IOException e) { 
             throw new IOException("error writing " + signatureName, e);
+        } finally {
+            try {
+                writer.close();
+            } catch (Throwable e) {
+                //do nothing
+            }
         }
     }
     
