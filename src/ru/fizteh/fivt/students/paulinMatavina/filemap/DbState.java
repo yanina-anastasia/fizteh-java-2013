@@ -36,9 +36,12 @@ public class DbState extends State {
         loadData();
     }
     
-    private void fileCheck() {
+    private void fileCheck() throws IOException {
         try {
             dbFile = new RandomAccessFile(path, "rw");
+            if (dbFile.length() == 0) {
+                throw new IllegalStateException(path + " is an empty file");
+            }
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(path + " not found");
         }
@@ -108,7 +111,6 @@ public class DbState extends State {
         try {
             fileCheck();  
             if (dbFile.length() == 0) {
-                dbFile.close();
                 return 0;
             } 
             
@@ -132,7 +134,6 @@ public class DbState extends State {
                 
                 if (key.getBytes().length > 0) {
                     if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
-                        dbFile.close();
                         throw new RuntimeException("wrong key in file");
                     }
                     result++;
@@ -145,20 +146,22 @@ public class DbState extends State {
             } while (position <= firstOffset); 
             
             assignInitial();
-        } finally {
-          if (dbFile != null) {
-            try {
-              dbFile.close();
-            } catch (Throwable e) {
-              // ignore
+        } catch (IOException e) {
+            if (e.getMessage() == null) {
+                throw new IOException("wrong database file " + path, e);
+            } else {
+                throw e;
             }
-          }
+        } finally {
+            if (dbFile != null) {
+                try {
+                    dbFile.close();
+                } catch (Throwable e) {
+                    // ignore
+                }
+            }
         }  
-        
-        if (result == 0) {
-            throw new IllegalStateException("empty file " + path);
-        }
-        return result;
+        return result;        
     }
    
     

@@ -61,16 +61,21 @@ public class MyTableProvider extends State implements TableProvider {
     public Table getTable(String name) {
         validate(name);
         checkNameIsCorrect(name);
+        try {
+            return tryToGetTable(name);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public MultiDbState tryToGetTable(String name) throws ParseException, IOException {
+        validate(name);
+        checkNameIsCorrect(name);
         MultiDbState newTable;
         if (tableMap.get(name) == null) {
             if (fileExist(name)) {
-                try {
-                    newTable = new MultiDbState(rootDir, name, this);
-                } catch (Exception e) {
-                    return null;
-                }
-                tableMap.put(name, newTable);
-                
+                newTable = new MultiDbState(rootDir, name, this);
+                tableMap.put(name, newTable);   
             }
         }   
         return tableMap.get(name);

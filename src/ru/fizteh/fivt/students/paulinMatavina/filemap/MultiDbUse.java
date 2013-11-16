@@ -8,7 +8,13 @@ public class MultiDbUse implements Command {
     public int execute(String[] args, State state) {
         String dbName = args[0];
         MyTableProvider multiState = (MyTableProvider) state;    
-        Table table = multiState.getTable(dbName);
+        Table table = null;
+        try {
+            table = multiState.tryToGetTable(dbName);
+        } catch (Throwable e) {
+            System.err.println("use: " + e.getMessage());
+            return 1;
+        }
         
         if (table == null) {
             System.out.println(dbName + " not exists");
