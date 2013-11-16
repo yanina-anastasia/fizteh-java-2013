@@ -101,7 +101,7 @@ public class TableData implements Table {
         }
         try (BufferedWriter signatureWriter =
                      new BufferedWriter(new FileWriter(sign))) {
-            signatureWriter.write(str.toString().trim());
+            signatureWriter.write(str.toString();
         } catch (IOException e) {
             throw new IOException("Writing error: signature.tsv", e);
         }
