@@ -82,9 +82,13 @@ public class CommandLauncher {
                 } catch (NullPointerException err) {
                     return Code.ERROR;
                 } catch (Exception e) {
-                    //e.printStackTrace();
-                    getMessage((Exception) e.getCause());
-                    return Code.ERROR;
+                    try {
+                        Exception newErr = (Exception) e.getCause();
+                        getMessage(newErr);
+                        return Code.ERROR;
+                    } catch (Exception err) {
+                        return Code.ERROR;
+                    }
                 }
             } else {
                 errPrint("Неизвестная команда");
