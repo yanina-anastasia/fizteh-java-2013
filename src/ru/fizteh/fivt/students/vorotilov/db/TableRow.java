@@ -43,14 +43,10 @@ public class TableRow implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         if (value != null) {
-            if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
-                columns.set(columnIndex, Long.parseLong(value.toString()));
-            } else {
-                checkType(columnIndex, value.getClass());
-                if (value instanceof String) {
-                    if (((String) value).contains("\n")) {
-                        throw new ColumnFormatException("String can't be stored. contains \\n");
-                    }
+            checkType(columnIndex, value.getClass());
+            if (value instanceof String) {
+                if (((String) value).contains("\n")) {
+                    throw new ColumnFormatException("String can't be stored. contains \\n");
                 }
             }
         }

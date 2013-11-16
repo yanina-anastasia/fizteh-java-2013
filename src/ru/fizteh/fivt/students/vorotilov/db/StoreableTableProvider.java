@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.vorotilov.shell.FileUtil;
 import ru.fizteh.fivt.students.vorotilov.shell.FileWasNotDeleted;
@@ -159,8 +158,30 @@ public class StoreableTableProvider implements TableProvider {
         for (int i = 0; i < jsonArray.length(); ++i) {
             if (jsonArray.get(i).equals(null)) {
                 tableRow.setColumnAt(i, null);
+            } else if (table.getColumnType(i).equals(Integer.class)
+                    && jsonArray.get(i).getClass().equals(Integer.class)) {
+                tableRow.setColumnAt(i, jsonArray.getInt(i));
+            } else if (table.getColumnType(i).equals(Long.class)
+                    && (jsonArray.get(i).getClass().equals(Long.class)
+                        || jsonArray.get(i).getClass().equals(Integer.class))) {
+                tableRow.setColumnAt(i, jsonArray.getLong(i));
+            } else if (table.getColumnType(i).equals(Byte.class)
+                    && jsonArray.get(i).getClass().equals(Byte.class)) {
+                tableRow.setColumnAt(i, (new Integer(jsonArray.getInt(i))).byteValue());
+            } else if (table.getColumnType(i).equals(Float.class)
+                    && jsonArray.get(i).getClass().equals(Double.class)) {
+                tableRow.setColumnAt(i, (new Double(jsonArray.getDouble(i)).floatValue()));
+            } else if (table.getColumnType(i).equals(Double.class)
+                    && jsonArray.get(i).getClass().equals(Double.class)) {
+                tableRow.setColumnAt(i, jsonArray.getDouble(i));
+            } else if (table.getColumnType(i).equals(Boolean.class)
+                    && jsonArray.get(i).getClass().equals(Boolean.class)) {
+                tableRow.setColumnAt(i, jsonArray.getBoolean(i));
+            } else if (table.getColumnType(i).equals(String.class)
+                    && jsonArray.get(i).getClass().equals(String.class)) {
+                tableRow.setColumnAt(i, jsonArray.getInt(i));
             } else {
-                tableRow.setColumnAt(i, jsonArray.get(i));
+                throw new ParseException("Unknown type", 0);
             }
         }
         return tableRow;
