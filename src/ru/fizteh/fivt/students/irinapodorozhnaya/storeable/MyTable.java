@@ -58,7 +58,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
 
     @Override
     public int commit() throws IOException {
-        this.loadOldDatabase();
+        loadOldDatabase();
         return super.commit();
     }
 
@@ -129,5 +129,4 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         }
         return value;
     }
-
 }

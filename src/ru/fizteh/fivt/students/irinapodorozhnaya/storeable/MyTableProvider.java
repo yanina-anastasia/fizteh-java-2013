@@ -126,13 +126,19 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("table can't be null");
+        }
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) 
                      throws ColumnFormatException, IndexOutOfBoundsException {
-        
+
+        if (table == null || values == null) {
+            throw new IllegalArgumentException("table and values can't be null");
+        }
         int size = table.getColumnsCount();
         if (size != values.size()) {
             throw new IndexOutOfBoundsException();

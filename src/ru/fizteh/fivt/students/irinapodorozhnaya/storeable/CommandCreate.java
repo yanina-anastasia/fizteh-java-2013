@@ -26,7 +26,7 @@ public class CommandCreate extends AbstractCommand {
         try {
             state.create(args[1], parser(args));
         } catch (IllegalArgumentException e) {
-            throw new IOException("create: " + e.getMessage());
+            throw new IOException("wrong type (" + e.getMessage() + ")");
         }
         state.getOutputStream().println("created");
     }

@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,8 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap.MyTable;
 
 public class FileStorage {
 	
@@ -27,17 +24,16 @@ public class FileStorage {
 		return data;
 	}
 	
-	private static Map<String, String> loadDataFromFile(File file, int n) 
-		throws FileNotFoundException, IOException {
+	private static Map<String, String> loadDataFromFile(File file, int n) throws IOException {
 	    
 		RandomAccessFile dbFile = new RandomAccessFile(file, "r");
-		Map<String, String> data = new HashMap<String, String>();
+		Map<String, String> data = new HashMap<>();
 		
 		if (dbFile.length() == 0) {
 			dbFile.close();
 			return data;
 		}
-		data = new HashMap<String, String>();
+		data = new HashMap<>();
 		long nextOffset = 0;
 		
 		dbFile.seek(0);
@@ -91,12 +87,14 @@ public class FileStorage {
 	
 	public static void commitDiff(File file, Map<String, String> data) throws IOException {
 
-        if (data == null) {
-            file.delete();
-            return;
-        }
+		if (data == null) {
+			file.delete();
+			return;
+		}
 		File tmp = new File(file.getName() + '~');
-		tmp.createNewFile();
+		if (!tmp.createNewFile()) {
+			throw new IOException("can't create file to write");
+		}
 		RandomAccessFile tmpR = new RandomAccessFile(tmp, "rw");
 		int offset = 0;
 		long pos = 0;
@@ -125,6 +123,8 @@ public class FileStorage {
 		
 		tmpR.close();		
 		file.delete();
-		tmp.renameTo(file);
+		if (!tmp.renameTo(file)) {
+			throw new IOException("can't write to file");
+		}
 	}
 }

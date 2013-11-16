@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -16,6 +15,7 @@ public abstract class GenericTable<ValueType> {
     private final String name;
     volatile private int oldSize = 0;
     protected ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    protected ReadWriteLock hardDiskLock = new ReentrantReadWriteLock(true);
     protected final File tableDirectory;
     private final Map<String, ValueType> oldDatabase = new HashMap<>();
     private final ThreadLocal<Map<String, ValueType>> changedValues = new ThreadLocal<Map<String, ValueType>>() {
@@ -115,27 +115,33 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int commit() throws IOException {
-
         try {
             lock.writeLock().lock();
-            loadOldDatabase();
             for (String s: changedValues.get().keySet()) {
                 if (changedValues.get().get(s) == null) {
-                    --oldSize;
                     oldDatabase.remove(s);
-                } else if (oldDatabase.put(s, changedValues.get().get(s)) == null) {
-                    ++oldSize;
+                } else {
+                    oldDatabase.put(s, changedValues.get().get(s));
                 }
             }
-
+            oldSize = oldDatabase.size();
+        } finally {
+            lock.writeLock().unlock();
+        }
+        try {
+            hardDiskLock.writeLock().lock();
             Map <Integer, Map<String, ValueType>> database = new HashMap<>();
-
-            for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
-                int nfile = Utils.getNumberOfFile(s.getKey());
-                if (database.get(nfile) == null) {
-                    database.put(nfile, new HashMap<String, ValueType>());
+            try {
+                lock.readLock().lock();
+                for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
+                    int nfile = Utils.getNumberOfFile(s.getKey());
+                    if (database.get(nfile) == null) {
+                        database.put(nfile, new HashMap<String, ValueType>());
+                    }
+                    database.get(nfile).put(s.getKey(), s.getValue());
                 }
-                database.get(nfile).put(s.getKey(), s.getValue());
+            } finally {
+                lock.readLock().unlock();
             }
 
             for (int i = 0; i < 256; ++i) {
@@ -147,7 +153,7 @@ public abstract class GenericTable<ValueType> {
                 dir.delete();
             }
         } finally {
-            lock.writeLock().unlock();
+            hardDiskLock.writeLock().unlock();
         }
 
         int res = changedValues.get().size();
@@ -201,25 +207,31 @@ public abstract class GenericTable<ValueType> {
         changedSize.set(0);
     }
 
-    public void loadOldDatabase() throws IOException {
-        lock.writeLock().lock();
-        oldSize = 0;
-        for (int i = 0; i < 256; ++i) {
-            File dir = new File(tableDirectory, i / 16 + ".dir");
-            if (!dir.isDirectory()) {
-                continue;
-            } else if (dir.listFiles().length == 0) {
-                throw new IOException("empty dir");
-            }
-            File db = new File(dir, i % 16 + ".dat");
-            if (db.isFile()) {
-                Map<String, String> fromFile = FileStorage.openDataFile(db, i);
-                oldDatabase.putAll(deserialize(fromFile));
-                if (fromFile.isEmpty()) {
-                    throw new IOException("empty file");
+    protected void loadOldDatabase() throws IOException {
+        try {
+            hardDiskLock.readLock().lock();
+            lock.writeLock().lock();
+            oldSize = 0;
+            for (int i = 0; i < 256; ++i) {
+                File dir = new File(tableDirectory, i / 16 + ".dir");
+                if (!dir.isDirectory()) {
+                    continue;
+                } else if (dir.listFiles().length == 0) {
+                    throw new IOException("empty dir");
                 }
-                oldSize += fromFile.size();
+                File db = new File(dir, i % 16 + ".dat");
+                if (db.isFile()) {
+                    Map<String, String> fromFile = FileStorage.openDataFile(db, i);
+                    oldDatabase.putAll(deserialize(fromFile));
+                    if (fromFile.isEmpty()) {
+                        throw new IOException("empty file");
+                    }
+                    oldSize += fromFile.size();
+                }
             }
+        } finally {
+            lock.writeLock().unlock();
+            hardDiskLock.readLock().unlock();
         }
     }
 

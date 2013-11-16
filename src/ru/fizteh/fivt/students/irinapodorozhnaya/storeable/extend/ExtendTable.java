@@ -10,6 +10,4 @@ public interface ExtendTable extends Table {
     int getChangedValuesNumber();
 
     void loadAll() throws IOException;
-
-    void loadOldDatabase() throws IOException;
 }
