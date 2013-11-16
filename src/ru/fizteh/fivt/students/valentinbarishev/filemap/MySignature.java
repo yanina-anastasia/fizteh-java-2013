@@ -18,14 +18,16 @@ public class MySignature {
         if (!file.exists()) {
             throw new IOException("Cannot find file:" + file.getCanonicalPath());
         }
-        Scanner input = new Scanner(file);
-        if (!input.hasNext()) {
-            throw new IOException("Empty signature: " + file.getCanonicalPath());
-        }
 
         StringBuilder builder = new StringBuilder();
-        while (input.hasNext()) {
-            builder.append(input.next()).append(" ");
+
+        try (Scanner input = new Scanner(file)) {
+            if (!input.hasNext()) {
+                throw new IOException("Empty signature: " + file.getCanonicalPath());
+            }
+            while (input.hasNext()) {
+                builder.append(input.next()).append(" ");
+            }
         }
 
         String[] data = builder.toString().split(" ");
