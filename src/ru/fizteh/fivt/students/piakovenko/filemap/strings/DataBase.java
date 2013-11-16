@@ -346,6 +346,7 @@ public class DataBase implements Table {
             saveDataBase();
             changed = 0;
             map.getChangedMap().clear();
+            map.getOverwriteMap().clear();
             System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
