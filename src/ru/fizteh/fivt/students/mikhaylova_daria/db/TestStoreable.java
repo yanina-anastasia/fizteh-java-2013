@@ -170,9 +170,45 @@ public class TestStoreable {
          st.setColumnAt(1, "string");
     }
 
+
     @Test(expected = ColumnFormatException.class)
     public void incorrectValueStringButFoundInt() {
         st.setColumnAt(6, 12);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetInt() {
+        st.getIntAt(1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetByte() {
+        st.getByteAt(5);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetLong() {
+        st.getLongAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetFloat() {
+        st.getFloatAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetDouble() {
+        st.getDoubleAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetBoolean() {
+        st.getBooleanAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectGetString() {
+        st.getStringAt(0);
     }
 
     @Test
