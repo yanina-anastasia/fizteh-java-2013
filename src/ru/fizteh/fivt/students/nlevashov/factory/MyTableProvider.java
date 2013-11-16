@@ -43,29 +43,19 @@ public class MyTableProvider implements TableProvider {
         dbPath = path;
         String name = path.getFileName().toString();
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
-        //допилить!!!
-        //        || name.contains("/") || name.contains(":") || name.contains("*")
-        //        || name.contains("?") || name.contains("\"") || name.contains("\\")
-        //        || name.contains(">") || name.contains("<") || name.contains("|")
-        //        || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
-        if (!Files.exists(dbPath)) {
+        if (!Files.exists(dbPath)) {   System.out.println(dbPath.toString());
             if (!path.toFile().getCanonicalFile().mkdir()) {
                 throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
             }
         } else if (!Files.isDirectory(dbPath)) {
             throw new IllegalArgumentException("TableProvider.constructor: object with said path isn't a directory");
         }
-        try {
-            checkDataBaseDirectory();
-            DirectoryStream<Path> stream = Files.newDirectoryStream(path);
-            for (Path f : stream) {
-                tables.put(f.getFileName().toString(), (new MyTable(f, this)));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("TableProvider.constructor: the structure of database is wrong. Specifically, "
-                    + e.getMessage());
+        checkDataBaseDirectory();
+        DirectoryStream<Path> stream = Files.newDirectoryStream(path);
+        for (Path f : stream) {
+            tables.put(f.getFileName().toString(), (new MyTable(f, this)));
         }
     }
 
@@ -83,10 +73,6 @@ public class MyTableProvider implements TableProvider {
     @Override
     public Table getTable(String name) {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
-        //        || name.contains("/") || name.contains(":") || name.contains("*")
-          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
-            //    || name.contains(">") || name.contains("<") || name.contains("|")
-              //  || name.contains(" ") || name.contains("\\t") || name.contains("\\n")) {
             throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
         return tables.get(name);
@@ -107,10 +93,6 @@ public class MyTableProvider implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
-        //        || name.contains("/") || name.contains(":") || name.contains("*")
-          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
-            //    || name.contains(">") || name.contains("<") || name.contains("|")
-              //  || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.createTable: bad table name \"" + name + "\"");
         }
         if ((columnTypes == null) || (columnTypes.isEmpty())) {
@@ -186,10 +168,6 @@ public class MyTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IOException {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
-        //        || name.contains("/") || name.contains(":") || name.contains("*")
-          //      || name.contains("?") || name.contains("\"") || name.contains("\\")
-            //    || name.contains(">") || name.contains("<") || name.contains("|")
-              //  || name.contains(" ") || name.contains("\t") || name.contains("\n")) {
             throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
         if (tables.containsKey(name)) {
@@ -437,10 +415,10 @@ public class MyTableProvider implements TableProvider {
      */
     void checkDataBaseDirectory() throws IOException {
         if (!Files.exists(dbPath)) {
-            throw new IOException("Directory \"" + dbPath.toString() + "\" doesn't exists");
+            throw new IllegalStateException("Directory \"" + dbPath.toString() + "\" doesn't exists");
         }
         if (!Files.isDirectory(dbPath)) {
-            throw new IOException("\"" + dbPath.toString() + "\" isn't a directory");
+            throw new IllegalStateException("\"" + dbPath.toString() + "\" isn't a directory");
         }
         Pattern levelPattern = Pattern.compile("([0-9]|1[0-5])\\.dir");
         Pattern partPattern = Pattern.compile("([0-9]|1[0-5])\\.dat");
@@ -448,27 +426,27 @@ public class MyTableProvider implements TableProvider {
         DirectoryStream<Path> tables = Files.newDirectoryStream(dbPath);
         for (Path table : tables) {
             if (!Files.isDirectory(table)) {
-                throw new IOException("there is object which is not a directory in root directory");
+                throw new IllegalStateException("there is object which is not a directory in root directory");
             }
             DirectoryStream<Path> levels = Files.newDirectoryStream(table);
             for (Path level : levels) {
                 if (!level.getFileName().toString().equals("signature.tsv")) {
                     if (!Files.isDirectory(level)) {
-                        throw new IOException("there is object which is not a directory in table \""
+                        throw new IllegalStateException("there is object which is not a directory in table \""
                                 + table.getFileName() + "\"");
                     }
                     if (!levelPattern.matcher(level.getFileName().toString()).matches()) {
-                        throw new IOException("there is directory with wrong name in table \""
+                        throw new IllegalStateException("there is directory with wrong name in table \""
                                 + table.getFileName() + "\"");
                     }
                     DirectoryStream<Path> parts = Files.newDirectoryStream(level);
                     for (Path part : parts) {
                         if (Files.isDirectory(part)) {
-                            throw new IOException("there is object which is not a file in \""
+                            throw new IllegalStateException("there is object which is not a file in \""
                                     + table.getFileName() + "\\" + level.getFileName() + "\"");
                         }
                         if (!partPattern.matcher(part.getFileName().toString()).matches()) {
-                            throw new IOException("there is file with wrong name in \""
+                            throw new IllegalStateException("there is file with wrong name in \""
                                     + table.getFileName() + "\\" + level.getFileName() + "\"");
                         }
                     }

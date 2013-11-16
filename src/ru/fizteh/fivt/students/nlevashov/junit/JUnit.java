@@ -15,24 +15,28 @@ public class JUnit {
     TableProviderFactory factory;
     TableProvider provider;
     Table table;
-    /*
+
     @Before
     public void providerCreatingPlatformMaking() {
         factory = new MyTableProviderFactory();
         assertNotNull(factory);
 
         try {
-            Files.createDirectory(Paths.get("factory1").resolve("emptyDirectory"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory1"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory1").resolve("emptyDirectory"));
 
-            Files.createDirectory(Paths.get("factory1").resolve("directoryWithFile"));
-            Files.createFile(Paths.get("factory1").resolve("directoryWithFile").resolve("someFile"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory2"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile"));
+            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
 
-            Files.createDirectory(Paths.get("factory1").resolve("directoryWithWrongNameDirectory"));
-            Files.createDirectory(Paths.get("factory1").resolve("directoryWithWrongNameDirectory").resolve("12.d"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
 
-            Files.createDirectory(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile"));
-            Files.createDirectory(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dat"));
-            Files.createFile(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dat").resolve("1.d"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
+            Files.createDirectory(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir"));
+            Files.createFile(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir").resolve("1.d"));
         } catch (IOException e) {
         }
     }
@@ -40,17 +44,21 @@ public class JUnit {
     @After
     public void providerCreatingPlatformCleaning() {
         try {
-            Files.delete(Paths.get("factory1").resolve("emptyDirectory"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory1").resolve("emptyDirectory"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory1"));
 
-            Files.delete(Paths.get("factory1").resolve("directoryWithFile").resolve("someFile"));
-            Files.delete(Paths.get("factory1").resolve("directoryWithFile"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile").resolve("someFile"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2").resolve("directoryWithFile"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory2"));
 
-            Files.delete(Paths.get("factory1").resolve("directoryWithWrongNameDirectory").resolve("12.d"));
-            Files.delete(Paths.get("factory1").resolve("directoryWithWrongNameDirectory"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory").resolve("12.dat"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3").resolve("directoryWithWrongNameDirectory"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory3"));
 
-            Files.delete(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dat").resolve("1.d"));
-            Files.delete(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dat"));
-            Files.delete(Paths.get("factory1").resolve("directoryWithDirectoryWithWrongNameFile"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir").resolve("1.d"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile").resolve("12.dir"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4").resolve("directoryWithDirectoryWithWrongNameFile"));
+            Files.delete(Paths.get(System.getProperty("user.dir")).resolve("factory4"));
         } catch (IOException e) {
         }
     }
@@ -79,26 +87,26 @@ public class JUnit {
         }
     }
 
-    @Test (expected = RuntimeException.class)
+    @Test (expected = IllegalStateException.class)
     public void directoryWithFileProviderCreating() {
         try {
-            factory.create("factory1" + File.separator + "directoryWithFile");
+            factory.create("factory2");
         } catch (IOException e) {
         }
     }
 
-    @Test (expected = RuntimeException.class)
+    @Test (expected = IllegalStateException.class)
     public void directoryWithWrongNameDirectoryProviderCreating() {
         try {
-            factory.create("factory1" + File.separator + "directoryWithWrongNameDirectory");
+            factory.create("factory3");
         } catch (IOException e) {
         }
     }
 
-    @Test (expected = RuntimeException.class)
+    @Test (expected = IllegalStateException.class)
     public void directoryWithDirectoryWithWrongNameFileProviderCreating() {
         try {
-            factory.create("factory1" + File.separator + "directoryWithDirectoryWithWrongNameFile");
+            factory.create("factory4");
         } catch (IOException e) {
         }
     }
@@ -116,7 +124,10 @@ public class JUnit {
 
     @Test (expected = IllegalArgumentException.class)
     public void nullTableCreating() {
-        provider.createTable(null, null);
+        try {
+            provider.createTable(null, null);
+        } catch (IOException e) {
+        }
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -186,7 +197,7 @@ public class JUnit {
     public void nonexistingTableGetting() {
         assertNull(provider.getTable("notExistingTableName"));
     }
-
+/*
     @Test
     public void existingTableCreating() {
         try {
@@ -257,7 +268,7 @@ public class JUnit {
     }
 
     //------------------------------------------------------------------------
-
+/*
     @Before
     public void tablePlatformMaking() {
         table = provider.createTable("table");
@@ -365,5 +376,5 @@ public class JUnit {
         table.get("key4");
         table.put("key4", "anotherValue4");
         assertEquals(1, table.commit());
-    }                                 */
+    }   */
 }
