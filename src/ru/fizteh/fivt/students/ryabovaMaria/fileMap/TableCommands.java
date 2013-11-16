@@ -97,10 +97,7 @@ public class TableCommands implements Table {
         if (!dbFile.isFile()) {
             throw new IllegalArgumentException("Incorrect table");
         }
-        RandomAccessFile db = null;
-        try {
-            db = new RandomAccessFile(dbFile, "rw");
-
+        try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {
             long curPointer = 0;
             long lastPointer = 0;
             long length = db.length();
@@ -157,9 +154,6 @@ public class TableCommands implements Table {
             }
             list[numOfDir][numOfFile].put(lastKey, lastValue);
         } catch(Exception e) {
-            if (db != null) {
-                db.close();
-            }
             throw new IOException("Incorrect table");
         }
     }
@@ -240,19 +234,23 @@ public class TableCommands implements Table {
         String fileString = String.valueOf(numOfFile) + ".dat";
         File dbDir = tableDir.toPath().resolve(dirString).normalize().toFile();
         if (!dbDir.isDirectory()) {
-            dbDir.mkdir();
+            if (!dbDir.mkdir()) {
+                throw new IOException("incorrect file");
+            }
         }
         File dbFile = dbDir.toPath().resolve(fileString).normalize().toFile();
         if (list[numOfDir][numOfFile].isEmpty()) {
-            dbFile.delete();
+            if (!dbFile.delete()) {
+                throw new IOException("incorrect file");
+            }
             if (dbDir.list().length == 0) {
-                dbDir.delete();
+                if (!dbDir.delete()) {
+                    throw new IOException("incorrect file");
+                }
             }
             return;
         }
-        RandomAccessFile db = null;
-        try {
-            db = new RandomAccessFile(dbFile, "rw");
+        try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {
             db.setLength(0);
             Iterator<Map.Entry<String, String>> it;
             it = list[numOfDir][numOfFile].entrySet().iterator();
@@ -280,9 +278,6 @@ public class TableCommands implements Table {
                 ++counter;
             }
         } catch (Exception e) {
-            if (db != null) {
-                db.close();
-            }
             throw new IOException("incorrect file");
         }
 

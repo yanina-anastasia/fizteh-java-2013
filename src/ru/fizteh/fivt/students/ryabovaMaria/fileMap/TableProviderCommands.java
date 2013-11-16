@@ -74,9 +74,7 @@ public class TableProviderCommands implements TableProvider {
         if (!signature.isFile()) {
             throw new IllegalArgumentException("Illegal signature.tsv");
         }
-        Scanner sign = null;
-        try {
-            sign = new Scanner(signature);
+        try (Scanner sign = new Scanner(signature)) {
             String stringTypes = sign.nextLine().trim();
             String[] temp = stringTypes.split("[ ]+");
             types = new ArrayList(temp.length);
@@ -110,10 +108,6 @@ public class TableProviderCommands implements TableProvider {
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Illegal signature.tsv");
-        } finally {
-            if (sign != null) {
-                sign.close();
-            }
         }
     }
     
