@@ -14,7 +14,6 @@ import java.io.IOException;
 public class MyTableTests {
 
     private Table table;
-    private TableProvider provider;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -22,7 +21,7 @@ public class MyTableTests {
     @Before
     public void test() throws IOException {
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        provider = factory.create(folder.newFolder().getCanonicalPath());
+        TableProvider provider = factory.create(folder.newFolder().getCanonicalPath());
         table = provider.createTable("testTable");
     }
 

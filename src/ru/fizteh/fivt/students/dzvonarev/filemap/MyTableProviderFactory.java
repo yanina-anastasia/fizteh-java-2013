@@ -10,20 +10,25 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public MyTableProvider create(String dir) throws IllegalArgumentException {
-        if (dir == null) {
-            throw new IllegalArgumentException("directory name is not valid");
+        if (dir == null || dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("name of table provider is not valid");
         }
-        if (!new File(dir).exists() ||
-                !(new File(dir).exists() && new File(dir).isDirectory())) {
-            throw new IllegalArgumentException("directory name is not valid");
+        File providerFile = new File(dir);
+        if (!providerFile.exists()) {
+            if (!providerFile.mkdir()) {
+                throw new IllegalArgumentException("can't create provider in " + dir);
+            }
+        } else {
+            if (!providerFile.isDirectory()) {
+                throw new IllegalArgumentException("table provider is not a directory");
+            }
         }
-        MyTableProvider tableProvider = null;
+        MyTableProvider tableProvider;
         try {
             tableProvider = new MyTableProvider(dir);
         } catch (IOException e) {
-            throw new IllegalArgumentException("can't read tables from " + dir);
-        } finally {
-            return tableProvider;
+            throw new IllegalArgumentException("can't create table provider");
         }
+        return tableProvider;
     }
 }
