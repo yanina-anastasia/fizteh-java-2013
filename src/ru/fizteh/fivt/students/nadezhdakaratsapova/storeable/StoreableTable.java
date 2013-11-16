@@ -68,9 +68,10 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public int commit() throws IOException {
-        int commitSize = commitWithoutWriteToDataBase();
         tableChangesLock.writeLock().lock();
+        int commitSize = 0;
         try {
+            commitSize = commitWithoutWriteToDataBase();
             writeToDataBase();
         } finally {
             tableChangesLock.writeLock().unlock();

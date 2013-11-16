@@ -156,8 +156,10 @@ public abstract class UniversalDataTable<ValueType> {
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToCommit = putKeys.get().keySet();
             for (String key : putKeysToCommit) {
-                dataStorage.put(key, putKeys.get().get(key));
-                ++commitSize;
+                if (!dataStorage.containsKey(key)) {
+                    dataStorage.put(key, putKeys.get().get(key));
+                    ++commitSize;
+                }
             }
             putKeys.get().clear();
         }
