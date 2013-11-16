@@ -140,33 +140,21 @@ public class TableData implements Table {
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
                 columnTypes.add(Integer.class);
+            } else if (signatures[i].equals("long")) {
+                columnTypes.add(Long.class);
+            }  else if (signatures[i].equals("byte")) {
+                columnTypes.add(Byte.class);
+            } else if (signatures[i].equals("float")) {
+                columnTypes.add(Float.class);
+            } else if (signatures[i].equals("double")) {
+                columnTypes.add(Double.class);
+            } else if (signatures[i].equals("boolean")) {
+                columnTypes.add(Boolean.class);
+            } else if (signatures[i].equals("String")) {
+                columnTypes.add(String.class);
             } else {
-                if (signatures[i].equals("long")) {
-                    columnTypes.add(Long.class);
-                }  else {
-                    if (signatures[i].equals("byte")) {
-                        columnTypes.add(Byte.class);
-                    } else {
-                        if (signatures[i].equals("float")) {
-                            columnTypes.add(Float.class);
-                        } else {
-                            if (signatures[i].equals("double")) {
-                                columnTypes.add(Double.class);
-                            } else {
-                                if (signatures[i].equals("boolean")) {
-                                    columnTypes.add(Boolean.class);
-                                } else {
-                                    if (signatures[i].equals("String")) {
-                                        columnTypes.add(String.class);
-                                    } else {
-                                        throw new IllegalArgumentException("This type is not supposed: "
-                                                + signatures[i]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                throw new IllegalArgumentException("This type is not supposed: "
+                        + signatures[i]);
             }
         }
 
@@ -181,7 +169,7 @@ public class TableData implements Table {
         return tableFile.getName();
     }
 
-    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+    void checkKey(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
@@ -189,44 +177,36 @@ public class TableData implements Table {
             throw new IllegalArgumentException("Bad char in key");
         }
         if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is null");
+            throw new IllegalArgumentException("key is empty");
         }
+    }
+
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        checkKey(key);
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
         int i = 0;
         try {
-            for (; i < getColumnsCount();) {
+            for (; i < getColumnsCount(); ) {
                 if (normType(getColumnType(i).getSimpleName()) == null) {
                     throw new IllegalArgumentException("wrong type (The table contains "
                             + "unsupported type:" + getColumnType(i));
                 }
                 if (normType(getColumnType(i).getSimpleName()).equals(Integer.class)) {
                     value.getIntAt(i);
-                } else {
-                    if (normType(getColumnType(i).getSimpleName()).equals(Long.class)) {
-                        value.getLongAt(i);
-                    } else {
-                        if (normType(getColumnType(i).getSimpleName()).equals(Byte.class)) {
-                            value.getByteAt(i);
-                        } else {
-                            if (normType(getColumnType(i).getSimpleName()).equals(Float.class)) {
-                                value.getFloatAt(i);
-                            } else {
-                                if (normType(getColumnType(i).getSimpleName()).equals(Double.class)) {
-                                    value.getDoubleAt(i);
-                                } else {
-                                    if (normType(getColumnType(i).getSimpleName()).equals(Boolean.class)) {
-                                        value.getBooleanAt(i);
-                                    } else {
-                                        if (normType(getColumnType(i).getSimpleName()).equals(String.class)) {
-                                            value.getStringAt(i);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                } else if (normType(getColumnType(i).getSimpleName()).equals(Long.class)) {
+                    value.getLongAt(i);
+                } else if (normType(getColumnType(i).getSimpleName()).equals(Byte.class)) {
+                    value.getByteAt(i);
+                } else if (normType(getColumnType(i).getSimpleName()).equals(Float.class)) {
+                    value.getFloatAt(i);
+                } else if (normType(getColumnType(i).getSimpleName()).equals(Double.class)) {
+                    value.getDoubleAt(i);
+                } else if (normType(getColumnType(i).getSimpleName()).equals(Boolean.class)) {
+                    value.getBooleanAt(i);
+                } else if (normType(getColumnType(i).getSimpleName()).equals(String.class)) {
+                    value.getStringAt(i);
                 }
                 ++i;
             }
@@ -248,15 +228,7 @@ public class TableData implements Table {
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
-        }
-        if (key.matches(".*\\s+.*")) {
-            throw new IllegalArgumentException("Bad char in key");
-        }
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is empty");
-        }
+        checkKey(key);
         byte b = key.getBytes()[0];
         if (b < 0) {
             b *= (-1);
@@ -275,15 +247,7 @@ public class TableData implements Table {
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
-        }
-        if (key.matches(".*\\s+.*")) {
-            throw new IllegalArgumentException("Bad char in key");
-        }
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is empty");
-        }
+        checkKey(key);
         byte b = key.getBytes()[0];
         if (b < 0) {
             b *= (-1);
@@ -346,3 +310,4 @@ public class TableData implements Table {
     }
 
 }
+
