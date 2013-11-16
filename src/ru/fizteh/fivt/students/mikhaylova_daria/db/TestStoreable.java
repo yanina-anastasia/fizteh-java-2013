@@ -110,7 +110,7 @@ public class TestStoreable {
     }
 
     @Test
-    public void correctValue() {
+    public void correctValueGet() {
         assertEquals("Несовпадение значений: Integer", st.getIntAt(0), (Integer) goodValueList.get(0));
         assertEquals("Несовпадение значений: Byte", st.getByteAt(1), (Byte) goodValueList.get(1));
         assertNull("Значение null в Long", st.getLongAt(2));
@@ -182,7 +182,41 @@ public class TestStoreable {
     }
 
     @Test
-    public void test() {
+    public void correctValuePut() {
+        st.setColumnAt(0, (Integer) goodValueList.get(0));
+        st.setColumnAt(1, (Byte) goodValueList.get(1));
+        st.setColumnAt(2, (Long) goodValueList.get(2));
+        st.setColumnAt(3, (Float) goodValueList.get(3));
+        st.setColumnAt(4, (Double) goodValueList.get(4));
+        st.setColumnAt(5, (Boolean) goodValueList.get(5));
+        st.setColumnAt(6, (String) goodValueList.get(6));
+        assertEquals("Несовпадение значений: Integer", st.getIntAt(0), (Integer) goodValueList.get(0));
+        assertEquals("Несовпадение значений: Byte", st.getByteAt(1), (Byte) goodValueList.get(1));
+        assertNull("Значение null в Long", st.getLongAt(2));
+        assertEquals("Несовпадение значений: Float", st.getFloatAt(3), (Float) goodValueList.get(3));
+        assertEquals("Несовпадение значений: Double", st.getDoubleAt(4), (Double) goodValueList.get(4));
+        assertEquals("Несовпадение значений: Boolean", st.getBooleanAt(5), true);
+        assertNull("Значение null в String", st.getStringAt(6));
+    }
 
+    @Test
+    public void correctValuePutNull() {
+        st.setColumnAt(0, null);
+        st.setColumnAt(1, null);
+        st.setColumnAt(2, null);
+        st.setColumnAt(3, null);
+        st.setColumnAt(4, null);
+        st.setColumnAt(5, null);
+        st.setColumnAt(6, null);
+        for (int i = 0; i < 7; ++i) {
+            assertNull("Ошибка в get или put при работе с null в значении", st.getColumnAt(i));
+        }
+        assertNull("Несовпадение значений: Integer", st.getIntAt(0));
+        assertNull("Несовпадение значений: Byte", st.getByteAt(1));
+        assertNull("Значение null в Long", st.getLongAt(2));
+        assertNull("Несовпадение значений: Float", st.getFloatAt(3));
+        assertNull("Несовпадение значений: Double", st.getDoubleAt(4));
+        assertNull("Несовпадение значений: Boolean", st.getBooleanAt(5));
+        assertNull("Значение null в String", st.getStringAt(6));
     }
 }
