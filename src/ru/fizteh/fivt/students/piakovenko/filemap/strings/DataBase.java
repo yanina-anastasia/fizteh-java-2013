@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.piakovenko.filemap.strings;
 
 
-
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.piakovenko.filemap.Exit;
 import ru.fizteh.fivt.students.piakovenko.filemap.Get;
@@ -32,7 +31,7 @@ public class DataBase implements Table {
     private File dataBaseStorage = null;
     private int changed;
 
-    private boolean isValidNameDirectory(String name){
+    private boolean isValidNameDirectory(String name) {
         if (name.length() < 5 || name.length() > 6)
             return false;
         int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
@@ -43,7 +42,7 @@ public class DataBase implements Table {
         return true;
     }
 
-    private boolean isValidNameFile(String name){
+    private boolean isValidNameFile(String name) {
         if (name.length() < 5 || name.length() > 6)
             return false;
         int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
@@ -54,12 +53,12 @@ public class DataBase implements Table {
         return true;
     }
 
-    private int ruleNumberDirectory (String key) {
+    private int ruleNumberDirectory(String key) {
         int b = Math.abs(key.getBytes()[0]);
         return b % 16;
     }
 
-    private int ruleNumberFile (String key) {
+    private int ruleNumberFile(String key) {
         int b = Math.abs(key.getBytes()[0]);
         return b / 16 % 16;
     }
@@ -81,8 +80,8 @@ public class DataBase implements Table {
                 throw new IOException("Value greater than 1 MB");
             }
             length -= 4;
-            byte [] key = new byte [l1];
-            byte [] value = new byte [l2];
+            byte[] key = new byte[l1];
+            byte[] value = new byte[l2];
             if (raDataBaseFile.read(key) < l1) {
                 throw new IOException("Key: read less, that it was pointed to read");
             } else {
@@ -97,11 +96,11 @@ public class DataBase implements Table {
         }
     }
 
-    private void readFromFile (File storage, int numberOfDirectory) throws IOException {
+    private void readFromFile(File storage, int numberOfDirectory) throws IOException {
         RandomAccessFile ra = null;
         try {
-             ra = new RandomAccessFile(storage, "rw");
-            int numberOfFile =  Integer.parseInt(storage.getName().substring(0, storage.getName().indexOf('.')), 10);
+            ra = new RandomAccessFile(storage, "rw");
+            int numberOfFile = Integer.parseInt(storage.getName().substring(0, storage.getName().indexOf('.')), 10);
             long length = ra.length();
             while (length > 0) {
                 int l1 = ra.readInt();
@@ -118,8 +117,8 @@ public class DataBase implements Table {
                     throw new IOException("Value greater than 1 MB");
                 }
                 length -= 4;
-                byte [] key = new byte [l1];
-                byte [] value = new byte [l2];
+                byte[] key = new byte[l1];
+                byte[] value = new byte[l2];
                 if (ra.read(key) < l1) {
                     throw new IOException("Key: read less, that it was pointed to read");
                 } else {
@@ -135,7 +134,7 @@ public class DataBase implements Table {
                 if (ruleNumberFile(keyString) != numberOfFile || ruleNumberDirectory(keyString) != numberOfDirectory) {
                     throw new IOException("Wrong place of key value! Key: " + keyString + " Value: " + valueString);
                 } else {
-                    map.primaryPut( keyString, valueString);
+                    map.primaryPut(keyString, valueString);
                 }
             }
         } catch (IOException e) {
@@ -148,12 +147,12 @@ public class DataBase implements Table {
         }
     }
 
-    private void saveToFile () throws IOException {
-        long length  = 0;
+    private void saveToFile() throws IOException {
+        long length = 0;
         raDataBaseFile.seek(0);
-        for (String key: map.getMap().keySet()) {
-            byte [] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-            byte [] valueBytes = map.getMap().get(key).getBytes(StandardCharsets.UTF_8);
+        for (String key : map.getMap().keySet()) {
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            byte[] valueBytes = map.getMap().get(key).getBytes(StandardCharsets.UTF_8);
             raDataBaseFile.writeInt(keyBytes.length);
             raDataBaseFile.writeInt(valueBytes.length);
             raDataBaseFile.write(keyBytes);
@@ -168,8 +167,8 @@ public class DataBase implements Table {
         try {
             ra = new RandomAccessFile(f, "rw");
             ra.seek(ra.length());
-            byte [] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-            byte [] valueBytes = value.getBytes(StandardCharsets.UTF_8);
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
             ra.writeInt(keyBytes.length);
             ra.writeInt(valueBytes.length);
             ra.write(keyBytes);
@@ -179,23 +178,23 @@ public class DataBase implements Table {
         }
     }
 
-    private void saveToDirectory() throws IOException{
+    private void saveToDirectory() throws IOException {
         if (dataBaseStorage.exists()) {
             Remove.removeRecursively(dataBaseStorage);
         }
-        if (!dataBaseStorage.mkdirs()){
+        if (!dataBaseStorage.mkdirs()) {
             throw new IOException("Unable to create this directory - " + dataBaseStorage.getCanonicalPath());
         }
         for (String key : map.getMap().keySet()) {
             Integer numberOfDirectory = ruleNumberDirectory(key);
             Integer numberOfFile = ruleNumberFile(key);
-            File directory = new File (dataBaseStorage, numberOfDirectory.toString() + ".dir");
+            File directory = new File(dataBaseStorage, numberOfDirectory.toString() + ".dir");
             if (!directory.exists()) {
-                if (!directory.mkdirs()){
+                if (!directory.mkdirs()) {
                     throw new IOException("Unable to create this directory - " + directory.getCanonicalPath());
                 }
             }
-            File writeFile = new File(directory, numberOfFile.toString() + ".dat" );
+            File writeFile = new File(directory, numberOfFile.toString() + ".dat");
             if (!writeFile.exists()) {
                 writeFile.createNewFile();
             }
@@ -203,18 +202,18 @@ public class DataBase implements Table {
         }
     }
 
-    private void loadDataBase (File dataBaseFile) throws IOException {
-       raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
-       try {
+    private void loadDataBase(File dataBaseFile) throws IOException {
+        raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
+        try {
             readFromFile();
-       } catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Error! " + e.getCause());
             System.exit(1);
-       }
+        }
     }
 
     private void readFromDirectory(File dir, int numberOfDirectory) throws IOException {
-        for (File f: dir.listFiles()) {
+        for (File f : dir.listFiles()) {
             if (!isValidNameFile(f.getName())) {
                 throw new IOException("Wrong name of file!");
             }
@@ -222,7 +221,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void loadFromDirectory (File directory) throws IOException {
+    private void loadFromDirectory(File directory) throws IOException {
         for (File f : directory.listFiles()) {
             if (!isValidNameDirectory(f.getName())) {
                 throw new IOException("Wrong name of directory!");
@@ -232,23 +231,23 @@ public class DataBase implements Table {
         }
     }
 
-    public DataBase (Shell sl, File storage) {
+    public DataBase(Shell sl, File storage) {
         map = new DataBaseMap();
-        shell  = sl;
+        shell = sl;
         dataBaseStorage = storage;
         name = storage.getName();
         changed = 0;
     }
 
-    public DataBase () {
+    public DataBase() {
         map = new DataBaseMap();
-        shell  = new Shell();
-        dataBaseStorage = new File (System.getProperty("fizteh.db.dir"));
+        shell = new Shell();
+        dataBaseStorage = new File(System.getProperty("fizteh.db.dir"));
         name = dataBaseStorage.getName();
         changed = 0;
     }
 
-    public void load () throws IOException {
+    public void load() throws IOException {
         if (dataBaseStorage.isFile()) {
             loadDataBase(dataBaseStorage);
         } else {
@@ -256,11 +255,11 @@ public class DataBase implements Table {
         }
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
-    public void initialize (GlobalFileMapState state) {
+    public void initialize(GlobalFileMapState state) {
         shell.addCommand(new Exit(state));
         shell.addCommand(new Put(state));
         shell.addCommand(new Get(state));
@@ -273,7 +272,7 @@ public class DataBase implements Table {
         }
     }
 
-    public void saveDataBase () throws IOException {
+    public void saveDataBase() throws IOException {
         if (dataBaseStorage.isFile()) {
             try {
                 saveToFile();
@@ -285,14 +284,14 @@ public class DataBase implements Table {
         }
     }
 
-    public String get (String key) throws IllegalArgumentException {
+    public String get(String key) throws IllegalArgumentException {
         if (key == null) {
             throw new IllegalArgumentException("key equals NULL");
         }
-       return map.get(key);
+        return map.get(key);
     }
 
-    public String put (String key, String value) throws IllegalArgumentException {
+    public String put(String key, String value) throws IllegalArgumentException {
         if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
             throw new IllegalArgumentException("key or value equals NULL");
         }
@@ -301,7 +300,7 @@ public class DataBase implements Table {
             ++changed;
             map.getChangedMap().put(key, value);
         } else {
-            if (map.getChangedMap().containsKey(key) || map.getOverwriteMap().containsKey(key)){
+            if (map.getChangedMap().containsKey(key) || map.getOverwriteMap().containsKey(key)) {
             } else {
                 map.getOverwriteMap().put(key, value);
                 ++changed;
@@ -320,6 +319,8 @@ public class DataBase implements Table {
                 map.getChangedMap().remove(key);
                 --changed;
             } else if (map.getOverwriteMap().containsKey(key)) {
+                map.getOverwriteMap().remove(key);
+                ++changed;
             } else {
                 ++changed;
             }
@@ -336,7 +337,7 @@ public class DataBase implements Table {
         return map.getMap().size();
     }
 
-    public int commit () {
+    public int commit() {
         int tempChanged = changed;
         try {
             saveDataBase();
@@ -351,7 +352,7 @@ public class DataBase implements Table {
         return 0;
     }
 
-    public int rollback () {
+    public int rollback() {
         int tempChanged = changed;
         map.getMap().clear();
         map.getChangedMap().clear();
@@ -367,7 +368,7 @@ public class DataBase implements Table {
         return 0;
     }
 
-    public int numberOfChanges () {
+    public int numberOfChanges() {
         return changed;
     }
 }
