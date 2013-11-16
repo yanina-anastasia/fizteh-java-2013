@@ -49,11 +49,11 @@ public class DbMain {
         try {
             Code res = sys.runShell(args);
             if (res == Code.ERROR) {
-                System.err.println("Runtime Error Code Error");
+                System.err.println("Runtime Error");
                 System.exit(1);
             }
         } catch (Exception e) {
-            System.err.println("Runtime Error Exception");
+            System.err.println("Runtime Error");
             FileMapUtils.getMessage(e);
             System.exit(1);
         }
