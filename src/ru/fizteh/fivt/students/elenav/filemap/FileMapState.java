@@ -9,10 +9,11 @@ import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Set;
 
-import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
-public class FileMapState extends MonoMultiAbstractState {
+public class FileMapState extends FilesystemState {
 
 	public HashMap<String, String> map = new HashMap<>();
 	
@@ -29,9 +30,13 @@ public class FileMapState extends MonoMultiAbstractState {
 		s.close();
 	}
 
-	@Override
 	public String get(String key) {
 		return map.get(key);
+	}
+	
+	@Override
+	public String getValue(String key) {
+		return get(key);
 	}
 
 	@Override
@@ -39,9 +44,44 @@ public class FileMapState extends MonoMultiAbstractState {
 		return map.put(key, value);
 	}
 
-	@Override
 	public String remove(String key) {
 		return map.remove(key);
-	}                                                                                                                                                                        
+	}
+	
+	@Override
+	public String removeKey(String key) {
+		return remove(key);
+	}
+
+	@Override
+	public int commit() {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	@Override
+	public int rollback() {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	@Override
+	public int size() {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	@Override
+	public int getNumberOfChanges() {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	@Override
+	public void read() {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+
+	@Override
+	public Storeable put(String string, Storeable string2) {
+		throw new UnsupportedOperationException("Sorry, your shell not pass");
+	}
+                                                                                                                                                                 
 
 }

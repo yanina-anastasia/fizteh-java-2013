@@ -8,8 +8,6 @@ import java.nio.channels.FileChannel;
 import java.util.Collection;
 
 public class Utils {
-
-	public Utils() {}
 	
 	public static void generateAnError(final String description, String commandName, boolean isInteractive) {
 		if(!commandName.equals("")){
@@ -158,6 +156,22 @@ public class Utils {
 	public static int getNFile(String key) {
 		int result = key.hashCode() / 16 % 16;
 		return Math.abs(result);
+	}
+	
+	public static boolean testUTFSize(String word) {
+		return 2 * word.length() <= 1000 * 1000;
+	}
+	
+	public static boolean testBadSymbols(String name) {
+		return name.matches("[A-Za-z0-9_]*");
+	}
+	
+	public static boolean isEmpty(String s) {
+		if(s == null || s.isEmpty() || s.equals("\n") || s.trim().isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 }

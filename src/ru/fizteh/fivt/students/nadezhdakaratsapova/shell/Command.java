@@ -7,5 +7,5 @@ public interface Command {
 
     public void execute(String[] args) throws IOException;
 
-    public int getArgsCount();
+    public boolean compareArgsCount(int inputArgsCount);
 }

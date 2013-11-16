@@ -8,17 +8,17 @@ import ru.fizteh.fivt.students.demidov.filemap.FileMap;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FilesMap {	
-	public FilesMap(String newDirectoryPath) throws IOException { 
+	public FilesMap(String directoryPath) throws IOException { 
 		baseFileMaps = new HashMap<String, FileMap>();
 		
-		if (new File(newDirectoryPath).isDirectory()) {
-			directoryPath = newDirectoryPath;
+		if (new File(directoryPath).isDirectory()) {
+			this.directoryPath = directoryPath;
 		} else {
 			throw new IOException("wrong directory");
 		}
 	}
 		
-	public FileMap getFileMapForKey(String key) throws IOException {
+	public FileMap getFileMapForKey(String key) {
 		Integer ndirectory = MultiFileMapUtils.getNDirectory(key.hashCode());
 		Integer nfile = MultiFileMapUtils.getNFile(key.hashCode());
 		String baseFileKey = MultiFileMapUtils.makeKey(ndirectory, nfile);
@@ -28,6 +28,14 @@ public class FilesMap {
 			baseFileMaps.put(baseFileKey, new FileMap(fileMapDirectory + File.separator + nfile.toString() + ".dat"));
 		}
 		return baseFileMaps.get(baseFileKey);
+	}
+	
+	public int getSize() {
+		int result = 0;	
+		for (String key: baseFileMaps.keySet()) {
+			result += baseFileMaps.get(key).getCurrentTable().size();
+		}
+		return result;
 	}
 	
 	public void clearFilesMapDirectory() throws IOException {
