@@ -14,6 +14,9 @@ public class DbMain {
 
         try {
             String path = System.getProperty("fizteh.db.dir");
+            if (path == null) {
+                throw new IllegalArgumentException("path can't be null");
+            }
             Path pathTables = Paths.get(".").resolve(path);
             runDb(args, pathTables.toFile().getCanonicalPath());
         } catch (Exception e) {
