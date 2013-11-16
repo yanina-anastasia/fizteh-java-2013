@@ -165,16 +165,20 @@ public class FileMapUtils {
     }
 
     public static void getMessage(Exception e) {
+        errPrint("123");
         if (e.getMessage() != null) {
             errPrint(e.getMessage());
         }
+        errPrint("1234");
         if (e.getSuppressed() != null) {
             for (int i = 0; i < e.getSuppressed().length; ++i) {
                 if (e.getSuppressed()[i].getMessage() != null) {
                     errPrint(e.getSuppressed()[i].getMessage());
                 }
+                errPrint("123567");
             }
         }
+        errPrint("12345");
     }
 
     public static Boolean antiCorrectDir(String dir) {
