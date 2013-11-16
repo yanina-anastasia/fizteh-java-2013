@@ -175,7 +175,7 @@ public class StoreableTableProvider implements TableProvider {
         JSONArray jsonArray = new JSONArray();
         checkTableRow(table, (TableRow) value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
+            if (value.getColumnAt(i) != null && !table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("Type mismatch");
             }
             jsonArray.put(value.getColumnAt(i));
