@@ -153,7 +153,11 @@ public class DbState extends State {
               // ignore
             }
           }
-        }      
+        }  
+        
+        if (result == 0) {
+            throw new IllegalStateException("empty file " + path);
+        }
         return result;
     }
    
