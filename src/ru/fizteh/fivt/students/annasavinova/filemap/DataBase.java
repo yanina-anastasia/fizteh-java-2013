@@ -23,7 +23,6 @@ public class DataBase implements Table {
 
     private String currTable = "";
     private static String rootDir = "";
-    private boolean hasLoadedData = false;
     private boolean removed = false;
 
     public void setRemoved() {
@@ -67,10 +66,6 @@ public class DataBase implements Table {
         typesList = (ArrayList<Class<?>>) columnTypes;
     }
 
-    public void setHasLoadedData(boolean property) {
-        hasLoadedData = property;
-    }
-
     protected File getDirWithNum(int dirNum) {
         File res = new File(rootDir + currTable + File.separatorChar + dirNum + ".dir");
         return res;
@@ -83,41 +78,38 @@ public class DataBase implements Table {
     }
 
     protected void unloadData() {
-        if (hasLoadedData) {
-            for (int i = 0; i < 16; ++i) {
-                File currentDir = getDirWithNum(i);
-                if (!currentDir.exists()) {
-                    if (!currentDir.mkdir()) {
-                        throw new RuntimeException("Cannot unload data: cannot create directory "
-                                + currentDir.getAbsolutePath());
-                    }
+        for (int i = 0; i < 16; ++i) {
+            File currentDir = getDirWithNum(i);
+            if (!currentDir.exists()) {
+                if (!currentDir.mkdir()) {
+                    throw new RuntimeException("Cannot unload data: cannot create directory "
+                            + currentDir.getAbsolutePath());
                 }
-                for (int j = 0; j < 16; ++j) {
-                    File currentFile = getFileWithNum(j, i);
-                    if (!currentFile.exists()) {
-                        try {
-                            if (!currentFile.createNewFile()) {
-                                throw new RuntimeException("Cannot unload data: cannot create file "
-                                        + currentFile.getAbsolutePath());
-                            }
-                        } catch (IOException e) {
+            }
+            for (int j = 0; j < 16; ++j) {
+                File currentFile = getFileWithNum(j, i);
+                if (!currentFile.exists()) {
+                    try {
+                        if (!currentFile.createNewFile()) {
                             throw new RuntimeException("Cannot unload data: cannot create file "
                                     + currentFile.getAbsolutePath());
                         }
+                    } catch (IOException e) {
+                        throw new RuntimeException("Cannot unload data: cannot create file "
+                                + currentFile.getAbsolutePath());
                     }
                 }
             }
-            unloadMap();
-            for (int i = 0; i < 16; ++i) {
-                File currentDir = getDirWithNum(i);
-                if (currentDir.list().length == 0) {
-                    if (!currentDir.delete()) {
-                        throw new RuntimeException("Cannot unload data: cannot delete directory "
-                                + currentDir.getAbsolutePath());
-                    }
+        }
+        unloadMap();
+        for (int i = 0; i < 16; ++i) {
+            File currentDir = getDirWithNum(i);
+            if (currentDir.list().length == 0) {
+                if (!currentDir.delete()) {
+                    throw new RuntimeException("Cannot unload data: cannot delete directory "
+                            + currentDir.getAbsolutePath());
                 }
             }
-            hasLoadedData = false;
         }
     }
 

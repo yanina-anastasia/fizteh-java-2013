@@ -62,8 +62,6 @@ public class DataBaseLoader {
             throw new RuntimeException("Incorrect DataBase: have no signature file");
         }
         currentTable.setHashMap(currentHashMap);
-        
-        currentTable.setHasLoadedData(true);
         return currentTable;
     }
 

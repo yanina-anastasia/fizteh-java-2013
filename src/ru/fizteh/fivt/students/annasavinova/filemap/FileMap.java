@@ -259,7 +259,7 @@ public class FileMap extends UserShell {
                 System.out.println("new");
             } else {
                 System.out.println("overwrite");
-                System.out.println(oldValue.getStringAt(0));
+                System.out.println(prov.serialize(currTable, oldValue));
             }
         } catch (ParseException e) {
             printError("Cannot parse arguments");
