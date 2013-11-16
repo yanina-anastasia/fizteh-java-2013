@@ -320,6 +320,7 @@ public class DataBase implements Table {
         if (removed != null) {
             if (map.getChangedMap().containsKey(key)) {
                 map.getChangedMap().remove(key);
+                --changed;
             } else if (map.getOverwriteMap().containsKey(key)){
                 map.getOverwriteMap().remove(key);
             } else {
