@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBase;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
 
+
 import java.io.IOException;
 
 /**
@@ -36,5 +37,3 @@ public class Commit implements Commands {
         }
         db.commit();
     }
-
-}

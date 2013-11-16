@@ -14,6 +14,7 @@ import java.io.IOException;
  */
 public class Use implements Commands {
     private final String name = "use";
+
     private GlobalFileMapState dbc = null;
 
     public Use (GlobalFileMapState t) {

@@ -1,7 +1,12 @@
 package ru.fizteh.fivt.students.piakovenko.filemap;
 
+<<<<<<< HEAD
 import ru.fizteh.fivt.students.piakovenko.filemap.storable.DataBasesCommander;
 import ru.fizteh.fivt.students.piakovenko.shell.Commands;
+=======
+import ru.fizteh.fivt.students.piakovenko.shell.Commands;
+import ru.fizteh.fivt.students.piakovenko.shell.MyException;
+>>>>>>> 6be9cec02790a166e8711fe0b5e7a8bf504be8d2
 
 import java.io.IOException;
 
