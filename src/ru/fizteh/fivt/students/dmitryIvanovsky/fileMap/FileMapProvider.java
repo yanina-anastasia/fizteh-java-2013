@@ -163,33 +163,28 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
     public void multiUse(String[] args) throws Exception {
-        try {
-            String nameTable = args[0];
-            if (!setDirTable.contains(nameTable)) {
-                outPrint(nameTable + " not exists");
-                return;
-            }
+        String nameTable = args[0];
+        if (!setDirTable.contains(nameTable)) {
+            outPrint(nameTable + " not exists");
+            return;
+        }
 
-            int changeKey = 0;
-            if (dbData != null) {
-                changeKey = dbData.changeKey();
-            }
+        int changeKey = 0;
+        if (dbData != null) {
+            changeKey = dbData.changeKey();
+        }
 
-            if (changeKey > 0) {
-                outPrint(String.format("%d unsaved changes", changeKey));
-            } else {
-                if (!nameTable.equals(useNameTable)) {
-                    if (dbData != null) {
-                        dbData.unloadTable();
-                    }
-                    dbData = (FileMap) getTable(nameTable);
-                    useNameTable = nameTable;
+        if (changeKey > 0) {
+            outPrint(String.format("%d unsaved changes", changeKey));
+        } else {
+            if (!nameTable.equals(useNameTable)) {
+                if (dbData != null) {
+                    dbData.unloadTable();
                 }
-                outPrint("using " + nameTable);
+                dbData = (FileMap) getTable(nameTable);
+                useNameTable = nameTable;
             }
-        } catch (Exception e) {
-            //e.printStackTrace();
-            throw e;
+            outPrint("using " + nameTable);
         }
     }
 
