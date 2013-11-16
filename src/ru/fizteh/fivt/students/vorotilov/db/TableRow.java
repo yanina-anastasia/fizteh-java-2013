@@ -42,10 +42,10 @@ public class TableRow implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
-        if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
-            columns.set(columnIndex, (Long) value);
-        }
         if (value != null) {
+            if (value.getClass().equals(Integer.class) && classes.get(columnIndex).equals(Long.class)) {
+                columns.set(columnIndex, value);
+            }
             checkType(columnIndex, value.getClass());
             if (value instanceof String) {
                 if (((String) value).contains("\n")) {
@@ -186,8 +186,8 @@ public class TableRow implements Storeable {
     @Override
     public String toString() throws ColumnFormatException {
         JSONArray jsonArray = new JSONArray();
-        for (int i = 0; i < columns.size(); ++i) {
-            jsonArray.put(columns.get(i));
+        for (Object i : columns) {
+            jsonArray.put(i);
         }
         return jsonArray.toString();
     }
