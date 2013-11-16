@@ -15,7 +15,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
     @Override
     public TableProvider create(String dir) throws IOException {
         
-        if (dir == null || dir.isEmpty()) {
+        if (!isValidDatabaseDirectory(dir)) {
             throw new IllegalArgumentException("Invalid dir path");
         }
          
@@ -43,6 +43,13 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
                 throw new IllegalArgumentException("Invalid table format");
             }
         }
+    }
+    
+    private static boolean isValidDatabaseDirectory(String dir) {
+        if (dir == null || dir.isEmpty() || dir.matches(".*\\s+.*")) {
+            return false;
+        }
+        return true;
     }
     
     private static void isCorrectTableDirectory(Path tableDirectory) throws IllegalArgumentException {

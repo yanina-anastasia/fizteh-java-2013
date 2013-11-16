@@ -90,7 +90,7 @@ public class TableProviderImplementation implements TableProvider {
         try (FileWriter signatureFile = new FileWriter(signatureFilePath.toString())) {
             for (int i = 0; i < columnTypes.size(); ++i) {
                 if (i != 0) {
-                    signatureFile.write("\t");
+                    signatureFile.write(" ");
                 }
                 signatureFile.write(toName(columnTypes.get(i)));
             }
@@ -301,10 +301,9 @@ public class TableProviderImplementation implements TableProvider {
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         
         try (Scanner signatureFile = new Scanner(signatureFilePath)) {
-            signatureFile.useDelimiter("\t");
             String currentType;
             while (signatureFile.hasNext()) {
-                currentType = signatureFile.next().trim();
+                currentType = signatureFile.next();
                 if (!isValidColumnType(currentType)) {
                     throw new IllegalArgumentException("Invalid column type in signature.tsv: " + currentType);
                 }

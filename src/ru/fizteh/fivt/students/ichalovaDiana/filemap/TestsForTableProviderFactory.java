@@ -2,7 +2,10 @@ package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,8 +40,10 @@ public class TestsForTableProviderFactory {
         tableProviderFactory.create("\t \n  ");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void createDirWithBackSlash() throws IOException {
-        tableProviderFactory.create("..\table");
+        tableProviderFactory.create("..\\table");
+        Assert.assertTrue(Files.exists(Paths.get("..\\table")));
     }
+    
 }
