@@ -9,7 +9,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
-        if (dir == null || dir.trim().isEmpty() || dir.indexOf(' ') >= 0) {
+        if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (invalid name of table provider)");
         }
         File providerFile = new File(dir);

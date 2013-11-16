@@ -43,10 +43,10 @@ public class MyTableTests {
         cl.add(Integer.class);
         cl.add(String.class);
         cl.add(Double.class);
-        Table t = provider.createTable("1ff1", cl);
+        Table t = provider.createTable("correct", cl);
         List<Object> data = new ArrayList<>();
         data.add(2);
-        data.add("fq");
+        data.add("qwerty");
         data.add(3.3);
         Storeable st = provider.createFor(t, data);
         table.put("blabla", st);
@@ -57,12 +57,12 @@ public class MyTableTests {
         List<Class<?>> cl = new ArrayList<>();
         cl.add(Integer.class);
         cl.add(String.class);
-        Table t = provider.createTable("less", cl);
-        List<Object> x = new ArrayList<>();
-        x.add(24);
-        x.add("lbaba");
-        Storeable st = provider.createFor(t, x);
-        table.put("asd", st);
+        Table newTable = provider.createTable("less", cl);
+        List<Object> args = new ArrayList<>();
+        args.add(24);
+        args.add("less");
+        Storeable st = provider.createFor(newTable, args);
+        table.put("less", st);
     }
 
     @Test(expected = ColumnFormatException.class)
@@ -72,15 +72,34 @@ public class MyTableTests {
         cl.add(String.class);
         cl.add(Double.class);
         cl.add(Integer.class);
-        Table t = provider.createTable("more", cl);
-        List<Object> x = new ArrayList<>();
-        x.add(1);
-        x.add("2");
-        x.add(3.4);
-        x.add(1);
-        Storeable st = provider.createFor(t, x);
-        table.put("asd", st);
+        Table newTable = provider.createTable("more", cl);
+        List<Object> args = new ArrayList<>();
+        args.add(1);
+        args.add("2");
+        args.add(3.4);
+        args.add(1);
+        Storeable st = provider.createFor(newTable, args);
+        table.put("more", st);
     }
 
+    @Test(expected = ColumnFormatException.class)
+    public void wrongTypes() {
+        List<Object> args = new ArrayList<>();
+        args.add(1);
+        args.add(2);
+        args.add(3);
+        Storeable st = provider.createFor(table, args);
+        table.put("wrongTypes", st);
+    }
+
+    @Test
+    public void ifHaveNulls() {
+        List<Object> args = new ArrayList<>();
+        args.add(null);
+        args.add("null");
+        args.add(null);
+        Storeable st = provider.createFor(table, args);
+        table.put("hasnull", st);
+    }
 
 }
