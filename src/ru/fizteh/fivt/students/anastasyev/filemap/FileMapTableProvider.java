@@ -27,7 +27,7 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Vector<Command> commands = new Vector<Command>();
     private Hashtable<String, Class<?>> providedTypes;
     private Hashtable<Class<?>, String> providedTypesNames;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 

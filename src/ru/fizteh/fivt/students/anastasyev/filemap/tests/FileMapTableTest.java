@@ -469,7 +469,7 @@ public class FileMapTableTest {
         first.join();
         second.join();
 
-        assertTrue(v[1] == null ^ v[0] == null);
+        assertTrue(v[1] == null || v[0] == null);
     }
 
     @Test

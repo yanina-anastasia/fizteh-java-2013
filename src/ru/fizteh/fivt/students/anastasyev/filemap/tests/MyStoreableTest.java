@@ -103,9 +103,29 @@ public class MyStoreableTest {
         assertEquals(storeableWithValues.getLongAt(1), (Long) Integer.valueOf(2).longValue());
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetLongAtBigIndex() throws Exception {
+        storeableWithValues.getLongAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetLongAtWrongIndex() throws Exception {
+        storeableWithValues.getLongAt(0);
+    }
+
     @Test
     public void testGetByteAt() throws Exception {
         assertEquals(storeableWithValues.getByteAt(2), (Byte) Integer.valueOf(3).byteValue());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetByteAtBigIndex() throws Exception {
+        storeableWithValues.getByteAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetByteAtWrongIndex() throws Exception {
+        storeableWithValues.getByteAt(1);
     }
 
     @Test
@@ -113,9 +133,29 @@ public class MyStoreableTest {
         assertEquals(storeableWithValues.getFloatAt(3), ((Double) 4.5).floatValue());
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetFloatAtBigIndex() throws Exception {
+        storeableWithValues.getFloatAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetFloatAtWrongIndex() throws Exception {
+        storeableWithValues.getFloatAt(2);
+    }
+
     @Test
     public void testGetDoubleAt() throws Exception {
         assertEquals(storeableWithValues.getDoubleAt(4), (Double) ((Integer) 5).doubleValue());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetDoubleAtBigIndex() throws Exception {
+        storeableWithValues.getDoubleAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetDoubleAtWrongIndex() throws Exception {
+        storeableWithValues.getDoubleAt(2);
     }
 
     @Test
@@ -123,9 +163,29 @@ public class MyStoreableTest {
         assertEquals(storeableWithValues.getBooleanAt(5), (Object) true);
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetBooleanAtBigIndex() throws Exception {
+        storeableWithValues.getBooleanAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetBooleanAtWrongIndex() throws Exception {
+        storeableWithValues.getBooleanAt(2);
+    }
+
     @Test
     public void testGetStringAt() throws Exception {
         assertEquals(storeableWithValues.getStringAt(6), (Object) "string");
         assertEquals(storeableWithValues.getStringAt(8), (Object) "another string");
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetStringAtBigIndex() throws Exception {
+        storeableWithValues.getStringAt(55);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void testGetStringAtWrongIndex() throws Exception {
+        storeableWithValues.getStringAt(2);
     }
 }

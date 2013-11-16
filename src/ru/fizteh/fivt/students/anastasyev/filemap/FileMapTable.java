@@ -24,7 +24,7 @@ public class FileMapTable implements Table {
             return new HashMap<String, Storeable>();
         }
     };
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
