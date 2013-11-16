@@ -269,17 +269,62 @@ public class StoreableTable implements Table {
         changedKeys.clear();
         removedKeys.clear();
         tableIndexedData.clear();
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFiles[nDir][nFile] != null) {
-                    tableFiles[nDir][nFile].setReadMode();
-                    while (tableFiles[nDir][nFile].hasNext()) {
-                        TableFile.Entry tempEntry = tableFiles[nDir][nFile].readEntry();
+        File[] subDirsList = tableRootDir.listFiles();
+        if (subDirsList != null) {
+            for (File subDir: subDirsList) {
+                int numberOfSubDir;
+                if (!subDir.isDirectory()) {
+                    throw new IllegalStateException("In table root dir found object is not a directory");
+                }
+                String[] tableSubDirName = subDir.getName().split("[.]");
+                try {
+                    numberOfSubDir = Integer.parseInt(tableSubDirName[0]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
+                }
+                if (numberOfSubDir < 0 || numberOfSubDir > 15
+                        || !tableSubDirName[1].equals("dir") || tableSubDirName.length != 2) {
+                    throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
+                }
+                File[] subFilesList = subDir.listFiles();
+                if (subFilesList != null && subFilesList.length == 0) {
+                    throw new IllegalStateException("data base contains empty dir");
+                }
+                if (subFilesList != null) {
+                    for (File subFile: subFilesList) {
+                        int numberOfSubFile;
+                        if (!subFile.isFile()) {
+                            throw new IllegalStateException("In table sub dir found object is not a file");
+                        }
+                        String[] dbFileName = subFile.getName().split("[.]");
                         try {
-                            tableIndexedData.put(tempEntry.getKey(),
-                                    tableProvider.deserialize(this, tempEntry.getValue()));
-                        } catch (ParseException e) {
-                            throw new IllegalStateException("Can't deserialize", e);
+                            numberOfSubFile = Integer.parseInt(dbFileName[0]);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                        }
+                        if (numberOfSubFile < 0 || numberOfSubFile > 15
+                                || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
+                            throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                        } else if (subFile.length() == 0) {
+                            throw new IllegalStateException("Empty file in sub dir");
+                        } else {
+                            if (tableFiles[numberOfSubDir][numberOfSubFile] != null) {
+                                tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
+                            }
+                            tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
+                            while (tableFiles[numberOfSubDir][numberOfSubFile].hasNext()) {
+                                TableFile.Entry tempEntry = tableFiles[numberOfSubDir][numberOfSubFile].readEntry();
+                                HashcodeDestination dest = new HashcodeDestination(tempEntry.getKey());
+                                if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
+                                    throw new IllegalStateException("Wrong key placement");
+                                }
+                                try {
+                                    tableIndexedData.put(tempEntry.getKey(),
+                                            tableProvider.deserialize(this, tempEntry.getValue()));
+                                } catch (ParseException e) {
+                                    throw new IllegalStateException("Can't deserialize", e);
+                                }
+                            }
                         }
                     }
                 }
