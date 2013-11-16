@@ -85,7 +85,7 @@ public class Parser {
     }
 
     public boolean canBeCastedTo(Class<?> type, Object obj) {
-        if (obj == null || obj.equals(null)) {
+        if (obj == null) {
             return true;
         }
         if (obj.getClass() == Integer.class) {
