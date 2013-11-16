@@ -116,4 +116,81 @@ public class StoreableTest {
         st.setColumnAt(6, Long.valueOf(1000000000));
         assertEquals(Long.valueOf(1000000000), st.getLongAt(6));
     }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetLongAt() {
+        st.getLongAt(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetIntAt() {
+        st.getIntAt(15);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetFloatAt() {
+        st.getFloatAt(20);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetStringAt() {
+        st.getStringAt(-10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetDoubleAt() {
+        st.getDoubleAt(-2);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetBooleanAt() {
+        st.getBooleanAt(450);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void negativeIndexGetByteAt() {
+        st.getByteAt(45);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetIntAt() {
+        st.setColumnAt(0, 1);
+        st.getIntAt(1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetFloatAt() {
+        st.setColumnAt(2, 10);
+        st.getFloatAt(1);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetDoubleAt() {
+        st.setColumnAt(3, 10.111);
+        st.getDoubleAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetStringAt() {
+        st.setColumnAt(1, "llslss");
+        st.getStringAt(0);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetByteAt() {
+        st.setColumnAt(5, (byte) 6);
+        st.getByteAt(4);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetBooleanAt() {
+        st.setColumnAt(4, true);
+        st.getBooleanAt(6);
+    }
+
+    @Test(expected = ColumnFormatException.class)
+    public void incorrectTypeColumnGetLongAt() {
+        st.setColumnAt(6, 100000000);
+        st.getLongAt(1);
+    }
 }
