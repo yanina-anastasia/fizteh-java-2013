@@ -123,11 +123,15 @@ abstract public class BasicTable<ElementType> {
 	}
 	
 	public void checkKey(String key) {
+		if ((key == null) || (key.trim().isEmpty())) {
+			throw new IllegalArgumentException("null or empty key");
+		}
+		
 		Pattern pattern = null;
         pattern = Pattern.compile("\\s+");
         Matcher matcher = pattern.matcher(key);
 		
-		if ((key == null) || (key.trim().isEmpty()) || (matcher.find())) {
+		if (matcher.find()) {
 			throw new IllegalArgumentException("incorrect key");
 		}
 	}
