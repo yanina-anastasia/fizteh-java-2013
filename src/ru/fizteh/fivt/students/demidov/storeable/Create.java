@@ -15,7 +15,9 @@ public class Create extends BasicMultiFileHashMapCommand<Storeable, StoreableTab
 		try {
 			dataBaseState.create(arguments[0], StoreableUtils.parseArguments(arguments[1].split("\\s+")));
 		} catch (IllegalArgumentException catchedException) {
-			throw new IOException(catchedException);
+			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
+		} catch (IOException catchedException) {
+			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
 		}
 		usedShell.curShell.getOutStream().println("created");
 	}	

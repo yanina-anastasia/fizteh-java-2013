@@ -42,11 +42,7 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 						throw new IllegalArgumentException("wrong column type");
 					}	
 					String typeName = null;
-					try {
-						typeName = TypeName.getAppropriateName(type);
-					} catch(IOException catchedException) {
-						throw new IllegalArgumentException("wrong column type");
-					}
+					typeName = TypeName.getAppropriateName(type);
 
 					writtenSignature.println(typeName);
 				}

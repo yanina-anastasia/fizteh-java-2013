@@ -9,8 +9,14 @@ public class Put extends BasicFileMapCommand {
 	public Put(BasicState currentState) {
 		super(currentState, "put", 2);
 	}
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
-		String value = currentState.put(arguments[0], arguments[1]);
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException { 
+		String value = null;
+		try {
+			value = currentState.put(arguments[0], arguments[1]);
+		} catch (IOException catchedException) {
+			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
+		}
+		
 		if (value == null) {
 			usedShell.curShell.getOutStream().println("new");
 		} else {
