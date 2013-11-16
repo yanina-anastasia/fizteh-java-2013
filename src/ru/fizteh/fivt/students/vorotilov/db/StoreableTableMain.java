@@ -220,6 +220,7 @@ public class StoreableTableMain {
         } catch (ExitCommand | NoNextCommand e) {
             if (currentTable != null) {
                 try {
+                    currentTable.commit();
                     currentTable.close();
                 } catch (Exception f) {
                     throw new RuntimeException();
