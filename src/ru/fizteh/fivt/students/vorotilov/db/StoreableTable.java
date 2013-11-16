@@ -24,8 +24,6 @@ public class StoreableTable implements Table {
     private boolean[][] tableFileModified = new boolean[16][16];
     private HashMap<String, Storeable> tableOnDisk;
     private HashMap<String, Storeable> tableIndexedData = new HashMap<>();
-    private HashSet<String> changedKeys = new HashSet<>();
-    private HashSet<String> removedKeys = new HashSet<>();
 
     private void index() {
         File[] subDirsList = tableRootDir.listFiles();
@@ -177,7 +175,6 @@ public class StoreableTable implements Table {
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            changedKeys.add(key);
             tableIndexedData.put(key, value);
         }
         return oldValue;
@@ -198,7 +195,6 @@ public class StoreableTable implements Table {
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            removedKeys.add(key);
         }
         return oldValue;
     }
@@ -223,8 +219,6 @@ public class StoreableTable implements Table {
     @Override
     public int commit() throws IOException {
         int numberOfCommittedChanges = uncommittedChanges();
-        changedKeys.clear();
-        removedKeys.clear();
         Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
         Iterator<Map.Entry<String, Storeable>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
@@ -270,8 +264,6 @@ public class StoreableTable implements Table {
     @Override
     public int rollback() {
         int numberOfRolledChanges = uncommittedChanges();
-        changedKeys.clear();
-        removedKeys.clear();
         tableIndexedData.clear();
         tableIndexedData.putAll(tableOnDisk);
         for (int nDir = 0; nDir < 16; ++nDir) {
@@ -306,10 +298,27 @@ public class StoreableTable implements Table {
     }
 
     public int uncommittedChanges() {
-        int count = changedKeys.size();
-        Iterator<String> iter = removedKeys.iterator();
-        while (iter.hasNext()) {
-            if (!changedKeys.contains(iter.next())) {
+        Set<Map.Entry<String, Storeable>> indexedSet = tableIndexedData.entrySet();
+        Set<Map.Entry<String, Storeable>> diskSet = tableOnDisk.entrySet();
+        int count = 0;
+        Iterator<Map.Entry<String, Storeable>> iter1 = indexedSet.iterator();
+        Iterator<Map.Entry<String, Storeable>> iter2 = diskSet.iterator();
+        while (iter1.hasNext()) {
+            Map.Entry<String, Storeable> next = iter1.next();
+            Storeable entryOnDisk = tableOnDisk.get(next.getKey());
+            if (entryOnDisk == null) {
+                //записи на диске нет, то она изменение
+                ++count;
+            } else if (!entryOnDisk.equals(next.getValue())) {
+                //запись на диске есть, но она другая, тоже изменение
+                ++count;
+            }
+        }
+        while (iter2.hasNext()) {
+            Map.Entry<String, Storeable> next = iter2.next();
+            Storeable entryIndexed = tableIndexedData.get(next.getKey());
+            if (entryIndexed == null) {
+                //на диске есть, индексированной нет, изменение
                 ++count;
             }
         }
