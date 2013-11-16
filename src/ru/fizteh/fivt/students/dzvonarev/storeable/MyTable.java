@@ -134,14 +134,12 @@ public class MyTable implements Table {
             long endOfFile = fileReader.length();
             long currFilePosition = fileReader.getFilePointer();
             if (endOfFile == 0) {
-                closeFile(fileReader);
                 throw new RuntimeException("reading directory: " + dir + " is not valid");
             }
             while (currFilePosition != endOfFile) {
                 int keyLen = fileReader.readInt();
                 int valueLen = fileReader.readInt();
                 if (keyLen <= 0 || valueLen <= 0) {
-                    closeFile(fileReader);
                     throw new RuntimeException(fileName + " : file is broken");
                 }
                 byte[] keyByte;
@@ -157,7 +155,6 @@ public class MyTable implements Table {
                 String key = new String(keyByte);
                 String value = new String(valueByte);
                 if (!keyIsValid(key, dir, file)) {
-                    closeFile(fileReader);
                     throw new RuntimeException("file " + file + " in " + dir + " is not valid");
                 }
                 Storeable storeable = tableProvider.deserialize(this, value);
