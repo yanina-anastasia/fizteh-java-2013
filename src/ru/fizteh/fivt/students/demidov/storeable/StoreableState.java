@@ -40,7 +40,7 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 			throw new IOException(catchedException);
 		}
 		if (createdTable == null) {
-			throw new IOException(tableName + " exists");
+			throw new IllegalStateException(tableName + " exists");
 		}
 	}
 	
