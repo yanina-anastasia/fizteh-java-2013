@@ -138,6 +138,7 @@ public class MyTableProvider implements TableProvider {
         while (i.hasNext()) {
             Map.Entry<String, MyTable> currItem = i.next();
             MyTable value = currItem.getValue();
+            value.clearTable();
             value.writeInTable();
         }
     }

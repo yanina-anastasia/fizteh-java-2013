@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.dzvonarev.storeable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.dzvonarev.shell.Remove;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -116,7 +117,8 @@ public class MyTable implements Table {
                 File dbDirTable = new File(tableFile.getAbsolutePath(), dbDir);
                 String[] dbDats = dbDirTable.list();
                 if (dbDats == null || dbDats.length == 0) {
-                    throw new RuntimeException("table " + getName() + " is not valid: directory " + dbDirTable + " is empty");
+                    throw new RuntimeException("table " + getName()
+                            + " is not valid: directory " + dbDirTable + " is empty");
                 }
                 for (String dbDat : dbDats) {
                     String str = tableFile.getAbsolutePath() + File.separator + dbDir + File.separator + dbDat;
@@ -127,7 +129,8 @@ public class MyTable implements Table {
     }
 
     /* READING FILEMAP */
-    public void readMyFileMap(String fileName, String dir, String file) throws IOException, RuntimeException, ParseException {
+    public void readMyFileMap(String fileName, String dir, String file)
+            throws IOException, RuntimeException, ParseException {
         RandomAccessFile fileReader = null;
         try {
             fileReader = openFileForRead(fileName);
@@ -383,9 +386,34 @@ public class MyTable implements Table {
         return countSize() + fileMap.size();
     }
 
+    public void clearTable() throws IOException {
+        String currentPath = tableFile.getAbsolutePath();
+        String[] dirs = tableFile.list();
+        for (String dir : dirs) {         /* CLEANING */
+            if (new File(currentPath, dir).isFile()) {
+                continue;
+            }
+            Remove rm = new Remove();
+            ArrayList<String> myArgs = new ArrayList<>();
+            myArgs.add(currentPath + File.separator + dir);
+            myArgs.add("notFromShell");
+            rm.execute(myArgs);
+            if (!(new File(currentPath, dir)).mkdir()) {
+                throw new IOException("exit: can't make " + dir + " directory");
+            }
+        }
+    }
+
+    public void saveChangesOnHard() throws IOException {
+        clearTable();
+        writeInTable();
+    }
+
+
     @Override
-    public int commit() throws IndexOutOfBoundsException {
+    public int commit() throws IndexOutOfBoundsException, IOException {
         modifyFileMap();
+        saveChangesOnHard();
         int count = getCountOfChanges();
         changesMap.clear();
         return count;
@@ -450,6 +478,5 @@ public class MyTable implements Table {
         }
         return type.get(columnIndex);
     }
-
 
 }

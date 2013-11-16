@@ -47,7 +47,8 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
         if (value.getClass() != columnTypes.get(columnIndex)) {
-            throw new ColumnFormatException("wrong type (value " + value + " got invalid type in " + columnIndex + " column)");
+            throw new ColumnFormatException("wrong type (value " + value
+                    + " got invalid type in " + columnIndex + " column)");
         }
         column.set(columnIndex, value);
     }
