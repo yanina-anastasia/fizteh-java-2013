@@ -115,7 +115,8 @@ public class MyTableTest {
     public void testPutOverwrite() throws Exception {
         Value temp = (Value) provider.deserialize(table, "[\"bottom\",100500]");
         table.put("a", temp);
-        Assert.assertEquals(temp, table.put("a", provider.deserialize(table, "[\"BOTTOM\",100500]")));
+        Assert.assertEquals("[\"bottom\",100500]",
+                provider.serialize(table, table.put("a", provider.deserialize(table, "[\"BOTTOM\",100500]"))));
     }
 
     @Test
@@ -127,7 +128,7 @@ public class MyTableTest {
     public void testRemoveSimple() throws Exception {
         Value temp = (Value) provider.deserialize(table, "[\"bottom\",100500]");
         table.put("a", temp);
-        Assert.assertEquals(temp, table.remove("a"));
+        Assert.assertEquals("[\"bottom\",100500]", provider.serialize(table, table.remove("a")));
     }
 
     @Test
@@ -139,10 +140,10 @@ public class MyTableTest {
     public void testGetSimple() throws Exception {
         Value b = (Value) provider.deserialize(table, "[\"b\",1]");
         table.put("a", b);
-        Assert.assertEquals(b, table.get("a"));
+        Assert.assertEquals("[\"b\",1]", provider.serialize(table, table.get("a")));
         Value c = (Value) provider.deserialize(table, "[\"c\",2]");
         table.put("РусскиеБуковкиТожеПоддерживаются", c);
-        Assert.assertEquals(c, table.get("РусскиеБуковкиТожеПоддерживаются"));
+        Assert.assertEquals("[\"c\",2]", provider.serialize(table, table.get("РусскиеБуковкиТожеПоддерживаются")));
     }
 
     @Test
@@ -151,7 +152,7 @@ public class MyTableTest {
         Value c = (Value) provider.deserialize(table, "[\"c\",2]");
         table.put("a", b);
         table.put("a", c);
-        Assert.assertEquals(c, table.get("a"));
+        Assert.assertEquals("[\"c\",2]", provider.serialize(table, table.get("a")));
     }
 
     @Test
@@ -160,7 +161,7 @@ public class MyTableTest {
         Value d = (Value) provider.deserialize(table, "[\"d\",3]");
         table.put("a", b);
         table.put("c", d);
-        Assert.assertEquals(d, table.get("c"));
+        Assert.assertEquals("[\"d\",3]", provider.serialize(table, table.get("c")));
         table.remove("c");
         Assert.assertNull(table.get("c"));
     }
@@ -193,7 +194,7 @@ public class MyTableTest {
         Value b = (Value) provider.deserialize(table, "[\"b\",1]");
         table.put("a", b);
         Assert.assertEquals(1, table.commit());
-        Assert.assertEquals(b, table.get("a"));
+        Assert.assertEquals("[\"b\",1]", provider.serialize(table, table.get("a")));
     }
 
     @Test
@@ -203,7 +204,7 @@ public class MyTableTest {
         table.commit();
         table.remove("useful");
         table.rollback();
-        Assert.assertEquals(veryImportantValue, table.get("useful"));
+        Assert.assertEquals("[\"importantValue\",65534]", provider.serialize(table, table.get("useful")));
     }
 
     @Test

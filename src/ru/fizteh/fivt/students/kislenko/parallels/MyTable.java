@@ -20,7 +20,6 @@ public class MyTable implements Table {
     private ArrayList<Class<?>> types;
     private HashMap<String, Storeable> storage;
     private boolean[][] globalUses;
-    private long byteSize;
     private int revision;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -59,7 +58,6 @@ public class MyTable implements Table {
         name = tableName;
         provider = parent;
         storage = new HashMap<String, Storeable>();
-        byteSize = 0;
         revision = 0;
         globalUses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
@@ -123,8 +121,12 @@ public class MyTable implements Table {
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
         uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
         Storeable v = get(key);
-        Storeable copyOfValue
-        changes.get().put(key, value);
+        String copyOfKey = "".concat(key);
+        Storeable copyOfValue = provider.createFor(this);
+        for (int i = 0; i < types.size(); ++i) {
+            copyOfValue.setColumnAt(i, value.getColumnAt(i));
+        }
+        changes.get().put(copyOfKey, copyOfValue);
         if (storage.get(key) != null &&
                 provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
             changes.get().remove(key);
@@ -214,10 +216,6 @@ public class MyTable implements Table {
         return types.get(columnIndex);
     }
 
-    public boolean isUsing(int nDirectory, int nFile) {
-        return uses.get()[nDirectory][nFile];
-    }
-
     public void clear() {
         storage.clear();
         changes.get().clear();
@@ -230,23 +228,6 @@ public class MyTable implements Table {
     public Path getPath() {
         return Paths.get(name);
     }
-
-    public void setByteSize(long newSize) {
-        byteSize = newSize;
-    }
-
-    public long getByteSize() {
-        return byteSize;
-    }
-
-    public int getChangeCount() {
-        return changes.get().size();
-    }
-
-    public MyTableProvider getProvider() {
-        return provider;
-    }
-
 
     private boolean tryToGetUnnecessaryColumn(Storeable value) {
         try {
