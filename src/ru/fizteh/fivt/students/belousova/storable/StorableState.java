@@ -42,6 +42,7 @@ public class StorableState extends MultiFileShellState {
         tableProvider.createTable(name, columnTypes);
         return true;
     }
+
     @Override
     public void removeTable(String name) {
         try {

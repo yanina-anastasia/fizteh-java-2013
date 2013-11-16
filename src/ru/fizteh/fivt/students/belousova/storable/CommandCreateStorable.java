@@ -1,11 +1,8 @@
 package ru.fizteh.fivt.students.belousova.storable;
 
 import ru.fizteh.fivt.students.belousova.shell.Command;
-import ru.fizteh.fivt.students.belousova.utils.StorableUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CommandCreateStorable implements Command {
     StorableState state = null;
