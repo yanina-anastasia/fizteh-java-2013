@@ -186,6 +186,14 @@ public class FileMapTable implements Table {
         return true;
     }
 
+    private Storeable copyStoreable(Storeable source) {
+        Storeable copy = provider.createFor(this);
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            copy.setColumnAt(i, source.getColumnAt(i));
+        }
+        return copy;
+    }
+
     private void readSignature() throws IOException {
         File signature = new File(currentFileMapTable, "signature.tsv");
         if (!signature.exists()) {
@@ -272,16 +280,17 @@ public class FileMapTable implements Table {
         checkValueCorrectness(value);
         try {
             read.lock();
+            Storeable valueCopy = copyStoreable(value);
             Storeable valueOnDisk = onDiskValue(key);
             Storeable valueChanged = changedKeys.get().get(key);
             if (!changedKeys.get().containsKey(key)) {
-                changedKeys.get().put(key, value);
+                changedKeys.get().put(key, valueCopy);
                 return valueOnDisk;
             }
-            if (storeableEquals(value, valueOnDisk)) {
+            if (storeableEquals(valueCopy, valueOnDisk)) {
                 changedKeys.get().remove(key);
             } else {
-                changedKeys.get().put(key, value);
+                changedKeys.get().put(key, valueCopy);
             }
             return valueChanged;
         } finally {
