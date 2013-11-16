@@ -143,12 +143,8 @@ public class NewTable implements Table {
             }
         }
         if (count != 0) {
-            try {
-                if (provider.getCurrentTableFile() != null) {
-                    provider.saveChanges(this);
-                }
-            } catch (IOException e) {
-                throw new IOException(e.getMessage(), e);
+            if (provider.getCurrentTableFile() != null) {
+                provider.saveChanges(this);
             }
         } else {
             return 0;
