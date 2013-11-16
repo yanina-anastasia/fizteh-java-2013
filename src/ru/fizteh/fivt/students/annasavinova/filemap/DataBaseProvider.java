@@ -320,13 +320,13 @@ public class DataBaseProvider implements TableProvider {
             try {
                 writer.writeStartElement("row");
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
-                    writer.writeStartElement("col");
                     if (value.getColumnAt(i) == null) {
-                        writer.writeCharacters("null");
+                        writer.writeEmptyElement("null");
                     } else {
+                        writer.writeStartElement("col");
                         writer.writeCharacters(value.getColumnAt(i).toString());
+                        writer.writeEndElement();
                     }
-                    writer.writeEndElement();
                 }
                 writer.writeEndElement();
             } finally {
