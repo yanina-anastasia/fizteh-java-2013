@@ -3,7 +3,8 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.*;
-
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 
 import static org.junit.Assert.*;
@@ -13,11 +14,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 
+public class TesterOfTable {
 
-public class TesterOfTableProviderFactoryAndTableProvider {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     private File mainDir;
@@ -25,13 +25,44 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     private File goodTableSign;
     private File badTableEmpty;
     private File badTableEmptySign;
-    private TableProviderFactory factory;
+    private ru.fizteh.fivt.storage.structured.TableProviderFactory factory;
     private ArrayList<Class<?>> goodTypeList;
     private ArrayList<Object> goodValueList;
     private ArrayList<Object> wrongValueList;
+    private TableProvider provider;
+    private Table table;
+    private final String goodStrVal
+            = "<row><col>12</col><col>12</col><null/><col>12.2</col><col>12.2</col><col>true</col><null/></row>";
 
     @Before
     public void before() {
+        factory = new TableManagerFactory();
+        goodTypeList = new ArrayList<>();
+        goodTypeList.add(Integer.class);
+        goodTypeList.add(Byte.class);
+        goodTypeList.add(Long.class);
+        goodTypeList.add(Float.class);
+        goodTypeList.add(Double.class);
+        goodTypeList.add(Boolean.class);
+        goodTypeList.add(String.class);
+        goodValueList = new ArrayList<Object>();
+        Integer integ = 12;
+        Float fl = new Float(12.2);
+        goodValueList.add(integ);
+        goodValueList.add(integ.byteValue());
+        goodValueList.add(null);
+        goodValueList.add(fl);
+        goodValueList.add(fl.doubleValue());
+        goodValueList.add(true);
+        goodValueList.add(null);
+        wrongValueList = new ArrayList<Object>();
+        wrongValueList.add(integ);
+        wrongValueList.add(integ.byteValue());
+        wrongValueList.add(integ.longValue());
+        wrongValueList.add(integ.floatValue());
+        wrongValueList.add(integ.doubleValue());
+        wrongValueList.add("123");
+        wrongValueList.add(true);
         try {
             mainDir = folder.newFolder("mainDir");
             goodTable = new File(mainDir, "goodTable");
@@ -62,37 +93,13 @@ public class TesterOfTableProviderFactoryAndTableProvider {
             } catch (IOException e) {
                 throw new IOException("Reading error: signature.tsv", e);
             }
+            provider = factory.create(mainDir.toString());
+            table = provider.getTable("goodTable");
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(e.toString());
             System.exit(1);
         }
-        factory = new TableManagerFactory();
-        goodTypeList = new ArrayList<>();
-        goodTypeList.add(Integer.class);
-        goodTypeList.add(Byte.class);
-        goodTypeList.add(Long.class);
-        goodTypeList.add(Float.class);
-        goodTypeList.add(Double.class);
-        goodTypeList.add(Boolean.class);
-        goodTypeList.add(String.class);
-        goodValueList = new ArrayList<Object>();
-        Integer integ = 12;
-        goodValueList.add(integ);
-        goodValueList.add(integ.byteValue());
-        goodValueList.add(integ.longValue());
-        goodValueList.add(integ.floatValue());
-        goodValueList.add(integ.doubleValue());
-        goodValueList.add(true);
-        goodValueList.add("123");
-        wrongValueList = new ArrayList<Object>();
-        wrongValueList.add(integ);
-        wrongValueList.add(integ.byteValue());
-        wrongValueList.add(integ.longValue());
-        wrongValueList.add(integ.floatValue());
-        wrongValueList.add(integ.doubleValue());
-        wrongValueList.add("123");
-        wrongValueList.add(true);
     }
 
     @After
@@ -101,475 +108,188 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableManagerByNullStringShouldFail() {
-        TableProviderFactory factory = new TableManagerFactory();
-        try {
-            TableProvider obj = factory.create(null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
+    @Test
+    public void correctGetNameShouldEquals() throws Exception {
+        assertEquals(goodTable.getName(), table.getName());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createdTableByNullStringShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable(null, goodTypeList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
+    public void getNullKeyShouldFail() {
+        table.get(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createdTableByNullTypeListShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable("table", null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
+    public void getSpaceKeyShouldFail() {
+        table.get("");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createdTableWrongTypeListShouldFail() {
+    @Test
+    public void getExistingKey() {
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            goodTypeList.add(Short.class);
-            provider.createTable("table", goodTypeList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createdTableByEmptyTypeListShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable("table", new ArrayList<Class<?>>());
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableSpaceNameShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable(" ", goodTypeList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableBadCharInNameShouldFail1() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable("a/b", goodTypeList);
-        } catch (IOException e) {
-                fail();
-                e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableBadCharInNameShouldFail2() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable("a\\b", goodTypeList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableBadCharInNameShouldFail3() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable("..", goodTypeList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createTableBadCharInNameShouldFail4() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createTable(".", goodTypeList);
-        } catch (IOException e) {
+            Storeable stor = provider.deserialize(table, goodStrVal);
+            Storeable s = table.put("key", stor);
+            assertEquals("Не работает serialize и/или deserialize", provider.serialize(table, stor), goodStrVal);
+            assertNull("Не работает serialize и/или deserialize и/или put", s);
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
     }
 
     @Test
-    public void createExistingTableShouldReturnNull() {
+    public void getPutGetOverwriteRemoveGetRemovedNonexistentKeyShouldNull() {
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            assertNull("Не работает createTable: не находит существующую таблицу",
-                    provider.createTable(goodTable.getName(), goodTypeList));
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void getSpaceTableShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable("\n");
-        } catch (IOException e) {
+            Storeable stor = provider.deserialize(table, goodStrVal);
+            Storeable s = table.put("key", stor);
+            Storeable got = table.get("key");
+            Storeable over = table.put("key", stor);
+            Storeable r = table.remove("key");
+            assertEquals("Не работает serialize и/или deserialize", provider.serialize(table, stor), goodStrVal);
+            assertNull("Не работает  put", s);
+            assertEquals("Не работает put или get ", provider.serialize(table, got), goodStrVal);
+            assertEquals("Не работает put", provider.serialize(table, over), goodStrVal);
+            assertEquals("Не работает remove", provider.serialize(table, stor), goodStrVal);
+            assertNull("Не работает get на отсутствующее значение или remove", table.get("key"));
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getTableManagerByEmptyListShouldFail() {
-        TableProviderFactory factory = new TableManagerFactory();
-
+    public void putNullKeyShouldFail() {
+        Storeable stor = null;
         try {
-            TableProvider obj = factory.create(null);
-        } catch (IOException e) {
+            stor = provider.deserialize(table, goodStrVal);
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
+        table.put(null, stor);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getNullNameTableShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
+    public void putNullValueShouldFail() {
+        table.put("p", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getTableWithoutSignFileShouldFail() {
+    public void putSpaceKeyShouldFail() {
+        Storeable stor = null;
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(badTableEmpty.getName());
-        } catch (IOException e) {
+            stor = provider.deserialize(table, goodStrVal);
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void getTableWithWrongSignFileShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(badTableEmpty.getName());
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void getExistingTableGetNameShouldRefAndCorrectName() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            assertNotNull("не работает getTable()", table);
-            assertEquals("не работает getTable() или getName()", table.getName(), goodTable.getName());
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void getNonexistentTableGetNameShouldRefAndCorrectName() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            assertNull("не работает getTable() : возвращает не null от несуществующий таблицы",
-                    provider.getTable("nonexistentTable"));
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void doubleGetTableEquals() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            assertEquals("не работает getTable(): вызванное дважды с тем же аргументов возвращает разные объекты",
-                    provider.getTable(goodTable.getName()), provider.getTable(goodTable.getName()));
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableByNullStringShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable(null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableNlShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable("\t");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableBadCharInNameShouldFail1() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable("a/b");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableBadCharInNameShouldFail2() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable("a\\b");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableBadCharInNameShouldFail3() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable(".");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void removeTableBadCharInNameShouldFail4() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable("..");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test(expected = IllegalStateException.class)
-    public void removeNonexistentTableShouldFail() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.removeTable("nonexistentTable");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void deserializeNullOrEmptyOrNlString() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            assertNotNull("не работает getTable для существующей таблицы", table);
-            provider.deserialize(table, null);
-            provider.deserialize(table, "");
-            provider.deserialize(table, "\n");
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        } catch (ParseException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = ParseException.class)
-    public void deserializeIncorrectStringEmptyElement() throws Exception {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            assertNotNull("не работает getTable для существующей таблицы", table);
-            provider.deserialize(table, "<row></row>");
-    }
-
-    @Test(expected = ParseException.class)
-    public void deserializeIncorrectStringWrongNumberOfColumn() throws Exception {
-        TableProvider provider = factory.create(mainDir.toString());
-        Table table = provider.getTable(goodTable.getName());
-        assertNotNull("не работает getTable для существующей таблицы", table);
-        provider.deserialize(table, "<row><null/><null/><null/><null/></row>");
-    }
-
-    @Test(expected = ParseException.class)
-    public void deserializeIncorrectStringWrongNumberOfColumn2() throws Exception {
-        TableProvider provider = factory.create(mainDir.toString());
-        Table table = provider.getTable(goodTable.getName());
-        assertNotNull("не работает getTable для существующей таблицы", table);
-        provider.deserialize(table, "<row><col>12</col></row>");
+        table.put("  ", stor);
     }
 
     @Test(expected = ColumnFormatException.class)
-    public void deserializeIncorrectStringWrongTypeColumn() throws Exception {
-        TableProvider provider = factory.create(mainDir.toString());
-        Table table = provider.getTable(goodTable.getName());
-        assertNotNull("не работает getTable для существующей таблицы", table);
-        provider.deserialize(table, "<row><col>12.3</col><null/><col> value </col><null/><null/><null/><null/></row>");
+    public void putValueWrongTypeShouldFail() {
+        Table other = null;
+        Storeable stor = null;
+        ArrayList<Class<?>> oth = new ArrayList<>(goodTypeList);
+        oth.add(String.class);
+        try {
+            other = provider.createTable("other", oth);
+            stor = provider.deserialize(table, goodStrVal);
+        } catch (Exception e) {
+            fail();
+            e.printStackTrace();
+        }
+        other.put("key", stor);
     }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeNullKeyShouldFail() {
+        table.remove(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void removeSpaceKeyShouldFail() {
+        table.remove(" ");
+    }
+
+    @Test
+    public void removeNonexistentKeyShouldNull() {
+        table.remove("key");
+        assertNull("Неправильно работает remove или get", table.get("key"));
+        assertNull(table.remove("key"));
+    }
+
 
 
     @Test
-    public void deserializeCorrect() throws Exception {
-        TableProvider provider = factory.create(mainDir.toString());
-        Table table = provider.getTable(goodTable.getName());
-        assertNotNull("не работает getTable для существующей таблицы", table);
-        Storeable stor = provider.deserialize(table,
-                "<row><col>12</col><col>29</col><col>1234678</col><null/><null/><null/><col>value</col></row>");
-        assertNotNull("не работает deserialize для корректного значения", stor);
-        assertEquals("не работают deserialize или serialize для корректных значений", provider.serialize(table, stor),
-                "<row><col>12</col><col>29</col><col>1234678</col><null/><null/><null/><col>value</col></row>");
+    public void putPutPutCommitAndCountSize() {
+        try {
+            ArrayList<Class<?>> classList = new ArrayList<>();
+            ArrayList<Object> objList = new ArrayList<>();
+            objList.add("value");
+            classList.add(String.class);
+            Table t = provider.createTable("newTable", classList);
+            int nBefore = t.size();
+            Storeable v1 = provider.createFor(t, objList);
+            Storeable v2 = provider.createFor(t, objList);
+            Storeable v3 = provider.createFor(t, objList);
+            t.put("new1", v1);
+            t.put("new2", v2);
+            t.put("new3", v3);
+            int commitSize = t.commit();
+            int nAfter = t.size();
+            assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
+            assertEquals("неправильно работает commit", 3, commitSize);
+            assertEquals("не правильно работает get или put возвращает неправильное старое значение",
+                    t.put("new1", v1).getStringAt(0), "value");
+            assertEquals("после добавления того же значения изменился размер таблицы", nAfter, table.size());
+        } catch (IOException e) {
+            fail();
+            e.printStackTrace();
+        }
     }
-
 
     @Test
-    public void deserializeCorrect2() throws Exception {
-        TableProvider provider = factory.create(mainDir.toString());
-        Table table = provider.getTable(goodTable.getName());
-        assertNotNull("не работает getTable для существующей таблицы", table);
-        Storeable stor = provider.deserialize(table,
-                "<row><col>12</col><col>29</col><null/><col>12.2</col><col>12.2</col><col>true</col><null/></row>");
-        assertNotNull("не работает deserialize для корректного значения", stor);
-        assertEquals("не работают deserialize или serialize для корректных значений", provider.serialize(table, stor),
-                "<row><col>12</col><col>29</col><null/><col>12.2</col><col>12.2</col><col>true</col><null/></row>");
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void deserializeNullTable() {
+    public void commitEmpty() {
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            assertNotNull("не работает getTable для существующей таблицы", table);
-            provider.deserialize(table, null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        } catch (ParseException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createForNullTable() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createFor(null);
+            table.commit();
+            assertEquals(table.commit(), 0);
         } catch (IOException e) {
             fail();
             e.printStackTrace();
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createForNullTableWithList() {
+    @Test
+    public void commitRollback() {
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            provider.createFor(null, goodValueList);
+            table.commit();
+            assertEquals(table.rollback(), 0);
         } catch (IOException e) {
             fail();
             e.printStackTrace();
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createForNullList() {
+    @Test
+    public void putPutPutRollbackAndCountSize() {
         try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            provider.createFor(table, null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createForEmptyList() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            provider.createFor(table, new ArrayList<Object>());
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void createForWrongLengthList() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            ArrayList<Object> array = new ArrayList<Object>();
-            array.add("123");
-            provider.createFor(table, array);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void createForWrongList2() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            provider.createFor(table, wrongValueList);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void createForWrongLengthListShouldBoundIndex() {
-        try {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            goodValueList.add("456");
-            provider.createFor(table, goodValueList);
+            ArrayList<Class<?>> classList = new ArrayList<>();
+            ArrayList<Object> objList = new ArrayList<>();
+            objList.add(new Long(123));
+            classList.add(Long.class);
+            Table t = provider.createTable("newTable", classList);
+            int nBefore = t.size();
+            Storeable v1 = provider.createFor(t, objList);
+            Storeable v2 = provider.createFor(t, objList);
+            Storeable v3 = provider.createFor(t, objList);
+            t.put("new1", v1);
+            t.put("new2", v2);
+            t.put("new3", v3);
+            int nAfter = t.size();
+            int commitSize = t.rollback();
+            assertEquals("неправильный подсчёт элементов", 3, nAfter - nBefore);
+            assertEquals("неправильно работает commit", 3, commitSize);
         } catch (IOException e) {
             fail();
             e.printStackTrace();
