@@ -48,7 +48,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public int changeCurrentTable(String newTable) {
-        File newDirectory = new File(workingDirectory + File.separator + newTable);
+        File newDirectory = new File(workingDirectory, newTable);
         if (!newDirectory.exists() || newDirectory.exists() && newDirectory.isFile()) {
             return -1;
         } else {
@@ -126,17 +126,11 @@ public class MyTableProvider implements TableProvider {
 
 
     public void writeAll() throws IOException {
-        if (multiFileMap == null) {
+        if (multiFileMap == null || multiFileMap.isEmpty()) {
             return;
-        } else {
-            if (multiFileMap.isEmpty()) {
-                return;
-            }
         }
         Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
-        Iterator<Map.Entry<String, MyTable>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, MyTable> currItem = i.next();
+        for (Map.Entry<String, MyTable> currItem : fileSet) {
             MyTable value = currItem.getValue();
             value.clearTable();
             value.writeInTable();

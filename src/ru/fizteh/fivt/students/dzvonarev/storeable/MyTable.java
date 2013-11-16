@@ -218,7 +218,7 @@ public class MyTable implements Table {
 
     public void checkingValueForValid(Storeable value) throws ColumnFormatException {
         try {
-            value.getColumnAt(getColumnsCount());
+            value.getColumnAt(getColumnsCount());   // to check, if value has more columns then types
             throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + ")");
         } catch (IndexOutOfBoundsException ignored) {
         }
@@ -235,17 +235,11 @@ public class MyTable implements Table {
     }
 
     public void writeInTable() throws IOException {
-        if (fileMap == null) {
+        if (fileMap == null || fileMap.isEmpty()) {
             return;
-        } else {
-            if (fileMap.isEmpty()) {
-                return;
-            }
         }
         Set<Map.Entry<String, Storeable>> fileSet = fileMap.entrySet();
-        Iterator<Map.Entry<String, Storeable>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, Storeable> currItem = i.next();
+        for (Map.Entry<String, Storeable> currItem : fileSet) {
             String key = currItem.getKey();
             Storeable value = currItem.getValue();
             int b = key.getBytes()[0];
@@ -389,7 +383,7 @@ public class MyTable implements Table {
     public void clearTable() throws IOException {
         String currentPath = tableFile.getAbsolutePath();
         String[] dirs = tableFile.list();
-        for (String dir : dirs) {         /* CLEANING */
+        for (String dir : dirs) {
             if (new File(currentPath, dir).isFile()) {
                 continue;
             }
@@ -409,7 +403,6 @@ public class MyTable implements Table {
         writeInTable();
     }
 
-
     @Override
     public int commit() throws IndexOutOfBoundsException, IOException {
         modifyFileMap();
@@ -425,9 +418,7 @@ public class MyTable implements Table {
             return;
         }
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
+        for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
             if (!equals(value.newValue, value.oldValue)) {
                 if (value.newValue == null) {
@@ -445,9 +436,7 @@ public class MyTable implements Table {
         }
         int size = 0;
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
+        for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
             if (value.oldValue == null && value.newValue != null) {
                 ++size;

@@ -60,7 +60,7 @@ public class Parser {
     }
 
     public List<String> getTypesFrom(String str) throws ParseException {
-        List<String> temp = new ArrayList();
+        List temp = new ArrayList();
         if (str.charAt(0) != '(' || str.charAt(str.length() - 1) != ')') {
             throw new ParseException("wrong type (invalid type of " + str + ")", 0);
         }
@@ -88,30 +88,30 @@ public class Parser {
         if (obj == null || obj.equals(null)) {
             return true;
         }
-        if (obj.getClass() == Integer.class) {
+        if (obj.getClass().equals(Integer.class)) {
             Integer num = (Integer) obj;
-            if (type == Byte.class) {
+            if (type.equals(Byte.class)) {
                 return num >= -128 && num <= 127;
             }
-            return type == Integer.class || type == Long.class || type == Double.class
-                    || type == Float.class;
+            return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Double.class)
+                    || type.equals(Float.class);
         }
-        if (obj.getClass() == Long.class) {
-            return type == Long.class || type == Double.class;
+        if (obj.getClass().equals(Long.class)) {
+            return type.equals(Long.class) || type.equals(Double.class);
         }
-        if (obj.getClass() == Boolean.class) {
-            return type == Boolean.class;
+        if (obj.getClass().equals(Boolean.class)) {
+            return type.equals(Boolean.class);
         }
-        if (obj.getClass() == String.class) {
-            return type == String.class;
+        if (obj.getClass().equals(String.class)) {
+            return type.equals(String.class);
         }
-        if (obj.getClass() == Byte.class) {
-            return type != String.class && type != Boolean.class;
+        if (obj.getClass().equals(Byte.class)) {
+            return !type.equals(String.class) && !type.equals(Boolean.class);
         }
-        if (obj.getClass() == Float.class) {
-            return type == Double.class || type == Float.class;
+        if (obj.getClass().equals(Float.class)) {
+            return type.equals(Double.class) || type.equals(Float.class);
         }
-        return obj.getClass() == Double.class && (type == Double.class) || type == Float.class;
+        return obj.getClass().equals(Double.class) && (type.equals(Double.class) || type.equals(Float.class));
     }
 
 

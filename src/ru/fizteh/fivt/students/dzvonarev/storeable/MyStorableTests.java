@@ -15,7 +15,6 @@ import java.util.List;
 public class MyStorableTests {
 
     private MyStoreable value;
-    private TableProvider provider;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -23,7 +22,7 @@ public class MyStorableTests {
     @Before
     public void test() throws IOException {
         MyTableProviderFactory factory = new MyTableProviderFactory();
-        provider = factory.create(folder.newFolder().getCanonicalPath());
+        TableProvider provider = factory.create(folder.newFolder().getCanonicalPath());
         List<Class<?>> type = new ArrayList<>();
         type.add(Integer.class);
         type.add(String.class);
@@ -131,6 +130,41 @@ public class MyStorableTests {
     @Test(expected = IndexOutOfBoundsException.class)
     public void wrongColumnIndex2() {
         value.getColumnAt(100500);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getDoubleFromBadColumn() {
+        value.getDoubleAt(100499);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getFloatFromBadColumn() {
+        value.getFloatAt(100498);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getByteFromBadColumn() {
+        value.getByteAt(100497);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getStringFromBadColumn() {
+        value.getStringAt(100496);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getBooleanFromBadColumn() {
+        value.getBooleanAt(100495);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getLongFromBadColumn() {
+        value.getLongAt(100494);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getIntFromBadColumn() {
+        value.getIntAt(100493);
     }
 
 }
