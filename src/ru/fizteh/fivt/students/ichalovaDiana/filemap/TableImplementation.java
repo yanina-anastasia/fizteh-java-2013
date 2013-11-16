@@ -191,7 +191,7 @@ public class TableImplementation implements Table {
         int changesNumber = countChanges();
         originTableSize = currentTableSize;
 
-        Throwable t = null;
+        RuntimeException t = null;
         try {
             Storeable value;
             String rawValue;
@@ -205,15 +205,10 @@ public class TableImplementation implements Table {
                 removeValueFromFile(key);
             }
         } catch (Throwable e) {
-            if (t == null) {
-                t = new Throwable();
-            }
-            t.addSuppressed(e);
+            t = new RuntimeException((e.getMessage() != null) ? e.getMessage() : "unknown error", e);
+            throw t;
         } finally {
             closeAllFiles(t);
-            if (t != null) {
-                throw new RuntimeException(t);
-            }
         }
 
         putChanges.clear();
