@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.inaumov.storeable;
 
 import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -40,15 +41,22 @@ public class StoreableUtils {
 
     public static TableInfo parseCreateCommand(String arguments) {
         TableInfo tableInfo = null;
-        String[] columnTypesNames = arguments.split("\\s+");
-        if (columnTypesNames.length <= 1) {
-            throw new IllegalArgumentException("error: can't parse arguments");
+
+        String tableName = arguments.split("\\s+")[0];
+        arguments = arguments.replaceAll("\\s+", " ");
+
+        int spaceFirstEntryIndex = arguments.indexOf(' ');
+        if (spaceFirstEntryIndex == -1) {
+            throw new IllegalArgumentException("error: select column value types");
         }
 
-        String tableName = columnTypesNames[0];
+        String columnTypesString = arguments.substring(spaceFirstEntryIndex).replaceAll("\\((.*)\\)", "$1");
+
+        String[] columnTypesNames = Shell.parseCommandParameters(columnTypesString);
+
         tableInfo = new TableInfo(tableName);
 
-        for (int i = 1; i < columnTypesNames.length; ++i) {
+        for (int i = 0; i < columnTypesNames.length; ++i) {
             tableInfo.addColumn(TypesFormatter.getTypeByName(columnTypesNames[i]));
         }
 
