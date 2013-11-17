@@ -28,6 +28,7 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 			throw new IllegalArgumentException("incorrect column types");
 		}
 
+		providerLock.writeLock().lock();
 		if (tables.containsKey(name)) {
 			return null;
 		} else {
@@ -57,7 +58,12 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 				throw new IllegalStateException(catchedException);
 			}
 		}	
-		return tables.get(name);
+		
+		try {
+			return tables.get(name);
+		} finally {
+			providerLock.writeLock().unlock();
+		}
 	}
 
 	public StoreableImplementation deserialize(Table table, String value) throws ParseException {

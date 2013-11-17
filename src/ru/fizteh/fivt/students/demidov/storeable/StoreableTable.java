@@ -49,7 +49,7 @@ public class StoreableTable extends BasicTable<Storeable> implements Table {
 		}
 		throw new ColumnFormatException("wrong storeable");
 	}
-
+	
 	public int getColumnsCount() {
 		return columnClasses.size();
 	}
