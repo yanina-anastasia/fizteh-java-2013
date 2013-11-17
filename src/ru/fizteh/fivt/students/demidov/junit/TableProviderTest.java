@@ -10,6 +10,8 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.Table;
 
 public class TableProviderTest {
+	private TableProviderImplementation currentProvider;
+	
 	@Before
 	public void setUp() {
 		try {
@@ -75,6 +77,4 @@ public class TableProviderTest {
 	public void removeTableWithNullParameter() {
 		currentProvider.removeTable(null);
 	}
-	
-	private TableProviderImplementation currentProvider;
 } 

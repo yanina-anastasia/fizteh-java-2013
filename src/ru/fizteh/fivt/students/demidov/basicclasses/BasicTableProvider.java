@@ -11,6 +11,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 abstract public class BasicTableProvider<TableType> {
+	protected Map<String, TableType> tables;
+	protected ReadWriteLock providerLock;
+	protected String root;
+	
 	public BasicTableProvider(String root) {
 		tables = new HashMap<String, TableType>();
 		providerLock = new ReentrantReadWriteLock();
@@ -52,8 +56,4 @@ abstract public class BasicTableProvider<TableType> {
 	
 	abstract public TableType createTable(String name);
 	abstract public TableType createTable(String name, List<Class<?>> columnTypes) throws IOException;
-	
-	protected Map<String, TableType> tables;
-	protected ReadWriteLock providerLock;
-	protected String root;
 }

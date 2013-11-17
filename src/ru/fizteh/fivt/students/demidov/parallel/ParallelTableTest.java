@@ -15,6 +15,11 @@ import ru.fizteh.fivt.students.demidov.storeable.StoreableTable;
 import ru.fizteh.fivt.students.demidov.storeable.StoreableTableProvider;
 
 public class ParallelTableTest {
+	private volatile StoreableTable currentTable;
+	private StoreableTableProvider currentProvider;
+	private StoreableImplementation value_1, value_2;
+	private List<Class<?>> type;
+	
 	@Before
 	public void setUp() throws IOException {
 		try {
@@ -90,9 +95,4 @@ public class ParallelTableTest {
 	public void tearDown() {
 		currentProvider.removeTable("createdTable");
 	}  
-	
-	private volatile StoreableTable currentTable;
-	private StoreableTableProvider currentProvider;
-	private StoreableImplementation value_1, value_2;
-	private List<Class<?>> type;
 }

@@ -8,6 +8,10 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.ShellInterruptionException;
 
 public abstract class BasicFileMapCommand implements BasicCommand {
+	protected BasicState currentState;
+	private String commandName;
+	private int argumentsNumber;
+	
 	public BasicFileMapCommand(BasicState currentState, String commandName, int argumentsNumber) {
 		this.currentState = currentState;
 		this.commandName = commandName;
@@ -23,8 +27,4 @@ public abstract class BasicFileMapCommand implements BasicCommand {
 	public String getCommandName() {
 		return commandName;
 	}
-	
-	protected BasicState currentState;
-	private String commandName;
-	private int argumentsNumber;
 }

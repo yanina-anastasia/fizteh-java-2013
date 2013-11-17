@@ -12,6 +12,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
 public class StoreableTest {
+	private StoreableImplementation value;
 	@Before
 	public void setUp() throws IOException {
 		StoreableTableProvider currentProvider = null;
@@ -141,6 +142,4 @@ public class StoreableTest {
 	public void checkNonExistingColumn() {
 		value.getColumnAt(100500);
 	}
-	
-	private StoreableImplementation value;
 } 

@@ -15,6 +15,12 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
 public class StoreableTableProviderTest {
+	private StoreableTableProvider currentProvider;
+	private List<Class<?>> type, incorrectType;
+	private List<Object> value, incorrectValue, shortValue, longValue;
+	private String serializedValue = "<row><col>12</col><col>3.14</col><col>just string</col></row>";
+	private String incorrectSerializedValue = "<row><trouble>12</trouble><a>3.14</a><c>just string</c></row>";
+	
 	@Before
 	public void setUp() throws IOException {
 		try {
@@ -149,10 +155,4 @@ public class StoreableTableProviderTest {
 	public void removeTableWithNullParameter() {
 		currentProvider.removeTable(null);
 	}
-	
-	private StoreableTableProvider currentProvider;
-	private List<Class<?>> type, incorrectType;
-	private List<Object> value, incorrectValue, shortValue, longValue;
-	private String serializedValue = "<row><col>12</col><col>3.14</col><col>just string</col></row>";
-	private String incorrectSerializedValue = "<row><trouble>12</trouble><a>3.14</a><c>just string</c></row>";
 }

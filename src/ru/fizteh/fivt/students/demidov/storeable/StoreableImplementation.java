@@ -8,6 +8,9 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
 public class StoreableImplementation implements Storeable {
+	private List<Object> storableValues;    
+	private Table table;
+	
 	public StoreableImplementation(Table table) {
 		storableValues = new ArrayList<Object>(table.getColumnsCount());
 		for (int position = 0; position < table.getColumnsCount(); ++position) {
@@ -66,8 +69,5 @@ public class StoreableImplementation implements Storeable {
 	public String getStringAt(int columnIndex) throws ColumnFormatException {
 		return (String)getObjectOfClassAt(columnIndex, String.class);
 	}
-	
-	private List<Object> storableValues;    
-	private Table table;
 }
 

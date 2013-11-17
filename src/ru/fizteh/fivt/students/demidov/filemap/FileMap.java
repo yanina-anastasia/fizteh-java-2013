@@ -10,6 +10,11 @@ import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
 import ru.fizteh.fivt.students.demidov.multifilehashmap.MultiFileMapUtils;
 
 public class FileMap<ElementType> {
+	private Map<String, ElementType> currentTable;
+	private String path;
+	private BasicTable<ElementType> table;
+	private Integer ndirectory, nfile;
+	
 	public FileMap(Integer ndirectory, Integer nfile, String path, BasicTable<ElementType> table) {
 		if ((new File(path)).isDirectory()) {
 			path += File.separator + "db.dat";
@@ -147,9 +152,4 @@ public class FileMap<ElementType> {
 			dataBaseFile.close();
 		}
 	}
-	
-	private Map<String, ElementType> currentTable;
-	private String path;
-	private BasicTable<ElementType> table;
-	private Integer ndirectory, nfile;
 }

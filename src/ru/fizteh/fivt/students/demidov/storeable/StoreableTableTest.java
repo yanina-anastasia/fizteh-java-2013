@@ -11,6 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class StoreableTableTest {
+	private StoreableTable currentTable;
+	private StoreableTableProvider currentProvider;
+	private StoreableImplementation value_1, value_2;
+	private List<Class<?>> type;
+	
 	@Before
 	public void setUp() throws IOException {
 		try {
@@ -165,9 +170,4 @@ public class StoreableTableTest {
 	public void tearDown() {
 		currentProvider.removeTable("createdTable");
 	}  
-	
-	private StoreableTable currentTable;
-	private StoreableTableProvider currentProvider;
-	private StoreableImplementation value_1, value_2;
-	private List<Class<?>> type;
 } 

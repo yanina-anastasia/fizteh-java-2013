@@ -9,9 +9,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.fizteh.fivt.students.demidov.multifilehashmap.FilesMap;
-
 abstract public class BasicTable<ElementType> {
+	private volatile FilesMap<ElementType> filesMap;
+	private String tableName;	
+	private ThreadLocal<HashMap<String, ElementType>> putDiff;
+    private ThreadLocal<HashSet<String>> removeDiff;
+    private ReadWriteLock readWriteLock;
+    
 	public BasicTable(String path, String tableName) throws IOException {
 		this.filesMap = new FilesMap<ElementType>(path, this);
 		this.tableName = tableName;
@@ -186,11 +190,5 @@ abstract public class BasicTable<ElementType> {
 	abstract public String serialize(ElementType value) throws IOException;
 	
 	abstract public ElementType deserialize(String value) throws IOException;
-	
-	private volatile FilesMap<ElementType> filesMap;
-	private String tableName;	
-	private ThreadLocal<HashMap<String, ElementType>> putDiff;
-    private ThreadLocal<HashSet<String>> removeDiff;
-    private ReadWriteLock readWriteLock;
 }
 

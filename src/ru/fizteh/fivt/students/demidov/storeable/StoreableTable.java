@@ -11,6 +11,9 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
 
 public class StoreableTable extends BasicTable<Storeable> implements Table {
+	private StoreableTableProvider currentProvider;
+	private List<Class<?>> columnClasses;
+	
 	public StoreableTable(String path, String tableName, StoreableTableProvider currentProvider) throws IOException {
 		super(path, tableName);
 		columnClasses = StoreableUtils.getClasses(path);
@@ -73,7 +76,4 @@ public class StoreableTable extends BasicTable<Storeable> implements Table {
 			throw new WrongTypeException(catchedException);
 		}
 	}
-
-	private StoreableTableProvider currentProvider;
-	private List<Class<?>> columnClasses;
 }
