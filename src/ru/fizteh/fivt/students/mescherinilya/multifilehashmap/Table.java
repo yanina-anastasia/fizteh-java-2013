@@ -181,9 +181,10 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
                 keys.add(key);
 
                 int offset = database.readInt();
-                if (offset <= 0 ||
-                        !offsets.isEmpty() && offset <= offsets.get(offsets.size() - 1)) {
-                    System.out.println(Integer.toHexString(offset) + " " + Integer.toHexString(offsets.get(offsets.size() - 1)));
+                if (offset <= 0
+                        || !offsets.isEmpty() && offset <= offsets.get(offsets.size() - 1)) {
+                    System.out.println(Integer.toHexString(offset) + " "
+                            + Integer.toHexString(offsets.get(offsets.size() - 1)));
                     throw new IncorrectFileFormatException("Bad offset value");
                 }
                 offsets.add(offset);
@@ -281,7 +282,7 @@ public class Table implements ru.fizteh.fivt.storage.strings.Table {
             File currentDir = new File(path + File.separator + dirName);
             if (dirStorage.get(i).isEmpty()) {
                 if (currentDir.exists()) {
-                    File listOfInternals[] = currentDir.listFiles();
+                    File[] listOfInternals = currentDir.listFiles();
                     for (File internal : listOfInternals) {
 
                         if (!internal.delete()) {

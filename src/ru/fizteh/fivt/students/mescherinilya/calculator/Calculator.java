@@ -17,8 +17,8 @@ public class Calculator {
         }
         return
                 op == '+' || op == '-' ? 1
-                        : op == '*' || op == '/' || op == '%' ? 2 :
-                        -1;
+                        : op == '*' || op == '/' || op == '%' ? 2
+                        : -1;
     }
 
     private static void executeOperation(Deque<Integer> numbers, Integer op) {
@@ -31,6 +31,7 @@ public class Calculator {
                 case (int) '-':
                     numbers.push(-operand);
                     break;
+                default:
             }
         } else {
             Integer right = numbers.pop();
@@ -73,6 +74,7 @@ public class Calculator {
                     }
                     numbers.push(left % right);
                     break;
+                default:
             }
         }
     }
@@ -98,14 +100,14 @@ public class Calculator {
         for (int i = 0; i < str.length(); i++) {
             char cur = str.charAt(i);
             char next = (i < str.length() - 1 ? str.charAt(i + 1) : 0);
-            if (!Character.isWhitespace(cur) && !Character.isDigit(cur) && (cur < 'A' || cur > 'A' + BASE - 11) &&
-                    !isOp(cur) && str.charAt(i) != '(' && str.charAt(i) != ')') {
+            if (!Character.isWhitespace(cur) && !Character.isDigit(cur) && (cur < 'A' || cur > 'A' + BASE - 11)
+                    && !isOp(cur) && str.charAt(i) != '(' && str.charAt(i) != ')') {
                 System.err.println("Error: unknown symbol or unsupported operation");
                 System.exit(1);
             }
-            if (i < str.length() - 1 &&
-                    (Character.isWhitespace(cur) || cur == '(' || cur == ')') &&
-                    (!Character.isWhitespace(next) && next != '(' && next != ')')) {
+            if (i < str.length() - 1
+                    && (Character.isWhitespace(cur) || cur == '(' || cur == ')')
+                    && (!Character.isWhitespace(next) && next != '(' && next != ')')) {
                 if (isOp(next) && thereWasOp && (cur != '(' || next != '-')) {
                     System.err.println("Error: two operators in a row!");
                     System.exit(1);
@@ -187,8 +189,9 @@ public class Calculator {
                 } else if (isOp(str.charAt(i))) {
                     char c = str.charAt(i);
                     int curOp = c;
-                    if (mayUnary && (curOp == '+' || curOp == '-'))
+                    if (mayUnary && (curOp == '+' || curOp == '-')) {
                         curOp = -curOp;
+                    }
                     while (!operations.isEmpty() && priority(operations.peek()) >= priority(curOp)) {
                         executeOperation(numbers, operations.pop());
                     }
@@ -196,8 +199,9 @@ public class Calculator {
                     mayUnary = true;
                 } else {
                     String operand = "";
-                    while (i < str.length() &&
-                            (Character.isDigit(str.charAt(i)) || str.charAt(i) >= 'A' && str.charAt(i) <= 'A' + BASE - 11)) {
+                    while (i < str.length()
+                            && (Character.isDigit(str.charAt(i))
+                            || str.charAt(i) >= 'A' && str.charAt(i) <= 'A' + BASE - 11)) {
                         operand += str.charAt(i++);
                     }
                     i--;
