@@ -1,12 +1,11 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.calculator;
 
-import java.util.Stack;
-import java.lang.Character;
 import java.io.IOException;
+import java.util.Stack;
 
 public class Calculator {
 
-    public static int priority (final char token) {
+    public static int priority(final char token) {
         switch (token) {
             case '*':
             case '/':
@@ -15,7 +14,8 @@ public class Calculator {
             case '+':
             case '-':
                 return 1;
-
+            default:
+                break;
         }
         return 0;
     }
@@ -30,13 +30,13 @@ public class Calculator {
                 return arg1 * arg2;
             case '/':
                 if (arg2 == 0) throw new IOException("Division by zero");
-                return arg1/arg2;
+                return arg1 / arg2;
             case '+':
                 if (Math.max(arg1, arg2) > 0) {
-                    if ( (Integer.MAX_VALUE - arg1) < arg2 )  {
+                    if ((Integer.MAX_VALUE - arg1) < arg2) {
                         throw new IOException("Value of expression exceeds  MAX_INTEGER");
                     }
-                }   else {
+                } else {
                     if ((Integer.MIN_VALUE + arg1) > arg2) {
                         throw new IOException("Value of expression less than  MIN_INTEGER");
                     }
@@ -55,7 +55,7 @@ public class Calculator {
     }
 
 
-    public static void main (String args[]) {
+    public static void main(String args[]) {
         try {
             if (args.length == 0) {
                 System.out.println("There are no arguments;");
@@ -85,11 +85,11 @@ public class Calculator {
 
             while (i < task.length()) {
                 indexBegin = i;
-                while ((i < task.length()) && ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G') ) ) ) {
+                while ((i < task.length()) && ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G')))) {
                     ++i;
                 }
                 if (indexBegin != i) {
-                    if (prevToken == 2){
+                    if (prevToken == 2) {
                         throw new IOException("Operation was missed");
                     } else {
                         indexEnd = i;
@@ -106,7 +106,7 @@ public class Calculator {
                         prevToken = 2;
                     }
                 } else {
-                    if (( task.charAt(i) == '(')) {
+                    if ((task.charAt(i) == '(')) {
                         if (prevToken != 2) {
                             flagClose = false;
                             if (((i + 2) != task.length()) && (task.charAt(i + 1) == '-')) {
@@ -116,7 +116,7 @@ public class Calculator {
                                     outputString.append(' ');
                                     dataStack.push(task.charAt(i));
                                     ++i;
-                                }   else {
+                                } else {
                                     outputString.append('-');
                                     dataStack.push(task.charAt(i));
                                     ++i;
@@ -125,7 +125,7 @@ public class Calculator {
                             } else {
                                 dataStack.push(task.charAt(i));
                             }
-                        }  else {
+                        } else {
                             throw new IOException("Operation was missed");
                         }
                         prevToken = 3;
@@ -138,12 +138,12 @@ public class Calculator {
                                 }
                                 flagClose = false;
                                 flagOpen = false;
-                                while ( (!(dataStack.empty())) && ( (top = dataStack.peek()) != '(') ) {
+                                while ((!(dataStack.empty())) && ((top = dataStack.peek()) != '(')) {
                                     outputString.append(top);
                                     outputString.append(' ');
                                     dataStack.pop();
                                 }
-                                if (!dataStack.empty())  {
+                                if (!dataStack.empty()) {
                                     dataStack.pop();
                                 } else {
                                     throw new IOException("Not enough brackets");
@@ -237,8 +237,7 @@ public class Calculator {
             } else {
                 throw new IOException("Operation was missed");
             }
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Exception was caught: " + e.getMessage());
             System.exit(1);
         }
