@@ -11,7 +11,7 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedExceptio
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 
 public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneable {
-    private Map<String, V> commited;
+    private volatile Map<String, V> commited;
     
     private final ThreadLocal<HashMap<String, V>> added = new ThreadLocal<HashMap<String, V>>() {
         protected HashMap<String, V> initialValue() {
