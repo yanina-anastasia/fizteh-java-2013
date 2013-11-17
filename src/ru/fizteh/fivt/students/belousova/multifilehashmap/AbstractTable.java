@@ -78,6 +78,19 @@ public abstract class AbstractTable<KeyType, ValueType> {
     }
 
     public int size() {
+        for (KeyType key : deletedKeys.get()) {
+            if (!dataBase.containsKey(key)) {
+                deletedKeys.get().remove(key);
+            }
+        }
+        for (KeyType key : addedKeys.get().keySet()) {
+            if (dataBase.containsKey(key)) {
+                if (dataBase.get(key).equals(addedKeys.get().get(key))) {
+                    addedKeys.get().remove(key);
+                    deletedKeys.get().remove(key);
+                }
+            }
+        }
         return dataBase.size() + addedKeys.get().size() - deletedKeys.get().size();
     }
 
