@@ -87,12 +87,12 @@ public class StoreableTableState extends FilesystemState implements Table {
 		checkStoreable(value);
 		if (removedKeys.remove(key)) {
 			++curSize;
-			if (startMap.get(key) == null || !value.equals(startMap.get(key))) {
+			if (!value.equals(startMap.get(key))) {
 				changedKeys.put(key, value);
 			} 
 			return null;
 		} else {
-			if (changedKeys.get(key) == null) {
+			if (changedKeys.get(key) == null && startMap.get(key) == null) {
 				++curSize;
 			}
 			if (startMap.get(key) == null || !value.equals(startMap.get(key))) {
