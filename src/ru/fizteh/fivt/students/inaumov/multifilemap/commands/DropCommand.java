@@ -12,12 +12,13 @@ public class DropCommand<State extends MultiFileMapShellState> extends AbstractC
         super("drop", 1);
     }
 
-    public void execute(String argumentsLine, State shell) {
+    public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
         try {
-            shell.dropTable(arguments[0]);
+            state.dropTable(arguments[0]);
+
             System.out.println("dropped");
         } catch (IOException e) {
             System.err.println(e.getMessage());
