@@ -183,9 +183,10 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	@Override
 	public int rollback() {
+		int result = getNumberOfChanges();
 		changedKeys.clear();
 		removedKeys.clear();
-		return getNumberOfChanges();
+		return result;
 	}
 
 	private int getDir(String key) throws IOException {
