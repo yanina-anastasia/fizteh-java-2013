@@ -151,6 +151,8 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
         V oldValue = null;
 
+        getCommitLock.readLock().lock();
+
         try {
         	oldValue = commited.get(key);
         } finally {
