@@ -7,7 +7,6 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Vector;
 
@@ -17,7 +16,6 @@ import ru.fizteh.fivt.storage.structured.*;
 public class DbState extends State {
     public HashMap<String, Storeable> data;
     private HashMap<String, Storeable> initial;
-    private HashSet<String> removed;
     public RandomAccessFile dbFile;
     public String path;
     private TableProvider provider;
@@ -32,7 +30,6 @@ public class DbState extends State {
         provider = prov;
         table = newTable;
         path = dbPath;
-        removed = new HashSet<String>();
         loadData();
     }
     
@@ -56,12 +53,10 @@ public class DbState extends State {
     
     public void assignInitial() {
         initial = new HashMap<String, Storeable>(data);
-        removed = new HashSet<String>();
     }
     
     public void assignData() {
         data = new HashMap<String, Storeable>(initial);
-        removed = new HashSet<String>();
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
@@ -176,8 +171,7 @@ public class DbState extends State {
             Storeable was = initial.get(s.getKey());
             Storeable became = s.getValue();
             if ((was != null && !was.equals(became)) 
-               || (was == null && became != null) 
-               || (was == null && became == null && !removed.contains(s.getKey()))) {
+               || (was == null && became != null)) {
                 result++;
             }
         }
@@ -232,9 +226,6 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        if (removed.contains(key)) {
-            removed.remove(key);
-        }
         return data.put(key, value);
     }
     
@@ -249,14 +240,13 @@ public class DbState extends State {
     public Storeable remove(String key) {
         Storeable value = data.get(key);
         data.put(key, null);
-        removed.add(key);
         return value;
     }
     
     public int size() {
         int result = 0;
         for (Map.Entry<String, Storeable> entry : data.entrySet()) {
-            if (!removed.contains(entry.getKey())) {
+            if (entry.getValue() != null) {
                 result++;
             }
         }
