@@ -60,10 +60,21 @@ public abstract class UniversalDataTable<ValueType> {
         ValueType oldValue = null;
         if (!removeKeys.get().contains(key)) {
             if ((oldValue = putKeys.get().get(key)) == null) {
-                oldValue = dataStorage.get(key);
+                tableChangesLock.readLock().lock();
+                try {
+                    oldValue = dataStorage.get(key);
+                } finally {
+                    tableChangesLock.readLock().unlock();
+                }
                 putKeys.get().put(key, value);
             } else {
-                ValueType dataValue = dataStorage.get(key);
+                tableChangesLock.readLock().lock();
+                ValueType dataValue;
+                try {
+                    dataValue = dataStorage.get(key);
+                } finally {
+                    tableChangesLock.readLock().unlock();
+                }
                 if (dataValue == null) {
                     putKeys.get().put(key, value);
                 } else {
