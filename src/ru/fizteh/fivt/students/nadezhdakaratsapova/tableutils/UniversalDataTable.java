@@ -185,9 +185,10 @@ public abstract class UniversalDataTable<ValueType> {
             for (String key : putKeysToRollback) {
                 if (dataStorage.get(key) == null) {
                     ++rollbackSize;
-                }
-                if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
-                    ++rollbackSize;
+                } else {
+                    if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
+                        ++rollbackSize;
+                    }
                 }
             }
             putKeys.get().clear();
