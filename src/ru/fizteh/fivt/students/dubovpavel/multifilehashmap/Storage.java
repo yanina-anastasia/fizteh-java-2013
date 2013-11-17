@@ -13,8 +13,8 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     private File dir;
     protected HashMap<String, DB> storage;
     private DB cursor;
-    private DispatcherMultiFileHashMap dispatcher;
-    private DataBaseBuilder<FileRepresentativeDataBase> builder;
+    private Dispatcher dispatcher;
+    private DataBaseBuilder<DB> builder;
 
     public void save() throws StorageException {
         for(Map.Entry<String, DB> entry: storage.entrySet()) {
@@ -26,25 +26,31 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         }
     }
 
-    public Storage(String path, DispatcherMultiFileHashMap dispatcherMultiFileHashMap, DataBaseBuilder<FileRepresentativeDataBase> dataBaseBuilder) {
+    public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<DB> dataBaseBuilder) {
         builder = dataBaseBuilder;
         storage = new HashMap<>();
-        dispatcher = dispatcherMultiFileHashMap;
+        this.dispatcher = dispatcher;
         dir = new File(path);
         cursor = null;
         if(!dir.isDirectory()) {
-            dispatcherMultiFileHashMap.callbackWriter(Dispatcher.MessageType.WARNING,
+            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("Storage loading: '%s' is not a directory. Empty storage applied", dir.getPath()));
+            dir.mkdir();
         } else {
             for(File folder: dir.listFiles()) {
                 if(folder.isDirectory()) {
                     builder.setPath(folder);
-                    DB dataBase = (DB)builder.construct();
+                    DB dataBase = builder.construct();
                     try {
                         dataBase.open();
                     } catch(DataBaseHandler.DataBaseException e) {
-                        dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                        this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                 String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
+                        if(!e.acceptable) {
+                            this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                                    "Database denied");
+                            System.exit(-1);
+                        }
                     }
                     storage.put(folder.getName(), dataBase);
                 }
@@ -74,7 +80,14 @@ public class Storage <DB extends FileRepresentativeDataBase> {
                 }
             }
             builder.setPath(newData);
-            DB newDataBase = (DB)builder.construct();
+            DB newDataBase = builder.construct();
+            try {
+                newDataBase.save();
+            } catch (DataBaseHandler.DataBaseException e) {
+                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                        String.format("Can not create database prototype: %s", e.getMessage()));
+                return null;
+            }
             storage.put(key, newDataBase);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
             return newDataBase;

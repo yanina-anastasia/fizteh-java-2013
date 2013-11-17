@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class PerformerCopy extends PerformerShell {
-    private class PerformerCopyException extends Exception {
+    private static class PerformerCopyException extends Exception {
         public PerformerCopyException(String msg) {
             super(msg);
         }
