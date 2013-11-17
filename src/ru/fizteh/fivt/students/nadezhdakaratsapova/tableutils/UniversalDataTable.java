@@ -58,13 +58,14 @@ public abstract class UniversalDataTable<ValueType> {
         if (!removeKeys.get().contains(key)) {
             if ((oldValue = putKeys.get().get(key)) == null) {
                 oldValue = dataStorage.get(key);
-                if (oldValue == null) {
+                putKeys.get().put(key, value);
+               /* if (oldValue == null) {
                     putKeys.get().put(key, value);
                 } else {
                     if (!oldValue.equals(value)) {
                         putKeys.get().put(key, value);
                     }
-                }
+                } */
             } else {
                 ValueType dataValue = dataStorage.get(key);
                 if (dataValue == null) {
