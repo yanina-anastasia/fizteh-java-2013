@@ -49,11 +49,11 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public Table getTable(String tableName) {
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new IllegalArgumentException("get table: name is bad");
+        }
         try {
             lock.lock();
-            if (!CheckOnCorrect.goodName(tableName)) {
-                throw new IllegalArgumentException("get table: name is bad");
-            }
             return allTablesMap.get(tableName);
         } finally {
             lock.unlock();
@@ -62,17 +62,15 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> columnTypes) throws IOException {
+        if (!CheckOnCorrect.goodName(tableName) || !CheckOnCorrect.goodColumnTypes(columnTypes)) {
+            throw new IllegalArgumentException("create table: name or column types is bad");
+        }
+        File tableFile = new File(allTablesDirectory, tableName);
         try {
             lock.lock();
-            if (!CheckOnCorrect.goodName(tableName) || !CheckOnCorrect.goodColumnTypes(columnTypes)) {
-                throw new IllegalArgumentException("create table: name or column types is bad");
-            }
-
-            File tableFile = new File(allTablesDirectory, tableName);
             if (!tableFile.mkdir()) {
                 return null;
             }
-
             Table newTable = new StoreableTable(tableFile, columnTypes, this);
             allTablesMap.put(tableName, newTable);
             return newTable;
@@ -83,16 +81,14 @@ public class StoreableTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) {
+        if (!CheckOnCorrect.goodName(tableName)) {
+            throw new IllegalArgumentException("remove table: name is bad");
+        }
         try {
             lock.lock();
-            if (!CheckOnCorrect.goodName(tableName)) {
-                throw new IllegalArgumentException("remove table: name is bad");
-            }
-
             if (allTablesMap.get(tableName) == null) {
                 throw new IllegalStateException(tableName + " not exists");
             }
-
             File tableFile = new File(allTablesDirectory, tableName);
             try {
                 DeleteDirectory.rm(tableFile);
