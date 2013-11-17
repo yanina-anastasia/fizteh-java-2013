@@ -30,7 +30,6 @@ public abstract class GenericTable<ValueType> {
         }
     };
 
-
     public GenericTable(String name, File rootDir) {
         tableDirectory = new File(rootDir, name);
         if (!tableDirectory.isDirectory()) {
@@ -117,23 +116,25 @@ public abstract class GenericTable<ValueType> {
         try {
             lock.readLock().lock();
             int res = 0;
+            int chan = 0;
             for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
                 if (s.getValue() != null && oldDatabase.get(s.getKey()) != null ) {
                     if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
                         ++res;
                     } else {
                         changedValues.get().remove(s.getKey());
-                        changedSize.set(changedSize.get() - 1);
                     }
                 } else if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
+                    --chan;
                     ++res;
                 } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
                     ++res;
+                    ++chan;
                 } else {
                     changedValues.get().remove(s.getKey());
-                    changedSize.set(changedSize.get() - 1);
                 }
             }
+            changedSize.set(chan);
             return res;
         } finally {
             lock.readLock().unlock();
