@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,8 +88,8 @@ public class TableFile {
                     }
                     readedBytes += nowReaded;
                 }
-                fileData.add(new Entry(new String(key, Charset.forName("UTF-8")),
-                        new String(value, Charset.forName("UTF-8"))));
+                fileData.add(new Entry(new String(key, StandardCharsets.UTF_8),
+                        new String(value, StandardCharsets.UTF_8)));
             }
         } catch (FileNotFoundException e) {
             throw new IllegalStateException("File for read not found", e);
@@ -106,10 +106,10 @@ public class TableFile {
         try (RandomAccessFile file = new RandomAccessFile(tableFilePath, "rw")) {
             file.setLength(0);
             for (Entry i : entries) {
-                file.writeInt(i.getKey().getBytes("UTF-8").length);
-                file.writeInt(i.getValue().getBytes("UTF-8").length);
-                file.write(i.getKey().getBytes("UTF-8"));
-                file.write(i.getValue().getBytes("UTF-8"));
+                file.writeInt(i.getKey().getBytes(StandardCharsets.UTF_8).length);
+                file.writeInt(i.getValue().getBytes(StandardCharsets.UTF_8).length);
+                file.write(i.getKey().getBytes(StandardCharsets.UTF_8));
+                file.write(i.getValue().getBytes(StandardCharsets.UTF_8));
                 file.setLength(file.getFilePointer());
             }
         } catch (FileNotFoundException e) {
