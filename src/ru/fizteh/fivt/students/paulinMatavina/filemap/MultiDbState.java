@@ -170,13 +170,7 @@ public class MultiDbState extends State implements Table {
                 shell.mkdir(new String[] {fold});
             }
             for (int j = 0; j < fileInFolderNum; j++) {
-                String file = Integer.toString(j) + ".dat";
-                if (data[i][j].data.isEmpty() && new File(shell.makeNewSource(fold, file)).exists()) {
-                    String[] arg = {shell.makeNewSource(fold, file)};
-                    shell.rm(arg);
-                } else {
-                    data[i][j].commit();
-                }
+                data[i][j].commit();
             }
            
             File folderFile = new File(shell.makeNewSource(fold));

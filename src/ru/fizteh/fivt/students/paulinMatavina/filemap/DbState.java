@@ -187,6 +187,10 @@ public class DbState extends State {
         dbFile = null;
         try {
             fileCheck();
+            if (data.size() == 0) {
+                (new File(path)).delete();
+                return;
+            }
             int offset = 0;
             long pos = 0;
             for (Map.Entry<String, Storeable> s : data.entrySet()) {
