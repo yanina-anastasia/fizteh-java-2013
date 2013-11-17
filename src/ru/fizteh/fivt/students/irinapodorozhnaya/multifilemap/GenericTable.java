@@ -23,12 +23,6 @@ public abstract class GenericTable<ValueType> {
             return new HashMap<>();
         }
     };
-    private final ThreadLocal<Integer> changedSize = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
 
     public GenericTable(String name, File rootDir) {
         tableDirectory = new File(rootDir, name);
@@ -74,9 +68,6 @@ public abstract class GenericTable<ValueType> {
         } finally {
             lock.readLock().unlock();
         }
-        if (res != null) {
-            changedSize.set(changedSize.get() - 1);
-        }
         return res;
     }
 
@@ -105,44 +96,36 @@ public abstract class GenericTable<ValueType> {
         } finally {
             lock.readLock().unlock();
         }
-
-        if (res == null) {
-            changedSize.set(changedSize.get() + 1);
-        }
         return res;
     }
 
-    private int recountChanges() {
+    private int countChanges() {
+        int chan = 0;
         try {
             lock.readLock().lock();
-            int res = 0;
-            int chan = 0;
             for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
-                if (s.getValue() != null && oldDatabase.get(s.getKey()) != null ) {
-                    if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
-                        ++res;
+                if (s.getValue() == null ) {
+                    if (oldDatabase.get(s.getKey()) == null ) {
+                        changedValues.get().remove(s.getKey());
                     } else {
+                        --chan;
+                    }
+                } else {
+                    if (oldDatabase.get(s.getKey()) == null) {
+                        ++chan;
+                    } else if (s.getValue().equals(oldDatabase.get(s.getKey()))) {
                         changedValues.get().remove(s.getKey());
                     }
-                } else if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
-                    --chan;
-                    ++res;
-                } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
-                    ++res;
-                    ++chan;
-                } else {
-                    changedValues.get().remove(s.getKey());
                 }
             }
-            changedSize.set(chan);
-            return res;
+            return chan;
         } finally {
             lock.readLock().unlock();
         }
     }
 
     public int commit() throws IOException {
-        int res = recountChanges();
+        countChanges();
         try {
             lock.writeLock().lock();
             for (String s: changedValues.get().keySet()) {
@@ -155,8 +138,9 @@ public abstract class GenericTable<ValueType> {
         } finally {
             lock.writeLock().unlock();
         }
+        int res = changedValues.get().size();
         changedValues.get().clear();
-        changedSize.set(0);
+
         try {
             hardDiskLock.writeLock().lock();
             Map <Integer, Map<String, ValueType>> database = new HashMap<>();
@@ -208,9 +192,9 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
-        int res = recountChanges();
+        countChanges();
+        int res = changedValues.get().size();
         changedValues.get().clear();
-        changedSize.set(0);
         return res;
     }
 
@@ -223,14 +207,12 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int size() {
-        recountChanges();
-        return oldDatabase.size() + changedSize.get();
+        return oldDatabase.size() + countChanges();
     }
 
     public void loadAll() throws IOException {
         loadOldDatabase();
         changedValues.get().clear();
-        changedSize.set(0);
     }
 
     protected void loadOldDatabase() throws IOException {
