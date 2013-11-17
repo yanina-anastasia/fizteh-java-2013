@@ -3,6 +3,10 @@ package ru.fizteh.fivt.students.fedoseev.storeable;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
+import ru.fizteh.fivt.students.fedoseev.filemap.FileMapExitCommand;
+import ru.fizteh.fivt.students.fedoseev.filemap.FileMapGetCommand;
+import ru.fizteh.fivt.students.fedoseev.filemap.FileMapPutCommand;
+import ru.fizteh.fivt.students.fedoseev.filemap.FileMapRemoveCommand;
 import ru.fizteh.fivt.students.fedoseev.multifilehashmap.*;
 
 import java.io.File;
@@ -35,10 +39,10 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
         final StoreableCreateCommand CREATE = new StoreableCreateCommand();
         final MultiFileHashMapDropCommand DROP = new MultiFileHashMapDropCommand();
         final MultiFileHashMapUseCommand USE = new MultiFileHashMapUseCommand();
-        final MultiFileHashMapPutCommand PUT = new MultiFileHashMapPutCommand();
-        final MultiFileHashMapGetCommand GET = new MultiFileHashMapGetCommand();
-        final MultiFileHashMapRemoveCommand REMOVE = new MultiFileHashMapRemoveCommand();
-        final MultiFileHashMapExitCommand EXIT = new MultiFileHashMapExitCommand();
+        final FileMapPutCommand PUT = new FileMapPutCommand();
+        final FileMapGetCommand GET = new FileMapGetCommand();
+        final FileMapRemoveCommand REMOVE = new FileMapRemoveCommand();
+        final FileMapExitCommand EXIT = new FileMapExitCommand();
         final MultiFileHashMapSizeCommand SIZE = new MultiFileHashMapSizeCommand();
         final MultiFileHashMapCommitCommand COMMIT = new MultiFileHashMapCommitCommand();
         final MultiFileHashMapRollbackCommand ROLLBACK = new MultiFileHashMapRollbackCommand();

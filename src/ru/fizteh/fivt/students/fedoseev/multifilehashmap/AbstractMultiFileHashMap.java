@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
-import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
+import ru.fizteh.fivt.students.fedoseev.filemap.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +31,10 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         final MultiFileHashMapCreateCommand CREATE = new MultiFileHashMapCreateCommand();
         final MultiFileHashMapDropCommand DROP = new MultiFileHashMapDropCommand();
         final MultiFileHashMapUseCommand USE = new MultiFileHashMapUseCommand();
-        final MultiFileHashMapPutCommand PUT = new MultiFileHashMapPutCommand();
-        final MultiFileHashMapGetCommand GET = new MultiFileHashMapGetCommand();
-        final MultiFileHashMapRemoveCommand REMOVE = new MultiFileHashMapRemoveCommand();
-        final MultiFileHashMapExitCommand EXIT = new MultiFileHashMapExitCommand();
+        final FileMapPutCommand PUT = new FileMapPutCommand();
+        final FileMapGetCommand GET = new FileMapGetCommand();
+        final FileMapRemoveCommand REMOVE = new FileMapRemoveCommand();
+        final FileMapExitCommand EXIT = new FileMapExitCommand();
         final MultiFileHashMapSizeCommand SIZE = new MultiFileHashMapSizeCommand();
         final MultiFileHashMapCommitCommand COMMIT = new MultiFileHashMapCommitCommand();
         final MultiFileHashMapRollbackCommand ROLLBACK = new MultiFileHashMapRollbackCommand();

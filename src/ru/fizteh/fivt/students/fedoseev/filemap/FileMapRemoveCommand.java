@@ -11,9 +11,15 @@ public class FileMapRemoveCommand extends AbstractCommand<FileMapState> {
 
     @Override
     public void execute(String[] input, FileMapState state) throws IOException {
-        String key = AbstractFileMap.getContent().remove(input[0]);
+        if (state.usingTables()) {
+            if (state.getCurTable() == null) {
+                throw new IOException("no table");
+            }
+        }
 
-        if (key == null) {
+        String removedValue = state.remove(input[0]);
+
+        if (removedValue == null) {
             System.out.println("not found");
         } else {
             System.out.println("removed");

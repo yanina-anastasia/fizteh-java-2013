@@ -36,4 +36,6 @@ public interface State<T> {
     File getCurTableDir();
 
     void clearContentAndDiff();
+
+    boolean usingTables();
 }

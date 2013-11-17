@@ -104,4 +104,8 @@ public class StoreableState implements State<StoreableTable> {
     public void clearContentAndDiff() {
         curTable.clearContentAndDiff();
     }
+
+    public boolean usingTables() {
+        return true;
+    }
 }
