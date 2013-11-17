@@ -1,244 +1,141 @@
 package ru.fizteh.fivt.students.ryabovaMaria.fileMap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.ryabovaMaria.shell.AbstractCommands;
-import ru.fizteh.fivt.students.ryabovaMaria.shell.ShellCommands;
 
 public class FileMapCommands extends AbstractCommands {
-    public HashMap<String, String> list = new HashMap<String, String>();
-    public boolean usingTable = false;
-    public ShellCommands shellCommands;
-    public File tableFile;
-    int hashCode;
-    int numberOfDir;
-    int numberOfFile;
-            
-    public FileMapCommands(File curDir) {
-        currentDir = curDir;
-        shellCommands = new ShellCommands();
-        shellCommands.currentDir = currentDir;
+    private TableProviderFactory myTableProviderFactory;
+    private TableProvider myTableProvider;
+    private Table myTable = null;
+    private boolean usingTable = false;
+    
+    public FileMapCommands(String curDir) throws IOException {
+        String propertyString = System.getProperty(curDir);
+        if (propertyString == null) {
+            System.err.println("Bad property");
+            System.exit(1);
+        }
+        File currentDirectory = new File(propertyString);
+        if (!currentDirectory.exists()) {
+            currentDirectory.mkdir();
+        }
+        myTableProviderFactory = new MyTableProviderFactory();
+        myTableProvider = myTableProviderFactory.create(currentDirectory.toString());
     }
     
     public void create() throws Exception {
-        String tableName = lexems[1];
-        File newFile = currentDir.toPath().resolve(tableName).normalize().toFile();
-        if (newFile.exists()) {
-            System.out.println(tableName + " exists");
-        } else {
-            if (!newFile.mkdir()) {
-                throw new Exception("create: I can't create the file");
+        if (lexems.length < 2) {
+            throw new Exception("incorrect nubmer of args");
+        }
+        String[] temp = lexems[1].split("[ \t]+", 2);
+        if (temp.length < 2) {
+            throw new Exception("incorrect number of args");
+        }
+        String tableName = temp[0];
+        String tempString = temp[1].trim();
+        temp = tempString.split("[()]");
+        if ((temp.length <= 0) || !temp[0].isEmpty() || (temp.length > 2)) {
+            System.out.println("wrong type (illegal arguments)");
+            return;
+        }
+        tempString = temp[1];
+        temp = tempString.split("[ \t]+");
+        ArrayList<Class<?>> types = new ArrayList();
+        for (int i = 0; i < temp.length; ++i) {
+            switch (temp[i].trim()) {
+                case "int" :
+                    types.add(Integer.class);
+                    break;
+                case "long" :
+                    types.add(Long.class);
+                    break;
+                case "byte" :
+                    types.add(Byte.class);
+                    break;
+                case "float" :
+                    types.add(Float.class);
+                    break;
+                case "double" :
+                    types.add(Double.class);
+                    break;
+                case "boolean" :
+                    types.add(Boolean.class);
+                    break;
+                case "String" :
+                    types.add(String.class);
+                    break;
+                default :
+                    System.out.println("wrong type (illegal column type)");
+                    return;
+            }
+        }
+        try {
+            if (myTableProvider.createTable(tableName, types) == null) {
+                System.out.println(tableName + " exists");
             } else {
                 System.out.println("created");
             }
+        } catch (IllegalArgumentException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
         }
     }
     
     public void drop() throws Exception {
+        if (lexems.length < 2) {
+            throw new Exception("incorrect nubmer of args");
+        }
+        String tableName = lexems[1];
+        if (myTable != null) {
+            if (myTable.getName().equals(tableName)) {
+                usingTable = false;
+            }
+        }
         try {
-            shellCommands.lexems = lexems;
-            parse();
-            File tempDir = currentDir.toPath().resolve(lexems[0]).normalize().toFile();
-            if (!tempDir.isDirectory()) {
-                System.out.println(lexems[0] + " not exists");
+            myTableProvider.removeTable(tableName);
+            System.out.println("dropped");
+        } catch (IllegalStateException e) {
+            System.out.println(tableName + " not exists");
+        } catch (IllegalArgumentException e) {
+            throw new Exception(e);
+        }
+    }
+        
+    public void use() throws Exception {
+        if (lexems.length < 2) {
+            throw new Exception("incorrect nubmer of args");
+        }
+        String tableName = lexems[1];
+        if (usingTable == true) {
+            Class c = myTable.getClass();
+            Method makeCommand = c.getMethod("countChanges", boolean.class);
+            int counted = (int) makeCommand.invoke(myTable, false);
+            if (counted != 0) {
+                System.out.println(counted + " unsaved changes");
                 return;
             }
-            shellCommands.rm();
-            System.out.println("dropped");
-        } catch (Exception e) {
-            throw new Exception("drop: " + e.getMessage());
         }
-    }
-    
-    public void isCorrect(File tempTableFile) throws Exception {
-        String[] listOfDirs = tempTableFile.list();
-        for (int i = 0; i < listOfDirs.length; ++i) {
-            boolean ok = false;
-            for (int j = 0; j < 16; ++j) {
-                String validName = String.valueOf(j) + ".dir";
-                if (listOfDirs[i].equals(validName)) {
-                    ok = true;
-                    break;
-                }
-            }
-            if (ok) {
-                File curDirPath = tempTableFile.toPath().resolve(listOfDirs[i]).toFile();
-                String[] listOfFiles = curDirPath.list();
-                for (int j = 0; j < listOfFiles.length; ++j) {
-                    boolean okFile = false;
-                    for (int k = 0; k < 16; ++k) {
-                        String validName = String.valueOf(k) + ".dat";
-                        if (listOfFiles[j].equals(validName)) {
-                            okFile = true;
-                            break;
-                        }
-                    }
-                    if (!okFile) {
-                        throw new Exception("Incorrect table");
-                    }
-                }
-            } else {
-                throw new Exception("Incorrect table");
-            }
-        }
-    }
-    
-    public void use() throws Exception {
-        String tableName = lexems[1];
-        File tempTableFile = currentDir.toPath().resolve(tableName).normalize().toFile();
-        if (!tempTableFile.exists()) {
-            System.out.println(tableName + " not exists");
-        } else {
-            if (!tempTableFile.isDirectory()) {
+        try {
+            if (myTableProvider.getTable(tableName) == null) {
                 System.out.println(tableName + " not exists");
             } else {
-                try {
-                    isCorrect(tempTableFile);
-                } catch (Exception e) {
-                    throw new Exception("Incorrect table");
-                }
-                tableFile = tempTableFile;
+                myTable = myTableProvider.getTable(tableName);
                 usingTable = true;
                 System.out.println("using " + tableName);
             }
-        }
-    }
-    
-    public void loadFile() throws Exception {
-        String dirString = String.valueOf(numberOfDir) + ".dir";
-        String fileString = String.valueOf(numberOfFile) + ".dat";
-        File dbFile = tableFile.toPath().resolve(dirString).resolve(fileString).normalize().toFile();
-        if (!dbFile.exists()) {
-            throw new FileNotFoundException();
-        }
-        if (!dbFile.isFile()) {
-            throw new Exception("db.dat is not a file");
-        }
-        RandomAccessFile db;
-        db = new RandomAccessFile(dbFile, "r");
-        try {
-            long curPointer = 0;
-            long lastPointer = 0;
-            long length = db.length();
-            if (length == 0) {
-                return;
-            }
-            db.seek(0);
-            String lastKey = "";
-            int lastOffset = 0;
-            while (curPointer < length) {
-                byte curByte = db.readByte();
-                if (curByte == '\0') {
-                    byte[] byteKey = new byte[(int) curPointer - (int) lastPointer];
-                    curPointer = db.getFilePointer();
-                    db.seek(lastPointer);
-                    db.readFully(byteKey);
-                    db.seek(curPointer);
-                    String currentKey = new String(byteKey, "UTF-8");
-                    int currentHashCode = Math.abs(currentKey.hashCode());
-                    int currentNumOfDir = currentHashCode % 16;
-                    int currentNumOfFile = currentHashCode / 16 % 16;
-                    if (currentNumOfDir != numberOfDir || currentNumOfFile != numberOfFile) {
-                        throw new Exception("Incorrect file");
-                    }
-                    int offset = db.readInt();
-                    if (!lastKey.isEmpty()) {
-                        byte[] byteValue = new byte[offset - lastOffset];
-                        curPointer = db.getFilePointer();
-                        db.seek(lastOffset);
-                        db.readFully(byteValue);
-                        String lastValue = new String(byteValue, "UTF-8");
-                        db.seek(curPointer);
-                        if (list.containsKey(lastKey)) {
-                            System.err.println(lastKey + " meets twice in db.dat");
-                            System.exit(1);
-                        }
-                        list.put(lastKey, lastValue);
-                    }
-                    lastOffset = offset;
-                    lastKey = currentKey;
-                    lastPointer = db.getFilePointer();
-                }
-                curPointer = db.getFilePointer();
-            }
-            if (lastOffset == 0 || lastKey.isEmpty()) {
-                System.err.println("Incorrect db");
-                System.exit(1);
-            }
-            byte[] byteValue = new byte[(int) length - lastOffset];
-            db.seek(lastOffset);
-            db.readFully(byteValue);
-            String lastValue = new String(byteValue, "UTF-8");
-            if (list.containsKey(lastKey)) {
-                System.err.println(lastKey + " meets twice in db.dat");
-                System.exit(1);
-            }
-            list.put(lastKey, lastValue);
         } catch (Exception e) {
-            db.close();
             throw new Exception(e);
         }
-        db.close();
     }
-    
-    public void writeIntoFile() throws Exception {
-        String dirString = String.valueOf(numberOfDir) + ".dir";
-        String fileString = String.valueOf(numberOfFile) + ".dat";
-        File dbDir = tableFile.toPath().resolve(dirString).normalize().toFile();
-        if (!dbDir.isDirectory()) {
-            dbDir.mkdir();
-        }
-        File dbFile = dbDir.toPath().resolve(fileString).normalize().toFile();
-        if (list.isEmpty()) {
-            dbFile.delete();
-            if (dbDir.list().length == 0) {
-                dbDir.delete();
-            }
-            return;
-        }
-        RandomAccessFile db;
-        db = new RandomAccessFile(dbFile, "rw");
-        try {
-            db.setLength(0);
-            Iterator<Map.Entry<String, String>> it;
-            it = list.entrySet().iterator();
-            long[] pointers = new long[list.size()];
-            int counter = 0;
-            while (it.hasNext()) {
-                Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
-                String key = m.getKey();
-                db.write(key.getBytes("UTF-8"));
-                db.write("\0".getBytes("UTF-8"));
-                pointers[counter] = db.getFilePointer();
-                db.seek(pointers[counter] + 4);
-                ++counter;
-            }
-            it = list.entrySet().iterator();
-            counter = 0;
-            while (it.hasNext()) {
-                Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
-                String value = m.getValue();
-                int curPointer = (int) db.getFilePointer();
-                db.seek(pointers[counter]);
-                db.writeInt(curPointer);
-                db.seek(curPointer);
-                db.write(value.getBytes("UTF-8"));
-                ++counter;
-            }
-        } catch (Exception e) {
-            db.close();
-            throw new Exception(e);
-        }
-        db.close();
-        if (dbDir.list().length == 0) {
-            dbDir.delete();
-        }
-    }
-    
+
     private void parse() {
         String[] tempLexems = new String[0];
         if (lexems.length > 1) {
@@ -255,86 +152,100 @@ public class FileMapCommands extends AbstractCommands {
             throw new Exception(commandName + ": there is so many arguments.");
         }
     }
-    
-    public void load(String commandName) throws Exception {
-        hashCode = Math.abs(lexems[0].hashCode());
-        numberOfDir = hashCode % 16;
-        numberOfFile = hashCode / 16 % 16;
-        list.clear();
-        try {
-            loadFile();
-        } catch (FileNotFoundException e) {
-        } catch (Exception e) {
-            throw new Exception(commandName + ": incorrect table");
-        }
-    }
        
     public void put() throws Exception {
-        if (!usingTable || !tableFile.exists()) {
+        if (!usingTable) {
             System.out.println("no table");
             return;
         }
-        parse();
+        parse(); 
         checkTheNumbOfArgs(2, "put");
-        load("put");
-        if (list.containsKey(lexems[0])) {
-            String oldValue = list.get(lexems[0]);
-            list.remove(lexems[0]);
-            list.put(lexems[0], lexems[1]);
-            System.out.println("overwrite");
-            System.out.println(oldValue);
-        } else {
-            list.put(lexems[0], lexems[1]);
-            System.out.println("new");
-        }
         try {
-            writeIntoFile();
-        } catch (Exception e) {
-            System.err.println("I can't write into file");
-            System.exit(1);
-        }    
+            Storeable curValue = myTableProvider.deserialize(myTable, lexems[1]);
+            Storeable previousValue = myTable.put(lexems[0], curValue);
+            String stringPreviousValue = myTableProvider.serialize(myTable, previousValue);
+            if (previousValue == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(stringPreviousValue);
+            }
+        } catch (ParseException | ColumnFormatException e) {
+            System.out.println("wrong type (incorrect args: " + e.getMessage() + ")");
+        }
     }
     
     public void get() throws Exception {
-        if (!usingTable || !tableFile.exists()) {
+        if (!usingTable) {
             System.out.println("no table");
             return;
         }
         parse();
         checkTheNumbOfArgs(1, "get");
-        load("get");
-        if (list.containsKey(lexems[0])) {
-            String value = list.get(lexems[0]);
-            System.out.println("found");
-            System.out.println(value);
-        } else {
-            System.out.println("not found");
+        try {
+            Storeable value = myTable.get(lexems[0]);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                String valueString = myTableProvider.serialize(myTable, value);
+                System.out.println("found");
+                System.out.println(valueString);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new Exception(e);
         }
     }
     
     public void remove() throws Exception {
-        if (!usingTable || !tableFile.exists()) {
+        if (!usingTable) {
             System.out.println("no table");
             return;
         }
         parse();
         checkTheNumbOfArgs(1, "remove");
-        load("remove");
-        if (list.containsKey(lexems[0])) {
-            list.remove(lexems[0]);
-            System.out.println("removed");
-        } else {
-            System.out.println("not found");
-        }
-        try { 
-            writeIntoFile();
-        } catch (Exception e) {
-            System.err.println("I can't write into file");
-            System.exit(1);
+        try {
+            Storeable value = myTable.remove(lexems[0]);
+            if (value == null) {
+                System.out.println("not found");
+            } else {
+                System.out.println("removed");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new Exception(e);
         }
     }
     
-    public void exit() {
+    public void size() throws Exception {
+        if (!usingTable) {
+            System.out.println("no table");
+            return;
+        }
+        parse();
+        checkTheNumbOfArgs(0, "size");
+        System.out.println(myTable.size());
+    }
+    
+    public void commit() throws Exception {
+        if (!usingTable) {
+            System.out.println("no table");
+            return;
+        }
+        parse();
+        checkTheNumbOfArgs(0, "commit");
+        System.out.println(myTable.commit());
+    }
+    
+    public void rollback() throws Exception {
+        if (!usingTable) {
+            System.out.println("no table");
+            return;
+        }
+        parse();
+        checkTheNumbOfArgs(0, "rollback");
+        System.out.println(myTable.rollback());
+    }
+    
+    public void exit() throws Exception {
         System.exit(0);
     }
 }

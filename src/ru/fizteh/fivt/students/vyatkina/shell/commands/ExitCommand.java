@@ -1,23 +1,19 @@
 package ru.fizteh.fivt.students.vyatkina.shell.commands;
 
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
+import ru.fizteh.fivt.students.vyatkina.AbstractCommand;
+import ru.fizteh.fivt.students.vyatkina.State;
+import ru.fizteh.fivt.students.vyatkina.TimeToFinishException;
 
-import java.util.concurrent.ExecutionException;
+public class ExitCommand extends AbstractCommand<State> {
 
-public class ExitCommand implements Command
-{
-    @Override
-    public void execute (String[] args) throws ExecutionException{
-        System.exit (0);
+    public ExitCommand (State state) {
+        super (state);
+        this.name = "exit";
+        this.argsCount = 0;
     }
 
     @Override
-    public String getName () {
-        return "exit";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 0;
+    public void execute (String[] args) {
+        throw new TimeToFinishException ();
     }
 }

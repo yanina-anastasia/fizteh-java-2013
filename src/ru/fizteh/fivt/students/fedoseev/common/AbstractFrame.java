@@ -1,30 +1,14 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Scanner;
 
-public abstract class AbstractFrame implements Frame {
-    public class FrameState {
-        private File curState;
-
-        public void setCurState(File file) {
-            curState = file;
-        }
-
-        public File getCurState() {
-            return curState;
-        }
-    }
-
+public abstract class AbstractFrame<State> implements Frame {
     public abstract Map<String, AbstractCommand> getCommands();
 
-    protected FrameState state = new FrameState();
-
-    public void setObjectCurState(File file) {
-        state.setCurState(file);
-    }
+    protected State state;
 
     @Override
     public void runCommands(String cmd, int end) throws IOException, InterruptedException {
@@ -74,7 +58,7 @@ public abstract class AbstractFrame implements Frame {
 
         while (!Thread.currentThread().isInterrupted()) {
             Thread.currentThread().sleep(10);
-            System.out.print(state.getCurState().toString() + "$ ");
+            System.out.print("$ ");
 
             String[] input = scanner.nextLine().trim().split("\\s*;\\s*");
 

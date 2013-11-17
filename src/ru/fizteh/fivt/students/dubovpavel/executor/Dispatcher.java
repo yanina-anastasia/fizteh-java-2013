@@ -24,7 +24,7 @@ public class Dispatcher {
 
     protected String getInitProperty(String key) throws DispatcherException {
         String value = System.getProperty(key);
-        if(key == null) {
+        if(value == null) {
             shutdown = true;
             throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
         } else {
@@ -68,6 +68,9 @@ public class Dispatcher {
             ArrayList<Command> commands = parser.getCommands(this, commandSequence);
             for(Command command: commands) {
                 try {
+                    if(shutdown) {
+                        break;
+                    }
                     boolean performed = false;
                     for(Performer performer: performers) {
                         if(performer.pertains(command)) {
@@ -84,9 +87,6 @@ public class Dispatcher {
                     if(forwarding) {
                         throw new DispatcherException(e.getMessage());
                     }
-                }
-                if(shutdown) {
-                    break;
                 }
             }
         } catch(Parser.IncorrectSyntaxException e) {

@@ -10,8 +10,7 @@ public class ShellMain {
         File curDir = new File("");
         curDir = curDir.getCanonicalFile();
         try {
-            AbstractFrame shell = new AbstractShell();
-            shell.setObjectCurState(curDir);
+            AbstractFrame<ShellState> shell = new AbstractShell(curDir);
 
             if (args.length != 0) {
                 shell.BatchMode(args);

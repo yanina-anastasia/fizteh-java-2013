@@ -36,12 +36,4 @@ public class Shell extends State {
     public final Vector<Command> getCommands() {
         return commands;
     }
-
-    @Override
-    public void save() {}
-
-    @Override
-    public Shell getMyState(int hashCode) {
-        return this;
-    }
 }

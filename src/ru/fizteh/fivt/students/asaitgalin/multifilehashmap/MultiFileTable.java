@@ -1,66 +1,25 @@
 package ru.fizteh.fivt.students.asaitgalin.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryReader;
-import ru.fizteh.fivt.students.asaitgalin.filemap.TableEntryWriter;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.container.TableContainer;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.extensions.ChangesCountingTable;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.values.TableValuePackerString;
+import ru.fizteh.fivt.students.asaitgalin.multifilehashmap.values.TableValueUnpackerString;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-public class MultiFileTable implements Table {
-    private static final int DIR_COUNT = 16;
-    private static final int FILES_PER_DIR = 16;
+public class MultiFileTable implements ChangesCountingTable {
+    // Underlying container
+    private TableContainer<String> container;
 
-    private Map<String, String> currentTable;
+    private File tableDir;
     private String name;
 
-    public MultiFileTable(String name) {
-        this.currentTable = new HashMap<>();
+    public MultiFileTable(File tableDir, String name) {
         this.name = name;
-    }
-
-    public void save(File tableDir) throws IOException {
-        for (int i = 0; i < DIR_COUNT; ++i) {
-            for (int j = 0; j < FILES_PER_DIR; ++j) {
-                Map<String, String> values = new HashMap<>();
-                for (String s : currentTable.keySet()) {
-                    if (getKeyDir(s) == i && getKeyFile(s) == j) {
-                        values.put(s, currentTable.get(s));
-                    }
-                }
-                if (values.size() > 0) {
-                    File keyDir = new File(tableDir, i + ".dir");
-                    if (!keyDir.exists()) {
-                        keyDir.mkdir();
-                    }
-                    File fileName = new File(keyDir, j + ".dat");
-                    TableEntryWriter writer = new TableEntryWriter(fileName);
-                    writer.writeEntries(values);
-                }
-            }
-        }
-    }
-
-    public void load(File tableDir) throws IOException {
-        for (File subDir : tableDir.listFiles()) {
-            if (subDir.isDirectory()) {
-                for (File f : subDir.listFiles()) {
-                    if (f.exists()) {
-                        TableEntryReader reader = new TableEntryReader(f);
-                        while (reader.hasNextEntry()) {
-                            String key = reader.getNextKey();
-                            File validFile = new File(new File(tableDir, getKeyDir(key) + ".dir"), getKeyFile(key) + ".dat");
-                            if (!f.equals(validFile)) {
-                                throw new IOException("Corrupted database");
-                            }
-                            reader.readNextEntry(currentTable);
-                        }
-                    }
-                }
-            }
-        }
+        this.tableDir = tableDir;
+        this.container = new TableContainer<String>(tableDir, new TableValuePackerString(),
+                new TableValueUnpackerString());
     }
 
     @Override
@@ -70,40 +29,57 @@ public class MultiFileTable implements Table {
 
     @Override
     public String get(String key) {
-        return currentTable.get(key);
+        if (key == null) {
+            throw new IllegalArgumentException("get: key is null");
+        }
+        return container.containerGetValue(key);
     }
 
     @Override
     public String put(String key, String value) {
-        return currentTable.put(key, value);
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("put: key or value is null");
+        }
+        if (key.trim().isEmpty() || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("put: key or value is empty");
+        }
+        return container.containerPutValue(key, value);
     }
 
     @Override
     public String remove(String key) {
-        return currentTable.remove(key);
+        if (key == null) {
+            throw new IllegalArgumentException("remove: key is null");
+        }
+        return container.containerRemoveValue(key);
     }
 
     @Override
     public int size() {
-        throw new UnsupportedOperationException("size operation is not supported");
+        return container.containerGetSize();
     }
 
     @Override
     public int commit() {
-        throw new UnsupportedOperationException("commit operation is not supported");
+        try {
+            return container.containerCommit();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
 
     @Override
     public int rollback() {
-        throw new UnsupportedOperationException("rollback operation is not supported");
+        return container.containerRollback();
     }
 
-    private int getKeyDir(String key) {
-        return Math.abs(key.hashCode()) % DIR_COUNT;
+    @Override
+    public int getChangesCount() {
+        return container.containerGetChangesCount();
     }
 
-    private int getKeyFile(String key) {
-        return Math.abs(key.hashCode()) / DIR_COUNT % FILES_PER_DIR;
+    public void load() throws IOException {
+        container.containerLoad();
     }
 
 }

@@ -1,21 +1,12 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-public class ExitCommand implements Executable {
+public class ExitCommand extends Executable {
 
     private FileManager manager;
 
     public ExitCommand(FileManager fileManager) {
+        super("exit", 1);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "exit";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 1;
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Shell {
                 if (currentStatus == null) {
                     System.out.print(startInvitation);
                 } else {
-                    System.out.print(currentStatus.getCurrentDirectory() + startInvitation);
+                    System.out.print(currentStatus.getCurrentDirectory() + " " + startInvitation);
                 }
                 String s = sc.nextLine();
                 cm.execute(s);
@@ -71,12 +71,31 @@ public class Shell {
         cm.addCommand(new Exit(currentStatus));
     }
 
+    public void initializeBasicCommands (CurrentStatus cs) {
+        currentStatus = cs;
+        cm.addCommand(new PrintWorkingDirectory(currentStatus));
+        cm.addCommand(new ChangeDirectory(currentStatus));
+        cm.addCommand(new MakeDirectory(currentStatus));
+        cm.addCommand(new Directory(currentStatus));
+        cm.addCommand(new Remove(currentStatus));
+        cm.addCommand(new Copy(currentStatus));
+        cm.addCommand(new Move(currentStatus));
+        cm.addCommand(new Exit(currentStatus));
+    }
+
     public void start (String[] args) {
         if (args.length == 0) {
             interactiveMode();
         } else {
             packageMode(args);
         }
+    }
+    public void executeCommand (String args) throws IOException, MyException{
+        cm.execute(args);
+    }
+
+    public void changeCommandStatus(String name, Object obj) throws MyException {
+        cm.changeCommandStatus(name, obj);
     }
 
 }

@@ -3,14 +3,15 @@ package ru.fizteh.fivt.students.eltyshev.multifilemap.commands;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.AbstractCommand;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.CommandParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class DropCommand extends AbstractCommand<MultifileMapShellState> {
+public class DropCommand<State extends BaseDatabaseShellState> extends AbstractCommand<State> {
     public DropCommand() {
         super("drop", "drop <table name");
     }
 
-    public void executeCommand(String params, MultifileMapShellState shellState) {
+    public void executeCommand(String params, State shellState) {
         ArrayList<String> parameters = CommandParser.parseParams(params);
         if (parameters.size() > 1) {
             throw new IllegalArgumentException("too many arguments!");
@@ -20,9 +21,9 @@ public class DropCommand extends AbstractCommand<MultifileMapShellState> {
         }
 
         try {
-            shellState.tableProvider.removeTable(parameters.get(0));
+            shellState.dropTable(parameters.get(0));
             System.out.println("dropped");
-        } catch (IllegalStateException e) {
+        } catch (IOException | IllegalStateException e) {
             System.err.println(e.getMessage());
         }
     }

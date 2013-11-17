@@ -1,20 +1,13 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
-public class TableCommandPut implements Executable {
+import java.text.ParseException;
+
+public class TableCommandPut extends Executable {
     TableManager manager;
-
-    @Override
-    public String name() {
-        return "put";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 3;
-    }
 
     @Override
     public boolean execute(String[] args) {
@@ -23,17 +16,32 @@ public class TableCommandPut implements Executable {
             manager.printMessage("no table");
             return false;
         }
-        String oldValue = table.put(args[1], args[2]);
+        Storeable storeable;
+        try {
+            storeable = manager.deserialize(args[2]);
+        } catch (ParseException e) {
+            manager.printMessage("wrong type (" + e.getMessage() + ")");
+            return false;
+        }
+        Storeable oldValue = table.put(args[1], storeable);
+        String oldString;
+        try {
+            oldString = manager.serialize(oldValue);
+        } catch (ParseException e) {
+            manager.printMessage("wrong type (" + e.getMessage() + ")");
+            return false;
+        }
         if (oldValue == null) {
             manager.printMessage("new");
         } else {
             manager.printMessage("overwrite");
-            manager.printMessage(oldValue);
+            manager.printMessage(oldString);
         }
         return true;
     }
 
     public TableCommandPut(TableManager tableManager) {
+        super("put", 3);
         manager = tableManager;
     }
 }

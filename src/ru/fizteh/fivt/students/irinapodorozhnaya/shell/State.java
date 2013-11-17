@@ -7,9 +7,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
-public abstract class State {
+public abstract class State implements StateInterface {
 	private final InputStream in;
 	private final PrintStream out;
 	private final Map<String, Command> commands;
@@ -45,14 +43,20 @@ public abstract class State {
 		Command c = commands.get(args[0]);
 		 if (c != null) {
 			 int argsNumber = c.getNumberOfArguments();
-			 if (argsNumber > args.length - 1) {
-				 throw new IOException(args[0]+ ": Too few arguments");
-			 } else if (argsNumber < args.length - 1) {
-				 throw new IOException(args[0]+ ": Too many arguments");
+			 if (argsNumber >= 0) {
+        			 if (argsNumber > args.length - 1) {
+        				 throw new IOException(args[0] + ": Too few arguments");
+        			 } else if (argsNumber < args.length - 1) {
+        				 throw new IOException(args[0] + ": Too many arguments");
+        			 }
 			 }
 			 c.execute(args);
 		 } else {
 			 throw new IOException(args[0] + ": No such command");
 		 }		
+	}
+
+	public int commitDif() throws IOException {
+	    return 0;
 	}
 }

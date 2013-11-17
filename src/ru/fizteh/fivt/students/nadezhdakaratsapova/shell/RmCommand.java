@@ -24,27 +24,12 @@ public class RmCommand implements Command {
         if (!src.exists()) {
             throw new IOException("rm: " + src.getName() + " was not found");
         } else {
-            rmRec(src);
+            CommandUtils.recDeletion(src);
         }
 
     }
 
-    private void rmRec(File src) throws IOException {
-        if (src.isDirectory()) {
-            File[] listFile = src.listFiles();
-            if (listFile.length > 0) {
-                for (File file : listFile) {
-                    rmRec(file);
-                }
-            }
-        }
-        if (!src.delete()) {
-            throw new IOException("rm: not managed to remove " + src.getName());
-        }
-
-    }
-
-    public int getArgsCount() {
-        return 1;
+    public boolean compareArgsCount(int inputArgsCount) {
+        return (inputArgsCount == 1);
     }
 }

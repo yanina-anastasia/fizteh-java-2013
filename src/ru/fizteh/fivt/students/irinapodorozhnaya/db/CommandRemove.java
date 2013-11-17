@@ -3,12 +3,13 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.db;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.AbstractCommand;
-import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
 
 public class CommandRemove extends AbstractCommand {
 
-	public CommandRemove(State state) {
-		super(1, state);
+	private final DbState state;
+	public CommandRemove(DbState state) {
+		super(1);
+		this.state = state;
 	}
 
 	public String getName() {
@@ -16,11 +17,11 @@ public class CommandRemove extends AbstractCommand {
 	}
 
 	public void execute(String[] args) throws IOException {
-		String s = ((DbState) getState()).getData().remove(args[1]);
+		String s = state.removeValue(args[1]);
 		if (s == null) {
-			getState().getOutputStream().println("not found");
+			state.getOutputStream().println("not found");
 		} else {
-			getState().getOutputStream().println("removed");
+			state.getOutputStream().println("removed");
 		}
 	}
 }

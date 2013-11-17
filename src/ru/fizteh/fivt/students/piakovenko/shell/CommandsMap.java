@@ -20,6 +20,15 @@ public class CommandsMap {
         }
     }
 
+    public void changeCommandStatus (String name, Object obj) throws MyException {
+        if (commands.containsKey(name)) {
+            commands.get(name).changeCurrentStatus(obj);
+        } else {
+            throw new MyException(new Exception("Don't have this command " + name));
+        }
+    }
+
+
     public void execute(String commandsString) throws MyException, IOException {
         String[] commandsArray = commandsString.trim().split("\\s*;\\s*");
         for (String command : commandsArray) {

@@ -2,22 +2,13 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.File;
 
-public class CdCommand implements Executable {
+public class CdCommand extends Executable {
 
     private FileManager manager;
 
     public CdCommand(FileManager fileManager) {
+        super("cd", 2);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "cd";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
     }
 
     @Override

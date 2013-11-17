@@ -3,12 +3,14 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.db;
 import java.io.IOException;
 
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.AbstractCommand;
-import ru.fizteh.fivt.students.irinapodorozhnaya.shell.State;
 
 public class CommandGet extends AbstractCommand {
 
-	public CommandGet(State state) {
-		super(1, state);
+	private final DbState state;
+	
+	public CommandGet(DbState state) {
+		super(1);
+		this.state = state;
 	}
 
 	public String getName() {
@@ -16,11 +18,12 @@ public class CommandGet extends AbstractCommand {
 	}
 
 	public void execute(String[] args) throws IOException {
-		String s = ((DbState) getState()).getData().get(args[1]);
+		String s = state.getValue(args[1]);
 		if (s == null) {
-			getState().getOutputStream().println("not found");
+			state.getOutputStream().println("not found");
 		} else {
-			getState().getOutputStream().println("found " + s);
+			state.getOutputStream().println("found " + s);
 		}
 	}
+
 }

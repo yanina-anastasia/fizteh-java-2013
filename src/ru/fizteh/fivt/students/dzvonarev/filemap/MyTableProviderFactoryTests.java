@@ -7,7 +7,7 @@ import java.io.IOException;
 public class MyTableProviderFactoryTests {
 
     @Test(expected = IllegalArgumentException.class)
-    public void createTableProviderWithNullParameter() {
+    public void createTableProviderWithNullParameter() throws IOException {
         MyTableProviderFactory factory = new MyTableProviderFactory();
         factory.create(null);
     }
@@ -17,5 +17,4 @@ public class MyTableProviderFactoryTests {
         MyTableProviderFactory factory = new MyTableProviderFactory();
         factory.create("newDir");
     }
-
 }

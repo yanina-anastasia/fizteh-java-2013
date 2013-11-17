@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.Map;
 
 public interface Frame {
-    interface Command {
+    interface Command<State> {
         String getCmdName();
 
         int getArgsCount();
 
-        void execute(String[] input, AbstractFrame.FrameState state) throws IOException, InterruptedException;
+        void execute(String[] input, State state) throws IOException, InterruptedException;
     }
 
     Map<String, AbstractCommand> getCommands();

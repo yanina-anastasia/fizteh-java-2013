@@ -4,32 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
-public class FileManager implements Manager {
+public class FileManager extends Manager {
 
-    protected PrintStream outputStream = System.out;
     protected File currentPath = new File("").getAbsoluteFile();
-    protected boolean mustExit = false;
-
-    @Override
-    public boolean timeToExit() {
-        return mustExit;
-    }
-
-    @Override
-    public void printMessage(final String message) {
-        outputStream.println(message);
-    }
 
     @Override
     public void printSuggestMessage() {
         outputStream.print(currentPath.getName() + File.separator + "$ ");
-    }
-
-    @Override
-    public void setExit() {
-        mustExit = true;
     }
 
     public File getCurrentPath() {

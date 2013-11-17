@@ -5,8 +5,11 @@ import java.io.IOException;
 
 
 public class CommandMove extends AbstractCommand {
+	
+	private final StateShell state;
 	public CommandMove(StateShell st) {
-		super(2, st);
+		super(2);
+		state = st;
 	}
 	
 	public String getName() {
@@ -14,8 +17,8 @@ public class CommandMove extends AbstractCommand {
 	}
 	
 	public void execute(String[] args) throws IOException {	
-		File source = getFileByName(args[1]);
-		File dest = getFileByName(args[2]);
+		File source = state.getFileByName(args[1]);
+		File dest = state.getFileByName(args[2]);
 		if (!source.exists()) {
 			throw new IOException("mv: '" + args[1] + "' not exist");
 		} else if (dest.isDirectory()) {

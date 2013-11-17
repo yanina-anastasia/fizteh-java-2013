@@ -1,47 +1,30 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import ru.fizteh.fivt.storage.structured.*;
 
 
 import ru.fizteh.fivt.students.mikhaylova_daria.shell.Parser;
-import ru.fizteh.fivt.students.mikhaylova_daria.shell.Shell;
 
 public class DbMain {
 
-    private static HashMap<String, TableDate> bidDateBase = new HashMap<String, TableDate>();
-    private static File mainDir;
-    private static TableDate currentTable = null;
+    private static TableData currentTable = null;
+    private static TableManager mainManager;
 
     public static void main(String[] arg) {
         String workingDirectoryName = System.getProperty("fizteh.db.dir");
-
         if (workingDirectoryName == null) {
-            System.err.println("Property not found");
-            System.exit(1);
-        }
-
-        mainDir = new File(workingDirectoryName);
-
-        if (!mainDir.exists()) {
-            System.err.println(workingDirectoryName + " doesn't exist");
-            System.exit(1);
-        }
-
-        if (!mainDir.isDirectory()) {
-            System.err.println(workingDirectoryName + " is not a directory");
+            System.err.println("wrong type (Bad property)");
             System.exit(1);
         }
         try {
-            cleaner();
-        } catch (IOException e) {
+           mainManager = new TableManager(workingDirectoryName);
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(1);
-        } catch (Exception e) {
-            System.err.println("Unknown error");
-            System.exit(1);
         }
-
         HashMap<String, String> commandsList = new HashMap<String, String>();
         commandsList.put("put", "put");
         commandsList.put("get", "get");
@@ -50,170 +33,223 @@ public class DbMain {
         commandsList.put("create", "create");
         commandsList.put("use", "use");
         commandsList.put("drop", "drop");
+        commandsList.put("commit", "commit");
+        commandsList.put("rollback", "rollback");
+        commandsList.put("size", "size");
+
         try {
             try {
                 Parser.parser(arg, DbMain.class, commandsList);
+            } catch (RuntimeException e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
             } catch (Exception e) {
-                System.err.println(e.toString());
+                System.err.println(e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println(e.toString());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
         }
     }
-    private static void cleaner() throws Exception {
-        HashMap<String, Short> fileNames = new HashMap<String, Short>();
-        HashMap<String, Short> dirNames = new HashMap<String, Short>();
-        for (short i = 0; i < 16; ++i) {
-            fileNames.put(i + ".dat", i);
-            dirNames.put(i + ".dir", i);
+
+    public void create(String[] command) throws IllegalArgumentException, IOException {
+        if (command.length != 2) {
+            throw new IllegalArgumentException("wrong type (create: Wrong number of arguments)");
         }
-        File[] tables = mainDir.listFiles();
-        for (short i = 0; i < tables.length; ++i) {
-            if (tables[i].isFile()) {
-                throw new IOException(tables[i].toString() + " is not table");
+        String[] arg = command[1].trim().split("\\s+", 2);
+        if (arg.length < 2) {
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
+        }
+        String nameDir = arg[0];
+        if (!arg[1].startsWith("(")) {
+             throw new IllegalArgumentException("wrong type (Not found list of types. Use hooks)");
+        }
+        String[] args = arg[1].trim().split("[()]");
+        if (args.length != 2) { //arg[1] начинается со "(", поэтому отпаршивается пустая строка
+            throw new IllegalArgumentException("wrong type (Wrong format of typelist)");
+        }
+        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+        String[] signatures = args[1].trim().split("\\s+");
+        for (int i = 0; i < signatures.length; ++i) {
+            if (signatures[i].equals("int")) {
+                columnTypes.add(i, Integer.class);
+            } else if (signatures[i].equals("long")) {
+                columnTypes.add(i, Long.class);
+            }  else if (signatures[i].equals("byte")) {
+                columnTypes.add(i, Byte.class);
+            } else if (signatures[i].equals("float")) {
+                columnTypes.add(i, Float.class);
+            } else  if (signatures[i].equals("double")) {
+                columnTypes.add(i, Double.class);
+            } else if (signatures[i].equals("boolean")) {
+                columnTypes.add(i, Boolean.class);
+            } else if (signatures[i].equals("String")) {
+                columnTypes.add(i, String.class);
+            } else {
+                throw new IllegalArgumentException("wrong type (This type is not supposed: "
+                        + signatures[i] + ")");
             }
-            File[] directories = tables[i].listFiles();
-            if (directories.length > 16) {
-                throw new IOException(tables[i].toString() + ": Wrong number of files in the table");
-            }
-            Short[] idFile = new Short[2];
-            for (short j = 0; j < directories.length; ++j) {
-                if (directories[j].isFile() || !dirNames.containsKey(directories[j].getName())) {
-                    throw new IOException(directories[j].toString() + " is not directory of table");
-                }
-                idFile[0] = dirNames.get(directories[j].getName());
-                File[] files = directories[j].listFiles();
-                if (files.length > 16) {
-                    throw new IOException(tables[i].toString() + ": " + directories[j].toString()
-                            + ": Wrong number of files in the table");
-                }
-                for (short g = 0; g < files.length; ++g) {
-                    if (files[g].isDirectory() || !fileNames.containsKey(files[g].getName())) {
-                        throw new IOException(files[g].toString() + " is not a file of Date Base table");
-                    }
-                    idFile[1] = fileNames.get(files[g].getName());
-                    FileMap currentFileMap = new FileMap(files[g].getCanonicalFile(), idFile);
-                    currentFileMap.readerFile();
-                    currentFileMap.setAside();
-                }
-                File[] checkOnEmpty = directories[j].listFiles();
-                if (checkOnEmpty.length == 0) {
-                    if (!directories[j].delete()) {
-                        throw new Exception(directories[j] + ": Deleting error");
-                    }
-                }
-            }
+        }
+
+        TableData table = mainManager.createTable(nameDir, columnTypes);
+        if (table == null) {
+            System.out.println(nameDir + " exists");
+        } else {
+            System.out.println("created");
         }
     }
 
-    public void create(String[] command) throws Exception {
+    public void drop(String[] command) throws IllegalArgumentException {
         if (command.length != 2) {
-            throw new IOException("create: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (drop: Wrong number of arguments)");
         }
-        command[1] = command[1].trim();
-        String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(command[1]).toString();
-        File creatingTableFile = new File(correctName);
-        if (creatingTableFile.exists()) {
-            System.out.println(command[1] + " exists");
-        } else {
-            TableDate creatingTable = new TableDate(creatingTableFile);
-            if (!bidDateBase.containsKey(command[1])) {
-                bidDateBase.put(command[1], creatingTable);
-            }
-        }
-    }
-
-    public void drop(String[] command) throws Exception {
-        if (command.length != 2) {
-            throw new IOException("drop: Wrong number of arguments");
-        }
-        command[1] = command[1].trim();
-        String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(command[1]).toString();
-        File creatingTableFile = new File(correctName);
-        if (!creatingTableFile.exists()) {
-             System.out.println(command[1] + " not exists");
-        } else {
-            String[] argShell = new String[] {
-                    "rm",
-                    creatingTableFile.toPath().toString()
-            };
-            Shell.main(argShell);
-            System.out.println("dropped");
-            if (currentTable == bidDateBase.get(command[1])) {
+        String nameDir = command[1].trim();
+        if (currentTable != null) {
+            if (currentTable.tableFile.getName().equals(nameDir)) {
                 currentTable = null;
             }
-            bidDateBase.remove(command[1]);
         }
+        try {
+            mainManager.removeTable(command[1]);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        } catch (IllegalStateException e) {
+             System.out.println(nameDir + " not exists");
+        } catch (IOException e) {
+            System.out.println("wrong type (Reading/writing error" + e.getMessage() + ")");
+        }
+        System.out.println("dropped");
     }
 
-    public void use(String[] command) throws Exception {
+    public void use(String[] command) throws IOException {
         if (command.length != 2) {
-            throw new IOException("drop: Wrong number of arguments");
+            throw new IOException("wrong type (use: Wrong number of arguments)");
         }
-        command[1] = command[1].trim();
-        String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(command[1]).toString();
-        File creatingTableFile = new File(correctName);
-        if (!creatingTableFile.exists()) {
-            System.out.println(creatingTableFile.getName() + " not exists");
+        String nameDir = command[1].trim();
+        TableData buf = mainManager.getTable(nameDir);
+        if (buf == null) {
+            System.out.println(nameDir + " not exists");
         } else {
-            TableDate creatingTable = new TableDate(creatingTableFile);
-            bidDateBase.put(command[1], creatingTable);
-            currentTable = bidDateBase.get(command[1]);
-            System.out.println("using " + command[1]);
+            if (currentTable != null) {
+                int numberOfChanges = currentTable.countChanges();
+                if (numberOfChanges != 0) {
+                    System.out.println(numberOfChanges + " unsaved changes");
+                } else {
+                    System.out.println("using " + nameDir);
+                    currentTable = buf;
+                }
+            } else {
+                System.out.println("using " + nameDir);
+                currentTable = buf;
+            }
         }
+
     }
 
     public static void put(String[] command) throws Exception {
         if (currentTable == null) {
             System.out.println("no table");
+            System.out.flush();
             return;
         }
         if (command.length != 2) {
-            throw new IOException("put: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (put: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+", 2);
         if (arg.length != 2) {
-            throw new IOException("put: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (put: Wrong number of arguments)");
         }
-        currentTable.put(command);
+        Storeable oldValue = currentTable.put(arg[0], mainManager.deserialize(currentTable, arg[1]));
+        if (oldValue == null) {
+            System.out.println("new");
+        } else {
+            System.out.println("overwrite");
+            System.out.println(mainManager.serialize(currentTable, oldValue));
+        }
     }
 
-    public static void remove(String[] command) throws Exception {
+    public static void remove(String[] command) throws IllegalArgumentException {
         if (currentTable == null) {
             System.out.println("no table");
             return;
         }
         if (command.length != 2) {
-            throw new IOException("remove: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (remove: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+");
         if (arg.length != 1) {
-            throw new IOException("remove: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (remove: Wrong number of arguments)");
         }
-        currentTable.remove(command);
+        Storeable removedValue = currentTable.remove(arg[0]);
+        if (removedValue == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("removed");
+        }
     }
 
-    public static void get(String[] command) throws Exception {
+    public static void get(String[] command) throws IllegalArgumentException {
         if (currentTable == null) {
             System.out.println("no table");
             return;
         }
         if (command.length != 2) {
-            throw new IOException("get: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (get: Wrong number of arguments)");
         }
         command[1] = command[1].trim();
         String[] arg = command[1].split("\\s+");
         if (arg.length != 1) {
-            throw new IOException("get: Wrong number of arguments");
+            throw new IllegalArgumentException("wrong type (get: Wrong number of arguments)");
         }
-        currentTable.get(command);
+        Storeable value = currentTable.get(arg[0]);
+        if (value == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("found");
+            System.out.println(mainManager.serialize(currentTable, value));
+        }
     }
 
     public static void exit(String[] arg) {
-         System.exit(0);
+            System.exit(0);
+    }
+
+    public static void commit(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable == null) {
+                System.out.println("no table");
+            } else {
+                System.out.println(currentTable.commit());
+            }
+        } else {
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
+        }
+    }
+
+    public static void rollback(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable == null) {
+                System.out.println("no table");
+            } else {
+                System.out.println(currentTable.rollback());
+            }
+        } else {
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
+        }
+    }
+
+    public static void size(String[] arg) {
+        if (arg.length != 0) {
+            if (currentTable != null) {
+                System.out.println(currentTable.size());
+            } else {
+                System.out.println("no table");
+            }
+        } else {
+            throw new IllegalArgumentException("wrong type (Wrong number of arguments)");
+        }
     }
 
 }

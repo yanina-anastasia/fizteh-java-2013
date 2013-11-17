@@ -10,7 +10,11 @@ public class CommandRemove implements Command {
         return 1;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        String oldValue = state.remove(args[1]);
+        if (state.getCurrentTable() == null) {
+            System.out.println("no table");
+            return;
+        }
+        String oldValue = state.getCurrentTable().remove(args[1]);
         if (oldValue == null) {
             System.out.println("not found");
         } else {

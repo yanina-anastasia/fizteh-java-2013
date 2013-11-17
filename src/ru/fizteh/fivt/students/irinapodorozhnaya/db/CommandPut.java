@@ -5,8 +5,11 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.AbstractCommand;
 
 public class CommandPut extends AbstractCommand {
+	
+	private final DbState state;
 	public CommandPut(DbState state) {
-		super (2, state);
+		super (2);
+		this.state = state;
 	}
 
 	public String getName() {
@@ -14,11 +17,11 @@ public class CommandPut extends AbstractCommand {
 	}
 
 	public void execute(String[] args) throws IOException {
-		String s = ((DbState) getState()).getData().put(args[1], args[2]);
+		String s = state.put(args[1], args[2]);
 		if (s != null) {
-			getState().getOutputStream().println("overwrite " + s);
+			state.getOutputStream().println("overwrite " + s);
 		} else {
-			getState().getOutputStream().println("new");
+			state.getOutputStream().println("new");
 		}
 	}
 }

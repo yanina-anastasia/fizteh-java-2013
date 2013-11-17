@@ -2,18 +2,29 @@ package ru.fizteh.fivt.students.demidov.filemap;
 
 import java.io.IOException;
 
-import ru.fizteh.fivt.students.demidov.shell.BasicCommand;
+import ru.fizteh.fivt.students.demidov.basicclasses.BasicCommand;
+import ru.fizteh.fivt.students.demidov.basicclasses.BasicState;
 import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.ShellInterruptionException;
 
 public abstract class BasicFileMapCommand implements BasicCommand {
-	public BasicFileMapCommand(FileMap usedFileMap) {
-		fileMap = usedFileMap;
+	public BasicFileMapCommand(BasicState currentState, String commandName, int argumentsNumber) {
+		this.currentState = currentState;
+		this.commandName = commandName;
+		this.argumentsNumber = argumentsNumber;
 	}
 	
 	abstract public void executeCommand(String[] arguments, Shell usedShell) throws IOException, ShellInterruptionException;
-	abstract public int getNumberOfArguments();
-	abstract public String getCommandName();
 	
-	protected FileMap fileMap;
+	public int getNumberOfArguments() {
+		return argumentsNumber;
+	}
+	
+	public String getCommandName() {
+		return commandName;
+	}
+	
+	protected BasicState currentState;
+	private String commandName;
+	private int argumentsNumber;
 }
