@@ -23,7 +23,7 @@ public class CreateCommand<Table, Key, Value, State extends MultiFileMapShellSta
         }
 
         if (newTable == null) {
-            System.out.println(arguments[0] + " exists");
+            System.out.println(arguments[0].split("\\s+")[0] + " exists");
         } else {
             System.out.println("created");
         }
