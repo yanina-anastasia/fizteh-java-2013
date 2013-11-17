@@ -15,7 +15,7 @@ public class CommandCommit implements Command {
         return 0;
     }
     public void execute(State state, String[] args) throws IOException, ExitException {
-        if (state.isCurrentTableProviderNull()) {
+        if (state.currentTableIsNull()) {
             System.out.println("no table");
         } else {
             System.out.println(state.commit());

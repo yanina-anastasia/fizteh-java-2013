@@ -73,20 +73,27 @@ public class StoreableTableProvider extends AbstractTableProvider<ExtendedStorea
         fileOutputStream.getChannel().truncate(0); // Clear file
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
-        try {
-            for (Class<?> type : columnTypes) {
-                if (type == null) {
-                    throw new IllegalArgumentException("wrong column type");
-                }
-                TypeEnum typesEnum = TypeEnum.getByClass(type);
-                if (typesEnum == null) {
-                    throw new IllegalArgumentException("wrong column type");
-                }
-                String typeString = TypeEnum.getByClass(type).getSignature();
-                dataOutputStream.write(typeString.getBytes("UTF-8"));
-                dataOutputStream.write(' ');
-            }
 
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Class<?> type : columnTypes) {
+            if (type == null) {
+                throw new IllegalArgumentException("wrong column type");
+            }
+            TypeEnum typesEnum = TypeEnum.getByClass(type);
+            if (typesEnum == null) {
+                throw new IllegalArgumentException("wrong column type");
+            }
+            stringBuilder.append(TypeEnum.getByClass(type).getSignature());
+            stringBuilder.append(' ');
+        }
+
+        String typeString = stringBuilder.toString();
+
+        typeString = typeString.substring(0, typeString.length() - 1);
+
+        try {
+            dataOutputStream.write(typeString.getBytes("UTF-8"));
         } finally {
             dataOutputStream.close();
         }

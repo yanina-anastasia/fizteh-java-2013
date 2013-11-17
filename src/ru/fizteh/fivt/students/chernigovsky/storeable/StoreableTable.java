@@ -9,6 +9,10 @@ import java.util.List;
 public class StoreableTable extends AbstractTable<Storeable> implements ExtendedStoreableTable {
     List<Class<?>> columnTypeList;
 
+    public void setColumnTypeList(List<Class<?>> newColumnTypeList) {
+        columnTypeList = newColumnTypeList;
+    }
+
     public StoreableTable(String name, boolean flag, List<Class<?>> newColumnTypeList) {
         super(name, flag);
         columnTypeList = newColumnTypeList;

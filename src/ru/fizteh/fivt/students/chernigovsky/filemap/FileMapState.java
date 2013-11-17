@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.chernigovsky.filemap;
 import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTable;
 import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedMultiFileHashMapTableProvider;
 import ru.fizteh.fivt.students.chernigovsky.multifilehashmap.MultiFileHashMapUtils;
+import java.text.ParseException;
 
 import java.io.IOException;
 
@@ -38,7 +39,7 @@ public class FileMapState implements State {
         return currentTable.get(key);
     }
 
-    public String putToCurrentTable(String key, String value) {
+    public String putToCurrentTable(String key, String value) throws ParseException {
         return currentTable.put(key, value);
     }
 
@@ -46,7 +47,7 @@ public class FileMapState implements State {
         return currentTable.remove(key);
     }
 
-    public boolean removeTable(String name) {
+    public boolean removeTable(String name) throws IOException {
         try {
             currentTableProvider.removeTable(name);
         } catch (IllegalStateException ex) {
@@ -65,6 +66,10 @@ public class FileMapState implements State {
         return currentTableProvider.createTable(name) == null;
     }
 
+    public boolean createStoreableTable(String name, String types) throws IOException {
+        return false;
+    }
+
     public boolean isTableExists(String name) {
         return currentTableProvider.getTable(name) != null;
     }
@@ -81,11 +86,7 @@ public class FileMapState implements State {
         MultiFileHashMapUtils.readTable(this);
     }
 
-    public boolean isCurrentTableProviderNull() {
-        return currentTableProvider == null;
-    }
-
-    public int commit() {
+    public int commit() throws IOException {
         return currentTable.commit();
     }
 

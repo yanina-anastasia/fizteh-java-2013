@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import ru.fizteh.fivt.students.chernigovsky.junit.AbstractTable;
+import java.text.ParseException;
 
 import java.io.IOException;
 
@@ -8,11 +8,12 @@ public interface State {
     boolean currentTableIsNull();
 
     String getFromCurrentTable(String key);
-    String putToCurrentTable(String key, String value);
+    String putToCurrentTable(String key, String value) throws ParseException;
     String removeFromCurrentTable(String key);
 
     boolean createTable(String name);
-    boolean removeTable(String name);
+    boolean createStoreableTable(String name, String types) throws IOException;
+    boolean removeTable(String name) throws IOException;
     void checkDropTableUsing(String name);
     boolean isTableExists(String name);
     void changeCurrentTable(String name);
@@ -21,8 +22,7 @@ public interface State {
     void writeTable() throws IOException;
     void readTable() throws IOException;
 
-    boolean isCurrentTableProviderNull();
-    int commit();
+    int commit() throws IOException;
     int rollback();
     int size();
 }

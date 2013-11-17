@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import java.text.ParseException;
+
 import java.io.IOException;
 
 public class CommandPut implements Command {
@@ -14,12 +16,17 @@ public class CommandPut implements Command {
             System.out.println("no table");
             return;
         }
-        String oldValue = state.putToCurrentTable(args[1], args[2]);
-        if (oldValue == null) {
-            System.out.println("new");
-        } else {
-            System.out.println("overwrite");
-            System.out.println(oldValue);
+        try {
+            String oldValue = state.putToCurrentTable(args[1], args[2]);
+
+            if (oldValue == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(oldValue);
+            }
+        } catch (ParseException ex) {
+            System.out.println("wrong type (description)");
         }
     }
 }
