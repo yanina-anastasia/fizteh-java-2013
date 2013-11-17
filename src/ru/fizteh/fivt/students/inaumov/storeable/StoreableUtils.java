@@ -78,7 +78,7 @@ public class StoreableUtils {
             if (stringValue.trim().isEmpty()) {
                 return;
             }
-            if (stringValue.split("\\s+").length != 1) {
+            if (stringValue.matches("\\s*")) {
                 throw new ParseException("{" + stringValue + "}", -1);
             }
         }
