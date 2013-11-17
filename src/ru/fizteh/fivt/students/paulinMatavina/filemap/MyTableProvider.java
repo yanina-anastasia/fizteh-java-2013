@@ -21,13 +21,14 @@ public class MyTableProvider extends State implements TableProvider {
     public MyTableProvider(String dir) throws IOException {
         validate(dir);
         shell = new ShellState();    
+        File root = new File(shell.makeNewSource(dir));
+        if (fileExist(dir) && !root.isDirectory()) {
+            throw new IllegalArgumentException("provided root is not a directory");
+        }  
+        
         if (!fileExist(dir)) {
             shell.mkdir(new String[] {dir});
         }     
-        File root = new File(shell.makeNewSource(dir));
-        if (!root.isDirectory()) {
-            throw new IllegalArgumentException("provided root is not a directory");
-        } 
         
         shell.cd(dir);
         commands = new HashMap<String, Command>();
