@@ -17,6 +17,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Set;
 
+import static ru.fizteh.fivt.students.inaumov.storeable.StoreableUtils.isStringIncorrect;
+
 public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> implements Table {
     private DatabaseTableProvider tableProvider;
     private List<Class<?>> columnTypes;
@@ -43,8 +45,8 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
-            if (key.trim().isEmpty()) {
-                throw new IllegalArgumentException("error: key can't be empty");
+            if (isStringIncorrect(key)) {
+                throw new IllegalArgumentException("error: key can't contain whitespaces or be empty");
             }
         }
         if (value == null) {

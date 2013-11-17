@@ -65,7 +65,7 @@ public class StoreableUtils {
     }
 
     public static boolean isStringIncorrect(String string) {
-        return string.matches("\\s+") || string.split("\\s+").length != 1;
+        return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 
     public static void isValueCorrect(Object value, Class<?> type) throws ParseException {
@@ -75,6 +75,9 @@ public class StoreableUtils {
 
         if (TypesFormatter.getSimpleName(type).equals("String")) {
             String stringValue = (String) value;
+            if (stringValue.isEmpty()) {
+                return;
+            }
             if (isStringIncorrect(stringValue)) {
                 throw new ParseException("", 0);
             }
