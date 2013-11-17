@@ -16,7 +16,7 @@ public class MultiDbCreate implements Command {
             return 0; 
         }
         arg = arg.substring(0, arg.length() - 1).trim();
-        String[] argArray = arg.split("[//s/(]", 2);
+        String[] argArray = arg.split("[/(]", 2);
         if (argArray.length < 2 || argArray[1].isEmpty()) {
             System.out.println("wrong type (usage: create <name> <type1 [type2 ...]>)");
             return 0;
