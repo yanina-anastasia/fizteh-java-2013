@@ -54,9 +54,13 @@ public class StoreableUtils {
         while (scanner.hasNext()) {
             String type = scanner.next();
             if (TypeEnum.getBySignature(type) == null) {
-                throw new IOException("wrong type (description)");
+                throw new IOException("wrong type (in read signature)");
             }
             columnTypeList.add(TypeEnum.getBySignature(type).getClazz());
+        }
+
+        if (columnTypeList.size() == 0) {
+            throw new IOException("empty signature");
         }
 
         table.setColumnTypeList(columnTypeList);
