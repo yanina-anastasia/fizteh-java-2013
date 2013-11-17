@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.drozdowsky.database;
 
 import ru.fizteh.fivt.students.drozdowsky.utils.Pair;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -108,7 +109,9 @@ public class FileMap {
                     db.put(now.fst, value);
                 }
             }
-        } catch (IOException ignored) { }
+        } catch (IOException e) {
+            throw new IllegalPathStateException(dbPath.getAbsolutePath() + e.getMessage());
+        }
     }
 
     void write(File dbPath) {
@@ -134,7 +137,9 @@ public class FileMap {
             for (int i = 0; i < keys.size(); i++) {
                 out.write(values.get(i).getBytes("UTF-8"));
             }
-        } catch (IOException ignored) { }
+        } catch (IOException e) {
+            throw new IllegalPathStateException(dbPath.getAbsolutePath() + e.getMessage());
+        }
     }
 
     protected FileMap clone() {
