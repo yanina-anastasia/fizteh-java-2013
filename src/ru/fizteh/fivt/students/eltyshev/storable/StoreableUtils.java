@@ -75,14 +75,14 @@ public class StoreableUtils {
         switch (TypesFormatter.getSimpleName(type)) {
             case "String":
                 String stringValue = (String) value;
-                if (checkStringCorrect(stringValue)) {
+                /*if (checkStringCorrect(stringValue)) {
                     throw new ParseException("value cannot be null", 0);
-                }
+                }    */
                 break;
         }
     }
 
     public static boolean checkStringCorrect(String string) {
-        return string.matches("\\s+") || string.split("\\s+").length != 1;
+        return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 }
