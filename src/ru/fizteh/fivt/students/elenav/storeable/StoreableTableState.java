@@ -295,7 +295,9 @@ public class StoreableTableState extends FilesystemState implements Table {
 					
 					File dir = new File(getWorkingDirectory(), i + ".dir"); 
 					File out = new File(dir, j + ".dat");
+					out.delete();
 					if (toWriteInCurFile.size() > 0) {
+						out.createNewFile();
 						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 						Set<Entry<String, Storeable>> set = toWriteInCurFile.entrySet();
 						for (Entry<String, Storeable> element : set) {
@@ -306,9 +308,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 							}
 						}
 						s.close();
-					} else {
-						out.delete();
-					}
+					} 
 				}
 			}
 			deleteEmptyDirs(getWorkingDirectory());
