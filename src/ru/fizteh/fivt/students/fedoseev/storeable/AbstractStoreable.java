@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.fedoseev.storeable;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
+import ru.fizteh.fivt.students.fedoseev.multifilehashmap.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,15 +33,15 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
     @Override
     public Map<String, AbstractCommand> getCommands() {
         final StoreableCreateCommand CREATE = new StoreableCreateCommand();
-        final StoreableDropCommand DROP = new StoreableDropCommand();
-        final StoreableUseCommand USE = new StoreableUseCommand();
-        final StoreablePutCommand PUT = new StoreablePutCommand();
-        final StoreableGetCommand GET = new StoreableGetCommand();
-        final StoreableRemoveCommand REMOVE = new StoreableRemoveCommand();
-        final StoreableExitCommand EXIT = new StoreableExitCommand();
-        final StoreableSizeCommand SIZE = new StoreableSizeCommand();
-        final StoreableCommitCommand COMMIT = new StoreableCommitCommand();
-        final StoreableRollbackCommand ROLLBACK = new StoreableRollbackCommand();
+        final MultiFileHashMapDropCommand DROP = new MultiFileHashMapDropCommand();
+        final MultiFileHashMapUseCommand USE = new MultiFileHashMapUseCommand();
+        final MultiFileHashMapPutCommand PUT = new MultiFileHashMapPutCommand();
+        final MultiFileHashMapGetCommand GET = new MultiFileHashMapGetCommand();
+        final MultiFileHashMapRemoveCommand REMOVE = new MultiFileHashMapRemoveCommand();
+        final MultiFileHashMapExitCommand EXIT = new MultiFileHashMapExitCommand();
+        final MultiFileHashMapSizeCommand SIZE = new MultiFileHashMapSizeCommand();
+        final MultiFileHashMapCommitCommand COMMIT = new MultiFileHashMapCommitCommand();
+        final MultiFileHashMapRollbackCommand ROLLBACK = new MultiFileHashMapRollbackCommand();
 
         return new HashMap<String, AbstractCommand>() {{
             put(CREATE.getCmdName(), CREATE);
@@ -67,7 +68,13 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                     }
 
                     for (File file : dir.listFiles()) {
-                        checkOpenFile(curTable, file, dir);
+                        try {
+                            checkOpenFile(curTable, file, dir);
+                        } catch (IOException e) {
+                            System.out.println("OPEN FILE ERROR");
+
+                            throw e;
+                        }
                     }
                 }
             }
@@ -85,8 +92,14 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
         curTable.setTableSize(curTable.getTableSize() + curFile.length());
 
-        Map<String, Storeable> map = readFile(curTable, curFile, file, dir);
-        curTable.putMapTable(map);
+        try {
+            Map<String, Storeable> map = readFile(curTable, curFile, file, dir);
+            curTable.putMapTable(map);
+        } catch (IOException e) {
+            System.out.println("READ FILE ERROR");
+
+            throw e;
+        }
 
         curFile.close();
     }
@@ -153,7 +166,7 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
             String value = new String(valueArray, StandardCharsets.UTF_8);
 
-            map.put(key, curTable.getTb().deserialize(curTable, value));
+            map.put(key, curTable.getTp().deserialize(curTable, value));
             curFile.seek(currentOffset);
         }
 
@@ -196,13 +209,19 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                     int numb = curTable.getDirsNumber() * i + j;
                     files.put(numb, curFile);
 
-                    if (!files.get(numb).exists()) {
-                        files.get(numb).createNewFile();
+                    try {
+                        if (!files.get(numb).exists()) {
+                            files.get(numb).createNewFile();
+                        }
+
+                        RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
+
+                        RAFiles.put(numb, curRAFile);
+                    } catch (IOException e) {
+                        System.out.println("SAVE TABLE ERROR: creating file failed");
+
+                        throw e;
                     }
-
-                    RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
-
-                    RAFiles.put(numb, curRAFile);
                 }
             }
         }
@@ -222,7 +241,21 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                         }
                     }
 
-                    commitFile(curTable, raf, curFileKeySet);
+                    try {
+                        commitFile(curTable, raf, curFileKeySet);
+                    } catch (IOException e) {
+                        System.out.println("SAVE TABLE ERROR: committing file failed");
+
+                        throw e;
+                    }
+
+                    try {
+                        raf.close();
+                    } catch (IOException e) {
+                        System.out.println("SAVE TABLE ERROR: closing file failed");
+
+                        throw e;
+                    }
                 }
             }
         }
@@ -231,7 +264,13 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
         curTable.clearUsedFiles();
 
         for (int i : RAFiles.keySet()) {
-            RAFiles.get(i).close();
+            try {
+                RAFiles.get(i).close();
+            } catch (IOException e) {
+                System.out.println("SAVE TABLE ERROR: closing file failed");
+
+                throw e;
+            }
         }
 
         for (int i : files.keySet()) {
@@ -269,7 +308,7 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                 position = (int) file.getFilePointer();
                 file.seek(curOffset);
 
-                String value = curTable.getTb().serialize(curTable, curTable.get(key));
+                String value = curTable.getTp().serialize(curTable, curTable.get(key));
 
                 file.write(value.getBytes(StandardCharsets.UTF_8));
                 curOffset = (int) file.getFilePointer();

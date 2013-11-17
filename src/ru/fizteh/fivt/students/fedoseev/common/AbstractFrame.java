@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Scanner;
@@ -78,6 +77,9 @@ public abstract class AbstractFrame<State> implements Frame {
                     }
 
                     runCommands(cmd, end);
+                } catch (ParseException e) {
+                    System.out.println("wrong type (" + e.getMessage() + ")");
+                    System.err.println(e.getMessage());
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }

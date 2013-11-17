@@ -40,6 +40,7 @@ public class StoreableMain {
             }
         } catch (NullPointerException e) {
             System.err.println("ERROR: cannot get property");
+            e.printStackTrace();
             System.exit(1);
         } catch (Exception e) {
             System.err.println("ERROR: incorrect directory");

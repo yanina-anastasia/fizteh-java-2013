@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +27,13 @@ public class StoreableTable implements Table {
     private boolean[] boolUsedDirs;
     private boolean[][] boolUsedFiles;
     private int number;
-    private StoreableTableProvider tb;
+    private StoreableTableProvider tp;
     private ArrayList<Class<?>> columnTypes;
 
     public StoreableTable(String tableName, List<Class<?>> columnTypes, StoreableTableProvider prev) {
         this.tableName = tableName;
         tableSize = 0;
-        tb = prev;
+        tp = prev;
 
         boolUsedDirs = new boolean[DIRS_NUMBER];
         boolUsedFiles = new boolean[DIRS_NUMBER][DIR_FILES_NUMBER];
@@ -258,8 +259,8 @@ public class StoreableTable implements Table {
         }
     }
 
-    public StoreableTableProvider getTb() {
-        return tb;
+    public StoreableTableProvider getTp() {
+        return tp;
     }
 
     private void checkKeyFormat(String key) {
@@ -280,6 +281,10 @@ public class StoreableTable implements Table {
         }
 
         return columnTypes.get(columnIndex);
+    }
+
+    public ArrayList<Class<?>> getColumnTypes() {
+        return columnTypes;
     }
 
     public void checkKeyPlacement(String key, File dir, File file) throws IOException {

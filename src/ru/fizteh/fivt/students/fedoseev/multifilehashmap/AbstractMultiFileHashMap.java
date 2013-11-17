@@ -89,8 +89,8 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         curTable.setTableSize(0);
 
         File[] directories = new File[curTable.getDirsNumber()];
-        Map<Integer, File> files = new HashMap<Integer, File>();
-        Map<Integer, RandomAccessFile> RAFiles = new HashMap<Integer, RandomAccessFile>();
+        Map<Integer, File> files = new HashMap<>();
+        Map<Integer, RandomAccessFile> RAFiles = new HashMap<>();
         Set<String> keySet = curTable.getMapContent().keySet();
 
         curTable.setUsedDirs();
@@ -124,11 +124,12 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
                     RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
 
                     RAFiles.put(numb, curRAFile);
+                    curRAFile.close();
                 }
             }
         }
 
-        Set<String> curFileKeySet = new HashSet<String>();
+        Set<String> curFileKeySet = new HashSet<>();
 
         for (int i = 0; i < curTable.getDirsNumber(); i++) {
             for (int j = 0; j < curTable.getDirFilesNumber(); j++) {
@@ -144,6 +145,8 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
                     }
 
                     AbstractFileMap.commitFile(raf, curFileKeySet, curTable.getMapContent());
+
+                    raf.close();
                 }
             }
         }

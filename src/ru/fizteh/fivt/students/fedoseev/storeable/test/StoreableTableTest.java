@@ -18,11 +18,13 @@ import java.util.List;
 
 public class StoreableTableTest {
     private static StoreableTableProvider tp;
-    private static File dbDir = new File("world");
+    private static File dbDir;
     private static List<Class<?>> types;
     StoreableTable curTable;
 
     public StoreableTableTest() throws IOException {
+        dbDir = new File("world");
+
         dbDir.mkdirs();
 
         types = new ArrayList<>();
@@ -71,7 +73,6 @@ public class StoreableTableTest {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
 
         curTable.put("3", a);
-
         Assert.assertEquals(a, curTable.remove("3"));
     }
 
@@ -80,13 +81,11 @@ public class StoreableTableTest {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
 
         curTable.put("4", a);
-
         Assert.assertEquals(a, curTable.get("4"));
 
         Storeable b = tp.deserialize(curTable, "<row><col>false</col><col>grape tree</col></row>");
 
         curTable.put("Россия", b);
-
         Assert.assertEquals(b, curTable.get("Россия"));
     }
 
@@ -155,7 +154,6 @@ public class StoreableTableTest {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
 
         curTable.put("9", a);
-
         Assert.assertEquals(a, curTable.put("9", tp.deserialize(curTable,
                 "<row><col>true</col><col>lemon tree</col></row>")));
     }
@@ -172,28 +170,27 @@ public class StoreableTableTest {
 
 
     @Test
-    public void testGetOverwritten() throws Exception {
+    public void testPutOverwriteGet() throws Exception {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
         Storeable b = tp.deserialize(curTable, "<row><col>false</col><col>grape tree</col></row>");
 
         curTable.put("10", a);
         curTable.put("10", b);
-
         Assert.assertEquals(b, curTable.get("10"));
     }
 
     @Test
-    public void testGetRemoved() throws Exception {
+    public void testPutRemoveGet() throws Exception {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
         Storeable b = tp.deserialize(curTable, "<row><col>false</col><col>grape tree</col></row>");
 
         curTable.put("11", a);
         curTable.put("12", b);
-
+        Assert.assertEquals(a, curTable.get("11"));
         Assert.assertEquals(b, curTable.get("12"));
 
         curTable.remove("12");
-
+        Assert.assertEquals(a, curTable.get("11"));
         Assert.assertNull(curTable.get("12"));
     }
 
@@ -203,7 +200,6 @@ public class StoreableTableTest {
 
         curTable.put("13", a);
         curTable.rollback();
-
         Assert.assertNull(curTable.get("13"));
     }
 
@@ -212,7 +208,6 @@ public class StoreableTableTest {
         Storeable a = tp.deserialize(curTable, "<row><col>true</col><col>lemon tree</col></row>");
 
         curTable.put("14", a);
-
         Assert.assertEquals(1, curTable.commit());
         Assert.assertEquals(a, curTable.get("14"));
     }
@@ -225,7 +220,6 @@ public class StoreableTableTest {
         curTable.commit();
         curTable.remove("15");
         curTable.rollback();
-
         Assert.assertEquals(a, curTable.get("15"));
     }
 
@@ -235,13 +229,15 @@ public class StoreableTableTest {
         Storeable b = tp.deserialize(curTable, "<row><col>false</col><col>grape tree</col></row>");
 
         curTable.put("16", a);
-        curTable.put("17", b);
-        curTable.remove("18");
+        Assert.assertEquals(1, curTable.size());
 
+        curTable.put("17", b);
+        Assert.assertEquals(2, curTable.size());
+
+        curTable.remove("18");
         Assert.assertEquals(2, curTable.size());
 
         curTable.remove("17");
-
         Assert.assertEquals(1, curTable.size());
     }
 
@@ -251,15 +247,19 @@ public class StoreableTableTest {
         Storeable b = tp.deserialize(curTable, "<row><col>false</col><col>grape tree</col></row>");
 
         curTable.put("19", a);
-        curTable.put("20", b);
-        curTable.put("20", b);
+        Assert.assertEquals(1, curTable.size());
 
+        curTable.put("20", b);
+        Assert.assertEquals(2, curTable.size());
+
+        curTable.put("20", b);
         Assert.assertEquals(2, curTable.commit());
         Assert.assertEquals(2, curTable.size());
 
         curTable.remove("20");
-        curTable.remove("19");
+        Assert.assertEquals(1, curTable.size());
 
+        curTable.remove("19");
         Assert.assertEquals(0, curTable.size());
         Assert.assertEquals(2, curTable.rollback());
         Assert.assertEquals(2, curTable.size());

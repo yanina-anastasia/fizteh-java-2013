@@ -1,22 +1,21 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+import ru.fizteh.fivt.students.fedoseev.common.State;
 
 import java.io.IOException;
 
-public class MultiFileHashMapGetCommand extends AbstractCommand<MultiFileHashMapState> {
+public class MultiFileHashMapGetCommand extends AbstractCommand<State> {
     public MultiFileHashMapGetCommand() {
         super("get", 1);
     }
 
     @Override
-    public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        MultiFileHashMapTable curTable = state.getCurTable();
-
-        if (curTable == null) {
+    public void execute(String[] input, State state) throws IOException {
+        if (state.getCurTable() == null) {
             throw new IOException("no table");
         } else {
-            String gotValue = curTable.get(input[0]);
+            String gotValue = state.get(input[0]);
 
             if (gotValue == null) {
                 System.out.println("not found");

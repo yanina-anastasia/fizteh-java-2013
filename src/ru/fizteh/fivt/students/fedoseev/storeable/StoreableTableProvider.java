@@ -132,13 +132,7 @@ public class StoreableTableProvider implements TableProvider {
             return null;
         }
 
-        ArrayList<Class<?>> columnTypes = new ArrayList<>();
-
-        for (int i = 0; i < table.getColumnsCount(); i++) {
-            columnTypes.add(table.getColumnType(i));
-        }
-
-        return new StoreableStorable(columnTypes);
+        return new StoreableStorable(table);
     }
 
     @Override
@@ -155,17 +149,13 @@ public class StoreableTableProvider implements TableProvider {
             throw new ColumnFormatException("CREATE FOR ERROR: invalid values");
         }
 
-        ArrayList<Class<?>> columnTypes = new ArrayList<>();
-
         for (int i = 0; i < table.getColumnsCount(); i++) {
-            columnTypes.add(table.getColumnType(i));
-
             if (values.get(i) != null && !table.getColumnType(i).equals(values.get(i).getClass())) {
                 throw new ColumnFormatException("CREATE FOR ERROR: invalid values");
             }
         }
 
-        StoreableStorable storable = new StoreableStorable(columnTypes);
+        StoreableStorable storable = new StoreableStorable(table);
 
         storable.setColumns(values);
 

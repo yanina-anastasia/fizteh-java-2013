@@ -2,20 +2,21 @@ package ru.fizteh.fivt.students.fedoseev.storeable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StoreableStorable implements Storeable {
-    private final ArrayList<Class<?>> columnTypes;
+    private final StoreableTable table;
     private final ArrayList<Object> columns;
 
-    public StoreableStorable(ArrayList<Class<?>> columnTypes) {
-        this.columnTypes = columnTypes;
+    public StoreableStorable(Table table) {
+        this.table = (StoreableTable) table;
 
         columns = new ArrayList<>();
 
-        for (Class<?> ignored : this.columnTypes) {
+        for (Class<?> ignored : this.table.getColumnTypes()) {
             columns.add(null);
         }
     }
@@ -23,7 +24,7 @@ public class StoreableStorable implements Storeable {
     @Override
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkColumnIndex(columnIndex);
-        if (value != null && !value.getClass().equals(columnTypes.get(columnIndex))) {
+        if (value != null && !value.getClass().equals(table.getColumnTypes().get(columnIndex))) {
             throw new ColumnFormatException("wrong type (SET ERROR: invalid type)");
         }
 
@@ -87,7 +88,7 @@ public class StoreableStorable implements Storeable {
     }
 
     private void checkColumnIndex(int columnIndex) {
-        if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
+        if (columnIndex < 0 || columnIndex >= table.getColumnTypes().size()) {
             throw new IndexOutOfBoundsException("SET | GET ERROR: invalid column index");
         }
     }
@@ -95,16 +96,16 @@ public class StoreableStorable implements Storeable {
     private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
         checkColumnIndex(columnIndex);
 
-        if (!value.equals(columnTypes.get(columnIndex))) {
+        if (!value.equals(table.getColumnTypes().get(columnIndex))) {
             throw new ColumnFormatException(String.format(
                     "wrong type (GET ERROR: incorrect type: expected %s instead of %s)",
-                    columnTypes.get(columnIndex).getName(), value.getClass().getName())
+                    table.getColumnTypes().get(columnIndex).getName(), value.getClass().getName())
             );
         }
     }
 
     public void setColumns(List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (values.size() != columnTypes.size()) {
+        if (values.size() != table.getColumnTypes().size()) {
             throw new IndexOutOfBoundsException();
         }
 

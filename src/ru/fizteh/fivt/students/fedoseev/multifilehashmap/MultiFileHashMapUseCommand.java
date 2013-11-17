@@ -1,16 +1,18 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
+import ru.fizteh.fivt.students.fedoseev.common.State;
 
 import java.io.IOException;
+import java.text.ParseException;
 
-public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMapState> {
+public class MultiFileHashMapUseCommand extends AbstractCommand<State> {
     public MultiFileHashMapUseCommand() {
         super("use", 1);
     }
 
     @Override
-    public void execute(String[] input, MultiFileHashMapState state) throws IOException {
+    public void execute(String[] input, State state) throws IOException, ParseException {
         String tableName = input[0];
 
         if (state.getCurDir().getName().equals(tableName)) {
@@ -18,11 +20,10 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
             return;
         }
 
-        MultiFileHashMapTable curTable = state.getCurTable();
         int changesNumber = 0;
 
-        if (curTable != null) {
-            changesNumber = curTable.getDiffSize();
+        if (state.getCurTable() != null) {
+            changesNumber = state.getDiffSize();
         }
 
         if (changesNumber != 0) {
@@ -30,16 +31,15 @@ public class MultiFileHashMapUseCommand extends AbstractCommand<MultiFileHashMap
         }
 
         if (state.getCurDir().toPath().resolve(tableName).toFile().exists()) {
-            AbstractMultiFileHashMap.saveTable(curTable);
+            state.saveTable(state.getCurTable());
 
-            if (curTable != null) {
-                curTable.clearContentAndDiff();
+            if (state.getCurTable() != null) {
+                state.clearContentAndDiff();
             }
 
             state.setCurTable(tableName);
-            curTable = state.getCurTable();
 
-            AbstractMultiFileHashMap.readTableOff(curTable);
+            state.readTableOff(state.getCurTable());
 
             System.out.println("using " + tableName);
         } else {
