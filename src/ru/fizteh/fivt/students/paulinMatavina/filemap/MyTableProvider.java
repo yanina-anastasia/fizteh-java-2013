@@ -27,7 +27,11 @@ public class MyTableProvider extends State implements TableProvider {
         }  
         
         if (!fileExist(dir)) {
-            shell.mkdir(new String[] {dir});
+            try {
+                shell.mkdir(new String[] {dir});
+            } catch (Exception e) {
+                throw new IOException(e.getMessage(), e);
+            }
         }     
         
         shell.cd(dir);
