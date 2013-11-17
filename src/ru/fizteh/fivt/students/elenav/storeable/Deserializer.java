@@ -14,6 +14,10 @@ public class Deserializer {
 	
 	public static Storeable run(Table table, String value) throws XMLStreamException, ParseException {
 		
+		if (value == null) {
+			return null;
+		}
+		
 		MyStoreable st = new MyStoreable(table);
 		StringReader r = new StringReader(value);
 		XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(r);

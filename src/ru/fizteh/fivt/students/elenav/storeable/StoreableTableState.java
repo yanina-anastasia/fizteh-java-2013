@@ -366,11 +366,11 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get null key");
 		}
-		if (changedKeys.containsKey(key)) {
-			return changedKeys.get(key);
-		}
 		if (removedKeys.contains(key)) {
 			return null;
+		}
+		if (changedKeys.containsKey(key)) {
+			return changedKeys.get(key);
 		}
 		return startMap.get(key);
 	} 
