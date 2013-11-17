@@ -127,6 +127,8 @@ public class DatabaseTableProvider implements TableProvider {
 
             File tableFile = new File(databaseDirectoryPath, name);
             MultiFileMapUtils.deleteFile(tableFile);
+
+            currentTable = null;
         } finally {
             tableLock.unlock();
         }
