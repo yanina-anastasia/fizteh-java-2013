@@ -63,7 +63,16 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        V oldValue = commited.get(key);
+        V oldValue = null;
+
+        getCommitLock.readLock().lock();
+
+        try {
+        	oldValue = commited.get(key);
+        } finally {
+            getCommitLock.readLock().unlock();
+        }      
+
         V returnValue = null;  
  
         //overwriting the key from the last commit for the first time
@@ -140,7 +149,14 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        V oldValue = commited.get(key);
+        V oldValue = null;
+
+        try {
+        	oldValue = commited.get(key);
+        } finally {
+            getCommitLock.readLock().unlock();
+        } 
+
         V returnValue = null;
 
         //removing key from last commit for the first time
@@ -217,8 +233,13 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int size() {
-        return commited.size() - getDeletedCount() + getAddedCount();
-    }
+    	getCommitLock.readLock().lock();
+    	try {
+	        return commited.size() - getDeletedCount() + getAddedCount();
+   		} finally {
+   			getCommitLock.readLock().unlock();
+   		}
+   	}
 
     public String getName() {
         return name;
@@ -230,21 +251,24 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
         writeCommitLock.readLock().lock();
         getCommitLock.writeLock().lock();
 
+        try {
 
-        for (Map.Entry<String, V> entry: added.get().entrySet()) {
-            commited.put(entry.getKey(), entry.getValue());
-        }
+	        for (Map.Entry<String, V> entry: added.get().entrySet()) {
+	            commited.put(entry.getKey(), entry.getValue());
+	        }
 
-        for (Map.Entry<String, V> entry: overwritten.get().entrySet()) {
-            commited.put(entry.getKey(), entry.getValue());
-        }
+	        for (Map.Entry<String, V> entry: overwritten.get().entrySet()) {
+	            commited.put(entry.getKey(), entry.getValue());
+	        }
 
-        for (String entry : deleted.get()) {
-            commited.remove(entry);
-        }
+	        for (String entry : deleted.get()) {
+	            commited.remove(entry);
+	        }
+	    } finally {
 
-        getCommitLock.writeLock().unlock();
-        writeCommitLock.readLock().unlock();
+	        getCommitLock.writeLock().unlock();
+	        writeCommitLock.readLock().unlock();
+    	}
         //int diffNum = getDiffCount();
 
         added.get().clear();
