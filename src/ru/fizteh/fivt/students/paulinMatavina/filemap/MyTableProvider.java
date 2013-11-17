@@ -184,7 +184,7 @@ public class MyTableProvider extends State implements TableProvider {
         Object[] objects = new Object[columnCount];
         for (int i = 0; i < columnCount; i++) {
             objects[i] = value.getColumnAt(i);
-            if (!objects[i].equals(null) && objects[i].getClass() != table.getColumnType(i)) {
+            if (objects[i] != null && objects[i].getClass() != table.getColumnType(i)) {
                 throw new ColumnFormatException("wrong type: expected " + table.getColumnType(i).toString()
                         + ", " + objects[i].getClass().toString() + " passed");
             }
