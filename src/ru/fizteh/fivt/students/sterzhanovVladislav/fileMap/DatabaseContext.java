@@ -89,7 +89,7 @@ public class DatabaseContext implements Closeable {
     
     public void removeTable(String dbName) throws IllegalStateException {
         provider.removeTable(dbName);
-        if (!(activeMap == null) && dbName.equals(activeMap.getName())) {
+        if (activeMap != null && !activeMap.isAlive()) {
             activeMap = null;
         }
     }

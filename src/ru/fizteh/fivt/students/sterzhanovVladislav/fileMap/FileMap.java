@@ -295,6 +295,15 @@ public class FileMap implements Table {
         }
     }
     
+    public boolean isAlive() {
+        aliveLock.lock();
+        try {
+            return !destroyed;
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
     private Storeable getDirtyValue(String key) {
         Diff changed = diff.get().get(key);
         if (changed == null) {

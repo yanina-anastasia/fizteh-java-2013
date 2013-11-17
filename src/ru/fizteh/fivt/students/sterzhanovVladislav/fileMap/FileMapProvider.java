@@ -100,7 +100,9 @@ public class FileMapProvider implements TableProvider {
                     throw new IllegalArgumentException("Invalid database path");
                 }
                 ShellUtility.removeDir(dbPath);
-                removedTable.destroy();
+                if (removedTable != null) {
+                    removedTable.destroy();
+                }
             } finally {
                 writeTableLock.unlock();
             }
