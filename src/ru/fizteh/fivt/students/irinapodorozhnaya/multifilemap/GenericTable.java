@@ -122,6 +122,7 @@ public abstract class GenericTable<ValueType> {
                         || changedValues.get().get(s).equals(oldDatabase.get(s))) {
 
                     changedValues.get().remove(s);
+                    continue;
                 } else if (changedValues.get().get(s) == null) {
                     oldDatabase.remove(s);
                 } else {
