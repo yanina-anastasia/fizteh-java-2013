@@ -23,9 +23,15 @@ public class Main {
             System.exit(1);
         }
         File dbDirectory = new File(dbPath);
-        if (!dbDirectory.exists() || !dbDirectory.isDirectory()) {
-            System.err.println("DB directory not exists");
+        if (dbDirectory.exists() || !dbDirectory.isDirectory()) {
+            System.err.println("it's not a directory");
             System.exit(1);
+        }
+        if (!dbDirectory.exists()) {
+            if (!dbDirectory.mkdir()) {
+                System.err.println("making directory error");
+                System.exit(1);
+            }
         }
 
         ExtendedStoreableTableProvider tableProvider = new StoreableTableProvider(dbDirectory, false);
