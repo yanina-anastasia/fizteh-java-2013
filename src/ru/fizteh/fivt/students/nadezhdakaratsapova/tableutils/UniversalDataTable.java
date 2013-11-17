@@ -183,7 +183,7 @@ public abstract class UniversalDataTable<ValueType> {
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToRollback = putKeys.get().keySet();
             for (String key : putKeysToRollback) {
-                if (!dataStorage.containsKey(key)) {
+                if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
                     ++rollbackSize;
                 }
             }
