@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap;
 
 import java.io.IOException;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.*;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -17,135 +19,177 @@ public class FileMap implements Table {
     
     private String name = null;
     private HashMap<String, Storeable> db = null;
-    private HashMap<String, Diff> diff = null;
     private List<Class<?>> columnTypes = null;
     private FileMapProvider parentProvider = null;
+    private boolean destroyed = false;
+
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock rLock = rwLock.readLock(); 
+    private final Lock wLock = rwLock.readLock(); 
+    private final ReadWriteLock rwDestroyLock = new ReentrantReadWriteLock();
+    private final Lock destroyLock = rwDestroyLock.readLock(); 
+    private final Lock aliveLock = rwDestroyLock.readLock(); 
+    private ThreadLocal<HashMap<String, Diff>> diff;
 
     @Override
     public String getName() {
-        return name;
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return name;
+        } finally {
+            aliveLock.unlock();
+        }
     }
 
     @Override
     public Storeable get(String key) {
-        if (key == null || key.isEmpty() || !isValidKey(key)) {
-            throw new IllegalArgumentException();
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            if (key == null || key.isEmpty() || !isValidKey(key)) {
+                throw new IllegalArgumentException();
+            }
+            return getDirtyValue(key);
+        } finally {
+            aliveLock.unlock();
         }
-        return getDirtyValue(key);
     }
 
     @Override
     public Storeable put(String key, Storeable value) {
-        if (!isValidKey(key)) {
-            throw new IllegalArgumentException("Illegal key");
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            if (!isValidKey(key)) {
+                throw new IllegalArgumentException("Illegal key");
+            }
+            if (!isValidValue(value)) {
+                throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
+            }
+            Storeable result = getDirtyValue(key);
+            diff.get().put(key, new Diff(DiffType.ADD, value));
+            return result;
+        } finally {
+            aliveLock.unlock();
         }
-        if (!isValidValue(value)) {
-            throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
-        }
-        Storeable result = getDirtyValue(key);
-        diff.put(key, new Diff(DiffType.ADD, value));
-        return result;
     }
 
     @Override
     public Storeable remove(String key) {
-        if (key == null || key.isEmpty() || !isValidKey(key)) {
-            throw new IllegalArgumentException();
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            if (key == null || key.isEmpty() || !isValidKey(key)) {
+                throw new IllegalArgumentException();
+            }
+            Storeable result = getDirtyValue(key);
+            diff.get().put(key, new Diff(DiffType.REMOVE, null));
+            return result;
+        } finally {
+            aliveLock.unlock();
         }
-        Storeable result = getDirtyValue(key);
-        diff.put(key, new Diff(DiffType.REMOVE, null));
-        return result;
     }
 
     @Override
     public int size() {
-        return db.size() + estimateDiffDelta();
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return db.size() + estimateDiffDelta();
+        } finally {
+            aliveLock.unlock();
+        }
     }
 
     @Override
     public int commit() throws IOException {
-        int result = estimateDiffSize();
-        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue().value;
-            DiffType type = entry.getValue().type;
-            if (type == DiffType.ADD) {
-                db.put(key, value);
-            } else if (type == DiffType.REMOVE) {
-                db.remove(key);
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            int result = estimateDiffSize();
+            wLock.lock();
+            try {
+                for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+                    String key = entry.getKey();
+                    Storeable value = entry.getValue().value;
+                    DiffType type = entry.getValue().type;
+                    if (type == DiffType.ADD) {
+                        db.put(key, value);
+                    } else if (type == DiffType.REMOVE) {
+                        db.remove(key);
+                    }
+                }
+                if (parentProvider != null) {
+                    writeOut(parentProvider.getRootDir());
+                }
+            } finally {
+                wLock.unlock();
             }
+            diff.remove();
+            return result;
+        } finally {
+            aliveLock.unlock();
         }
-        diff.clear();
-        if (parentProvider != null) {
-            writeOut(parentProvider.getRootDir());
-        }
-        return result;
     }
 
     @Override
     public int rollback() {
-        int result = estimateDiffSize();
-        diff.clear();
-        return result;
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            int result = estimateDiffSize();
+            diff.remove();
+            return result;
+        } finally {
+            aliveLock.unlock();
+        }
     }
     
     @Override 
     public int getColumnsCount() {
-        return columnTypes.size();
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return columnTypes.size();
+        } finally {
+            aliveLock.unlock();
+        }
     }
     
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        return columnTypes.get(columnIndex);
-    }
-    
-    private int estimateDiffDelta() {
-        int diffSize = 0;
-        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
-            String key = entry.getKey();
-            DiffType type = entry.getValue().type;
-            if (type == DiffType.ADD) {
-                if (!db.containsKey(key)) {
-                    ++diffSize;
-                }
-            } else if (type == DiffType.REMOVE) {
-                if (db.containsKey(key)) {
-                    --diffSize;
-                }
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            if (columnIndex >= columnTypes.size() || columnIndex < 0) {
+                throw new IndexOutOfBoundsException();
             }
+            return columnTypes.get(columnIndex);
+        } finally {
+            aliveLock.unlock();
         }
-        return diffSize;
-    }
-    
-    private int estimateDiffSize() {
-        int diffSize = 0;
-        for (Map.Entry<String, Diff> entry : diff.entrySet()) {
-            String key = entry.getKey();
-            DiffType type = entry.getValue().type;
-            if (type == DiffType.ADD) {
-                if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
-                    ++diffSize;
-                }
-            } else if (type == DiffType.REMOVE) {
-                if (db.containsKey(key)) {
-                    ++diffSize;
-                }
-            }
-        }
-        return diffSize;
     }
     
     public void setName(String name) {
-        this.name = name;
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            this.name = name;
+        } finally {
+            aliveLock.unlock();
+        }
     }
     
     public FileMap(String dbName, List<Class<?>> classes) {
         name = dbName;
         db = new HashMap<String, Storeable>();
-        diff = new HashMap<String, Diff>();
+        diff = new ThreadLocal<HashMap<String, Diff>>() {
+            @Override
+            public HashMap<String, Diff> initialValue() {
+                return new HashMap<String, Diff>();
+            }
+        };
         for (Class<?> type : classes) {
             if (type == null || !StoreableUtils.CLASSES.containsKey(type)) {
                 throw new IllegalArgumentException("Invalid column type");
@@ -174,10 +218,94 @@ public class FileMap implements Table {
         }
     }
     
+    public boolean isDirty() {
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return !diff.get().isEmpty();
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
+    public int getDiffSize() {
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return estimateDiffSize();
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
+    public void writeOut(String dirPath) throws IOException {
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            Path path = Paths.get(dirPath + "/" + name);
+            if (path == null) {
+                throw new IllegalArgumentException("Invalid directory path");
+            }
+            wLock.lock();
+            try {
+                try {
+                    ShellUtility.removeDir(path);
+                } catch (IOException e) {
+                    // Ignore
+                }
+                IOUtility.writeDatabase(db, path, columnTypes);
+                IOUtility.writeSignature(path, columnTypes);
+            } finally {
+                wLock.unlock();
+            }
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
+    public List<Class<?>> getSignature() {
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            return columnTypes;
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
+    public void setProvider(FileMapProvider provider) {
+        aliveLock.lock();
+        try {
+            ensureTableExists();
+            this.parentProvider = provider;
+        } finally {
+            aliveLock.unlock();
+        }
+    }
+    
+    public void destroy() {
+        destroyLock.lock();
+        wLock.lock();
+        try {
+            ensureTableExists();
+            destroyed = true;
+        } finally {
+            wLock.unlock();
+            destroyLock.unlock();
+        }
+    }
+    
     private Storeable getDirtyValue(String key) {
-        Diff changed = diff.get(key);
+        Diff changed = diff.get().get(key);
         if (changed == null) {
-            return db.get(key);
+            Storeable result = null;
+            rLock.lock();
+            try {
+                result = db.get(key);
+            } finally {
+                rLock.unlock();
+            }
+            return result;
         } else if (changed.type == DiffType.ADD) {
             return changed.value;
         } else {
@@ -185,34 +313,56 @@ public class FileMap implements Table {
         }
     }
     
-    public boolean isDirty() {
-        return !diff.isEmpty();
-    }
-    
-    public int getDiffSize() {
-        return estimateDiffSize();
-    }
-    
-    public void writeOut(String dirPath) throws IOException {
-        Path path = Paths.get(dirPath + "/" + name);
-        if (path == null) {
-            throw new IllegalArgumentException("Invalid directory path");
+    private void ensureTableExists() throws IllegalStateException {
+        if (destroyed) {
+            throw new IllegalStateException("Table no longer exists");
         }
+    }
+    
+    private int estimateDiffDelta() {
+        int diffSize = 0;
+        rLock.lock();
         try {
-            ShellUtility.removeDir(path);
-        } catch (IOException e) {
-            // Ignore
+            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+                String key = entry.getKey();
+                DiffType type = entry.getValue().type;
+                if (type == DiffType.ADD) {
+                    if (!db.containsKey(key)) {
+                        ++diffSize;
+                    }
+                } else if (type == DiffType.REMOVE) {
+                    if (db.containsKey(key)) {
+                        --diffSize;
+                    }
+                }
+            }
+        } finally {
+            rLock.unlock();
         }
-        IOUtility.writeDatabase(db, path, columnTypes);
-        IOUtility.writeSignature(path, columnTypes);
+        return diffSize;
     }
     
-    public List<Class<?>> getSignature() {
-        return columnTypes;
-    }
-    
-    public void setProvider(FileMapProvider provider) {
-        this.parentProvider = provider;
+    private int estimateDiffSize() {
+        int diffSize = 0;
+        rLock.lock();
+        try {
+            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+                String key = entry.getKey();
+                DiffType type = entry.getValue().type;
+                if (type == DiffType.ADD) {
+                    if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
+                        ++diffSize;
+                    }
+                } else if (type == DiffType.REMOVE) {
+                    if (db.containsKey(key)) {
+                        ++diffSize;
+                    }
+                }
+            } 
+        } finally {
+            rLock.unlock();
+        }
+        return diffSize;
     }
 
     private static boolean isValidKey(String s) {
