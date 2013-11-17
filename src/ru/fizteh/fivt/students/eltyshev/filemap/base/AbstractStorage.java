@@ -50,6 +50,21 @@ public abstract class AbstractStorage<Key, Value> {
             return recordsChanged;
         }
 
+        public int calcSize() {
+            int result = 0;
+            for (final Key key : modifiedData.keySet()) {
+                Value newValue = modifiedData.get(key);
+                Value oldValue = oldData.get(key);
+                if (newValue == null && oldValue != null) {
+                    result -= 1;
+                }
+                if (newValue != null && oldValue == null) {
+                    result += 1;
+                }
+            }
+            return result;
+        }
+
         public Value getValue(Key key) {
             if (modifiedData.containsKey(key)) {
                 return modifiedData.get(key);
@@ -58,15 +73,7 @@ public abstract class AbstractStorage<Key, Value> {
         }
 
         public int getSize() {
-            return oldData.size() + size;
-        }
-
-        public void decreaseSize() {
-            size -= 1;
-        }
-
-        public void increaseSize() {
-            size += 1;
+            return oldData.size() + calcSize();
         }
 
         public void increaseUncommittedChanges() {
@@ -139,9 +146,6 @@ public abstract class AbstractStorage<Key, Value> {
         }
 
         Value oldValue = transactionChanges.get().getValue(key);
-        if (oldValue == null) {
-            transactionChanges.get().increaseSize();
-        }
 
         transactionChanges.get().addChange(key, value);
         return oldValue;
@@ -157,9 +161,6 @@ public abstract class AbstractStorage<Key, Value> {
 
         Value oldValue = transactionChanges.get().getValue(key);
         transactionChanges.get().addChange(key, null);
-        if (oldValue != null) {
-            transactionChanges.get().decreaseSize();
-        }
         transactionChanges.get().increaseUncommittedChanges();
         return oldValue;
     }
