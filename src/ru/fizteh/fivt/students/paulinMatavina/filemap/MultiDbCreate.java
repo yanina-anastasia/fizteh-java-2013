@@ -1,21 +1,23 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
+import ru.fizteh.fivt.storage.strings.*;
 
 public class MultiDbCreate implements Command {
     @Override
     public int execute(String[] args, State state) {
         String name = args[0];
-        args[0] = ((MultiDbState) state).makeNewSource(args[0]);
-        int result = ((MultiDbState) state).shell.mkdir(args);
-        if (result == 2) {
-            System.out.println(name + " exists");
-            return 0;
+        if (name == null) {
+            throw new IllegalArgumentException();
         }
-        if (result == 0) {
+        MyTableProvider multiState = (MyTableProvider) state;
+        Table table = multiState.createTable(name);
+        if (table == null) {
+            System.out.println(name + " exists");
+        }  else {
             System.out.println("created");
         }
-        return result;
+        return 0;
     }
     
     @Override

@@ -11,8 +11,9 @@ import java.util.Vector;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class DbState extends State{
+public class DbState extends State {
     public HashMap<String, String> data;
+    public HashMap<String, String> initial;
     public RandomAccessFile dbFile;
     public String path;
     private int foldNum;
@@ -22,33 +23,12 @@ public class DbState extends State{
         foldNum = folder;
         fileNum = file;
         path = dbPath;
-        commands = new HashMap<String, Command>();
-        fileCheck();
-        data = new HashMap<String, String>();
         try {
             loadData();
         } catch (IOException e) {
             System.err.println("filemap: data loading error");
-            System.exit(1);
+            throw new DbExitException(1);
         }
-    }
-    
-    @Override
-    public void exitWithError(int errCode) {
-        try {
-            commit();
-        } catch (IOException e) {
-            System.out.println("filemap: error while writing data to the disk");
-            errCode = 1;
-        } finally {
-            try {
-                dbFile.close();
-            } catch (IOException e) {
-                System.err.println("filemap: error in file closing");
-                System.exit(1);
-            }
-        }
-        System.exit(errCode);
     }
     
     private void fileCheck() {
@@ -58,14 +38,14 @@ public class DbState extends State{
                 dbTempFile.createNewFile();
             } catch (IOException e) {
                 System.err.println("filemap: unable to create a database file");
-                System.exit(1);
+                throw new DbExitException(1);
             }
         }
         try {
             dbFile = new RandomAccessFile(path, "rw");
         } catch (FileNotFoundException e) {
-            System.err.println("filemap: database file does not exist");
-            System.exit(1);
+            System.err.println("filemap: database file does not exist " + path);
+            throw new DbExitException(1);
         }
         return;
     }
@@ -114,61 +94,108 @@ public class DbState extends State{
         return byteVectToStr(byteVect);
     }
     
-    public void loadData() throws IOException {
-        if (dbFile.length() == 0) {
-                return;
-        } 
-        
+    public int loadData() throws IOException {
+        data = new HashMap<String, String>();
+        initial = new HashMap<String, String>();
+        dbFile = null;
+        int result = 0;
         int position = 0;
-        String key = getKeyFromFile(position);
-        int startOffset = dbFile.readInt();
-        int endOffset = 0;
-        int firstOffset = startOffset;
-        String value = "";
-        String key2 = "";
-        
-        do {  
-            position += key.getBytes().length + 5;
-            if (position < firstOffset) {   
-                key2 = getKeyFromFile(position);
-                endOffset = dbFile.readInt();
-                value = getValueFromFile(startOffset, endOffset);
-                
-            } else {
-                value = getValueFromFile(startOffset, (int) dbFile.length());
-            }
+        try {
+            fileCheck();
+            if (dbFile.length() == 0) {
+                return 0;
+            } 
             
-            if (key.getBytes().length > 0) {
-                if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
-                    throw new IOException("wrong key in file");
+            String key = getKeyFromFile(position);
+            int startOffset = dbFile.readInt();
+            int endOffset = 0;
+            int firstOffset = startOffset;
+            String value = "";
+            String key2 = "";
+            
+            do {  
+                position += key.getBytes().length + 5;
+                if (position < firstOffset) {   
+                    key2 = getKeyFromFile(position);
+                    endOffset = dbFile.readInt();
+                    value = getValueFromFile(startOffset, endOffset);
+                    
+                } else {
+                    value = getValueFromFile(startOffset, (int) dbFile.length());
                 }
-                data.put(key, value);
-            }
+                
+                if (key.getBytes().length > 0) {
+                    if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
+                        throw new IOException("wrong key in file");
+                    }
+                    result++;
+                    data.put(key, value);
+                }
+                
+                key = key2;
+                startOffset = endOffset;
+            } while (position <= firstOffset); 
             
-            key = key2;
-            startOffset = endOffset;
-        } while (position <= firstOffset); 
+            initial = new HashMap<String, String>(data);
+        } finally {
+            if (dbFile != null) {
+                try {
+                    dbFile.close();
+                } catch (Throwable e) {
+                    // ignore
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    public int getChangeNum() {
+        int result = 0;
+        for (Map.Entry<String, String> s : data.entrySet()) {
+            String was = initial.get(s.getKey());
+            String became = s.getValue();
+            if ((was != null && !was.equals(became)) 
+                    || (was == null && became != null)) {
+                result++;
+            }
+        }
+        return result;
     }
 
     public void commit() throws IOException {
-        fileCheck();
-        int offset = 0;
-        long pos = 0;
-        
-        for (String s : data.keySet()) {
-            offset += s.getBytes("UTF-8").length + 5;
-        }
-        
-        for (Map.Entry<String, String> s : data.entrySet()) {
-            dbFile.seek(pos);
-            dbFile.write(s.getKey().getBytes("UTF-8"));
-            dbFile.write("\0".getBytes("UTF-8"));
-            dbFile.writeInt(offset);
-            pos = (int) dbFile.getFilePointer();
-            dbFile.seek(offset);
-            byte[] value = s.getValue().getBytes("UTF-8");
-            dbFile.write(value);
-            offset += value.length;
+        initial = new HashMap<String, String>(data);
+        dbFile = null;
+        try {
+            fileCheck();
+            int offset = 0;
+            long pos = 0;
+            for (Map.Entry<String, String> s : data.entrySet()) {
+                if (s.getValue() != null) {
+                    offset += s.getKey().getBytes("UTF-8").length + 5;
+                } 
+            }
+            for (Map.Entry<String, String> s : data.entrySet()) {
+                if (s.getValue() != null) {
+                    dbFile.seek(pos);
+                    dbFile.write(s.getKey().getBytes("UTF-8"));
+                    dbFile.write("\0".getBytes("UTF-8"));
+                    dbFile.writeInt(offset);
+                    pos = (int) dbFile.getFilePointer();
+                    dbFile.seek(offset);
+                    byte[] value = s.getValue().getBytes("UTF-8");
+                    dbFile.write(value);
+                    offset += value.length;
+                }
+            }
+        } finally {
+            if (dbFile != null) {
+                try {
+                    dbFile.close();
+                } catch (Throwable e) {
+                    // ignore
+                }
+            }
         }
     }
     
@@ -180,38 +207,35 @@ public class DbState extends State{
         return ((Math.abs(key.getBytes()[0]) / 16) % 16);
     }
     
-    public int put(String[] args) {
+    public String put(String[] args) {
         String key = args[0];
         String value = args[1];
-        String result = data.put(key, value);
-        if (result != null) {
-                System.out.println("overwrite");
-                System.out.println(result);
-        } else {
-                System.out.println("new");
-        }
-        return 0;
+        return data.put(key, value);
     }
     
-    public int get(String[] args) {
+    public String get(String[] args) {
         String key = args[0];
         if (data.containsKey(key)) {
-            System.out.println("found");
-            System.out.println(data.get(key));
+            return data.get(key);
         } else {
-            System.out.println("not found");
+            return null;
         }
-        return 0;
     }
     
-    public int remove(String[] args) {
+    public String remove(String[] args) {
         String key = args[0];
-        if (data.containsKey(key)) {
-            data.remove(key);
-            System.out.println("removed");
-        } else {
-            System.out.println("not found");
+        String value = data.get(key);
+        data.put(key, null);
+        return value;
+    }
+    
+    public int size() {
+        int result = 0;
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            if (entry.getValue() != null) {
+                result++;
+            }
         }
-        return 0;
+        return result;
     }
 }
