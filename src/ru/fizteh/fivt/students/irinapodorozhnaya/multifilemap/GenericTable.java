@@ -118,7 +118,11 @@ public abstract class GenericTable<ValueType> {
         try {
             lock.writeLock().lock();
             for (String s: changedValues.get().keySet()) {
-                if (changedValues.get().get(s) == null) {
+                if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
+                        || changedValues.get().get(s).equals(oldDatabase.get(s))) {
+
+                    changedValues.get().remove(s);
+                } else if (changedValues.get().get(s) == null) {
                     oldDatabase.remove(s);
                 } else {
                     oldDatabase.put(s, changedValues.get().get(s));
@@ -183,6 +187,13 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
+        for (String s: changedValues.get().keySet()) {
+            if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
+                  || changedValues.get().get(s).equals(oldDatabase.get(s))) {
+
+                changedValues.get().remove(s);
+            }
+        }
         int res = changedValues.get().size();
         changedValues.get().clear();
         changedSize.set(0);
