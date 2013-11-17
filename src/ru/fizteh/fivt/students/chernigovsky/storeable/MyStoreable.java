@@ -45,7 +45,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= columns.size()) {
             throw new IndexOutOfBoundsException();
         }
-        if (!table.getColumnType(columnIndex).equals(value.getClass())) {
+        if (value != null && !table.getColumnType(columnIndex).equals(value.getClass())) {
             throw new ColumnFormatException();
         }
         columns.set(columnIndex, value);
