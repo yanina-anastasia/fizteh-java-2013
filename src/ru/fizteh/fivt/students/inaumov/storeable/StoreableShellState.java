@@ -32,9 +32,12 @@ public class StoreableShellState implements MultiFileMapShellState<Table, String
 
     @Override
     public Table useTable(String tableName) {
-        table = tableProvider.getTable(tableName);
+        Table newTable = tableProvider.getTable(tableName);
+        if (newTable != null) {
+            table = newTable;
+        }
 
-        return table;
+        return newTable;
     }
 
     @Override
