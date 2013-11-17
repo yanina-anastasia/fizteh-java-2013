@@ -10,13 +10,20 @@ import ru.fizteh.fivt.storage.structured.Table;
 public class MultiDbCreate implements Command {
     @Override
     public int execute(String[] args, State state) {
-        StringTokenizer tokens = new StringTokenizer(args[0]);
-        String name = tokens.nextToken();
-        if (!tokens.hasMoreTokens()) {
+        String arg = args[0].trim();
+        if (arg.charAt(arg.length() - 1) != ')') {
+            System.out.println("wrong type: (usage: create <name> <type1 [type2 ...]>)");
+            return 0; 
+        }
+        arg = arg.substring(0, arg.length() - 1).trim();
+        String[] argArray = arg.split("[//s/(]", 2);
+        if (argArray.length < 2 || argArray[1].isEmpty()) {
             System.out.println("wrong type: (usage: create <name> <type1 [type2 ...]>)");
             return 0;
         }
         
+        StringTokenizer tokens = new StringTokenizer(argArray[1]);
+        String name = argArray[0].trim();
         MyTableProvider multiState = (MyTableProvider) state;
         Table table = null;
 
