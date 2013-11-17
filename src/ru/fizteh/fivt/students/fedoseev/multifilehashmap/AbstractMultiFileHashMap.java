@@ -120,11 +120,6 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
                     if (!files.get(numb).exists()) {
                         files.get(numb).createNewFile();
                     }
-
-                    RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
-
-                    RAFiles.put(numb, curRAFile);
-                    curRAFile.close();
                 }
             }
         }
@@ -134,7 +129,7 @@ public class AbstractMultiFileHashMap extends AbstractFrame<MultiFileHashMapStat
         for (int i = 0; i < curTable.getDirsNumber(); i++) {
             for (int j = 0; j < curTable.getDirFilesNumber(); j++) {
                 if (curTable.getBoolUsedFiles()[i][j]) {
-                    RandomAccessFile raf = RAFiles.get(curTable.getDirsNumber() * i + j);
+                    RandomAccessFile raf = new RandomAccessFile(files.get(curTable.getDirsNumber() * i + j), "rw");
 
                     curFileKeySet.clear();
 

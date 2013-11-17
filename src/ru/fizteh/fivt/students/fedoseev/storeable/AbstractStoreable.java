@@ -213,10 +213,6 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
                         if (!files.get(numb).exists()) {
                             files.get(numb).createNewFile();
                         }
-
-                        RandomAccessFile curRAFile = new RandomAccessFile(files.get(numb), "rw");
-
-                        RAFiles.put(numb, curRAFile);
                     } catch (IOException e) {
                         System.out.println("SAVE TABLE ERROR: creating file failed");
 
@@ -231,7 +227,15 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
         for (int i = 0; i < curTable.getDirsNumber(); i++) {
             for (int j = 0; j < curTable.getDirFilesNumber(); j++) {
                 if (curTable.getBoolUsedFiles()[i][j]) {
-                    RandomAccessFile raf = RAFiles.get(curTable.getDirsNumber() * i + j);
+                    RandomAccessFile raf;
+
+                    try {
+                        raf = new RandomAccessFile(files.get(curTable.getDirsNumber() * i + j), "rw");
+                    } catch (IOException e) {
+                        System.out.println("SAVE TABLE ERROR: creating RA file failed");
+
+                        throw e;
+                    }
 
                     curFileKeySet.clear();
 
