@@ -22,6 +22,7 @@ public class MultiDbStateTest {
     MyTableProviderFactory factory;
     File root;
     ArrayList<Class<?>> list;
+    ArrayList<Class<?>> wrongList;
     ArrayList<Object> correct;
     ArrayList<Object> wrong;
     Storeable correctValues;
@@ -50,6 +51,8 @@ public class MultiDbStateTest {
         correct.add(1000000000);
         correct.add(true);
         correct.add(1.001);
+        wrong = correct;
+        wrongList = list;
         correctValues = provider.createFor(table, correct);
     }  
     
@@ -99,6 +102,16 @@ public class MultiDbStateTest {
             fail();
         }
     } 
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testProviderCreateWrongType() {
+        wrongList.set(1, Object.class);
+        try {
+            provider.createTable("def", list);
+        } catch (IOException e) {
+            fail();
+        }
+    }
     
     @Test(expected = IllegalArgumentException.class)
     public void testProviderCreateTableListNull() {

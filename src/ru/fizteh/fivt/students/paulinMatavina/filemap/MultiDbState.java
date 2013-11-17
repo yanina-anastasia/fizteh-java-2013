@@ -71,16 +71,11 @@ public class MultiDbState extends State implements Table {
         if (columnTypes == null) {
             throw new IllegalArgumentException("no list passed");
         }
-        
-        try {
-            for (int i = 0; i < columnTypes.size(); i++) {
-                if (columnTypes.get(i) == null
-                        || !possibleTypes.keySet().contains(columnTypes.get(i))) {
-                    throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i).getSimpleName());
-               }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (int i = 0; i < columnTypes.size(); i++) {
+            if (columnTypes.get(i) == null
+                    || !possibleTypes.keySet().contains(columnTypes.get(i))) {
+                throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i));
+           }
         }
     }
     
