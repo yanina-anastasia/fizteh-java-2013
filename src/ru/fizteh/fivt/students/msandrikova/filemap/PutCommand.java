@@ -19,18 +19,20 @@ public class PutCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().isStoreable && argumentsList.length - 2 < 1) {
+		if(shell.getState().isStoreable && argumentsList.length < 3) {
 			Utils.generateAnError("Incorrect arguments amount.", this.getName(), shell.getIsInteractive());
 			return;
 		}
+		String key = argumentsList[1];
+		String JSONArgument = null;
 		
 		if(shell.getState().isStoreable) {
-			for(int i = 3; i < argumentsList.length; ++i) {
-				argumentsList[2] += " " + argumentsList[i];
-			}
+			JSONArgument = shell.getCurrentInstruction().trim().substring(3).trim();
+			JSONArgument = JSONArgument.substring(key.length()).trim();
+			argumentsList[2] = JSONArgument;
 		}
 		
-		String key = argumentsList[1];
+		
 		String value = argumentsList[2];
 		
 		if(!Utils.testUTFSize(key) || !Utils.testUTFSize(value)) {

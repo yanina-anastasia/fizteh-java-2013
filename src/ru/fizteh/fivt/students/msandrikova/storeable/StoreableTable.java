@@ -78,7 +78,7 @@ public class StoreableTable implements ChangesCountingTable {
 	}
 	
 	private void write() throws IOException {
-		writeSignature();
+		this.writeSignature();
 		File directory;
 		for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
 			directory = new File(this.tablePath, i + ".dir");

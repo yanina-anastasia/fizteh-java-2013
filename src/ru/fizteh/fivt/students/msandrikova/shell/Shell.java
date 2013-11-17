@@ -16,6 +16,7 @@ public class Shell {
 	private File currentDirectory = new File("").getAbsoluteFile();
 	private boolean isInteractive = false;
 	private State myState;
+	private String currentInstruction;
 	
 	private void InitMap(Command[] commands) {
 		Map< String, Command > m = new HashMap<String, Command>();
@@ -45,11 +46,16 @@ public class Shell {
 		this.currentDirectory = currentDirectory;
 	}
 	
+	public String getCurrentInstruction() {
+		return this.currentInstruction;
+	}
+	
 	private void executeOfInstructionLine(String instructionLine) {
 		String[] instructionsList = new String[]{};
 		String[] argumentsList;
 		instructionsList = Utils.parseOfInstructionLine(instructionLine);
 		for(String instruction : instructionsList){
+			this.currentInstruction = instruction;
 			argumentsList = Utils.parseOfInstruction(instruction);
 			if(argumentsList[0].equals("")){
 				continue;
