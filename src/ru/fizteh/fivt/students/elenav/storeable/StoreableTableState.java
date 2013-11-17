@@ -150,6 +150,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 				return null;
 			} else {
 				if (startMap.get(key) != null) {
+					--curSize;
 					removedKeys.add(key);
 				}
 				return startMap.get(key);
