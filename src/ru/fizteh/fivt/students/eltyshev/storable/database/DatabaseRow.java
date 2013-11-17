@@ -1,11 +1,11 @@
 package ru.fizteh.fivt.students.eltyshev.storable.database;
 
-import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DatabaseRow implements Storeable {
@@ -31,7 +31,7 @@ public class DatabaseRow implements Storeable {
             try {
                 StoreableUtils.checkValue(value, value.getClass());
             } catch (ParseException e) {
-                throw new IllegalArgumentException("incorrect value");
+                throw new IllegalArgumentException("incorrect value " + "{" + (String) value + "}");
             }
         }
         columns.set(columnIndex, value);
