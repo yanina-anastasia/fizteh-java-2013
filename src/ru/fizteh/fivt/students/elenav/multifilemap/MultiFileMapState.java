@@ -210,11 +210,7 @@ public class MultiFileMapState extends FilesystemState implements Table {
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
-	}
-
-	public static void main(String[] args) {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 	
 }

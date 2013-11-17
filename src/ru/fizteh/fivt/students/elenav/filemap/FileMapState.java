@@ -55,32 +55,32 @@ public class FileMapState extends FilesystemState {
 
 	@Override
 	public int commit() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public int rollback() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public int getNumberOfChanges() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public void read() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
                                                                                                                                                                  
 

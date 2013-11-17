@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -33,8 +34,9 @@ public class StoreableTableState extends FilesystemState implements Table {
     
 	private List<Class<?>> columnTypes = new ArrayList<>();
 	private final HashMap<String, Storeable> startMap = new HashMap<>();
-	public final HashMap<String, Storeable> map = new HashMap<>();
-	private int numberOfChanges = 0;
+	private final HashMap<String, Storeable> changedKeys = new HashMap<>();
+	private final HashSet<String> removedKeys = new HashSet<>();
+	private int curSize = 0;
 	
 	public StoreableTableState(String n, File wd, PrintStream out, StoreableTableProvider provider2) {
 		super(n, wd, out);
@@ -74,7 +76,6 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	}
 
-
 	@Override
 	public Storeable put(String key, Storeable value1) throws ColumnFormatException {
 		if (key == null || value1 == null || key.trim().isEmpty()) {
@@ -90,27 +91,24 @@ public class StoreableTableState extends FilesystemState implements Table {
 		} catch (ParseException | XMLStreamException e) {
 			throw new ColumnFormatException(e);
 		}
-		Storeable currentValue = map.put(key, value);
-		Storeable oldValue = startMap.get(key);
-		if (currentValue == null) {
-			if (oldValue == null)
-				setNumberOfChanges(getNumberOfChanges() + 1);
-			else {
-				if (oldValue.equals(value)) {
-					setNumberOfChanges(getNumberOfChanges() - 1);
-				}
-			}
+		if (removedKeys.remove(key)) {
+			++curSize;
+			if (!value.equals(startMap.get(key))) {
+				changedKeys.put(key, value);
+			} 
+			return null;
 		} else {
-			if (!value.equals(currentValue)) {
-				if (oldValue != null && oldValue.equals(currentValue)) {
-					setNumberOfChanges(getNumberOfChanges() + 1);
-				}
-				if (oldValue != null && oldValue.equals(value)) {
-					setNumberOfChanges(getNumberOfChanges() - 1);
-				} 
+			if (changedKeys.get(key) == null) {
+				++curSize;
+			}
+			if (!value.equals(startMap.get(key))) {
+				return changedKeys.put(key, value);
+			} else {
+				changedKeys.remove(key);
+				return value;
 			}
 		}
-		return currentValue;
+		
 	}
 	
 	private void checkStoreable(Storeable s) {
@@ -138,18 +136,21 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't remove null key");
 		}
-		Storeable oldValue = startMap.get(key);
-		Storeable value = map.remove(key);
-		if (value != null) {
-			if (oldValue == null) {
-				setNumberOfChanges(getNumberOfChanges() - 1);
+		Storeable oldValue = changedKeys.remove(key);
+		if (oldValue != null) {
+			--curSize;
+			removedKeys.add(key);
+			return oldValue;
+		} else {
+			if (removedKeys.contains(key)) {
+				return null;
 			} else {
-				if (oldValue.equals(value)) {
-					setNumberOfChanges(getNumberOfChanges() + 1);
+				if (startMap.get(key) != null) {
+					removedKeys.add(key);
 				}
+				return startMap.get(key);
 			}
 		}
-		return value;
 	}
 	
 	@Override 
@@ -164,38 +165,27 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	@Override
 	public int size() {
-		return map.size();
+		return curSize;
 	}
 
 	@Override
 	public int commit() {
-		int result = numberOfChanges;
-		startMap.clear();
-		startMap.putAll(map);
-		numberOfChanges = 0;
+		int result = getNumberOfChanges();
 		try {
 			write();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		removedKeys.clear();
+		changedKeys.clear();
 		return result;
 	}
 
 	@Override
 	public int rollback() {
-		int result = numberOfChanges;
-		map.clear();
-		map.putAll(startMap);
-		numberOfChanges = 0;
-		return result;
-	}
-
-	public int getNumberOfChanges() {
-		return numberOfChanges;
-	}
-
-	public void setNumberOfChanges(int numberOfChanges) {
-		this.numberOfChanges = numberOfChanges;
+		changedKeys.clear();
+		removedKeys.clear();
+		return getNumberOfChanges();
 	}
 
 	private int getDir(String key) throws IOException {
@@ -229,7 +219,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 
 	@Override
 	public void read() throws IOException {
-		map.clear();
+		startMap.clear();
 		File[] dirs = getWorkingDirectory().listFiles();
 		if (dirs != null) {
 			if (dirs.length == 0) {
@@ -253,13 +243,9 @@ public class StoreableTableState extends FilesystemState implements Table {
 						} catch (ParseException e) {
 							throw new IOException("can't deserialize");
 						}
-						f.delete();
 					}
 				}
-				file.delete();
 			}
-			startMap.clear();
-			startMap.putAll(map);
 		}
 		
 	}
@@ -287,7 +273,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 				s.read(tempValue);
 				String value = new String(tempValue, StandardCharsets.UTF_8);
 				try {
-					table.map.put(key, Deserializer.run(table, value));
+					table.startMap.put(key, Deserializer.run(table, value));
 				} catch (XMLStreamException e) {
 					throw new RuntimeException(e);
 				}
@@ -301,19 +287,20 @@ public class StoreableTableState extends FilesystemState implements Table {
 	
 	public void write() throws IOException {
 		if (getWorkingDirectory() != null) {
+			saveChanges();
 			for (int i = 0; i < DIR_COUNT; ++i) {
 				for (int j = 0; j < FILES_PER_DIR; ++j) {
 					Map<String, Storeable> toWriteInCurFile = new HashMap<>();
 			
-					for (String key : map.keySet()) {
+					for (String key : startMap.keySet()) {
 						if (getDir(key) == i && getFile(key) == j) {
-							toWriteInCurFile.put(key, map.get(key));
+							toWriteInCurFile.put(key, startMap.get(key));
 						}
 					}
 					
+					File dir = new File(getWorkingDirectory(), i + ".dir"); 
+					File out = new File(dir, j + ".dat");
 					if (toWriteInCurFile.size() > 0) {
-						File dir = new File(getWorkingDirectory(), i + ".dir"); 
-						File out = new File(dir, j + ".dat");
 						DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
 						Set<Entry<String, Storeable>> set = toWriteInCurFile.entrySet();
 						for (Entry<String, Storeable> element : set) {
@@ -324,10 +311,31 @@ public class StoreableTableState extends FilesystemState implements Table {
 							}
 						}
 						s.close();
+					} else {
+						out.delete();
 					}
 				}
 			}
+			deleteEmptyDirs(getWorkingDirectory());
 		}
+	}
+
+	private void saveChanges() {
+		for (String key : removedKeys) {
+			startMap.remove(key);
+		}
+		for (Entry<String, Storeable> pair : changedKeys.entrySet()) {
+			startMap.put(pair.getKey(), pair.getValue());
+		}
+	}
+
+	private void deleteEmptyDirs(File f) {
+		for (File dir : f.listFiles()) {
+			if (dir.isDirectory() && dir.listFiles().length == 0) {
+				dir.delete();
+			}
+		}
+		
 	}
 
 	@Override
@@ -358,7 +366,13 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (key == null || key.trim().isEmpty()) {
 			throw new IllegalArgumentException("can't get null key");
 		}
-		return map.get(key);
+		if (changedKeys.containsKey(key)) {
+			return changedKeys.get(key);
+		}
+		if (removedKeys.contains(key)) {
+			return null;
+		}
+		return startMap.get(key);
 	} 
 	
 	@Override
@@ -370,6 +384,39 @@ public class StoreableTableState extends FilesystemState implements Table {
 			System.exit(1);
 		}
 		return null;
+	}
+
+	public int getCurSize() {
+		return curSize;
+	}
+
+	public void setCurSize(int curSize) {
+		this.curSize = curSize;
+	}
+
+	public HashSet<String> getRemovedKeys() {
+		return removedKeys;
+	}
+
+	public HashMap<String, Storeable> getChangedKeys() {
+		return changedKeys;
+	}
+
+	
+	@Override
+	public int getNumberOfChanges() {
+		int result = 0;
+		for (String key : removedKeys) {
+			if (startMap.get(key) != null) {
+				++result;
+			}
+		}
+		for (Entry<String, Storeable> pair : changedKeys.entrySet()) {
+			if (startMap.get(pair.getKey()) != pair.getValue()) {
+				++result;
+			}
+		}
+		return result;
 	} 
 
 }

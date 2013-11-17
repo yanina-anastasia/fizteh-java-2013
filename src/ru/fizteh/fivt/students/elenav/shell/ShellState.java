@@ -36,11 +36,11 @@ public class ShellState extends FilesystemState implements ShellFace {
 
 	@Override
 	public int commit() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	public String get(String string) {
-		System.err.print("Command can't be executed");
+		System.err.print("Command isn't supported in this implementation");
 		return null;
 	}
 
@@ -51,12 +51,12 @@ public class ShellState extends FilesystemState implements ShellFace {
 	
 	@Override
 	public String put(String string, String string2) {
-		System.err.print("Command can't be executed");
+		System.err.print("Command isn't supported in this implementation");
 		return null;
 	}
 
 	public String remove(String string) {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 	
 	@Override
@@ -66,27 +66,27 @@ public class ShellState extends FilesystemState implements ShellFace {
 
 	@Override
 	public int rollback() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public int getNumberOfChanges() {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public void read() throws IOException {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 	@Override
 	public Storeable put(String string, Storeable string2) {
-		throw new UnsupportedOperationException("Sorry, your shell not pass");
+		throw new UnsupportedOperationException("Command isn't supported in this implementation");
 	}
 
 }
