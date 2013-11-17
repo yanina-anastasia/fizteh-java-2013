@@ -6,20 +6,18 @@ import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
 import ru.fizteh.fivt.students.inaumov.multifilemap.commands.*;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.storeable.base.DatabaseTableProviderFactory;
-import ru.fizteh.fivt.students.inaumov.storeable.commands.StoreableCreateCommand;
-import ru.fizteh.fivt.students.inaumov.storeable.commands.StoreablePutCommand;
 
 import java.io.IOException;
 
 public class StoreableMain {
     public static void main(String[] args) {
         Shell<StoreableShellState> shell = new Shell<StoreableShellState>();
-        shell.addCommand(new StoreablePutCommand<Table, String, Storeable, StoreableShellState>());
+        shell.addCommand(new PutCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new GetCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new RemoveCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new CommitCommand<StoreableShellState>());
         shell.addCommand(new RollbackCommand<StoreableShellState>());
-        shell.addCommand(new StoreableCreateCommand<Table, String, Storeable, StoreableShellState>());
+        shell.addCommand(new CreateCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new UseCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new DropCommand<StoreableShellState>());
         shell.addCommand(new ExitCommand<StoreableShellState>());

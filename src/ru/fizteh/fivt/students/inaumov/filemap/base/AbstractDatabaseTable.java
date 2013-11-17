@@ -1,46 +1,41 @@
 package ru.fizteh.fivt.students.inaumov.filemap.base;
 
+import ru.fizteh.fivt.students.inaumov.filemap.FileMapUtils;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractDatabaseTable<Key, Value> {
-    // кодировка
     public static final Charset CHARSET = StandardCharsets.UTF_8;
-    // сохраненная информация
 	public HashMap<Key, Value> keyValueHashMap = new HashMap<Key, Value>();
-    // измененная информация
-	public HashMap<Key, OldAndNewValue<Value>> modifiedKeyValueHashMap = new HashMap<Key,  OldAndNewValue<Value>>();
-    // сохранненное и измененное значение
-    private class OldAndNewValue<Value> {
+	public HashMap<Key, ValueDiff<Value>> modifiedKeyValueHashMap = new HashMap<Key, ValueDiff<Value>>();
+
+    private class ValueDiff<Value> {
         public Value oldValue;
         public Value newValue;
 
-        OldAndNewValue(Value oldValue, Value newValue) {
+        ValueDiff(Value oldValue, Value newValue) {
             this.oldValue = oldValue;
             this.newValue = newValue;
         }
     }
-    // название таблицы
+
 	final private String tableName;
-    // директория таблицы
 	final private String tableDir;
-    // размер таблицы
 	private int tableSize = 0;
-    // количество несохраненных изменений
 	private int unsavedChangesNumber = 0;
 
-    // загрузить таблицу
 	protected abstract void loadTable() throws IOException;
-    // сохранить таблицу
+
 	protected abstract void saveTable() throws IOException;
 
 	public AbstractDatabaseTable(String tableDir, String tableName) {
-		if (tableDir == null || tableDir.isEmpty()) {
+		if (FileMapUtils.isStringNullOrEmpty(tableDir)) {
 			throw new IllegalArgumentException("error: selected directory is null (or empty)");
 		}
-		if (tableName == null || tableName.isEmpty()) {
+		if (FileMapUtils.isStringNullOrEmpty(tableName)) {
 			throw new IllegalArgumentException("error: selected database name is null (or empty)");
 		}
 		
@@ -50,7 +45,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         try {
 		    loadTable();
         } catch (IOException e) {
-            throw new IllegalArgumentException("incorrect file format");
+            throw new IllegalArgumentException("error: can't load table, incorrect file format");
         }
 	}
 	
@@ -64,7 +59,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 	
 	public Value tableGet(Key key) {
 		if (key == null) {
-			throw new IllegalArgumentException("key can't be null");
+			throw new IllegalArgumentException("error: selected key is null");
 		}
 		
 		if (modifiedKeyValueHashMap.containsKey(key)) {
@@ -76,10 +71,10 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
 	public Value tablePut(Key key, Value value) {
 		if (key == null) {
-			throw new IllegalArgumentException("key can't be null or empty");
+			throw new IllegalArgumentException("error: selected key is null");
 		}
 		if (value == null) {
-			throw new IllegalArgumentException("value can't be null or empty");
+			throw new IllegalArgumentException("error: selected value is null");
 		}
 		
 		Value oldValue = getOldValue(key);
@@ -96,7 +91,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
 	public Value tableRemove(Key key) throws IllegalArgumentException {
 		if (key == null) {
-			throw new IllegalArgumentException("key can't be null");
+			throw new IllegalArgumentException("error: selected key is null");
 		}
 		
 		if (tableGet(key) == null) {
@@ -119,12 +114,12 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         int savedChangesNumber = 0;
 
         for (final Key key: modifiedKeyValueHashMap.keySet()) {
-            OldAndNewValue oldAndNewValue = modifiedKeyValueHashMap.get(key);
-            if (!isEqual(oldAndNewValue.newValue, oldAndNewValue.oldValue)) {
-                if (oldAndNewValue.newValue == null) {
+            ValueDiff valueDiff = modifiedKeyValueHashMap.get(key);
+            if (!FileMapUtils.isEqual(valueDiff.newValue, valueDiff.oldValue)) {
+                if (valueDiff.newValue == null) {
                     keyValueHashMap.remove(key);
                 } else {
-                    keyValueHashMap.put(key, (Value) oldAndNewValue.newValue);
+                    keyValueHashMap.put(key, (Value) valueDiff.newValue);
                 }
 
                 savedChangesNumber += 1;
@@ -132,13 +127,12 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         }
 
         modifiedKeyValueHashMap.clear();
-
         tableSize = keyValueHashMap.size();
 
         try {
             saveTable();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println("error: can't save table: " + e.getMessage());
             return 0;
         }
 
@@ -151,16 +145,14 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         int rollbackChangesNumber = 0;
 
         for (final Key key: modifiedKeyValueHashMap.keySet()) {
-            OldAndNewValue oldAndNewValue = modifiedKeyValueHashMap.get(key);
-            if (!isEqual(oldAndNewValue.newValue, oldAndNewValue.oldValue)) {
+            ValueDiff valueDiff = modifiedKeyValueHashMap.get(key);
+            if (!FileMapUtils.isEqual(valueDiff.newValue, valueDiff.oldValue)) {
                 rollbackChangesNumber += 1;
             }
         }
 
         modifiedKeyValueHashMap.clear();
-
         tableSize = keyValueHashMap.size();
-
         unsavedChangesNumber = 0;
 
         return rollbackChangesNumber;
@@ -178,7 +170,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         if (modifiedKeyValueHashMap.containsKey(key)) {
             modifiedKeyValueHashMap.get(key).newValue = value;
         } else {
-            modifiedKeyValueHashMap.put(key, new OldAndNewValue(keyValueHashMap.get(key), value));
+            modifiedKeyValueHashMap.put(key, new ValueDiff(keyValueHashMap.get(key), value));
         }
     }
 
@@ -188,10 +180,6 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         }
 
         return keyValueHashMap.get(key);
-    }
-
-    private boolean isEqual(Object o1, Object o2) {
-        return o1 == o2 || (o1 != null && o1.equals(o2));
     }
 
     public void rawPut(Key key, Value value) {

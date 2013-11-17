@@ -22,4 +22,6 @@ public interface FileMapShellState<Table, Key, Value> {
     public Key parseKey(String key);
 
     public Value parseValue(String value);
+
+    public String[] parsePutCommand(String argumentLine);
 }

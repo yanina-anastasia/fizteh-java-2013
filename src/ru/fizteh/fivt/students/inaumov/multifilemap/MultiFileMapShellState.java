@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.inaumov.multifilemap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 
 import java.io.IOException;
@@ -13,4 +12,6 @@ public interface MultiFileMapShellState<Table, Key, Value> extends FileMapShellS
     public Table useTable(String tableName);
 
     public String getCurrentTableName();
+
+    public String[] parseCreateCommand(String argumentsLine);
 }

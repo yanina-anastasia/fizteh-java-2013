@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.inaumov.filemap;
 
 import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class FileMapStringShellState implements FileMapShellState<Table, String, String> {
     public Table table = null;
@@ -58,5 +59,10 @@ public class FileMapStringShellState implements FileMapShellState<Table, String,
     @Override
     public String parseValue(String value) {
         return value;
+    }
+
+    @Override
+    public String[] parsePutCommand(String argumentLine) {
+        return Shell.parseCommandParameters(argumentLine);
     }
 }

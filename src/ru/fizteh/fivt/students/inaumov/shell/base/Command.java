@@ -7,5 +7,5 @@ public interface Command<State> {
 
     public int getArgumentsNumber();
 
-	public void execute(String[] args, State state) throws UserInterruptionException;
+	public void execute(String argumentsLine, State state) throws UserInterruptionException;
 }
