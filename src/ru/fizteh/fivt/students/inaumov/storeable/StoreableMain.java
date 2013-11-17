@@ -17,6 +17,7 @@ public class StoreableMain {
         shell.addCommand(new RemoveCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new CommitCommand<StoreableShellState>());
         shell.addCommand(new RollbackCommand<StoreableShellState>());
+        shell.addCommand(new SizeCommand<StoreableShellState>());
         shell.addCommand(new CreateCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new UseCommand<Table, String, Storeable, StoreableShellState>());
         shell.addCommand(new DropCommand<StoreableShellState>());
