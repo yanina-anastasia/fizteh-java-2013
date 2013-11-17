@@ -40,7 +40,7 @@ public class StoreableUtils {
 
     public static TableInfo parseCreateCommand(String arguments) {
         TableInfo tableInfo = null;
-        String[] columnTypesNames = arguments.split(" ");
+        String[] columnTypesNames = arguments.split("\\s+");
         if (columnTypesNames.length <= 1) {
             throw new IllegalArgumentException("error: can't parse arguments");
         }
