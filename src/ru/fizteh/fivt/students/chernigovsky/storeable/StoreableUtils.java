@@ -70,7 +70,7 @@ public class StoreableUtils {
             if (!directory.exists()) {
                 continue;
             }
-            if (!directory.isDirectory()) {
+            if (!directory.isDirectory() || directory.list().length == 0) {
                 throw new IOException("Corrupted database");
             }
 
@@ -79,7 +79,7 @@ public class StoreableUtils {
                 if (!file.exists()) {
                     continue;
                 }
-                if (!file.isFile()) {
+                if (!file.isFile() || file.length() == 0) {
                     throw new IOException("Corrupted database");
                 }
 
