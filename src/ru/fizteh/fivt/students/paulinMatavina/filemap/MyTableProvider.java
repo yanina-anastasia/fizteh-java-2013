@@ -182,6 +182,7 @@ public class MyTableProvider extends State implements TableProvider {
             }
             return newList;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ParseException("error when parsing string: " + e.getMessage(), 0);
         }
     }
