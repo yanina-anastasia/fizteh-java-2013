@@ -26,9 +26,12 @@ public class SignatureFile {
         if (!signatureFile.exists()) {
             throw new IllegalStateException("Signature file not exists");
         }
-        RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw");
-        String inputString = signature.readLine();
-        signature.close();
+        String inputString;
+        try (RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw")) {
+            inputString = signature.readLine();
+        } catch (IOException e) {
+            throw new IOException("Read signature.tsv error", e);
+        }
         if (inputString == null) {
             throw new IllegalStateException("Readed string from signature file is null");
         }
@@ -60,14 +63,14 @@ public class SignatureFile {
         if (signatureFile.exists()) {
             throw new IllegalStateException("Signature file is already exists");
         }
-        RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw");
         StringBuilder concatenatedColumnTypes = new StringBuilder();
-        for (int i = 0; i < classes.size(); ++i) {
-            concatenatedColumnTypes.append(formatColumnType(classes.get(i)));
+        for (Class<?> aClass : classes) {
+            concatenatedColumnTypes.append(formatColumnType(aClass));
             concatenatedColumnTypes.append(" ");
         }
-        signature.writeBytes(concatenatedColumnTypes.toString().trim());
-        signature.close();
+        try (RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw")) {
+            signature.writeBytes(concatenatedColumnTypes.toString().trim());
+        }
     }
 
     /**

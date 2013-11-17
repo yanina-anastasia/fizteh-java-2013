@@ -69,16 +69,15 @@ public class StoreableTable implements Table {
                             throw new IllegalStateException("Empty file in sub dir");
                         } else {
                             tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
-                            tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
-                            while (tableFiles[numberOfSubDir][numberOfSubFile].hasNext()) {
-                                TableFile.Entry tempEntry = tableFiles[numberOfSubDir][numberOfSubFile].readEntry();
-                                HashcodeDestination dest = new HashcodeDestination(tempEntry.getKey());
+                            List<TableFile.Entry> fileData = tableFiles[numberOfSubDir][numberOfSubFile].readEntries();
+                            for (TableFile.Entry i : fileData) {
+                                HashcodeDestination dest = new HashcodeDestination(i.getKey());
                                 if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
                                     throw new IllegalStateException("Wrong key placement");
                                 }
                                 try {
-                                    tableIndexedData.put(tempEntry.getKey(),
-                                            tableProvider.deserialize(this, tempEntry.getValue()));
+                                    tableIndexedData.put(i.getKey(),
+                                            tableProvider.deserialize(this, i.getValue()));
                                 } catch (ParseException e) {
                                     throw new IllegalStateException("Can't deserialize", e);
                                 }
@@ -220,7 +219,6 @@ public class StoreableTable implements Table {
     public int commit() throws IOException {
         int numberOfCommittedChanges = uncommittedChanges();
         Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
-        Iterator<Map.Entry<String, Storeable>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 if (tableFileModified[nDir][nFile]) {
@@ -234,21 +232,19 @@ public class StoreableTable implements Table {
                         }
                         tableFiles[nDir][nFile] = new TableFile(subFile);
                     }
-                    tableFiles[nDir][nFile].setWriteMode();
+                    List<TableFile.Entry> fileData = new ArrayList<>();
+                    Iterator<Map.Entry<String, Storeable>> iter = dbSet.iterator();
+                    while (iter.hasNext()) {
+                        Map.Entry<String, Storeable> tempMapEntry = iter.next();
+                        HashcodeDestination dest = new HashcodeDestination(tempMapEntry.getKey());
+                        if (dest.getDir() == nDir && dest.getFile() == nFile) {
+                            fileData.add(new TableFile.Entry(tempMapEntry.getKey(),
+                                    tableProvider.serialize(this, tempMapEntry.getValue())));
+                        }
+                    }
+                    tableFiles[nDir][nFile].writeEntries(fileData);
+                    tableFileModified[nDir][nFile] = false;
                 }
-            }
-        }
-        while (i.hasNext()) {
-            Map.Entry<String, Storeable> tempMapEntry = i.next();
-            HashcodeDestination dest = new HashcodeDestination(tempMapEntry.getKey());
-            if (tableFileModified[dest.getDir()][dest.getFile()]) {
-                tableFiles[dest.getDir()][dest.getFile()].writeEntry(tempMapEntry.getKey(),
-                        tableProvider.serialize(this, tempMapEntry.getValue()));
-            }
-        }
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                tableFileModified[nDir][nFile] = false;
             }
         }
         tableOnDisk.clear();
@@ -275,13 +271,6 @@ public class StoreableTable implements Table {
     }
 
     public void close() throws IOException {
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFiles[nDir][nFile] != null) {
-                    tableFiles[nDir][nFile].close();
-                }
-            }
-        }
         File[] listOfSubDirs = tableRootDir.listFiles();
         if (listOfSubDirs != null) {
             for (File subDir : listOfSubDirs) {
