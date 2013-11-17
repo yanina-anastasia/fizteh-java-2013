@@ -26,9 +26,12 @@ public class SignatureFile {
         if (!signatureFile.exists()) {
             throw new IllegalStateException("Signature file not exists");
         }
-        RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw");
-        String inputString = signature.readUTF();
-        signature.close();
+        String inputString;
+        try (RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw")) {
+            inputString = signature.readLine();
+        } catch (IOException e) {
+            throw new IOException("Read signature.tsv error", e);
+        }
         if (inputString == null) {
             throw new IllegalStateException("Readed string from signature file is null");
         }
@@ -53,18 +56,21 @@ public class SignatureFile {
      * @throws ColumnFormatException Если неизвестный тип колонки
      */
     public static void createSignature(File tableRootDir, List<Class<?>> classes) throws IOException {
+        if (classes == null) {
+            throw new IllegalArgumentException("Column types is null");
+        }
         File signatureFile = new File(tableRootDir, signatureFileName);
         if (signatureFile.exists()) {
             throw new IllegalStateException("Signature file is already exists");
         }
-        RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw");
         StringBuilder concatenatedColumnTypes = new StringBuilder();
-        for (int i = 0; i < classes.size(); ++i) {
-            concatenatedColumnTypes.append(formatColumnType(classes.get(i)));
+        for (Class<?> aClass : classes) {
+            concatenatedColumnTypes.append(formatColumnType(aClass));
             concatenatedColumnTypes.append(" ");
         }
-        signature.writeUTF(concatenatedColumnTypes.toString().trim());
-        signature.close();
+        try (RandomAccessFile signature = new RandomAccessFile(signatureFile, "rw")) {
+            signature.writeBytes(concatenatedColumnTypes.toString().trim());
+        }
     }
 
     /**
@@ -101,6 +107,9 @@ public class SignatureFile {
      * @throws ColumnFormatException Если неизвестный тип колонки
      */
     public static String formatColumnType(Class<?> columnType) {
+        if (columnType == null) {
+            throw new IllegalArgumentException("Column type is null");
+        }
         switch (columnType.getName()) {
             case "java.lang.Integer":
                 return "int";
@@ -126,7 +135,11 @@ public class SignatureFile {
         if (input.trim().equals("")) {
             throw new IllegalArgumentException("Column types are empty");
         }
-        String[] parsedColumnTypes = input.substring(1, input.length() - 1).split("\\s+");
+        String inputWithoutBraces = input.substring(1, input.length() - 1);
+        if (inputWithoutBraces.trim().equals("")) {
+            throw new ColumnFormatException("Unknown column type");
+        }
+        String[] parsedColumnTypes = inputWithoutBraces.split("\\s+");
         List<Class<?>> classes = new ArrayList<>(parsedColumnTypes.length);
         for (int i = 0; i < parsedColumnTypes.length; ++i) {
             classes.add(i, parseColumnType(parsedColumnTypes[i]));
@@ -136,8 +149,14 @@ public class SignatureFile {
 
     public static List<Object> parseValues(StoreableTable currentTable, String input) throws ColumnFormatException {
         List<Class<?>> classes = currentTable.getColumnTypes();
-        ArrayList<Object> values = new ArrayList<>(classes.size());
+        List<Object> values = new ArrayList<>(classes.size());
+        for (int i = 0; i < classes.size(); ++i) {
+            values.add(i, null);
+        }
         String[] splittedInput = input.split("\\s+");
+        if (splittedInput.length != classes.size()) {
+            throw new ColumnFormatException("Parsed values has different size from expected");
+        }
         for (int i = 0; i < classes.size(); ++i) {
             if (splittedInput[i] == null) {
                 throw new IllegalArgumentException("Null in values");
@@ -145,31 +164,31 @@ public class SignatureFile {
             try {
                 switch (classes.get(i).getName()) {
                     case "java.lang.Integer":
-                        values.add(i, new Integer(splittedInput[i]));
+                        values.set(i, new Integer(splittedInput[i]));
                         break;
                     case "java.lang.Long":
-                        values.add(i, new Long(splittedInput[i]));
+                        values.set(i, new Long(splittedInput[i]));
                         break;
                     case "java.lang.Byte":
-                        values.add(i, new Byte(splittedInput[i]));
+                        values.set(i, new Byte(splittedInput[i]));
                         break;
                     case "java.lang.Float":
-                        values.add(i, new Float(splittedInput[i]));
+                        values.set(i, new Float(splittedInput[i]));
                         break;
                     case "java.lang.Double":
-                        values.add(i, new Double(splittedInput[i]));
+                        values.set(i, new Double(splittedInput[i]));
                         break;
                     case "java.lang.Boolean":
-                        values.add(i, new Boolean(splittedInput[i]));
+                        values.set(i, new Boolean(splittedInput[i]));
                         break;
                     case "java.lang.String":
-                        values.add(i, splittedInput[i]);
+                        values.set(i, splittedInput[i]);
                         break;
                     default:
                         throw new ColumnFormatException("Uknonwn column type: " + classes.get(i).getName());
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("Error value type");
+                throw new ColumnFormatException("Error value type", e);
             }
         }
         return values;

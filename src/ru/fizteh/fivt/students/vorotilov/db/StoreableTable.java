@@ -20,16 +20,12 @@ public class StoreableTable implements Table {
     private TableProvider tableProvider;
     private List<Class<?>> columnTypes;
     private final File tableRootDir;
-    private TableFile[][] tableFiles;
-    private boolean[][] tableFileModified;
-    private HashMap<String, Storeable> tableIndexedData;
-    private HashSet<String> changedKeys;
+    private TableFile[][] tableFiles = new TableFile[16][16];
+    private boolean[][] tableFileModified = new boolean[16][16];
+    private HashMap<String, Storeable> tableOnDisk;
+    private HashMap<String, Storeable> tableIndexedData = new HashMap<>();
 
     private void index() {
-        tableFiles = new TableFile[16][16];
-        tableFileModified = new boolean[16][16];
-        tableIndexedData = new HashMap<>();
-        changedKeys = new HashSet<>();
         File[] subDirsList = tableRootDir.listFiles();
         if (subDirsList != null) {
             for (File subDir: subDirsList) {
@@ -51,6 +47,9 @@ public class StoreableTable implements Table {
                     throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
                 }
                 File[] subFilesList = subDir.listFiles();
+                if (subFilesList != null && subFilesList.length == 0) {
+                    throw new IllegalStateException("data base contains empty dir");
+                }
                 if (subFilesList != null) {
                     for (File subFile: subFilesList) {
                         int numberOfSubFile;
@@ -66,14 +65,19 @@ public class StoreableTable implements Table {
                         if (numberOfSubFile < 0 || numberOfSubFile > 15
                                 || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
                             throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                        } else if (subFile.length() == 0) {
+                            throw new IllegalStateException("Empty file in sub dir");
                         } else {
                             tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
-                            tableFiles[numberOfSubDir][numberOfSubFile].setReadMode();
-                            while (tableFiles[numberOfSubDir][numberOfSubFile].hasNext()) {
-                                TableFile.Entry tempEntry = tableFiles[numberOfSubDir][numberOfSubFile].readEntry();
+                            List<TableFile.Entry> fileData = tableFiles[numberOfSubDir][numberOfSubFile].readEntries();
+                            for (TableFile.Entry i : fileData) {
+                                HashcodeDestination dest = new HashcodeDestination(i.getKey());
+                                if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
+                                    throw new IllegalStateException("Wrong key placement");
+                                }
                                 try {
-                                    tableIndexedData.put(tempEntry.getKey(),
-                                            tableProvider.deserialize(this, tempEntry.getValue()));
+                                    tableIndexedData.put(i.getKey(),
+                                            tableProvider.deserialize(this, i.getValue()));
                                 } catch (ParseException e) {
                                     throw new IllegalStateException("Can't deserialize", e);
                                 }
@@ -83,6 +87,7 @@ public class StoreableTable implements Table {
                 }
             }
         }
+        tableOnDisk = new HashMap<>(tableIndexedData);
     }
 
     StoreableTable(TableProvider tableProvider, File tableRootDir, List<Class<?>> classes) {
@@ -92,6 +97,9 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Proposed root dir not exists");
         } else if (!tableRootDir.isDirectory()) {
             throw new IllegalArgumentException("Proposed object is not directory");
+        }
+        if (classes == null) {
+            throw new IllegalArgumentException("Column type is null");
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
@@ -114,6 +122,7 @@ public class StoreableTable implements Table {
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
+
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
@@ -142,12 +151,7 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable get(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
-        if (key.equals("")) {
-            throw new IllegalArgumentException("Key is empty");
-        }
+        checkKey(key);
         return tableIndexedData.get(key);
     }
 
@@ -164,18 +168,13 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Value is null");
-        }
+        checkKey(key);
+        checkValue(value);
         Storeable oldValue = tableIndexedData.get(key);
         if (oldValue == null || !oldValue.equals(value)) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
             tableIndexedData.put(key, value);
-            changedKeys.add(key);
         }
         return oldValue;
     }
@@ -190,17 +189,11 @@ public class StoreableTable implements Table {
      */
     @Override
     public Storeable remove(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key is null");
-        }
-        if (key.trim().equals("")) {
-            throw new IllegalArgumentException("Key is empty");
-        }
+        checkKey(key);
         Storeable oldValue = tableIndexedData.remove(key);
         if (oldValue != null) {
             HashcodeDestination dest = new HashcodeDestination(key);
             tableFileModified[dest.getDir()][dest.getFile()] = true;
-            changedKeys.add(key);
         }
         return oldValue;
     }
@@ -224,10 +217,8 @@ public class StoreableTable implements Table {
      */
     @Override
     public int commit() throws IOException {
-        int numberOfCommittedChanges = changedKeys.size();
-        changedKeys.clear();
+        int numberOfCommittedChanges = uncommittedChanges();
         Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
-        Iterator<Map.Entry<String, Storeable>> i = dbSet.iterator();
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 if (tableFileModified[nDir][nFile]) {
@@ -241,23 +232,23 @@ public class StoreableTable implements Table {
                         }
                         tableFiles[nDir][nFile] = new TableFile(subFile);
                     }
-                    tableFiles[nDir][nFile].setWriteMode();
+                    List<TableFile.Entry> fileData = new ArrayList<>();
+                    Iterator<Map.Entry<String, Storeable>> iter = dbSet.iterator();
+                    while (iter.hasNext()) {
+                        Map.Entry<String, Storeable> tempMapEntry = iter.next();
+                        HashcodeDestination dest = new HashcodeDestination(tempMapEntry.getKey());
+                        if (dest.getDir() == nDir && dest.getFile() == nFile) {
+                            fileData.add(new TableFile.Entry(tempMapEntry.getKey(),
+                                    tableProvider.serialize(this, tempMapEntry.getValue())));
+                        }
+                    }
+                    tableFiles[nDir][nFile].writeEntries(fileData);
+                    tableFileModified[nDir][nFile] = false;
                 }
             }
         }
-        while (i.hasNext()) {
-            Map.Entry<String, Storeable> tempMapEntry = i.next();
-            HashcodeDestination dest = new HashcodeDestination(tempMapEntry.getKey());
-            if (tableFileModified[dest.getDir()][dest.getFile()]) {
-                tableFiles[dest.getDir()][dest.getFile()].writeEntry(tempMapEntry.getKey(),
-                        tableProvider.serialize(this, tempMapEntry.getValue()));
-            }
-        }
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                tableFileModified[nDir][nFile] = false;
-            }
-        }
+        tableOnDisk.clear();
+        tableOnDisk.putAll(tableIndexedData);
         return numberOfCommittedChanges;
     }
 
@@ -268,25 +259,9 @@ public class StoreableTable implements Table {
      */
     @Override
     public int rollback() {
-        int numberOfRolledChanges = changedKeys.size();
-        changedKeys.clear();
+        int numberOfRolledChanges = uncommittedChanges();
         tableIndexedData.clear();
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFiles[nDir][nFile] != null) {
-                    tableFiles[nDir][nFile].setReadMode();
-                    while (tableFiles[nDir][nFile].hasNext()) {
-                        TableFile.Entry tempEntry = tableFiles[nDir][nFile].readEntry();
-                        try {
-                            tableIndexedData.put(tempEntry.getKey(),
-                                    tableProvider.deserialize(this, tempEntry.getValue()));
-                        } catch (ParseException e) {
-                            throw new IllegalStateException("Can't deserialize", e);
-                        }
-                    }
-                }
-            }
-        }
+        tableIndexedData.putAll(tableOnDisk);
         for (int nDir = 0; nDir < 16; ++nDir) {
             for (int nFile = 0; nFile < 16; ++nFile) {
                 tableFileModified[nDir][nFile] = false;
@@ -295,14 +270,7 @@ public class StoreableTable implements Table {
         return numberOfRolledChanges;
     }
 
-    public void close() throws Exception {
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFiles[nDir][nFile] != null) {
-                    tableFiles[nDir][nFile].close();
-                }
-            }
-        }
+    public void close() throws IOException {
         File[] listOfSubDirs = tableRootDir.listFiles();
         if (listOfSubDirs != null) {
             for (File subDir : listOfSubDirs) {
@@ -319,7 +287,31 @@ public class StoreableTable implements Table {
     }
 
     public int uncommittedChanges() {
-        return changedKeys.size();
+        Set<Map.Entry<String, Storeable>> indexedSet = tableIndexedData.entrySet();
+        Set<Map.Entry<String, Storeable>> diskSet = tableOnDisk.entrySet();
+        int count = 0;
+        Iterator<Map.Entry<String, Storeable>> iter1 = indexedSet.iterator();
+        Iterator<Map.Entry<String, Storeable>> iter2 = diskSet.iterator();
+        while (iter1.hasNext()) {
+            Map.Entry<String, Storeable> next = iter1.next();
+            Storeable entryOnDisk = tableOnDisk.get(next.getKey());
+            if (entryOnDisk == null) {
+                //записи на диске нет, то она изменение
+                ++count;
+            } else if (!entryOnDisk.equals(next.getValue())) {
+                //запись на диске есть, но она другая, тоже изменение
+                ++count;
+            }
+        }
+        while (iter2.hasNext()) {
+            Map.Entry<String, Storeable> next = iter2.next();
+            Storeable entryIndexed = tableIndexedData.get(next.getKey());
+            if (entryIndexed == null) {
+                //на диске есть, индексированной нет, изменение
+                ++count;
+            }
+        }
+        return count;
     }
 
     /**
@@ -342,10 +334,53 @@ public class StoreableTable implements Table {
      */
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
+            throw new IndexOutOfBoundsException();
+        }
         return columnTypes.get(columnIndex);
     }
 
-    public List<Class<?>> getColumnTypes() throws IndexOutOfBoundsException {
+    public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
+
+    private void checkKey(String key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key is null");
+        }
+        if (key.equals("")) {
+            throw new IllegalArgumentException("Key is empty");
+        }
+        if (key.contains(" ") || key.contains("\t") || key.contains("\n")
+                || key.contains("\\x0B") || key.contains("\f") || key.contains("\r")) {
+            throw new IllegalArgumentException("Kay contains whitespaces");
+        }
+    }
+
+    private void checkValue(Storeable value) throws ColumnFormatException {
+        if (value == null) {
+            throw new IllegalArgumentException("Value is null");
+        }
+        try {
+            for (int i = 0; i < columnTypes.size(); ++i) {
+                if (value.getColumnAt(i) != null && !columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                    throw new ColumnFormatException("Wrong column type. was: "
+                            + value.getColumnAt(i).getClass().toString() + "; expected: " + columnTypes.get(i));
+                }
+            }
+            boolean unusedValue = true;
+            try {
+                value.getColumnAt(columnTypes.size());
+            } catch (IndexOutOfBoundsException e) {
+                unusedValue = false;
+            }
+            if (unusedValue) {
+                throw new ColumnFormatException("Alien value");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("Alien value", e);
+        }
+
+    }
+
 }

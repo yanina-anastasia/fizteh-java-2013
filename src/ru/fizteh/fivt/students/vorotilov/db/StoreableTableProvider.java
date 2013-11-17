@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.vorotilov.shell.FileUtil;
 import ru.fizteh.fivt.students.vorotilov.shell.FileWasNotDeleted;
@@ -83,6 +84,12 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
         checkTableName(name);
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("Column type is null");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("Can't create table without colums");
+        }
         File tableRootDir = new File(rootDir, name);
         if (tableRootDir.exists()) {
             return null;
@@ -135,13 +142,38 @@ public class StoreableTableProvider implements TableProvider {
      */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        JSONArray jsonArray = new JSONArray(value);
+        JSONArray jsonArray;
+        try {
+            jsonArray = new JSONArray(value);
+        } catch (JSONException e) {
+            throw new ParseException("Can't parse json array", 0);
+        }
+        if (jsonArray == null) {
+            throw new ParseException("Can't parse json array", 0);
+        }
         if (jsonArray.length() != table.getColumnsCount()) {
             throw new ParseException("Different length of value and table types", 0);
         }
         Storeable tableRow = createFor(table);
         for (int i = 0; i < jsonArray.length(); ++i) {
-            tableRow.setColumnAt(i, jsonArray.get(i));
+            if (jsonArray.get(i).equals(null)) {
+                tableRow.setColumnAt(i, null);
+            } else if (table.getColumnType(i).equals(jsonArray.get(i).getClass())) {
+                tableRow.setColumnAt(i, jsonArray.get(i));
+            } else if (table.getColumnType(i).equals(Long.class)
+                    && (jsonArray.get(i).getClass().equals(Long.class)
+                        || jsonArray.get(i).getClass().equals(Integer.class))) {
+                tableRow.setColumnAt(i, jsonArray.getLong(i));
+            } else if (table.getColumnType(i).equals(Byte.class)
+                    && jsonArray.get(i).getClass().equals(Integer.class)) {
+                tableRow.setColumnAt(i, (new Integer(jsonArray.getInt(i))).byteValue());
+            } else if (table.getColumnType(i).equals(Float.class)
+                    && jsonArray.get(i).getClass().equals(Double.class)) {
+                tableRow.setColumnAt(i, (new Double(jsonArray.getDouble(i)).floatValue()));
+            } else {
+                throw new ParseException("Unknown type " + jsonArray.get(i).getClass()
+                        + " ; expected: " + table.getColumnType(i), 0);
+            }
         }
         return tableRow;
     }
@@ -158,8 +190,9 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         JSONArray jsonArray = new JSONArray();
+        checkTableRow(table, (TableRow) value);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            if (!table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
+            if (value.getColumnAt(i) != null && !table.getColumnType(i).equals(value.getColumnAt(i).getClass())) {
                 throw new ColumnFormatException("Type mismatch");
             }
             jsonArray.put(value.getColumnAt(i));
@@ -229,6 +262,12 @@ public class StoreableTableProvider implements TableProvider {
 
     public File getRoot() {
         return rootDir;
+    }
+
+    private void checkTableRow(Table table, TableRow value) {
+        if (table.getColumnsCount() != value.getColumsCount()) {
+            throw new ColumnFormatException("Wrong number of colums to serialize");
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.vorotilov.db;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vorotilov.shell.ConsoleInput;
 import ru.fizteh.fivt.students.vorotilov.shell.ExitCommand;
@@ -8,6 +9,7 @@ import ru.fizteh.fivt.students.vorotilov.shell.WrongCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 public class StoreableTableMain {
@@ -99,9 +101,13 @@ public class StoreableTableMain {
                         System.out.println("no table");
                         throw new WrongCommand();
                     } else {
-                        Storeable value = currentTable.put(parsedCommand[1],
-                                tableProvider.createFor(currentTable,
-                                        SignatureFile.parseValues(currentTable, parsedCommand[2])));
+                        Storeable value;
+                        try {
+                            value = currentTable.put(parsedCommand[1],
+                                    tableProvider.deserialize(currentTable, parsedCommand[2]));
+                        } catch (ParseException e) {
+                            throw new ColumnFormatException("parse exception", e);
+                        }
                         if (value == null) {
                             System.out.println("new");
                         } else {
@@ -184,6 +190,11 @@ public class StoreableTableMain {
             if (!interactiveMode) {
                 throw e;
             }
+        } catch (ColumnFormatException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
+            if (!interactiveMode) {
+                throw e;
+            }
         }
     }
 
@@ -208,6 +219,7 @@ public class StoreableTableMain {
         } catch (ExitCommand | NoNextCommand e) {
             if (currentTable != null) {
                 try {
+                    currentTable.commit();
                     currentTable.close();
                 } catch (Exception f) {
                     throw new RuntimeException();
@@ -222,7 +234,6 @@ public class StoreableTableMain {
                     throw new RuntimeException();
                 }
             }
-            e.printStackTrace();
             System.exit(1);
         }
     }
