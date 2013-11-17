@@ -16,8 +16,7 @@ public class DatabaseTableProviderFactory implements TableProviderFactory {
 
         File databaseDirectory = new File(directory);
         if (databaseDirectory.isFile()) {
-            throw new IllegalArgumentException("error: database must be placed in directory, " +
-                    "not in a file");
+            throw new IllegalArgumentException("error: database must be placed in directory, not in a file");
         }
 
         if (!databaseDirectory.exists()) {
