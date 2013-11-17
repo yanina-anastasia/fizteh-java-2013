@@ -1,49 +1,28 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.File;
+import java.io.IOException;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class DBaseProviderFactory implements TableProviderFactory {
-    private static String root = "";
-
-    public String getRoot() {
-        return root;
-    }
-
-    public DBaseProviderFactory() throws RuntimeException {
-        if (System.getProperty("fizteh.db.dir") == null) {
-            throw new RuntimeException("root dir not selected");
+    @Override
+    public TableProvider create(String dir) throws IOException {
+        if (dir == null || dir.trim().isEmpty()) {
+            throw new IllegalArgumentException("dir not selected");
         }
-        File r = new File(System.getProperty("fizteh.db.dir"));
-        if (!r.exists()) {
-            if (!r.mkdir()) {
-                throw new RuntimeException("cannot create root dir");
+        File root = new File(dir);
+        if (!root.exists()) {
+            if (!root.mkdirs()) {
+                throw new IOException("Directory cannot be created");
             }
         }
-        if (System.getProperty("fizteh.db.dir").endsWith(File.separator)) {
-            root = System.getProperty("fizteh.db.dir");
-        } else {
-            root = System.getProperty("fizteh.db.dir") + File.separatorChar;
+        if (!root.isDirectory()) {
+            throw new IllegalArgumentException("Not a directory");
         }
-    }
-
-    @Override
-    public TableProvider create(String dir) throws IllegalArgumentException {
-        if (dir == null) {
-            IllegalArgumentException e = new IllegalArgumentException("dir not selected");
-            throw e;
-        }
-        if (!(new File(dir).exists())) {
-            IllegalArgumentException e = new IllegalArgumentException("Directory not exists");
-            throw e;
-        }
-        if (!(new File(dir).isDirectory())) {
-            IllegalArgumentException e = new IllegalArgumentException("Not a directory");
-            throw e;
-        }
-        DataBaseProvider dataBase = new DataBaseProvider(dir);
+        DataBaseProvider dataBase = null;
+        dataBase = new DataBaseProvider(dir);
         return dataBase;
     }
 }
