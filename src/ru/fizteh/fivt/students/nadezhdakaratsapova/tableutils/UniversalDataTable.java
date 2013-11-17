@@ -16,27 +16,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public abstract class UniversalDataTable<ValueType> {
     public static final int DIR_COUNT = 16;
     public static final int FILE_COUNT = 16;
-
+    protected final ReadWriteLock tableChangesLock = new ReentrantReadWriteLock();
+    public ValueConverter<ValueType> valueConverter;
     protected File dataBaseDirectory;
     protected String tableName;
     private Map<String, ValueType> dataStorage = new HashMap<String, ValueType>();
-    protected final ReadWriteLock tableChangesLock = new ReentrantReadWriteLock();
-
     private ThreadLocal<Map<String, ValueType>> putKeys = new ThreadLocal<Map<String, ValueType>>() {
         @Override
         protected Map<String, ValueType> initialValue() {
             return new HashMap<String, ValueType>();
         }
     };
-
     private ThreadLocal<Set<String>> removeKeys = new ThreadLocal<Set<String>>() {
         @Override
         protected Set<String> initialValue() {
             return new HashSet<String>();
         }
     };
-
-    public ValueConverter<ValueType> valueConverter;
 
     public UniversalDataTable() {
 

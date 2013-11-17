@@ -23,13 +23,17 @@ public class Calculator {
     public static Integer calculate(final Integer arg1, final Integer arg2, final char operation) throws IOException {
         switch (operation) {
             case '*':
-                if ((arg1 == 0) | (arg2 == 0)) return 0;
+                if ((arg1 == 0) | (arg2 == 0)) {
+                    return 0;
+                }
                 if ((Math.abs(Integer.MAX_VALUE / arg1)) < Math.abs(arg2)) {
                     throw new IOException("Value of expression exceeds  MAX_INTEGER1");
                 }
                 return arg1 * arg2;
             case '/':
-                if (arg2 == 0) throw new IOException("Division by zero");
+                if (arg2 == 0) {
+                    throw new IOException("Division by zero");
+                }
                 return arg1 / arg2;
             case '+':
                 if (Math.max(arg1, arg2) > 0) {
@@ -50,6 +54,8 @@ public class Calculator {
                     throw new IOException("Value of expression exceeds  MAX_INTEGER");
                 }
                 return arg1 - arg2;
+            default:
+                break;
         }
         return 0;
     }
@@ -82,7 +88,6 @@ public class Calculator {
             int prevToken = 1;       //1 - арифметичесая операция;
             //2 - число;
             // 3 - скобка;
-
             while (i < task.length()) {
                 indexBegin = i;
                 while ((i < task.length()) && ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G')))) {
@@ -219,10 +224,11 @@ public class Calculator {
                     }
                     if ((indexEnd - indexBegin) == maxInteger.length()) {
                         int k = 0;
-                        for (int j = indexBegin; j < indexEnd; ++j, ++k)
+                        for (int j = indexBegin; j < indexEnd; ++j, ++k) {
                             if (outputString.charAt(j) > maxInteger.charAt(k)) {
                                 throw new IOException("Too big argument");
                             }
+                        }
                     }
                     result.push(Integer.parseInt(outputString.substring(indexBegin, indexEnd), radix));
                 }
