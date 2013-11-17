@@ -57,6 +57,7 @@ public abstract class UniversalDataTable<ValueType> {
         ValueType oldValue = null;
         if (!removeKeys.get().contains(key)) {
             if ((oldValue = putKeys.get().get(key)) == null) {
+                oldValue = dataStorage.get(key);
                 putKeys.get().put(key, value);
             } else {
                 ValueType dataValue = dataStorage.get(key);
