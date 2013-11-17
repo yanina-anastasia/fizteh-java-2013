@@ -6,9 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.locks.*;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -23,12 +22,8 @@ public class FileMapProvider implements TableProvider {
     public static final String SIGNATURE_FILE_NAME = "signature.tsv";
 
     private Path rootDir;
-    private HashMap<String, FileMap> tables;
+    private Hashtable<String, FileMap> tables;
     
-    private ReadWriteLock tablesLock = new ReentrantReadWriteLock();
-    private Lock readTableLock = tablesLock.readLock();
-    private Lock writeTableLock = tablesLock.writeLock();
-
     @Override
     public FileMap getTable(String name) {
         if (name == null || name.isEmpty()) {
@@ -40,21 +35,11 @@ public class FileMapProvider implements TableProvider {
         }
         try {
             FileMap table;
-            readTableLock.lock();
-            try {
-                table = tables.get(name);
-            } finally {
-                readTableLock.unlock();
-            }
+            table = tables.get(name);
             if (table == null) {
                 table = IOUtility.parseDatabase(dbPath);
                 table.setProvider(this);
-                writeTableLock.lock();
-                try {
-                    tables.put(name, table);
-                } finally {
-                    writeTableLock.unlock();
-                }
+                tables.put(name, table);
             }
             return table; 
         } catch (IOException e) {
@@ -76,13 +61,8 @@ public class FileMapProvider implements TableProvider {
         }
         FileMap newFileMap = new FileMap(name, columnTypes);
         newFileMap.setProvider(this);
-        writeTableLock.lock();
-        try {
-            createFileStructure(dbPath, columnTypes);
-            tables.put(name, newFileMap);
-        } finally {
-            writeTableLock.unlock();
-        }
+        createFileStructure(dbPath, columnTypes);
+        tables.put(name, newFileMap);
         return newFileMap;
     }
 
@@ -92,34 +72,17 @@ public class FileMapProvider implements TableProvider {
             throw new IllegalArgumentException();
         }
         try {
-            writeTableLock.lock();
-            try {
-                FileMap removedTable = tables.remove(name);
-                Path dbPath = Paths.get(getRootDir() + "/" + name);
-                if (dbPath == null) {
-                    throw new IllegalArgumentException("Invalid database path");
-                }
-                ShellUtility.removeDir(dbPath);
-                if (removedTable != null) {
-                    removedTable.destroy();
-                }
-            } finally {
-                writeTableLock.unlock();
+            FileMap removedTable = tables.remove(name);
+            Path dbPath = Paths.get(getRootDir() + "/" + name);
+            if (dbPath == null) {
+                throw new IllegalArgumentException("Invalid database path");
+            }
+            ShellUtility.removeDir(dbPath);
+            if (removedTable != null) {
+                removedTable.destroy();
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
-        }
-    }
-    
-    public void removeAllTables() {
-        for (String tableName : tables.keySet()) {
-            removeTable(tableName);
-        }
-        writeTableLock.lock();
-        try {
-            tables.clear();
-        } finally {
-            writeTableLock.unlock();
         }
     }
     
@@ -143,7 +106,7 @@ public class FileMapProvider implements TableProvider {
         if (!rootDir.toFile().isDirectory()) {
             throw new IllegalArgumentException("Error: Root did not resolve to a valid directory");
         }
-        tables = new HashMap<String, FileMap>();
+        tables = new Hashtable<String, FileMap>();
     }
     
     private static void createFileStructure(Path dbPath, List<Class<?>> columnTypes) throws IOException {

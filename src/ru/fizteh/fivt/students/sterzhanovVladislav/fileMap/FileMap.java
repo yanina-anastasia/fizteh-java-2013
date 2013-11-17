@@ -25,10 +25,13 @@ public class FileMap implements Table {
 
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock rLock = rwLock.readLock(); 
-    private final Lock wLock = rwLock.readLock(); 
+    private final Lock wLock = rwLock.writeLock(); 
+
+    /*Purpose: do not lock rwLock for primitive operations like getName(). Maybe get rid of it?*/
     private final ReadWriteLock rwDestroyLock = new ReentrantReadWriteLock();
     private final Lock destroyLock = rwDestroyLock.readLock(); 
-    private final Lock aliveLock = rwDestroyLock.readLock(); 
+    private final Lock aliveLock = rwDestroyLock.writeLock(); 
+
     private ThreadLocal<HashMap<String, Diff>> diff;
 
     @Override
@@ -288,6 +291,7 @@ public class FileMap implements Table {
         wLock.lock();
         try {
             ensureTableExists();
+            diff.remove();
             destroyed = true;
         } finally {
             wLock.unlock();
