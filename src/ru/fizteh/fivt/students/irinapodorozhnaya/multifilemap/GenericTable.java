@@ -122,14 +122,16 @@ public abstract class GenericTable<ValueType> {
                     if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
                         ++res;
                     } else {
-                       changedSize.set(changedSize.get() - 1);
+                        changedValues.get().remove(s.getKey());
+                        changedSize.set(changedSize.get() - 1);
                     }
                 } else if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
                     ++res;
                 } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
                     ++res;
                 } else {
-                   changedSize.set(changedSize.get() - 1);
+                    changedValues.get().remove(s.getKey());
+                    changedSize.set(changedSize.get() - 1);
                 }
             }
             return res;
