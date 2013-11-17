@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.inaumov.multifilemap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.inaumov.filemap.FileMapStringShellState;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class MultiFileMapStringShellState extends FileMapStringShellState implements MultiFileMapShellState<Table, String, String> {
     public TableProvider tableProvider;
@@ -26,5 +27,10 @@ public class MultiFileMapStringShellState extends FileMapStringShellState implem
     @Override
     public String getCurrentTableName() {
         return table.getName();
+    }
+
+    @Override
+    public String[] parseCreateCommand(String argumentsLine) {
+        return Shell.parseCommandParameters(argumentsLine);
     }
 }

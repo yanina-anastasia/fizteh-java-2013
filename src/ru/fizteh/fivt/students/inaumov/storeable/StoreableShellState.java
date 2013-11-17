@@ -108,7 +108,36 @@ public class StoreableShellState implements MultiFileMapShellState<Table, String
         try {
             return tableProvider.deserialize(table, value);
         } catch (ParseException e) {
-            return null;
+            throw new IllegalArgumentException("error: incorrect value format");
         }
+    }
+
+    @Override
+    public String[] parsePutCommand(String argumentsLine) {
+        if (argumentsLine == null || argumentsLine.trim().isEmpty()) {
+            return new String[0];
+        }
+
+        argumentsLine = argumentsLine.trim();
+
+        int spaceFirstEntry = argumentsLine.indexOf(' ');
+
+        if (spaceFirstEntry == -1) {
+            return new String[]{argumentsLine};
+        }
+
+        String keyString = argumentsLine.substring(0, spaceFirstEntry).trim();
+        String valueString = argumentsLine.substring(spaceFirstEntry).trim();
+
+        return new String[]{keyString, valueString};
+    }
+
+    @Override
+    public String[] parseCreateCommand(String argumentsLine) {
+        if (argumentsLine == null || argumentsLine.trim().isEmpty()) {
+            return new String[0];
+        }
+
+        return new String[]{argumentsLine};
     }
 }

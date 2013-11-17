@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.inaumov.shell;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.shell.commands.*;
 
-public class Main {
+public class ShellMain {
     public static void main(String[] args) {
         Shell<ShellState> shell = new Shell<ShellState>();
 

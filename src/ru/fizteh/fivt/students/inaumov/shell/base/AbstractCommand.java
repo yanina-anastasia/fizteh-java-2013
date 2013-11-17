@@ -19,5 +19,5 @@ public abstract class AbstractCommand<State> implements Command<State> {
 		return argsNumber;
 	}
 
-	public abstract void execute(String[] args, State state) throws UserInterruptionException;
+	public abstract void execute(String argumentsLine, State state) throws UserInterruptionException;
 }

@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.inaumov.shell.base;
 
-import ru.fizteh.fivt.students.inaumov.shell.base.Command;
 import ru.fizteh.fivt.students.inaumov.shell.exceptions.UserInterruptionException;
 
 import java.io.BufferedReader;
@@ -15,7 +14,7 @@ public class Shell<State> {
 	private final Map<String, Command> commandsMap = new HashMap<String, Command>();
     private State state = null;
 
-    private String[] args = new String[0];
+    private String[] args;
 
     public void setState(State state) {
         this.state = state;
@@ -26,44 +25,83 @@ public class Shell<State> {
     }
 
 	public void addCommand(Command command) {
+        if (command == null) {
+            throw new IllegalArgumentException("error: command is null");
+        }
+
 		commandsMap.put(command.getName(), command);
 	}
 
 	public Command getCommand(String commandName) {
-		Command command = commandsMap.get(commandName);
-        if (command == null) {
-            throw new IllegalArgumentException(commandName + ": command not found");
+        if (commandName == null || commandName.trim().isEmpty()) {
+            throw new IllegalArgumentException("error: command name is null (or empty)");
         }
+
+		Command command = commandsMap.get(commandName);
 
 		return command;
 	}
 
-	public static String[][] parseString(String commandLine) {
-        if (commandLine == null) {
+	private String[] parseCommandLine(String inputLine) {
+        if (inputLine == null || inputLine.trim().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        inputLine = inputLine.trim();
+
+        String commandName = null;
+        String commandParameters = null;
+
+        int spaceFirstEntryIndex = inputLine.indexOf(' ');
+        if (spaceFirstEntryIndex == -1) {
+            commandName = inputLine;
+        } else {
+            commandName = inputLine.substring(0, spaceFirstEntryIndex).trim();
+            commandParameters = inputLine.substring(spaceFirstEntryIndex).trim();
+        }
+
+        return new String[]{commandName, commandParameters};
+	}
+
+    private String[][] parseBatchLine(String inputLine) {
+        if (inputLine == null || inputLine.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
 
-		String[] args = commandLine.split("\\s*;\\s*");
-		String[][] commands = new String[args.length][];
+        inputLine = inputLine.trim();
 
-		for (int i = 0; i < args.length; ++i) {
-			args[i] = args[i].trim();
-			commands[i] = args[i].split("\\s+");
-		}
+        String[] commandsWithParameters = inputLine.split("\\s*;\\s*");
+        String[][] commands = new String[commandsWithParameters.length][2];
 
-		return commands;
-	}
+        for (int i = 0; i < commandsWithParameters.length; ++i) {
+            commands[i] = parseCommandLine(commandsWithParameters[i]);
+        }
+
+        return commands;
+    }
+
+    public static String[] parseCommandParameters(String commandParametersLine) {
+        if (commandParametersLine == null || commandParametersLine.trim().isEmpty()) {
+            return new String[0];
+        }
+
+        commandParametersLine = commandParametersLine.trim();
+        String[] arguments = commandParametersLine.split("\\s+");
+
+        for (int i = 0; i < arguments.length; ++i) {
+            arguments[i] = arguments[i].trim();
+        }
+
+        return arguments;
+    }
 
 	public void executeAll(String[][] commands) throws UserInterruptionException {
 		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].length != 0) {
 				Command command = getCommand(commands[i][0]);
-                if (!(command.getArgumentsNumber() == -1) && command.getArgumentsNumber() != commands[i].length - 1) {
-                    throw new IllegalArgumentException(command.getName() + ": expected " + command.getArgumentsNumber() + " arguments, got " + (commands[i].length - 1) + " arguments");
+                if (command == null) {
+                    throw new IllegalArgumentException("error: command " + commands[i][0] + " not found");
                 }
 
-			    command.execute(commands[i], state);
-			}
+			    command.execute(commands[i][1], state);
 		}
 	}
 
@@ -73,7 +111,7 @@ public class Shell<State> {
 			stringBuilder.append(nextEntry + " ");
 		}
 
-		String[][] commands = parseString(stringBuilder.toString());
+		String[][] commands = parseBatchLine(stringBuilder.toString());
 
 		try {
 			executeAll(commands);
@@ -83,20 +121,20 @@ public class Shell<State> {
         } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
             System.exit(1);
-		} catch (UserInterruptionException exception) {
+        } catch (UserInterruptionException e) {
 			System.exit(0);
 		}
 	}
 
 	private void interactiveMode() {
 		BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(System.in));
+
 		while (true) {
 			System.out.print(invite);
-
-            String[][] commands = null;
+            String[] nextEntry = null;
 
             try {
-			    commands = parseString(inputStreamReader.readLine());
+			    nextEntry = parseCommandLine(inputStreamReader.readLine());
             } catch (IOException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
@@ -104,8 +142,11 @@ public class Shell<State> {
                 System.exit(1);
             }
 
+            String[][] singleCommand = new String[1][];
+            singleCommand[0] = nextEntry;
+
 			try {
-				executeAll(commands);
+				executeAll(singleCommand);
             } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
             } catch (IllegalStateException e) {
