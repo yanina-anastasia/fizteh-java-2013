@@ -115,15 +115,16 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int commit() throws IOException {
+        int res = changedValues.get().size();
         try {
+
             lock.writeLock().lock();
             for (String s: changedValues.get().keySet()) {
                 if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
                         || changedValues.get().get(s).equals(oldDatabase.get(s))) {
-
-                    changedValues.get().remove(s);
-                    continue;
-                } else if (changedValues.get().get(s) == null) {
+                    --res;
+                }
+                if (changedValues.get().get(s) == null) {
                     oldDatabase.remove(s);
                 } else {
                     oldDatabase.put(s, changedValues.get().get(s));
@@ -161,7 +162,6 @@ public abstract class GenericTable<ValueType> {
             hardDiskLock.writeLock().unlock();
         }
 
-        int res = changedValues.get().size();
         changedValues.get().clear();
         changedSize.set(0);
         return res;
@@ -188,14 +188,15 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
+        int res = changedValues.get().size();
+
         for (String s: changedValues.get().keySet()) {
             if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
                   || changedValues.get().get(s).equals(oldDatabase.get(s))) {
-
-                changedValues.get().remove(s);
+                --res;
             }
         }
-        int res = changedValues.get().size();
+
         changedValues.get().clear();
         changedSize.set(0);
         return res;
