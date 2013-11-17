@@ -13,7 +13,6 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 public abstract class GenericTable<ValueType> {
 
     private final String name;
-    volatile private int oldSize = 0;
     protected ReadWriteLock lock = new ReentrantReadWriteLock(true);
     protected ReadWriteLock hardDiskLock = new ReentrantReadWriteLock(true);
     protected final File tableDirectory;
@@ -122,11 +121,15 @@ public abstract class GenericTable<ValueType> {
                 if (s.getValue() != null && oldDatabase.get(s.getKey()) != null ) {
                     if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
                         ++res;
+                    } else {
+                       changedSize.set(changedSize.get() - 1);
                     }
                 } else if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
                     ++res;
                 } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
                     ++res;
+                } else {
+                   changedSize.set(changedSize.get() - 1);
                 }
             }
             return res;
@@ -146,7 +149,6 @@ public abstract class GenericTable<ValueType> {
                     oldDatabase.put(s, changedValues.get().get(s));
                 }
             }
-            oldSize = oldDatabase.size();
         } finally {
             lock.writeLock().unlock();
         }
@@ -218,7 +220,8 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int size() {
-        return oldSize + recountChanges();
+        recountChanges();
+        return oldDatabase.size() + changedSize.get();
     }
 
     public void loadAll() throws IOException {
@@ -231,7 +234,6 @@ public abstract class GenericTable<ValueType> {
         try {
             hardDiskLock.readLock().lock();
             lock.writeLock().lock();
-            oldSize = 0;
             for (int i = 0; i < 256; ++i) {
                 File dir = new File(tableDirectory, i / 16 + ".dir");
                 if (!dir.isDirectory()) {
@@ -246,7 +248,6 @@ public abstract class GenericTable<ValueType> {
                     if (fromFile.isEmpty()) {
                         throw new IOException("empty file");
                     }
-                    oldSize += fromFile.size();
                 }
             }
         } finally {
