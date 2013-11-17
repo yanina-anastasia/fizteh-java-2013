@@ -2,70 +2,32 @@ package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class DataBaseProviderTest {
-    static File rootDir;
     DataBaseProvider test;
-    static TemporaryFolder root = new TemporaryFolder();
+    ArrayList<Class<?>> list;
 
-    @BeforeClass
-    public static void createDir() {
-        try {
-            root.create();
-            rootDir = root.newFolder("rootFolder");
-            root.newFolder("rootFolder" + File.separator + "testBase1");
-            root.newFolder("rootFolder" + File.separator + "testBase2");
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
+    @Rule
+    public TemporaryFolder root = new TemporaryFolder();
 
     @Before
     public void initialize() {
-        test = new DataBaseProvider(rootDir.getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void clean() {
-        root.delete();
-    }
-
-    @SuppressWarnings("unused")
-    @Test
-    public void testDataBaseProvider() {
         try {
-            DataBaseProvider tmp1 = new DataBaseProvider(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalArgumentException");
-        }
-
-        try {
-            DataBaseProvider tmp2 = new DataBaseProvider("");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalArgumentException");
-        }
-
-        try {
-            DataBaseProvider tmp3 = new DataBaseProvider("./not_existing_directory");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalStateException");
+            DBaseProviderFactory fact = new DBaseProviderFactory();
+            test = (DataBaseProvider) fact.create(root.newFolder().toString());
+            list = new ArrayList<>();
+            list.add(int.class);
+            list.add(String.class);
+            test.createTable("testBase1", list);
+        } catch (IllegalArgumentException | IllegalStateException | IOException e) {
+            // not OK
         }
     }
 
@@ -83,26 +45,18 @@ public class DataBaseProviderTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableNull() {
+        test.getTable(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetTableEmpty() {
+        test.getTable("");
+    }
+
     @Test
     public void testGetTable() {
-        try {
-            test.getTable(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
-        }
-
-        try {
-            test.getTable("");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
-        }
-
         try {
             assertNull(test.getTable("not_existing_table"));
             assertNotNull(test.getTable("testBase1"));
@@ -111,30 +65,57 @@ public class DataBaseProviderTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableNull() {
+        try {
+            test.createTable(null, list);
+        } catch (IOException e) {
+            fail("Unexpected exception");
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateTableEmpty() {
+        try {
+            test.createTable("", list);
+        } catch (IOException e) {
+            fail("Unexpected exception");
+        }
+    }
+
     @Test
     public void testCreateTable() {
         try {
-            test.createTable(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
+            assertNotNull(test.createTable("tmpTable", list));
+            assertNull(test.createTable("tmpTable", list));
         } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
+            fail("Unexpected exception");
         }
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableNull() {
         try {
-            test.createTable("");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
+            test.removeTable(null);
+        } catch (IOException e) {
+            fail("Unexpected exception");
         }
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveTableEmpty() {
         try {
-            assertNotNull(test.createTable("tmpTable"));
-            assertNull(test.createTable("tmpTable"));
-        } catch (Exception e) {
+            test.removeTable("");
+        } catch (IOException e) {
+            fail("Unexpected exception");
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testRemoveTableNotExists() {
+        try {
+            test.removeTable("not_existing_table");
+        } catch (IOException e) {
             fail("Unexpected exception");
         }
     }
@@ -142,39 +123,11 @@ public class DataBaseProviderTest {
     @Test
     public void testRemoveTable() {
         try {
-            test.removeTable(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
-        }
-
-        try {
-            test.removeTable("");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalErgumentException");
-        }
-
-        try {
-            test.removeTable("not_existing_table");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-            // OK
-        } catch (Exception e) {
-            fail("Expected IllegalStateException");
-        }
-
-        try {
-            test.createTable("table_for_removing");
+            test.createTable("table_for_removing", list);
             test.removeTable("table_for_removing");
             assertNull(test.getTable("table_for_removing"));
         } catch (Exception e) {
             fail("Unexpected exception");
         }
     }
-
 }
