@@ -22,10 +22,11 @@ public class MyTableProvider extends State implements TableProvider {
         validate(dir);
         shell = new ShellState();
         
-        File root = new File(shell.makeNewSource(dir));
-        if (!root.exists()) {
-            throw new IOException("wrong root directory was set");
+        if (!fileExist(dir)) {
+            throw new IOException(shell.makeNewSource(dir) + ": wrong root directory was set");
         }
+        
+        File root = new File(shell.makeNewSource(dir));
         if (!root.isDirectory()) {
             throw new IllegalArgumentException("provided root is not a directory");
         }
