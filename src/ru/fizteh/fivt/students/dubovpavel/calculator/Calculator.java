@@ -9,13 +9,13 @@ class Calculator {
     private static final char LASTLETTER = 'A' + RADIX - 10 - 1;
     private static final String BUG = "Program contains a bug.";
 
-    class InappropriateSymbolException extends Exception {
+    static class InappropriateSymbolException extends Exception {
         InappropriateSymbolException(String message) {
             super(message);
         }
     }
 
-    class InvalidLexemMetException extends Exception {
+    static class InvalidLexemMetException extends Exception {
         InvalidLexemMetException(String message) {
             super(message);
         }

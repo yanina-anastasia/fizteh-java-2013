@@ -1,15 +1,18 @@
 package ru.fizteh.fivt.students.dubovpavel.multifilehashmap;
 
+import ru.fizteh.fivt.students.dubovpavel.filemap.Serial;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
-    private final int dirsCount = 16;
-    private final int chunksCount = 16;
-    private File root;
+public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
+    private static final int dirsCount = 16;
+    private static final int chunksCount = 16;
+    protected File root;
 
-    public DataBaseMultiFileHashMap(File path) {
+    public DataBaseMultiFileHashMap(File path, Serial<V> builder) {
+        super(builder);
         root = path;
     }
 
@@ -30,7 +33,12 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
     }
 
     private Distribution<Integer, Integer> getDistribution(String key) {
-        int hashcode = Math.abs(key.hashCode());
+        int key_hash = key.hashCode(), hashcode;
+        if(key_hash == Integer.MIN_VALUE) {
+            hashcode = 0;
+        } else {
+            hashcode = Math.abs(key_hash);
+        }
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
         return new Distribution<Integer, Integer>(ndirectory, nfile);
@@ -39,43 +47,56 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
     @Override
     public void open() throws DataBaseException {
         boolean allReadSuccessfully = true;
-        HashMap<String, String> chunksCollector = new HashMap<>();
-        String exceptionMessage = "";
+        HashMap<String, V> chunksCollector = new HashMap<>();
+        StringBuilder exceptionMessage = new StringBuilder();
         for(int i = 0; i < dirsCount; i++) {
             File sub = generateChunksDir(i);
             if(sub.isDirectory()) {
+                boolean dirIsEmpty = true;
                 for(int j = 0; j < chunksCount; j++) {
                     File data = generateChunk(i, j);
                     if(data.isFile()) {
+                        dirIsEmpty = false;
                         try {
                             dict = new HashMap<>();
                             setPath(data);
                             super.open();
+                            if(dict.size() == 0) {
+                                throw new DataBaseException(String.format("Chunk can not be empty"), false);
+                            }
                             for(String key: dict.keySet()) {
                                 Distribution<Integer, Integer> distr = getDistribution(key);
                                 if(i != distr.getDir() || j != distr.getChunk()) {
                                     throw new DataBaseException(
-                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key));
+                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key), false);
                                 }
                             }
                             chunksCollector.putAll(dict);
                         } catch(DataBaseException e) {
-                            allReadSuccessfully = false;
-                            exceptionMessage += String.format("\nChunk (%d, %d): %s", i, j, e.getMessage());
+                            String errorMessage = String.format("%nChunk (%d, %d): %s", i, j, e.getMessage());
+                            if(e.acceptable) {
+                                allReadSuccessfully = false;
+                                exceptionMessage.append(errorMessage);
+                            } else {
+                                throw new DataBaseException(errorMessage, false);
+                            }
                         }
                     }
+                }
+                if(dirIsEmpty) {
+                    throw new DataBaseException(String.format("Dir %d: Dir can not be empty", i), false);
                 }
             }
         }
         dict = chunksCollector;
         if(!allReadSuccessfully) {
-            throw new DataBaseException(exceptionMessage);
+            throw new DataBaseException(exceptionMessage.toString());
         }
     }
     @Override
     public void save() throws DataBaseException {
-        HashMap<String, String> backUp = dict;
-        HashMap<String, String>[][] distribution = new HashMap[dirsCount][chunksCount];
+        HashMap<String, V> backUp = dict;
+        HashMap<String, V>[][] distribution = new HashMap[dirsCount][chunksCount];
         for(int i = 0; i < dirsCount; i++) {
             File sub = generateChunksDir(i);
             for(int j = 0; j < chunksCount; j++) {
@@ -93,7 +114,7 @@ public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
                 throw new DataBaseException(String.format("Can not delete directory '%s'", sub.getPath()));
             }
         }
-        for(Map.Entry<String, String> entry: dict.entrySet()) {
+        for(Map.Entry<String, V> entry: dict.entrySet()) {
             Distribution<Integer, Integer> distr = getDistribution(entry.getKey());
             distribution[distr.getDir()][distr.getChunk()].put(entry.getKey(), entry.getValue());
         }
