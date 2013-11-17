@@ -119,7 +119,7 @@ public abstract class GenericTable<ValueType> {
             lock.readLock().lock();
             int res = 0;
             for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
-                if (s.getValue() != oldDatabase.get(s.getKey())) {
+                if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
                     ++res;
                 }
             }
