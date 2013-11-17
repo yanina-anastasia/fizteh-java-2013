@@ -36,7 +36,7 @@ public class MultiDbState extends State implements Table {
         shell = new ShellState();
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
-            throw new IllegalArgumentException("wrong root directory " + rootPath);
+            throw new IOException("wrong root directory " + rootPath);
         }
         shell.cd(rootPath);
         shell.cd(dbName);
@@ -47,12 +47,11 @@ public class MultiDbState extends State implements Table {
     
     public MultiDbState(String property, String dbName, MyTableProvider prov, List<Class<?>> columnTypes) 
                                                 throws ParseException, IOException {
-        initMap();
         validate(property);
         validate(dbName);
         checkList(columnTypes);
         if (property == null || property.trim().isEmpty()) {
-            throw new IllegalArgumentException("no root directory");
+            throw new IOException("no root directory");
         }
         provider = prov;
         rootPath = property;     
@@ -60,7 +59,7 @@ public class MultiDbState extends State implements Table {
         objList = columnTypes;
     }
     
-    private void initMap() {
+    private void checkList(List<Class<?>> columnTypes) {
         possibleTypes = new HashMap<Class<?>, String>();
         possibleTypes.put(String.class, "String");
         possibleTypes.put(Integer.class, "int");
@@ -69,23 +68,24 @@ public class MultiDbState extends State implements Table {
         possibleTypes.put(Double.class, "double");
         possibleTypes.put(Byte.class, "byte");
         possibleTypes.put(Long.class, "long");
-    }
-    
-    private void checkList(List<Class<?>> columnTypes) {
         if (columnTypes == null) {
             throw new IllegalArgumentException("no list passed");
         }
-        for (int i = 0; i < columnTypes.size(); i++) {
-            if (columnTypes.get(i) == null
-                    || !possibleTypes.keySet().contains(columnTypes.get(i))) {
-                throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i).getSimpleName());
+        
+        try {
+            for (int i = 0; i < columnTypes.size(); i++) {
+                if (columnTypes.get(i) == null
+                        || !possibleTypes.keySet().contains(columnTypes.get(i))) {
+                    throw new DbWrongTypeException("incorrect type name " + columnTypes.get(i).getSimpleName());
+               }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
     public MultiDbState(String property, String dbName, MyTableProvider prov) 
             throws ParseException, IOException {
-        initMap();
         validate(property);
         validate(dbName);
         if (property == null || property.trim().isEmpty()) {
