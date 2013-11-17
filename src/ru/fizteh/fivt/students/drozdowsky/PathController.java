@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.drozdowsky.pathController;
+package ru.fizteh.fivt.students.drozdowsky;
 
 import java.io.File;
 import java.io.IOException;
