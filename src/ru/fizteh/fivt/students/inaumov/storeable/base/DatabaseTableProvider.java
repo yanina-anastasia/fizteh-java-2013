@@ -94,7 +94,7 @@ public class DatabaseTableProvider implements TableProvider {
             checkTableName(name);
 
             if (columnTypes == null || columnTypes.isEmpty()) {
-                throw new IllegalArgumentException("error: column types can't be null (or empty)");
+                throw new IllegalArgumentException("error: wrong type (null or empty columns types)");
             }
 
             checkColumnTypes(columnTypes);

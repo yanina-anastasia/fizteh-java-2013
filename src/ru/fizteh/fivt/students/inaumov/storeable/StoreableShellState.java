@@ -137,17 +137,7 @@ public class StoreableShellState implements MultiFileMapShellState<Table, String
         if (argumentsLine == null || argumentsLine.trim().isEmpty()) {
             return new String[0];
         }
-        StringBuilder stringBuilder = new StringBuilder(argumentsLine);
 
-        int openBracketFirstEntry = argumentsLine.indexOf('(');
-        int closeBracketFirstEntry = argumentsLine.indexOf(')');
-        if (openBracketFirstEntry != -1) {
-            stringBuilder.setCharAt(openBracketFirstEntry, ' ');
-        }
-        if (closeBracketFirstEntry != -1) {
-            stringBuilder.setCharAt(closeBracketFirstEntry, ' ');
-        }
-
-        return new String[]{stringBuilder.toString()};
+        return new String[]{argumentsLine};
     }
 }
