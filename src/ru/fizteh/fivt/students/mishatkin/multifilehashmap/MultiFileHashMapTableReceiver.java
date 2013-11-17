@@ -75,7 +75,17 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 		if (tableFiles.get(indexInFilesList) == null) {
 			String directoryName = String.valueOf(directoryIndex) + ".dir";
 			String fileName = String.valueOf(fileIndex) + ".dat";
-			File directory = new File(new File(getDelegate().getDbDirectoryName(), tableName), directoryName);
+			if (getDelegate() == null) {
+				System.err.println("delegate");
+			}
+			if (getDelegate().getDbDirectoryName() == null) {
+				System.err.println("dbDir");
+			}
+			if (tableName == null) {
+				System.err.println("tableName");
+			}
+			File tableDirectory = new File(getDelegate().getDbDirectoryName(), tableName);
+			File directory = new File(tableDirectory, directoryName);
 			try {
 				directory = directory.getCanonicalFile();
 			} catch (IOException e) {
