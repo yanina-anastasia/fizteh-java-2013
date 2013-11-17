@@ -192,15 +192,15 @@ public abstract class UniversalDataTable<ValueType> {
             tableChangesLock.readLock().unlock();
         }
         Set<String> keysToCommit = putKeys.get().keySet();
-        for (String key : keysToCommit) {
-            tableChangesLock.readLock().lock();
-            try {
+        tableChangesLock.readLock().lock();
+        try {
+            for (String key : keysToCommit) {
                 if (!dataStorage.containsKey(key)) {
                     ++size;
                 }
-            } finally {
-                tableChangesLock.readLock().unlock();
             }
+        } finally {
+            tableChangesLock.readLock().unlock();
         }
         size -= removeKeys.get().size();
         return size;
@@ -210,9 +210,9 @@ public abstract class UniversalDataTable<ValueType> {
         int commitSize = 0;
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToCommit = putKeys.get().keySet();
-            for (String key : putKeysToCommit) {
-                tableChangesLock.readLock().lock();
-                try {
+            tableChangesLock.readLock().lock();
+            try {
+                for (String key : putKeysToCommit) {
                     if (dataStorage.get(key) == null) {
                         dataStorage.put(key, putKeys.get().get(key));
                         ++commitSize;
@@ -222,9 +222,9 @@ public abstract class UniversalDataTable<ValueType> {
                             ++commitSize;
                         }
                     }
-                } finally {
-                    tableChangesLock.readLock().unlock();
                 }
+            } finally {
+                tableChangesLock.readLock().unlock();
             }
             putKeys.get().clear();
         }
@@ -247,9 +247,9 @@ public abstract class UniversalDataTable<ValueType> {
         int rollbackSize = 0;
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToRollback = putKeys.get().keySet();
-            for (String key : putKeysToRollback) {
-                tableChangesLock.readLock().lock();
-                try {
+            tableChangesLock.readLock().lock();
+            try {
+                for (String key : putKeysToRollback) {
                     if (dataStorage.get(key) == null) {
                         ++rollbackSize;
                     } else {
@@ -257,9 +257,9 @@ public abstract class UniversalDataTable<ValueType> {
                             ++rollbackSize;
                         }
                     }
-                } finally {
-                    tableChangesLock.readLock().unlock();
                 }
+            } finally {
+                tableChangesLock.readLock().unlock();
             }
             putKeys.get().clear();
         }
