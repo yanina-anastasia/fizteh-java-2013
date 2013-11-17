@@ -1,12 +1,10 @@
 package ru.fizteh.fivt.students.dubovpavel.multifilehashmap;
 
-import ru.fizteh.fivt.students.dubovpavel.filemap.DataBase;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataBaseMultiFileHashMap extends DataBase {
+public class DataBaseMultiFileHashMap extends FileRepresentativeDataBase {
     private final int dirsCount = 16;
     private final int chunksCount = 16;
     private File root;

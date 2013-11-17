@@ -11,22 +11,25 @@ public class DropCommand extends Command {
 	}
 
 	@Override
-	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+	public void execute(String[] argumentsList, Shell shell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
+		String name = argumentsList[1];
+		
+		if(shell.getState().currentTable != null && shell.getState().currentTable.getName().equals(name)) {
+			shell.getState().currentTable = null;
+		}
+		
 		try {
-			if(myShell.getState().getCurrentTable() != null && myShell.getState().getCurrentTable().getName().equals(argumentsList[1])) {
-				myShell.getState().setCurrentTable(null);
-			}
-			myShell.getState().getTableProvider().removeTable(argumentsList[1]);
-			
+			shell.getState().tableProvider.removeTable(name);
 		} catch (IllegalArgumentException e) {
-			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError(e.getMessage(), this.getName(), shell.getIsInteractive());
 			return;
 		} catch (IllegalStateException e) {
-			System.out.println(argumentsList[1] + " not exists");
+			System.out.println(name + " not exists");
+			return;
 		}
 		
 		System.out.println("dropped");

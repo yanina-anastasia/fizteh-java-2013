@@ -1,15 +1,19 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.musin.shell.Shell;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class ShellDatabaseHandler {
     FileMapProvider database;
     MultiFileMap current;
 
-    public ShellDatabaseHandler(String location) {
+    public ShellDatabaseHandler(String location) throws IOException {
         FileMapProviderFactory factory = new FileMapProviderFactory();
         database = factory.create(location);
         current = null;
@@ -22,7 +26,9 @@ public class ShellDatabaseHandler {
         for (Throwable suppressed : e.getSuppressed()) {
             printException(suppressed);
         }
-        System.err.println(e.getMessage());
+        if (e.getMessage() != null && !e.getMessage().equals("")) {
+            System.err.println(e.getMessage());
+        }
     }
 
     ArrayList<String> parseArguments(int argCount, String argString) {
@@ -51,24 +57,66 @@ public class ShellDatabaseHandler {
     }
 
     private Shell.ShellCommand[] commands = new Shell.ShellCommand[]{
-            new Shell.ShellCommand("create", new Shell.ShellExecutable() {
+            new Shell.ShellCommand("create", false, new Shell.ShellExecutable() {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
-                    if (args.size() > 1) {
+                    args = parseArguments(2, args.get(0));
+                    if (args.size() > 2) {
                         System.err.println("create: Too many arguments");
                         return -1;
                     }
-                    if (args.size() < 1) {
-                        System.err.println("create: Too few arguments");
+                    if (args.size() < 2) {
+                        System.out.println("wrong type (type not specified)");
                         return -1;
                     }
                     try {
-                        Table table = database.createTable(args.get(0));
+                        if (args.get(1).length() < 2) {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        if (args.get(1).charAt(0) != '(') {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        if (args.get(1).charAt(args.get(1).length() - 1) != ')') {
+                            System.out.println("wrong type (wrong argument format)");
+                            return -1;
+                        }
+                        String[] typeNames = args.get(1).substring(1, args.get(1).length() - 1).trim().split("\\s+");
+                        ArrayList<Class<?>> columnTypes = new ArrayList<>();
+                        for (int i = 0; i < typeNames.length; i++) {
+                            if (typeNames[i].equals("int")) {
+                                columnTypes.add(Integer.class);
+                            } else if (typeNames[i].equals("long")) {
+                                columnTypes.add(Long.class);
+                            } else if (typeNames[i].equals("byte")) {
+                                columnTypes.add(Byte.class);
+                            } else if (typeNames[i].equals("float")) {
+                                columnTypes.add(Float.class);
+                            } else if (typeNames[i].equals("double")) {
+                                columnTypes.add(Double.class);
+                            } else if (typeNames[i].equals("boolean")) {
+                                columnTypes.add(Boolean.class);
+                            } else if (typeNames[i].equals("String")) {
+                                columnTypes.add(String.class);
+                            } else {
+                                System.out.println(String.format("wrong type (%s is not supported)",
+                                        typeNames[i]));
+                                return -1;
+                            }
+                        }
+                        Table table = database.createTable(args.get(0), columnTypes);
                         if (table == null) {
                             System.out.printf("%s exists\n", args.get(0));
                             return 0;
                         }
+                    } catch (ColumnFormatException e) {
+                        System.out.println(String.format("wrong type (%s)", e.getMessage()));
+                        return -1;
                     } catch (RuntimeException e) {
+                        printException(e);
+                        return -1;
+                    } catch (IOException e) {
                         printException(e);
                         return -1;
                     }
@@ -95,6 +143,12 @@ public class ShellDatabaseHandler {
                     } catch (RuntimeException e) {
                         printException(e);
                         return -1;
+                    } catch (IOException e) {
+                        printException(e);
+                        return  -1;
+                    }
+                    if (current != null && args.get(0).equals(current.getName())) {
+                        current = null;
                     }
                     System.out.println("dropped");
                     return 0;
@@ -141,6 +195,9 @@ public class ShellDatabaseHandler {
                     try {
                         System.out.printf("%d\n", current.commit());
                     } catch (RuntimeException e) {
+                        printException(e);
+                        return -1;
+                    } catch (IOException e) {
                         printException(e);
                         return -1;
                     }
@@ -195,11 +252,20 @@ public class ShellDatabaseHandler {
                         System.out.println("no table");
                         return 0;
                     }
-                    String value = current.put(args.get(0), args.get(1));
-                    if (value == null) {
-                        System.out.println("new");
-                    } else {
-                        System.out.printf("overwrite\n%s\n", value);
+                    try {
+                        Storeable value = current.put(args.get(0), database.deserialize(current, args.get(1)));
+                        if (value == null) {
+                            System.out.println("new");
+                        } else {
+                            System.out.printf("overwrite\n%s\n", database.serialize(current, value));
+                        }
+                    } catch (ColumnFormatException e) {
+                        System.out.printf("wrong type (%s)\n", e.getMessage());
+                    } catch (ParseException e) {
+                        System.out.printf("wrong type (%s)\n", e.getMessage());
+                    } catch (Exception e) {
+                        printException(e);
+                        return -1;
                     }
                     return 0;
                 }
@@ -219,11 +285,11 @@ public class ShellDatabaseHandler {
                         System.out.println("no table");
                         return 0;
                     }
-                    String value = current.get(args.get(0));
+                    Storeable value = current.get(args.get(0));
                     if (value == null) {
                         System.out.println("not found");
                     } else {
-                        System.out.printf("found\n%s\n", value);
+                        System.out.printf("found\n%s\n", database.serialize(current, value));
                     }
                     return 0;
                 }
@@ -255,8 +321,12 @@ public class ShellDatabaseHandler {
                 @Override
                 public int execute(Shell shell, ArrayList<String> args) {
                     shell.stop();
-                    if (current != null) {
-                        current.commit();
+                    try {
+                        if (current != null) {
+                            current.commit();
+                        }
+                    } catch (Exception e) {
+                        printException(e);
                     }
                     return 0;
                 }

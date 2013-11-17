@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
+
+import java.text.ParseException;
 
 public class TableCommandGet extends Executable {
     TableManager manager;
@@ -13,12 +16,19 @@ public class TableCommandGet extends Executable {
             manager.printMessage("no table");
             return false;
         }
-        String value = table.get(args[1]);
+        Storeable value = table.get(args[1]);
         if (value == null) {
             manager.printMessage("not found");
         } else {
             manager.printMessage("found");
-            manager.printMessage(value);
+            String stringValue;
+            try {
+                stringValue = manager.serialize(table.get(args[1]));
+            } catch (ParseException e) {
+                manager.printMessage("wrong type (" + e.getMessage() + ")");
+                return false;
+            }
+            manager.printMessage(stringValue);
         }
         return true;
     }

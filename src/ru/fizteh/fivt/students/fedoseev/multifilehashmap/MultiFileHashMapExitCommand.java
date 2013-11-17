@@ -11,7 +11,7 @@ public class MultiFileHashMapExitCommand extends AbstractCommand<MultiFileHashMa
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        AbstractMultiFileHashMap.commitTable(state.getCurTable());
+        AbstractMultiFileHashMap.saveTable(state.getCurTable());
 
         Thread.currentThread().interrupt();
     }

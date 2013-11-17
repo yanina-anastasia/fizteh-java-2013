@@ -34,7 +34,12 @@ public class FileMap {
         TableManager manager = null;
         try {
             DistributedTableProviderFactory factory = new DistributedTableProviderFactory();
-            manager = new TableManager(factory.create(property));
+            try {
+                manager = new TableManager(factory.create(property));
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+                System.exit(1);
+            }
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);

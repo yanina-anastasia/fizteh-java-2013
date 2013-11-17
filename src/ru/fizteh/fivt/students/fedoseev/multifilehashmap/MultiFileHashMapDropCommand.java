@@ -12,11 +12,12 @@ public class MultiFileHashMapDropCommand extends AbstractCommand<MultiFileHashMa
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        File tableDir = state.getCurDir().toPath().resolve(input[0]).toFile();
+        String tableName = input[0];
+        File curTableDir = state.getCurDir().toPath().resolve(tableName).toFile();
 
-        if (tableDir.exists()) {
-            if (tableDir.listFiles() != null) {
-                for (File dir : tableDir.listFiles()) {
+        if (curTableDir.exists()) {
+            if (curTableDir.listFiles() != null) {
+                for (File dir : curTableDir.listFiles()) {
                     if (dir.listFiles() != null) {
                         for (File file : dir.listFiles()) {
                             file.delete();
@@ -27,18 +28,18 @@ public class MultiFileHashMapDropCommand extends AbstractCommand<MultiFileHashMa
                 }
             }
 
-            if (input[0].equals(state.getCurTableName())) {
-                state.getCurTable().clearContent();
-                state.setCurTable("");
-                state.setDbDir("");
+            if (state.getCurTable() != null &&
+                    tableName.equals(state.getCurTable().getCurTableDir().getName().toString())) {
+                state.getCurTable().clearContentAndDiff();
+                state.setCurTable(null);
             }
 
-            tableDir.delete();
-            state.removeTable(input[0]);
+            curTableDir.delete();
+            state.removeTable(curTableDir.toString());
 
             System.out.println("dropped");
         } else {
-            System.out.println(input[0] + " not exists");
+            System.out.println(tableName + " not exists");
         }
     }
 }

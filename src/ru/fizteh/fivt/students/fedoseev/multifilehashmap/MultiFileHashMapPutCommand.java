@@ -1,35 +1,29 @@
 package ru.fizteh.fivt.students.fedoseev.multifilehashmap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.filemap.AbstractFileMap;
-import ru.fizteh.fivt.students.fedoseev.filemap.FileMapPutCommand;
-import ru.fizteh.fivt.students.fedoseev.filemap.FileMapState;
 
 import java.io.IOException;
 
 public class MultiFileHashMapPutCommand extends AbstractCommand<MultiFileHashMapState> {
-    private FileMapPutCommand put;
-
     public MultiFileHashMapPutCommand() {
         super("put", 2);
-
-        put = new FileMapPutCommand();
     }
 
     @Override
     public void execute(String[] input, MultiFileHashMapState state) throws IOException {
-        MultiFileHashMapTable table = state.getCurTable();
+        MultiFileHashMapTable curTable = state.getCurTable();
 
-        if (table == null) {
+        if (curTable == null) {
             System.out.println("no table");
+            throw new IOException("ERROR: not existing table");
         } else {
-            AbstractMultiFileHashMap.readTable(table);
+            String putEntry = curTable.put(input[0], input[1]);
 
-            AbstractFileMap.setContent(table.getMapContent());
-
-            put.execute(input, new FileMapState());
-
-            table.setMapContent(AbstractFileMap.getContent());
+            if (putEntry == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite\n" + putEntry);
+            }
         }
     }
 }

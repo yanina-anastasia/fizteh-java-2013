@@ -1,10 +1,13 @@
 package ru.fizteh.fivt.students.belousova.multifilehashmap;
 
+import ru.fizteh.fivt.students.belousova.filemap.SingleFileTable;
+import ru.fizteh.fivt.students.belousova.filemap.TableState;
+
 public class MultiFileHashMap {
     public static void main(String[] args) {
         MultiFileShell shell = new MultiFileShell();
         String dir = System.getProperty("fizteh.db.dir");
-        ChangesCountingTableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
+        MultiFileTableProviderFactory tableProviderFactory = new MultiFileTableProviderFactory();
         try {
             MultiFileShellState multiFileShellState = new MultiFileShellState(tableProviderFactory.create(dir), null);
             shell.run(args, multiFileShellState);

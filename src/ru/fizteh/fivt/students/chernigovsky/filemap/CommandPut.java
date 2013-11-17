@@ -14,7 +14,7 @@ public class CommandPut implements Command {
             System.out.println("no table");
             return;
         }
-        String oldValue = state.put(args[1], args[2]);
+        String oldValue = state.getCurrentTable().put(args[1], args[2]);
         if (oldValue == null) {
             System.out.println("new");
         } else {

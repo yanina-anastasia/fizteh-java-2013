@@ -20,8 +20,7 @@ public class Launcher {
 		if(currentDirectory == null) {
 			Utils.generateAnError("Incorrect work getProperty().", "Launcher", false);
 		}
-		State myState = new State();
-		myState.setIsFileMap(true);
+		State myState = new State(false, currentDirectory);
 		Shell myShell = new Shell(commands, currentDirectory);
 		myShell.setState(myState);
 		myShell.execute(args);

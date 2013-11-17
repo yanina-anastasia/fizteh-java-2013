@@ -37,7 +37,7 @@ public class FileMapMainTest {
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void testCreateNull() {
+    public void testCreateNull() throws IllegalArgumentException, IOException {
         FileMapMain factory = new FileMapMain();
         factory.create(null);
     }
@@ -45,13 +45,21 @@ public class FileMapMainTest {
     @Test (expected = IllegalArgumentException.class)
     public void testCreateEmpty() {
         FileMapMain factory = new FileMapMain();
-        factory.create("");
+        try {
+            factory.create("");
+        } catch (IOException e) {
+            fail("unexpected exception: expected IllegalArgumentException");
+        }
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testCreateNl() {
         FileMapMain factory = new FileMapMain();
-        factory.create("                         ");
+        try {
+            factory.create("                         ");
+        } catch (IOException e) {
+            fail("unexpected exception: expected IllegalArgumentException");
+        }
     }
     
     @Test
@@ -84,3 +92,4 @@ public class FileMapMainTest {
         }
     }
 }
+

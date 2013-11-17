@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.mishatkin.filemap;
 
+import ru.fizteh.fivt.students.mishatkin.multifilehashmap.MultiFileHashMap;
 import ru.fizteh.fivt.students.mishatkin.shell.*;
 
 import java.io.*;
@@ -9,9 +10,10 @@ import java.util.Set;
 /**
  * Created by Vladimir Mishatkin on 10/14/13
  */
-public class FileMapReceiver extends ShellReceiver {
+public class FileMapReceiver extends ShellReceiver implements FileMapReceiverProtocol {
 
 	private File dbFile;
+	private File dbFileOwningDirectory;
 	private HashMap<String, String> dictionary = new HashMap<>();
 
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -19,7 +21,7 @@ public class FileMapReceiver extends ShellReceiver {
 	private boolean isValidStringLength(int size) {
 		return size > 0 && size < TERRIBLE_FILE_SIZE;
 	}
-	
+
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
 		FileInputStream in = null;
@@ -30,44 +32,43 @@ public class FileMapReceiver extends ShellReceiver {
 				dbFile.createNewFile();
 			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
+			dbFileOwningDirectory = new File(dbDirectory);
 		} catch (IOException e) {
-			throw new FileMapDatabaseException("DB file not found.");
-		} finally {
-			DataInputStream dis = null;
-			try {
-				dis = new DataInputStream(in);
-				boolean hasNext = true;
-				while (hasNext) {
-					try {
-						dis.mark(1024 * 1024); // 1 MB
-						int keyLength = dis.readInt();
-						int valueLength = dis.readInt();
-						if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
-							throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
-						}
-						byte[] keyBinary = new byte[keyLength];
-						byte[] valueBinary = new byte[valueLength];
-						dis.read(keyBinary, 0, keyLength);
-						dis.read(valueBinary, 0, valueLength);
-						String key = new String(keyBinary, "UTF-8");
-						String value = new String(valueBinary, "UTF-8");
-						dictionary.put(key, value);
-					} catch (EOFException e) {
-						hasNext = false;
-					} catch (IOException e) {
-						throw new FileMapDatabaseException("DB file missing or corrupted.");
-					}
-				}
-			} finally {
+			throw new FileMapDatabaseException("Some internal error.");
+		}
+		DataInputStream dis = null;
+		try {
+			dis = new DataInputStream(in);
+			boolean hasNext = true;
+			while (hasNext) {
 				try {
-					if (dis != null) {
-						dis.close();
+					dis.mark(1024 * 1024); // 1 MB
+					int keyLength = dis.readInt();
+					int valueLength = dis.readInt();
+					if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
+						throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
 					}
-				} catch (NullPointerException | IOException ignored) {
+					byte[] keyBinary = new byte[keyLength];
+					byte[] valueBinary = new byte[valueLength];
+					dis.read(keyBinary, 0, keyLength);
+					dis.read(valueBinary, 0, valueLength);
+					String key = new String(keyBinary, "UTF-8");
+					String value = new String(valueBinary, "UTF-8");
+					dictionary.put(key, value);
+				} catch (EOFException e) {
+					hasNext = false;
+				} catch (IOException e) {
+					throw new FileMapDatabaseException("DB file missing or corrupted.");
 				}
 			}
+		} finally {
+			try {
+				if (dis != null) {
+					dis.close();
+				}
+			} catch (NullPointerException | IOException ignored) {
+			}
 		}
-
 	}
 
 	public void showPrompt() {
@@ -76,6 +77,7 @@ public class FileMapReceiver extends ShellReceiver {
 		}
 	}
 
+	@Override
 	public void putCommand(String key, String value) {
 		String oldValue = dictionary.get(key);
 		if (oldValue != null) {
@@ -87,6 +89,7 @@ public class FileMapReceiver extends ShellReceiver {
 		dictionary.put(key, value);
 	}
 
+	@Override
 	public void removeCommand(String key) {
 		if (dictionary.remove(key) != null){
 			out.println("removed");
@@ -95,6 +98,7 @@ public class FileMapReceiver extends ShellReceiver {
 		}
 	}
 
+	@Override
 	public void getCommand(String key) {
 		String value = dictionary.get(key);
 		if (value != null) {
@@ -115,6 +119,14 @@ public class FileMapReceiver extends ShellReceiver {
 	}
 
 	private void writeChangesToFile() throws ShellException {
+		if (dictionary.isEmpty()) {
+			try {
+				changeDirectoryCommand(dbFileOwningDirectory.getAbsolutePath());
+				rmCommand(dbFile.getAbsolutePath());
+			} catch (ShellException probablyNoFileThere) {
+			}
+			return;
+		}
 		DataOutputStream dos = null;
 		try {
 			dos = new DataOutputStream(new FileOutputStream(dbFile));
@@ -140,5 +152,17 @@ public class FileMapReceiver extends ShellReceiver {
 			} catch (IOException ignored) {
 			}
 		}
+	}
+
+	public boolean doHashCodesConformHash(int hashCodeRemainder, int secondRadixHashCodeRemainder, int mod) {
+		boolean doConform = true;
+		for (String key : dictionary.keySet()) {
+			int code = key.hashCode();
+			if (Math.abs(code % mod) != hashCodeRemainder ||
+				Math.abs((code / mod) % mod)!= secondRadixHashCodeRemainder) {
+				return false;
+			}
+		}
+		return doConform;
 	}
 }

@@ -1,7 +1,10 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
+import java.text.ParseException;
 import java.util.HashMap;
 
 public class TableMember implements Table {
@@ -44,35 +47,44 @@ public class TableMember implements Table {
     }
 
     @Override
-    public String get(String key) throws IllegalArgumentException {
+    public TableRecord get(String key) throws IllegalArgumentException {
         checkExistence();
         if (!table.isValidKey(key)) {
             throw new IllegalArgumentException();
         }
+        String value;
         if (changes.containsKey(key)) {
-            return changes.get(key);
+            value = changes.get(key);
+        } else {
+            value = table.get(key);
         }
-        return table.get(key);
+        try {
+            return provider.deserialize(this, value);
+        } catch (ParseException e) {
+            throw new IllegalStateException("error with deserializeing vale");
+        }
     }
 
     @Override
-    public String put(String key, String value) throws IllegalArgumentException {
+    public TableRecord put(String key, Storeable value) throws ColumnFormatException {
         checkExistence();
-        if (!table.isValidKey(key) || !table.isValidValue(value)) {
+        if (!table.isValidKey(key) || value == null) {
             throw new IllegalArgumentException("invalid key or value");
         }
-        String old = get(key);
-        changes.put(key, value);
+        TableRecord old = get(key);
+        String stringValue;
+        stringValue = provider.serialize(this, value);
+        changes.put(key, stringValue);
         return old;
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         checkExistence();
         if (!table.isValidKey(key)) {
             throw new IllegalArgumentException();
         }
-        String old = get(key);
+        Storeable old = get(key);
         changes.put(key, null);
         return old;
     }
@@ -104,6 +116,14 @@ public class TableMember implements Table {
         int changed = table.commit();
         changes.clear();
         return changed;
+    }
+
+    public int getColumnsCount() {
+        return provider.getTableTypes(getName()).size();
+    }
+
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return provider.getTableTypes(getName()).get(columnIndex);
     }
 }
 

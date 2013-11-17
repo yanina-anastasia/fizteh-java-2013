@@ -119,11 +119,11 @@ public class MultifileTableTest {
         // get
         currentTable.get(null);
 
-        // put
+        // storagePut
         currentTable.put(null, "value");
         currentTable.put("key", null);
 
-        // remove
+        // storageRemove
         currentTable.remove(null);
     }
 

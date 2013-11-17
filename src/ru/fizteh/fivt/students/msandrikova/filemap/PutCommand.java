@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.msandrikova.filemap;
 
-import java.nio.charset.StandardCharsets;
-
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
@@ -13,48 +11,25 @@ public class PutCommand extends Command {
 	}
 
 	@Override
-	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
-			return;
-		}
-
-		if(argumentsList[1].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
-			Utils.generateAnError("Key length must be less than 1 MB.", this.getName(), myShell.getIsInteractive());
-			return;
-		}
-		if(argumentsList[2].getBytes(StandardCharsets.UTF_8).length >= 10*10*10*10*10*10) {
-			Utils.generateAnError("Value length must be less than 1 MB.", this.getName(), myShell.getIsInteractive());
+	public void execute(String[] argumentsList, Shell shell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		String oldValue = null;
+		String key = argumentsList[1];
+		String value = argumentsList[2];
 		
-		if(myShell.getState().getIsFileMap()) {
-			if(myShell.getState().getDBMap() == null) {
-				myShell.getState().setDBMap(myShell.getCurrentDirectory());
-			}
-			try {
-				oldValue = myShell.getState().getDBMap().put(argumentsList[1], argumentsList[2]);
-			} catch (IllegalArgumentException e) {
-				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
-				return;
-			}
-		} else if(myShell.getState().getIsMultiFileHashMap()) {
-			if(myShell.getState().getCurrentTable() == null) {
-				System.out.println("no table");
-				return;
-			}
-			try {
-				oldValue = myShell.getState().getCurrentTable().put(argumentsList[1], argumentsList[2]);
-			} catch (IllegalArgumentException e) {
-				Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
-				return;
-			}
-		} else {
-			Utils.generateAnError("If you want to use this command shell's state should "
-					+ "have type isFileMap or isMultiFileHashMap.", this.getName(), myShell.getIsInteractive());
+		if(!Utils.testUTFSize(key) || !Utils.testUTFSize(value)) {
+			Utils.generateAnError("Key and value can not be grater than 1 MB.", this.getName(), shell.getIsInteractive());
 			return;
 		}
+		
+		if(shell.getState().currentTable == null && shell.getState().isMultiFileHashMap) {
+			System.out.println("no table");
+			return;
+		}
+		
+		String oldValue = shell.getState().currentTable.put(key, value);
 
 		if(oldValue == null) {
 			System.out.println("new");

@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 
 public abstract class AbstractCommand<T> implements Command<T> {
+	public static final String SEPARATOR = System.getProperty("line.separator");
 	private final String name;
 	private final int argNum;
 

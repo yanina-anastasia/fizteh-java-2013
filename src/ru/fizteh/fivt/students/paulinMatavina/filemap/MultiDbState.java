@@ -4,43 +4,48 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.DataFormatException;
-
+import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class MultiDbState extends State{
+public class MultiDbState extends State implements Table {
     final int folderNum = 16;
     final int fileInFolderNum = 16;
-    public String tableName;
+    private String tableName;
     DbState[][] data;
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
+    private int dbSize;
+    private int primaryDbSize;
     
-    public MultiDbState() throws DataFormatException {
-        String property = System.getProperty("fizteh.db.dir");
-        if (property == null) {
-            throw new DataFormatException("wrong root directory");
+    public MultiDbState(String property, String dbName) {
+        validate(property);
+        validate(dbName);
+        if (property == null || property.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty root directory");
         }
+
+        dbSize = 0;
         isDropped = false;
-        rootPath = new File(property).getAbsolutePath();
+        rootPath = property;
         data = new DbState[folderNum][fileInFolderNum];
         shell = new ShellState();
-        shell.cd(rootPath);
-        
-        tableName = null;
-        if (setCurrentDir() != 0) {
-            throw new DataFormatException(property + ": wrong root directory");
+        currentDir = new File(rootPath);
+        if (!currentDir.exists() || !currentDir.isDirectory()) {
+            throw new IllegalArgumentException("wrong root directory " + rootPath);
         }
+        shell.cd(rootPath);
+        shell.cd(dbName);
         
-        commands = new HashMap<String, Command>();
-        this.add(new DbGet());
-        this.add(new DbPut());
-        this.add(new DbRemove());
-        this.add(new MultiDbDrop());
-        this.add(new MultiDbCreate());
-        this.add(new MultiDbUse());
-        this.add(new DbExit());
+        tableName = dbName;
+        try {
+            loadData();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("wrong database file " + dbName);
+        } catch (DataFormatException e) {
+            throw new IllegalArgumentException("wrong database file " + dbName);
+        }
     }
     
     private int checkFolder(String path) {
@@ -58,6 +63,8 @@ public class MultiDbState extends State{
     }
     
     private void loadData() throws IOException, DataFormatException {
+        dbSize = 0;
+        data = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -69,84 +76,34 @@ public class MultiDbState extends State{
                 data[i][j] = new DbState(filePath, i, j);
                 File f = new File(data[i][j].path);
                 f.createNewFile();
-                data[i][j].loadData();
+                dbSize += data[i][j].loadData();
             }
         }
+        primaryDbSize = dbSize;
     }
     
-    public boolean isDbChosen() {
-        return tableName != null;
+    public void dropped() {
+        isDropped = true;
     }
     
-    private int setCurrentDir() {
-        currentDir = new File(rootPath);
-        if (!currentDir.exists() || !currentDir.isDirectory()) {
-            return 1;
-        } else {
-            shell.cd(rootPath);
+    public int commit() {
+        try {
+            return tryToCommit();
+        } catch (IOException e) {
+            System.out.println("multifilemap: error while writing data to the disk");
+            return 0;
+        } catch (DataFormatException e) {
+            System.out.println("multifilemap: " + e.getMessage());
             return 0;
         }
     }
     
-    public int changeBase(String name) {
-        if (isDbChosen()) {
-            tryToCommit();   
-        }
-        File lastDir = shell.currentDir;
-        
-        int result = shell.cd(makeNewSource(name));
-        if (result == 0) {
-            try {
-                loadData();
-            } catch (IOException e) {
-                shell.currentDir = lastDir;
-                System.err.println("multifilemap: loading data: " + e.getMessage());
-                return 1;
-            } catch (DataFormatException e) {
-                shell.currentDir = lastDir;
-                System.err.println("multifilemap: " + e.getMessage());
-                return 1;
-            }
-        }
-        
-        if (result == 0) {
-            tableName = name;
-            isDropped = false;
-        }
-        return result;
-    }
-     
-    @Override
-    public void exitWithError(int errCode) {
-        if (!isDbChosen()) {
-            System.exit(0);
-        }
-        int result = tryToCommit();
-        if (result != 0) {
-            errCode = 1;
-        }
-        
-        System.exit(errCode);
-    }
-    
-    private int tryToCommit() {
-        try {
-            commit();
-        } catch (IOException e) {
-            System.out.println("multifilemap: error while writing data to the disk");
-            return 1;
-        } catch (DataFormatException e) {
-            System.out.println("multifilemap: " + e.getMessage());
-            return 1;
-        }
-        return 0;
-    }
-    
-    public void commit() throws IOException, DataFormatException {
+    private int tryToCommit() throws IOException, DataFormatException {
         if (isDropped) {
-            return;
+            return 0;
         }
         
+        int chNum = changesNum();
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (checkFolder(shell.makeNewSource(fold)) != 0) {
@@ -154,16 +111,11 @@ public class MultiDbState extends State{
             }
             for (int j = 0; j < fileInFolderNum; j++) {
                 String file = Integer.toString(j) + ".dat";
-                data[i][j].commit();
-                if (data[i][j].data.isEmpty()) {
+                if (data[i][j].data.isEmpty() && new File(shell.makeNewSource(fold, file)).exists()) {
                     String[] arg = {shell.makeNewSource(fold, file)};
                     shell.rm(arg);
-                }
-                
-                try {
-                    data[i][j].dbFile.close();
-                } catch (IOException e) {
-                    throw new IOException("error in file closing");
+                } else {
+                    data[i][j].commit();
                 }
             }
            
@@ -172,15 +124,107 @@ public class MultiDbState extends State{
                 shell.rm(arg);
             }
         }
+        
+        primaryDbSize = dbSize;
+        return chNum;
     }
     
-    public int getFolderNum(String key) {
+    private int getFolderNum(String key) {
         byte[] bytes = key.getBytes();
         return (Math.abs(bytes[0]) % 16);
     }
     
-    public int getFileNum(String key) {
+    private int getFileNum(String key) {
         byte[] bytes = key.getBytes();
         return (Math.abs(bytes[0]) / 16 % 16);
+    }
+    
+    public String put(String key, String value) { 
+        validate(key);
+        validate(value);
+
+        if (isDropped) {
+            return null;
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        String result = data[folder][file].put(new String[] {key, value});
+        if (result == null) {
+            dbSize++;
+        }
+        return result;  
+    }
+    
+    public String get(String key) {
+        validate(key);
+        
+        if (isDropped) {
+            return null;
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        return data[folder][file].get(new String[] {key});  
+    }   
+    
+    public String remove(String key) {
+        validate(key);
+        if (isDropped) {
+            return null;
+        }
+        
+        int folder = getFolderNum(key);
+        int file = getFileNum(key);
+        String result = data[folder][file].remove(new String[] {key});
+        if (result != null) {
+            dbSize--;
+        }
+        return result;  
+    }
+    
+    public int size() {
+        int result = 0;
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                result += data[i][j].size();
+            }
+        }
+        return result;
+    }
+    
+    private void assignInit() {
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                data[i][j].data = new HashMap<String, String>(data[i][j].initial);
+            }
+        }
+    }
+    
+    public int rollback() {
+        int chNum = changesNum();
+        dbSize = primaryDbSize;
+        assignInit();
+        return chNum;
+    }
+    
+    public String getName() {
+        return tableName;
+    }
+    
+    private void validate(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty parameter");
+        }
+    }
+    
+    public int changesNum() {
+        int result = 0;
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                result += data[i][j].getChangeNum();
+            }
+        } 
+        return result;
     }
 }

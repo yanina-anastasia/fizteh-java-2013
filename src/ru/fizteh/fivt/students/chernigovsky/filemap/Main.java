@@ -1,5 +1,10 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.MyTableProvider;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,21 +14,28 @@ public class Main {
     public static void main(String[] args) {
         Map<String, Command> commandMap = new HashMap<String, Command>();
 
-        File dbName = new File(System.getProperty("fizteh.db.dir"), "db.dat");
-        if (!dbName.exists()) {
+        File tableDirectory = new File(System.getProperty("fizteh.db.dir"));
+        if (!tableDirectory.exists() || !tableDirectory.isDirectory()) {
+            System.err.println("DB directory not exists");
+            System.exit(1);
+        }
+
+        File table = new File(tableDirectory, "db.dat");
+        if (!table.exists()) {
             try {
-                dbName.createNewFile();
+                table.createNewFile();
             } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+                System.err.println("Can't create db.dat");
                 System.exit(1);
             }
         }
 
-        State state = new State(dbName);
-        state.changeCurrentTable(dbName);
+        ExtendedTableProvider myTableProvider = new MyTableProvider(tableDirectory, true);
+        ExtendedTable myTable = new MyTable("db.dat", true);
+        State state = new State(myTable, myTableProvider);
 
         try {
-            FileMapUtils.readTable(dbName, state);
+            FileMapUtils.readTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -37,7 +49,7 @@ public class Main {
         commandMap.put("exit", new CommandExit());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, state, dbName);
+            interactiveMode(commandMap, state);
         } else { // Batch mode
             StringBuilder stringBuilder = new StringBuilder();
             for (String string : args) {
@@ -45,11 +57,11 @@ public class Main {
                 stringBuilder.append(" ");
             }
             String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, state, dbName);
+            batchMode(commands, commandMap, state);
         }
 
         try {
-            FileMapUtils.writeTable(dbName, state);
+            FileMapUtils.writeTable(state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -57,7 +69,7 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, State state, File dbName) {
+    private static void interactiveMode(Map<String, Command> commandMap, State state) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
@@ -68,7 +80,7 @@ public class Main {
                 System.err.println(ex.getMessage());
             } catch (ExitException ex) {
                 try {
-                    FileMapUtils.writeTable(dbName, state);
+                    FileMapUtils.writeTable(state);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
                     System.exit(1);
@@ -79,14 +91,14 @@ public class Main {
         }
     }
 
-    private static void batchMode(String commands, Map<String, Command> commandMap, State state, File dbName) {
+    private static void batchMode(String commands, Map<String, Command> commandMap, State state) {
         try {
             parseCommands(commands, commandMap, state);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         } catch (ExitException ex) {
             try {
-                FileMapUtils.writeTable(dbName, state);
+                FileMapUtils.writeTable(state);
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
                 System.exit(1);
