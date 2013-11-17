@@ -93,9 +93,9 @@ public class MultiFileHashMapTableReceiver implements FileMapReceiverProtocol, T
 			String pseudoFileName = tableName + File.separator + directoryName + File.separator + fileName;
 			FileMapReceiver freshDictionaryFile = null;
 			try {
-				MultiFileHashMapTableReceiverDelegate delegate = getDelegate();
-				freshDictionaryFile = new FileMapReceiver(delegate.getDbDirectoryName(), pseudoFileName,
-						delegate.isInteractiveMode(), delegate.getOut());
+				MultiFileHashMapTableReceiverDelegate theDelegate = getDelegate();
+				freshDictionaryFile = new FileMapReceiver(theDelegate.getDbDirectoryName(), pseudoFileName,
+						theDelegate.isInteractiveMode(), theDelegate.getOut());
 			} catch (FileMapDatabaseException e) {
 				throw new MultiFileHashMapException("Cannot access or create file for " + directoryIndex + ".dir"
 						+ File.separator + fileIndex + ".dat", e);
