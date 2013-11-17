@@ -13,17 +13,16 @@ public class GetCommand extends DatabaseCommand {
 
     @Override
     public void execute (String[] args) {
-        String key = args[0];
-        if (state.getTable () == null) {
-            state.getIoStreams ().out.println ("no table");
+        if (!tableIsSelected ()) {
             return;
         }
-        String result = state.getTable ().get (key);
+        String key = args[0];
+        String result = state.databaseAdapter.get (key);
         if (result == null) {
-            state.getIoStreams ().out.println ("not found");
+            state.printUserMessage ("not found");
         } else {
-            state.getIoStreams ().out.println ("found");
-            state.getIoStreams ().out.println (result);
+            state.printUserMessage ("found");
+            state.printUserMessage (result);
         }
     }
 

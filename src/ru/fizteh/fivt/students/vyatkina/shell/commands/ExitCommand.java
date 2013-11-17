@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.vyatkina.shell.commands;
 
 import ru.fizteh.fivt.students.vyatkina.AbstractCommand;
-import ru.fizteh.fivt.students.vyatkina.Command;
 import ru.fizteh.fivt.students.vyatkina.State;
-
-import java.util.concurrent.ExecutionException;
+import ru.fizteh.fivt.students.vyatkina.TimeToFinishException;
 
 public class ExitCommand extends AbstractCommand<State> {
 
@@ -15,7 +13,7 @@ public class ExitCommand extends AbstractCommand<State> {
     }
 
     @Override
-    public void execute (String[] args) throws ExecutionException {
-        System.exit (0);
+    public void execute (String[] args) {
+        throw new TimeToFinishException ();
     }
 }

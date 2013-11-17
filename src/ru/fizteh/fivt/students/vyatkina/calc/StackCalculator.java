@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.vyatkina.calc;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Scanner;
 import java.util.Stack;
 
