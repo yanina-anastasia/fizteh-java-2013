@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.junit;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.filemap;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
@@ -11,10 +11,6 @@ public class CommandPut extends CommandAbstract<ShellState> {
 	public boolean evaluate (ShellState state, String args) {
 		String[] argArray = splitArguments(args);
 		if (!checkFixedArguments(argArray, 2)) {
-			return false;
-		}
-		if (state.database == null) {
-			printError("no table");
 			return false;
 		}
 		String oldValue = state.database.get(argArray[0]);

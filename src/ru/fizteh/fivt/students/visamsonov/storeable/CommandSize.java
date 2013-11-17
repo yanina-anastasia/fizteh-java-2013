@@ -1,13 +1,11 @@
-package ru.fizteh.fivt.students.visamsonov;
+package ru.fizteh.fivt.students.visamsonov.storeable;
 
 import ru.fizteh.fivt.students.visamsonov.shell.CommandAbstract;
 
-import java.io.*;
+public class CommandSize extends CommandAbstract<ShellState> {
 
-public class CommandCommit extends CommandAbstract<ShellState> {
-
-	public CommandCommit () {
-		super("commit");
+	public CommandSize () {
+		super("size");
 	}
 
 	public boolean evaluate (ShellState state, String args) {
@@ -18,7 +16,7 @@ public class CommandCommit extends CommandAbstract<ShellState> {
 			printError("no table");
 			return false;
 		}
-		getOutStream().println(state.database.commit());
+		getOutStream().println(state.database.size());
 		return true;
 	}
 }
