@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.elenav.storeable.tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -159,6 +161,16 @@ public class StoreableTableTest {
         Assert.assertNull(testTable.get("newKey"));
         Assert.assertEquals(testTable.get("rollbackKey4").toString(),
                 provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>").toString());
+    }
+    
+    @Test
+    public void testCommitRollback() throws ColumnFormatException, ParseException, IOException {
+    	Storeable st = provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>");
+    	testTable.put("Key1", st);
+    	testTable.commit();
+    	testTable.rollback();
+    	Assert.assertEquals(st, testTable.get("Key1"));
+    	Assert.assertEquals(st, testTable.put("Key1", st));
     }
 	
 }

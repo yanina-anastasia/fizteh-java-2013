@@ -98,7 +98,11 @@ public class StoreableTableState extends FilesystemState implements Table {
 			if (startMap.get(key) == null || !value.equals(startMap.get(key))) {
 				return changedKeys.put(key, value);
 			} else {
-				return changedKeys.remove(key);
+				if (changedKeys.containsKey(key)) {
+					return changedKeys.remove(key);
+				} else {
+					return startMap.get(key);
+				}
 			}
 		}
 		
@@ -179,6 +183,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		int result = getNumberOfChanges();
 		changedKeys.clear();
 		removedKeys.clear();
+		curSize = startMap.size();
 		return result;
 	}
 
@@ -241,6 +246,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 				}
 			}
 		}
+		curSize = startMap.size();
 		
 	}
 	
