@@ -40,6 +40,8 @@ public class StoreableShellState implements MultiFileMapShellState<Table, String
     @Override
     public void dropTable(String tableName) throws IOException {
         tableProvider.removeTable(tableName);
+
+        table = null;
     }
 
     @Override
