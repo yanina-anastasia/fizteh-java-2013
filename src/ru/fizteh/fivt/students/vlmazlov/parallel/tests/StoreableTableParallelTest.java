@@ -126,7 +126,7 @@ public class StoreableTableParallelTest {
 	public void diffsShouldBeLocal() {
 		table.put("key1", val1);
 
-		Thread testThread1 = new Thread() {
+		final Thread testThread1 = new Thread() {
             @Override
             public void run() {
                 table.put("key1", val2);
@@ -138,6 +138,9 @@ public class StoreableTableParallelTest {
         Thread testThread2 = new Thread() {
             @Override
             public void run() {
+            	try {
+            	    testThread1.join();
+            	} catch (InterruptedException ex) {}
 
                 Assert.assertEquals("local change reflected in another thread", table.get("key1"), null);
  				Assert.assertNull("local change reflected in another thread", table.get("key2"));
