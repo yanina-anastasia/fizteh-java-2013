@@ -83,15 +83,15 @@ public class Calculator {
             int indexBegin;
             int indexEnd;
             int i = 0;
-            boolean flagOpen = false;//знака минус после скобки нет (для обработки отрицательных чисел)
+            boolean flagOpen = false;//знака минус после скобки нет (для обработки отрицательных чисел);
             boolean flagClose = false;
             int prevToken = 1;       //1 - арифметичесая операция;
             //2 - число;
             // 3 - скобка;
             while (i < task.length()) {
                 indexBegin = i;
-                while ((i < task.length()) &&
-                        ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G')))) {
+                while ((i < task.length())
+                        && ((Character.isDigit(task.charAt(i))) | ((task.charAt(i) >= 'A') && (task.charAt(i) <= 'G')))) {
                     ++i;
                 }
                 if (indexBegin != i) {
@@ -196,8 +196,8 @@ public class Calculator {
             i = 0;
             while (i < (outputString.length() - 1)) {
                 if (outputString.charAt(i + 1) == ' ') {
-                    if ((Character.isDigit(outputString.charAt(i))) |
-                            ((outputString.charAt(i) >= 'A') && (outputString.charAt(i) <= 'G'))) {
+                    if ((Character.isDigit(outputString.charAt(i)))
+                            | ((outputString.charAt(i) >= 'A') && (outputString.charAt(i) <= 'G'))) {
                         result.push(Integer.parseInt(outputString.substring(i, i + 1), radix));
                     } else {
                         if (!result.empty()) {
