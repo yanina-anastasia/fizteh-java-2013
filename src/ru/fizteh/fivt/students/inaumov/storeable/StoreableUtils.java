@@ -79,7 +79,7 @@ public class StoreableUtils {
                 return;
             }
             if (isStringIncorrect(stringValue)) {
-                throw new ParseException("", 0);
+                throw new ParseException(stringValue, -1);
             }
         }
     }

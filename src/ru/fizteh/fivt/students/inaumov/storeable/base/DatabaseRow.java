@@ -32,7 +32,7 @@ public class DatabaseRow implements Storeable {
             try {
                 StoreableUtils.isValueCorrect(value, value.getClass());
             } catch (ParseException e) {
-                throw new IllegalArgumentException("error: incorrect value");
+                throw new IllegalArgumentException("error: incorrect value: " + e.getMessage());
             }
         }
 
