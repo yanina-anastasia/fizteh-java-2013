@@ -75,7 +75,7 @@ public class StoreableUtils {
 
         if (TypesFormatter.getSimpleName(type).equals("String")) {
             String stringValue = (String) value;
-            if (stringValue.isEmpty()) {
+            if (stringValue.trim().isEmpty()) {
                 return;
             }
             if (isStringIncorrect(stringValue)) {
