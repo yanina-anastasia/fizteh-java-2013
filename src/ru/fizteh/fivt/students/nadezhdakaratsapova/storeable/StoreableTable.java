@@ -19,7 +19,6 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     private StoreableTableProvider tableProvider;
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-    private final ReadWriteLock tableChangesLock = new ReentrantReadWriteLock();
 
 
     public StoreableTable(String name, File dir, List<Class<?>> types, StoreableTableProvider provider) {
