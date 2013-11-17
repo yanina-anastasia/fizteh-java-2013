@@ -13,6 +13,7 @@ public class MultiDbUse implements Command {
             table = multiState.tryToGetTable(dbName);
         } catch (Throwable e) {
             System.err.println("use: " + e.getMessage());
+            e.printStackTrace();
             return 1;
         }
         
