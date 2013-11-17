@@ -58,7 +58,7 @@ public abstract class AbstractStorage<Key, Value> {
         }
 
         public int getSize() {
-            return size;
+            return oldData.size() + size;
         }
 
         public void decreaseSize() {
@@ -79,7 +79,7 @@ public abstract class AbstractStorage<Key, Value> {
 
         public void clear() {
             modifiedData.clear();
-            size = oldData.size();
+            size = 0;
             uncommittedChanges = 0;
         }
     }
