@@ -53,10 +53,12 @@ public class MultiDbState extends State implements Table {
         if (property == null || property.trim().isEmpty()) {
             throw new IOException("no root directory");
         }
+        tableName = dbName;
         provider = prov;
-        rootPath = property;     
-        init(dbName);
+        rootPath = property;  
         objList = columnTypes;
+        init(dbName);
+        writeObjList(objList, signatureName);
     }
     
     private void checkList(List<Class<?>> columnTypes) {
@@ -83,13 +85,17 @@ public class MultiDbState extends State implements Table {
             throws ParseException, IOException {
         validate(property);
         validate(dbName);
+        tableName = dbName;
         if (property == null || property.trim().isEmpty()) {
             throw new IllegalArgumentException("no root directory");
         }
         provider = prov;
-        rootPath = property;     
-        init(dbName);
+        rootPath = property; 
+        shell = new ShellState();
+        shell.cd(rootPath);
+        shell.cd(dbName);
         getObjList(signatureName);
+        init(dbName);
     }
     
     private void checkDbDir(String path) {
@@ -162,7 +168,6 @@ public class MultiDbState extends State implements Table {
         }   
         checkDbDir(shell.currentDir.getAbsolutePath());
         int chNum = changesNum();
-        writeObjList(objList, signatureName);
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
             checkFolder(shell.makeNewSource(fold));
@@ -338,7 +343,7 @@ public class MultiDbState extends State implements Table {
             throw new RuntimeException("no correct signature file");
         } else {
             signLine = reader.nextLine();
-            objList = provider.parseSignature(signLine, new StringTokenizer(signLine, ","));
+            objList = provider.parseSignature(signLine, new StringTokenizer(signLine));
             reader.close();
         }     
     }
