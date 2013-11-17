@@ -3,16 +3,22 @@ package ru.fizteh.fivt.students.dzvonarev.filemap;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
-public class Put implements CommandInterface {
+public class DataBasePut implements CommandInterface {
 
-    public void execute(Vector<String> args) throws IOException {
-        if (MultiFileMap.getWorkingTable().equals("noTable")) {
+    public DataBasePut(MyTableProvider newTableProvider) {
+        tableProvider = newTableProvider;
+    }
+
+    private MyTableProvider tableProvider;
+
+    public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
+        String tableName = tableProvider.getCurrentTable();
+        if (tableName == null) {
             throw new IOException("no table");
         }
-        String str = args.elementAt(0);
+        String str = args.get(0);
         int spaceIndex = str.indexOf(' ', 0);
         while (str.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
             ++spaceIndex;
@@ -22,24 +28,19 @@ public class Put implements CommandInterface {
             throw new IOException("put: wrong parameters");
         }
         int index = newSpaceIndex;
-        String key = str.substring(spaceIndex + 1, index);
+        String key = (str.substring(spaceIndex + 1, index)).trim();
         while (str.indexOf(' ', newSpaceIndex + 1) == newSpaceIndex + 1) {
             ++newSpaceIndex;
         }
         String value = str.substring(newSpaceIndex + 1, str.length());
-        String currTable = MultiFileMap.getWorkingTable();
-        HashMap<String, String> fileMap = MultiFileMap.getMultiFileMap().get(currTable);
-        if (fileMap == null) {
-            fileMap = new HashMap<>();
-        }
-        if (fileMap.containsKey(key)) {
+        MyTable currTable = tableProvider.getTable(tableName);
+        String result = currTable.put(key, value);
+        if (result != null) {
             System.out.println("overwrite");
-            System.out.println(fileMap.get(key));
+            System.out.println(result);
         } else {
             System.out.println("new");
         }
-        fileMap.put(key, value);
-        MultiFileMap.getMultiFileMap().put(currTable, fileMap);
     }
 
 }
