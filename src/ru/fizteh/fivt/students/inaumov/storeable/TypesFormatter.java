@@ -67,7 +67,7 @@ public enum TypesFormatter {
     public static Class<?> getTypeByName(String name) {
         TypesFormatter typesFormatter = typesByName.get(name);
         if (typesFormatter == null) {
-            throw new IllegalArgumentException("error: unknown type");
+            throw new IllegalArgumentException("wrong type " + name);
         }
 
         return typesFormatter.type;
