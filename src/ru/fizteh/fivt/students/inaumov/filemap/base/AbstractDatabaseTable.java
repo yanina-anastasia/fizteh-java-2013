@@ -82,9 +82,11 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             tableSize += 1;
         }
 
-        makeChange(key, value);
+        if (!FileMapUtils.isEqual(oldValue, value)) {
+            unsavedChangesNumber += 1;
+        }
 
-        unsavedChangesNumber += 1;
+        makeChange(key, value);
 
 		return oldValue;
 	}
