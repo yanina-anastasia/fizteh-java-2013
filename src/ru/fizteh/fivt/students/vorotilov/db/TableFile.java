@@ -104,6 +104,7 @@ public class TableFile {
             throw new IllegalStateException("Table file is not initialized");
         }
         try (RandomAccessFile file = new RandomAccessFile(tableFilePath, "rw")) {
+            file.setLength(0);
             for (Entry i : entries) {
                 file.writeInt(i.getKey().getBytes("UTF-8").length);
                 file.writeInt(i.getValue().getBytes("UTF-8").length);
