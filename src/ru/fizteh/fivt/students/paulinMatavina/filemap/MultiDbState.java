@@ -72,6 +72,9 @@ public class MultiDbState extends State implements Table {
     }
     
     private void checkList(List<Class<?>> columnTypes) {
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("no list passed");
+        }
         for (int i = 0; i < columnTypes.size(); i++) {
             if (columnTypes.get(i) == null
                     || !possibleTypes.keySet().contains(columnTypes.get(i))) {

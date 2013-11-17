@@ -202,14 +202,9 @@ public class MultiDbStateTest {
     @Test
     public void testTableGetRemoveRollback() {
         table.put("a", correctValues);
-        try {
-            table.commit();
-        } catch (IOException e) {
-            fail();
-        }
         table.remove("a");
-        assertEquals(1, table.rollback());
-        assertEquals(1, table.size());
+        assertEquals(0, table.rollback());
+        assertEquals(0, table.size());
     }
     
     @Test

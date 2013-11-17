@@ -169,8 +169,7 @@ public class DbState extends State {
         }  
         return result;        
     }
-   
-    
+  
     public int getChangeNum() {
         int result = 0;
         for (Map.Entry<String, Storeable> s : data.entrySet()) {
@@ -178,14 +177,12 @@ public class DbState extends State {
             Storeable became = s.getValue();
             if ((was != null && !was.equals(became)) 
                || (was == null && became != null) 
-               || (was == null && became == null && removed.contains(s.getKey()))) {
+               || (was == null && became == null && !removed.contains(s.getKey()))) {
                 result++;
             }
         }
         return result;
-    }
-
-    
+    }  
 
     public void commit() throws IOException {
         assignInitial();
@@ -259,7 +256,7 @@ public class DbState extends State {
     public int size() {
         int result = 0;
         for (Map.Entry<String, Storeable> entry : data.entrySet()) {
-            if (entry.getValue() != null) {
+            if (!removed.contains(entry.getKey())) {
                 result++;
             }
         }

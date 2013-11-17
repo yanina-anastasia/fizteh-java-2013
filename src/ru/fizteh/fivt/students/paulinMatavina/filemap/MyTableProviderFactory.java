@@ -9,6 +9,10 @@ public class MyTableProviderFactory implements TableProviderFactory {
     public MyTableProviderFactory() { }
     
     public TableProvider create(String dir) throws IOException {
-        return new MyTableProvider(dir);
+        try {
+            return new MyTableProvider(dir);
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }   
 }
