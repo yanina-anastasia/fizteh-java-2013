@@ -98,8 +98,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 			if (startMap.get(key) == null || !value.equals(startMap.get(key))) {
 				return changedKeys.put(key, value);
 			} else {
-				changedKeys.remove(key);
-				return value;
+				return changedKeys.remove(key);
 			}
 		}
 		
