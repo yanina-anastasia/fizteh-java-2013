@@ -23,8 +23,8 @@ public class TableProviderFactoryTest {
 
     @Before
     public void setUp() {
-        existingDir = folder.newFolder("existingDirPath");
         try {
+            existingDir = folder.newFolder("existingDirPath");
             existingFile = folder.newFile("existingPath");
         } catch (IOException e) {
             System.err.println("can't make tests");
