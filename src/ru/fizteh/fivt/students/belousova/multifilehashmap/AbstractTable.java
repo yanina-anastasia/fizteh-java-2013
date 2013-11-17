@@ -87,7 +87,9 @@ public abstract class AbstractTable<KeyType, ValueType> {
             if (dataBase.containsKey(key)) {
                 if (dataBase.get(key).equals(addedKeys.get().get(key))) {
                     addedKeys.get().remove(key);
-                    deletedKeys.get().remove(key);
+                    if (deletedKeys.get().contains(key)) {
+                        deletedKeys.get().remove(key);
+                    }
                 }
             }
         }
