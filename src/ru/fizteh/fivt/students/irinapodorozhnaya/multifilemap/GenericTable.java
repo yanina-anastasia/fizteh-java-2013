@@ -114,16 +114,30 @@ public abstract class GenericTable<ValueType> {
         return res;
     }
 
-    public int commit() throws IOException {
-        int res = changedValues.get().size();
+    private void recountChanges() {
         try {
+            lock.readLock().lock();
+            for (String s: changedValues.get().keySet()) {
+                if (changedValues.get().get(s) == null) {
+                    if (oldDatabase.get(s) == null) {
+                        changedValues.get().remove(s);
+                    }
+                } else if (oldDatabase.get(s) != null) {
+                    if (changedValues.get().get(s).equals(oldDatabase.get(s))) {
+                        changedValues.get().remove(s);
+                    }
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
+    public int commit() throws IOException {
+        recountChanges();
+        try {
             lock.writeLock().lock();
             for (String s: changedValues.get().keySet()) {
-                if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
-                        || changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                    --res;
-                }
                 if (changedValues.get().get(s) == null) {
                     oldDatabase.remove(s);
                 } else {
@@ -162,6 +176,7 @@ public abstract class GenericTable<ValueType> {
             hardDiskLock.writeLock().unlock();
         }
 
+        int res = changedValues.get().size();
         changedValues.get().clear();
         changedSize.set(0);
         return res;
@@ -188,15 +203,8 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
+        recountChanges();
         int res = changedValues.get().size();
-
-        for (String s: changedValues.get().keySet()) {
-            if (changedValues.get().get(s) == null && oldDatabase.get(s) == null
-                  || changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                --res;
-            }
-        }
-
         changedValues.get().clear();
         changedSize.set(0);
         return res;
