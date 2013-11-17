@@ -11,7 +11,7 @@ public class FileMap {
         } catch (DbExitException e) {
             System.exit(Integer.parseInt(e.getMessage()));
         } catch (Throwable e) {
-            System.out.println("multifilemap: " + e.getMessage());
+            System.out.println(e.getMessage());
             System.exit(1);
         }
     }
