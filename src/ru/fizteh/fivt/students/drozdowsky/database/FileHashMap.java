@@ -204,9 +204,7 @@ public class FileHashMap implements Table {
                 }
             }
             if (dirPath.exists()) {
-                if (!dirPath.delete()) {
-                    throw new IllegalPathStateException(dirPath.getAbsolutePath() + ": Permission denied");
-                }
+                dirPath.delete();
             }
         }
     }
