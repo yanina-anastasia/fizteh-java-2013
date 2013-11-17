@@ -99,7 +99,7 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 	public String putCommand(String key, String value) {
 		String oldValue = getValueForKey(key);
 		removedDictionaryPart.remove(key);
-		if (!value.equals(oldValue)) {
+		if (!value.equals(dictionary.get(key))) {
 			unstagedDictionaryPart.put(key, value);
 		}
 		if (oldValue != null) {
@@ -229,9 +229,6 @@ public class FileMapReceiver extends ShellReceiver implements FileMapReceiverPro
 
 	public int rollback() {
 		int retValue = getUnstagedChangesCount();
-		for (String key : unstagedDictionaryPart.keySet()) {
-			dictionary.remove(key);
-		}
 		unstagedDictionaryPart.clear();
 		removedDictionaryPart.clear();
 		return retValue;
