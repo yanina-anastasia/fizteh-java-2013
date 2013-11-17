@@ -112,6 +112,7 @@ public class DbState extends State {
         try {
             fileCheck();  
             if (dbFile.length() == 0) {
+                (new File(path)).delete();
                 return 0;
             } 
             

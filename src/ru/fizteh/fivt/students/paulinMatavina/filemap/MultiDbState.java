@@ -145,8 +145,6 @@ public class MultiDbState extends State implements Table {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
                 data[i][j] = new DbState(filePath, i, j, provider, this);
-                File f = new File(data[i][j].path);
-                f.createNewFile();
                 dbSize += data[i][j].size();
             }
         }
@@ -352,7 +350,7 @@ public class MultiDbState extends State implements Table {
     }
     
     private void writeObjList(List<Class<?>> list, String name) throws IOException {
-        FileWriter writer;
+        FileWriter writer = null;
         try {
             writer = new FileWriter(new File(shell.makeNewSource(signatureName)));
         } catch (IOException e) {
