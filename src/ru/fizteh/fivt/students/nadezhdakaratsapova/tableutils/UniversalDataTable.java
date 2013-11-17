@@ -60,11 +60,11 @@ public abstract class UniversalDataTable<ValueType> {
                 oldValue = dataStorage.get(key);
                 if (oldValue == null) {
                     putKeys.get().put(key, value);
-                } /*else {
+                } else {
                     if (!oldValue.equals(value)) {
                         putKeys.get().put(key, value);
                     }
-                }*/
+                }
             } else {
                 ValueType dataValue = dataStorage.get(key);
                 if (dataValue == null) {
