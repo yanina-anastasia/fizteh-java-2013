@@ -401,19 +401,15 @@ public class StoreableTableState extends FilesystemState implements Table {
 	@Override
 	public int getNumberOfChanges() {
 		int result = 0;
-		if (!removedKeys.isEmpty()) {
 		for (String key : removedKeys) {
 			if (startMap.get(key) != null) {
 				++result;
 			}
 		}
-		}
-		if (!changedKeys.isEmpty()) {
 		for (Entry<String, Storeable> pair : changedKeys.entrySet()) {
 			if (startMap.get(pair.getKey()) != pair.getValue()) {
 				++result;
 			}
-		}
 		}
 		return result;
 	} 

@@ -25,6 +25,9 @@ public class MyStoreable implements Storeable {
 	
 	@Override
 	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
 		MyStoreable st = (MyStoreable) o;
 		return st.listTypes.equals(listTypes) && st.listValues.equals(listValues);
 	}

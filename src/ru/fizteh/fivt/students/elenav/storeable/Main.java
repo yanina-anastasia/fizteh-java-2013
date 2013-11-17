@@ -21,6 +21,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
+			
 			String property = System.getProperty("fizteh.db.dir");
 			
 			StoreableTableProviderFactory factory = new StoreableTableProviderFactory();
