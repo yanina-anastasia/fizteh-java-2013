@@ -20,14 +20,17 @@ public class MyTableProvider extends State implements TableProvider {
     
     public MyTableProvider(String dir) throws IOException {
         validate(dir);
+        shell = new ShellState();
+        shell.cd(".");
         File root = new File(dir);
         if (!root.exists()) {
             throw new IOException("wrong root directory was set");
         }
         if (!root.isDirectory()) {
-            throw new IllegalArgumentException("wrong root directory was set");
+            throw new IllegalArgumentException("provided root is not a directory");
         }
         
+        shell.cd(dir);
         commands = new HashMap<String, Command>();
         this.add(new DbGet());
         this.add(new DbPut());
@@ -40,8 +43,6 @@ public class MyTableProvider extends State implements TableProvider {
         this.add(new DbSize());
         
         currTableName = null;
-        shell = new ShellState();
-        shell.cd(dir);
         tableMap = new HashMap<String, MultiDbState>();
         rootDir = dir;
     }
