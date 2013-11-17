@@ -203,8 +203,8 @@ public class FileHashMap implements Table {
                     }
                 }
             }
-            if (dirPath.exists()) {
-                dirPath.delete();
+            if (dirPath.exists() && dirPath.list().length == 0 && !dirPath.delete()) {
+                throw new IllegalPathStateException(dirPath.getAbsolutePath() + ": Permission denied");
             }
         }
     }
