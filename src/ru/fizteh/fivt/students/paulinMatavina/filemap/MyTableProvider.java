@@ -21,10 +21,7 @@ public class MyTableProvider extends State implements TableProvider {
     public MyTableProvider(String dir) throws IOException {
         validate(dir);
         File root = new File(dir);
-        if (!root.isDirectory()) {
-            throw new IllegalArgumentException("wrong root directory was set");
-        }
-        if (!root.exists()) {
+        if (!root.exists() || !root.isDirectory()) {
             throw new IOException("wrong root directory was set");
         }
         
