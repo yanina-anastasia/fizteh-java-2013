@@ -43,7 +43,7 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
-            if (StoreableUtils.isStringIncorrect(key)) {
+            if (key.trim().isEmpty()) {
                 throw new IllegalArgumentException("error: key can't be empty");
             }
         }
