@@ -50,7 +50,7 @@ public class StoreableState implements State {
         if (oldValue == null) {
             return null;
         }
-        return currentTableProvider.serialize(currentTable, currentTable.put(key, deserializedValue));
+        return currentTableProvider.serialize(currentTable, oldValue);
     }
 
     public String removeFromCurrentTable(String key) {
