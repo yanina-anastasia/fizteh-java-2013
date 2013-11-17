@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,11 +20,16 @@ public class TableTest {
     @Before
     public void prepare() {
         File rootDir;
-        rootDir = folder.newFolder("myroot");
-        TableProviderFactory factory = new TableProviderFactory();
-        TableProvider prov = factory.create(rootDir.getAbsolutePath());
-        table = prov.createTable("newTable");
-
+        TableProviderFactory factory;
+        TableProvider prov;
+        try {
+            rootDir = folder.newFolder("myroot");
+            factory = new TableProviderFactory();
+            prov = factory.create(rootDir.getAbsolutePath());
+            table = prov.createTable("newTable");
+        } catch (IOException e) {
+            System.err.println("can't make tests");
+        }
     }
 
     @Test

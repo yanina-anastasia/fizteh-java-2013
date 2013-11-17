@@ -22,8 +22,8 @@ public class TableProviderTest {
 
     @Before
     public void prepare() {
-        existingDir = folder.newFolder("existingDirPath");
         try {
+            existingDir = folder.newFolder("existingDirPath");
             existingFile = folder.newFile("existingPath");
         } catch (IOException e1) {
             System.err.println("can't make tests");
