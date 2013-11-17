@@ -102,7 +102,6 @@ public class FileHashMap implements Table {
         tmp.removeAll(a.getKeys());
         result += tmp.size();
 
-
         for (String x : a.getKeys()) {
             if (b.getKeys().contains(x)) {
                 if (!a.get(x).equals(b.get(x))) {
@@ -184,9 +183,15 @@ public class FileHashMap implements Table {
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + File.separator + Integer.toString(j) + ".dat");
-                    try {
-                        filePath.createNewFile();
-                    } catch (IOException ignored) { }
+                    if (!filePath.exists()) {
+                        try {
+                            if (!filePath.createNewFile()) {
+                                throw new IllegalPathStateException(filePath.getAbsolutePath() + ": No permission");
+                            }
+                        } catch (IOException e) {
+                            throw new IllegalPathStateException(filePath.getAbsolutePath() + ": No permission");
+                        }
+                    }
                     if (base[i][j].getKeys().size() == 0) {
                         filePath.delete();
                     } else {
