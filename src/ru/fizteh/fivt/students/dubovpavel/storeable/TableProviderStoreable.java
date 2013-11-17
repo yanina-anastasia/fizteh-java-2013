@@ -22,15 +22,23 @@ public class TableProviderStoreable extends TableProviderStorageExtended<TableSt
     }
 
     public ArrayList<Class<?>> collectFields(Table table) {
-        ArrayList<Class<?>> result = new ArrayList<>(table.getColumnsCount());
+        ArrayList<Class<?>> result = new ArrayList<>();
         for(int i = 0; i < table.getColumnsCount(); i++) {
-            result.set(i, table.getColumnType(i));
+            result.add(table.getColumnType(i));
         }
         return result;
     }
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if(columnTypes == null || columnTypes.size() == 0) {
+            throw new IllegalArgumentException();
+        }
+        for(Class<?> type: columnTypes) {
+            if(!TypeNamesMatcher.nameByClass.containsKey(type)) {
+                throw new IllegalArgumentException();
+            }
+        }
         dataBaseBuilder.setFields(new ArrayList<Class<?>>(columnTypes));
         return super.createTable(name);
     }

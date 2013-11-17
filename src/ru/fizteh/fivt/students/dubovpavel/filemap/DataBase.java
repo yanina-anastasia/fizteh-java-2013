@@ -51,13 +51,13 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
                 dict.put(key, builder.deserialize(value));
             }
         } catch (IOException e) {
-            generateLoadingError("IOException", e.getMessage(), true);
+            generateLoadingError("IOException", e.getMessage(), false);
         } catch (DataBaseException e) {
-            generateLoadingError("DataBaseException", e.getMessage(), true);
+            generateLoadingError("DataBaseException", e.getMessage(), false);
         } catch (Serial.SerialException e) {
-            generateLoadingError("SerialException (deserialization)", e.getMessage(), true);
+            generateLoadingError("SerialException (deserialization)", e.getMessage(), false);
         } catch (ParseException e) {
-            generateLoadingError("ParseException (deserialization)", e.getMessage(), true);
+            generateLoadingError("ParseException (deserialization)", e.getMessage(), false);
         }
     }
 

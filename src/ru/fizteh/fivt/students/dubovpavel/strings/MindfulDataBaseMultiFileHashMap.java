@@ -42,7 +42,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
     public int getDiff() {
         int diff = 0;
         for(Map.Entry<String, V> entry: dict.entrySet()) { // Check for new and changed values
-            if(!oldDict.containsKey(entry.getKey()) || !oldDict.get(entry.getKey()).equals(entry.getValue())) { // Order of .equals is important here
+            if(!oldDict.containsKey(entry.getKey()) || !transformer.equal(oldDict.get(entry.getKey()), entry.getValue())) { // Order of .equals is important here
                 diff++;
             }
         }

@@ -17,10 +17,11 @@ public class PerformerCreateStoreable<D extends Dispatcher & StorageAccessible> 
         builder = dataBaseBuilder;
     }
 
-    private void testType(ArrayList<Class<?>> fields, String type) throws PerformerException {
+    private void testType(ArrayList<Class<?>> fields, String type, D dispatcher) throws PerformerException {
         Class<?> caster = TypeNamesMatcher.classByName.get(type);
         if(caster == null) {
-            throw new PerformerException(String.format("Type %s is not supported", type));
+            throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                    String.format("wrong type (Type %s is not supported)", type)));
         } else {
             fields.add(caster);
         }
@@ -34,8 +35,12 @@ public class PerformerCreateStoreable<D extends Dispatcher & StorageAccessible> 
         ArrayList<Class<?>> fields = new ArrayList<>();
         String list = command.getArgument(1);
         String[] types = list.substring(1, list.length() - 1).split("\\s+");
+        if(types.length == 0) {
+            throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                    String.format("wrong type (0 types given)")));
+        }
         for(String type: types) {
-            testType(fields, type);
+            testType(fields, type, dispatcher);
         }
         builder.setFields(fields);
         dispatcher.getStorage().create(command.getArgument(0));

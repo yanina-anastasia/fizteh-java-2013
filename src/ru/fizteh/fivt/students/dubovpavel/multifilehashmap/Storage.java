@@ -49,7 +49,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
                         if(!e.acceptable) {
                             this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                     "Database denied");
-                            continue;
+                            System.exit(-1);
                         }
                     }
                     storage.put(folder.getName(), dataBase);

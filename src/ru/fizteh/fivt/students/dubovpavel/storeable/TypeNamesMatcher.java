@@ -36,9 +36,9 @@ public class TypeNamesMatcher {
         castableClasses = new HashMap<>();
         generateCorrespondings("long", new String[] {"long", "int", "byte"});
         generateCorrespondings("int", new String[] {"int", "byte"});
-        generateCorrespondings("byte", new String[] {"byte"});
+        generateCorrespondings("byte", new String[] {"int", "byte"});
         generateCorrespondings("boolean", new String[] {"boolean"});
-        generateCorrespondings("float", new String[] {"int", "byte", "long", "float"});
+        generateCorrespondings("float", new String[] {"double", "int", "byte", "long", "float"});
         generateCorrespondings("double", new String[] {"double", "int", "byte", "long", "float"});
         generateCorrespondings("String", new String[] {"int", "long", "byte", "boolean", "float", "double", "String"});
     }

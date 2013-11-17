@@ -8,6 +8,7 @@ public interface DataBaseHandler <K, V> {
             acceptable = true;
         }
         public DataBaseException(String msg, boolean acc) {
+            super(msg);
             acceptable = acc;
         }
     }

@@ -4,9 +4,14 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
-    Dispatcher dispatcher;
+    private Dispatcher dispatcher;
+    private static final Pattern whitespacePattern;
+    static {
+        whitespacePattern = Pattern.compile("\\s");
+    }
 
     public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher, ObjectTransformer<V> transformer) {
         super(path, transformer);
@@ -21,7 +26,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
     }
     @Override
     public V put(String key, V value) {
-        if(key == null || value == null || key.isEmpty() || key.contains("\n")) {
+        if(key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
         return super.put(key, value);

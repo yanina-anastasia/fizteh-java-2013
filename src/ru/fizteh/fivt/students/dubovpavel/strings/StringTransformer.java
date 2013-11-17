@@ -7,4 +7,8 @@ public class StringTransformer extends StringSerial implements ObjectTransformer
         String result = obj;
         return result;
     }
+
+    public boolean equal(String left, String right) {
+        return left.equals(right);
+    }
 }

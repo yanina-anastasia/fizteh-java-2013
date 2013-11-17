@@ -52,26 +52,39 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
         for(int i = 0; i < dirsCount; i++) {
             File sub = generateChunksDir(i);
             if(sub.isDirectory()) {
+                boolean dirIsEmpty = true;
                 for(int j = 0; j < chunksCount; j++) {
                     File data = generateChunk(i, j);
                     if(data.isFile()) {
+                        dirIsEmpty = false;
                         try {
                             dict = new HashMap<>();
                             setPath(data);
                             super.open();
+                            if(dict.size() == 0) {
+                                throw new DataBaseException(String.format("Chunk can not be empty"), false);
+                            }
                             for(String key: dict.keySet()) {
                                 Distribution<Integer, Integer> distr = getDistribution(key);
                                 if(i != distr.getDir() || j != distr.getChunk()) {
                                     throw new DataBaseException(
-                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key));
+                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key), false);
                                 }
                             }
                             chunksCollector.putAll(dict);
                         } catch(DataBaseException e) {
-                            allReadSuccessfully = false;
-                            exceptionMessage.append(String.format("%nChunk (%d, %d): %s", i, j, e.getMessage()));
+                            String errorMessage = String.format("%nChunk (%d, %d): %s", i, j, e.getMessage());
+                            if(e.acceptable) {
+                                allReadSuccessfully = false;
+                                exceptionMessage.append(errorMessage);
+                            } else {
+                                throw new DataBaseException(errorMessage, false);
+                            }
                         }
                     }
+                }
+                if(dirIsEmpty) {
+                    throw new DataBaseException(String.format("Dir %d: Dir can not be empty", i), false);
                 }
             }
         }

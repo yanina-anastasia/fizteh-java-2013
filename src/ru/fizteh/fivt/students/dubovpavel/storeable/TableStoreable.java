@@ -26,23 +26,26 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
     @Override
     public void open() throws DataBaseException {
         try(BufferedReader reader = new BufferedReader(new FileReader(new File(root, "signature.tsv")))) {
-            String[] types = reader.readLine().split(" ");
+            String line = reader.readLine();
+            if(line == null) {
+                throw new IOException("EOF reached");
+            }
+            String[] types = line.split("\\s+");
+            if(types.length == 0) {
+                throw new IOException("Line is empty");
+            }
             fields.clear();
             for(String type: types) {
-                String sType = type.trim();
-                if(sType.equals("")) {
-                    continue;
-                }
-                Class<?> T = TypeNamesMatcher.classByName.get(sType);
+                Class<?> T = TypeNamesMatcher.classByName.get(type);
                 if(T == null) {
-                    generateLoadingError("DataBaseException", String.format("Signature file contains unsupported type %s", sType), false);
+                    generateLoadingError("DataBaseException", String.format("Signature file contains unsupported type %s", type), false);
                 } else {
                     fields.add(T);
                 }
             }
             super.open();
         } catch (IOException e) {
-            generateLoadingError("IOException", "Can not read signature file", false);
+            generateLoadingError("IOException", String.format("Can not read signature file: %s", e.getMessage()), false);
         }
     }
 
@@ -67,9 +70,13 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        if(value == null) {
+            throw new IllegalArgumentException();
+        }
         for(int i = 0; i < fields.size(); i++) {
             try {
-                if(!value.getColumnAt(i).getClass().equals(fields.get(i))) {
+                Object cell = value.getColumnAt(i);
+                if(cell != null && !cell.getClass().equals(fields.get(i))) {
                     throw new ColumnFormatException(String.format("Type at column %s mismatches", i));
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -84,7 +91,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
             error = false;
         }
         if(error) {
-            throw new IndexOutOfBoundsException("Size of value mismtaches signature");
+            throw new ColumnFormatException("Size of value mismtaches signature");
         }
         return super.put(key, value);
     }

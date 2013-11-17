@@ -6,16 +6,19 @@ import java.util.ArrayList;
 
 public class TableStoreableBuilder extends WrappedMindfulDataBaseMultiFileHashMapBuilder {
     private ArrayList<Class<?>> fields;
+
+    ArrayList<Class<?>> cloneFields(ArrayList<Class<?>> types) {
+        if(types == null) {
+            return new ArrayList<>();
+        } else {
+            return (ArrayList<Class<?>>)types.clone();
+        }
+    }
     public void setFields(ArrayList<Class<?>> types) {
-        fields = types;
+        fields = cloneFields(types);
     }
     public TableStoreable construct() {
-        ArrayList<Class<?>> fieldsCopy;
-        if(fields == null) {
-            fieldsCopy = new ArrayList<>();
-        } else {
-            fieldsCopy = (ArrayList<Class<?>>)fields.clone();
-        }
+        ArrayList<Class<?>> fieldsCopy = cloneFields(fields);
         return new TableStoreable(dir, dispatcher, fieldsCopy);
     }
 }
