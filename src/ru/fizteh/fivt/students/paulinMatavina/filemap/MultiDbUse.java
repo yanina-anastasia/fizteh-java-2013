@@ -22,7 +22,7 @@ public class MultiDbUse implements Command {
             if (multiState.getCurrTable() != null) {
                 int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum();
                 if (chNum > 0) {
-                    System.out.println(chNum + " uncommited changes");
+                    System.out.println(chNum + " unsaved changes");
                     return 0;
                 }
             } 
