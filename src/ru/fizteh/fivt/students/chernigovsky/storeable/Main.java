@@ -24,8 +24,10 @@ public class Main {
         }
         File dbDirectory = new File(dbPath);
         if (dbDirectory.exists() || !dbDirectory.isDirectory()) {
+            /*
             System.err.println("it's not a directory");
-            System.exit(1);
+            System.exit(1);*/
+            dbDirectory.delete();
         }
         if (!dbDirectory.exists()) {
             if (!dbDirectory.mkdir()) {
