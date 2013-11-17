@@ -5,8 +5,6 @@ import ru.fizteh.fivt.storage.structured.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class StoreableUtils {
     public static List<Object> parseValues(List<String> valuesTypeNames, Table table) throws ColumnFormatException {
@@ -66,8 +64,8 @@ public class StoreableUtils {
         return columnTypesNames;
     }
 
-    public static boolean isStringCorrect(String string) {
-        return string.matches("\\s*") || string.split("\\s+").length != 1;
+    public static boolean isStringIncorrect(String string) {
+        return string.matches("\\s+") || string.split("\\s+").length != 1;
     }
 
     public static void isValueCorrect(Object value, Class<?> type) throws ParseException {
@@ -77,7 +75,7 @@ public class StoreableUtils {
 
         if (TypesFormatter.getSimpleName(type).equals("String")) {
             String stringValue = (String) value;
-            if (isStringCorrect(stringValue)) {
+            if (isStringIncorrect(stringValue)) {
                 throw new ParseException("", 0);
             }
         }
