@@ -136,7 +136,9 @@ public class StoreableTableState extends FilesystemState implements Table {
 		Storeable oldValue = changedKeys.remove(key);
 		if (oldValue != null) {
 			--curSize;
-			removedKeys.add(key);
+			if (startMap.get(key) != null) {
+				removedKeys.add(key);
+			}
 			return oldValue;
 		} else {
 			if (removedKeys.contains(key)) {
