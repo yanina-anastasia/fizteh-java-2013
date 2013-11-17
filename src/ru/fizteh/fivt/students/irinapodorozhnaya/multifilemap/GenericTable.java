@@ -3,9 +3,7 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -116,31 +114,29 @@ public abstract class GenericTable<ValueType> {
         return res;
     }
 
-    private void recountChanges() {
+    private int recountChanges() {
         try {
             lock.readLock().lock();
-            Set<String> toRemove= new HashSet<>();
-            for (String s: changedValues.get().keySet()) {
-                if (changedValues.get().get(s) == null) {
-                    if (oldDatabase.get(s) == null) {
-                        toRemove.add(s);
+            int res = 0;
+            for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
+                if (s.getValue() != null && oldDatabase.get(s.getKey()) != null ) {
+                        if (!s.getValue().equals(oldDatabase.get(s.getKey()))) {
+                        ++res;
                     }
-                } else if (oldDatabase.get(s) != null) {
-                    if (changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                        toRemove.add(s);
-                    }
+                } else if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
+                    ++res;
+                } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
+                    ++res;
                 }
             }
-            for (String s: toRemove) {
-                changedValues.get().remove(s);
-            }
+            return res;
         } finally {
             lock.readLock().unlock();
         }
     }
 
     public int commit() throws IOException {
-        recountChanges();
+        int res = recountChanges();
         try {
             lock.writeLock().lock();
             for (String s: changedValues.get().keySet()) {
@@ -154,6 +150,8 @@ public abstract class GenericTable<ValueType> {
         } finally {
             lock.writeLock().unlock();
         }
+        changedValues.get().clear();
+        changedSize.set(0);
         try {
             hardDiskLock.writeLock().lock();
             Map <Integer, Map<String, ValueType>> database = new HashMap<>();
@@ -181,10 +179,6 @@ public abstract class GenericTable<ValueType> {
         } finally {
             hardDiskLock.writeLock().unlock();
         }
-
-        int res = changedValues.get().size();
-        changedValues.get().clear();
-        changedSize.set(0);
         return res;
     }
 
@@ -209,8 +203,7 @@ public abstract class GenericTable<ValueType> {
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
-        recountChanges();
-        int res = changedValues.get().size();
+        int res = recountChanges();
         changedValues.get().clear();
         changedSize.set(0);
         return res;
