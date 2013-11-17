@@ -72,7 +72,6 @@ public class ThreadSafeTableTest {
             String key = String.format("key%d", index);
             Storeable value1 = makeStoreable(index);
             Storeable value2 = currentTable.get(key);
-            //System.out.println(String.format("expected: %s, actual: %s thread: %d", value1.toString(), value2.toString(), Thread.currentThread().getId()));
             if (value1 == null || value2 == null) {
                 System.out.println("BOOOM");
             }

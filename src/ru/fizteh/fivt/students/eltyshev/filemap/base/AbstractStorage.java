@@ -79,7 +79,7 @@ public abstract class AbstractStorage<Key, Value> {
 
         public void clear() {
             modifiedData.clear();
-            size = 0;
+            size = oldData.size();
             uncommittedChanges = 0;
         }
     }
