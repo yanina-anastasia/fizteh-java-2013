@@ -96,7 +96,12 @@ public class StoreableTableState extends FilesystemState implements Table {
 				++curSize;
 			}
 			if (startMap.get(key) == null || !value.equals(startMap.get(key))) {
-				return changedKeys.put(key, value);
+				if (changedKeys.containsKey(key)) {
+					return changedKeys.put(key, value);
+				} else {
+					changedKeys.put(key, value);
+					return startMap.get(key);
+				}
 			} else {
 				if (changedKeys.containsKey(key)) {
 					return changedKeys.remove(key);
