@@ -78,9 +78,9 @@ public class StoreableUtils {
             if (stringValue.trim().isEmpty()) {
                 return;
             }
-            /*if (stringValue.matches("\\s*")) {
-                throw new ParseException("{" + stringValue + "}", -1);
-            }*/
+            if (isStringIncorrect(stringValue)) {
+                throw new ParseException("{" + stringValue + "}", 0);
+            }
         }
     }
 }
