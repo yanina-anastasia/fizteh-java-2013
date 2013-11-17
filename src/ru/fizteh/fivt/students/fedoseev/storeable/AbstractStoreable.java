@@ -103,9 +103,9 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
             System.out.println("READ FILE ERROR");
 
             throw e;
+        } finally {
+            curFile.close();
         }
-
-        curFile.close();
     }
 
     public static Map<String, Storeable> readFile(StoreableTable curTable, RandomAccessFile curFile, File file,
@@ -251,16 +251,9 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
                     try {
                         commitFile(curTable, raf, curFileKeySet);
-                    } catch (IOException e) {
-                        System.out.println("SAVE TABLE ERROR: committing file failed");
-
-                        throw e;
-                    }
-
-                    try {
                         raf.close();
                     } catch (IOException e) {
-                        System.out.println("SAVE TABLE ERROR: closing file failed");
+                        System.out.println("SAVE TABLE ERROR: committing file failed");
 
                         throw e;
                     }
