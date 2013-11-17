@@ -23,6 +23,7 @@ public class StoreableUtils {
             } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
             } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
                     table.getColumnType(i) == Long.class) {
+            } else if (value.getColumnAt(i).getClass() == Byte.class && table.getColumnType(i) == Byte.class) {
             } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
             } else if (value.getColumnAt(i).getClass() == Float.class && table.getColumnType(i) == Float.class) {
             } else if (value.getColumnAt(i).getClass() == Float.class && table.getColumnType(i) == Double.class) {
