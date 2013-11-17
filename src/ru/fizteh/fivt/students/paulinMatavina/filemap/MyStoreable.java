@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import ru.fizteh.fivt.storage.structured.*;
 
 public class MyStoreable implements Storeable {
@@ -20,7 +22,7 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("requested index is out of bounds");
         }
         
-        Object newValue = returnType(value, columnTypes.get(columnIndex));
+        Object newValue = castType(value, columnTypes.get(columnIndex));
         objectList[columnIndex] = newValue;
     }
 
@@ -114,8 +116,8 @@ public class MyStoreable implements Storeable {
         return (String) objectList[columnIndex];
     }
     
-    private static Object returnType(Object object, Class<?> expectedClass) throws ColumnFormatException {
-        if (object == null) {
+    private static Object castType(Object object, Class<?> expectedClass) throws ColumnFormatException {
+        if (object == null || object == JSONObject.NULL) {
             return null;
         }
         if (expectedClass == Integer.class) {

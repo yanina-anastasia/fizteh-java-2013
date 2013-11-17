@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,29 +18,42 @@ public class MultiDbStateTest {
     @Rule
     public TemporaryFolder rootFolder = new TemporaryFolder();  
     Table table;
+    Table shortTable;
     TableProvider provider;
     MyTableProviderFactory factory;
     File root;
     ArrayList<Class<?>> list;
     ArrayList<Class<?>> wrongList;
+    ArrayList<Class<?>> nullList;
     ArrayList<Object> correct;
     ArrayList<Object> wrong;
+    ArrayList<Object> shortVal;
     Storeable correctValues;
     Storeable wrongValues;
+    Storeable alienValues;
+    File file;
     
     @Before
     @Test
-    public void initialization() throws IOException {
+    public void initializationOk() throws IOException {
         rootFolder.create();
         root = rootFolder.newFolder("root");
+        file = rootFolder.newFile("file");
         factory = new MyTableProviderFactory();
         provider = factory.create(root.getAbsolutePath());
         list = new ArrayList<Class<?>>();
         list.add(String.class);
         list.add(Integer.class);
-        list.add(Long.class);
+        list.add(Byte.class);
         list.add(Boolean.class);
         list.add(Float.class);
+        
+        ArrayList<Class<?>> shortList = new ArrayList<Class<?>>();
+        shortList.add(String.class);
+        shortTable = provider.createTable("short", shortList);
+        shortVal = new ArrayList<Object>();
+        shortVal.add("ololo!");
+        alienValues = provider.createFor(shortTable, shortVal);
         
         table = provider.createTable("default", list);
         assertNotNull(table);
@@ -48,11 +61,19 @@ public class MultiDbStateTest {
         correct = new ArrayList<Object>();
         correct.add("String");
         correct.add(1000000000);
-        correct.add(1000000000);
+        correct.add(null);
         correct.add(true);
         correct.add(1.001);
-        wrong = correct;
-        wrongList = list;
+        
+        wrong = new ArrayList<Object>(correct);
+        wrong.set(1, true);
+        
+        wrongList = new ArrayList<Class<?>>(list);
+        wrongList.set(1, ArrayList.class);
+        
+        nullList = new ArrayList<Class<?>>(list);
+        nullList.set(1, null);
+        
         correctValues = provider.createFor(table, correct);
     }  
     
@@ -61,6 +82,16 @@ public class MultiDbStateTest {
     public void testFactoryCreateWrong() {
         try {
             provider = factory.create("wrong-path");
+        } catch (IOException e) {
+            return;
+        }
+        fail();
+    }  
+    
+    @Test
+    public void testFactoryCreateOnFile() {
+        try {
+            provider = factory.create("file");
         } catch (IOException e) {
             return;
         }
@@ -78,6 +109,7 @@ public class MultiDbStateTest {
     //end of tests for TableProviderFactory
     
     //tests for TableProvider
+    //provider.getTable()
     @Test(expected = IllegalArgumentException.class)
     public void testProviderGetTableNull() {
         provider.getTable(null);
@@ -86,13 +118,39 @@ public class MultiDbStateTest {
     @Test
     public void testProviderGetTableNotExisting() {
         table = provider.getTable("not-existing-table");
-        assertNull("not null on not existing table", table);
+        assertNull(table);
+    }  
+    
+    @Test(expected = IllegalStateException.class)
+    public void testProviderOperationsWithRemovedTable() throws IOException {
+        provider.removeTable("default");
+        assertNull(provider.getTable("default"));
+        table.put("a", correctValues);
     }  
     
     @Test(expected = RuntimeException.class)
     public void testProviderGetTableIncorrect() {
         table = provider.getTable("..");
     } 
+    
+    //Provider.createTable()
+    @Test(expected = IllegalStateException.class)
+    public void testProviderNewNameWrong() {
+        try {
+            table = provider.createTable("nam//e", list);
+        } catch (IOException e) {
+            fail();
+        }
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testProviderNewNameEmpty() {
+        try {
+            provider.createTable("      ", list);
+        } catch (IOException e) {
+            fail();
+        }
+    }
     
     @Test(expected = IllegalArgumentException.class)
     public void testProviderCreateTableNull() {
@@ -105,9 +163,17 @@ public class MultiDbStateTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testProviderCreateWrongType() {
-        wrongList.set(1, Object.class);
         try {
-            provider.createTable("def", list);
+            provider.createTable("def", wrongList);
+        } catch (IOException e) {
+            fail();
+        }
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testProviderCreateNullType() {
+        try {
+            provider.createTable("def", nullList);
         } catch (IOException e) {
             fail();
         }
@@ -147,6 +213,7 @@ public class MultiDbStateTest {
         }
     } 
     
+    //provider.removeTable()
     @Test(expected = IllegalStateException.class)
     public void testProviderRemoveTableNotExisting() {
         try {
@@ -172,26 +239,47 @@ public class MultiDbStateTest {
         table.put("put", provider.createFor(table, correct));
     } 
     
-    @Test(expected = RuntimeException.class)
-    public void testProviderNewNameWrong() {
-        try {
-            table = provider.createTable("nam//e", list);
-        } catch (IOException e) {
-            fail();
-        }
+    //provider.serialize()
+    @Test(expected = ColumnFormatException.class)
+    public void testProviderSerializeWrong() {
+        provider.serialize(table, alienValues);
+    }
+    
+    @Test
+    public void testProviderSerializeOk() {
+        provider.serialize(table, correctValues);
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void testProviderNewNameEmpty() {
-        try {
-            provider.createTable("      ", list);
-        } catch (IOException e) {
-            fail();
-        }
+    public void testProviderSerializeNull() {
+        provider.serialize(table, null);
     }
+    
+    //provider.deserialize()
+    @Test(expected = ParseException.class)
+    public void testProviderDeserializeWrong() throws ColumnFormatException, ParseException {
+        provider.deserialize(table, provider.serialize(shortTable, alienValues));
+    }
+    
+    @Test
+    public void testProviderSerializeDeserializeOk() throws ParseException {
+        provider.deserialize(table, provider.serialize(table, correctValues));
+    }  
+    
+    //provider.createFor()
+    @Test(expected = ColumnFormatException.class)
+    public void testProviderCreateForWrong() throws ParseException {
+        provider.createFor(table, wrongList);
+    }  
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testProviderCreateForShort() throws ParseException {
+        provider.createFor(table, shortVal);
+    }   
     //end of tests for TableProvider
     
-    //tests for Table            
+    //tests for Table  
+    //table.put() & table.get() & table.remove()
     @Test(expected = IllegalArgumentException.class)
     public void testTablePutNullKey() {
         table.put(null, correctValues);
@@ -263,27 +351,87 @@ public class MultiDbStateTest {
     }
     
     @Test
-    public void testTableNewGet() {
-        try {
-            table = provider.createTable("newT", list);
-        } catch (IOException e) {
-            fail();
-        }
-        
+    public void testTableNewGet() throws IOException {
+        table = provider.createTable("newT", list);
         assertNull(table.get("a"));
-        try {
-            provider.removeTable("newT");
-        } catch (IOException e) {
-            fail();
-        }
+        provider.removeTable("newT");
+    }
+    
+    //table.getColumnsCount()
+    @Test
+    public void testTableGetColumnsCount() {
+        assertEquals(5, table.getColumnsCount());
+    }
+    
+    //table.getColumnsCount()
+    @Test
+    public void testTableGetColumnType() {
+        assertEquals(String.class, table.getColumnType(0));
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testTableGetWrongColumnType() {
+        table.getColumnType(6);
+    }
+    //end of Table tests 
+    
+    //Storeable tests
+    //storeable.setColumnAt()
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableSetColumnAtWrong() {
+        correctValues.setColumnAt(0, 1);
+    }
+    
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableSetColumnAtIllegal() {
+        correctValues.setColumnAt(2, 1000); //not a byte value
+    }
+    
+    @Test
+    public void testStoreableSetColumnAtNull() {
+        correctValues.setColumnAt(0, null);
+    }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testStoreableSetColumnAtWrongIndex() {
+        correctValues.setColumnAt(-1, 1);
+    }
+    
+    //storeable.getColumnAt()
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testStoreableGetColumnAtWrongIndex() {
+        correctValues.getColumnAt(6);
+    }
+    
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableGetColumnAtWrongType() {
+        correctValues.getIntAt(0);
+    }
+    
+    @Test(expected = ColumnFormatException.class)
+    public void testStoreableGetColumnAtWrong() {
+        correctValues.getIntAt(2); //byte is not int
+    }
+    
+    @Test
+    public void testStoreableGetColumnAtStringOk() {
+        assertEquals("String", correctValues.getStringAt(0));
+    } 
+    
+    @Test
+    public void testStoreableGetColumnAtBoolOk() {
+        assertEquals(true, correctValues.getBooleanAt(3));
     }  
     
-    @After
-    public void after() {
-        try {
-            provider.removeTable("default");
-        } catch (IOException e) {
-            fail();
-        }       
-    }
+    @Test
+    public void testStoreableGetColumnAtByteOk() {
+        assertSame(null, correctValues.getByteAt(2));
+    }  
+    
+    @Test
+    public void testStoreableGetColumnAtIntOk() {
+        assertEquals((int) 1000000000, (int) correctValues.getIntAt(1));
+    }  
+     
+    //end of Storeable tests 
 }

@@ -154,7 +154,10 @@ public class MyTableProvider extends State implements TableProvider {
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (value == null) {
-            throw new IllegalArgumentException("no argument");
+            throw new IllegalArgumentException("no storeable passed");
+        }
+        if (table == null) {
+            throw new IllegalArgumentException("no table passed");
         }
         try {
             ArrayList<Class<?>> columnTypes = new ArrayList<>();
@@ -174,27 +177,40 @@ public class MyTableProvider extends State implements TableProvider {
             }
             return newList;
         } catch (Exception e) {
-            throw new RuntimeException("error when parsing string", e);
+            throw new ParseException("error when parsing string: " + e.getMessage(), 0);
         }
     }
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        int columnCount = table.getColumnsCount();
-        Object[] objects = new Object[columnCount];
-        for (int i = 0; i < columnCount; i++) {
-            objects[i] = value.getColumnAt(i);
-            if (objects[i] != null && objects[i].getClass() != table.getColumnType(i)) {
-                throw new ColumnFormatException("wrong type: expected " + table.getColumnType(i).toString()
-                        + ", " + objects[i].getClass().toString() + " passed");
-            }
+        if (value == null) {
+            throw new IllegalArgumentException("no storeable passed");
         }
-        JSONArray array = new JSONArray(objects);
-        return array.toString();
+        if (table == null) {
+            throw new IllegalArgumentException("no table passed");
+        }
+        try {
+            int columnCount = table.getColumnsCount();
+            Object[] objects = new Object[columnCount];
+            for (int i = 0; i < columnCount; i++) {
+                objects[i] = value.getColumnAt(i);
+                if (objects[i] != null && objects[i].getClass() != table.getColumnType(i)) {
+                    throw new ColumnFormatException("wrong type: expected " + table.getColumnType(i).toString()
+                            + ", " + objects[i].getClass().toString() + " passed");
+                }
+            }
+            JSONArray array = new JSONArray(objects);
+            return array.toString();
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException("wrong size", e);
+        }
     }
 
     @Override
     public Storeable createFor(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("no table passed");
+        }
         ArrayList<Class<?>> columnTypes = new ArrayList<>();
         int columnCount = table.getColumnsCount();
         for (int i = 0; i < columnCount; i++) {
@@ -206,6 +222,9 @@ public class MyTableProvider extends State implements TableProvider {
     @Override
     public Storeable createFor(Table table, List<?> values)
             throws ColumnFormatException, IndexOutOfBoundsException {
+        if (table == null) {
+            throw new IllegalArgumentException("no table passed");
+        }
         ArrayList<Class<?>> types = new ArrayList<>();
         int columnCount = table.getColumnsCount();
         for (int i = 0; i < columnCount; i++) {

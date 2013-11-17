@@ -187,7 +187,7 @@ public class DbState extends State {
         dbFile = null;
         try {
             fileCheck();
-            if (data.size() == 0) {
+            if (size() == 0) {
                 (new File(path)).delete();
                 return;
             }
