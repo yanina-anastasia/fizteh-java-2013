@@ -52,7 +52,9 @@ public class MultiFileHashMap implements TableProvider {
             return null;
         } else {
             File newTable = new File(dir.getAbsolutePath() + File.separator + name);
-            newTable.mkdir();
+            if (!newTable.mkdir()) {
+                throw new IllegalPathStateException(newTable.getAbsolutePath() + ": Permission denied");
+            }
             database.put(name, new FileHashMap(newTable));
             return database.get(name);
         }

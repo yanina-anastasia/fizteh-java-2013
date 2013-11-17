@@ -179,28 +179,34 @@ public class FileHashMap implements Table {
     private void writeDB() {
         for (int i = 0; i < NDIRS; i++) {
             File dirPath = new File(db.getAbsolutePath() + File.separator + Integer.toString(i) + ".dir");
-            dirPath.mkdir();
+            if (!dirPath.exists() && !dirPath.mkdir()) {
+                throw new IllegalPathStateException(dirPath.getAbsolutePath() + ": Permission denied");
+            }
             for (int j = 0; j < NFILES; j++) {
                 if (base[i][j] != null) {
                     File filePath = new File(dirPath.getAbsolutePath() + File.separator + Integer.toString(j) + ".dat");
                     if (!filePath.exists()) {
                         try {
                             if (!filePath.createNewFile()) {
-                                throw new IllegalPathStateException(filePath.getAbsolutePath() + ": No permission");
+                                throw new IllegalPathStateException(filePath.getAbsolutePath() + ": Permission denied");
                             }
                         } catch (IOException e) {
-                            throw new IllegalPathStateException(filePath.getAbsolutePath() + ": No permission");
+                            throw new IllegalPathStateException(filePath.getAbsolutePath() + ": Permission denied");
                         }
                     }
                     if (base[i][j].getKeys().size() == 0) {
-                        filePath.delete();
+                        if (filePath.exists() && !filePath.delete()) {
+                            throw new IllegalPathStateException(filePath.getAbsolutePath() + ": Permission denied");
+                        }
                     } else {
                         base[i][j].write(filePath);
                     }
                 }
             }
             if (dirPath.exists()) {
-                dirPath.delete();
+                if (!dirPath.delete()) {
+                    throw new IllegalPathStateException(dirPath.getAbsolutePath() + ": Permission denied");
+                }
             }
         }
     }
