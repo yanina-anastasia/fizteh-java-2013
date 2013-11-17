@@ -26,7 +26,7 @@ public class DbPut implements Command {
             System.out.println("new");
         } else {
             System.out.println("overwrite");
-            System.out.println(result);
+            System.out.println(multiState.serialize(multiState.getCurrTable(), result));
         }
         return 0;
     }
