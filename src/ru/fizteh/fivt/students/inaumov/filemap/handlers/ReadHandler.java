@@ -15,6 +15,10 @@ public class ReadHandler implements Closeable {
         } catch (FileNotFoundException exception) {
 
         }
+
+        if (inputFile.length() == 0) {
+            throw new IllegalArgumentException("error: empty file: " + fileName);
+        }
         this.fileName = fileName;
     }
 
