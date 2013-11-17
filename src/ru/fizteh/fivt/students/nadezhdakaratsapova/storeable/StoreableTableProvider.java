@@ -86,11 +86,11 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         if (!name.matches(TABLE_NAME)) {
             throw new IllegalArgumentException("Not correct file name");
         }
-        tableWorkController.writeLock().lock();
+        tableWorkController.readLock().lock();
         try {
             return dataBaseTables.get(name);
         } finally {
-            tableWorkController.writeLock().unlock();
+            tableWorkController.readLock().unlock();
         }
     }
 
