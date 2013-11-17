@@ -39,7 +39,7 @@ public abstract class GenericTable<ValueType> {
         } else {
             try {
                 lock.readLock().lock();
-                return  oldDatabase.get(key);
+                return oldDatabase.get(key);
             } finally {
                 lock.readLock().unlock();
             }
@@ -104,18 +104,10 @@ public abstract class GenericTable<ValueType> {
         try {
             lock.readLock().lock();
             for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
-                if (s.getValue() == null ) {
-                    if (oldDatabase.get(s.getKey()) == null ) {
-                        changedValues.get().remove(s.getKey());
-                    } else {
-                        --chan;
-                    }
-                } else {
-                    if (oldDatabase.get(s.getKey()) == null) {
-                        ++chan;
-                    } else if (s.getValue().equals(oldDatabase.get(s.getKey()))) {
-                        changedValues.get().remove(s.getKey());
-                    }
+                if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
+                    --chan;
+                } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
+                    ++chan;
                 }
             }
             return chan;
@@ -125,10 +117,9 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int commit() throws IOException {
-        countChanges();
         try {
             lock.writeLock().lock();
-            for (String s: changedValues.get().keySet()) {
+            for (String s : changedValues.get().keySet()) {
                 if (changedValues.get().get(s) == null) {
                     oldDatabase.remove(s);
                 } else {
@@ -138,15 +129,13 @@ public abstract class GenericTable<ValueType> {
         } finally {
             lock.writeLock().unlock();
         }
-        int res = changedValues.get().size();
-        changedValues.get().clear();
 
         try {
             hardDiskLock.writeLock().lock();
-            Map <Integer, Map<String, ValueType>> database = new HashMap<>();
+            Map<Integer, Map<String, ValueType>> database = new HashMap<>();
             try {
                 lock.readLock().lock();
-                for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
+                for (Map.Entry<String, ValueType> s : oldDatabase.entrySet()) {
                     int nfile = Utils.getNumberOfFile(s.getKey());
                     if (database.get(nfile) == null) {
                         database.put(nfile, new HashMap<String, ValueType>());
@@ -168,6 +157,9 @@ public abstract class GenericTable<ValueType> {
         } finally {
             hardDiskLock.writeLock().unlock();
         }
+
+        int res = changedValues.get().size();
+        changedValues.get().clear();
         return res;
     }
 
@@ -189,10 +181,10 @@ public abstract class GenericTable<ValueType> {
     }
 
     protected abstract Map<String, String> serialize(Map<String, ValueType> values);
+
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
-        countChanges();
         int res = changedValues.get().size();
         changedValues.get().clear();
         return res;
@@ -241,7 +233,7 @@ public abstract class GenericTable<ValueType> {
         }
     }
 
-    private void checkKey(String key ) throws IllegalArgumentException {
+    private void checkKey(String key) throws IllegalArgumentException {
         if (key == null || key.matches("(.*\\s+.*)*")) {
             throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }
