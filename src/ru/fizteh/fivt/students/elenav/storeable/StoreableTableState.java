@@ -182,6 +182,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 		}
 		removedKeys.clear();
 		changedKeys.clear();
+		curSize = startMap.size();
 		return result;
 	}
 
