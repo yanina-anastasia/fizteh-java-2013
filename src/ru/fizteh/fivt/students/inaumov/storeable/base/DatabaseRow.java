@@ -28,7 +28,7 @@ public class DatabaseRow implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         if (value != null) {
-            checkColumnType(columnIndex, value);
+            checkColumnType(columnIndex, value.getClass());
             try {
                 StoreableUtils.isValueCorrect(value, value.getClass());
             } catch (ParseException e) {
@@ -134,10 +134,10 @@ public class DatabaseRow implements Storeable {
         }
     }
 
-    private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
-        if (!value.getClass().isAssignableFrom(classes.get(columnIndex))) {
+    private void checkColumnType(int columnIndex, Class value) throws ColumnFormatException {
+        if (!value.isAssignableFrom(classes.get(columnIndex))) {
             throw new ColumnFormatException(String.format("incorrect type: expected type: %s actual type: %s",
-                    classes.get(columnIndex).getName(), value.getClass().getName()));
+                    classes.get(columnIndex).getName(), value.getName()));
         }
     }
 
