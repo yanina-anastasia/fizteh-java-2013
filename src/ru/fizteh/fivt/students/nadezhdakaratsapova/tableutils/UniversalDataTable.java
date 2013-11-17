@@ -108,12 +108,7 @@ public abstract class UniversalDataTable<ValueType> {
     }
 
     public Set<String> getKeys() {
-        tableChangesLock.readLock().lock();
-        try {
-            return dataStorage.keySet();
-        } finally {
-            tableChangesLock.readLock().unlock();
-        }
+        return dataStorage.keySet();
     }
 
     public ValueType get(String key) throws IllegalArgumentException {
