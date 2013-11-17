@@ -181,10 +181,11 @@ public abstract class UniversalDataTable<ValueType> {
     public int rollback() {
         int rollbackSize = 0;
         if (!putKeys.get().isEmpty()) {
-            rollbackSize += putKeys.get().size();
             Set<String> putKeysToRollback = putKeys.get().keySet();
             for (String key : putKeysToRollback) {
-                dataStorage.containsKey(key);
+                if (!dataStorage.containsKey(key)) {
+                    ++rollbackSize;
+                }
             }
             putKeys.get().clear();
         }

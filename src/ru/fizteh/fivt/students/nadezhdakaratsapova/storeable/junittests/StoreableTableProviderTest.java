@@ -184,6 +184,8 @@ public class StoreableTableProviderTest {
 
     @Test
     public void createSameTableFromDifferentThreads() throws Exception {
+        firstThreadFlag = true;
+        secondThreadFlag = true;
         Thread firstThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -209,6 +211,47 @@ public class StoreableTableProviderTest {
         firstThread.join();
         secondThread.join();
         tableProvider.removeTable(TESTED_TABLE);
-        Assert.assertTrue(firstThreadFlag | secondThreadFlag);
+        Assert.assertTrue(firstThreadFlag ^ secondThreadFlag);
+    }
+
+    @Test
+    public void removeSameTableFromDifferentThreads() throws Exception {
+        firstThreadFlag = true;
+        secondThreadFlag = true;
+        tableProvider.createTable(TESTED_TABLE, types);
+        Assert.assertTrue(tableProvider.getTable(TESTED_TABLE) != null);
+        Thread firstThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.removeTable(TESTED_TABLE);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                } catch (IllegalArgumentException e) {
+                    firstThreadFlag = false;
+                } catch (IllegalStateException e) {
+                    firstThreadFlag = false;
+                }
+            }
+        });
+        Thread secondThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.removeTable(TESTED_TABLE);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                } catch (IllegalArgumentException e) {
+                    secondThreadFlag = false;
+                } catch (IllegalStateException e) {
+                    secondThreadFlag = false;
+                }
+            }
+        });
+        firstThread.start();
+        secondThread.start();
+        firstThread.join();
+        secondThread.join();
+        Assert.assertTrue(firstThreadFlag ^ secondThreadFlag);
     }
 }
