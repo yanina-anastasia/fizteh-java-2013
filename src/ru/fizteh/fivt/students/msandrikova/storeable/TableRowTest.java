@@ -12,11 +12,11 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
 public class TableRowTest {
-	TableRow row;
-	List<Class<?>> columnTypes;
+	private TableRow row;
+	private static List<Class<?>> columnTypes;
 	
 	@BeforeClass
-	public void onlyOnce() {
+	public static void onlyOnce() {
 		columnTypes = new ArrayList<Class<?>>();
 		columnTypes.add(Integer.class);
 		columnTypes.add(Boolean.class);

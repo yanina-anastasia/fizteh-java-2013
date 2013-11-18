@@ -12,6 +12,9 @@ public class TableRow implements Storeable {
 	
 	public TableRow(List<Class<?>> columnTypes) {
 		this.columnTypes = columnTypes;
+		for(int i = 0; i < columnTypes.size(); ++i) {
+			row.add(null);
+		}
 	}
 
 	@Override
@@ -22,7 +25,7 @@ public class TableRow implements Storeable {
 		if(value != null && !value.getClass().equals(this.columnTypes.get(columnIndex))) {
 			throw new ColumnFormatException("Value's class must be equal to column type");
 		}
-		row.add(columnIndex, value);
+		row.set(columnIndex, value);
 	}
 
 	@Override
@@ -45,37 +48,65 @@ public class TableRow implements Storeable {
 
 	@Override
 	public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Integer) this.getClassAt(columnIndex, Integer.class);
+		Object o = this.getClassAt(columnIndex, Integer.class);
+		if(o == null) {
+			return null;
+		}
+		return Integer.parseInt(o.toString());
 	}
 
 	@Override
 	public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Long) this.getClassAt(columnIndex, Long.class);
+		Object o = this.getClassAt(columnIndex, Long.class);
+		if(o == null) {
+			return null;
+		}
+		return Long.parseLong(o.toString());
 	}
 
 	@Override
 	public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Byte) this.getClassAt(columnIndex, Byte.class);
+		Object o = this.getClassAt(columnIndex, Byte.class);
+		if(o == null) {
+			return null;
+		}
+		return Byte.parseByte(o.toString());
 	}
 
 	@Override
 	public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Float) this.getClassAt(columnIndex, Float.class);
+		Object o = this.getClassAt(columnIndex, Float.class);
+		if(o == null) {
+			return null;
+		}
+		return Float.parseFloat(o.toString());
 	}
 
 	@Override
 	public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Double) this.getClassAt(columnIndex, Double.class);
+		Object o = this.getClassAt(columnIndex, Double.class);
+		if(o == null) {
+			return null;
+		}
+		return Double.parseDouble(o.toString());
 	}
 
 	@Override
 	public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (Boolean) this.getClassAt(columnIndex, Boolean.class);
+		Object o = this.getClassAt(columnIndex, Boolean.class);
+		if(o == null) {
+			return null;
+		}
+		return Boolean.parseBoolean(o.toString());
 	}
 
 	@Override
 	public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
-		return (String) this.getClassAt(columnIndex, String.class);
+		Object o = this.getClassAt(columnIndex, String.class);
+		if(o == null) {
+			return null;
+		}
+		return o.toString();
 	}
 
 }
