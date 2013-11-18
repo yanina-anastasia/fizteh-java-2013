@@ -52,14 +52,6 @@ public class StorableTable extends AbstractTable<String, Storeable> implements C
             throw new ColumnFormatException("wrong storeable format");
         }
 
-//        try {
-//            if (!StorableUtils.isStorableValid((StorableTableLine)value, columnTypes)) {
-//                throw new IllegalArgumentException("alien storeable");
-//            }
-//        } catch (ClassCastException e) {
-//            throw new IllegalArgumentException("alien storeable");
-//        }
-
         if (key.matches(".*\\s+.*")) {
             throw new IllegalArgumentException("key with whitespaces");
         }

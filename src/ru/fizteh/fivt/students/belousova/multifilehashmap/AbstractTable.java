@@ -36,7 +36,13 @@ public abstract class AbstractTable<KeyType, ValueType> {
         if (deletedKeys.get().contains(key)) {
             return null;
         }
-        return dataBase.get(key);
+
+        tableTransactionsLock.lock();
+        try {
+            return dataBase.get(key);
+        } finally {
+            tableTransactionsLock.unlock();
+        }
     }
 
     public ValueType put(KeyType key, ValueType value) {
@@ -52,12 +58,16 @@ public abstract class AbstractTable<KeyType, ValueType> {
         if (value.toString().trim().isEmpty()) {
             throw new IllegalArgumentException("empty value");
         }
-
-        if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
-            deletedKeys.get().add(key);
-            ValueType oldValue = dataBase.get(key);
-            addedKeys.get().put(key, value);
-            return oldValue;
+        tableTransactionsLock.lock();
+        try {
+            if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
+                deletedKeys.get().add(key);
+                ValueType oldValue = dataBase.get(key);
+                addedKeys.get().put(key, value);
+                return oldValue;
+            }
+        } finally {
+            tableTransactionsLock.unlock();
         }
         return addedKeys.get().put(key, value);
     }
@@ -69,42 +79,52 @@ public abstract class AbstractTable<KeyType, ValueType> {
         if (key.toString().trim().isEmpty()) {
             throw new IllegalArgumentException("empty key");
         }
-
-        if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
-            deletedKeys.get().add(key);
-            return dataBase.get(key);
+        tableTransactionsLock.lock();
+        try {
+            if (dataBase.containsKey(key) && !deletedKeys.get().contains(key)) {
+                deletedKeys.get().add(key);
+                return dataBase.get(key);
+            }
+        } finally {
+            tableTransactionsLock.unlock();
         }
         return addedKeys.get().remove(key);
     }
 
     public int size() {
-        for (KeyType key : deletedKeys.get()) {
-            if (!dataBase.containsKey(key)) {
-                deletedKeys.get().remove(key);
+        tableTransactionsLock.lock();
+        try {
+            for (KeyType key : deletedKeys.get()) {
+                if (!dataBase.containsKey(key)) {
+                    deletedKeys.get().remove(key);
+                }
             }
-        }
-        Set<KeyType> addedKeysSet = addedKeys.get().keySet();
-        Set<KeyType> addedKeysForDeletion = new HashSet<>();
-        for (KeyType key : addedKeysSet) {
-            if (dataBase.containsKey(key)) {
-                if (dataBase.get(key).equals(addedKeys.get().get(key))) {
-                    addedKeysForDeletion.add(key);
-                    if (deletedKeys.get().contains(key)) {
-                        deletedKeys.get().remove(key);
-                    }
-                } else {
-                    if (!deletedKeys.get().contains(key)) {
-                        deletedKeys.get().add(key);
+            Set<KeyType> addedKeysSet = addedKeys.get().keySet();
+            Set<KeyType> addedKeysForDeletion = new HashSet<>();
+            for (KeyType key : addedKeysSet) {
+                if (dataBase.containsKey(key)) {
+                    if (dataBase.get(key).equals(addedKeys.get().get(key))) {
+                        addedKeysForDeletion.add(key);
+                        if (deletedKeys.get().contains(key)) {
+                            deletedKeys.get().remove(key);
+                        }
+                    } else {
+                        if (!deletedKeys.get().contains(key)) {
+                            deletedKeys.get().add(key);
+                        }
                     }
                 }
             }
+            addedKeys.get().keySet().removeAll(addedKeysForDeletion);
+            return dataBase.size() + addedKeys.get().size() - deletedKeys.get().size();
+        } finally {
+            tableTransactionsLock.unlock();
         }
-        addedKeys.get().keySet().removeAll(addedKeysForDeletion);
-        return dataBase.size() + addedKeys.get().size() - deletedKeys.get().size();
     }
 
     protected int countChanges() {
         int changesCounter = addedKeys.get().size() + deletedKeys.get().size();
+
         for (KeyType key : addedKeys.get().keySet()) {
             if (deletedKeys.get().contains(key)) {
                 changesCounter--;
@@ -120,13 +140,24 @@ public abstract class AbstractTable<KeyType, ValueType> {
     public abstract int commit() throws IOException;
 
     public int rollback() {
-        int counter = countChanges();
+        tableTransactionsLock.lock();
+        int counter;
+        try {
+            counter = countChanges();
+        } finally {
+            tableTransactionsLock.unlock();
+        }
         deletedKeys.get().clear();
         addedKeys.get().clear();
         return counter;
     }
 
     public int getChangesCount() {
-        return countChanges();
+        tableTransactionsLock.lock();
+        try {
+            return countChanges();
+        } finally {
+            tableTransactionsLock.unlock();
+        }
     }
 }
