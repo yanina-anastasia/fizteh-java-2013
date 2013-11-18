@@ -130,7 +130,12 @@ public class StoreableTable implements Table {
             if (removedKeys.get().contains(key)) {
                 return null;
             }
-            resultOfGet = data.get(key);
+            try {
+                transactionLock.lock();
+                resultOfGet = data.get(key);
+            } finally {
+                transactionLock.unlock();
+            }
         }
         return resultOfGet;
     }
@@ -143,7 +148,13 @@ public class StoreableTable implements Table {
         if (!CheckOnCorrect.goodStoreable(value, this.columnTypes)) {
             throw new ColumnFormatException("put: value not suitable for this table");
         }
-        Storeable valueInData = data.get(key);
+        Storeable valueInData;
+        try {
+            transactionLock.lock();
+            valueInData = data.get(key);
+        } finally {
+            transactionLock.unlock();
+        }
         Storeable resultOfPut = changes.get().put(key, value);
 
         if (resultOfPut == null) {
@@ -166,18 +177,33 @@ public class StoreableTable implements Table {
 
         Storeable resultOfRemove = changes.get().get(key);
         if (resultOfRemove == null && !removedKeys.get().contains(key)) {
-            resultOfRemove = data.get(key);
+            try {
+                transactionLock.lock();
+                resultOfRemove = data.get(key);
+            } finally {
+                transactionLock.unlock();
+            }
         }
         if (changes.get().containsKey(key)) {
             amountOfChanges.set(amountOfChanges.get() - 1);
             changes.get().remove(key);
-            if (data.containsKey(key)) {
-                removedKeys.get().add(key);
+            try {
+                transactionLock.lock();
+                if (data.containsKey(key)) {
+                    removedKeys.get().add(key);
+                }
+            } finally {
+                transactionLock.unlock();
             }
         } else {
-            if (data.containsKey(key) && !removedKeys.get().contains(key)) {
-                removedKeys.get().add(key);
-                amountOfChanges.set(amountOfChanges.get() + 1);
+            try {
+                transactionLock.lock();
+                if (data.containsKey(key) && !removedKeys.get().contains(key)) {
+                    removedKeys.get().add(key);
+                    amountOfChanges.set(amountOfChanges.get() + 1);
+                }
+            } finally {
+                transactionLock.unlock();
             }
         }
         return resultOfRemove;
@@ -185,7 +211,12 @@ public class StoreableTable implements Table {
 
     @Override
     public int size() {
-        return data.size() + changes.get().size() - removedKeys.get().size();
+        try {
+            transactionLock.lock();
+            return data.size() + changes.get().size() - removedKeys.get().size();
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     @Override
