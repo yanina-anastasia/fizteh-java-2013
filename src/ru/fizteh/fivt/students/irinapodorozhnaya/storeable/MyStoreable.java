@@ -31,34 +31,16 @@ public class MyStoreable implements Storeable{
             return null;
         }
     }
-     /*
+
     @Override
     public boolean equals(Object o) {
 
-        if (o == null || !Storeable.class.isInstance(o)) {
+        if (o == null || o.getClass() != this.getClass()) {
             return false;
         }
-        Storeable st = (Storeable) o;
-        int i = 0;
-        for (Object object: values) {
-            if (object == null) {
-                if (st.getColumnAt(i++) != null) {
-                    return false;
-                }
-            } else if (st.getColumnAt(i) == null ) {
-                return false;
-            } else if (!object.equals(st.getColumnAt(i++))) {
-                return false;
-            }
-        }
-
-        try {
-            st.getColumnAt(i);
-        } catch (IndexOutOfBoundsException e) {
-            return true;
-        }
-        return false;
-    }  */
+        MyStoreable st = (MyStoreable) o;
+        return values.equals(st.values);
+    }
 
     @Override
     public void setColumnAt(int columnIndex, Object value)
