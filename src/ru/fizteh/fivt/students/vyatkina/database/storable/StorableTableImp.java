@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.vyatkina.database.storable;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vyatkina.database.StorableTable;
+import ru.fizteh.fivt.students.vyatkina.database.superior.Diff;
 import ru.fizteh.fivt.students.vyatkina.database.superior.SuperTable;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker;
 
@@ -64,13 +65,18 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
     @Override
     public int commit () {
         isClosedCheck ();
-        int commited = super.commit ();
+        int commited = 0;
         try {
-            tableKeeper.writeLock ().lock ();
             tableProvider.commitTable (this);
+            tableKeeper.writeLock ().lock ();
+            for (Diff<Storeable> value : values.values ()) {
+                if (value.commit ()) {
+                    ++commited;
+                }
+            }
         }
         finally {
-           tableKeeper.writeLock ().unlock ();
+            tableKeeper.writeLock ().unlock ();
         }
         return commited;
     }

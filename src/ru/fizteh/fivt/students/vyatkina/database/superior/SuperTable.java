@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SuperTable<ValueType> {
 
-    private volatile Map<String, Diff<ValueType>> values = new HashMap<> ();
+    protected volatile Map<String, Diff<ValueType>> values = new HashMap<> ();
     protected final String name;
     protected final ReadWriteLock tableKeeper = new ReentrantReadWriteLock (true);
 
@@ -140,17 +140,13 @@ public class SuperTable<ValueType> {
 
     public Set<String> getKeysThatValuesHaveChanged () {
         Set<String> keysThatValuesHaveChanged = new HashSet<> ();
-        try {
-            tableKeeper.readLock ().lock ();
-            for (String key : values.keySet ()) {
-                if (values.get (key).isNeedToCommit ()) {
-                    keysThatValuesHaveChanged.add (key);
-                }
+
+        for (String key : values.keySet ()) {
+            if (values.get (key).isNeedToCommit ()) {
+                keysThatValuesHaveChanged.add (key);
             }
         }
-        finally {
-            tableKeeper.readLock ().unlock ();
-        }
+
         return keysThatValuesHaveChanged;
     }
 
@@ -196,16 +192,10 @@ public class SuperTable<ValueType> {
 
     public Map<String, ValueType> entriesThatChanged () {
         Map<String, ValueType> result = new HashMap<> ();
-        try {
-            tableKeeper.readLock ().lock ();
-            for (Map.Entry<String, Diff<ValueType>> entry : values.entrySet ()) {
-                if (!entry.getValue ().isRemoved ()) {
-                    result.put (entry.getKey (), entry.getValue ().getValue ());
-                }
+        for (Map.Entry<String, Diff<ValueType>> entry : values.entrySet ()) {
+            if (!entry.getValue ().isRemoved ()) {
+                result.put (entry.getKey (), entry.getValue ().getValue ());
             }
-        }
-        finally {
-            tableKeeper.readLock ().unlock ();
         }
         return result;
     }
