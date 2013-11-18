@@ -70,9 +70,9 @@ public class StoreableTableParallelProviderTest {
 	public void gettingCreatedInAnotherThread() throws IOException {
 
 		Thread testThread = new Thread() {
-            @Override	
-            public void run() {
-            	try {
+			@Override	
+			public void run() {
+				try {
  	               table = provider.createTable("testGet", valueTypes1);
      			} catch (IOException ex) {
      				Assert.fail("unable to create table");

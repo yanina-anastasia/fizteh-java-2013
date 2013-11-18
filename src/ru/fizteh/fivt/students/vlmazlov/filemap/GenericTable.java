@@ -188,8 +188,8 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
         try {
 
-             for (Map.Entry<String, V> entry: added.get().entrySet()) {
-                if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+            for (Map.Entry<String, V> entry: added.get().entrySet()) {
+                if (commited.get(entry.getKey()) == null) {
                     ++count;
                 }
             } 
@@ -224,6 +224,12 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
         try {
             for (Map.Entry<String, V> entry: overwritten.get().entrySet()) {
                 if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+                    ++count;
+                }
+            } 
+
+            for (Map.Entry<String, V> entry: added.get().entrySet()) {
+                if ((commited.get(entry.getKey()) != null) && (!entry.getValue().equals(commited.get(entry.getKey())))) {
                     ++count;
                 }
             } 

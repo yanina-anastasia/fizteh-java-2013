@@ -124,7 +124,6 @@ public class StoreableTableParallelTest {
 
 	@Test 
 	public void diffsShouldBeLocal() {
-		table.put("key1", val1);
 
 		final Thread testThread1 = new Thread() {
             @Override
@@ -144,6 +143,57 @@ public class StoreableTableParallelTest {
 
                 Assert.assertEquals("local change reflected in another thread", table.get("key1"), null);
  				Assert.assertNull("local change reflected in another thread", table.get("key2"));
+            }
+        };
+
+        testThread1.start();
+        testThread2.start();
+    }
+
+    @Test 
+	public void concurrentPutSize() {
+
+		Thread testThread1 = new Thread() {
+            @Override
+            public void run() {
+                table.put("key1", val1);
+                table.commit();
+            }
+        };
+
+        Thread testThread2 = new Thread() {
+            @Override
+            public void run() {
+            	table.put("key1", val2);
+
+                Assert.assertEquals("two parallel puts not merged", 1, table.size());
+            }
+        };
+
+        testThread1.start();
+        testThread2.start();
+    }
+
+     @Test 
+	public void concurrentPutCommit() {
+
+		table.put("key1", val1);
+		table.commit();
+
+		final Thread testThread1 = new Thread() {
+            @Override
+            public void run() {
+                table.put("key1", val1);
+                Assert.assertEquals("put shouldn't change value", 0, table.commit());
+            }
+        };
+
+        Thread testThread2 = new Thread() {
+            @Override
+            public void run() {
+            	table.put("key1", val2);
+
+                Assert.assertEquals("diff incorrect", 1, table.commit());
             }
         };
 
