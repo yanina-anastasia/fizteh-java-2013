@@ -164,6 +164,7 @@ public class DistributedTable extends FileManager implements Table {
                 }
             }
         }
+        System.out.println();
         return diff;
     }
 

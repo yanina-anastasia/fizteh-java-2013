@@ -127,11 +127,16 @@ public class DistributedTableProvider implements TableProvider {
         */
         try {
             membersLock.writeLock().lock();
-            if (!tableMembers.containsKey(name)) {
+            if (!tableMembers.containsKey(name) || tableMembers.get(name).get() == null) {
                 try {
                     tablesLock.readLock().lock();
                     if (tables.containsKey(name)) {
-                        return  createTableMemberUnsafe(name);
+                        if (tableMembers.get(name).get() == null) {
+                            tableMembers.get(name).set(new TableMember(tables.get(name), this, membersLock));
+                            return tableMembers.get(name).get();
+                        } else {
+                            return createTableMemberUnsafe(name);
+                        }
                     }
                 } finally {
                     tablesLock.readLock().unlock();
