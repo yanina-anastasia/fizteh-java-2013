@@ -208,7 +208,8 @@ public abstract class UniversalDataTable<ValueType> {
                         dataStorage.put(key, putKeys.get().get(key));
                         ++commitSize;
                     } else {
-                        if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
+                        if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).
+                                equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
                             dataStorage.put(key, putKeys.get().get(key));
                             ++commitSize;
                         }
@@ -244,7 +245,8 @@ public abstract class UniversalDataTable<ValueType> {
                     if (dataStorage.get(key) == null) {
                         ++rollbackSize;
                     } else {
-                        if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
+                        if (!valueConverter.convertValueTypeToString(dataStorage.get(key)).
+                                equals(valueConverter.convertValueTypeToString(putKeys.get().get(key)))) {
                             ++rollbackSize;
                         }
                     }

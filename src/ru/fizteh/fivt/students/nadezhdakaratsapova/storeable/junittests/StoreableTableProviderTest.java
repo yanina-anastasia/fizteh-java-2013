@@ -101,16 +101,20 @@ public class StoreableTableProviderTest {
     @Test
     public void testDeserialize() throws Exception {
         Table table = tableProvider.createTable(TESTED_TABLE, types);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getIntAt(0).intValue(), 5);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getBooleanAt(2).booleanValue(), true);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getStringAt(1), "qwerty");
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getIntAt(0).intValue(), 5);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getBooleanAt(2).booleanValue(), true);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getStringAt(1), "qwerty");
         tableProvider.removeTable(TESTED_TABLE);
     }
 
     @Test(expected = ParseException.class)
     public void testBadDeserialize() throws Exception {
         Table table = tableProvider.createTable(TESTED_TABLE, types);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col></col><col>true</col></row>").getIntAt(0).intValue(), 5);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col></col><col>true</col></row>").getIntAt(0).intValue(), 5);
     }
 
     @Test
@@ -120,7 +124,8 @@ public class StoreableTableProviderTest {
         storeable.setColumnAt(0, 89);
         storeable.setColumnAt(1, "cat");
         storeable.setColumnAt(2, false);
-        Assert.assertEquals(tableProvider.serialize(table, storeable), "<row><col>89</col><col>cat</col><col>false</col></row>");
+        Assert.assertEquals(tableProvider.serialize(table, storeable),
+                "<row><col>89</col><col>cat</col><col>false</col></row>");
     }
 
     @Test(expected = ColumnFormatException.class)

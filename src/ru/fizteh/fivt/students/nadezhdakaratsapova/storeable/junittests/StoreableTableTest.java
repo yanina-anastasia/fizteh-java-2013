@@ -10,7 +10,8 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTableProvider;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,7 +157,8 @@ public class StoreableTableTest {
             @Override
             public void run() {
                 try {
-                    dataTable.put("key", tableProvider.deserialize(dataTable, "<row><col>5</col><col>text</col></row>"));
+                    dataTable.put("key", tableProvider.deserialize(dataTable,
+                            "<row><col>5</col><col>text</col></row>"));
                     firstThreadFlag = (dataTable.commit() == 1);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(e.getMessage());
@@ -169,7 +171,8 @@ public class StoreableTableTest {
             @Override
             public void run() {
                 try {
-                    dataTable.put("key", tableProvider.deserialize(dataTable, "<row><col>5</col><col>text</col></row>"));
+                    dataTable.put("key", tableProvider.deserialize(dataTable,
+                            "<row><col>5</col><col>text</col></row>"));
                     secondThreadFlag = (dataTable.commit() == 1);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(e.getMessage());

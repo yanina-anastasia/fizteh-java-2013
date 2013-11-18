@@ -91,7 +91,8 @@ public class SignatureController {
         outputStream.close();
     }
 
-    public void checkValueForTable(int columnIndex, Table table, Storeable value) throws IndexOutOfBoundsException, ColumnFormatException {
+    public void checkValueForTable(int columnIndex, Table table, Storeable value) throws IndexOutOfBoundsException,
+            ColumnFormatException {
         StoreableColumnType.getStoreableField(columnIndex, value, table.getColumnType(columnIndex));
     }
 
