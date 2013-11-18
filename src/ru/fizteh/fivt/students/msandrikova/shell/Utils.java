@@ -275,6 +275,9 @@ public class Utils {
 			columnTypes.set(0, columnTypes.get(0).substring(1));
 		}
 		if(columnTypes.get(columnTypes.size() - 1).equals(")")) {
+			if(columnTypes.size() == 0) {
+				throw new IOException("Incorrect arguments amount");
+			}
 			columnTypes = columnTypes.subList(0, columnTypes.size() - 2);
 		} else {
 			String previous = columnTypes.get(columnTypes.size() - 1);
