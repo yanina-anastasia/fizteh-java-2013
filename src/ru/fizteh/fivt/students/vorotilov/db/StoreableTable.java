@@ -48,7 +48,6 @@ public class StoreableTable implements Table {
 
     private ThreadLocal<HashMap<String, Storeable>> localTable = new ThreadLocal<>();
     private ThreadLocal<List<LogEntry>> changes = new ThreadLocal<>();
-
     private ThreadLocal<Integer> localCommitNumber = new ThreadLocal<>();
     private AtomicInteger lastCommitNumber = new AtomicInteger(0);
 
@@ -459,6 +458,8 @@ public class StoreableTable implements Table {
     private void useLatestTable() {
         if (localCommitNumber.get() == null) {
             localCommitNumber.set(lastCommitNumber.get());
+            localTable.set(new HashMap<String, Storeable>(tableOnDisk));
+            changes.set(new ArrayList<LogEntry>());
         } else if (lastCommitNumber.get() != localCommitNumber.get()) {
             localTable.get().clear();
             localTable.get().putAll(tableOnDisk);
