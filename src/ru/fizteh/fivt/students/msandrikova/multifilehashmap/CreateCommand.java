@@ -19,7 +19,7 @@ public class CreateCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().isStoreable && argumentsList.length < 5) {
+		if(shell.getState().isStoreable && argumentsList.length < 4) {
 			System.out.println("wrong type (Incorrect arguments amount)");
 			return;
 		}
