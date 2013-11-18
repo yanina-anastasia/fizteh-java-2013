@@ -457,7 +457,9 @@ public class StoreableTable implements Table {
     }
 
     private void useLatestTable() {
-        if (lastCommitNumber.get() != localCommitNumber.get()) {
+        if (localCommitNumber.get() == null) {
+            localCommitNumber.set(lastCommitNumber.get());
+        } else if (lastCommitNumber.get() != localCommitNumber.get()) {
             localTable.get().clear();
             localTable.get().putAll(tableOnDisk);
             for (LogEntry i : changes.get()) {
