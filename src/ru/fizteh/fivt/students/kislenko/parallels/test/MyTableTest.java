@@ -236,6 +236,26 @@ public class MyTableTest {
     }
 
     @Test
+    public void testNonOp() throws Exception {
+        Value a = (Value) provider.deserialize(table, "[\"nonOp\",0]");
+        Value b = (Value) provider.deserialize(table, "[\"nonOp\",1]");
+        table.put("key", a);
+        table.commit();
+        table.put("key", a);
+        table.put("key", b);
+        Assert.assertEquals(1, table.commit());
+        table.put("key", b);
+        table.remove("key");
+        Assert.assertEquals(1, table.commit());
+        table.put("key", a);
+        Assert.assertEquals(1, table.commit());
+        table.remove("key");
+        Assert.assertEquals(1, table.commit());
+        table.remove("key");
+        Assert.assertEquals(0, table.commit());
+    }
+
+    @Test
     public void testMultiThreadPut() throws Exception {
         final AtomicReference<Storeable> ref1 = new AtomicReference<Storeable>();
         final AtomicReference<Storeable> ref2 = new AtomicReference<Storeable>();
