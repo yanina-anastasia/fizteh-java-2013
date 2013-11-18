@@ -142,22 +142,25 @@ abstract public class BasicTable<ElementType> {
 		Iterator<String> removeDiffIterator = removeDiff.get().iterator();
 		
 		readWriteLock.readLock().lock();
-	    while(removeDiffIterator.hasNext()) {
-	        String key = removeDiffIterator.next();
-	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
-	        	++changesNumber;
-	        }
-	    }
-	    for (String key: putDiff.get().keySet()) {
-	        try {
-	            if (!serialize((putDiff.get().get(key))).equals(serialize(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
-	                ++changesNumber;
-	            }
-	        } catch (IOException catchedException) {
-	            throw new WrongTypeException(catchedException.getMessage());
-	        }
-		}	
-	    readWriteLock.readLock().unlock();
+		try {
+		    while(removeDiffIterator.hasNext()) {
+		        String key = removeDiffIterator.next();
+		        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
+		            ++changesNumber;
+		        }
+		    }
+		    for (String key: putDiff.get().keySet()) {
+		        try {
+		            if (!serialize((putDiff.get().get(key))).equals(serialize(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
+		                ++changesNumber;
+		            }
+		        } catch (IOException catchedException) {
+		            throw new WrongTypeException(catchedException.getMessage());
+		        }
+		    }	
+		} finally {
+		    readWriteLock.readLock().unlock();
+		}
 	    
 		return changesNumber;
 	}

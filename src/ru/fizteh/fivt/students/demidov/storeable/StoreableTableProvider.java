@@ -29,37 +29,36 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 		}
 
 		providerLock.writeLock().lock();
-		if (tables.containsKey(name)) {
-			return null;
-		} else {
-			if (!(new File(root, name)).mkdir()) {
-				throw new IllegalStateException("unable to make directory " + name);
-			}
-			
-			try (PrintStream writtenSignature = new PrintStream(new File(root + File.separator + name, "signature.tsv"))) {
-				for (int column = 0; column < columnTypes.size(); ++column) {
-					if (column != 0) {
-						writtenSignature.print(" ");
-					}
-					Class<?> type = columnTypes.get(column);
-					if (type == null) {
-						throw new IllegalArgumentException("wrong column type");
-					}	
-					String typeName = null;
-					typeName = TypeName.getAppropriateName(type);
-
-					writtenSignature.print(typeName);
-				}
-			}
-			
-			try {
-				tables.put(name, new StoreableTable(root + File.separator + name, name, this, columnTypes));
-			} catch (IOException catchedException) {
-				throw new IllegalStateException(catchedException);
-			}
-		}	
-		
 		try {
+		    if (tables.containsKey(name)) {
+		        return null;
+		    } else {
+		        if (!(new File(root, name)).mkdir()) {
+		            throw new IllegalStateException("unable to make directory " + name);
+		        }
+		        
+		        try (PrintStream writtenSignature = new PrintStream(new File(root + File.separator + name, "signature.tsv"))) {
+		            for (int column = 0; column < columnTypes.size(); ++column) {
+		                if (column != 0) {
+		                    writtenSignature.print(" ");
+		                }
+		                Class<?> type = columnTypes.get(column);
+		                if (type == null) {
+		                    throw new IllegalArgumentException("wrong column type");
+		                }	
+		                String typeName = null;
+		                typeName = TypeName.getAppropriateName(type);
+
+		                writtenSignature.print(typeName);
+		            }
+			    }
+			
+			    try {
+				    tables.put(name, new StoreableTable(root + File.separator + name, name, this, columnTypes));
+			    } catch (IOException catchedException) {
+			        throw new IllegalStateException(catchedException);
+			    }
+		    }	
 			return tables.get(name);
 		} finally {
 			providerLock.writeLock().unlock();
@@ -98,13 +97,17 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 	}
 
 	public StoreableImplementation createFor(Table table, List<?> values) throws ColumnFormatException {
-	    providerLock.readLock().lock();	    
-		if (table.getColumnsCount() != values.size()) {
-			throw new IndexOutOfBoundsException();
-		}
-		StoreableImplementation builtStoreable = createFor(table);
-		
-		providerLock.readLock().unlock();
+	    StoreableImplementation builtStoreable = null;
+	    
+	    providerLock.readLock().lock();	   
+	    try {
+	        if (table.getColumnsCount() != values.size()) {
+	            throw new IndexOutOfBoundsException();
+	        }
+	        builtStoreable = createFor(table);
+	    } finally {		
+	        providerLock.readLock().unlock();
+	    }
 		
 		for (int column = 0; column < values.size(); ++column) {
 			builtStoreable.setColumnAt(column, values.get(column));

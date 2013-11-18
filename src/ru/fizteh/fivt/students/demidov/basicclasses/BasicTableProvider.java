@@ -45,13 +45,15 @@ abstract public class BasicTableProvider<TableType> {
 		
 		providerLock.writeLock().lock();
 		
-		if (!(tables.containsKey(name))) {
-			throw new IllegalStateException(name + " not exists");
+		try {
+		    if (!(tables.containsKey(name))) {
+		        throw new IllegalStateException(name + " not exists");
+		    }
+		    tables.remove(name);
+		    Utils.deleteFileOrDirectory(new File(root, name));
+		} finally {		
+		    providerLock.writeLock().unlock();
 		}
-		tables.remove(name);
-		Utils.deleteFileOrDirectory(new File(root, name));
-		
-		providerLock.writeLock().unlock();
 	}
 	
 	abstract public TableType createTable(String name);
