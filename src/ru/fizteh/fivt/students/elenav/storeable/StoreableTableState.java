@@ -385,7 +385,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 				startMap.put(pair.getKey(), pair.getValue());
 			}
 		} finally {
-			lock.writeLock().lock();
+			lock.writeLock().unlock();
 		}
 	}
 
