@@ -190,9 +190,10 @@ public class StoreableTable implements Table {
 
     @Override
     public int commit() {
+        int result = -1;
         try {
             transactionLock.lock();
-            int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
+            result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
             for (String key : removedKeys.get()) {
                 data.remove(key);
             }
@@ -202,16 +203,22 @@ public class StoreableTable implements Table {
             } catch (Exception exc) {
                 System.err.println("commit: " + exc.getMessage());
             }
-            setDefault();
-            return result;
         } finally {
             transactionLock.unlock();
         }
+        setDefault();
+        return result;
     }
 
     @Override
     public int rollback() {
-        int result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
+        int result = -1;
+        try {
+            transactionLock.lock();
+            result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
+        } finally {
+            transactionLock.unlock();
+        }
         setDefault();
         return result;
     }
