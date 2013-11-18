@@ -36,7 +36,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     private final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
     private AtomicBoolean isClosed = new AtomicBoolean (false);
 
-    public StorableTableProviderImp (Path location){
+    public StorableTableProviderImp (Path location) {
         this.location = location.toAbsolutePath ();
     }
 
@@ -54,7 +54,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
                 StorableTableImp table = new StorableTableImp (tableName, shape, this);
 
                 Map<String, String> diskValues = getTableFromDisk (tableDirectory.toFile ());
-                Map <String, Storeable> deserializedDiskValues = new HashMap<> ();
+                Map<String, Storeable> deserializedDiskValues = new HashMap<> ();
                 for (Map.Entry<String, String> entry : diskValues.entrySet ()) {
                     deserializedDiskValues.put (entry.getKey (), deserialize (table, entry.getValue ()));
                 }
@@ -63,7 +63,8 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             }
             catch (IOException | ParseException e) {
                 throw new WrappedIOException ();
-            } finally {
+            }
+            finally {
                 databaseKeeper.writeLock ().unlock ();
             }
         } else {
@@ -75,18 +76,23 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     public Table getTable (String name) {
         isClosedCheck ();
         validTableNameCheck (name);
-        if (!tables.containsKey (name)) {
-            loadTable (name);
+        try {
+            databaseKeeper.readLock ().lock ();
+            if (!tables.containsKey (name)) {
+                loadTable (name);
+            }
+            return tables.get (name);
         }
-        return tables.get (name);
+        finally {
+           databaseKeeper.readLock ().unlock ();
+        }
     }
 
     void commitTable (StorableTableImp table) {
         Path tableDirectory = tableDirectory (table.getName ());
-
-        Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
         try {
             databaseKeeper.writeLock ().lock ();
+            Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
             Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
             rewriteFilesThatChanged (tableDirectory, entriesToWrite (table), filesThatChanged);
 
@@ -95,7 +101,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             throw new WrappedIOException ();
         }
         finally {
-           databaseKeeper.writeLock ().unlock ();
+            databaseKeeper.writeLock ().unlock ();
         }
 
     }
@@ -278,16 +284,16 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     Map<String, String> entriesToWrite (StorableTableImp table) {
         Map<String, String> serialized = new HashMap<> ();
         for (Map.Entry<String, Storeable> entry : table.entriesThatChanged ().entrySet ()) {
-                    serialized.put (entry.getKey (), serialize (table, entry.getValue ()));
-                }
-                return serialized;
-            }
+            serialized.put (entry.getKey (), serialize (table, entry.getValue ()));
+        }
+        return serialized;
+    }
 
     @Override
     public void close () throws IOException {
         try {
             databaseKeeper.writeLock ().lock ();
-            for (StorableTableImp table: tables.values ()) {
+            for (StorableTableImp table : tables.values ()) {
                 table.close ();
             }
         }
