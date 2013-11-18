@@ -132,8 +132,8 @@ public abstract class AbstractTable<ValueType> {
 
         if (oldValue != null) {
             removedEntries.put(key, oldValue);
+            changedEntries.remove(key);
         }
-        changedEntries.remove(key);
 
         return oldValue;
     }
