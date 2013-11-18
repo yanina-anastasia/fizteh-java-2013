@@ -230,7 +230,7 @@ public class StoreableTableParallelTest {
 
             	table.put("key1", val1);
 
-                Assert.assertEquals("diff incorrect", 0, table.rollback());
+                Assert.assertEquals("change doubled", 0, table.rollback());
             }
         };
 
