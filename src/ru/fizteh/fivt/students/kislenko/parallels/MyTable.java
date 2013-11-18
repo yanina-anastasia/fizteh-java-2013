@@ -135,6 +135,10 @@ public class MyTable implements Table {
                 copyOfValue.setColumnAt(i, value.getColumnAt(i));
             }
             changes.get().put(copyOfKey, copyOfValue);
+            if (fuckingDiff.get().containsKey(key)
+                    && provider.serialize(this, fuckingDiff.get().get(key)).equals(value)) {
+                fuckingDiff.get().remove(key);
+            }
             if (storage.get(key) != null &&
                     provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
                 changes.get().remove(key);
@@ -165,6 +169,9 @@ public class MyTable implements Table {
             uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
             Storeable v = get(key);
             changes.get().put(key, null);
+            if (fuckingDiff.get().containsKey(key) && fuckingDiff.get().get(key) != null) {
+                fuckingDiff.get().remove(key);
+            }
             if (storage.get(key) == null) {
                 changes.get().remove(key);
                 fuckingDiff.get().put(key, null);
